@@ -1,0 +1,130 @@
+<template>
+  <div v-if="data" class="flex flex-col">
+    <div>
+      <template v-if="showHeader">
+        <label for="add_team_members" class="block text-sm font-medium text-gray-700">
+          Add collaborator
+        </label>
+        <p class="mt-1 text-sm text-gray-500">
+          Invite a collaborator to <strong>{{ data.codebase.name }}</strong> using the email address
+          of their Sturdy-account
+        </p>
+      </template>
+      <p id="add_team_members_helper" class="sr-only">Search by email address</p>
+      <div class="flex mt-1">
+        <div class="flex-grow">
+          <input
+            id="add_team_members"
+            v-model="inviteUserEmail"
+            type="text"
+            name="add_team_members"
+            class="block w-full shadow-sm focus:ring-light-blue-500 focus:border-light-blue-500 sm:text-sm border-gray-300 rounded-md"
+            placeholder="Email address"
+            aria-describedby="add_team_members_helper"
+            @keydown.enter="inviteMember"
+          />
+        </div>
+        <span class="ml-3">
+          <button
+            type="button"
+            class="bg-white inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-blue-500"
+            @click.stop.prevent="inviteMember"
+          >
+            <PlusIcon class="-ml-2 mr-1 h-5 w-5 text-gray-400" />
+            <span>Add</span>
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <p>{{ inviteMemberStatus }}</p>
+
+    <div class="border-b border-gray-200">
+      <ul class="divide-y divide-gray-200">
+        <li v-for="member in data.codebase.members" :key="member.id" class="py-4 flex">
+          <Avatar :author="member" size="10" />
+          <div class="ml-3 flex flex-col">
+            <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
+            <span class="text-sm text-gray-500">{{ member.email }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+import http from '../../http'
+import { PlusIcon } from '@heroicons/vue/solid'
+import Avatar from '../shared/Avatar.vue'
+import { gql, useQuery } from '@urql/vue'
+
+export default {
+  name: 'CodebaseSettings',
+  components: { PlusIcon, Avatar },
+  props: ['codebaseID', 'showHeader'],
+  setup(props) {
+    let { data, executeQuery } = useQuery({
+      query: gql`
+        query CodebaseInviteMembers($id: ID, $shortID: ID) {
+          codebase(id: $id, shortID: $shortID) {
+            id
+            name
+            members {
+              id
+              email
+              name
+              avatarUrl
+            }
+          }
+        }
+      `,
+      variables: {
+        id: props.codebaseID,
+      },
+      requestPolicy: 'cache-and-network',
+    })
+
+    return {
+      data,
+      refresh: () => {
+        executeQuery({
+          requestPolicy: 'network-only',
+        })
+      },
+    }
+  },
+  data() {
+    return {
+      inviteUserEmail: '', // Form model
+      inviteMemberStatus: '', // Form status message
+    }
+  },
+  methods: {
+    inviteMember() {
+      fetch(http.url('v3/codebases/' + this.codebaseID + '/invite'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_email: this.inviteUserEmail,
+        }),
+        credentials: 'include',
+      })
+        .then(http.checkStatus)
+        .then((response) => response.json())
+        .then(() => {
+          this.inviteMemberStatus = 'The user was added!'
+          this.inviteUserEmail = ''
+          this.refresh()
+        })
+        .catch((err) => {
+          if (err.response.status === 400) {
+            this.inviteMemberStatus = 'The user is not yet on Sturdy'
+          } else {
+            this.inviteMemberStatus = 'Something went wrong.'
+          }
+        })
+    },
+  },
+}
+</script>

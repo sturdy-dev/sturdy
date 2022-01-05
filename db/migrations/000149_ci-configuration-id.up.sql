@@ -1,0 +1,2 @@
+ALTER TABLE ci_configurations
+    ADD COLUMN id TEXT NOT NULL PRIMARY KEY;

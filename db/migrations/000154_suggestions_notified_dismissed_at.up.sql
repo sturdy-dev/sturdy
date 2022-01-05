@@ -1,0 +1,3 @@
+ALTER TABLE suggestions_v2
+    ADD COLUMN dismissed_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN notified_at  TIMESTAMP WITH TIME ZONE;

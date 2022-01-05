@@ -1,0 +1,34 @@
+<mjml>
+
+  <mj-body>
+    <mj-section padding="0" padding-top="20px">
+      <mj-column>
+        <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+        <mj-divider border-color="#FBBF24"></mj-divider>
+
+        <mj-text font-size="14px" color="#222" font-family="helvetica">
+          Hi {{ .User.Name | defaultString "there" }},<br /><br />
+
+          Please confirm your email address
+        </mj-text>
+
+        <mj-text>You confirmation code is below. Paste it into the browser to sign in.</mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <mj-hero background-color="#f4f4f4">
+      <mj-text font-size="20px" align="center">{{ .Code }}</mj-text>
+    </mj-hero>
+
+    <mj-section padding="0" padding-top="20px">
+      <mj-column>
+        <mj-text>If you didn't request this email, you can safely ignore it.</mj-text>
+
+        <mj-text font-size="14px" color="#222" font-family="helvetica">
+          Thank you,<br><strong>Team Sturdy</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

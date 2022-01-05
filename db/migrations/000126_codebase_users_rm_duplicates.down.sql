@@ -1,0 +1,1 @@
+DROP INDEX codebase_users_user_id_codebase_id_uq_idx;

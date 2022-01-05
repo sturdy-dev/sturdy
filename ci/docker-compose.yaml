@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  runner:
+    build:
+      context: ..
+      dockerfile: ci/Dockerfile
+    volumes:
+      - ../:/app
+      - go-modules:/go/pkg/mod
+    working_dir: /app
+
+volumes:
+  go-modules:

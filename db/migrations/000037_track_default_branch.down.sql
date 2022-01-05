@@ -1,0 +1,1 @@
+ALTER TABLE github_app_installed_repositories DROP COLUMN default_branch;

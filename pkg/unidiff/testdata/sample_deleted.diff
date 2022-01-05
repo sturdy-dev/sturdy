@@ -1,0 +1,10 @@
+diff --git a/bar b/bar
+deleted file mode 100644
+index a1f8944..0000000
+--- a/bar
++++ /dev/null
+@@ -1,4 +0,0 @@
+-foo
+-foo
+-foo
+-foo

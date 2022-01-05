@@ -1,0 +1,1 @@
+ALTER TABLE github_app_installations DROP COLUMN uninstalled_at;

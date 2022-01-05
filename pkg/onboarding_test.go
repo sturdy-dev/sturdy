@@ -1,0 +1,1042 @@
+package pkg_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io/ioutil"
+	gqldataloader "mash/pkg/graphql/dataloader"
+	graphql_user "mash/pkg/user/graphql"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path"
+	"testing"
+	"time"
+
+	"mash/db"
+	"mash/pkg/auth"
+	service_auth "mash/pkg/auth/service"
+	graphql_author "mash/pkg/author/graphql"
+	db_change "mash/pkg/change/db"
+	graphql_change "mash/pkg/change/graphql"
+	service_change "mash/pkg/change/service"
+	workers_ci "mash/pkg/ci/workers"
+	"mash/pkg/codebase"
+	db_codebase "mash/pkg/codebase/db"
+	graphql_codebase "mash/pkg/codebase/graphql"
+	routes_v3_codebase "mash/pkg/codebase/routes"
+	service_codebase "mash/pkg/codebase/service"
+	db_comments "mash/pkg/comments/db"
+	service_comments "mash/pkg/comments/service"
+	"mash/pkg/github/config"
+	db_github "mash/pkg/github/db"
+	service_github "mash/pkg/github/service"
+	workers_github "mash/pkg/github/workers"
+	"mash/pkg/graphql/resolvers"
+	"mash/pkg/internal/sturdytest"
+	"mash/pkg/notification/sender"
+	"mash/pkg/posthog"
+	"mash/pkg/queue"
+	db_review "mash/pkg/review/db"
+	graphql_review "mash/pkg/review/graphql"
+	db_snapshots "mash/pkg/snapshots/db"
+	"mash/pkg/snapshots/snapshotter"
+	worker_snapshots "mash/pkg/snapshots/worker"
+	db_statuses "mash/pkg/statuses/db"
+	graphql_statuses "mash/pkg/statuses/graphql"
+	service_statuses "mash/pkg/statuses/service"
+	db_suggestion "mash/pkg/suggestions/db"
+	service_suggestion "mash/pkg/suggestions/service"
+	"mash/pkg/unidiff"
+	"mash/pkg/user"
+	db_user "mash/pkg/user/db"
+	service_user "mash/pkg/user/service"
+	"mash/pkg/view"
+	db_view "mash/pkg/view/db"
+	"mash/pkg/view/events"
+	graphql_view "mash/pkg/view/graphql"
+	routes_v3_view "mash/pkg/view/routes"
+	"mash/pkg/view/view_workspace_snapshot"
+	"mash/pkg/workspace"
+	db_activity "mash/pkg/workspace/activity/db"
+	activity_sender "mash/pkg/workspace/activity/sender"
+	service_activity "mash/pkg/workspace/activity/service"
+	db_workspace "mash/pkg/workspace/db"
+	graphql_workspace "mash/pkg/workspace/graphql"
+	ws_meta "mash/pkg/workspace/meta"
+	routes_v3_workspace "mash/pkg/workspace/routes"
+	service_workspace "mash/pkg/workspace/service"
+	db_workspace_watchers "mash/pkg/workspace/watchers/db"
+	graphql_workspace_watchers "mash/pkg/workspace/watchers/graphql"
+	service_workspace_watchers "mash/pkg/workspace/watchers/service"
+	vcsvcs "mash/vcs"
+	"mash/vcs/executor"
+	"mash/vcs/provider"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/graph-gophers/graphql-go"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+)
+
+var (
+	allFilesAllowed, _ = unidiff.NewAllower("*")
+)
+
+func TestCreate(t *testing.T) {
+	if os.Getenv("E2E_TEST") == "" {
+		t.SkipNow()
+	}
+
+	reposBasePath := os.TempDir()
+	repoProvider := provider.New(reposBasePath, "localhost:8888")
+
+	d, err := db.Setup(
+		sturdytest.PsqlDbSourceForTesting(),
+		true,
+		"file://../db/migrations",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := zap.NewNop()
+	postHogClient := posthog.NewFakeClient()
+
+	userRepo := db_user.NewRepo(d)
+	codebaseRepo := db_codebase.NewRepo(d)
+	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
+	workspaceRepo := db_workspace.NewRepo(d)
+	viewRepo := db_view.NewRepo(d)
+	changeRepo := db_change.NewRepo(d)
+	changeCommitRepo := db_change.NewCommitRepository(d)
+	snapshotRepo := db_snapshots.NewRepo(d)
+	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
+	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
+	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
+	commentRepo := db_comments.NewRepo(d)
+	workspaceActivityRepo := db_activity.NewActivityRepo(d)
+	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
+	viewEvents := events.NewInMemory()
+	executorProvider := executor.NewProvider(logger, repoProvider)
+	viewWorkspaceSnapshotsRepo := view_workspace_snapshot.NewRepo(d)
+	reviewRepo := db_review.NewReviewRepository(d)
+	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, viewEvents)
+	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
+	snapshotPublisher := worker_snapshots.NewSync(gitSnapshotter)
+	activityService := service_activity.New(workspaceActivityReadsRepo, eventsSender)
+	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
+	suggestionRepo := db_suggestion.New(d)
+	notificationSender := sender.NewNoopNotificationSender()
+
+	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
+	commentsService := service_comments.New(commentRepo)
+	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	gitHubService := service_github.New(
+		logger,
+		gitHubRepositoryRepo,
+		gitHubInstallationRepo,
+		nil, // gitHubUserRepo
+		nil, // gitHubPullRequestRepo
+		config.GitHubAppConfig{},
+		nil, // gitHubClientProvider
+		nil, // gitHubPersonalClientProvider
+		workers_github.NopImporter(),
+		workers_github.NopCloner(),
+		workspaceWriter,
+		workspaceRepo,
+		codebaseUserRepo,
+		nil, // codebaseRepo
+		executorProvider,
+		gitSnapshotter,
+		nil, // postHogClient
+		nil, // notificationSender
+		nil, // eventsSender
+		nil, // userService
+	)
+
+	queue := queue.NewNoop()
+	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
+
+	workspaceService := service_workspace.New(
+		logger,
+		postHogClient,
+
+		workspaceWriter,
+		workspaceRepo,
+
+		userRepo,
+		reviewRepo,
+
+		commentsService,
+		changeService,
+		gitHubService,
+
+		activitySender,
+		executorProvider,
+		eventsSender,
+		snapshotPublisher,
+		gitSnapshotter,
+		buildQueue,
+	)
+
+	suggestionsService := service_suggestion.New(
+		logger,
+		suggestionRepo,
+		workspaceService,
+		executorProvider,
+		gitSnapshotter,
+		postHogClient,
+		notificationSender,
+		eventsSender,
+	)
+
+	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+
+	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
+	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
+	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, postHogClient, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventsSender)
+
+	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)
+	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
+	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
+
+	reviewRootResolver := graphql_review.New(
+		logger,
+		reviewRepo,
+		nil,
+		authService,
+		nil,
+		nil,
+		eventsSender,
+		viewEvents,
+		nil,
+		nil,
+		workspaceWatchersService,
+	)
+
+	statusesRepo := db_statuses.New(d)
+	statusesServcie := service_statuses.New(logger, statusesRepo, eventsSender)
+	statusesRootResolver := new(resolvers.StatusesRootResolver)
+
+	workspaceRootResolver := graphql_workspace.NewResolver(
+		workspaceRepo,
+		codebaseRepo,
+		viewRepo,
+		nil, // commentRepo
+		nil, // snapshotRepo
+		nil, // codebaseResolver
+		nil, // authorResolver
+		nil, // viewResolver
+		nil, // commentResolver
+		nil, // prResolver
+		nil, // changeResolver
+		nil, // workspaceActivityResolver
+		&reviewRootResolver,
+		nil, // presenseRootResolver
+		nil, // suggestitonsRootResolver
+		statusesRootResolver,
+		workspaceWatchersRootResolver,
+		suggestionsService,
+		workspaceService,
+		authService,
+		logger,
+		viewEvents,
+		workspaceWriter,
+		executorProvider,
+		eventsSender,
+		gitSnapshotter,
+	)
+
+	*workspaceWatchersRootResolver = graphql_workspace_watchers.NewRootResolver(
+		logger,
+		workspaceWatchersService,
+		workspaceService,
+		authService,
+		viewEvents,
+		nil,
+		&workspaceRootResolver,
+	)
+
+	viewRootResolver := graphql_view.NewResolver(
+		viewRepo,
+		workspaceRepo,
+		gitSnapshotter,
+		viewWorkspaceSnapshotsRepo,
+		snapshotRepo,
+		nil,
+		nil,
+		workspaceWriter,
+		viewEvents,
+		eventsSender,
+		executorProvider,
+		logger,
+		nil,
+		workspaceWatchersService,
+		postHogClient,
+		nil,
+		authService,
+	)
+
+	authorRootResolver := graphql_author.NewResolver(userRepo, logger)
+
+	changeRootResolver := graphql_change.NewResolver(
+		changeService,
+		changeRepo,
+		changeCommitRepo,
+		nil, // commentsRepo
+		authService,
+		nil, // commentResolver
+		&authorRootResolver,
+		statusesRootResolver,
+		executorProvider,
+		logger,
+	)
+
+	*statusesRootResolver = graphql_statuses.New(
+		logger,
+		statusesServcie,
+		changeService,
+		workspaceService,
+		authService,
+		gitHubPRRepo,
+		&changeRootResolver,
+		nil, // github pr resolver
+		viewEvents,
+	)
+
+	codebaseRootResolver := graphql_codebase.NewResolver(
+		codebaseRepo,
+		codebaseUserRepo,
+		viewRepo,
+		workspaceRepo,
+		userRepo,
+		changeRepo,
+		changeCommitRepo,
+		nil,
+		&authorRootResolver,
+		nil,
+		nil,
+		nil,
+		&changeRootResolver,
+		nil,
+		nil, // instantIntegrationRootResolver
+		logger,
+		nil,
+		nil,
+		postHogClient,
+		executorProvider,
+		authService,
+	)
+
+	userRootResolver := graphql_user.NewResolver(
+		userRepo,
+		nil,
+		nil,
+		userService,
+		&viewRootResolver,
+		nil,
+		logger,
+	)
+
+	createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	assert.NoError(t, userRepo.Create(&createUser))
+
+	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID}))
+
+	// Create a codebase
+	var codebaseRes codebase.Codebase
+	request(t, createUser.ID, createCodebaseRoute, routes_v3_codebase.CreateRequest{Name: "testrepo"}, &codebaseRes)
+	assert.Len(t, codebaseRes.ID, 36)
+	assert.Equal(t, "testrepo", codebaseRes.Name)
+	assert.True(t, codebaseRes.IsReady, "codebase is ready")
+
+	// Create a workspace
+	var workspaceRes workspace.Workspace
+	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
+		CodebaseID: codebaseRes.ID,
+	}, &workspaceRes)
+	assert.Len(t, workspaceRes.ID, 36)
+
+	// Create a view
+	var viewRes view.View
+	request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
+		CodebaseID:    codebaseRes.ID,
+		WorkspaceID:   workspaceRes.ID,
+		MountPath:     "~/testing",
+		MountHostname: "testing.ftw",
+	}, &viewRes)
+	assert.Len(t, viewRes.ID, 36)
+	assert.True(t, viewRes.CreatedAt.After(time.Now().Add(time.Second*-5)))
+
+	// Make more changes to test.txt
+	viewPath := repoProvider.ViewPath(codebaseRes.ID, viewRes.ID)
+
+	t.Logf("viewPath=%s", viewPath)
+
+	// Make changes in the view
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("hello\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err := workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs := []unidiff.FileDiff{{OrigName: "/dev/null", NewName: "test.txt", PreferredName: "test.txt", IsNew: true, Hunks: []unidiff.Hunk{
+		{
+			ID:    "edc5f8dc6b69a14eefbdc56d830c44faf08d41ea6a370f4e0252b02906946991",
+			Patch: "diff --git /dev/null \"b/test.txt\"\nnew file mode 100644\nindex 0000000..ce01362\n--- /dev/null\n+++ \"b/test.txt\"\n@@ -0,0 +1,1 @@\n+hello\n",
+		},
+	}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Set workspace draft description
+	_, err = workspaceRootResolver.UpdateWorkspace(authenticatedUserContext, resolvers.UpdateWorkspaceArgs{Input: resolvers.UpdateWorkspaceInput{
+		ID:               graphql.ID(workspaceRes.ID),
+		DraftDescription: str("This is my first change"),
+	}})
+	assert.NoError(t, err)
+
+	// Apply and land
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Get changelog in codebase
+	cid := graphql.ID(codebaseRes.ID)
+	codebaseResolver, err := codebaseRootResolver.Codebase(authenticatedUserContext, resolvers.CodebaseArgs{ID: &cid})
+	assert.NoError(t, err)
+	changes, err := codebaseResolver.Changes(authenticatedUserContext, nil)
+	assert.NoError(t, err)
+	if assert.Len(t, changes, 1) {
+		assert.Equal(t, "This is my first change", changes[0].Description())
+		author, err := changes[0].Author(authenticatedUserContext)
+		assert.NoError(t, err)
+		assert.Equal(t, createUser.ID, string(author.ID()))
+	}
+
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt", Hunks: []unidiff.Hunk{
+		{
+			ID:    "fc85a16f432f111d2fc38572a4207c28547b03efcc629aabbd96021d773d9460",
+			Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex ce01362..0edb856 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -1,1 +1,26 @@\n-hello\n+a\n+b\n+c\n+d\n+e\n+f\n+g\n+h\n+i\n+j\n+k\n+l\n+m\n+n\n+o\n+p\n+q\n+r\n+s\n+t\n+u\n+v\n+w\n+x\n+y\n+z\n",
+		},
+	}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Apply and land
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Make changes to two parts of the file (early and late), expect two hunks
+	// The row "d" is deleted, and "t" is replaced with "ttt"
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("a\nb\nc\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nttt\nu\nv\nw\nx\ny\nz\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
+		Hunks: []unidiff.Hunk{
+			{ID: "9e8e97e972ee7e13b80776480da86335e0c8635d675fb446a216c1aa40ece79e", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..9389e12 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -1,7 +1,6 @@\n a\n b\n c\n-d\n e\n f\n g\n"},
+			{ID: "7b6e4538c0b1c2ffe0a38164ee1be3b6e547c7cacef149efaca9be8241f0b60c", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..9389e12 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -17,7 +16,7 @@ p\n q\n r\n s\n-t\n+ttt\n u\n v\n w\n"},
+		}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Undo the second hunk
+	_, err = workspaceRootResolver.RemovePatches(authenticatedUserContext, resolvers.RemovePatchesArgs{Input: resolvers.RemovePatchesInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		HunkIDs:     []string{diffs[0].Hunks[1].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
+		Hunks: []unidiff.Hunk{
+			{ID: "00755ee69c4365ed7304f1e1bc515cf5fef3e22cd89a28c15e635c7faae7888c", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..215f140 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -1,7 +1,6 @@\n a\n b\n c\n-d\n e\n f\n g\n"},
+		}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Edit the file so that there are 3 hunks
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("aaaa\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nlll\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nzzz\n"), 0o666)
+	assert.NoError(t, err)
+
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
+		Hunks: []unidiff.Hunk{
+			{ID: "7e412eedbb31eb4a13695ee490fd5a4fe39f6f33611fe77a5feabf2ffa4ed8d0", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -1,4 +1,4 @@\n-a\n+aaaa\n b\n c\n d\n"},
+			{ID: "b500f195ce7c53ad9324bcab5065393858f85675ad760b888270a32f2fd82345", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -9,7 +9,7 @@ h\n i\n j\n k\n-l\n+lll\n m\n n\n o\n"},
+			{ID: "98ce5f04a5f07d7faf61d479ee51a8876c43d738d74403753f442b762cf5942d", Patch: "diff --git \"a/test.txt\" \"b/test.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test.txt\"\n@@ -23,4 +23,4 @@ v\n w\n x\n y\n-z\n+zzz\n"},
+		}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Move the file
+	err = os.Rename(path.Join(viewPath, "test.txt"), path.Join(viewPath, "test-2.txt"))
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test-2.txt", PreferredName: "test-2.txt", IsMoved: true,
+		Hunks: []unidiff.Hunk{
+			{ID: "24bf7f7b8adff226351e7e836e057de609b1ed8b8468994e29da7b4ea35f5a9b", Patch: "diff --git \"a/test.txt\" \"b/test-2.txt\"\nsimilarity index 88%\nrename from \"test.txt\"\nrename to \"test-2.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test-2.txt\"\n@@ -1,4 +1,4 @@\n-a\n+aaaa\n b\n c\n d\n"},
+			{ID: "d47efdcc630a8132e06bfb983274e8a2e0be8730cfbc50b7282655c34eb0574c", Patch: "diff --git \"a/test.txt\" \"b/test-2.txt\"\nsimilarity index 88%\nrename from \"test.txt\"\nrename to \"test-2.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test-2.txt\"\n@@ -9,7 +9,7 @@ h\n i\n j\n k\n-l\n+lll\n m\n n\n o\n"},
+			{ID: "14cd042cd4c5de65164c85c8865cdddd18c7ce9afd3e93ae2ac6f50f7647a782", Patch: "diff --git \"a/test.txt\" \"b/test-2.txt\"\nsimilarity index 88%\nrename from \"test.txt\"\nrename to \"test-2.txt\"\nindex 0edb856..da65dab 100644\n--- \"a/test.txt\"\n+++ \"b/test-2.txt\"\n@@ -23,4 +23,4 @@ v\n w\n x\n y\n-z\n+zzz\n"},
+		}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Apply and land
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID, diffs[0].Hunks[1].ID, diffs[0].Hunks[2].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Move file without edits
+	err = os.Rename(path.Join(viewPath, "test-2.txt"), path.Join(viewPath, "test-3.txt"))
+	assert.NoError(t, err)
+
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	expectedDiffs = []unidiff.FileDiff{{OrigName: "test-2.txt", NewName: "test-3.txt", PreferredName: "test-3.txt", IsMoved: true,
+		Hunks: []unidiff.Hunk{
+			{ID: "b477342d7b12a211ec83fbdc9bf9fb259903046c1ed76050683b503eb36ae69d", Patch: "diff --git \"a/test-2.txt\" \"b/test-3.txt\"\nsimilarity index 100%\nrename from \"test-2.txt\"\nrename to \"test-3.txt\"\n"},
+		}}}
+	assert.Equal(t, expectedDiffs, diffs)
+
+	// Apply and land
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Make changes with conflicts, attempting to land should fail gracefully
+	// Create a workspace
+	var secondWorkspaceRes workspace.Workspace
+	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
+		CodebaseID: codebaseRes.ID,
+	}, &secondWorkspaceRes)
+	assert.Len(t, secondWorkspaceRes.ID, 36)
+
+	// Make a change in the first workspace (it's still checked out)
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("aaaaa\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	assert.NoError(t, err)
+	assert.Len(t, diffs, 1)
+	assert.Len(t, diffs[0].Hunks, 1)
+
+	// Apply and land
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID},
+	}})
+	assert.NoError(t, err)
+
+	// Checkout the new workspace
+	_, err = viewRootResolver.OpenWorkspaceOnView(authenticatedUserContext, resolvers.OpenViewArgs{Input: resolvers.OpenWorkspaceOnViewInput{
+		WorkspaceID: graphql.ID(secondWorkspaceRes.ID),
+		ViewID:      graphql.ID(viewRes.ID),
+	}})
+	assert.NoError(t, err)
+
+	// make changes in the second workspace and try to land it
+	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("bbbbb\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	diffs, _, err = workspaceService.Diffs(context.Background(), secondWorkspaceRes.ID)
+	assert.NoError(t, err)
+	assert.Len(t, diffs, 1)
+	assert.Len(t, diffs[0].Hunks, 1)
+
+	// Apply and land, this should fail!
+	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(secondWorkspaceRes.ID),
+		PatchIDs:    []string{diffs[0].Hunks[0].ID},
+	}})
+	assert.Error(t, err)
+
+	// The diffs should not have changed (no change should have been created)
+	diffsAfterFailedLand, _, err := workspaceService.Diffs(context.Background(), secondWorkspaceRes.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, diffs, diffsAfterFailedLand)
+
+	// Switch to the original workspace
+	_, err = viewRootResolver.OpenWorkspaceOnView(authenticatedUserContext, resolvers.OpenViewArgs{Input: resolvers.OpenWorkspaceOnViewInput{
+		WorkspaceID: graphql.ID(workspaceRes.ID),
+		ViewID:      graphql.ID(viewRes.ID),
+	}})
+	assert.NoError(t, err)
+
+	var contents = []string{
+		"this\nis\na\nfile\naaaaaa",
+		"this\nis\na\nfile\naaaaaa\n",
+		"this\nis\na\nfile\naaaaaa",
+		"this\nis\na\nfile\naaaaaa\n",
+		"this\nis\na\nfile\naaaaaa",
+		"this\r\nis\r\na\r\nfile\r\naaaaaa\r\n",
+		"this\r\nis\r\na\r\nfile\r\naaaaaa",
+		"this\r\nis\r\na\r\nfile\r\naaaaaa\r\n",
+	}
+
+	for _, cont := range contents {
+		// Remove the trailing newline in test.txt
+		err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte(cont), 0o666)
+		assert.NoError(t, err)
+
+		// Get diff
+		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+		assert.NoError(t, err)
+		t.Logf("diffs=%+v", diffs)
+		assert.Len(t, diffs, 1)
+		assert.Len(t, diffs[0].Hunks, 1)
+
+		// Apply and land
+		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+			WorkspaceID: graphql.ID(workspaceRes.ID),
+			PatchIDs:    []string{diffs[0].Hunks[0].ID},
+		}})
+		assert.NoError(t, err)
+	}
+
+	// List views for user
+	userResolver, err := userRootResolver.User(authenticatedUserContext)
+	assert.NoError(t, err)
+	allUserViews, err := userResolver.Views()
+	assert.NoError(t, err)
+	assert.Len(t, allUserViews, 1)
+}
+
+func TestLargeFiles(t *testing.T) {
+	if os.Getenv("E2E_TEST") == "" {
+		t.SkipNow()
+	}
+
+	lsfHostname := "localhost:8888"
+	if n := os.Getenv("E2E_LFS_HOSTNAME"); n != "" {
+		lsfHostname = n
+	}
+
+	reposBasePath := os.TempDir()
+	repoProvider := provider.New(reposBasePath, lsfHostname)
+
+	d, err := db.Setup(
+		sturdytest.PsqlDbSourceForTesting(),
+		true,
+		"file://../db/migrations",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	logger, _ := zap.NewDevelopment()
+	postHogClient := posthog.NewFakeClient()
+
+	userRepo := db_user.NewRepo(d)
+	codebaseRepo := db_codebase.NewRepo(d)
+	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
+	workspaceRepo := db_workspace.NewRepo(d)
+	viewRepo := db_view.NewRepo(d)
+	changeRepo := db_change.NewRepo(d)
+	changeCommitRepo := db_change.NewCommitRepository(d)
+	snapshotRepo := db_snapshots.NewRepo(d)
+	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
+	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
+	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
+	commentRepo := db_comments.NewRepo(d)
+	workspaceActivityRepo := db_activity.NewActivityRepo(d)
+	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
+	viewEvents := events.NewInMemory()
+	executorProvider := executor.NewProvider(logger, repoProvider)
+	reviewRepo := db_review.NewReviewRepository(d)
+	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, viewEvents)
+	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
+	snapshotPublisher := worker_snapshots.NewSync(gitSnapshotter)
+	activityService := service_activity.New(workspaceActivityReadsRepo, eventsSender)
+	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
+	suggestionRepo := db_suggestion.New(d)
+	notificationSender := sender.NewNoopNotificationSender()
+	commentsService := service_comments.New(commentRepo)
+	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+
+	queue := queue.NewNoop()
+	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
+
+	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
+
+	gitHubService := service_github.New(
+		logger,
+		gitHubRepositoryRepo,
+		gitHubInstallationRepo,
+		nil, // gitHubUserRepo
+		nil, // gitHubPullRequestRepo
+		config.GitHubAppConfig{},
+		nil, // gitHubClientProvider
+		nil, // gitHubPersonalClientProvider
+		workers_github.NopImporter(),
+		workers_github.NopCloner(),
+		workspaceWriter,
+		workspaceRepo,
+		codebaseUserRepo,
+		nil, // codebaseRepo
+		executorProvider,
+		gitSnapshotter,
+		nil, // postHogClient
+		nil, // notificationSender
+		nil, // eventsSender
+		nil, // userService
+	)
+
+	workspaceService := service_workspace.New(
+		logger,
+		postHogClient,
+
+		workspaceWriter,
+		workspaceRepo,
+
+		userRepo,
+		reviewRepo,
+
+		commentsService,
+		changeService,
+		gitHubService,
+
+		activitySender,
+		executorProvider,
+		eventsSender,
+		snapshotPublisher,
+		gitSnapshotter,
+		buildQueue,
+	)
+
+	suggestionsService := service_suggestion.New(
+		logger,
+		suggestionRepo,
+		workspaceService,
+		executorProvider,
+		gitSnapshotter,
+		postHogClient,
+		notificationSender,
+		eventsSender,
+	)
+
+	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+
+	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
+	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
+	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, postHogClient, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventsSender)
+
+	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)
+	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
+	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
+
+	reviewRootResolver := graphql_review.New(
+		logger,
+		reviewRepo,
+		nil,
+		authService,
+		nil,
+		nil,
+		eventsSender,
+		viewEvents,
+		nil,
+		activitySender,
+		workspaceWatchersService,
+	)
+
+	statusesRepo := db_statuses.New(d)
+	statusesServcie := service_statuses.New(logger, statusesRepo, eventsSender)
+	statusesRootResolver := new(resolvers.StatusesRootResolver)
+
+	changeRootResolver := graphql_change.NewResolver(
+		changeService,
+		changeRepo,
+		changeCommitRepo,
+		nil, // commentsRepo
+		authService,
+		nil, // commentsResolver
+		nil, // authorRootResolver
+		statusesRootResolver,
+		executorProvider,
+		logger,
+	)
+
+	*statusesRootResolver = graphql_statuses.New(
+		logger,
+		statusesServcie,
+		changeService,
+		workspaceService,
+		authService,
+		gitHubPRRepo,
+		&changeRootResolver,
+		nil, // githubpr resolver
+		viewEvents,
+	)
+
+	workspaceRootResolver := graphql_workspace.NewResolver(
+		workspaceRepo,
+		codebaseRepo,
+		viewRepo,
+		nil, // commentRepo
+		nil, // snapshotRepo
+		nil, // codebaseResolver
+		nil, // authorResolver
+		nil, // viewResolver
+		nil, // commentResolver
+		nil, // prResolver
+		nil, // changeResolver
+		nil, // workspaceActivityResolver
+		&reviewRootResolver,
+		nil, // presenseRootResolver
+		nil, // suggestitonsRootResolver
+		statusesRootResolver,
+		workspaceWatchersRootResolver,
+		suggestionsService,
+		workspaceService,
+		authService,
+		logger,
+		viewEvents,
+		workspaceWriter,
+		executorProvider,
+		eventsSender,
+		gitSnapshotter,
+	)
+
+	*workspaceWatchersRootResolver = graphql_workspace_watchers.NewRootResolver(
+		logger,
+		workspaceWatchersService,
+		workspaceService,
+		authService,
+		viewEvents,
+		nil,
+		&workspaceRootResolver,
+	)
+
+	testCases := []struct {
+		name          string
+		opts          []vcsvcs.DiffOption
+		gitMaxSize    int
+		largeFileName string
+	}{
+		{
+			name:          "default",
+			largeFileName: "large-img.jpg",
+		},
+		{
+			name:          "low_max_size", // By default, files larger than 50MB have special treatment (are always treated as binary files), lower this to 500kb to make it easier to test
+			opts:          []vcsvcs.DiffOption{vcsvcs.WithGitMaxSize(500_000)},
+			gitMaxSize:    500_000,
+			largeFileName: "large-img.jpg",
+		},
+		{
+			name:          "low_max_spaces",
+			opts:          []vcsvcs.DiffOption{vcsvcs.WithGitMaxSize(500_000)},
+			gitMaxSize:    500_000,
+			largeFileName: "with space.jpg",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+			assert.NoError(t, userRepo.Create(&createUser))
+
+			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})
+
+			// Create a codebase
+			var codebaseRes codebase.Codebase
+			request(t, createUser.ID, createCodebaseRoute, routes_v3_codebase.CreateRequest{Name: "testrepo"}, &codebaseRes)
+			assert.Len(t, codebaseRes.ID, 36)
+			assert.Equal(t, "testrepo", codebaseRes.Name)
+			assert.True(t, codebaseRes.IsReady, "codebase is ready")
+
+			// Create a workspace
+			var workspaceRes workspace.Workspace
+			request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
+				CodebaseID: codebaseRes.ID,
+			}, &workspaceRes)
+			assert.Len(t, workspaceRes.ID, 36)
+
+			// Create a view
+			var viewRes view.View
+			request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
+				CodebaseID:    codebaseRes.ID,
+				WorkspaceID:   workspaceRes.ID,
+				MountPath:     "~/testing",
+				MountHostname: "testing.ftw",
+			}, &viewRes)
+			assert.Len(t, viewRes.ID, 36)
+			assert.True(t, viewRes.CreatedAt.After(time.Now().Add(time.Second*-5)))
+
+			viewPath := repoProvider.ViewPath(codebaseRes.ID, viewRes.ID)
+			t.Logf("viewPath=%s", viewPath)
+
+			gitViewRepo, err := repoProvider.ViewRepo(codebaseRes.ID, viewRes.ID)
+			assert.NoError(t, err)
+
+			// Test large files
+			copy(t, "testdata/large-img.jpg", path.Join(viewPath, tc.largeFileName))
+
+			// Get diff and apply
+			diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
+			assert.NoError(t, err)
+			assert.Len(t, diffs, 1)
+			assert.Len(t, diffs[0].Hunks, 1)
+			t.Logf("diff: %+v", diffs[0])
+			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				WorkspaceID: graphql.ID(workspaceRes.ID),
+				PatchIDs:    []string{diffs[0].Hunks[0].ID},
+
+				DiffMaxSize: tc.gitMaxSize,
+			}})
+			assert.NoError(t, err)
+
+			// Original file should be in the checkout, not the LFS pointer
+			stat, err := os.Stat(path.Join(viewPath, tc.largeFileName))
+			assert.NoError(t, err)
+			assert.True(t, stat.Size() > 1_000_000, "size=%d", stat.Size())
+
+			// LFS pointer should be in the latest commit
+			headCommit, err := gitViewRepo.HeadCommit()
+			assert.NoError(t, err)
+			ptrContents, err := gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
+			assert.NoError(t, err)
+			assert.True(t, len(ptrContents) < 500, "len=%d", len(ptrContents))
+
+			// Create file with space in the name
+			{
+				nameWithSpaces := path.Join(viewPath, "dir", "dir with space", "Aspen 0.1.6.dmg")
+				copy(t, "testdata/large-img.jpg", nameWithSpaces)
+
+				// Get diff and apply
+				diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
+				assert.NoError(t, err)
+				assert.Len(t, diffs, 1)
+				assert.Len(t, diffs[0].Hunks, 1)
+				t.Logf("diff: %+v", diffs[0])
+				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+					WorkspaceID: graphql.ID(workspaceRes.ID),
+					PatchIDs:    []string{diffs[0].Hunks[0].ID},
+
+					DiffMaxSize: tc.gitMaxSize,
+				}})
+				assert.NoError(t, err)
+
+				// Verify that file was shared
+				fp, err := os.Open(nameWithSpaces)
+				assert.NoError(t, err)
+				finfo, err := fp.Stat()
+				assert.NoError(t, err)
+				assert.True(t, finfo.Size() > 1_000_000, "size=%d", finfo.Size())
+			}
+
+			// Update the large file
+			copy(t, "testdata/large-img-2.jpg", path.Join(viewPath, tc.largeFileName))
+			// Get diff and apply
+			diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
+			assert.NoError(t, err)
+			assert.Len(t, diffs, 1)
+			assert.Len(t, diffs[0].Hunks, 1)
+			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				WorkspaceID: graphql.ID(workspaceRes.ID),
+				PatchIDs:    []string{diffs[0].Hunks[0].ID},
+				DiffMaxSize: tc.gitMaxSize,
+			}})
+			assert.NoError(t, err)
+
+			// LFS pointer should be updated
+			headCommit, err = gitViewRepo.HeadCommit()
+			assert.NoError(t, err)
+			ptrContents2, err := gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
+			assert.NoError(t, err)
+			assert.True(t, len(ptrContents2) < 500, "len=%d", len(ptrContents2))
+			assert.NotEqual(t, string(ptrContents2), string(ptrContents))
+
+			// Delete the large file
+			err = os.Remove(path.Join(viewPath, tc.largeFileName))
+			assert.NoError(t, err)
+
+			// Get diff and apply
+			diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
+			assert.NoError(t, err)
+			assert.Len(t, diffs, 1)
+			assert.Len(t, diffs[0].Hunks, 1)
+			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				WorkspaceID: graphql.ID(workspaceRes.ID),
+				PatchIDs:    []string{diffs[0].Hunks[0].ID},
+				DiffMaxSize: tc.gitMaxSize,
+			}})
+			assert.NoError(t, err)
+
+			// LFS pointer should not exist
+			headCommit, err = gitViewRepo.HeadCommit()
+			assert.NoError(t, err)
+			_, err = gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
+			assert.Error(t, err)
+
+		})
+	}
+}
+
+func copy(t *testing.T, src string, dst string) {
+	err := os.MkdirAll(path.Dir(dst), 0777)
+	assert.NoError(t, err)
+
+	data, err := ioutil.ReadFile(src)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile(dst, data, 0644)
+	assert.NoError(t, err)
+}
+
+func request(t *testing.T, userID string, route func(*gin.Context), request, response interface{}) {
+	requestWithParams(t, userID, route, request, response, nil)
+}
+
+func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+	res := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(res)
+	c.Params = params
+
+	data, err := json.Marshal(request)
+	assert.NoError(t, err)
+
+	c.Request, err = http.NewRequest("POST", "/", bytes.NewReader(data))
+	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser}))
+	assert.NoError(t, err)
+	route(c)
+	assert.Equal(t, http.StatusOK, res.Result().StatusCode)
+	content, err := ioutil.ReadAll(res.Result().Body)
+	assert.NoError(t, err)
+
+	if len(content) > 0 {
+		err = json.Unmarshal(content, response)
+		assert.NoError(t, err)
+	}
+}
+
+func str(s string) *string {
+	return &s
+}

@@ -1,0 +1,2 @@
+ALTER TABLE change_commits
+    ADD COLUMN trunk BOOLEAN NOT NULL DEFAULT FALSE;

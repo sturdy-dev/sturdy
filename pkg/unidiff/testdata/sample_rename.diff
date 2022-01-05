@@ -1,0 +1,16 @@
+diff --git a/hello___.go b/hello.go
+similarity index 66%
+rename from hello___.go
+rename to hello.go
+index 9f44b3a..c8f5492 100644
+--- a/hello___.go
++++ b/hello.go
+@@ -1,7 +1,5 @@
+ package main
+
+-import "fmt"
+-
+ func main() {
+-    fmt.Println("hello") // xo
++    fmt.Println("hello")
+ }

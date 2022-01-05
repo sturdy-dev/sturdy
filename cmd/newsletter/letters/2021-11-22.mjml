@@ -1,0 +1,175 @@
+<mjml>
+
+    <mj-head>
+        <mj-preview>Hi there! 👋 This issue of the changelog highlights some of the best changes to Sturdy that we've launched in the last two weeks. We're super stoked, and I hope that you'll like it too!</mj-preview>
+    </mj-head>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hi there! 👋 This issue of the changelog highlights some of the best changes to <a href="https://getsturdy.com?ref=newsletter">Sturdy</a> that we've launched in the last few weeks. We're super stoked, and I hope that you'll like it too!
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2021-11-22-sturdy-the-app-is-coming?ref=newsletter"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🖥 Native App (coming soon!)</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/codebaseHome.799b07d0.png" />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy has previously been a mixed experience between using Sturdy in the browser, and the
+                    Sturdy CLI (to manage the connection to your filesystem). This is finally about to change
+                    &mdash; <strong>Sturdy is going native!</strong>
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The Sturdy app (for Mac, Linux, and Windows) greatly improves how Sturdy interacts with your
+                    system. The app is bundled with everything you need to get started, and there’s no longer
+                    any need to use the cli (in fact, we’re deprecating it).
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    No additional authentication step is required, all you need to do to get started is to
+                    download the app and log in, and you’re ready to code!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The ability to use Sturdy in the browser is not going away, but some actions, like
+                    connecting a Sturdy to a directory on your computer, will only be available through the app.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <strong>We’re looking for more beta testers</strong> (especially testers on Linux and
+                    Windows), if you’re interested, please reply to this email!
+                </mj-text>
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">📚 Codebase homepage</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The home for each codebase in Sturdy has received a facelift! It’s now highlighting up to 4
+                    of the latest changes in the codebase, giving you quick access to all files in the codebase
+                    (<i
+                ><a href="https://getsturdy.com/features/access-control" target="_blank"
+                >that you have access to</a
+                ></i
+                >).
+                </mj-text>
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🕸 Importing PRs</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    When you’re setting up Sturdy from GitHub, any open pull requests that you might have will
+                    now be imported as Workspaces in Sturdy. Just like before, any updates that you make to the
+                    code in this workspace, will be pushed to your existing PR.
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🔔 Watching workspaces, @-mentions, and notifications</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/sidebar.d31f0036.png" />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    To keep your busy projects from annoying you, you can now
+                    <strong>watch your favourite workspaces</strong>, and you’ll only be notified about changes
+                    in your watched workspaces.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Interacting with a workspace, such as when giving some feedback on it, will cause you to
+                    watch it.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy now also supports @-mentions in comments, mentioning someone will always notify them,
+                    and also highlight the workspace that they were mentioned in with a badge in the sidebar.
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🚦 Native CI/CD with Buildkite (beta!)</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy has previously supported
+                    <a href="https://getsturdy.com/docs/continuous-integration" target="_blank">
+                        CI/CD via your connected GitHub repository </a
+                    >, but we’re now happy to introduce a <strong>native CI/CD experience</strong> through
+                    <a href="https://buildkite.com/" target="_blank">Buildkite</a>!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    This is a completely Sturdy-native experience, and does not rely on git. The native CI/CD
+                    integration supports large files, file level permissions, and more. Oh, and it’s very fast!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Reach out if you’re interested in getting access to the beta, and let us know which CI/CD
+                    provider that we should integrate with next!
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">More....</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Since the last newsletter, we’ve shipped over 500 features and improvements, so there’s way
+                    too many to cover them all. Here are some of my favourites.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">&bull; Connecting to a workspace has been simplified. Click connect, and you’re ready!</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    &bull; First time users now get a tutorial through Sturdy when they use Sturdy for the first time
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/" target="_blank">&bull; Big updates to the landing page</a>
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    &bull; Improved integration with pull requests, merged PRs are now appearing in the workspace
+                    activity feed, and more
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">&bull; API to download an archive of your codebase</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">&bull; Improved supports for files larger than 500 MB</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">&bull; Windows releases of the sturdy-cli are now signed and trusted by default</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">&bull; New codebases are seeded with a welcome workspace</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Thanks for reading, see you in cyberspace!<br />&mdash; Gustav and team Sturdy</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

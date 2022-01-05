@@ -1,0 +1,9 @@
+{
+  "name": "newsletter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "mjml": "^4.10.2"
+  }
+}

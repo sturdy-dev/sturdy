@@ -1,0 +1,62 @@
+<html lang="en">
+  <head>
+    <style>
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        max-height: 800px;
+      }
+
+      .box {
+        margin: 50px;
+        text-align: center;
+      }
+
+      p {
+        color: #666;
+      }
+
+      a,
+      a:visited {
+        text-decoration: underline;
+        color: #444;
+        font-weight: bold;
+      }
+
+      a:hover {
+        color: #222;
+      }
+    </style>
+    <title>Sturdy</title>
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const urlSearchParams = new URLSearchParams(window.location.search)
+        const params = Object.fromEntries(urlSearchParams.entries())
+        const gotoUrl = params.goto
+        document.getElementById('try-again').href = gotoUrl
+      })
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="box">
+        <h1>Failed to load Sturdy</h1>
+
+        <p>
+          Something went wrong.
+
+          <a id="try-again" href="https://getsturdy.com/">Try again</a>.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

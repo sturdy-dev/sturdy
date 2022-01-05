@@ -1,0 +1,86 @@
+productName: Sturdy
+appId: com.getsturdy.sturdy
+
+# Override package.json
+# This is required for packaging for Snap and AppImage
+extraMetadata:
+  name: Sturdy
+  email: support@getsturdy.com # Used by deb
+  homepage: https://getsturdy.com # Used by debs
+
+asar: false
+
+directories:
+  buildResources: assets
+
+files:
+  - 'dist/*'
+  - 'assets/**/*'
+  - 'assets/*'
+
+mac:
+  hardenedRuntime: true
+  entitlements: ./entitlements.plist
+  electronUpdaterCompatibility: '>=2.16'
+  extendInfo:
+    LSMultipleInstancesProhibited: true
+  target:
+    - dmg
+    - zip
+
+win:
+  electronUpdaterCompatibility: '>=2.16'
+  target:
+    - nsis
+
+linux:
+  electronUpdaterCompatibility: '>=2.16'
+  category: development
+  maintainer: Sturdy
+  executableName: sturdy
+  # description: |
+  #   # Sturdy - Real-Time Version Control
+  #   Share, try, and iterate on code together using Sturdy’s supercharged workspaces. It’s like Slack instead of email.
+
+  desktop:
+    Name: Sturdy
+    Terminal: 'false'
+
+  target:
+    - appImage
+    #- snap
+    - deb
+
+dmg:
+  background: assets/dmg.png
+  window:
+    width: 658
+    height: 498
+  sign: true
+
+nsis:
+  menuCategory: false
+  oneClick: true
+  perMachine: false
+  installerHeaderIcon: assets/Sturdy.ico
+  installerIcon: assets/Sturdy.ico
+  uninstallerIcon: assets/Sturdy.ico
+  #installerSidebar: resources/installerSidebar.bmp
+  #uninstallerSidebar: resources/installerSidebar.bmp
+  allowToChangeInstallationDirectory: false
+  runAfterFinish: true
+  artifactName: ${productName}-Installer-${version}.${ext}
+
+publish:
+  - provider: generic
+    url: 'https://autoupdate.getsturdy.com/client/default-path'
+    channel: latest
+    useMultipleRangeRequest: true
+
+  - provider: s3
+    bucket: autoupdate.getsturdy.com
+    path: client/default-path # This path is overwritten by build-electron-builder.sh
+    acl: private
+    region: eu-north-1
+    channel: latest
+    publishAutoUpdate: true

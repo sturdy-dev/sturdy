@@ -1,0 +1,130 @@
+<mjml>
+    <mj-body>
+        <mj-section>
+            <mj-column>
+
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hey! 👋 Here's an update from us at Sturdy with everything that's new. We hope that you like it!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    All the following news are live on <a href="https://getsturdy.com/?ref=newsletter">Sturdy</a>.<br><br>
+                    Don't forget to follow us on <a href="https://twitter.com/getsturdy">Twitter</a>.
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🚀 The doors are open!</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy is now open for everyone &mdash; for you, your team, and your friends!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy is free for small teams, no credit card required.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/signup?ref=newsletter"> &raquo; Sign up </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">📈 Large files</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy now supports large files, and huge
+                    codebases.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Thanks to some heavy work behind the scenes. Using large (gigabyte-sized) assets such as
+                    images or large binary files with Sturdy is now a breeze.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Large files on Sturdy are downloaded on-demand, and the size of the projects history doesn't
+                    slow you down, or require you to use additional storage on connected computers.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    It's perfect for checking in images, 3D-assets, or other large artifacts that you're probably tracking outside of your version control today.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/features/large-files?ref=newsletter">
+                        &raquo; Read more about large files
+                    </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">⚙️ GitHub Add-on</mj-text>
+                <mj-image src="https://getsturdy.com/assets/GitHubPullRequest.c8082687.png" width="937px"/>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy now plays nicely with Git and GitHub! It's always been important for us to build
+                    Sturdy with compatibility in mind, and we're now reaping the benefits of that.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Using the GitHub plugin for Sturdy, the two can now be used side-by-side, so that you can
+                    get the benefits of Sturdy without migrating any of your integrations.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    You can for example use Sturdy for all your collaboration needs, while still using your
+                    CI/CD integrated through GitHub.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Changes on Sturdy are automatically exported as git commits, and can be pushed to your
+                    repository through Pull Requests or directly to your HEAD branch.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/features/migrate-from-github?ref=newsletter">
+                        &raquo; Read more about the GitHub Add-on
+                    </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🏓 Notifications</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We get it &mdash; you're a busy person, and are juggling many tasks and workspaces in
+                    parallel. Sturdy now shows you when you have something important waiting. Here's an example
+                    of what it looks like:
+                </mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/bell.a03c3524.png" width="127px"/>
+                <mj-image src="https://getsturdy.com/assets/notification.dcafd40f.png" width="880px"/>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🖥 Windows installer</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We finally have an installation wizard for Windows, making it really easy to get started with
+                    Sturdy. Download links are available from the downloads page.
+                </mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/installer.efdd27ba.png" width="544px"/>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Thanks for reading! We'll see you soon in the next newsletter.<br>
+                    / Gustav
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

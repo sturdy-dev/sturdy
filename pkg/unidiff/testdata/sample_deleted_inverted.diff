@@ -1,0 +1,10 @@
+diff --git /dev/null "b/bar"
+new file mode 100644
+index 0000000..a1f8944
+--- /dev/null
++++ "b/bar"
+@@ -0,0 +1,4 @@
++foo
++foo
++foo
++foo

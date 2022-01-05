@@ -1,0 +1,96 @@
+<mjml>
+    <mj-body>
+        <mj-section>
+            <mj-column>
+
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#222" font-family="helvetica">
+                    Hey Sturdy-fans! Here's an update with all of the major changes since the last time we hit
+                    your inbox.
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="22px" color="#000" font-family="helvetica">Large files</mj-text>
+
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Sturdy now supports large files, and huge
+                    codebases.
+                </mj-text>
+
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Thanks to some heavy work behind the scenes. Using large (gigabyte-sized) assets such as
+                    images or large binary files with Sturdy is now straight forward.
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Large files on Sturdy are downloaded on-demand, and you don't have to worry about the size
+                    of your projects "history" as it's not downloaded to everyone's computer. It just works!
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/features/large-files">
+                        &raquo; Read more about large files
+                    </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="22px" color="#000" font-family="helvetica">GitHub integration</mj-text>
+                <p><img src="../../../assets/Web/GitHubPullRequest.png" height="498" width="937" /></p>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Sturdy now plays nicely with Git and GitHub! It's always been important for us to build
+                    Sturdy with compatability in mind, and we're now reaping the benefits of that.
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Using the GitHub plugin for Sturdy, the two can now be used side-by-side, so that you can
+                    get the benefits of Sturdy without having to migrate everything of of GitHub.
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    You can for example use Sturdy for all your collaboration needs, while still using your
+                    CI/CD integrated through GitHub.
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    Changes on Sturdy are automatically exported as git commits, and can be pushed to your
+                    repository through Pull Requests or directly to your HEAD branch.
+                </mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/features/migrate-from-github">
+                        &raquo; Read more in our knowledgebase
+                    </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="22px" color="#000" font-family="helvetica">Notifications</mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    We get it &mdash; you're a busy person, and are juggling many tasks and workspaces in
+                    parallel. Sturdy now shows you when you have something important waiting. Here's an example
+                    of what it looks like:
+                </mj-text>
+                <div class="flex items-center">
+                    <div>
+                        <img src="./bell.png" height="247" width="127" />
+                    </div>
+                    <div>
+                        <img src="./notification.png" height="376" width="880" />
+                    </div>
+                </div>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+
+                <mj-text font-size="22px" color="#000" font-family="helvetica">Windows installer</mj-text>
+                <mj-text font-size="18px" color="#555555" font-family="helvetica">
+                    We finally have a installation wizard for Windows, making it really easy to get started with
+                    Sturdy. Download links are available from the downloads page.
+                </mj-text>
+                <p>
+                    <img src="./installer.png" height="422" width="544" />
+                </p>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

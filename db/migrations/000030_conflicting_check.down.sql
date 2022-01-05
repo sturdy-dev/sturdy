@@ -1,0 +1,1 @@
+DROP TABLE conflicting_check;

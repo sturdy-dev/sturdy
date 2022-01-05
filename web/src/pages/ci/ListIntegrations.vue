@@ -1,0 +1,170 @@
+<template>
+  <PaddedAppLeftSidebar v-if="data" class="bg-white">
+    <template #navigation>
+      <SettingsVerticalNavigation />
+    </template>
+
+    <template #default>
+      <Header>
+        <Pill>Beta</Pill>
+        <span>Integrate {{ data.codebase.name }} with other services</span>
+      </Header>
+
+      <div class="bg-white shadow overflow-hidden rounded-md mt-8">
+        <ul role="list" class="divide-y divide-gray-200">
+          <template v-for="item in list" :key="item.name">
+            <li
+              class="px-6 py-4 flex space-x-4 hover:cursor-pointer hover:bg-gray-50 items-start"
+              @click="$router.push({ name: item.page })"
+            >
+              <img src="../../components/ci/logos/BuildkiteLogo.svg" class="h-10 w-10" />
+              <div class="flex-1">
+                <h3>{{ item.name }}</h3>
+                <p class="text-gray-500 text-sm">{{ item.description }}</p>
+                <Pill
+                  v-if="configuredProviders.has(item.name)"
+                  color="green"
+                  class="text-green-500 text-sm"
+                >
+                  Installed
+                </Pill>
+                <Pill v-else color="gray">Not Installed</Pill>
+              </div>
+              <Button>Add</Button>
+            </li>
+            <template v-if="configuredProviders.has(item.name)">
+              <li
+                v-for="instance in configuredProviders.get(item.name)"
+                :key="instance.id"
+                class="px-6 py-4 flex space-x-4 hover:cursor-pointer hover:bg-gray-50 items-center"
+              >
+                <p class="flex-1 pl-14">
+                  Pipeline
+                  <strong>{{ instance.configuration.pipelineName }}</strong> in
+                  <strong>{{ instance.configuration.organizationName }}</strong>
+                </p>
+
+                <RouterLinkButton
+                  :to="{
+                    name: 'codebaseSettingsEditBuildkite',
+                    params: { integrationId: instance.id },
+                  }"
+                >
+                  Edit
+                </RouterLinkButton>
+                <Button color="red" @click="doDeleteIntegration(instance.id)">Delete</Button>
+              </li>
+            </template>
+          </template>
+        </ul>
+      </div>
+    </template>
+  </PaddedAppLeftSidebar>
+</template>
+
+<script lang="ts">
+import { gql, useQuery } from '@urql/vue'
+import { useRoute } from 'vue-router'
+import { IdFromSlug } from '../../slug'
+import {
+  GetIntegrationsQuery,
+  GetIntegrationsQueryVariables,
+} from './__generated__/ListIntegrations'
+import Pill from '../../components/shared/Pill.vue'
+import { Integration } from '../../__generated__/types'
+import Button from '../../components/shared/Button.vue'
+import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
+import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
+import Header from '../../molecules/Header.vue'
+import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
+import { useDeleteIntegration } from '../../mutations/useDeleteIntegration'
+
+const list = [
+  {
+    name: 'Buildkite',
+    description: 'Setup CI/CD with Buildkite',
+    page: 'codebaseSettingsAddBuildkite',
+  },
+  // {
+  //   name: 'GitLab',
+  //   description: 'Setup CI/CD with GitLab',
+  //   page: 'codebaseSettingsAddBuildkite',
+  // },
+]
+
+export default {
+  components: {
+    SettingsVerticalNavigation,
+    PaddedAppLeftSidebar,
+    Pill,
+    Button,
+    Header,
+    RouterLinkButton,
+  },
+  setup() {
+    const route = useRoute()
+    const shortCodebaseID = IdFromSlug(route.params.codebaseSlug as string)
+
+    const { data } = useQuery<GetIntegrationsQuery, GetIntegrationsQueryVariables>({
+      query: gql`
+        query GetIntegrations($shortCodebaseID: ID!) {
+          codebase(shortID: $shortCodebaseID) {
+            id
+            name
+            integrations {
+              id
+              provider
+              deletedAt
+              ... on BuildkiteIntegration {
+                id
+                configuration {
+                  id
+                  organizationName
+                  pipelineName
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        shortCodebaseID: shortCodebaseID,
+      },
+    })
+
+    let deleteIntegration = useDeleteIntegration()
+
+    return {
+      list,
+      data,
+      shortCodebaseID,
+
+      doDeleteIntegration: function (id: string) {
+        deleteIntegration({ id: id })
+      },
+    }
+  },
+  computed: {
+    nonDeletedIntegrations() {
+      let res = this.data?.codebase?.integrations.filter((i) => !i.deletedAt)
+      if (!res) {
+        return []
+      }
+      return res
+    },
+    configuredProviders() {
+      let res = new Map<string, Array<Integration>>()
+
+      for (const provider of this.nonDeletedIntegrations) {
+        let existing = res.get(provider.provider)
+        if (existing) {
+          existing.push(provider)
+        } else {
+          res.set(provider.provider, new Array<Integration>(provider))
+        }
+      }
+      return res
+    },
+  },
+}
+</script>

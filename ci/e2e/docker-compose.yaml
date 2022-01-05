@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  runner:
+    environment:
+      E2E_TEST: 1
+      E2E_PSQL_HOST: "db:5432"
+      E2E_LFS_HOSTNAME: "lfs:50001"
+    command: "go test -v -race ./..."
+    depends_on:
+      - db
+      - lfs
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: mash
+      POSTGRES_USER: mash
+
+  lfs:
+    image: jasonwhite0/rudolfs:0.3.5
+    environment:
+      RUDOLFS_KEY: "0bce26498d4f9765c6702d3b6cc43dca2daa2a4e9ac003373512d4f78828f183"
+    command:
+      - --host=0.0.0.0:50001
+      - local
+      - --path=lfs

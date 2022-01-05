@@ -1,0 +1,39 @@
+name: Relase and Build Sturdy CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+
+jobs:
+  build-msi:
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: .\cmd\sturdy\msi\run.ps1 ${{ github.event.inputs.version }}
+        shell: powershell
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: sturdy.msi
+          path: .\cmd\sturdy\msi\sturdy.msi
+
+  upload-msi:
+    needs: build-msi
+    runs-on: [self-hosted, Linux]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: sturdy.msi
+
+      - name: Upload
+        run: aws s3 cp sturdy.msi s3://getsturdy.com/client/sturdy-${{ github.event.inputs.version }}-windows-amd64.msi

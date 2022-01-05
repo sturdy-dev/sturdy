@@ -1,0 +1,1 @@
+ALTER TABLE conflict_repo DROP COLUMN fetched_at;

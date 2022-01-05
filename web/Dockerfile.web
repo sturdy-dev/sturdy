@@ -1,0 +1,9 @@
+FROM node:17.3-bullseye-slim
+
+RUN apt-get update && apt-get install -y python3 build-essential
+WORKDIR /worker
+
+ADD package.json .
+ADD yarn.lock .
+
+RUN yarn install

@@ -1,0 +1,1 @@
+DROP INDEX github_pull_requests_codebase_id_head_sha_ix;

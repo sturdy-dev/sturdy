@@ -1,0 +1,2 @@
+ALTER TABLE workspace_reviews
+    ADD COLUMN is_replaced BOOLEAN NOT NULL DEFAULT FALSE;

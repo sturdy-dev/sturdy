@@ -1,0 +1,48 @@
+./idea
+.DS_Store
+/mash
+client/fuse-client/cmd/fuse-client/fuse-client
+cmd/mutagen-client/cmd/mutagen-client/mutagen-client
+node_modules
+/dist
+/tmp
+*.exe
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+./fuse-client
+
+web/dist
+client/fuse-client/sturdy-v*
+cmd/mutagen-client/sturdy-v*
+mutagen-agent
+mutagen-agent-*
+/cmd/sturdy/sturdy
+/mutagen-ssh
+
+__generated__/
+
+# profiles
+*.out
+
+/app/out/
+/app/assets/bin/
+/app/dist/
+/app/sturdy-v0.7.6-beta3-windows-amd64.zip
+/web/src/components/emoji/emojis.json

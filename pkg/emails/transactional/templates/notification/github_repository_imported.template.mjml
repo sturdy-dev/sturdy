@@ -1,0 +1,35 @@
+<mjml>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hi {{ .User.Name | defaultString "there" }},<br /><br />
+
+                    Codebase <strong>{{ .GitHubRepo.Name }}</strong> is now ready to be used on Sturdy!<br /><br />
+
+                    Share, try, and iterate on code together using Sturdy’s supercharged workspaces. It’s like Slack instead of email.
+                </mj-text>
+
+                <mj-button font-family="Helvetica" background-color="#FBBF24" color="black" align="left" href="https://getsturdy.com/{{ .Codebase.GenerateSlug }}">
+                    Open {{ .Codebase.Name }}
+                </mj-button>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    See you in cyperspace,<br><strong>Team Sturdy</strong>
+                </mj-text>
+
+                <mj-text font-size="12px" color="#222" font-family="helvetica">
+                    You have received this email because it contains important information about your Sturdy account.<br></br><a href="https://getsturdy.com/unsubscribe/{{ .User.Email | base64Encode }}">
+                    Unsubscribe from future newsletters and emails.
+                </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+
+    </mj-body>
+</mjml>

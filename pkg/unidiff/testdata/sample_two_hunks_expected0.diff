@@ -1,0 +1,12 @@
+diff --git "a/one.txt" "b/one.txt"
+index 4fce4a5..fef85d8 100644
+--- "a/one.txt"
++++ "b/one.txt"
+@@ -2,7 +2,6 @@ a
+ b
+ c
+ d
+-e
+ f
+ g
+ h

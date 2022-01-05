@@ -1,0 +1,19 @@
+diff --git a/one.txt b/one.txt
+index 1109c6e..6d4338c 100644
+--- a/one.txt
++++ b/one.txt
+@@ -1,6 +1,5 @@
+ a
+ b
+-c
+ d
+ e
+ f
+@@ -15,7 +14,6 @@ n
+ o
+ p
+ q
+-r
+ s
+ w
+ x

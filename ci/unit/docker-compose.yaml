@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  runner:
+    command: "go test -v -race ./..."
+
+volumes:
+  go-modules:

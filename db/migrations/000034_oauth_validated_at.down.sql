@@ -1,0 +1,1 @@
+alter table oauth_user drop column access_token_last_validated_at;

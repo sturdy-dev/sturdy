@@ -1,0 +1,1 @@
+DROP TABLE instant_integration_requested_access;

@@ -1,0 +1,5 @@
+src/shims-vue.d.ts
+src/stories/**
+src/**/__generated__
+dist/**
+src/components/emoji/**

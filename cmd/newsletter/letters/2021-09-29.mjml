@@ -1,0 +1,174 @@
+<mjml>
+
+    <mj-head>
+        <mj-preview>Hi there! 👋 This issue of the changelog highlights some of the best changes to Sturdy that we've launched in the last two weeks. We're super stoked, and I hope that you'll like it too!</mj-preview>
+    </mj-head>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hi there! 👋 This issue of the changelog highlights some of the best changes to <a href="https://getsturdy.com?ref=newsletter">Sturdy</a> that we've launched in the last two weeks. We're super stoked, and I hope that you'll like it too!
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2021-09-29-acls-and-a-fresh-hot-look"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🔥 Hot design!</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Many major areas of Sturdy have been redesigned with a lighter theme, that highlights the
+                    most important areas of Sturdy when you need them. Let's take a look!
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">1️⃣ Workspace</mj-text>
+                <mj-image src="https://getsturdy.com/assets/newsletter-workspace.24fb414e.png" width="4000px" alt="Screenshot of a Sturdy Workspace"></mj-image>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The workspace now puts the code front and center. Distracting components like the changelog
+                    are now gone, and have made space for <em>feedback</em>, and the <em>new activity feed</em>.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Use <strong>feedback</strong> to ask for feedback on your changes from a peer before you
+                    change them. Asking for feedback will send a notification to the person that you want to get
+                    feedback from, letting them know that you want their help.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    When they are done, they can either leave a thumbs up, or let you know that they have some
+                    feedback that they would like you to incorporate before you go ahead and share your changes.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">2️⃣ Codebase</mj-text>
+                <mj-image src="https://getsturdy.com/assets/newsletter-codebase-readme.4a59ad84.png" width="4000px" alt="Screenshot of a Sturdy Codebase with a README file" />
+                </mj-image>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The home of your codebase has also been redesigned to match, with a lighter theme that's
+                    more focused on showing you what you need. The page is now featuring the codebases
+                    <code>README.md</code>, and the first-time setup instructions have been greatly improved.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">3️⃣ Changelog</mj-text>
+                <mj-image src="https://getsturdy.com/assets/newsletter-codebase-changelog.38a4fcbe.png" width="4000px" alt="Screenshot of the changelog of a codebase on Sturdy" />
+                </mj-image>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The changelog is now much faster, loading new data in just a few milliseconds. The page has
+                    also been redesigned to fit with the new colours and layout. From the changelog, you can
+                    find the complete history of your project, just like you're used to.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    From the changelog, you can now also <strong>view the entire file</strong> as it currently
+                    looks like on trunk.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">And last but, definitely not least. <strong>The new sidebar!</strong></mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">4️⃣ Sidebar</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    I'm really stoked about how the new sidebar looks and feels. We've been taking inspiration
+                    from some of our favourite real-time collaboration tools, and are brining the same
+                    experience to coding.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The sidebar organizes all of your codebases and workspaces, and makes it easy to get an
+                    overview of what's going on. And the sidebar will intelligently inform you where your
+                    attention is needed and where there has been new activity.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🔐 Access Control (BETA)</mj-text>
+                <mj-image src="https://getsturdy.com/assets/access-control.9adb07e3.png" width="1552px" alt="Screenshot of the Access Control List permission editor on Sturdy" />
+                </mj-image>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We're now launching the beta of
+                    <a href="https://getsturdy.com/docs/access-control?ref=newsletter">
+                        <strong>Access Control Lists</strong>
+                    </a>
+                    in Sturdy. ACLs in Sturdy are really powerful, and enables you to give fine grained access
+                    to codebases, <em>including to files</em>.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The file ACL allows you to control who on your team can see what files. For example if you
+                    want to invite consultants to collaborate on only a part of your project. Or if you want to
+                    store sensitive files in your project, that only some team members should have access to.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The permissions for <code>files</code> resources affects both which files that are synced to
+                    your workstation, and which files that you can see on the web.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Together with Sturdy's integration with GitHub, Sturdy can now also operate as a access
+                    control-proxy for your existing projects on git.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The
+                    <a href="https://getsturdy.com/docs/access-control?ref=newsletter">
+                        <strong>ACL documentation</strong>
+                    </a>
+                    contains more examples for how you can use ACLs in your project.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica"><em>To use ACLs, you need to install Sturdy v0.7.0 or newer.</em></mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🔔 Notifications</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Notification in Sturdy has received a huge upgrade. Workspaces that need your attention are
+                    now <strong>highlighted in the sidebar</strong>, so that you get an easy overview of what
+                    has changed since the last time you where online.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy now also supports <strong>browser notifications</strong>, to notify you immediately
+                    when something has changed. When you click the bell icon (lower left of the screen) the next
+                    time, Sturdy will ask you for your permission to send you notifications.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">⤴️ GitHub integration: PRs on your behalf</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    When using Sturdy and GitHub, Sturdy is now creating Pull Requests under <em>your</em> name
+                    instead of our bot account. This means that you now get the credit of your work that you
+                    deserve!
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    If you're curious, here's what a real world PR created from Sturdy looks like:
+                    <a href="https://github.com/zegl/kube-score/pull/393">kube-score#393</a>.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🕸 API</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    All of the changes above, are available Sturdy's
+                    <a href="https://getsturdy.com/api">GraphQL API</a>.
+                </mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🖥 Sturdy Client</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">The Homebrew installation now supports darwin/arm64 and linux/arm64 out of the box! :-)</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Thanks for reading, see you in cyberspace!<br />&mdash; Gustav</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

@@ -1,0 +1,2 @@
+ALTER TABLE jwt_keys
+    DROP COLUMN;

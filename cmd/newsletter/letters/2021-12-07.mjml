@@ -1,0 +1,136 @@
+<mjml>
+
+    <mj-head>
+        <mj-preview>Hi there! 👋 This issue of the changelog highlights some of the best changes to Sturdy that we've launched in the last two weeks. We're super stoked, and I hope that you'll like it too!</mj-preview>
+    </mj-head>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hi there! 👋 This issue of the changelog highlights some of the best changes to <a href="https://getsturdy.com?ref=newsletter">Sturdy</a> that we've launched in the last few weeks. We're super stoked, and I hope that you'll like it too!
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2021-12-07-launching-the-sturdy-app?ref=newsletter"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🖥 Launching Sturdy for Desktop!</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/codebaseHome.799b07d0.png" />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We’re now launching the Sturdy app for Mac and Windows! A big thanks to all beta testers and
+                    early adopters.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The app makes it incredibly easy to manage your connected computers, and to connect new
+                    ones. From now on, you’ll never have to touch the terminal to use Sturdy!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica"><a href="https://getsturdy.com/download?ref=newsletter">Download now!</a></mj-text>
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🤔 Suggestions</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <strong>Code suggestions to workspaces</strong> have gotten a major improvement, mostly
+                    behind the scenes, but also improvements in the app.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    When you’re suggesting to another workspace, you’re now suggesting from a “lightweight”
+                    workspace, that appears in the sidebar underneath the workspace that you’re suggesting to.</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    This allows you to both disconnect and reconnect to your suggestions, and resume the
+                    suggesting later. You can also have multiple suggestions from different workspaces.</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    And much more! Give it a test by inviting a collaborator to your codebase on Sturdy, and go
+                    to an active workspace of theirs.</mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">☑️ Selection</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica"> The “selection” of files and hunks on the Workspace page has received a huge facelift! Take
+                    a look:</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/selection.a887da40.gif"  border-radius="8px" />
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🔍 Search</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica"> Sturdy now comes with built-in search for code! It’s available as <code>⌘+F</code> in the
+                    app, and <code>⌘+K</code> on the web.</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/search.80527de5.gif"   border-radius="8px" />
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🎄 Advent of Code</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/advent-of-code.86761621.jpeg"  border-radius="8px"  />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+
+                    Sturdy is happy to be <strong>sponsoring Advent of Code</strong> this year!
+                    <a href="https://adventofcode.com/" taget="_blank">Advent of Code</a>
+                    is a combination of programming puzzle solving and an advent calendar, launching a new
+                    puzzle every day from the first of December until Christmas.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica"> To celebrate, we’ve added support for <em>public codebases</em> on Sturdy, and have made
+                    <a href="https://getsturdy.com/advent-of-code-2021-uoeIDQk">
+                        our own Advent of Code codebase
+                    </a>
+                    public! We’re doing all of the problems every day (and sometimes even waking up at 06:00 to
+                    solve them!).
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🦾 Sturdy on ARM</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We’re now building and releasing Sturdy for three new ARM architectures on Linux - ARMv5,
+                    ARMv6, and ARMv7 - in addition to the already existing release for ARM64.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    This means that you can run Sturdy on your small and lightweight devices such as a Raspberry
+                    Pi.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/install?ref=newsletter">You can find the downloads here.</a>
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Thanks for reading, see you in cyberspace!<br />&mdash; Gustav and team Sturdy</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

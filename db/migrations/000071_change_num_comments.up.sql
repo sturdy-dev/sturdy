@@ -1,0 +1,1 @@
+ALTER TABLE changes ADD COLUMN num_comments INT NOT NULL DEFAULT 0;

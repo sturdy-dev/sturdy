@@ -1,0 +1,19 @@
+overwrite: true
+schema: "../pkg/graphql/schema.graphql"
+documents:
+  - "src/**/*.vue"
+  - "src/**/*.ts"
+  - "src/**/*.js"
+generates:
+  src/__generated__/types.ts:
+    plugins:
+      - "typescript"
+
+  src/:
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: "__generated__/types.ts"
+      folder: "__generated__"
+      extension: ".ts"
+    plugins:
+      - typescript-operations

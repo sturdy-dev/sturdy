@@ -1,0 +1,1 @@
+alter table workspace_sync drop column drop_commits;

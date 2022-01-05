@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  web-runner:
+    user: "${UID}:${GID}"
+    build:
+      context: ../web/
+      dockerfile: Dockerfile.web
+    volumes:
+      - ../:/sturdy
+    working_dir: /sturdy/web
+    command: "./ci-test.sh"

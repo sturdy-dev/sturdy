@@ -1,0 +1,34 @@
+<mjml>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    {{- $verificationAddress := printf "https://getsturdy.com/verify?token=%s" .Token.Token -}}
+                    Hi {{ .User.Name | defaultString "there" }},<br /><br />
+
+                    Please verify your email address: <a href="mailto:{{ .User.Email }}">{{ .User.Email }}</a>
+                </mj-text>
+
+                <mj-button font-family="Helvetica" background-color="#FBBF24" color="black" align="left" href="{{ $verificationAddress }}">
+                    Verify email address
+                </mj-button>
+
+                <mj-text font-size="10px" color="#222" font-family="helvetica">
+                    Button not working? Paste this address to your browser: <a href="{{ $verificationAddress }}">{{ $verificationAddress }}</a>.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    You are receiving this email because you recently created a <a href="https://getstury.com/">Sturdy</a> account. If this wasn't you, please ignore this email.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Thank you,<br><strong>Team Sturdy</strong>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

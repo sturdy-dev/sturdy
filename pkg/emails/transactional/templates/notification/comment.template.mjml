@@ -1,0 +1,50 @@
+<mjml>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica" >
+                    {{- $codebasePrefix := printf "https://getsturdy.com/%s" .Codebase.GenerateSlug -}}
+                    {{ .Author.Name }}
+                    {{ with .Parent }}
+                        {{- $authorReference := (eq .Author.ID $.User.ID) | ternary "your" (printf "%s's" .Author.Name ) -}}
+                        {{ if .Workspace }}
+                            replied to {{ $authorReference }} comment on
+                            <strong><a href="{{ $codebasePrefix }}/{{ .Workspace.ID }}">{{ .Workspace.NameOrFallback }}</a></strong>:
+                        {{ else if .Change }}
+                            replied to {{ $authorReference }} comment on
+                            <strong><a href="{{ $codebasePrefix }}/{{ .Change.ID }}">{{ .Change.Title }}</a></strong>:
+                        {{ else}}
+                            replied to {{ $authorReference }} comment:
+                        {{ end }}
+                    {{ else }}
+                        {{ if .Workspace }}
+                            commented on
+                            <strong><a href="{{ $codebasePrefix }}/{{ .Workspace.ID }}">{{ .Workspace.NameOrFallback }}</a></strong>:
+                        {{ else if .Change }}
+                            commented on
+                            <strong><a href="{{ $codebasePrefix }}/{{ .Change.ID }}">{{ .Change.Title }}</a></strong>:
+                        {{ else}}
+                            commented:
+                        {{ end }}
+                    {{ end }}
+                </mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica" padding-left="50px">
+                    {{ .Comment.Message }}
+                </mj-text>
+
+                <mj-text font-size="12px" color="#222" font-family="helvetica">
+                    You have received this email because it contains important information about your Sturdy account.<br></br><a href="https://getsturdy.com/unsubscribe/{{ .User.Email | base64Encode }}">
+                    Unsubscribe from future newsletters and emails.
+                </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+
+    </mj-body>
+</mjml>

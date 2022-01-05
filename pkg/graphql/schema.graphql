@@ -1,0 +1,1022 @@
+schema {
+    # Entrypoint to the Sturdy graph
+    query: Query
+    subscription: Subscription
+    mutation: Mutation
+}
+
+type Query {
+    # Codebases is all codebases that the authenticated user has access to
+    codebases: [Codebase!]!
+
+    # A single codebase.
+    # Either id or shortID must be set.
+    codebase(
+        # The codebaseID to find
+        id: ID,
+
+        # The shortID of the codebase to find
+        shortID: ID): Codebase
+
+    # List workspaces by CodebaseID.
+    workspaces(
+        # Limit to workspaces in this codebase.
+        codebaseID: ID!,
+
+        # Archived workspaces are excluded by default. Set to true to include all workspaces.
+        includeArchived: Boolean): [Workspace!]!
+
+    # Workspace
+    workspace(
+        # The id of the Workspace to find
+        id: ID!): Workspace!
+
+    # View
+    view(
+        # The id of the View to find
+        id: ID!): View
+
+    # Changes in a codebase
+    change(
+        # Either id or (commitID and codebaseID) must be set.
+        # id takes precedence if both id and commitID are set.
+        id: ID, commitID: ID, codebaseID: ID): Change
+
+    # Comments on code
+    comment(
+        # The id of the Comment to find
+        id: ID!): Comment!
+
+    # Latest notifications
+    notifications: [Notification!]!
+
+    # User
+    user: User!
+
+    # GitHub Integration Metadata
+    gitHubApp: GitHubApp!
+
+    # Returns a boolean saying if the logged in user can perform the action on the resource.
+    canI(codebaseID: ID!, action: String!, resource: String!): Boolean!
+
+    # Onboarding
+    completedOnboardingSteps: [OnboardingStep!]!
+}
+
+type Mutation {
+    # Opens a workspace on a a View (a connection to a user workstation)
+    openWorkspaceOnView(input: OpenWorkspaceOnViewInput!): View!
+
+    # Opens a copy of a workspace to a view.
+    # This can by all members of a codebase, and not only the workspaces owner.
+    @deprecated(reason: "All usages of this API have been replaced by openWorkspaceOnView. This API will soon be deleted.")
+    copyWorkspaceToView(input: CopyWorkspaceToViewInput!): View!
+
+    # Experimental
+    repairView(id: ID!): View!
+
+    # Create a new change and apply the change to trunk
+    landWorkspaceChange(input: LandWorkspaceChangeInput!): Workspace!
+
+    updateWorkspace(input: UpdateWorkspaceInput!): Workspace!
+    archiveWorkspace(id: ID!): Workspace!
+    unarchiveWorkspace(id: ID!): Workspace!
+    createWorkspace(input: CreateWorkspaceInput!): Workspace!
+    # Extracts selected patches from the workspace into a new workspace.
+    extractWorkspace(input: ExtractWorkspaceInput!): Workspace!
+
+    deleteComment(id: ID!): Comment!
+    updateComment(input: UpdateCommentInput!): Comment!
+    createComment(input: CreateCommentInput!): Comment!
+
+    updateUser(input: UpdateUserInput!): User
+    verifyEmail(input: VerifyEmailInput!): User!
+
+    updateCodebase(input: UpdateCodebaseInput!): Codebase!
+
+    updateCodebaseGitHubIntegration(input: UpdateCodebaseGitHubIntegrationInput!): CodebaseGitHubIntegration!
+    createOrUpdateGitHubPullRequest(input: CreateOrUpdateGitHubPullRequestInput!): GitHubPullRequest!
+    mergeGitHubPullRequest(input: MergeGitHubPullRequestInput!): GitHubPullRequest!
+
+    # Import a branch from a connected GitHub repository to a new workspace.
+    createWorkspaceFromGitHubBranch(input: CreateWorkspaceFromGitHubBranchInput!): Workspace!
+    importGitHubPullRequests(input: ImportGitHubPullRequestsInput!): Codebase!
+    refreshGitHubCodebases: [Codebase!]!
+
+    archiveNotifications(input: ArchiveNotificationsInput!): [Notification!]!
+
+    updateNotificationPreference(input: UpdateNotificationPreferenceInput!): NotificationPreference!
+
+    updateACL(input: UpdateACLInput!): ACL!
+
+    # Reviews
+    createOrUpdateReview(input: CreateReviewInput!): Review!
+    dismissReview(input: DismissReviewInput!): Review!
+    requestReview(input: RequestReviewInput!): Review!
+
+    # Workspace Activity
+    readWorkspaceActivity(input: ReadWorkspaceActivity!): WorkspaceActivity!
+
+    # Presence
+    reportWorkspacePresence(input: ReportWorkspacePresenceInput!): WorkspacePresence!
+
+    # Onboarding
+    completeOnboardingStep(stepID: ID!): OnboardingStep!
+
+    # Workspace watching
+    watchWorkspace(input: WatchWorkspaceInput!): WorkspaceWatcher!
+    unwatchWorkspace(input: UnwatchWorkspaceInput!): WorkspaceWatcher!
+
+    # File syncing
+    addPublicKey(publicKey: String!): User!
+    createView(input: CreateViewInput!): View!
+
+    # Service tokens
+    createServiceToken(input: CreateServiceTokenInput!): ServiceToken!
+
+    # Instant integration
+    triggerInstantIntegration(input: TriggerInstantIntegrationInput!): [Status!]!
+
+    # Third party integrations
+    createOrUpdateBuildkiteIntegration(input: CreateOrUpdateBuildkiteIntegrationInput!): Integration!
+    deleteIntegration(input: DeleteIntegrationInput!): Integration!
+
+    # Status
+    updateStatus(input: UpdateStatusInput!): Status!
+
+    # Suggestions v2
+    createSuggestion(input: CreateSuggestionInput!): Suggestion!
+    dismissSuggestion(input: DismissSuggestionInput!): Suggestion!
+    applySuggestionHunks(input: ApplySuggestionHunksInput!): Suggestion!
+    dismissSuggestionHunks(input: DismissSuggestionHunksInput!): Suggestion!
+
+    # patches
+    removePatches(input: RemovePatchesInput!): Workspace!
+}
+
+input RemovePatchesInput {
+    workspaceID: ID!
+    hunkIDs: [String!]!
+}
+
+input ApplySuggestionHunksInput {
+    id: ID!
+    hunkIDs: [String!]!
+}
+
+input DismissSuggestionHunksInput {
+    id: ID!
+    hunkIDs: [String!]!
+}
+
+input CreateSuggestionInput {
+    workspaceID: ID!
+}
+
+input DismissSuggestionInput {
+    id: ID!
+}
+
+input CreateOrUpdateBuildkiteIntegrationInput {
+    integrationID: ID
+    codebaseID: ID!
+    organizationName: String!
+    pipelineName: String!
+    apiToken: String!
+    webhookSecret: String!
+}
+
+input DeleteIntegrationInput {
+    id: ID!
+}
+
+enum IntegrationProvider {
+    Buildkite
+}
+
+interface Integration {
+    id: ID!
+    codebaseID: ID!
+    provider: IntegrationProvider!
+    createdAt: Int!
+    updatedAt: Int
+    deletedAt: Int
+}
+
+type BuildkiteIntegration implements Integration {
+    id: ID!
+    codebaseID: ID!
+    provider: IntegrationProvider!
+    createdAt: Int!
+    updatedAt: Int
+    deletedAt: Int
+
+    configuration: BuildkiteIntegrationConfiguration!
+}
+
+type BuildkiteIntegrationConfiguration {
+    id: ID!
+    organizationName: String!
+    pipelineName: String!
+    apiToken: String!
+    webhookSecret: String!
+}
+
+type ServiceToken {
+    id: ID!
+    name: String!
+    createdAt: Int!
+    lastUsedAt: Int
+
+    # only present on creation
+    token: String
+}
+
+input CreateServiceTokenInput {
+    shortCodebaseID: ID!
+    name: String!
+}
+
+input CreateViewInput {
+    workspaceID: ID!
+    mountPath: String!
+    mountHostname: String!
+}
+
+type Subscription {
+    updatedWorkspace(
+        # If set, subscribe to all workspaces in this codebase
+        shortCodebaseID: ID,
+        # Subscribe to updates to this workspace only
+        workspaceID: ID): Workspace!
+
+    updatedComment(workspaceID: ID!, viewID: ID): Comment!
+
+    updatedCodebase: Codebase!
+
+    updatedGitHubPullRequest(workspaceID: ID!): GitHubPullRequest!
+
+    updatedNotifications: Notification!
+
+    updatedView(id: ID!): View!
+
+    updatedViews: View!
+
+    updatedChangesStatuses(changeIDs: [ID!]!): Status!
+
+    updatedGitHubPullRequestStatuses(id: ID!): Status!
+
+    updatedWorkspaceActivity: WorkspaceActivity!
+
+    updatedWorkspacePresence(workspaceID: ID): WorkspacePresence!
+
+    updatedReviews: Review!
+
+    updatedSuggestion(workspaceID: ID!): Suggestion!
+
+    completedOnboardingStep: OnboardingStep!
+
+    updatedWorkspaceWatchers(workspaceID: ID!): WorkspaceWatcher!
+}
+
+# Authors represents the author of a change.
+# An author can be a User (same ID), but can also be an "imported" user in case
+# of Codebases that have been imported to Sturdy from other systems.
+type Author {
+    id: ID!
+    avatarUrl: String
+    email: String!
+    name: String!
+}
+
+
+enum NotificationChannel {
+    Web
+    Email
+}
+
+# NotificationPreference is used to control user's notifications by type and channel.
+type NotificationPreference {
+    type:    NotificationType!
+    channel: NotificationChannel!
+    enabled: Boolean!
+}
+
+# User
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    emailVerified: Boolean!
+    avatarUrl: String
+    gitHubAccount: GitHubAccount
+    notificationsReceiveNewsletter: Boolean!
+    notificationPreferences: [NotificationPreference!]!
+
+    views: [View!]!
+    lastUsedView(codebaseID: ID!): View
+}
+
+input UpdateUserInput {
+    name: String
+    email: String
+    password: String
+    notificationsReceiveNewsletter: Boolean
+}
+
+input VerifyEmailInput {
+    token: String!
+}
+
+type GitHubAccount {
+    id: ID!
+    login: String!
+}
+
+type ACL {
+    id: ID!
+    policy: String!
+}
+
+# Codebase
+type Codebase {
+    id: ID!
+    shortID: ID!
+    name: String!
+    description: String!
+    inviteCode: String
+    createdAt: Int!
+    archivedAt: Int
+    lastUpdatedAt: Int
+    workspaces: [Workspace!]!
+    members: [Author!]!
+    acl: ACL
+    isPublic: Boolean!
+
+    # Only lists the authenticated users codebases by default.
+    # Set includeOthers to true to list all views in the Codebase.
+    views(includeOthers: Boolean): [View!]!
+
+    # Only applies to authenticated user
+    lastUsedView: View
+
+    gitHubIntegration: CodebaseGitHubIntegration
+
+    # If the codebase is ready to be used
+    isReady: Boolean!
+
+    changes(input: CodebaseChangesInput): [Change!]!
+
+    readme: File
+
+    file(path: String!): FileOrDirectory
+
+    integrations(id: ID): [Integration!]!
+}
+
+input CodebaseChangesInput {
+    limit: Int
+}
+
+type CodebaseGitHubIntegration {
+    id: ID!
+    owner: String!
+    name: String!
+    createdAt: Int!
+    uninstalledAt: Int
+    trackedBranch: String
+    syncedAt: Int
+
+    # If the GitHub integration is enabled or not.
+    # Controllable by the user
+    enabled: Boolean!
+
+    # If GitHub is the source of truth or not.
+    # When true, Sturdy will open PRs
+    gitHubIsSourceOfTruth: Boolean!
+
+    # Error message (from GitHub) if pushing failed
+    lastPushErrorMessage: String
+    lastPushAt: Int
+
+    codebase: Codebase!
+}
+
+input UpdateCodebaseInput {
+    id: ID!
+    name: String
+    disableInviteCode: Boolean
+    generateInviteCode: Boolean
+    archive: Boolean
+    isPublic: Boolean
+}
+
+input UpdateCodebaseGitHubIntegrationInput {
+    id: ID!
+    enabled: Boolean
+    gitHubIsSourceOfTruth: Boolean
+}
+
+enum StatusType {
+    Pending
+    Healthy
+    Failing
+}
+
+type Status {
+    id: ID!
+    type: StatusType!
+    title: String!
+    description: String
+    timestamp: Int!
+    detailsUrl: String
+
+    # change is set if status is connected to an existing change
+    change: Change
+    gitHubPullRequest: GitHubPullRequest
+}
+
+input UpdateStatusInput {
+    changeID: ID!
+    type: StatusType!
+    title: String!
+    description: String
+    detailsUrl: String
+}
+
+# Workspace
+#
+# A workspace is a version of a codebase where work-in-progress code happens.
+# In git-land, it's analogous to a combination of a branch and a Pull Request.
+#
+# If a workspace is attached to a "View", it's receiving changes from a connected computer.
+type Workspace {
+    codebase: Codebase!
+    id: ID!
+    name: String!
+    author: Author!
+
+    createdAt: Int!
+    lastLandedAt: Int
+    updatedAt: Int
+
+    # Is set if the workspace is archived
+    archivedAt: Int
+
+    # Is set if the workspace has been unarchived
+    unarchivedAt: Int
+
+    # max(createdAt, lastLandedAt, updatedAt, archivedAt, unArchivedAt)
+    lastActivityAt: Int!
+
+    draftDescription: String!
+
+    # The current authoritative view of this workspace
+    view: View
+
+    # List of comments made on this workspace that are not connected to a particular change
+    comments: [TopComment!]!
+
+    # Non-authoritative views using this workspace
+    # DEPRECATED
+    suggestingViews: [View!]!
+
+    # Only applies when there is a github integration for the codebase.
+    #
+    # Returns one of:
+    # - The single currently open pull request for this workspace
+    # - The most recently closed pull request if there is no PR which is currently opened
+    # - Null if there was never any pull request created for this workspace
+    gitHubPullRequest: GitHubPullRequest
+
+    upToDateWithTrunk: Boolean!
+
+    # Computationally intensive, request it only when needed
+    conflicts: Boolean!
+
+    # The change (which must be on trunk) that this workspace is based on.
+    # The headChange is updated when the workspace is synced.
+    headChange: Change
+
+    activity(input: WorkspaceActivityInput): [WorkspaceActivity!]!
+
+    reviews: [Review!]!
+
+    presence: [WorkspacePresence!]!
+
+    suggestion: Suggestion
+    # suggestions for this workspace
+    suggestions: [Suggestion!]!
+
+    # A list of associated statuses from the ci.
+    statuses: [Status!]!
+
+    # A list of users watching this workspace.
+    watchers: [WorkspaceWatcher!]!
+}
+
+input WatchWorkspaceInput {
+    workspaceID: ID!
+}
+
+input UnwatchWorkspaceInput {
+    workspaceID: ID!
+}
+
+enum WorkspaceWatcherStatus {
+    Watching
+    Ignored
+}
+
+type WorkspaceWatcher {
+    user: User!
+    workspace: Workspace!
+    status: WorkspaceWatcherStatus!
+}
+
+type WorkspacePresence {
+    id: ID!
+    author: Author!
+    state: WorkspacePresenceState!
+    lastActiveAt: Int!
+    workspace: Workspace!
+}
+
+enum WorkspacePresenceState {
+    Idle,
+    Viewing,
+    Coding,
+}
+
+input ReportWorkspacePresenceInput {
+    workspaceID: ID!
+    state: WorkspacePresenceState!
+}
+
+input WorkspaceActivityInput {
+    unreadOnly: Boolean
+    limit: Int
+}
+
+input UpdateWorkspaceInput {
+    id: ID!
+    name: String
+    draftDescription: String
+}
+
+input CreateWorkspaceInput {
+    codebaseID: ID!
+
+    # Creates a new workspace with onTopOfChange as the HEAD change, if not provided, the current trunk HEAD will be used.
+    onTopOfChange: ID
+
+    # Creates a new workspace with onTopOfChangeWithRevert as the HEAD change, and with the reverted contents of onTopOfChangeWithRevert applied to the workspace.
+    # onTopOfChange and onTopOfChangeWithRevert are mutually exclusive.
+    onTopOfChangeWithRevert: ID
+}
+
+input ExtractWorkspaceInput {
+    workspaceID: ID!
+    patchIDs: [String!]!
+}
+
+input LandWorkspaceChangeInput {
+    workspaceID: ID!
+    patchIDs: [String!]!
+}
+
+# View.
+#
+# A view represents a directory on a connected computer to Sturdy.
+type View {
+    id: ID!
+    mountPath: String!
+    shortMountPath: String!
+    mountHostname: String!
+    lastUsedAt: Int!
+    createdAt: Int!
+    author: Author!
+    workspace: Workspace
+    status: ViewStatus
+    codebase: Codebase!
+    ignoredPaths: [String!]!
+
+    # Deprecated
+    suggestingWorkspace: Workspace
+}
+
+type ViewStatus {
+    id: ID!
+    state: ViewStatusState!
+
+    # If uploading or downloading, the current file being processed
+    progressPath: String
+    # If uploading or downloading, how many files that have been processed
+    progressReceived: Int
+    # If uploading or downloading, how many files to be processed in total in this operation
+    progressTotal: Int
+
+    lastError: String
+
+    sturdyVersion: String!
+
+    updatedAt: Int!
+}
+
+enum ViewStatusState {
+    Ready
+    Uploading @deprecated(reason: "Replaced by Transferring")
+    Downloading @deprecated(reason: "Replaced by Transferring")
+    Transferring
+    Finishing
+    Disconnected
+    Reconciling
+    Connecting
+    Scanning
+}
+
+input OpenWorkspaceOnViewInput {
+    viewID: ID!
+    workspaceID: ID!
+}
+
+input CopyWorkspaceToViewInput {
+    viewID: ID!
+    workspaceID: ID!
+}
+
+type GitHubPullRequest {
+    id: ID!
+    pullRequestNumber: Int!
+    open: Boolean!
+    merged: Boolean!
+    mergedAt: Int
+    base: String!
+    workspace: Workspace!
+    statuses: [Status!]!
+}
+
+input CreateOrUpdateGitHubPullRequestInput {
+    workspaceID: ID!
+    patchIDs: [String!]!
+}
+
+input MergeGitHubPullRequestInput {
+    workspaceID: ID!
+}
+
+input CreateWorkspaceFromGitHubBranchInput {
+    codebaseID: ID!
+    branchName: String!
+}
+
+input ImportGitHubPullRequestsInput {
+    codebaseID: ID!
+}
+
+# Comment
+interface Comment {
+    id: ID!
+    author: Author!
+    createdAt: Int!
+    deletedAt: Int
+    message: String!
+}
+
+type TopComment implements Comment {
+    id: ID!
+    author: Author!
+    createdAt: Int!
+    deletedAt: Int
+    message: String!
+
+    # Comments attached to a workspace
+    workspace: Workspace
+
+    # Comments on a change
+    change: Change
+
+    # Comments on code
+    codeContext: CommentCodeContext
+
+    replies: [ReplyComment!]!
+}
+
+type CommentCodeContext {
+    id: ID!
+
+    path: String!
+    lineStart: Int!
+    lineEnd: Int!
+
+    # If the line numbers are the "new" line numbers (when commenting on the new code), or the old line numbers
+    lineIsNew: Boolean!
+
+    # The line of code that the comment was made on, with surrounding lines.
+    context: String!
+    # The line number of the first line in the context
+    contextStartsAtLine: Int!
+}
+
+type ReplyComment implements Comment {
+    id: ID!
+    author: Author!
+    createdAt: Int!
+    deletedAt: Int
+    message: String!
+    parent: TopComment!
+}
+
+input UpdateCommentInput {
+    id: ID!
+    message: String!
+}
+
+input CreateCommentInput {
+    message: String!
+
+    # If this is a reply to a TopComment
+    inReplyTo: ID
+
+    # (path, lineStart, lineEnd, lineIsNew, changeID, workspaceID, and viewID) are mutually exclusive with inReplyTo
+    # as they can only be set on TopComments
+    path:  String
+    lineStart: Int
+    lineEnd: Int
+    lineIsNew: Boolean
+    # ChangeID and WorkspaceID are mutually exclusive
+    changeID: ID
+    workspaceID: ID
+    viewID: ID
+}
+
+input UpdateACLInput {
+    codebaseID: ID!
+    policy: String
+}
+
+# Change
+type Change {
+    id: ID!
+    comments: [TopComment!]!
+    title: String!
+    description: String!
+    trunkCommitID: String
+    author: Author!
+    createdAt: Int!
+    diffs: [FileDiff!]!
+
+    # Generates download links on demand.
+    # The URL in the result will contain a URL with temporary authentication credentials.
+    downloadTarGz: ContentsDownloadURL!
+    downloadZip: ContentsDownloadURL!
+
+    # A list of associated statuses from the ci.
+    statuses: [Status!]!
+}
+
+type FileDiff {
+    id: ID!
+
+    origName: String!
+    newName: String!
+    preferredName: String! # The same as either OrigName or NewName. Comments and suggestions are referring to this name.
+
+    isDeleted: Boolean!
+    isNew: Boolean!
+    isMoved: Boolean!
+
+    isLarge: Boolean!
+    largeFileInfo: LargeFileInfo
+
+    isHidden: Boolean!
+
+    hunks: [Hunk!]!
+}
+
+type LargeFileInfo {
+    id: ID!
+    size: Int!
+}
+
+type Hunk {
+    id: ID!
+    patch: String!
+
+    # only used for suggestions
+    isOutdated: Boolean!
+    isApplied: Boolean!
+    isDismissed: Boolean!
+}
+
+type Suggestion {
+    id: ID!
+    # Author of the change.
+    author: Author!
+    # Workspace that contains the suggestions.
+    workspace: Workspace!
+    # Workspace that the suggestion is made for.
+    for: Workspace!
+    diffs: [FileDiff!]!
+    createdAt: Int!
+    dismissedAt: Int
+}
+
+enum NotificationType {
+    Comment
+    Review
+    RequestedReview
+    NewSuggestion
+    GitHubRepositoryImported
+}
+
+# Notification
+interface Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+}
+
+type NewSuggestionNotification implements Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+
+    suggestion: Suggestion!
+}
+
+type CommentNotification implements Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+
+    comment: Comment!
+}
+
+type RequestedReviewNotification implements Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+
+    review: Review!
+}
+
+type ReviewNotification implements Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+
+    review: Review!
+}
+
+type GitHubRepositoryImported implements Notification {
+    id: ID!
+    type: NotificationType!
+    createdAt: Int!
+    archivedAt: Int
+    codebase: Codebase!
+
+    repository: CodebaseGitHubIntegration!
+}
+
+input ArchiveNotificationsInput {
+    ids: [ID!]!
+}
+
+input UpdateNotificationPreferenceInput {
+    type: NotificationType!
+    channel: NotificationChannel!
+    enabled: Boolean!
+}
+
+type GitHubApp {
+    _id: ID! # Always "sturdy"
+    name: String!
+    clientID: String!
+}
+
+interface WorkspaceActivity {
+    id: ID!
+    createdAt: Int!
+    author: Author!
+    isRead: Boolean!
+    workspace: Workspace!
+}
+
+type WorkspaceCommentActivity implements WorkspaceActivity {
+    id: ID!
+    createdAt: Int!
+    author: Author!
+    isRead: Boolean!
+    workspace: Workspace!
+
+    comment: Comment!
+}
+
+type WorkspaceCreatedChangeActivity implements WorkspaceActivity {
+    id: ID!
+    createdAt: Int!
+    author: Author!
+    isRead: Boolean!
+    workspace: Workspace!
+
+    change: Change!
+}
+
+type WorkspaceRequestedReviewActivity implements WorkspaceActivity {
+    id: ID!
+    createdAt: Int!
+    author: Author!
+    isRead: Boolean!
+    workspace: Workspace!
+
+    review: Review!
+}
+
+type WorkspaceReviewedActivity implements WorkspaceActivity {
+    id: ID!
+    createdAt: Int!
+    author: Author!
+    isRead: Boolean!
+    workspace: Workspace!
+
+    review: Review!
+}
+
+input ReadWorkspaceActivity {
+    id: ID!
+}
+
+type Review {
+    id: ID!
+    author: Author!
+    grade: ReviewGrade!
+    createdAt: Int!
+    dismissedAt: Int
+    isReplaced: Boolean!
+    requestedBy: Author
+    workspace: Workspace!
+}
+
+enum ReviewGrade {
+    # The reviewer has approved this change
+    Approve
+    # The reviewer has rejected this change
+    Reject
+    # A review has been requested by this author
+    Requested
+}
+
+input CreateReviewInput {
+    workspaceID: ID!
+    grade: ReviewGrade!
+}
+
+input DismissReviewInput {
+    id: ID!
+}
+
+input RequestReviewInput {
+    workspaceID: ID!
+    userID: ID!
+}
+
+union FileOrDirectory = File | Directory
+
+type File {
+    id: ID!
+    path: String!
+    contents: String!
+    mimeType: String!
+}
+
+type Directory {
+    id: ID!
+    path: String!
+    children: [FileOrDirectory]!
+    readme: File
+}
+
+type ContentsDownloadURL {
+    id: ID!
+    url: String!
+}
+
+input TriggerInstantIntegrationInput {
+    changeID: ID!
+    providers: [String!]
+}
+
+type OnboardingStep {
+    id: ID!
+}

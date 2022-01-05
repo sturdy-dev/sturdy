@@ -1,0 +1,1 @@
+DROP TABLE completed_onboarding_steps;

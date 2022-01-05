@@ -1,0 +1,1 @@
+alter table workspace_sync add column drop_commits text[];

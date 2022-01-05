@@ -1,0 +1,1 @@
+DROP TABLE codebases_garbage_collection_status;

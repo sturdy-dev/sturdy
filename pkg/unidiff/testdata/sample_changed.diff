@@ -1,0 +1,12 @@
+diff --git a/abc.txt b/abc.txt
+index a3bb749..6a7a823 100644
+--- a/abc.txt
++++ b/abc.txt
+@@ -1,7 +1,6 @@
+ a
+ b
+ d
+-e
+ f
+ g
+ h

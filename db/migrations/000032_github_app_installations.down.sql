@@ -1,0 +1,2 @@
+DROP TABLE github_app_installations;
+DROP TABLE github_app_installed_repositories;
