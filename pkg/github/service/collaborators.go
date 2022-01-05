@@ -51,6 +51,8 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 			zap.String("github_login", collaborator.GetLogin()),
 		)
 
+		logger.Info("setting up collaborator")
+
 		gitHubUser, err := svc.gitHubUserRepo.GetByUsername(collaborator.GetLogin())
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
@@ -67,13 +69,27 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 		if !createdWithinTheLastHour {
 			if err := svc.notificationSender.User(ctx, gitHubUser.UserID, gitHubRepo.CodebaseID, notification.GitHubRepositoryImported, gitHubRepo.ID); err != nil {
 				logger.Error("failed to send github repo imported notification", zap.Error(err))
+			} else {
+				logger.Info("sent notification about the imported codebase")
 			}
+		} else {
+			logger.Info("github user is to new, skipping sending notification")
 		}
 
 		_, err = svc.codebaseUserRepo.GetByUserAndCodebase(gitHubUser.UserID, codebaseID)
 		switch {
 		case err == nil:
+			// The user is already a member (and is likely the user that installed the repo)
+			logger.Info("github user is already a member of the codebase")
+
+			// enqueue import pull requests for this user
+			if err := svc.EnqueueGitHubPullRequestImport(ctx, codebaseID, gitHubUser.UserID); err != nil {
+				logger.Error("failed to add to pr importer queue", zap.Error(err))
+			}
 		case errors.Is(err, sql.ErrNoRows):
+
+			logger.Info("granting access to repository based on GitHub credentials")
+
 			t0 := time.Now()
 			if err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
 				ID:         uuid.NewString(),
@@ -84,8 +100,6 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 				logger.Warn("failed to create codebase-user relation in db", zap.Error(err))
 				continue
 			}
-
-			logger.Info("granting access to repository based on GitHub credentials")
 
 			if err := svc.postHogClient.Enqueue(posthog.Capture{
 				Event:      "added user to codebase",
