@@ -80,12 +80,18 @@
           </router-link>
         </div>
       </nav>
-      <p class="mt-8 text-center text-base text-gray-400">&copy; 2021 Sturdy Sweden AB</p>
+      <p class="mt-8 text-center text-base text-gray-400">&copy; {{year}} Sturdy Sweden AB</p>
     </div>
   </footer>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-export default defineComponent({})
+export default defineComponent({
+  setup() {
+    return {
+      year: new Date().getFullYear(),
+    }
+  }
+})
 </script>
