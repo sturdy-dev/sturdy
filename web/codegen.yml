@@ -1,5 +1,8 @@
 overwrite: true
-schema: "../pkg/graphql/schema.graphql"
+schema: 
+  - "../pkg/graphql/schema/schema.graphql"
+  - "../pkg/graphql/schema/oss.graphql"
+  - "../pkg/graphql/schema/enterprise.graphql"
 documents:
   - "src/**/*.vue"
   - "src/**/*.ts"
@@ -17,3 +20,9 @@ generates:
       extension: ".ts"
     plugins:
       - typescript-operations
+
+  schema.json:
+    plugins:
+      - introspection
+    config:
+      minify: true

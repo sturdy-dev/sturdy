@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID string) error {
+func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID string, authAsUserID *string) error {
 	var didInviteAny bool
 
 	gitHubRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
@@ -32,15 +32,12 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 		return fmt.Errorf("failed to get installation: %w", err)
 	}
 
-	tokenClient, _, err := svc.gitHubClientProvider(
-		svc.gitHubAppConfig,
-		installation.InstallationID,
-	)
+	repoClient, err := svc.authAsUserOrFallbackAsApp(authAsUserID, installation.InstallationID)
 	if err != nil {
-		return fmt.Errorf("failed to create github client: %w", err)
+		return fmt.Errorf("failed to get a github client: %w", err)
 	}
 
-	collaborators, err := listAllCollaborators(ctx, tokenClient.Repositories, installation.Owner, gitHubRepo.Name)
+	collaborators, err := listAllCollaborators(ctx, repoClient, installation.Owner, gitHubRepo.Name)
 	if err != nil {
 		return fmt.Errorf("failed to list collaborators: %w", err)
 	}
@@ -81,11 +78,6 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 		case err == nil:
 			// The user is already a member (and is likely the user that installed the repo)
 			logger.Info("github user is already a member of the codebase")
-
-			// enqueue import pull requests for this user
-			if err := svc.EnqueueGitHubPullRequestImport(ctx, codebaseID, gitHubUser.UserID); err != nil {
-				logger.Error("failed to add to pr importer queue", zap.Error(err))
-			}
 		case errors.Is(err, sql.ErrNoRows):
 
 			logger.Info("granting access to repository based on GitHub credentials")
@@ -133,6 +125,35 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 	return nil
 }
 
+func (svc *Service) authAsUserOrFallbackAsApp(userID *string, installationID int64) (client.RepositoriesClient, error) {
+	// Prefer user auth
+	if userID != nil {
+		gitHubUser, err := svc.gitHubUserRepo.GetByUserID(*userID)
+		// Auth as user if a user could be found
+		if err == nil {
+			personalClient, err := svc.gitHubPersonalClientProvider(gitHubUser.AccessToken)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create personal github client: %w", err)
+			}
+			return personalClient.Repositories, nil
+		}
+	}
+
+	// Fallback to authenticating as the app, note tough that this is a worse option. As requests from the app might not see all users.
+	tokenClient, _, err := svc.gitHubClientProvider(
+		svc.gitHubAppConfig,
+		installationID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create github client: %w", err)
+	}
+	return tokenClient.Repositories, nil
+
+}
+
+// listAllCollaborators returns a list of collaborators that the authenticated user can _see_.
+// Note that the app does not have collaborator access, and will only see users that have a _public_ membership.
+// To get the full list of collaborators, authenticate as a user with a confirmed membership (the user that installed the app is a good candidate).
 func listAllCollaborators(ctx context.Context, reposClient client.RepositoriesClient, owner, name string) ([]*github.User, error) {
 	var users []*github.User
 	page := 1
@@ -148,7 +169,10 @@ func listAllCollaborators(ctx context.Context, reposClient client.RepositoriesCl
 }
 
 func listCollaborators(ctx context.Context, reposClient client.RepositoriesClient, owner, name string, page int) ([]*github.User, int, error) {
-	users, rsp, err := reposClient.ListCollaborators(ctx, owner, name, &github.ListCollaboratorsOptions{ListOptions: github.ListOptions{Page: page}})
+	users, rsp, err := reposClient.ListCollaborators(ctx, owner, name, &github.ListCollaboratorsOptions{
+		Affiliation: "all",
+		ListOptions: github.ListOptions{Page: page, PerPage: 50}},
+	)
 	if err != nil {
 		return nil, 0, err
 	}

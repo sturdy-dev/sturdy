@@ -443,8 +443,8 @@ func (r *codebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewReso
 	return (*r.root.viewResolver).InternalLastUsedViewByUser(ctx, r.c.ID, userID)
 }
 
-func (r *codebaseResolver) GitHubIntegration() (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	resolver, err := (*r.root.codebaseGitHubIntegrationResolver).InternalCodebaseGitHubIntegration(graphql.ID(r.c.ID))
+func (r *codebaseResolver) GitHubIntegration(ctx context.Context) (resolvers.CodebaseGitHubIntegrationResolver, error) {
+	resolver, err := (*r.root.codebaseGitHubIntegrationResolver).InternalCodebaseGitHubIntegration(ctx, graphql.ID(r.c.ID))
 	switch {
 	case err == nil:
 		return resolver, nil
