@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { toRefs, defineComponent, PropType } from 'vue'
 import { BellIcon as BellIconSolid } from '@heroicons/vue/solid'
 import NotificationOverlay from './Overlay.vue'
 import { NOTIFICATION_FRAGMENT as NOTIFICATION_DATA_FRAGMENT } from './Feed.vue'
@@ -51,6 +51,7 @@ import {
   NotificationIconQueryVariables,
 } from './__generated__/Icon'
 import { Slug } from '../../slug'
+import { Feature } from '../../__generated__/types'
 
 const NOTIFICATION_FRAGMENT = gql`
   fragment Notification on Notification {
@@ -192,14 +193,18 @@ export default defineComponent({
   },
   props: {
     user: { type: Object as PropType<User>, required: true },
+    features: { type: Array as PropType<Feature[]>, required: true },
   },
-  setup() {
+  setup(props) {
+    const { features } = toRefs(props)
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+
     let { data, fetching, error, executeQuery } = useQuery<
       NotificationIconQuery,
       NotificationIconQueryVariables
     >({
       query: gql`
-        query NotificationIcon {
+        query NotificationIcon($isGitHubEnabled: Boolean!) {
           notifications {
             ...Notification
           }
@@ -207,6 +212,9 @@ export default defineComponent({
         ${NOTIFICATION_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
+      variables: {
+        isGitHubEnabled,
+      },
     })
 
     let { executeMutation: archiveNotificationsResult } = useMutation(

@@ -1,4 +1,6 @@
 type Query {
+    features: [Feature!]!
+
     # Codebases is all codebases that the authenticated user has access to
     codebases: [Codebase!]!
 
@@ -855,4 +857,9 @@ input TriggerInstantIntegrationInput {
 
 type OnboardingStep {
     id: ID!
+}
+
+enum Feature {
+    GitHub
+    Buildkite
 }

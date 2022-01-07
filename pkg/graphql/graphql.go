@@ -25,6 +25,7 @@ import (
 	db_comments "mash/pkg/comments/db"
 	graphql_comments "mash/pkg/comments/graphql"
 	"mash/pkg/ctxlog"
+	graphql_features "mash/pkg/features/graphql"
 	graphql_file "mash/pkg/file/graphql"
 	github_client "mash/pkg/github/client"
 	"mash/pkg/github/config"
@@ -114,6 +115,7 @@ type RootResolver struct {
 	resolvers.PKIRootResolver
 	resolvers.ServiceTokensRootResolver
 	resolvers.BuildkiteInstantIntegrationRootResolver
+	resolvers.FeaturesRootResolver
 
 	schema     *graphql.Schema
 	jwtService *service_jwt.Service
@@ -502,6 +504,7 @@ func New(
 		PKIRootResolver:                         *pkiRootResolver,
 		ServiceTokensRootResolver:               *serviceTokensRootResolver,
 		BuildkiteInstantIntegrationRootResolver: *buildkiteRootResolver,
+		FeaturesRootResolver:                    graphql_features.Resolver,
 	}
 
 	logger = logger.Named("graphql")

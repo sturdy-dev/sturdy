@@ -228,7 +228,7 @@
       </router-link>
 
       <div class="flex space-x-2">
-        <NotificationIcon v-if="user" :user="user" class="justify-center inline-flex" />
+                <NotificationIcon v-if="user" :features="features" :user="user" class="justify-center inline-flex" />
         <router-link
           :to="{ name: 'user' }"
           class="p-2 hover:bg-warmgray-300 text-gray-400 hover:text-gray-700 transition rounded-md"
@@ -255,7 +255,6 @@ import { useUpdatedCodebase } from '../../subscriptions/useUpdatedCodebase'
 import { useUpdatedWorkspaceActivity } from '../../subscriptions/useUpdatedWorkspaceActivity'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 import ViewStatusIndicator, { VIEW_STATUS_INDICATOR } from '../ViewStatusIndicator.vue'
-import TeleportedPosition from '../TeleportedPosition.vue'
 import { useOpenWorkspaceOnView } from '../../mutations/useOpenWorkspaceOnView'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Tooltip from '../shared/Tooltip.vue'
@@ -267,7 +266,7 @@ import {
   StackedMenu_WorkspaceReviewFragment as WorkspaceReview,
   WorkspaceFragment,
 } from './__generated__/StackedMenu'
-import { ReviewGrade, User, WorkspacePresenceState } from '../../__generated__/types'
+import { ReviewGrade, User, WorkspacePresenceState, Feature } from '../../__generated__/types'
 import { useUpdatedReviews } from '../../subscriptions/useUpdatedReviews'
 import {
   NavigationCodebase,
@@ -516,6 +515,10 @@ export default defineComponent({
     user: {
       type: Object as PropType<User>,
     },
+        features: {
+            type: Array as PropType<Feature[]>,
+            required: true
+        },
   },
 
   emits: ['logout'],

@@ -129,7 +129,7 @@
             message="Your avatar has been updated!"
           />
 
-          <Integrations v-if="isGithubEnabled" :user="data.user" :git-hub-app="data.gitHubApp" />
+          <Integrations v-if="isGitHubEnabled" :user="data.user" :git-hub-app="data.gitHubApp" />
 
           <div>
             <div>
@@ -140,6 +140,7 @@
             <VerifyEmail :email-verified="data.user.emailVerified" />
 
             <NotificationPreferences
+              :features="features"
               :preferences="data.user.notificationPreferences"
               :email-verified="data.user.emailVerified"
             />
@@ -183,7 +184,7 @@ import http from '../http'
 import Banner from '../components/shared/Banner.vue'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import Button from '../components/shared/Button.vue'
-import { ref, watch, inject } from 'vue'
+import { ref, watch, toRefs } from 'vue'
 import NotificationPreferences from '../components/user/NotificationPreferences.vue'
 import VerifyEmail from '../components/user/VerifyEmail.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
@@ -191,51 +192,9 @@ import Integrations, {
   INTEGRATIONS_GITHUB_APP_FRAGMENT,
   INTEGRATIONS_USER_FRAGMENT,
 } from '../organisms/user/Integrations.vue'
-
-const enterpriseQuery = gql`
-  query EnterpriseUserPage {
-    gitHubApp {
-      ...IntegrationsGitHubApp
-    }
-    user {
-      id
-      name
-      email
-      emailVerified
-      avatarUrl
-      notificationsReceiveNewsletter
-      notificationPreferences {
-        type
-        channel
-        enabled
-      }
-      ...IntegrationsUser
-    }
-  }
-  ${INTEGRATIONS_GITHUB_APP_FRAGMENT}
-  ${INTEGRATIONS_USER_FRAGMENT}
-`
-
-const ossQuery = gql`
-  query OSSUserPage {
-    user {
-      id
-      name
-      email
-      emailVerified
-      avatarUrl
-      notificationsReceiveNewsletter
-      notificationPreferences {
-        type
-        channel
-        enabled
-      }
-    }
-  }
-`
+import { Feature } from '../__generated__/types'
 
 export default {
-  name: 'User',
   components: {
     PaddedApp,
     Banner,
@@ -244,14 +203,44 @@ export default {
     VerifyEmail,
     Integrations,
   },
-  setup() {
-    const features = inject('features')
-    const isGithubEnabled = features.has('github')
-    const useEnterprise = isGithubEnabled
+  props: {
+    features: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
+    const { features } = toRefs(props)
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
 
     let { data, fetching, error, executeQuery } = useQuery({
-      query: useEnterprise ? enterpriseQuery : ossQuery,
+      query: gql`
+        query UserPage($isGitHubEnabled: Boolean!) {
+          gitHubApp @include(if: $isGitHubEnabled) {
+            ...IntegrationsGitHubApp
+          }
+          user {
+            id
+            name
+            email
+            emailVerified
+            avatarUrl
+            notificationsReceiveNewsletter
+            notificationPreferences {
+              type
+              channel
+              enabled
+            }
+            ...IntegrationsUser @include(if: $isGitHubEnabled)
+          }
+        }
+        ${INTEGRATIONS_GITHUB_APP_FRAGMENT}
+        ${INTEGRATIONS_USER_FRAGMENT}
+      `,
       requestPolicy: 'cache-and-network',
+      variables: {
+        isGitHubEnabled,
+      },
     })
 
     const { executeMutation: updateUserResult } = useMutation(gql`
@@ -284,7 +273,7 @@ export default {
     })
 
     return {
-      isGithubEnabled,
+      isGitHubEnabled,
 
       data,
       fetching,

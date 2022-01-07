@@ -40,11 +40,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, inject } from 'vue'
 import {
   NotificationPreference,
   NotificationType,
   NotificationChannel,
+  Feature,
 } from '../../__generated__/types'
 import { useUpdateNotificationPreference } from '../../mutations/useUpdateNotificationPreference'
 
@@ -68,6 +69,10 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+    features: {
+      type: Array as PropType<Feature[]>,
+      required: true,
+    },
   },
   setup() {
     const updateNotificationPreferenceResult = useUpdateNotificationPreference()
@@ -89,6 +94,12 @@ export default defineComponent({
     grouped(): Preference[] {
       const enabledByTypeByChannel = new Map()
       this.preferences.forEach((p) => {
+        if (
+          p.type === NotificationType.GitHubRepositoryImported &&
+          !this.features.includes(Feature.GitHub)
+        ) {
+          return
+        }
         if (!enabledByTypeByChannel.get(p.type)) {
           const m = new Map()
           m.set(p.channel, p.enabled)
