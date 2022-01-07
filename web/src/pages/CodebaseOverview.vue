@@ -123,7 +123,7 @@
     </div>
 
     <NoCodebasesGitHubAuth
-      v-if="data && (data.codebases.length === 0 || !data.user.gitHubAccount)"
+      v-if="isGithubEnabled && data && (data.codebases.length === 0 || !data.user.gitHubAccount)"
       class="mt-4"
       :user="data.user"
       :show-start-from-scratch="true"
@@ -144,6 +144,72 @@ import Tooltip from '../components/shared/Tooltip.vue'
 import Spinner from '../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
+import { inject } from 'vue'
+
+const ossQuery = gql`
+  query OSSCodebaseOverview {
+    codebases {
+      id
+      shortID
+      name
+      description
+      inviteCode
+      createdAt
+      archivedAt
+      lastUpdatedAt
+      isReady
+      isPublic
+      members {
+        id
+        name
+        avatarUrl
+      }
+    }
+
+    user {
+      id
+      name
+    }
+  }
+`
+
+const enterpriseQuery = gql`
+  query EnterpriseCodebaseOverview {
+    codebases {
+      id
+      shortID
+      name
+      description
+      inviteCode
+      createdAt
+      archivedAt
+      lastUpdatedAt
+      isReady
+      isPublic
+      members {
+        id
+        name
+        avatarUrl
+      }
+      gitHubIntegration {
+        id
+        owner
+        name
+        enabled
+        gitHubIsSourceOfTruth
+      }
+    }
+
+    user {
+      id
+      name
+      gitHubAccount {
+        id
+        login
+      }
+    }
+  }
+`
 
 export default {
   name: 'CodebasesOverview',
@@ -159,44 +225,12 @@ export default {
   },
   emits: ['toggleNavSize'],
   setup() {
-    const result = useQuery({
-      query: gql`
-        query CodebaseOverview {
-          codebases {
-            id
-            shortID
-            name
-            description
-            inviteCode
-            createdAt
-            archivedAt
-            lastUpdatedAt
-            isReady
-            isPublic
-            members {
-              id
-              name
-              avatarUrl
-            }
-            gitHubIntegration {
-              id
-              owner
-              name
-              enabled
-              gitHubIsSourceOfTruth
-            }
-          }
+    const features = inject('features')
+    const isGithubEnabled = features.has('github')
+    const useEnterprise = isGithubEnabled
 
-          user {
-            id
-            name
-            gitHubAccount {
-              id
-              login
-            }
-          }
-        }
-      `,
+    const result = useQuery({
+      query: useEnterprise ? enterpriseQuery : ossQuery,
     })
 
     useUpdatedCodebase()
@@ -205,6 +239,8 @@ export default {
       fetching: result.fetching,
       data: result.data,
       error: result.error,
+
+      isGithubEnabled,
     }
   },
   data() {
