@@ -77,7 +77,7 @@ export const NOTIFICATION_FRAGMENT = gql`
     ... on NewSuggestionNotification {
       ...NewSuggestionNotification
     }
-    ... on GitHubRepositoryImported {
+    ... on GitHubRepositoryImported @include(if: $isGitHubEnabled) {
       ...GitHubRepositoryImported
     }
   }

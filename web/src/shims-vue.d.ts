@@ -11,11 +11,9 @@ declare namespace JSX {
 }
 
 import mitt from 'mitt'
-import { Feature } from './features'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     emitter: mitt
-    features: Set<Feature>
   }
 }

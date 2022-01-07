@@ -34,6 +34,7 @@
               v-if="showSidebar"
               class="hidden md:flex w-64"
               :user="user"
+              :features="features"
               @logout="logout"
             />
 
@@ -63,7 +64,7 @@
                 class="flex-1 flex flex-col overflow-x-auto"
                 :class="[appEnvironment ? 'spacer-padding' : '']"
               >
-                <router-view v-if="showRoute" :user="user" class="flex-1" />
+                <router-view v-if="showRoute" :user="user" :features="features" class="flex-1" />
                 <Error v-else-if="error" :error="error" @reset-error="error = null" />
                 <ComingSoon v-else class="pt-2 px-2" />
               </section>
@@ -120,7 +121,7 @@ import AppShareButton from './components/AppShareButton.vue'
 import AppMutagenStatus from './components/AppMutagenStatus.vue'
 import AppRedirect from './components/AppRedirect.vue'
 import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
-import { User } from './__generated__/types'
+import { User, Feature } from './__generated__/types'
 
 type ToastNotificationMessage = {
   id: string
@@ -201,6 +202,8 @@ export default defineComponent({
     const { data, fetching, executeQuery } = useQuery({
       query: gql`
         query UserQuery {
+          features
+
           user {
             id
             name
@@ -239,6 +242,9 @@ export default defineComponent({
     }
   },
   computed: {
+    features(): Feature[] {
+      return this.data?.features ?? []
+    },
     user(): User | null {
       return this.data?.user
     },

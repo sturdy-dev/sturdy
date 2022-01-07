@@ -703,7 +703,6 @@ func webserver(
 	graphql.POST("", sg.HttpHandler())
 	graphql.GET("ws", sg.WebsocketHandler())
 	graphql.POST("ws", sg.WebsocketHandler())
-	r.POST("/graphql/introspection", sg.UnauthenticatedHttpHandler(logger)) // No auth
 
 	// Public endpoints, no authentication required
 	publ := r.Group("")

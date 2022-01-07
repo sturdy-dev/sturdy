@@ -3,7 +3,6 @@ import Sturdy from './Sturdy.vue'
 import router from './router'
 import mitt from 'mitt'
 import './index.css'
-import FeaturesPlugin from './plugins/features'
 import urql, { dedupExchange, fetchExchange, ssrExchange, subscriptionExchange } from '@urql/vue'
 import { retryExchange } from '@urql/exchange-retry'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
@@ -18,9 +17,9 @@ import {
   optimisticMutationResolvers,
 } from './mutations/mutationUpdateResolvers'
 import { keyResolvers } from './keys/keyResolvers'
-import { GraphQLSchema, introspectionFromSchema } from 'graphql'
+import schema from '../schema.json'
 
-export function createApp(ssrApp: boolean, schema: GraphQLSchema) {
+export function createApp(ssrApp: boolean) {
   // Global message bus
   const emitter = mitt()
 
@@ -41,12 +40,10 @@ export function createApp(ssrApp: boolean, schema: GraphQLSchema) {
       Boolean(err && err.networkError && err.networkError.message !== 'Unauthorized'),
   }
 
-  const introspectionQuery = minifyIntrospectionQuery(getIntrospectedSchema(schema))
-  app.use(FeaturesPlugin, { schema: introspectionQuery })
   const exchanges = [
     dedupExchange,
     cacheExchange({
-      schema: introspectionQuery,
+      schema: minifyIntrospectionQuery(getIntrospectedSchema(JSON.stringify(schema))),
       updates: {
         Subscription: subscriptionUpdateResolvers,
         Mutation: mutationUpdateResolvers,
