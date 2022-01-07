@@ -78,6 +78,11 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 		case err == nil:
 			// The user is already a member (and is likely the user that installed the repo)
 			logger.Info("github user is already a member of the codebase")
+
+			// enqueue import pull requests for this user
+			if err := svc.EnqueueGitHubPullRequestImport(ctx, codebaseID, gitHubUser.UserID); err != nil {
+				logger.Error("failed to add to pr importer queue", zap.Error(err))
+			}
 		case errors.Is(err, sql.ErrNoRows):
 
 			logger.Info("granting access to repository based on GitHub credentials")

@@ -2,6 +2,8 @@ package vcs
 
 import (
 	"fmt"
+	gh "github.com/google/go-github/v39/github"
+	"go.uber.org/zap"
 	"mash/vcs"
 	"mash/vcs/provider"
 	"os"
@@ -50,10 +52,11 @@ func ListChanges(repo vcs.Repo, limit int) ([]*vcs.LogEntry, error) {
 	return filteredLog, nil
 }
 
-func CloneFromGithub(trunkProvider provider.TrunkProvider, codebaseID, repoOwner, repoName, accessToken string) error {
+func CloneFromGithub(logger *zap.Logger, trunkProvider provider.TrunkProvider, codebaseID string, repo *gh.Repository, accessToken string) error {
 	barePath := trunkProvider.TrunkPath(codebaseID)
 	if _, err := os.Open(barePath); err != nil && os.IsNotExist(err) {
-		upstream := fmt.Sprintf("https://github.com/%s/%s.git", repoOwner, repoName)
+		upstream := repo.GetCloneURL()
+		logger.Info("cloning from github", zap.String("upstream", upstream))
 		_, err := vcs.RemoteCloneWithCreds(
 			upstream,
 			barePath,
