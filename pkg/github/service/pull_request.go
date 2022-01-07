@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"mash/pkg/auth"
 	"mash/pkg/change/decorate"
 	"mash/pkg/change/message"
@@ -16,8 +19,6 @@ import (
 	"mash/pkg/view/events"
 	"mash/pkg/workspace"
 	vcsvcs "mash/vcs"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
@@ -40,6 +41,11 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return err
+	}
+
+	ws, err := svc.workspaceReader.Get(workspaceID)
+	if err != nil {
+		return fmt.Errorf("could not get workpsace: %w", err)
 	}
 
 	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
@@ -74,7 +80,15 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 	tc := oauth2.NewClient(ctx, ts)
 	userAuthClient := gh.NewClient(tc)
 
-	res, _, err := userAuthClient.PullRequests.Merge(bgCtx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, "Merged via Sturdy", &gh.PullRequestOptions{})
+	mergeOpts := &gh.PullRequestOptions{
+		CommitTitle: fmt.Sprintf("Merge pull request #%d - %s", pr.GitHubPRNumber, ws.NameOrFallback()),
+		// TODO: Do we want to set this to rebase?
+		// MergeMethod: "rebase",
+	}
+
+	commitMessage := message.CommitMessage(ws.DraftDescription) + "\n\nMerged via Sturdy"
+
+	res, _, err := userAuthClient.PullRequests.Merge(bgCtx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
 	if err != nil {
 		// 405 not allowed
 		// This happens if the repo is configured with branch protection rules (require approvals, tests to pass, etc).
