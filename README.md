@@ -29,7 +29,7 @@ docker compose -f ci/docker-compose.yaml -f ci/e2e/docker-compose.yaml up --buil
 It's possible to run the services without Docker.
 
 * Run PostreSQL, LFS, and the SSH servers: `./up`
-* Build and run the API server: `go build -v -o mash mash/cmd/api && ./mash --http-listen-addr 127.0.0.1:3000 --unauthenticated-graphql-introspection`
+* Build and run the API server: `go build -tags enterprise -v -o mash mash/cmd/api && ./mash --http-listen-addr 127.0.0.1:3000 --unauthenticated-graphql-introspection`
 * Run the web application: `cd /web && yarn install && yarn run dev`.
 * Invoke the `sturdy` CLI with `--config` set, to override the default configuration (example below). Use like so: `sturdy auth --config ~/.sturdy-local`
 

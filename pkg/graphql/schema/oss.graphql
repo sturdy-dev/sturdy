@@ -1,10 +1,3 @@
-schema {
-    # Entrypoint to the Sturdy graph
-    query: Query
-    subscription: Subscription
-    mutation: Mutation
-}
-
 type Query {
     # Codebases is all codebases that the authenticated user has access to
     codebases: [Codebase!]!
@@ -53,9 +46,6 @@ type Query {
     # User
     user: User!
 
-    # GitHub Integration Metadata
-    gitHubApp: GitHubApp!
-
     # Returns a boolean saying if the logged in user can perform the action on the resource.
     canI(codebaseID: ID!, action: String!, resource: String!): Boolean!
 
@@ -94,15 +84,6 @@ type Mutation {
 
     updateCodebase(input: UpdateCodebaseInput!): Codebase!
 
-    updateCodebaseGitHubIntegration(input: UpdateCodebaseGitHubIntegrationInput!): CodebaseGitHubIntegration!
-    createOrUpdateGitHubPullRequest(input: CreateOrUpdateGitHubPullRequestInput!): GitHubPullRequest!
-    mergeGitHubPullRequest(input: MergeGitHubPullRequestInput!): GitHubPullRequest!
-
-    # Import a branch from a connected GitHub repository to a new workspace.
-    createWorkspaceFromGitHubBranch(input: CreateWorkspaceFromGitHubBranchInput!): Workspace!
-    importGitHubPullRequests(input: ImportGitHubPullRequestsInput!): Codebase!
-    refreshGitHubCodebases: [Codebase!]!
-
     archiveNotifications(input: ArchiveNotificationsInput!): [Notification!]!
 
     updateNotificationPreference(input: UpdateNotificationPreferenceInput!): NotificationPreference!
@@ -133,13 +114,6 @@ type Mutation {
 
     # Service tokens
     createServiceToken(input: CreateServiceTokenInput!): ServiceToken!
-
-    # Instant integration
-    triggerInstantIntegration(input: TriggerInstantIntegrationInput!): [Status!]!
-
-    # Third party integrations
-    createOrUpdateBuildkiteIntegration(input: CreateOrUpdateBuildkiteIntegrationInput!): Integration!
-    deleteIntegration(input: DeleteIntegrationInput!): Integration!
 
     # Status
     updateStatus(input: UpdateStatusInput!): Status!
@@ -177,49 +151,8 @@ input DismissSuggestionInput {
     id: ID!
 }
 
-input CreateOrUpdateBuildkiteIntegrationInput {
-    integrationID: ID
-    codebaseID: ID!
-    organizationName: String!
-    pipelineName: String!
-    apiToken: String!
-    webhookSecret: String!
-}
-
 input DeleteIntegrationInput {
     id: ID!
-}
-
-enum IntegrationProvider {
-    Buildkite
-}
-
-interface Integration {
-    id: ID!
-    codebaseID: ID!
-    provider: IntegrationProvider!
-    createdAt: Int!
-    updatedAt: Int
-    deletedAt: Int
-}
-
-type BuildkiteIntegration implements Integration {
-    id: ID!
-    codebaseID: ID!
-    provider: IntegrationProvider!
-    createdAt: Int!
-    updatedAt: Int
-    deletedAt: Int
-
-    configuration: BuildkiteIntegrationConfiguration!
-}
-
-type BuildkiteIntegrationConfiguration {
-    id: ID!
-    organizationName: String!
-    pipelineName: String!
-    apiToken: String!
-    webhookSecret: String!
 }
 
 type ServiceToken {
@@ -254,8 +187,6 @@ type Subscription {
 
     updatedCodebase: Codebase!
 
-    updatedGitHubPullRequest(workspaceID: ID!): GitHubPullRequest!
-
     updatedNotifications: Notification!
 
     updatedView(id: ID!): View!
@@ -263,8 +194,6 @@ type Subscription {
     updatedViews: View!
 
     updatedChangesStatuses(changeIDs: [ID!]!): Status!
-
-    updatedGitHubPullRequestStatuses(id: ID!): Status!
 
     updatedWorkspaceActivity: WorkspaceActivity!
 
@@ -309,7 +238,6 @@ type User {
     email: String!
     emailVerified: Boolean!
     avatarUrl: String
-    gitHubAccount: GitHubAccount
     notificationsReceiveNewsletter: Boolean!
     notificationPreferences: [NotificationPreference!]!
 
@@ -326,11 +254,6 @@ input UpdateUserInput {
 
 input VerifyEmailInput {
     token: String!
-}
-
-type GitHubAccount {
-    id: ID!
-    login: String!
 }
 
 type ACL {
@@ -360,8 +283,6 @@ type Codebase {
     # Only applies to authenticated user
     lastUsedView: View
 
-    gitHubIntegration: CodebaseGitHubIntegration
-
     # If the codebase is ready to be used
     isReady: Boolean!
 
@@ -370,36 +291,10 @@ type Codebase {
     readme: File
 
     file(path: String!): FileOrDirectory
-
-    integrations(id: ID): [Integration!]!
 }
 
 input CodebaseChangesInput {
     limit: Int
-}
-
-type CodebaseGitHubIntegration {
-    id: ID!
-    owner: String!
-    name: String!
-    createdAt: Int!
-    uninstalledAt: Int
-    trackedBranch: String
-    syncedAt: Int
-
-    # If the GitHub integration is enabled or not.
-    # Controllable by the user
-    enabled: Boolean!
-
-    # If GitHub is the source of truth or not.
-    # When true, Sturdy will open PRs
-    gitHubIsSourceOfTruth: Boolean!
-
-    # Error message (from GitHub) if pushing failed
-    lastPushErrorMessage: String
-    lastPushAt: Int
-
-    codebase: Codebase!
 }
 
 input UpdateCodebaseInput {
@@ -411,11 +306,6 @@ input UpdateCodebaseInput {
     isPublic: Boolean
 }
 
-input UpdateCodebaseGitHubIntegrationInput {
-    id: ID!
-    enabled: Boolean
-    gitHubIsSourceOfTruth: Boolean
-}
 
 enum StatusType {
     Pending
@@ -433,7 +323,6 @@ type Status {
 
     # change is set if status is connected to an existing change
     change: Change
-    gitHubPullRequest: GitHubPullRequest
 }
 
 input UpdateStatusInput {
@@ -480,14 +369,6 @@ type Workspace {
     # Non-authoritative views using this workspace
     # DEPRECATED
     suggestingViews: [View!]!
-
-    # Only applies when there is a github integration for the codebase.
-    #
-    # Returns one of:
-    # - The single currently open pull request for this workspace
-    # - The most recently closed pull request if there is no PR which is currently opened
-    # - Null if there was never any pull request created for this workspace
-    gitHubPullRequest: GitHubPullRequest
 
     upToDateWithTrunk: Boolean!
 
@@ -645,35 +526,6 @@ input CopyWorkspaceToViewInput {
     workspaceID: ID!
 }
 
-type GitHubPullRequest {
-    id: ID!
-    pullRequestNumber: Int!
-    open: Boolean!
-    merged: Boolean!
-    mergedAt: Int
-    base: String!
-    workspace: Workspace!
-    statuses: [Status!]!
-}
-
-input CreateOrUpdateGitHubPullRequestInput {
-    workspaceID: ID!
-    patchIDs: [String!]!
-}
-
-input MergeGitHubPullRequestInput {
-    workspaceID: ID!
-}
-
-input CreateWorkspaceFromGitHubBranchInput {
-    codebaseID: ID!
-    branchName: String!
-}
-
-input ImportGitHubPullRequestsInput {
-    codebaseID: ID!
-}
-
 # Comment
 interface Comment {
     id: ID!
@@ -827,7 +679,6 @@ enum NotificationType {
     Review
     RequestedReview
     NewSuggestion
-    GitHubRepositoryImported
 }
 
 # Notification
@@ -879,15 +730,6 @@ type ReviewNotification implements Notification {
     review: Review!
 }
 
-type GitHubRepositoryImported implements Notification {
-    id: ID!
-    type: NotificationType!
-    createdAt: Int!
-    archivedAt: Int
-    codebase: Codebase!
-
-    repository: CodebaseGitHubIntegration!
-}
 
 input ArchiveNotificationsInput {
     ids: [ID!]!
@@ -897,12 +739,6 @@ input UpdateNotificationPreferenceInput {
     type: NotificationType!
     channel: NotificationChannel!
     enabled: Boolean!
-}
-
-type GitHubApp {
-    _id: ID! # Always "sturdy"
-    name: String!
-    clientID: String!
 }
 
 interface WorkspaceActivity {
