@@ -3,41 +3,25 @@ import Sturdy from './Sturdy.vue'
 import router from './router'
 import mitt from 'mitt'
 import './index.css'
-import FeaturesPlugin from './plugins/features'
 import urql, { dedupExchange, fetchExchange, ssrExchange, subscriptionExchange } from '@urql/vue'
 import { retryExchange } from '@urql/exchange-retry'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { devtoolsExchange } from '@urql/devtools'
 import { createHead } from '@vueuse/head'
 import { RetryExchangeOptions } from '@urql/exchange-retry/dist/types/retryExchange'
-import { cacheExchange, CacheExchangeOpts } from '@urql/exchange-graphcache'
-import { getIntrospectedSchema, minifyIntrospectionQuery } from '@urql/introspection'
+import { cacheExchange } from '@urql/exchange-graphcache'
+import schema from '../schema.json'
+import { IntrospectionData } from '@urql/exchange-graphcache/dist/types/ast'
 import { subscriptionUpdateResolvers } from './subscriptions/subscriptionUpdateResolvers'
 import {
   mutationUpdateResolvers,
   optimisticMutationResolvers,
 } from './mutations/mutationUpdateResolvers'
 import { keyResolvers } from './keys/keyResolvers'
-import { getIntrospectionQuery } from 'graphql'
 
-export async function createApp(ssrApp: boolean) {
+export function createApp(ssrApp: boolean) {
   // Global message bus
   const emitter = mitt()
-
-  // fetch graphql schema
-  // TODO: cache this?
-  const schema = !ssrApp
-    ? await fetch('http://localhost:3000/graphql/introspection', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          variables: {},
-          query: getIntrospectionQuery({ descriptions: false }),
-        }),
-      })
-        .then((result) => result.json())
-        .then((data) => data.data)
-    : {}
 
   let app
 
@@ -63,21 +47,17 @@ export async function createApp(ssrApp: boolean) {
       Boolean(err && err.networkError && err.networkError.message !== 'Unauthorized'),
   }
 
-  const cacheExchangeOptions: CacheExchangeOpts = {
-    updates: {
-      Subscription: subscriptionUpdateResolvers,
-      Mutation: mutationUpdateResolvers,
-    },
-    optimistic: optimisticMutationResolvers,
-    keys: keyResolvers,
-  }
-
-  if (!ssrApp) cacheExchangeOptions.schema = minifyIntrospectionQuery(getIntrospectedSchema(schema))
-  if (!ssrApp) app.use(FeaturesPlugin, { schema: schema.__schema })
-
   const exchanges = [
     dedupExchange,
-    cacheExchange(cacheExchangeOptions),
+    cacheExchange({
+      schema: schema as IntrospectionData,
+      updates: {
+        Subscription: subscriptionUpdateResolvers,
+        Mutation: mutationUpdateResolvers,
+      },
+      optimistic: optimisticMutationResolvers,
+      keys: keyResolvers,
+    }),
     ssrExchange({
       isClient: !import.meta.env.SSR,
       // initialState: !import.meta.env.SSR ? window.__URQL_DATA__ : undefined,
@@ -115,5 +95,6 @@ export async function createApp(ssrApp: boolean) {
     },
     exchanges: exchanges,
   })
+
   return { app, router, head }
 }

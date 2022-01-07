@@ -198,6 +198,11 @@ export default {
               name
               avatarUrl
             }
+            gitHubIntegration {
+              id
+              owner
+              name
+            }
             workspaces {
               id
               ...WorkspaceList

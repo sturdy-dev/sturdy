@@ -1,5 +1,4 @@
 import { createApp } from './main.ts'
 
-createApp(false).then(({ app }) => {
-  app.mount('#app')
-})
+const { app } = createApp(false)
+app.mount('#app')

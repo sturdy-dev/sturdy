@@ -129,7 +129,39 @@
             message="Your avatar has been updated!"
           />
 
-          <Integrations v-if="isGithubEnabled" :user="data.user" :git-hub-app="data.gitHubApp" />
+          <div>
+            <div>
+              <h2 class="text-lg leading-6 font-medium text-gray-900">Integrations</h2>
+              <p class="mt-1 text-sm text-gray-500">
+                Integrate Sturdy with other tools and platforms.
+              </p>
+            </div>
+            <ul class="mt-2 divide-y divide-gray-200">
+              <li class="py-4 flex items-center justify-between">
+                <div class="flex flex-col">
+                  <p class="text-sm font-medium text-gray-900">GitHub</p>
+                  <p v-if="data.user.gitHubAccount" class="text-sm text-gray-500">
+                    You're connected to GitHub as
+                    <a :href="'https://github.com/' + data.user.gitHubAccount.login">
+                      {{ data.user.gitHubAccount.login }}
+                    </a>
+                  </p>
+                  <p v-else class="text-sm text-gray-500">
+                    Integrate Sturdy with GitHub, to easily migrate from GitHub to Sturdy.
+                  </p>
+                </div>
+
+                <GitHubConnectButton>
+                  <Button
+                    :disabled="fetchingRefreshGitHubCodebases"
+                    @click="refreshGitHubCodebases"
+                  >
+                    {{ fetchingRefreshGitHubCodebases ? 'Loading' : 'Reload' }}
+                  </Button>
+                </GitHubConnectButton>
+              </li>
+            </ul>
+          </div>
 
           <div>
             <div>
@@ -170,7 +202,9 @@
 
           <div class="mt-16 flex justify-end">
             <Button type="button" @click="refresh">Cancel</Button>
-            <Button type="submit" color="blue" class="ml-5"> Save </Button>
+            <Button type="submit" color="blue" class="ml-5" :disabled="submitDisabled">
+              Save
+            </Button>
           </div>
         </div>
       </form>
@@ -183,74 +217,48 @@ import http from '../http'
 import Banner from '../components/shared/Banner.vue'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import Button from '../components/shared/Button.vue'
-import { ref, watch, inject } from 'vue'
+import { ref, watch } from 'vue'
 import NotificationPreferences from '../components/user/NotificationPreferences.vue'
 import VerifyEmail from '../components/user/VerifyEmail.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import Integrations, {
-  INTEGRATIONS_GITHUB_APP_FRAGMENT,
-  INTEGRATIONS_USER_FRAGMENT,
-} from '../organisms/user/Integrations.vue'
-
-const enterpriseQuery = gql`
-  query EnterpriseUserPage {
-    gitHubApp {
-      ...IntegrationsGitHubApp
-    }
-    user {
-      id
-      name
-      email
-      emailVerified
-      avatarUrl
-      notificationsReceiveNewsletter
-      notificationPreferences {
-        type
-        channel
-        enabled
-      }
-      ...IntegrationsUser
-    }
-  }
-  ${INTEGRATIONS_GITHUB_APP_FRAGMENT}
-  ${INTEGRATIONS_USER_FRAGMENT}
-`
-
-const ossQuery = gql`
-  query OSSUserPage {
-    user {
-      id
-      name
-      email
-      emailVerified
-      avatarUrl
-      notificationsReceiveNewsletter
-      notificationPreferences {
-        type
-        channel
-        enabled
-      }
-    }
-  }
-`
+import GitHubConnectButton from '../molecules/GitHubConnectButton.vue'
 
 export default {
   name: 'User',
   components: {
+    GitHubConnectButton,
     PaddedApp,
     Banner,
     Button,
     NotificationPreferences,
     VerifyEmail,
-    Integrations,
   },
+  props: ['user'],
   setup() {
-    const features = inject('features')
-    const isGithubEnabled = features.has('github')
-    const useEnterprise = isGithubEnabled
+    const UserQuery = gql`
+      query User {
+        user {
+          id
+          name
+          email
+          emailVerified
+          avatarUrl
+          gitHubAccount {
+            id
+            login
+          }
+          notificationsReceiveNewsletter
+          notificationPreferences {
+            type
+            channel
+            enabled
+          }
+        }
+      }
+    `
 
     let { data, fetching, error, executeQuery } = useQuery({
-      query: useEnterprise ? enterpriseQuery : ossQuery,
+      query: UserQuery,
       requestPolicy: 'cache-and-network',
     })
 
@@ -283,9 +291,18 @@ export default {
       }
     })
 
-    return {
-      isGithubEnabled,
+    const {
+      executeMutation: refreshGitHubCodebasesResult,
+      fetching: fetchingRefreshGitHubCodebases,
+    } = useMutation(gql`
+      mutation RefreshGitHubCodebases {
+        refreshGitHubCodebases {
+          id
+        }
+      }
+    `)
 
+    return {
       data,
       fetching,
       error,
@@ -311,6 +328,17 @@ export default {
             throw new Error(result.error)
           }
           console.log('update user', result)
+        })
+      },
+
+      fetchingRefreshGitHubCodebases,
+      async refreshGitHubCodebases() {
+        const variables = {}
+        await refreshGitHubCodebasesResult(variables).then((result) => {
+          if (result.error) {
+            throw new Error(result.error)
+          }
+          console.log('refreshGitHubCodebases', result)
         })
       },
     }

@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+
 	service_auth "mash/pkg/auth/service"
 	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/github"
@@ -88,8 +89,8 @@ func (r *codebaseGitHubIntegrationRootResolver) InternalGitHubRepositoryByID(id 
 	return resolver, nil
 }
 
-func (r *codebaseGitHubIntegrationRootResolver) InternalCodebaseGitHubIntegration(ctx context.Context, codebaseID graphql.ID) (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	repo, err := r.resolveByCodebaseID(ctx, codebaseID)
+func (r *codebaseGitHubIntegrationRootResolver) InternalCodebaseGitHubIntegration(codebaseID graphql.ID) (resolvers.CodebaseGitHubIntegrationResolver, error) {
+	repo, err := r.resolveByCodebaseID(codebaseID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -126,7 +127,7 @@ func (r *codebaseGitHubIntegrationRootResolver) UpdateCodebaseGitHubIntegration(
 	return resolver, nil
 }
 
-func (r *codebaseGitHubIntegrationRootResolver) resolveByCodebaseID(ctx context.Context, codebaseID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
+func (r *codebaseGitHubIntegrationRootResolver) resolveByCodebaseID(codebaseID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
 	repo, err := r.gitHubRepositoryRepo.GetByCodebaseID(string(codebaseID))
 	if err != nil {
 		return nil, err

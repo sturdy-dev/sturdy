@@ -8,7 +8,7 @@ import (
 
 type CodebaseGitHubIntegrationRootResolver interface {
 	// Internal APIs
-	InternalCodebaseGitHubIntegration(ctx context.Context, codebaseID graphql.ID) (CodebaseGitHubIntegrationResolver, error)
+	InternalCodebaseGitHubIntegration(codebaseID graphql.ID) (CodebaseGitHubIntegrationResolver, error)
 	InternalGitHubRepositoryByID(id string) (CodebaseGitHubIntegrationResolver, error)
 
 	// Mutations
