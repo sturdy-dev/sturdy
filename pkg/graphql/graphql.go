@@ -35,6 +35,7 @@ import (
 	"mash/pkg/graphql/dataloader"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
+	"mash/pkg/graphql/schema"
 	service_jwt "mash/pkg/jwt/service"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -88,9 +89,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
 )
-
-//go:embed schema.graphql
-var schema string
 
 type RootResolver struct {
 	resolvers.ACLRootResolver
@@ -594,7 +592,7 @@ func CorsMiddleware(allowOrigins []string) func(*gin.Context) {
 // Associates root resolver. Panics if can't read.
 func parseSchema(resolver interface{}, tracer *metricTracer, logger *zap.Logger) *graphql.Schema {
 	parsedSchema, err := graphql.ParseSchema(
-		schema,
+		schema.String,
 		resolver,
 		graphql.MaxDepth(20),
 		graphql.Tracer(tracer),

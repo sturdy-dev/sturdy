@@ -1,11 +1,17 @@
 import { createApp } from './main'
 import { renderToString } from '@vue/server-renderer'
-import { routes } from './router.ts'
+import { routes } from './router'
+import fs from 'fs'
 
 export const routerRoutes = routes
 
+const readSchema = () => {
+  // read full schema (including enterprise features) for server-side prerendering
+  return JSON.parse(fs.readFileSync('./schema.json', 'utf-8'))
+}
+
 export async function render(url, manifest) {
-  const { app, router, head } = createApp(true)
+  const { app, router, head } = createApp(true, readSchema())
 
   // set the router to the desired URL before rendering
   await router.push(url)

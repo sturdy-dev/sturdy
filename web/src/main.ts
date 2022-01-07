@@ -3,6 +3,7 @@ import Sturdy from './Sturdy.vue'
 import router from './router'
 import mitt from 'mitt'
 import './index.css'
+import FeaturesPlugin from './plugins/features'
 import urql, { dedupExchange, fetchExchange, ssrExchange, subscriptionExchange } from '@urql/vue'
 import { retryExchange } from '@urql/exchange-retry'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
@@ -10,29 +11,22 @@ import { devtoolsExchange } from '@urql/devtools'
 import { createHead } from '@vueuse/head'
 import { RetryExchangeOptions } from '@urql/exchange-retry/dist/types/retryExchange'
 import { cacheExchange } from '@urql/exchange-graphcache'
-import schema from '../schema.json'
-import { IntrospectionData } from '@urql/exchange-graphcache/dist/types/ast'
+import { getIntrospectedSchema, minifyIntrospectionQuery } from '@urql/introspection'
 import { subscriptionUpdateResolvers } from './subscriptions/subscriptionUpdateResolvers'
 import {
   mutationUpdateResolvers,
   optimisticMutationResolvers,
 } from './mutations/mutationUpdateResolvers'
 import { keyResolvers } from './keys/keyResolvers'
+import { GraphQLSchema, introspectionFromSchema } from 'graphql'
 
-export function createApp(ssrApp: boolean) {
+export function createApp(ssrApp: boolean, schema: GraphQLSchema) {
   // Global message bus
   const emitter = mitt()
 
-  let app
-
-  if (ssrApp) {
-    app = createSSRApp(Sturdy)
-  } else {
-    app = vueCreateApp(Sturdy)
-  }
+  const app = ssrApp ? createSSRApp(Sturdy) : vueCreateApp(Sturdy)
 
   app.use(router)
-
   const head = createHead()
   app.use(head)
 
@@ -47,10 +41,12 @@ export function createApp(ssrApp: boolean) {
       Boolean(err && err.networkError && err.networkError.message !== 'Unauthorized'),
   }
 
+  const introspectionQuery = minifyIntrospectionQuery(getIntrospectedSchema(schema))
+  app.use(FeaturesPlugin, { schema: introspectionQuery })
   const exchanges = [
     dedupExchange,
     cacheExchange({
-      schema: schema as IntrospectionData,
+      schema: introspectionQuery,
       updates: {
         Subscription: subscriptionUpdateResolvers,
         Mutation: mutationUpdateResolvers,
@@ -95,6 +91,5 @@ export function createApp(ssrApp: boolean) {
     },
     exchanges: exchanges,
   })
-
   return { app, router, head }
 }
