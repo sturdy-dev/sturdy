@@ -5,7 +5,7 @@ import { routes } from './router.ts'
 export const routerRoutes = routes
 
 export async function render(url, manifest) {
-  const { app, router, head } = createApp(true)
+  const { app, router, head } = await createApp(true)
 
   // set the router to the desired URL before rendering
   await router.push(url)

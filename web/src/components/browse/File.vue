@@ -27,10 +27,7 @@
           >
             <span>{{ idx + 1 }}</span>
           </td>
-          <td
-            class="px-4 font-mono break-all border-l border-blue-500 w-full whitespace-pre"
-            v-html="line"
-          ></td>
+          <td class="px-4 font-mono break-all border-l border-blue-500 w-full" v-html="line"></td>
         </tr>
       </tbody>
       <tbody v-else>
