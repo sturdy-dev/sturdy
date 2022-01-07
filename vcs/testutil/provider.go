@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"mash/vcs/provider"
-
 	"github.com/stretchr/testify/assert"
+
+	"mash/vcs/provider"
 )
 
 func TestingRepoProvider(t *testing.T) provider.RepoProvider {

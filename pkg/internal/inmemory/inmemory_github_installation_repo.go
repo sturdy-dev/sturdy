@@ -39,5 +39,11 @@ func (i *inMemoryGithubInstallationRepo) Create(installation github.GitHubInstal
 }
 
 func (i *inMemoryGithubInstallationRepo) Update(installation *github.GitHubInstallation) error {
-	panic("implement me")
+	for k, v := range i.installs {
+		if v.ID == installation.ID {
+			i.installs[k] = *installation
+			return nil
+		}
+	}
+	return sql.ErrNoRows
 }

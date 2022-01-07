@@ -5,14 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
+
 	"mash/pkg/codebase"
 	"mash/pkg/github"
 	"mash/pkg/shortid"
-	"strings"
-	"time"
 
 	"mash/pkg/codebase/vcs"
 	ghappclient "mash/pkg/github/client"
@@ -90,17 +92,9 @@ func (svc *Service) Clone(
 	logger.Info("cloning github repository")
 
 	if err := svc.executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-		return vcs.CloneFromGithub(repoProvider, codebaseID, gitHubRepoDetails.GetOwner().GetLogin(), gitHubRepoDetails.GetName(), *accessToken.Token)
+		return vcs.CloneFromGithub(logger, repoProvider, codebaseID, gitHubRepoDetails, *accessToken.Token)
 	}).ExecTrunk(codebaseID, "clone github repository"); err != nil {
 		return fmt.Errorf("cloning failed: %w", err)
-	}
-
-	// Import pull requests by the sender
-	if senderUserID != "" {
-		// enqueue import pull requests for this user
-		if err := svc.EnqueueGitHubPullRequestImport(ctx, codebaseID, senderUserID); err != nil {
-			return fmt.Errorf("failed to add to pr importer queue: %w", err)
-		}
 	}
 
 	cb, err := svc.codebaseRepo.Get(codebaseID)

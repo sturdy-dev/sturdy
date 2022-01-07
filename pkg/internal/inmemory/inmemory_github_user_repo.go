@@ -22,7 +22,12 @@ func (i *inMemoryGitHubUserRepo) Create(user github.GitHubUser) error {
 }
 
 func (i *inMemoryGitHubUserRepo) GetByUsername(username string) (*github.GitHubUser, error) {
-	panic("implement me")
+	for _, v := range i.users {
+		if v.Username == username {
+			return &v, nil
+		}
+	}
+	return nil, sql.ErrNoRows
 }
 
 func (i *inMemoryGitHubUserRepo) GetByUserID(userID string) (*github.GitHubUser, error) {
