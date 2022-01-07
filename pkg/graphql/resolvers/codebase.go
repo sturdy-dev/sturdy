@@ -52,7 +52,7 @@ type CodebaseResolver interface {
 	Members(context.Context) ([]AuthorResolver, error)
 	Views(ctx context.Context, args CodebaseViewsArgs) ([]ViewResolver, error)
 	LastUsedView(ctx context.Context) (ViewResolver, error)
-	GitHubIntegration(context.Context) (CodebaseGitHubIntegrationResolver, error)
+	GitHubIntegration() (CodebaseGitHubIntegrationResolver, error)
 	IsReady() bool
 	ACL(context.Context) (ACLResolver, error)
 	Changes(ctx context.Context, args *CodebaseChangesArgs) ([]ChangeResolver, error)

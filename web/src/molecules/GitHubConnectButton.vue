@@ -1,8 +1,8 @@
 <template>
-  <LinkButton v-if="!gitHubAccount" :href="github_oauth_url" :color="color">
+  <LinkButton v-if="data && !data.user.gitHubAccount" :href="github_oauth_url" :color="color">
     Connect to GitHub
   </LinkButton>
-  <div v-else class="space-x-2">
+  <div v-else-if="data" class="space-x-2">
     <slot></slot>
     <LinkButton :href="github_manage_installation_url" :color="color">
       {{ alreadyInstalledText }}
@@ -11,37 +11,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { gql } from '@urql/vue'
+import { defineComponent } from 'vue'
+import { gql, useQuery } from '@urql/vue'
 import LinkButton from '../components/shared/LinkButton.vue'
-import { GitHubAppFragment, GitHubAccountFragment } from './__generated__/GitHubConnectButton'
-
-export const GITHUB_APP_FRAGMENT = gql`
-  fragment GitHubApp on GitHubApp {
-    _id
-    name
-    clientID
-  }
-`
-
-export const GITHUB_ACCOUNT_FRAGMENT = gql`
-  fragment GitHubAccount on GitHubAccount {
-    id
-    login
-  }
-`
+import {
+  GitHubConnectButtonQuery,
+  GitHubConnectButtonQueryVariables,
+} from './__generated__/GitHubConnectButton'
 
 export default defineComponent({
   components: { LinkButton },
   props: {
-    gitHubApp: {
-      type: Object as PropType<GitHubAppFragment>,
-      required: true,
-    },
-    gitHubAccount: {
-      type: Object as PropType<GitHubAccountFragment>,
-      default: null,
-    },
     alreadyInstalledText: {
       type: String,
       required: false,
@@ -58,10 +38,43 @@ export default defineComponent({
       default: 'user-settings',
     },
   },
+  setup() {
+    const GitHubConnectButtonQuery = gql`
+      query GitHubConnectButton {
+        user {
+          id
+          gitHubAccount {
+            id
+            login
+          }
+        }
+
+        gitHubApp {
+          _id
+          name
+          clientID
+        }
+      }
+    `
+
+    let { data } = useQuery<GitHubConnectButtonQuery, GitHubConnectButtonQueryVariables>({
+      query: GitHubConnectButtonQuery,
+      requestPolicy: 'cache-and-network',
+    })
+
+    return {
+      data,
+    }
+  },
+
   computed: {
     github_oauth_url() {
+      if (!this.data) {
+        return '#'
+      }
+
       const url = new URL('https://github.com/login/oauth/authorize')
-      url.searchParams.set('client_id', this.gitHubApp.clientID)
+      url.searchParams.set('client_id', this.data.gitHubApp.clientID)
       url.searchParams.set('state', this.gitHubRedirectState)
 
       if (typeof ipc !== 'undefined') {
@@ -75,7 +88,13 @@ export default defineComponent({
       return url.href
     },
     github_manage_installation_url() {
-      const url = new URL('https://github.com/apps/' + this.gitHubApp.name + '/installations/new')
+      if (!this.data) {
+        return '#'
+      }
+
+      const url = new URL(
+        'https://github.com/apps/' + this.data.gitHubApp.name + '/installations/new'
+      )
 
       let state = 'install'
       if (typeof ipc !== 'undefined') {

@@ -114,7 +114,7 @@ func (svc *Service) Clone(
 	}
 
 	// Grant access for other users (the sender already has access)
-	if err := svc.GrantCollaboratorsAccess(ctx, codebaseID, strOrNilIfEmpty(senderUserID)); err != nil {
+	if err := svc.GrantCollaboratorsAccess(ctx, codebaseID); err != nil {
 		return fmt.Errorf("failed to GrantCollaboratorsAccess: %w", err)
 	}
 
@@ -124,13 +124,6 @@ func (svc *Service) Clone(
 	logger.Info("successfully cloned repository, and marked it as ready!")
 
 	return nil
-}
-
-func strOrNilIfEmpty(str string) *string {
-	if str == "" {
-		return nil
-	}
-	return &str
 }
 
 func (svc *Service) CloneMissingRepositories(ctx context.Context, userID string) error {

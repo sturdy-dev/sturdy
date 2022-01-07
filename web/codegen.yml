@@ -1,8 +1,5 @@
 overwrite: true
-schema: 
-  - "../pkg/graphql/schema/schema.graphql"
-  - "../pkg/graphql/schema/oss.graphql"
-  - "../pkg/graphql/schema/enterprise.graphql"
+schema: "../pkg/graphql/schema.graphql"
 documents:
   - "src/**/*.vue"
   - "src/**/*.ts"

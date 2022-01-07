@@ -29,7 +29,7 @@ RUN go build -v go.uber.org/zap && \
 
 COPY . .
 
-RUN go build -tags enterprise -v -o driva mash/cmd/api
+RUN go build -v -o driva mash/cmd/api
 
 # Copy over artifacts to a new container, without all the bloat form the build step
 FROM debian:buster

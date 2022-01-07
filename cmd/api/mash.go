@@ -131,7 +131,7 @@ func main() {
 	gitHubAppClientID := flag.String("github-app-client-id", "", "")
 	gitHubAppSecret := flag.String("github-app-secret", "", "")
 	gitHubAppPrivateKeyPath := flag.String("github-app-private-key-path", "", "")
-	_ = flag.Bool("unauthenticated-graphql-introspection", false, "")
+	unauthenticatedGraphqlIntrospection := flag.Bool("unauthenticated-graphql-introspection", false, "")
 	gitLfsHostname := flag.String("git-lfs-hostname", "localhost:8888", "")
 	enableTransactionalEmails := flag.Bool("enable-transactional-emails", false, "")
 	exportBucketName := flag.String("export-bucket-name", "", "the S3 bucket to be used for change exports")
@@ -492,6 +492,7 @@ func main() {
 			gitHubAppConfig,
 			notificationRepo,
 			notificationSender,
+			*unauthenticatedGraphqlIntrospection,
 			gitHubClientProvider,
 			gitHubPersonalClientProvider,
 			githubClonerQueue,
@@ -567,6 +568,7 @@ func webserver(
 	gitHubAppConfig config.GitHubAppConfig,
 	notificationRepository db_notification.Repository,
 	notificationSender notification_sender.NotificationSender,
+	unauthenticatedGraphqlIntrospection bool,
 	gitHubClientProvider ghappclient.ClientProvider,
 	gitHubPersonalClientProvider ghappclient.PersonalClientProvider,
 	gitHubClonerPublisher *workers_github.ClonerQueue,
@@ -703,7 +705,10 @@ func webserver(
 	graphql.POST("", sg.HttpHandler())
 	graphql.GET("ws", sg.WebsocketHandler())
 	graphql.POST("ws", sg.WebsocketHandler())
-	r.POST("/graphql/introspection", sg.UnauthenticatedHttpHandler(logger)) // No auth
+	// This endpoint is here so that "download-schema.msj" can run without authentication
+	if unauthenticatedGraphqlIntrospection {
+		r.POST("/graphql/introspection", sg.UnauthenticatedHttpHandler(logger)) // No auth
+	}
 
 	// Public endpoints, no authentication required
 	publ := r.Group("")
