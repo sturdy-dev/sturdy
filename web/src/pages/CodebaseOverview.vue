@@ -125,7 +125,8 @@
     <NoCodebasesGitHubAuth
       v-if="isGitHubEnabled && data && (data.codebases.length === 0 || !data.user.gitHubAccount)"
       class="mt-4"
-      :user="data.user"
+      :gitHubAccount="data.user.gitHubAccount"
+      :gitHubApp="data.gitHubApp"
       :show-start-from-scratch="true"
     />
   </PaddedApp>
@@ -195,6 +196,12 @@ export default {
               enabled
               gitHubIsSourceOfTruth
             }
+          }
+
+          gitHubApp @include(if: $isGitHubEnabled) {
+            _id
+            name
+            clientID
           }
 
           user {
