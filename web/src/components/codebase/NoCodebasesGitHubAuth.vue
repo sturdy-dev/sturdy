@@ -25,6 +25,8 @@
         </Button>
 
         <GitHubConnectButton
+          :gitHubAccount="gitHubAccount"
+          :gitHubApp="gitHubApp"
           already-installed-text="Import repositories"
           color="blue"
           git-hub-redirect-state="codebase-overview"
@@ -42,6 +44,6 @@ import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
 export default {
   name: 'NoCodebasesGitHubAuth',
   components: { GitHubConnectButton, CheckIcon, Button },
-  props: ['user', 'showStartFromScratch'],
+  props: ['showStartFromScratch', 'gitHubApp', 'gitHubAccount'],
 }
 </script>
