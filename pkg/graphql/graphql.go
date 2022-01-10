@@ -483,7 +483,7 @@ func New(
 
 	*buildkiteRootResolver = graphql_buildkite.New(authService, buidkiteService, ciService, instantIntegrationRootResolver)
 
-	*organizationRootResolver = graphql_organization.New(organizationService, authorResolver)
+	*organizationRootResolver = graphql_organization.New(organizationService, authService, userService, authorResolver)
 
 	r := &RootResolver{
 		jwtService: jwtService,

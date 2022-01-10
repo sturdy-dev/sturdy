@@ -12,3 +12,17 @@
 # type SelfHostedInstallationStatus {
 #     ok: Boolean!
 # }
+
+extend type Mutation {
+   createOrganization(input: CreateOrganizationInput!): Organization!
+   addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
+}
+
+input CreateOrganizationInput {
+    name: String!
+}
+
+input AddUserToOrganizationInput {
+    organizationID: ID!
+    email: String!
+}

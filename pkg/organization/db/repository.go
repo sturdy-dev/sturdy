@@ -32,7 +32,7 @@ func (r *repository) Get(ctx context.Context, id string) (*organization.Organiza
 }
 
 func (r *repository) Create(ctx context.Context, org organization.Organization) error {
-	if _, err := r.db.NamedExecContext(ctx, `INSERT INTO organizations (id, name, created_at, deleted_at) VALUES (:id, :name, :created_at, :deleted_at)`, org); err != nil {
+	if _, err := r.db.NamedExecContext(ctx, `INSERT INTO organizations (id, name, created_at, created_by, deleted_at, deleted_by) VALUES (:id, :name, :created_at, :created_by, :deleted_at, :deleted_by)`, org); err != nil {
 		return fmt.Errorf("failed to create organization: %w", err)
 	}
 	return nil
@@ -41,7 +41,8 @@ func (r *repository) Create(ctx context.Context, org organization.Organization) 
 func (r *repository) Update(ctx context.Context, org *organization.Organization) error {
 	if _, err := r.db.NamedExecContext(ctx, `UPDATE organizations
 		SET name = :name,
-	    	deleted_at = :deleted_at
+	    	deleted_at = :deleted_at,
+		    deleted_by = :deleted_by
 		WHERE id = :id
 `, org); err != nil {
 		return fmt.Errorf("failed to update organization: %w", err)

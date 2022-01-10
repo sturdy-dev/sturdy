@@ -3,11 +3,12 @@ package stream
 import (
 	"context"
 	"log"
-	"mash/pkg/posthog"
-	"mash/pkg/view/vcs"
 	"os"
 	"sync"
 	"testing"
+
+	"mash/pkg/posthog"
+	"mash/pkg/view/vcs"
 
 	"mash/db"
 	service_auth "mash/pkg/auth/service"
@@ -82,7 +83,7 @@ func TestStream(t *testing.T) {
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, posthog.NewFakeClient())
-	authService := service_auth.New(codebaseService, userService, nil, aclProvider)
+	authService := service_auth.New(codebaseService, userService, nil, aclProvider, nil /*organizationService*/)
 	suggestionsDB := db_suggestion.New(d)
 
 	workspaceService := service_workspace.New(

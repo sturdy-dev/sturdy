@@ -181,7 +181,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
@@ -543,7 +543,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
