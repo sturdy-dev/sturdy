@@ -14,6 +14,7 @@ replace github.com/sourcegraph/go-diff => github.com/zegl/go-diff v0.6.2-0.20211
 replace github.com/graph-gophers/graphql-transport-ws => github.com/sturdy-dev/graphql-transport-ws v0.0.0-20211122094650-15c742155db6
 
 require (
+	github.com/99designs/gqlgen v0.14.0
 	github.com/aws/aws-sdk-go v1.38.47
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
@@ -41,6 +42,7 @@ require (
 	github.com/kolide/launcher v0.11.22
 	github.com/lib/pq v1.10.4
 	github.com/libgit2/git2go/v33 v33.0.0
+	github.com/machinebox/graphql v0.2.2
 	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/posthog/posthog-go v0.0.0-20210521164710-e0ee8499d623
 	github.com/prometheus/client_golang v1.11.0
@@ -49,6 +51,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/tidwall/match v1.0.3
+	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/yuin/goldmark v1.4.4
 	go.opencensus.io v0.23.0
 	go.uber.org/multierr v1.7.0
@@ -62,11 +65,13 @@ require (
 
 require (
 	cloud.google.com/go v0.80.0 // indirect
+	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.0.0+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-kit/kit v0.9.0 // indirect
@@ -74,7 +79,6 @@ require (
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.6.1 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github/v29 v29.0.2 // indirect
@@ -90,8 +94,11 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/matryer/is v1.4.0 // indirect
+	github.com/matryer/moq v0.0.0-20200106131100-75d0ddfc0007 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/mitchellh/mapstructure v1.0.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -101,14 +108,21 @@ require (
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
+	github.com/urfave/cli/v2 v2.1.1 // indirect
+	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
+	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
 	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/tools v0.1.5 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210524171403-669157292da3 // indirect
 	google.golang.org/grpc v1.38.0 // indirect

@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"mash/pkg/user"
 
 	"github.com/jmoiron/sqlx"
@@ -16,6 +17,7 @@ type Repository interface {
 	GetByEmail(email string) (*user.User, error)
 	Update(*user.User) error
 	UpdatePassword(u *user.User) error
+	Count(context.Context) (int, error)
 }
 
 type repo struct {
@@ -102,4 +104,14 @@ func (r *repo) UpdatePassword(u *user.User) error {
 		return fmt.Errorf("failed to update %w", err)
 	}
 	return nil
+}
+
+func (r *repo) Count(ctx context.Context) (int, error) {
+	var res struct {
+		Count int
+	}
+	if err := r.db.GetContext(ctx, &res, "SELECT count(*) as Count FROM users"); err != nil {
+		return 0, fmt.Errorf("failed to get user count: %w", err)
+	}
+	return res.Count, nil
 }

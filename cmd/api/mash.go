@@ -39,8 +39,10 @@ import (
 	db_integrations "mash/pkg/integrations/db"
 	db_keys "mash/pkg/jwt/keys/db"
 	service_jwt "mash/pkg/jwt/service"
+	client_license "mash/pkg/license/client"
 	db_license "mash/pkg/license/db"
 	service_license "mash/pkg/license/service"
+	"mash/pkg/license/validator"
 	"mash/pkg/metrics/zapprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -367,6 +369,9 @@ func main() {
 
 	gitsrv := gitserver.New(logger, serviceTokensService, jwtService, codebaseService, executorProvider)
 
+	licenseClient := client_license.New()
+	licenseValidator := validator.New(licenseClient, logger, userService)
+
 	gqlHandler := graphql.New(
 		logger,
 		codebaseRepo,
@@ -479,7 +484,7 @@ func main() {
 
 	srv := http.ProvideServer(handler)
 
-	apiServer := api.ProvideAPI(srv, githubClonerQueue, githubImporterQueue, snapshotterQueue, ciBuildQueue, gcQueue, gitsrv)
+	apiServer := api.ProvideAPI(srv, githubClonerQueue, githubImporterQueue, snapshotterQueue, ciBuildQueue, gcQueue, gitsrv, licenseValidator)
 
 	if err := apiServer.Start(ctx, &api.Config{
 		GitListenAddr:       *gitListenAddr,

@@ -1,0 +1,17 @@
+mutation ValidateLicense($key: String!,
+    $version: String!,
+    $bootedAt: Int!,
+    $userCount: Int!,
+    $codebaseCount: Int!) {
+    validateLicense(input: {
+        key: $key,
+        version: $version,
+        bootedAt: $bootedAt,
+        userCount: $userCount,
+        codebaseCount: $codebaseCount
+    }) {
+        _id
+        status
+        message
+    }
+}
