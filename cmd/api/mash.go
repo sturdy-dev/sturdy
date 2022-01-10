@@ -39,6 +39,8 @@ import (
 	db_integrations "mash/pkg/integrations/db"
 	db_keys "mash/pkg/jwt/keys/db"
 	service_jwt "mash/pkg/jwt/service"
+	db_license "mash/pkg/license/db"
+	service_license "mash/pkg/license/service"
 	"mash/pkg/metrics/zapprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -187,6 +189,9 @@ func main() {
 	organizationRepo := db_organization.New(d)
 	organizationMemberRepo := db_organization.NewMember(d)
 	organizationService := service_organization.New(organizationRepo, organizationMemberRepo)
+	licenseRepo := db_license.New(d)
+	licenseValidationsRepo := db_license.NewValidationRepository(d)
+	licenseService := service_license.New(licenseRepo, licenseValidationsRepo)
 
 	awsSession, err := session.NewSession(
 		&aws.Config{
@@ -416,6 +421,7 @@ func main() {
 		buildkiteService,
 		authService,
 		organizationService,
+		licenseService,
 	)
 
 	handler := http.ProvideHandler(

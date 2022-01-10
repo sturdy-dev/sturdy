@@ -1,21 +1,12 @@
 # cloud.graphql contains the API only available on Sturdy Cloud.
 # Self Hosted instances of Sturdy will use this API to validate licenses, etc.
 
-# extend type Mutation {
-#     selfHostedPing(input: SelfHostedPingInput!): SelfHostedInstallationStatus!
-# }
-#
-# input SelfHostedPingInput {
-#     version: String!
-# }
-#
-# type SelfHostedInstallationStatus {
-#     ok: Boolean!
-# }
 
 extend type Mutation {
-   createOrganization(input: CreateOrganizationInput!): Organization!
-   addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
+    createOrganization(input: CreateOrganizationInput!): Organization!
+    addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
+
+    validateLicense(input: ValidateLicenseInput!): LicenseValidation!
 }
 
 input CreateOrganizationInput {
@@ -25,4 +16,25 @@ input CreateOrganizationInput {
 input AddUserToOrganizationInput {
     organizationID: ID!
     email: String!
+}
+
+input ValidateLicenseInput {
+    key: String!
+    version: String!
+    bootedAt: Int!
+    userCount: Int!
+    codebaseCount: Int!
+}
+
+type LicenseValidation {
+    _id: ID! # always "license"
+    status: LicenseValidationStatus!
+    message: String
+}
+
+enum LicenseValidationStatus {
+    Unknown
+    Ok
+    Invalid
+    Expired
 }

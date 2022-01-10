@@ -10,6 +10,8 @@ import (
 	graphql_buildkite "mash/pkg/integrations/buildkite/graphql"
 	service_buildkite "mash/pkg/integrations/buildkite/service"
 	graphql_ci "mash/pkg/integrations/graphql"
+	"mash/pkg/ip"
+	service_license "mash/pkg/license/service"
 	service_organization "mash/pkg/organization/service"
 
 	"mash/pkg/auth"
@@ -40,6 +42,7 @@ import (
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/graphql/schema"
 	service_jwt "mash/pkg/jwt/service"
+	graphql_license "mash/pkg/license/graphql"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
 	db_notification "mash/pkg/notification/db"
@@ -106,6 +109,7 @@ type RootResolver struct {
 	resolvers.GitHubAppRootResolver
 	resolvers.GitHubPullRequestRootResolver
 	resolvers.IntegrationRootResolver
+	resolvers.LicenseRootResolver
 	resolvers.NotificationRootResolver
 	resolvers.OnboardingRootResolver
 	resolvers.OrganizationRootResolver
@@ -180,6 +184,7 @@ func New(
 	buidkiteService *service_buildkite.Service,
 	authService *service_auth.Service,
 	organizationService *service_organization.Service,
+	licenseService *service_license.Service,
 ) *RootResolver {
 	// This pointer dance (pointer to interfaces) allows the resolvers to use each other, without cycles
 	var aclResovler = new(resolvers.ACLRootResolver)
@@ -485,6 +490,8 @@ func New(
 
 	*organizationRootResolver = graphql_organization.New(organizationService, authService, userService, authorResolver)
 
+	licenseRootResolver := graphql_license.New(licenseService, logger)
+
 	r := &RootResolver{
 		jwtService: jwtService,
 		logger:     logger,
@@ -500,6 +507,7 @@ func New(
 		GitHubAppRootResolver:                   graphql_github.NewGitHubAppRootResolver(gitHubAppConfig),
 		GitHubPullRequestRootResolver:           *prResolver,
 		IntegrationRootResolver:                 *instantIntegrationRootResolver,
+		LicenseRootResolver:                     licenseRootResolver,
 		NotificationRootResolver:                *notificationResolver,
 		OnboardingRootResolver:                  *onboardingRootResolver,
 		OrganizationRootResolver:                *organizationRootResolver,
@@ -533,6 +541,12 @@ func (r *RootResolver) HttpHandler() gin.HandlerFunc {
 		}
 
 		ctx = dataloader.NewContext(ctx)
+
+		if remoteIP, _ := c.RemoteIP(); remoteIP != nil {
+			ctx = ip.NewContext(ctx, remoteIP)
+		} else {
+			r.logger.Error("could not find and set remoteIP", zap.String("remote_addr", c.Request.RemoteAddr))
+		}
 
 		h.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
 	}
