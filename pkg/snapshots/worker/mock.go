@@ -22,3 +22,8 @@ func (p *inProcessPublisher) Enqueue(_ context.Context, codebaseID, viewID, work
 	}
 	return nil
 }
+
+func (inProcessPublisher) Start(ctx context.Context) error {
+	<-ctx.Done()
+	return nil
+}
