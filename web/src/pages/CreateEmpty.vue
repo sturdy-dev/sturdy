@@ -103,8 +103,8 @@
 
         <div class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden">
           <NoCodebasesGitHubAuth
-            :gitHubAccount="data.user.gitHubAccount"
-            :gitHubApp="data.gitHubApp"
+            :git-hub-account="data.user.gitHubAccount"
+            :git-hub-app="data.gitHubApp"
           />
         </div>
       </div>
