@@ -69,15 +69,16 @@ import { IdFromSlug } from '../../slug'
 import {
   GetIntegrationsQuery,
   GetIntegrationsQueryVariables,
+  IntegrationListItemFragment,
 } from './__generated__/ListIntegrations'
 import Pill from '../../components/shared/Pill.vue'
-import { Integration } from '../../__generated__/types'
 import Button from '../../components/shared/Button.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../molecules/Header.vue'
 import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
 import { useDeleteIntegration } from '../../mutations/useDeleteIntegration'
+import { defineComponent } from 'vue'
 
 const list = [
   {
@@ -92,7 +93,23 @@ const list = [
   // },
 ]
 
-export default {
+const INTEGRATION_FRAGMENT = gql`
+  fragment IntegrationListItem on Integration {
+    id
+    provider
+    deletedAt
+    ... on BuildkiteIntegration {
+      id
+      configuration {
+        id
+        organizationName
+        pipelineName
+      }
+    }
+  }
+`
+
+export default defineComponent({
   components: {
     SettingsVerticalNavigation,
     PaddedAppLeftSidebar,
@@ -112,24 +129,17 @@ export default {
             id
             name
             integrations {
-              id
-              provider
-              deletedAt
-              ... on BuildkiteIntegration {
-                id
-                configuration {
-                  id
-                  organizationName
-                  pipelineName
-                }
-              }
+              ...IntegrationListItem
             }
           }
         }
+
+        ${INTEGRATION_FRAGMENT}
       `,
       variables: {
         shortCodebaseID: shortCodebaseID,
       },
+      requestPolicy: 'cache-and-network',
     })
 
     let deleteIntegration = useDeleteIntegration()
@@ -145,7 +155,7 @@ export default {
     }
   },
   computed: {
-    nonDeletedIntegrations() {
+    nonDeletedIntegrations(): Array<IntegrationListItemFragment> {
       let res = this.data?.codebase?.integrations.filter((i) => !i.deletedAt)
       if (!res) {
         return []
@@ -153,18 +163,18 @@ export default {
       return res
     },
     configuredProviders() {
-      let res = new Map<string, Array<Integration>>()
+      let res = new Map<string, Array<IntegrationListItemFragment>>()
 
       for (const provider of this.nonDeletedIntegrations) {
         let existing = res.get(provider.provider)
         if (existing) {
           existing.push(provider)
         } else {
-          res.set(provider.provider, new Array<Integration>(provider))
+          res.set(provider.provider, new Array<IntegrationListItemFragment>(provider))
         }
       }
       return res
     },
   },
-}
+})
 </script>

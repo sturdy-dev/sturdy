@@ -80,7 +80,7 @@
           </router-link>
         </div>
       </nav>
-      <p class="mt-8 text-center text-base text-gray-400">&copy; {{year}} Sturdy Sweden AB</p>
+      <p class="mt-8 text-center text-base text-gray-400">&copy; {{ year }} Sturdy Sweden AB</p>
     </div>
   </footer>
 </template>
@@ -92,6 +92,6 @@ export default defineComponent({
     return {
       year: new Date().getFullYear(),
     }
-  }
+  },
 })
 </script>
