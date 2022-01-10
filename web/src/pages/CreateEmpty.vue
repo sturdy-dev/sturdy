@@ -101,8 +101,11 @@
           </div>
         </form>
 
-        <div class="shadow sm:rounded-md sm:overflow-hidden">
-          <NoCodebasesGitHubAuth :user="data.user" />
+        <div class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden">
+          <NoCodebasesGitHubAuth
+            :gitHubAccount="data.user.gitHubAccount"
+            :gitHubApp="data.gitHubApp"
+          />
         </div>
       </div>
     </div>
@@ -113,6 +116,7 @@
 import http from '../http'
 import Banner from '../components/shared/Banner.vue'
 import { Slug } from '../slug'
+import { toRefs } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
 import Button from '../components/shared/Button.vue'
@@ -122,19 +126,36 @@ import PaddedApp from '../layouts/PaddedApp.vue'
 export default {
   name: 'CreateEmpty',
   components: { PaddedApp, NoCodebasesGitHubAuth, Banner, Button },
-  setup() {
+  props: {
+    features: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
+    const { features } = toRefs(props)
+    const isGitHubEnabled = features.value.includes('GitHub')
+
     const result = useQuery({
       query: gql`
-        query CreateEmpty {
+        query CreateEmpty($isGitHubEnabled: Boolean!) {
           user {
             id
-            gitHubAccount {
+            gitHubAccount @include(if: $isGitHubEnabled) {
               id
               login
             }
           }
+          gitHubApp @include(if: $isGitHubEnabled) {
+            _id
+            name
+            clientID
+          }
         }
       `,
+      variables: {
+        isGitHubEnabled,
+      },
     })
 
     return {
