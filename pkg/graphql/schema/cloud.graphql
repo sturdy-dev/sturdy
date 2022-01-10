@@ -1,0 +1,14 @@
+# cloud.graphql contains the API only available on Sturdy Cloud.
+# Self Hosted instances of Sturdy will use this API to validate licenses, etc.
+
+# extend type Mutation {
+#     selfHostedPing(input: SelfHostedPingInput!): SelfHostedInstallationStatus!
+# }
+#
+# input SelfHostedPingInput {
+#     version: String!
+# }
+#
+# type SelfHostedInstallationStatus {
+#     ok: Boolean!
+# }

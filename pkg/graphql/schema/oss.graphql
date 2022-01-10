@@ -1,6 +1,9 @@
 type Query {
     features: [Feature!]!
 
+    # Organization is all organizations that the authenticated user is a member of and has access to
+    organizations: [Organization!]!
+
     # Codebases is all codebases that the authenticated user has access to
     codebases: [Codebase!]!
 
@@ -862,4 +865,12 @@ type OnboardingStep {
 enum Feature {
     GitHub
     Buildkite
+}
+
+type Organization {
+    id: ID!
+    name: String!
+    members: [Author!]!
+    codebases: [Codebase!]!
+    # TODO: License status, etc
 }
