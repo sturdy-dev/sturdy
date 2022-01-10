@@ -44,6 +44,19 @@ import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
 export default {
   name: 'NoCodebasesGitHubAuth',
   components: { GitHubConnectButton, CheckIcon, Button },
-  props: ['showStartFromScratch', 'gitHubApp', 'gitHubAccount'],
+  props: {
+    showStartFromScratch: {
+      type: Boolean,
+      default: false,
+    },
+    gitHubApp: {
+      type: Object,
+      required: true,
+    },
+    gitHubAccount: {
+      type: Object,
+      default: null,
+    },
+  },
 }
 </script>
