@@ -125,8 +125,8 @@
     <NoCodebasesGitHubAuth
       v-if="isGitHubEnabled && data && (data.codebases.length === 0 || !data.user.gitHubAccount)"
       class="mt-4"
-      :gitHubAccount="data.user.gitHubAccount"
-      :gitHubApp="data.gitHubApp"
+      :git-hub-account="data.user.gitHubAccount"
+      :git-hub-app="data.gitHubApp"
       :show-start-from-scratch="true"
     />
   </PaddedApp>
@@ -159,13 +159,13 @@ export default {
     Tooltip,
     Spinner,
   },
-  emits: ['toggleNavSize'],
   props: {
     features: {
       type: Array,
       required: true,
     },
   },
+  emits: ['toggleNavSize'],
   setup(props) {
     const { features } = toRefs(props)
     const isGitHubEnabled = features.value.includes(Feature.GitHub)

@@ -25,8 +25,8 @@
         </Button>
 
         <GitHubConnectButton
-          :gitHubAccount="gitHubAccount"
-          :gitHubApp="gitHubApp"
+          :git-hub-account="gitHubAccount"
+          :git-hub-app="gitHubApp"
           already-installed-text="Import repositories"
           color="blue"
           git-hub-redirect-state="codebase-overview"
