@@ -206,3 +206,11 @@ func (s *Service) setEmailVerified(ctx context.Context, user *user.User) error {
 
 	return nil
 }
+
+func (s *Service) UserCount(ctx context.Context) (int, error) {
+	count, err := s.userRepo.Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
