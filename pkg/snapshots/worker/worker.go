@@ -16,6 +16,7 @@ import (
 
 type Queue interface {
 	Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, paths []string, action snapshots.Action) error
+	Start(ctx context.Context) error
 }
 
 type q struct {
