@@ -19,7 +19,7 @@ type Codebase struct {
 	InviteCode      *string         `db:"invite_code" json:"invite_code"`
 	CreatedAt       *time.Time      `db:"created_at" json:"created_at"`
 	ArchivedAt      *time.Time      `db:"archived_at" json:"archived_at"`
-	OrganizationID  string          `db:"organization_id"`
+	OrganizationID  *string         `db:"organization_id"`
 
 	IsReady  bool `json:"is_ready" db:"is_ready"`
 	IsPublic bool `json:"is_public" db:"is_public"`

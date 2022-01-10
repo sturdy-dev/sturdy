@@ -11,6 +11,8 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/comments"
 	"mash/pkg/github"
+	"mash/pkg/organization"
+	service_organization "mash/pkg/organization/service"
 	"mash/pkg/review"
 	"mash/pkg/suggestions"
 	service_user "mash/pkg/user/service"
@@ -21,10 +23,11 @@ import (
 )
 
 type Service struct {
-	codebaseService  *service_codebase.Service
-	userService      *service_user.Service
-	workspaceService service_workspace.Service
-	aclProvider      *provider_acl.Provider
+	codebaseService     *service_codebase.Service
+	userService         *service_user.Service
+	workspaceService    service_workspace.Service
+	aclProvider         *provider_acl.Provider
+	organizationService *service_organization.Service
 }
 
 func New(
@@ -32,12 +35,14 @@ func New(
 	userService *service_user.Service,
 	workspaceService service_workspace.Service,
 	aclProvider *provider_acl.Provider,
+	organizationService *service_organization.Service,
 ) *Service {
 	return &Service{
-		codebaseService:  codebaseService,
-		userService:      userService,
-		workspaceService: workspaceService,
-		aclProvider:      aclProvider,
+		codebaseService:     codebaseService,
+		userService:         userService,
+		workspaceService:    workspaceService,
+		aclProvider:         aclProvider,
+		organizationService: organizationService,
 	}
 }
 
@@ -117,6 +122,10 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canUserAccessSuggestion(ctx, subject.ID, at, &object)
 		case *suggestions.Suggestion:
 			return s.canUserAccessSuggestion(ctx, subject.ID, at, object)
+		case organization.Organization:
+			return s.canUserAccessOrganization(ctx, subject.ID, at, &object)
+		case *organization.Organization:
+			return s.canUserAccessOrganization(ctx, subject.ID, at, object)
 		default:
 			return fmt.Errorf("unsupported object type '%T' for user: %w", obj, auth.ErrForbidden)
 		}
@@ -407,7 +416,6 @@ func (s *Service) canUserAccessView(ctx context.Context, userID string, at acces
 		return fmt.Errorf("failed to get codebase: %w", err)
 	}
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
-
 }
 
 func (s *Service) canUserAccessReview(ctx context.Context, userID string, at accessType, r *review.Review) error {
@@ -420,7 +428,7 @@ func (s *Service) canUserAccessReview(ctx context.Context, userID string, at acc
 }
 
 func (s *Service) canAnonymousAccessReview(ctx context.Context, at accessType, r *review.Review) error {
-	// anonomouse users can only read reviews.
+	// anonymous users can only read reviews.
 	if at != accessTypeRead {
 		return fmt.Errorf("anonymous users can only read reviews: %w", auth.ErrForbidden)
 	}
@@ -430,4 +438,13 @@ func (s *Service) canAnonymousAccessReview(ctx context.Context, at accessType, r
 		return fmt.Errorf("failed to get codebase: %w", err)
 	}
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
+}
+
+func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, at accessType, org *organization.Organization) error {
+	// user can access a organization if they are a member of it
+	_, err := s.organizationService.GetMemberByUserIDAndOrganizationID(ctx, userID, org.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

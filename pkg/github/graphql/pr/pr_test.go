@@ -185,7 +185,7 @@ func TestPRHighLevel(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	statusesRepo := db_statuses.New(d)
 	statusesServcie := service_statuses.New(logger, statusesRepo, eventsSender)

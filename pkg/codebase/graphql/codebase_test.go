@@ -2,6 +2,8 @@ package graphql
 
 import (
 	"context"
+	"testing"
+
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/codebase"
@@ -9,7 +11,6 @@ import (
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/inmemory"
 	"mash/pkg/posthog"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
@@ -21,7 +22,7 @@ func TestCodebaseAccess(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
-	authService := service_auth.New(codebaseService, nil, nil, nil)
+	authService := service_auth.New(codebaseService, nil, nil, nil, nil)
 	resolver := NewResolver(
 		codebaseRepo,
 		codebaseUserRepo,

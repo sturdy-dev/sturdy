@@ -373,7 +373,7 @@ func main() {
 	presenceService := service_presence.New(presenceRepo, eventsSender)
 
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
-	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider)
+	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider, organizationService)
 	serviceTokensService := service_servicetokens.New(db_servicetokens.NewDatabase(d))
 
 	buildkiteService := service_buildkite.New(db_buildkite.NewDatabase(d))

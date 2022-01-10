@@ -400,7 +400,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	)
 
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
-	authService := service_auth.New(codebaseService, nil, workspaceService, nil)
+	authService := service_auth.New(codebaseService, nil, workspaceService, nil, nil)
 
 	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)
 	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
