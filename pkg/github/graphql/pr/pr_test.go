@@ -452,7 +452,7 @@ func TestPRHighLevel(t *testing.T) {
 			codebaseID := uuid.NewString()
 			codebaseUserID := uuid.NewString()
 			gitHubRepositoryID := uuid.NewString()
-			gitHubInstallationID := rand.Int63n(500000)
+			gitHubInstallationID := rand.Int63n(50_000_000)
 			ctx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID})
 
 			gitHubRepoOwner := uuid.NewString()
