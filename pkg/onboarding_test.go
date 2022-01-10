@@ -5,14 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	gqldataloader "mash/pkg/graphql/dataloader"
-	graphql_user "mash/pkg/user/graphql"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path"
 	"testing"
 	"time"
+
+	db_acl "mash/pkg/codebase/acl/db"
+	provider_acl "mash/pkg/codebase/acl/provider"
+	gqldataloader "mash/pkg/graphql/dataloader"
+	graphql_user "mash/pkg/user/graphql"
 
 	"mash/db"
 	"mash/pkg/auth"
@@ -195,7 +198,10 @@ func TestCreate(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/)
+	aclRepo := db_acl.NewACLRepository(d)
+	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
+
+	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider)
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)

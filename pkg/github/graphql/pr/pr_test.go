@@ -51,6 +51,7 @@ import (
 	service_statuses "mash/pkg/statuses/service"
 	db_suggestion "mash/pkg/suggestions/db"
 	service_suggestion "mash/pkg/suggestions/service"
+	service_sync "mash/pkg/sync/service"
 	"mash/pkg/unidiff"
 	service_user "mash/pkg/user/service"
 	"mash/pkg/view"
@@ -190,6 +191,8 @@ func TestPRHighLevel(t *testing.T) {
 	statusesServcie := service_statuses.New(logger, statusesRepo, eventsSender)
 	statusesRootResolver := new(resolvers.StatusesRootResolver)
 
+	syncService := service_sync.New(logger, executorProvider, viewRepo, workspaceRepo, workspaceRepo, gitSnapshotter)
+
 	webhookRoute := routes.Webhook(
 		logger,
 		config.GitHubAppConfig{},
@@ -206,7 +209,7 @@ func TestPRHighLevel(t *testing.T) {
 		workspaceRepo,
 		workspaceRepo,
 		workspaceService,
-		nil,
+		syncService,
 		changeRepo,
 		changeCommitRepo,
 		reviewsRepo,

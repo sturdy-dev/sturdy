@@ -4,11 +4,13 @@ import (
 	"context"
 	_ "embed"
 	goerrors "errors"
+	"net/http"
+	"time"
+
 	graphql_buildkite "mash/pkg/integrations/buildkite/graphql"
 	service_buildkite "mash/pkg/integrations/buildkite/service"
 	graphql_ci "mash/pkg/integrations/graphql"
-	"net/http"
-	"time"
+	service_organization "mash/pkg/organization/service"
 
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
@@ -46,6 +48,7 @@ import (
 	servcie_notification "mash/pkg/notification/service"
 	db_onboarding "mash/pkg/onboarding/db"
 	graphql_onboarding "mash/pkg/onboarding/graphql"
+	graphql_organization "mash/pkg/organization/graphql"
 	db_pki "mash/pkg/pki/db"
 	graphql_pki "mash/pkg/pki/graphql"
 	graphql_presence "mash/pkg/presence/graphql"
@@ -94,28 +97,29 @@ import (
 type RootResolver struct {
 	resolvers.ACLRootResolver
 	resolvers.AuthorRootResolver
+	resolvers.BuildkiteInstantIntegrationRootResolver
 	resolvers.ChangeRootResolver
 	resolvers.CodebaseGitHubIntegrationRootResolver
 	resolvers.CodebaseRootResolver
 	resolvers.CommentRootResolver
+	resolvers.FeaturesRootResolver
 	resolvers.GitHubAppRootResolver
 	resolvers.GitHubPullRequestRootResolver
 	resolvers.IntegrationRootResolver
 	resolvers.NotificationRootResolver
+	resolvers.OnboardingRootResolver
+	resolvers.OrganizationRootResolver
+	resolvers.PKIRootResolver
 	resolvers.PresenceRootResolver
 	resolvers.ReviewRootResolver
+	resolvers.ServiceTokensRootResolver
+	resolvers.StatusesRootResolver
 	resolvers.SuggestionRootResolver
 	resolvers.UserRootResolver
 	resolvers.ViewRootResolver
 	resolvers.WorkspaceActivityRootResolver
 	resolvers.WorkspaceRootResolver
-	resolvers.OnboardingRootResolver
-	resolvers.StatusesRootResolver
 	resolvers.WorkspaceWatcherRootResolver
-	resolvers.PKIRootResolver
-	resolvers.ServiceTokensRootResolver
-	resolvers.BuildkiteInstantIntegrationRootResolver
-	resolvers.FeaturesRootResolver
 
 	schema     *graphql.Schema
 	jwtService *service_jwt.Service
@@ -175,32 +179,34 @@ func New(
 	serviceTokensService *service_servicetokens.Service,
 	buidkiteService *service_buildkite.Service,
 	authService *service_auth.Service,
+	organizationService *service_organization.Service,
 ) *RootResolver {
 	// This pointer dance (pointer to interfaces) allows the resolvers to use each other, without cycles
 	var aclResovler = new(resolvers.ACLRootResolver)
 	var authorResolver = new(resolvers.AuthorRootResolver)
+	var buildkiteRootResolver = new(resolvers.BuildkiteInstantIntegrationRootResolver)
 	var changeResolver = new(resolvers.ChangeRootResolver)
 	var codebaseGitHubIntegrationResolver = new(resolvers.CodebaseGitHubIntegrationRootResolver)
 	var codebaseResolver = new(resolvers.CodebaseRootResolver)
 	var commentsResolver = new(resolvers.CommentRootResolver)
+	var fileDiffRootResolver = new(resolvers.FileDiffRootResolver)
+	var fileResolver = new(resolvers.FileRootResolver)
+	var instantIntegrationRootResolver = new(resolvers.IntegrationRootResolver)
 	var notificationResolver = new(resolvers.NotificationRootResolver)
+	var onboardingRootResolver = new(resolvers.OnboardingRootResolver)
+	var organizationRootResolver = new(resolvers.OrganizationRootResolver)
+	var pkiRootResolver = new(resolvers.PKIRootResolver)
 	var prResolver = new(resolvers.GitHubPullRequestRootResolver)
+	var presenceRootResolver = new(resolvers.PresenceRootResolver)
 	var reviewResolver = new(resolvers.ReviewRootResolver)
+	var serviceTokensRootResolver = new(resolvers.ServiceTokensRootResolver)
+	var statusRootResolver = new(resolvers.StatusesRootResolver)
+	var suggestionResolver = new(resolvers.SuggestionRootResolver)
 	var userResolver = new(resolvers.UserRootResolver)
 	var viewResolver = new(resolvers.ViewRootResolver)
 	var workspaceActivityResolver = new(resolvers.WorkspaceActivityRootResolver)
 	var workspaceResolver = new(resolvers.WorkspaceRootResolver)
-	var fileResolver = new(resolvers.FileRootResolver)
-	var presenceRootResolver = new(resolvers.PresenceRootResolver)
-	var suggestionResolver = new(resolvers.SuggestionRootResolver)
-	var fileDiffRootResolver = new(resolvers.FileDiffRootResolver)
-	var instantIntegrationRootResolver = new(resolvers.IntegrationRootResolver)
-	var statusRootResolver = new(resolvers.StatusesRootResolver)
-	var onboardingRootResolver = new(resolvers.OnboardingRootResolver)
 	var workspaceWatcherRootResolver = new(resolvers.WorkspaceWatcherRootResolver)
-	var pkiRootResolver = new(resolvers.PKIRootResolver)
-	var serviceTokensRootResolver = new(resolvers.ServiceTokensRootResolver)
-	var buildkiteRootResolver = new(resolvers.BuildkiteInstantIntegrationRootResolver)
 
 	*aclResovler = graphql_acl.NewResolver(aclProvider, userRepo)
 	*authorResolver = graphql_author.NewResolver(userRepo, logger)
@@ -477,34 +483,37 @@ func New(
 
 	*buildkiteRootResolver = graphql_buildkite.New(authService, buidkiteService, ciService, instantIntegrationRootResolver)
 
+	*organizationRootResolver = graphql_organization.New(organizationService, authorResolver)
+
 	r := &RootResolver{
 		jwtService: jwtService,
 		logger:     logger,
 
 		ACLRootResolver:                         *aclResovler,
 		AuthorRootResolver:                      *authorResolver,
+		BuildkiteInstantIntegrationRootResolver: *buildkiteRootResolver,
 		ChangeRootResolver:                      *changeResolver,
 		CodebaseGitHubIntegrationRootResolver:   *codebaseGitHubIntegrationResolver,
 		CodebaseRootResolver:                    *codebaseResolver,
 		CommentRootResolver:                     *commentsResolver,
+		FeaturesRootResolver:                    graphql_features.Resolver,
 		GitHubAppRootResolver:                   graphql_github.NewGitHubAppRootResolver(gitHubAppConfig),
 		GitHubPullRequestRootResolver:           *prResolver,
 		IntegrationRootResolver:                 *instantIntegrationRootResolver,
 		NotificationRootResolver:                *notificationResolver,
+		OnboardingRootResolver:                  *onboardingRootResolver,
+		OrganizationRootResolver:                *organizationRootResolver,
+		PKIRootResolver:                         *pkiRootResolver,
 		PresenceRootResolver:                    *presenceRootResolver,
 		ReviewRootResolver:                      *reviewResolver,
+		ServiceTokensRootResolver:               *serviceTokensRootResolver,
+		StatusesRootResolver:                    *statusRootResolver,
 		SuggestionRootResolver:                  *suggestionResolver,
 		UserRootResolver:                        *userResolver,
 		ViewRootResolver:                        *viewResolver,
 		WorkspaceActivityRootResolver:           *workspaceActivityResolver,
 		WorkspaceRootResolver:                   *workspaceResolver,
-		OnboardingRootResolver:                  *onboardingRootResolver,
-		StatusesRootResolver:                    *statusRootResolver,
 		WorkspaceWatcherRootResolver:            *workspaceWatcherRootResolver,
-		PKIRootResolver:                         *pkiRootResolver,
-		ServiceTokensRootResolver:               *serviceTokensRootResolver,
-		BuildkiteInstantIntegrationRootResolver: *buildkiteRootResolver,
-		FeaturesRootResolver:                    graphql_features.Resolver,
 	}
 
 	logger = logger.Named("graphql")

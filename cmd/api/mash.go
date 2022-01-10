@@ -5,15 +5,17 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"mash/pkg/integrations"
-	db_buildkite "mash/pkg/integrations/buildkite/db"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
-	db_integrations "mash/pkg/integrations/db"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"strings"
 	"time"
+
+	"mash/pkg/integrations"
+	db_buildkite "mash/pkg/integrations/buildkite/db"
+	service_buildkite "mash/pkg/integrations/buildkite/service"
+	db_integrations "mash/pkg/integrations/db"
+	db_organization "mash/pkg/organization/db"
 
 	"mash/db"
 	authz "mash/pkg/auth"
@@ -60,6 +62,7 @@ import (
 	db_onboarding "mash/pkg/onboarding/db"
 	db_onetime "mash/pkg/onetime/db"
 	service_onetime "mash/pkg/onetime/service"
+	service_organization "mash/pkg/organization/service"
 	db_pki "mash/pkg/pki/db"
 	routes_v3_pki "mash/pkg/pki/routes"
 	ph "mash/pkg/posthog"
@@ -206,6 +209,9 @@ func main() {
 	ciConfigRepo := db_integrations.NewIntegrationDatabase(d)
 	workspaceWatchersRepo := db_workspace_watchers.NewDB(d)
 	commentsService := service_comments.New(commentRepo)
+	organizationRepo := db_organization.New(d)
+	organizationMemberRepo := db_organization.NewMember(d)
+	organizationService := service_organization.New(organizationRepo, organizationMemberRepo)
 
 	awsSession, err := session.NewSession(
 		&aws.Config{
@@ -527,6 +533,7 @@ func main() {
 			authService,
 			ciBuildQueue,
 			*developmentAllowExtraCorsOrigin,
+			organizationService,
 		); err != nil {
 			return fmt.Errorf("failed to start webserver: %w", err)
 		}
@@ -602,6 +609,7 @@ func webserver(
 	authService *service_auth.Service,
 	ciBuildQueue *workers_ci.BuildQueue,
 	developmentAllowExtraCorsOrigin string,
+	organizationService *service_organization.Service,
 ) error {
 	logger = logger.With(zap.String("component", "http"))
 
@@ -696,6 +704,7 @@ func webserver(
 		servicetokensService,
 		buildkiteService,
 		authService,
+		organizationService,
 	)
 	graphql := r.Group("/graphql", sturdygrapql.CorsMiddleware(allowOrigins), authz.GinMiddleware(logger, jwtService))
 	graphql.OPTIONS("", func(c *gin.Context) { c.Status(http.StatusOK) })

@@ -19,24 +19,17 @@ func NewRepo(db *sqlx.DB) CodebaseRepository {
 }
 
 func (r *Repo) Create(entity codebase.Codebase) error {
-	result, err := r.db.NamedExec(`INSERT INTO codebases (id, short_id, name, description, emoji, created_at, invite_code, is_ready, is_public)
-		VALUES (:id, :short_id, :name, :description, :emoji, :created_at, :invite_code, :is_ready, :is_public)`, &entity)
+	_, err := r.db.NamedExec(`INSERT INTO codebases (id, short_id, name, description, emoji, created_at, invite_code, is_ready, is_public, organization_id)
+		VALUES (:id, :short_id, :name, :description, :emoji, :created_at, :invite_code, :is_ready, :is_public, :organization_id)`, &entity)
 	if err != nil {
-		return fmt.Errorf("failed to perform insert: %w", err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to get rows affected %w", err)
-	}
-	if rows != 1 {
-		return fmt.Errorf("unexpected number of rows affected, expected 1, actual: %d", rows)
+		return fmt.Errorf("failed to create codebase: %w", err)
 	}
 	return nil
 }
 
 func (r *Repo) Get(id string) (*codebase.Codebase, error) {
 	entity := &codebase.Codebase{}
-	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public
+	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id
 		FROM codebases
 		WHERE id = $1
 		AND archived_at IS NULL`, id)
@@ -48,7 +41,7 @@ func (r *Repo) Get(id string) (*codebase.Codebase, error) {
 
 func (r *Repo) GetAllowArchived(id string) (*codebase.Codebase, error) {
 	entity := &codebase.Codebase{}
-	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public
+	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id
 		FROM codebases
 		WHERE id = $1`, id)
 	if err != nil {
@@ -59,7 +52,7 @@ func (r *Repo) GetAllowArchived(id string) (*codebase.Codebase, error) {
 
 func (r *Repo) GetByInviteCode(inviteCode string) (*codebase.Codebase, error) {
 	entity := &codebase.Codebase{}
-	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public
+	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id
 		FROM codebases
 		WHERE invite_code = $1
 	    AND archived_at IS NULL`, inviteCode)
@@ -71,7 +64,7 @@ func (r *Repo) GetByInviteCode(inviteCode string) (*codebase.Codebase, error) {
 
 func (r *Repo) GetByShortID(shortID string) (*codebase.Codebase, error) {
 	entity := &codebase.Codebase{}
-	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public
+	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id
 		FROM codebases
 		WHERE short_id = $1
 	    AND archived_at IS NULL`, shortID)
@@ -90,7 +83,8 @@ func (r *Repo) Update(entity *codebase.Codebase) error {
 			archived_at = :archived_at,
 		    short_id = :short_id,
 		    is_ready = :is_ready,
-		    is_public = :is_public
+		    is_public = :is_public,
+		    organization_id = :organization_id
 		WHERE id = :id`, &entity)
 	if err != nil {
 		return fmt.Errorf("failed to perform update: %w", err)

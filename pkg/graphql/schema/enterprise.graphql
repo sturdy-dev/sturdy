@@ -175,3 +175,24 @@ input CreateOrUpdateBuildkiteIntegrationInput {
     apiToken: String!
     webhookSecret: String!
 }
+
+# type Installation {
+#     _id: ID! # Always "sturdy"
+# }
+#
+# input UpdateLicense {
+#     licenseKey: String!
+# }
+#
+# type License {
+#     id: ID!
+#     plan: LicensePlan!
+#     seats: Int!
+#     usedSeats: Int!
+#     expiresAt: Int!
+#     licenseKey: String!
+# }
+#
+# enum LicensePlan {
+#     Enterprise
+# }

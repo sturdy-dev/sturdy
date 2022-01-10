@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	//go:embed cloud.graphql
+	cloudSchema string
 	//go:embed enterprise.graphql
 	enterpriseSchema string
 	//go:embed oss.graphql
@@ -18,4 +20,5 @@ var String = strings.Join([]string{
 	schema,
 	ossSchema,
 	enterpriseSchema,
+	cloudSchema,
 }, "\n")
