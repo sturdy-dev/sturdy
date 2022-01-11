@@ -1,4 +1,4 @@
-package oss
+package graphql
 
 import (
 	"context"
@@ -26,6 +26,7 @@ func TestCodebaseAccess(t *testing.T) {
 	resolver := NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
+		nil,
 		nil,
 		nil,
 		nil,

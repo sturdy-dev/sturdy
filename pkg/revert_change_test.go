@@ -17,7 +17,7 @@ import (
 	workers_ci "mash/pkg/ci/workers"
 	"mash/pkg/codebase"
 	db_codebase "mash/pkg/codebase/db"
-	graphql_codebase "mash/pkg/codebase/graphql/oss"
+	graphql_codebase "mash/pkg/codebase/graphql"
 	routes_v3_codebase "mash/pkg/codebase/routes"
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
@@ -280,6 +280,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		nil,
 		&changeRootResolver,
 		&fileRootResolver,
+		nil,
 		nil, // instantIntegrationRootResolver
 
 		logger,
@@ -663,6 +664,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		nil,
 		&changeRootResolver,
 		&fileRootResolver,
+		nil,
 		nil, // instantIntegrationRootResolver
 
 		logger,
