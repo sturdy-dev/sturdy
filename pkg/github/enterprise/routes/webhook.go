@@ -11,12 +11,12 @@ import (
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
 	"mash/pkg/github/db"
+	workers_github "mash/pkg/github/enterprise/workers"
 	"mash/pkg/github/installation"
 	"mash/pkg/github/pr"
 	"mash/pkg/github/push"
 	service_github "mash/pkg/github/service"
 	"mash/pkg/github/statuses"
-	workers_github "mash/pkg/github/workers"
 	"mash/pkg/github/workflows"
 	db_review "mash/pkg/review/db"
 	service_statuses "mash/pkg/statuses/service"
@@ -85,7 +85,7 @@ func Webhook(
 			}
 
 		case *gh.InstallationRepositoriesEvent:
-			if err := installation.HandleInstallationRepositoriesEvent(c, logger.Named("githubHandleInstallationRepositoriesEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, postHogClient, codebaseRepo, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, eventsSender, gitHubService); err != nil {
+			if err := installation.HandleInstallationRepositoriesEvent(c, logger.Named("githubHandleInstallationRepositoriesEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, postHogClient, codebaseRepo, gitHubService); err != nil {
 				logger.Error("failed to handle github installation repository webhook event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
