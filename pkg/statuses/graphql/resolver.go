@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/change"
 	service_changes "mash/pkg/change/service"
@@ -17,6 +16,8 @@ import (
 	"mash/pkg/view/events"
 	service_workspace "mash/pkg/workspace/service"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"

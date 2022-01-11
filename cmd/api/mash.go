@@ -21,6 +21,7 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
+	"mash/pkg/di"
 	"mash/pkg/emails"
 	"mash/pkg/emails/transactional"
 	db_gc "mash/pkg/gc/db"
@@ -94,7 +95,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/jmoiron/sqlx"
 	"github.com/posthog/posthog-go"
-	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
 
@@ -289,9 +289,6 @@ func main() {
 		gitserver.New,
 		workers_github.NewClonerQueue,
 		workers_github.NewImporterQueue,
-		http.ProvideHandler,
-		http.ProvideServer,
-		api.ProvideAPI,
 		db_license.New,
 		db_license.NewValidationRepository,
 		service_license.New,
@@ -299,42 +296,24 @@ func main() {
 		validator_license.New,
 	}
 
-	providers = append(providers, graphql.Providers...)
-
-	c, err := assembleContainer(providers...)
-	if err != nil {
-		logger.Fatal("failed to assemble container", zap.Error(err))
+	hooks := []di.Hook{
+		di.Needs(http.Module),
+		di.Needs(graphql.Module),
+		di.Needs(api.Module),
 	}
 
-	for _, invoke := range graphql.Invokers {
-		if err := c.Invoke(invoke); err != nil {
-			logger.Fatal("failed to invoke graphql", zap.Error(err))
-		}
+	for _, p := range providers {
+		hooks = append(hooks, di.Provides(p))
 	}
 
-	if err := c.Invoke(func(sq *service_github.ImporterQueue, wq workers_github.ImporterQueue) {
-		*sq = wq
-	}); err != nil {
-		logger.Fatal("failed to resolve importer queue cycle dependency", zap.Error(err))
-	}
-
-	if err := c.Invoke(func(sq *service_github.ClonerQueue, wq *workers_github.ClonerQueue) {
-		*sq = wq
-	}); err != nil {
-		logger.Fatal("failed to resolve cloner queue cycle dependency", zap.Error(err))
-	}
-
-	if err := c.Invoke(func(buildkiteService *service_buildkite.Service) {
+	c := di.NewModule(hooks...)
+	c.Invoke(func(buildkiteService *service_buildkite.Service) {
 		integrations.Register(integrations.ProviderTypeBuildkite, buildkiteService)
-	}); err != nil {
-		logger.Fatal("failed to register buildkite integration", zap.Error(err))
-	}
+	})
 
 	var apiServer *api.API
-	if err := c.Invoke(func(api *api.API) {
-		apiServer = api
-	}); err != nil {
-		logger.Fatal("failed to invoke api", zap.Error(err))
+	if err := c.Build(&apiServer); err != nil {
+		log.Fatalf("%+v", err)
 	}
 
 	if err := apiServer.Start(ctx, &api.Config{
@@ -345,14 +324,4 @@ func main() {
 	}); err != nil {
 		logger.Fatal("failed to start api server", zap.Error(err))
 	}
-}
-
-func assembleContainer(constructors ...interface{}) (*dig.Container, error) {
-	c := dig.New()
-	for _, constructor := range constructors {
-		if err := c.Provide(constructor); err != nil {
-			return nil, err
-		}
-	}
-	return c, nil
 }

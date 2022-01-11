@@ -9,7 +9,6 @@ import (
 
 	"mash/pkg/auth"
 	"mash/pkg/ctxlog"
-	graphql_features "mash/pkg/features/graphql"
 	"mash/pkg/graphql/dataloader"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
@@ -62,7 +61,7 @@ type RootResolver struct {
 	logger     *zap.Logger
 }
 
-func New(
+func NewRootResolver(
 	logger *zap.Logger,
 	jwtService *service_jwt.Service,
 
@@ -91,6 +90,7 @@ func New(
 	workspaceWatcherRootResolver *resolvers.WorkspaceWatcherRootResolver,
 	licenseRootResolver resolvers.LicenseRootResolver,
 	githubAppResolver resolvers.GitHubAppRootResolver,
+	featuresRootResolver resolvers.FeaturesRootResolver,
 ) *RootResolver {
 	r := &RootResolver{
 		jwtService: jwtService,
@@ -103,7 +103,7 @@ func New(
 		CodebaseGitHubIntegrationRootResolver:   *codebaseGitHubIntegrationResolver,
 		CodebaseRootResolver:                    *codebaseResolver,
 		CommentRootResolver:                     *commentsResolver,
-		FeaturesRootResolver:                    graphql_features.Resolver,
+		FeaturesRootResolver:                    featuresRootResolver,
 		GitHubAppRootResolver:                   githubAppResolver,
 		GitHubPullRequestRootResolver:           *prResolver,
 		IntegrationRootResolver:                 *instantIntegrationRootResolver,

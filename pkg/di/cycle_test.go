@@ -1,8 +1,7 @@
-package digutils_test
+package di
 
 import (
-	"mash/pkg/digutils"
-
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +11,8 @@ import (
 func TestResolveCycleFor(t *testing.T) {
 	type MyInterface interface{}
 
-	resolver, invoker := digutils.ResolveCycleFor(new(MyInterface))
+	typ := reflect.TypeOf(new(MyInterface))
+	resolver, invoker := providerFor(typ), invokerFor(typ)
 
 	provide, ok := resolver.(func() *MyInterface)
 	assert.True(t, ok, "resolver has a wrong type")

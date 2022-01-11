@@ -1,4 +1,4 @@
-package digutils
+package di
 
 import (
 	"reflect"
@@ -35,10 +35,10 @@ import (
 //     _ = c.Invoke(func(r Result) {
 //         fmt.Println(r.MyInterface) // now, MyInterface is resolved
 //     })
-func ResolveCycleFor(i interface{}) (provider interface{}, invoker interface{}) {
-	typ := reflect.TypeOf(i)
-	return providerFor(typ), invokerFor(typ)
-}
+// func ResolveCycleFor(i interface{}) (provider interface{}, invoker interface{}) {
+// 	typ := reflect.TypeOf(i)
+// 	return providerFor(typ), invokerFor(typ)
+// }
 
 func providerFor(typPtr reflect.Type) interface{} {
 	funcTyp := reflect.FuncOf(nil, []reflect.Type{typPtr}, false)

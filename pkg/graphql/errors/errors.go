@@ -17,12 +17,14 @@ var ErrBadRequest = errors.New("BadRequestError")
 var ErrInternalServer = errors.New("InternalServerError")
 var ErrForbidden = errors.New("ForbiddenError")
 var ErrUnauthenticated = errors.New("UnauthenticatedError")
+var ErrNotImplemented = errors.New("NotImplementedError")
 
 var clientSideErrors = []error{
 	ErrNotFound,
 	ErrBadRequest,
 	ErrForbidden,
 	ErrUnauthenticated,
+	ErrNotImplemented,
 }
 
 func IsClientSideError(err error) bool {
@@ -57,7 +59,8 @@ func Error(err error, kv ...string) ResolverError {
 	case errors.Is(err, ErrNotFound),
 		errors.Is(err, ErrBadRequest),
 		errors.Is(err, ErrForbidden),
-		errors.Is(err, ErrInternalServer):
+		errors.Is(err, ErrInternalServer),
+		errors.Is(err, ErrNotImplemented):
 		return &SturdyGraphqlError{err: err, data: data, originalError: err}
 	default:
 		return &SturdyGraphqlError{err: ErrInternalServer, data: data, originalError: err}
