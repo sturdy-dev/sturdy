@@ -3,6 +3,7 @@ schema:
   - "../pkg/graphql/schema/schema.graphql"
   - "../pkg/graphql/schema/oss.graphql"
   - "../pkg/graphql/schema/enterprise.graphql"
+  - "../pkg/graphql/schema/cloud.graphql"
 documents:
   - "src/**/*.vue"
   - "src/**/*.ts"

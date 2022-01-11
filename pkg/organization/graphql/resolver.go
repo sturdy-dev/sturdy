@@ -60,6 +60,19 @@ func (r *organizationRootResolver) Organizations(ctx context.Context) ([]resolve
 	return res, nil
 }
 
+func (r *organizationRootResolver) Organization(ctx context.Context, args resolvers.OrganizationArgs) (resolvers.OrganizationResolver, error) {
+	org, err := r.service.GetByID(ctx, string(args.ID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanRead(ctx, org); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &organizationResolver{org: org, root: r}, nil
+}
+
 func (r *organizationRootResolver) CreateOrganization(ctx context.Context, args resolvers.CreateOrganizationArgs) (resolvers.OrganizationResolver, error) {
 	org, err := r.service.Create(ctx, args.Input.Name)
 	if err != nil {

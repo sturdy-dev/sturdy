@@ -101,7 +101,7 @@
 </template>
 
 <script lang="ts">
-import TextInput from '../../components/ci/TextInput.vue'
+import TextInput from '../../molecules/TextInput.vue'
 import Step from '../../components/ci/Step.vue'
 import LinkButton from '../../components/shared/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'

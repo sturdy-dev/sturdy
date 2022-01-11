@@ -3,6 +3,7 @@ type Query {
 
     # Organization is all organizations that the authenticated user is a member of and has access to
     organizations: [Organization!]!
+    organization(id: ID!): Organization!
 
     # Codebases is all codebases that the authenticated user has access to
     codebases: [Codebase!]!

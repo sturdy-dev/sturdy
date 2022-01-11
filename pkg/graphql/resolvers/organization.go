@@ -8,6 +8,7 @@ import (
 
 type OrganizationRootResolver interface {
 	Organizations(context.Context) ([]OrganizationResolver, error)
+	Organization(context.Context, OrganizationArgs) (OrganizationResolver, error)
 
 	// Mutations
 	CreateOrganization(context.Context, CreateOrganizationArgs) (OrganizationResolver, error)
@@ -36,4 +37,8 @@ type AddUserToOrganizationArgs struct {
 type AddUserToOrganizationInput struct {
 	OrganizationID graphql.ID
 	Email          string
+}
+
+type OrganizationArgs struct {
+	ID graphql.ID
 }
