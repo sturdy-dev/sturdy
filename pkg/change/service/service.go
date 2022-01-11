@@ -34,6 +34,8 @@ type Service struct {
 	maybeBucketName  *string
 }
 
+type ExportBucketName *string
+
 func New(
 	executorProvider executor.Provider,
 	awsSession *session.Session,
@@ -41,7 +43,7 @@ func New(
 	userRepo db_user.Repository,
 	changeRepo db_change.Repository,
 	commitChangeRepo db_change.CommitRepository,
-	maybeBucketName *string,
+	maybeBucketName ExportBucketName,
 ) *Service {
 	return &Service{
 		executorProvider: executorProvider,

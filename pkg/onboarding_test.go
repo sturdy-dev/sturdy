@@ -137,6 +137,8 @@ func TestCreate(t *testing.T) {
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
 		logger,
 		gitHubRepositoryRepo,
@@ -146,8 +148,8 @@ func TestCreate(t *testing.T) {
 		config.GitHubAppConfig{},
 		nil, // gitHubClientProvider
 		nil, // gitHubPersonalClientProvider
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceWriter,
 		workspaceRepo,
 		codebaseUserRepo,
@@ -691,6 +693,8 @@ func TestLargeFiles(t *testing.T) {
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 
 	gitHubService := service_github.New(
 		logger,
@@ -701,8 +705,8 @@ func TestLargeFiles(t *testing.T) {
 		config.GitHubAppConfig{},
 		nil, // gitHubClientProvider
 		nil, // gitHubPersonalClientProvider
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceWriter,
 		workspaceRepo,
 		codebaseUserRepo,

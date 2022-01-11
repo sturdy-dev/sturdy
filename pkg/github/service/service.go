@@ -24,11 +24,11 @@ import (
 	"go.uber.org/zap"
 )
 
-type importQueue interface {
+type ImporterQueue interface {
 	Enqueue(ctx context.Context, codebaseID string, userID string) error
 }
 
-type cloneQueue interface {
+type ClonerQueue interface {
 	Enqueue(context.Context, *github.CloneRepositoryEvent) error
 }
 
@@ -40,8 +40,8 @@ type Service struct {
 	gitHubUserRepo         db_github.GitHubUserRepo
 	gitHubPullRequestRepo  db_github.GitHubPRRepo
 
-	gitHubPullRequestImporterQueue importQueue
-	gitHubCloneQueue               cloneQueue
+	gitHubPullRequestImporterQueue *ImporterQueue
+	gitHubCloneQueue               *ClonerQueue
 
 	gitHubAppConfig              config_github.GitHubAppConfig
 	gitHubClientProvider         github_client.ClientProvider
@@ -73,8 +73,8 @@ func New(
 	gitHubClientProvider github_client.ClientProvider,
 	gitHubPersonalClientProvider github_client.PersonalClientProvider,
 
-	gitHubPullRequestImporterQueue importQueue,
-	gitHubCloneQueue cloneQueue,
+	gitHubPullRequestImporterQueue *ImporterQueue,
+	gitHubCloneQueue *ClonerQueue,
 
 	workspaceWriter db_workspace.WorkspaceWriter,
 	workspaceReader db_workspace.WorkspaceReader,

@@ -7,38 +7,25 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/codebase"
 	"mash/pkg/codebase/acl"
-	"mash/pkg/user"
+	db_acl "mash/pkg/codebase/acl/db"
+	db_codebase "mash/pkg/codebase/db"
+	db_user "mash/pkg/user/db"
 
 	"github.com/google/uuid"
 	"github.com/tailscale/hujson"
 )
 
-type codebaseUserRepository interface {
-	GetByCodebase(codebaseID string) ([]*codebase.CodebaseUser, error)
-}
-
-type aclRepository interface {
-	Create(context.Context, acl.ACL) error
-	Update(context.Context, acl.ACL) error
-	GetByCodebaseID(ctx context.Context, codebaseID string) (acl.ACL, error)
-}
-
-type userRepository interface {
-	GetByIDs(ctx context.Context, id ...string) ([]*user.User, error)
-}
-
 type Provider struct {
-	aclDB          aclRepository
-	usersDB        userRepository
-	codebaseUserDB codebaseUserRepository
+	aclDB          db_acl.ACLRepository
+	usersDB        db_user.Repository
+	codebaseUserDB db_codebase.CodebaseUserRepository
 }
 
 func New(
-	aclRepo aclRepository,
-	codebaseUserDB codebaseUserRepository,
-	usersDB userRepository,
+	aclRepo db_acl.ACLRepository,
+	codebaseUserDB db_codebase.CodebaseUserRepository,
+	usersDB db_user.Repository,
 ) *Provider {
 	return &Provider{
 		aclDB:          aclRepo,

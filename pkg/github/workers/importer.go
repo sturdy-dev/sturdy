@@ -33,7 +33,7 @@ func NewImporterQueue(
 	logger *zap.Logger,
 	queue queue.Queue,
 	gitHubService *service_github.Service,
-) *importerQueue {
+) ImporterQueue {
 	return &importerQueue{
 		logger:        logger.Named("GitHubPullRequestImporterWorker"),
 		queue:         queue,
@@ -103,4 +103,8 @@ func (*nopImporter) Enqueue(context.Context, string, string) error {
 
 func NopImporter() *nopImporter {
 	return &nopImporter{}
+}
+
+func (*nopImporter) Start(context.Context) error {
+	return nil
 }

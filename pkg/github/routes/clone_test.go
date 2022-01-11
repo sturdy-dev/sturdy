@@ -110,6 +110,8 @@ func TestCloneSendsNotifications(t *testing.T) {
 	// This user is new, and should not receive any notifications
 	notificationSender.EXPECT().User(gomock.Any() /*context*/, ghUserCollaborator2New.UserID, gomock.Any() /*codebaseID*/, notification.GitHubRepositoryImported, gomock.Any() /*referenceID*/).Times(0)
 
+	importer := service.ImporterQueue(workers_github.NopImporter())
+	cloner := service.ClonerQueue(&synchronousCloner{})
 	svc := new(service.Service)
 	*svc = *service.New(
 		logger,
@@ -120,10 +122,8 @@ func TestCloneSendsNotifications(t *testing.T) {
 		config.GitHubAppConfig{},
 		clientProvider(appGitHubRepositoriesClient),
 		personalClientProvider(personalGitHubRepositoriesClient),
-		workers_github.NopImporter(),
-
-		&synchronousCloner{svc},
-
+		&importer,
+		&cloner,
 		nil,
 		nil,
 		codebaseUserRepo,

@@ -231,7 +231,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 	}
 
 	// Put to queue!
-	if err := svc.gitHubCloneQueue.Enqueue(ctx, &github.CloneRepositoryEvent{
+	if err := (*svc.gitHubCloneQueue).Enqueue(ctx, &github.CloneRepositoryEvent{
 		CodebaseID:         nonReadyCodebase.ID,
 		InstallationID:     installationID,
 		GitHubRepositoryID: ghRepo.GetID(),

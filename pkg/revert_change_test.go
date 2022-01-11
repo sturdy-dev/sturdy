@@ -126,6 +126,8 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
 		logger,
 		gitHubRepositoryRepo,
@@ -135,8 +137,8 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		config.GitHubAppConfig{},
 		nil, // gitHubClientProvider
 		nil,
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceWriter,
 		workspaceRepo,
 		codebaseUserRepo,
@@ -488,6 +490,8 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
 		logger,
 		gitHubRepositoryRepo,
@@ -497,8 +501,8 @@ func TestRevertChangeFromView(t *testing.T) {
 		config.GitHubAppConfig{},
 		nil, // gitHubClientProvider
 		nil,
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceWriter,
 		workspaceRepo,
 		codebaseUserRepo,

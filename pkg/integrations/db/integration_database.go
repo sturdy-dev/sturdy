@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"fmt"
 	"mash/pkg/integrations"
 
@@ -15,7 +16,7 @@ type configDatabase struct {
 	db *sqlx.DB
 }
 
-func NewIntegrationDatabase(db *sqlx.DB) *configDatabase {
+func NewIntegrationDatabase(db *sqlx.DB) IntegrationsRepository {
 	return &configDatabase{db: db}
 }
 

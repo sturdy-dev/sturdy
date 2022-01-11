@@ -130,6 +130,8 @@ func TestPRHighLevel(t *testing.T) {
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
 		logger,
 		gitHubRepositoryRepo,
@@ -139,8 +141,8 @@ func TestPRHighLevel(t *testing.T) {
 		config.GitHubAppConfig{},
 		clientProvider,
 		personalClientProvider,
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceRepo,
 		workspaceRepo,
 		codebaseUserRepo,

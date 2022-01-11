@@ -31,7 +31,7 @@ func New(
 	logger *zap.Logger,
 	queue queue.Queue,
 	snapshotter snapshotter.Snapshotter,
-) *q {
+) Queue {
 	return &q{
 		logger:      logger.Named("snapshotterQueue"),
 		queue:       queue,
