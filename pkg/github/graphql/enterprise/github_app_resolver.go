@@ -1,4 +1,4 @@
-package graphql
+package enterprise
 
 import (
 	"mash/pkg/github/config"

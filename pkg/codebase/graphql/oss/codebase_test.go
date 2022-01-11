@@ -1,4 +1,4 @@
-package graphql
+package oss
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func TestCodebaseAccess(t *testing.T) {
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
 	authService := service_auth.New(codebaseService, nil, nil, nil, nil)
-	resolver := NewResolver(
+	resolver := NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		nil,

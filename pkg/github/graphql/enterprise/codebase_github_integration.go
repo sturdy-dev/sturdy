@@ -1,7 +1,8 @@
-package graphql
+package enterprise
 
 import (
 	"context"
+
 	service_auth "mash/pkg/auth/service"
 	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/github"

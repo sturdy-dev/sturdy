@@ -1,14 +1,10 @@
-package pr
+package enterprise
 
 import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/graph-gophers/graphql-go"
-	"github.com/posthog/posthog-go"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"go.uber.org/zap"
+
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_codebase "mash/pkg/codebase/db"
@@ -23,6 +19,12 @@ import (
 	db_view "mash/pkg/view/db"
 	"mash/pkg/view/events"
 	db_workspace "mash/pkg/workspace/db"
+
+	"github.com/graph-gophers/graphql-go"
+	"github.com/posthog/posthog-go"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"go.uber.org/zap"
 )
 
 var (

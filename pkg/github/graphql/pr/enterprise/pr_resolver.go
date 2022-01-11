@@ -1,7 +1,8 @@
-package pr
+package enterprise
 
 import (
 	"context"
+
 	"mash/pkg/github"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"

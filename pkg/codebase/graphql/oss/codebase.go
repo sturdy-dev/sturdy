@@ -1,4 +1,4 @@
-package graphql
+package oss
 
 import (
 	"context"
@@ -42,14 +42,13 @@ type CodebaseRootResolver struct {
 	changeRepo       db_change.Repository
 	changeCommitRepo db_change.CommitRepository
 
-	workspaceResolver                 *resolvers.WorkspaceRootResolver
-	authorResolver                    *resolvers.AuthorRootResolver
-	viewResolver                      *resolvers.ViewRootResolver
-	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver
-	aclResolver                       *resolvers.ACLRootResolver
-	changeRootResolver                *resolvers.ChangeRootResolver
-	fileRootResolver                  *resolvers.FileRootResolver
-	instantIntegrationRootResolver    *resolvers.IntegrationRootResolver
+	workspaceResolver              *resolvers.WorkspaceRootResolver
+	authorResolver                 *resolvers.AuthorRootResolver
+	viewResolver                   *resolvers.ViewRootResolver
+	aclResolver                    *resolvers.ACLRootResolver
+	changeRootResolver             *resolvers.ChangeRootResolver
+	fileRootResolver               *resolvers.FileRootResolver
+	instantIntegrationRootResolver *resolvers.IntegrationRootResolver
 
 	logger           *zap.Logger
 	viewEvents       events.EventReader
@@ -60,7 +59,7 @@ type CodebaseRootResolver struct {
 	authService *service_auth.Service
 }
 
-func NewResolver(
+func NewCodebaseRootResolver(
 	codebaseRepo db_codebase.CodebaseRepository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	viewRepo db_view.Repository,
@@ -72,7 +71,6 @@ func NewResolver(
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	authorResolver *resolvers.AuthorRootResolver,
 	viewResolver *resolvers.ViewRootResolver,
-	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver,
 	aclResolver *resolvers.ACLRootResolver,
 	changeRootResolver *resolvers.ChangeRootResolver,
 	fileRootResolver *resolvers.FileRootResolver,
@@ -85,7 +83,7 @@ func NewResolver(
 	executorProvider executor.Provider,
 
 	authService *service_auth.Service,
-) resolvers.CodebaseRootResolver {
+) *CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
 		codebaseUserRepo: codebaseUserRepo,
@@ -95,14 +93,13 @@ func NewResolver(
 		changeRepo:       changeRepo,
 		changeCommitRepo: changeCommitRepo,
 
-		workspaceResolver:                 workspaceResolver,
-		authorResolver:                    authorResolver,
-		viewResolver:                      viewResolver,
-		codebaseGitHubIntegrationResolver: codebaseGitHubIntegrationResolver,
-		aclResolver:                       aclResolver,
-		changeRootResolver:                changeRootResolver,
-		fileRootResolver:                  fileRootResolver,
-		instantIntegrationRootResolver:    instantIntegrationRootResolver,
+		workspaceResolver:              workspaceResolver,
+		authorResolver:                 authorResolver,
+		viewResolver:                   viewResolver,
+		aclResolver:                    aclResolver,
+		changeRootResolver:             changeRootResolver,
+		fileRootResolver:               fileRootResolver,
+		instantIntegrationRootResolver: instantIntegrationRootResolver,
 
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
@@ -272,10 +269,10 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(fmt.Errorf("failed to send codebase event: %w", err))
 	}
 
-	return &codebaseResolver{c: cb, root: r}, nil
+	return &CodebaseResolver{c: cb, root: r}, nil
 }
 
-type codebaseResolver struct {
+type CodebaseResolver struct {
 	c    *codebase.Codebase
 	root *CodebaseRootResolver
 
@@ -283,37 +280,37 @@ type codebaseResolver struct {
 	lastUpdatedAtOnce sync.Once
 }
 
-func (r *codebaseResolver) ID() graphql.ID {
+func (r *CodebaseResolver) ID() graphql.ID {
 	return graphql.ID(r.c.ID)
 }
 
-func (r *codebaseResolver) Name() string {
+func (r *CodebaseResolver) Name() string {
 	return r.c.Name
 }
 
-func (r *codebaseResolver) ShortID() graphql.ID {
+func (r *CodebaseResolver) ShortID() graphql.ID {
 	return graphql.ID(r.c.ShortCodebaseID)
 }
 
-func (r *codebaseResolver) Description() string {
+func (r *CodebaseResolver) Description() string {
 	return r.c.Description
 }
 
-func (r *codebaseResolver) InviteCode() *string {
+func (r *CodebaseResolver) InviteCode() *string {
 	if r.c.InviteCode == nil {
 		return nil
 	}
 	return r.c.InviteCode
 }
 
-func (r *codebaseResolver) CreatedAt() int32 {
+func (r *CodebaseResolver) CreatedAt() int32 {
 	if r.c.CreatedAt == nil {
 		return 0
 	}
 	return int32(r.c.CreatedAt.Unix())
 }
 
-func (r *codebaseResolver) ArchivedAt() *int32 {
+func (r *CodebaseResolver) ArchivedAt() *int32 {
 	if r.c.ArchivedAt == nil {
 		return nil
 	}
@@ -321,7 +318,7 @@ func (r *codebaseResolver) ArchivedAt() *int32 {
 	return &t
 }
 
-func (r *codebaseResolver) calculateLastUpdatedAt() *int32 {
+func (r *CodebaseResolver) calculateLastUpdatedAt() *int32 {
 	var largestTime int32
 
 	var gitTime time.Time
@@ -359,14 +356,14 @@ func (r *codebaseResolver) calculateLastUpdatedAt() *int32 {
 	return nil
 }
 
-func (r *codebaseResolver) LastUpdatedAt() *int32 {
+func (r *CodebaseResolver) LastUpdatedAt() *int32 {
 	r.lastUpdatedAtOnce.Do(func() {
 		r.lastUpdatedAt = r.calculateLastUpdatedAt()
 	})
 	return r.lastUpdatedAt
 }
 
-func (r *codebaseResolver) Workspaces(ctx context.Context) ([]resolvers.WorkspaceResolver, error) {
+func (r *CodebaseResolver) Workspaces(ctx context.Context) ([]resolvers.WorkspaceResolver, error) {
 	workspaces, err := r.root.workspaceReader.ListByCodebaseIDs([]string{r.c.ID}, false)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to list workspaces by codebase id: %w", err))
@@ -388,7 +385,7 @@ func (r *codebaseResolver) Workspaces(ctx context.Context) ([]resolvers.Workspac
 	return res, nil
 }
 
-func (r *codebaseResolver) Members(ctx context.Context) (resolvers []resolvers.AuthorResolver, err error) {
+func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.AuthorResolver, err error) {
 	codebaseUsers, err := r.root.codebaseUserRepo.GetByCodebase(r.c.ID)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
@@ -408,7 +405,7 @@ func (r *codebaseResolver) Members(ctx context.Context) (resolvers []resolvers.A
 	return
 }
 
-func (r *codebaseResolver) Views(ctx context.Context, args resolvers.CodebaseViewsArgs) (res []resolvers.ViewResolver, err error) {
+func (r *CodebaseResolver) Views(ctx context.Context, args resolvers.CodebaseViewsArgs) (res []resolvers.ViewResolver, err error) {
 	var views []*view.View
 
 	if args.IncludeOthers != nil && *args.IncludeOthers {
@@ -434,7 +431,7 @@ func (r *codebaseResolver) Views(ctx context.Context, args resolvers.CodebaseVie
 	return
 }
 
-func (r *codebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewResolver, error) {
+func (r *CodebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		// for unauthenticated users, no view is considered the last used view
@@ -443,23 +440,15 @@ func (r *codebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewReso
 	return (*r.root.viewResolver).InternalLastUsedViewByUser(ctx, r.c.ID, userID)
 }
 
-func (r *codebaseResolver) GitHubIntegration(ctx context.Context) (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	resolver, err := (*r.root.codebaseGitHubIntegrationResolver).InternalCodebaseGitHubIntegration(ctx, graphql.ID(r.c.ID))
-	switch {
-	case err == nil:
-		return resolver, nil
-	case errors.Is(err, sql.ErrNoRows):
-		return nil, nil
-	default:
-		return nil, gqlerrors.Error(err)
-	}
+func (r *CodebaseResolver) GitHubIntegration(ctx context.Context) (resolvers.CodebaseGitHubIntegrationResolver, error) {
+	return nil, gqlerrors.Error(gqlerrors.ErrNotImplemented)
 }
 
-func (r *codebaseResolver) IsReady() bool {
+func (r *CodebaseResolver) IsReady() bool {
 	return r.c.IsReady
 }
 
-func (r *codebaseResolver) ACL(ctx context.Context) (resolvers.ACLResolver, error) {
+func (r *CodebaseResolver) ACL(ctx context.Context) (resolvers.ACLResolver, error) {
 	resolver, err := (*r.root.aclResolver).InternalACLByCodebaseID(ctx, graphql.ID(r.c.ID))
 	switch {
 	case err == nil:
@@ -471,7 +460,7 @@ func (r *codebaseResolver) ACL(ctx context.Context) (resolvers.ACLResolver, erro
 	}
 }
 
-func (r *codebaseResolver) Changes(ctx context.Context, args *resolvers.CodebaseChangesArgs) ([]resolvers.ChangeResolver, error) {
+func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.CodebaseChangesArgs) ([]resolvers.ChangeResolver, error) {
 	var limit = 100
 	if args != nil && args.Input != nil && args.Input.Limit != nil && *args.Input.Limit <= 100 {
 		limit = int(*args.Input.Limit)
@@ -514,7 +503,7 @@ func (r *codebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 	return res, nil
 }
 
-func (r *codebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
+func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
 	// GitHub supported names:
 	// https://github.com/github/markup/blob/master/README.md
 	fileResolver, err := (*r.root.fileRootResolver).InternalFile(ctx, r.c.ID, "README.md", "README.mkdn", "README.mdown", "README.markdown")
@@ -532,7 +521,7 @@ func (r *codebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, 
 	}
 }
 
-func (r *codebaseResolver) File(ctx context.Context, args resolvers.CodebaseFileArgs) (resolvers.FileOrDirectoryResolver, error) {
+func (r *CodebaseResolver) File(ctx context.Context, args resolvers.CodebaseFileArgs) (resolvers.FileOrDirectoryResolver, error) {
 	fr, err := (*r.root.fileRootResolver).InternalFile(ctx, r.c.ID, args.Path)
 	switch {
 	case err == nil:
@@ -544,7 +533,7 @@ func (r *codebaseResolver) File(ctx context.Context, args resolvers.CodebaseFile
 	}
 }
 
-func (r *codebaseResolver) Integrations(ctx context.Context, args resolvers.IntegrationsArgs) ([]resolvers.IntegrationResolver, error) {
+func (r *CodebaseResolver) Integrations(ctx context.Context, args resolvers.IntegrationsArgs) ([]resolvers.IntegrationResolver, error) {
 	if args.ID != nil {
 		single, err := (*r.root.instantIntegrationRootResolver).InternalIntegrationByID(ctx, string(*args.ID))
 		if err != nil {
@@ -556,11 +545,11 @@ func (r *codebaseResolver) Integrations(ctx context.Context, args resolvers.Inte
 	return (*r.root.instantIntegrationRootResolver).InternalIntegrationsByCodebaseID(ctx, r.c.ID)
 }
 
-func (r *codebaseResolver) IsPublic() bool {
+func (r *CodebaseResolver) IsPublic() bool {
 	return r.c.IsPublic
 }
 
-func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.ID) (*codebaseResolver, error) {
+func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.ID) (*CodebaseResolver, error) {
 	c, err := r.codebaseRepo.Get(string(id))
 	if err != nil {
 		return nil, err
@@ -570,10 +559,10 @@ func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.I
 		return nil, err
 	}
 
-	return &codebaseResolver{c: c, root: r}, nil
+	return &CodebaseResolver{c: c, root: r}, nil
 }
 
-func (r *CodebaseRootResolver) resolveCodebaseByShort(ctx context.Context, shortID graphql.ID) (*codebaseResolver, error) {
+func (r *CodebaseRootResolver) resolveCodebaseByShort(ctx context.Context, shortID graphql.ID) (*CodebaseResolver, error) {
 	s := string(shortID)
 	if idx := strings.LastIndex(s, "-"); idx >= 0 {
 		s = s[idx+1:]
@@ -588,5 +577,5 @@ func (r *CodebaseRootResolver) resolveCodebaseByShort(ctx context.Context, short
 		return nil, err
 	}
 
-	return &codebaseResolver{c: c, root: r}, nil
+	return &CodebaseResolver{c: c, root: r}, nil
 }
