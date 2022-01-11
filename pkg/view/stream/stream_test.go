@@ -98,7 +98,6 @@ func TestStream(t *testing.T) {
 
 		nil,
 		nil,
-		nil,
 
 		nil,
 		executorProvider,

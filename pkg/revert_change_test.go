@@ -23,10 +23,7 @@ import (
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
 	graphql_file "mash/pkg/file/graphql"
-	"mash/pkg/github/config"
 	db_github "mash/pkg/github/db"
-	workers_github "mash/pkg/github/enterprise/workers"
-	service_github "mash/pkg/github/service"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
@@ -101,8 +98,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
 	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -126,30 +121,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
-	importer := service_github.ImporterQueue(workers_github.NopImporter())
-	cloner := service_github.ClonerQueue(workers_github.NopCloner())
-	gitHubService := service_github.New(
-		logger,
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		nil, // gitHubUserRepo
-		nil, // gitHubPullRequestRepo
-		config.GitHubAppConfig{},
-		nil, // gitHubClientProvider
-		nil,
-		&importer,
-		&cloner,
-		workspaceWriter,
-		workspaceRepo,
-		codebaseUserRepo,
-		nil,
-		executorProvider,
-		gitSnapshotter,
-		nil, // postHogClient
-		nil, // notificationSender
-		nil, // eventsSender
-		userService,
-	)
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -162,7 +133,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,
@@ -464,8 +434,6 @@ func TestRevertChangeFromView(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
 	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -490,30 +458,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
-	importer := service_github.ImporterQueue(workers_github.NopImporter())
-	cloner := service_github.ClonerQueue(workers_github.NopCloner())
-	gitHubService := service_github.New(
-		logger,
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		nil, // gitHubUserRepo
-		nil, // gitHubPullRequestRepo
-		config.GitHubAppConfig{},
-		nil, // gitHubClientProvider
-		nil,
-		&importer,
-		&cloner,
-		workspaceWriter,
-		workspaceRepo,
-		codebaseUserRepo,
-		nil,
-		executorProvider,
-		gitSnapshotter,
-		nil, // postHogClient
-		nil, // notificationSender
-		nil, // eventsSender
-		nil,
-	)
+
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -526,7 +471,6 @@ func TestRevertChangeFromView(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,

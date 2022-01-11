@@ -87,7 +87,7 @@ import (
 	service_activity "mash/pkg/workspace/activity/service"
 	db_workspace "mash/pkg/workspace/db"
 	ws_meta "mash/pkg/workspace/meta"
-	service_workspace "mash/pkg/workspace/service"
+	module_workspace "mash/pkg/workspace/module"
 	db_workspace_watchers "mash/pkg/workspace/watchers/db"
 	service_workspace_watchers "mash/pkg/workspace/watchers/service"
 	"mash/vcs/executor"
@@ -232,7 +232,6 @@ func main() {
 		meta_view.NewViewUpdatedFunc,
 		service_statuses.New,
 		service_ci.New,
-		service_workspace.New,
 		service_workspace_watchers.New,
 		service_suggestion.New,
 		service_presence.New,
@@ -299,6 +298,7 @@ func main() {
 	hooks := []di.Hook{
 		di.Needs(http.Module),
 		di.Needs(module_github.Module),
+		di.Needs(module_workspace.Module),
 		di.Needs(graphql.Module),
 		di.Needs(module_api.Module),
 	}

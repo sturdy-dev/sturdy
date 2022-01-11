@@ -89,7 +89,7 @@ func TestPRHighLevel(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
 		true,
-		"file://../../../../db/migrations",
+		"file://../../../../../db/migrations",
 	)
 	if err != nil {
 		panic(err)
@@ -166,7 +166,6 @@ func TestPRHighLevel(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,

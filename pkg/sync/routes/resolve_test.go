@@ -22,10 +22,6 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
-	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
-	workers_github "mash/pkg/github/enterprise/workers"
-	service_github "mash/pkg/github/service"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/posthog"
@@ -334,8 +330,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	viewWorksapceSnapshotRepo := view_workspace_snapshot.NewRepo(d)
 
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 
@@ -355,30 +349,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
-	importer := service_github.ImporterQueue(workers_github.NopImporter())
-	cloner := service_github.ClonerQueue(workers_github.NopCloner())
-	gitHubService := service_github.New(
-		logger,
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		nil, // gitHubUserRepo
-		nil, // gitHubPullRequestRepo
-		config.GitHubAppConfig{},
-		nil, // gitHubClientProvider
-		nil,
-		&importer,
-		&cloner,
-		workspaceRepo,
-		workspaceRepo,
-		codebaseUserRepo,
-		nil,
-		executorProvider,
-		gitSnapshotter,
-		nil, // postHogClient
-		nil, // notificationSender
-		nil, // eventsSender
-		nil,
-	)
 	workspaceService := service_workspace.New(
 		logger,
 		posthog.NewFakeClient(),
@@ -391,7 +361,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,
