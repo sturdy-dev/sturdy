@@ -111,8 +111,8 @@ func TestCloneSendsNotifications(t *testing.T) {
 	notificationSender.EXPECT().User(gomock.Any() /*context*/, ghUserCollaborator2New.UserID, gomock.Any() /*codebaseID*/, notification.GitHubRepositoryImported, gomock.Any() /*referenceID*/).Times(0)
 
 	importer := service.ImporterQueue(workers_github.NopImporter())
-	cloner := service.ClonerQueue(&synchronousCloner{})
 	svc := new(service.Service)
+	cloner := service.ClonerQueue(&synchronousCloner{svc})
 	*svc = *service.New(
 		logger,
 		gitHubRepositoryRepo,
