@@ -55,11 +55,11 @@ type a struct {
 }
 
 func TestModule_cycle(t *testing.T) {
-	moduleA := di.NewModule(di.Provides(func(a *a) b {
+	moduleA := di.NewModule(di.ProvidesCycle(func(a *a) b {
 		return b{"b", a}
 	}))
 
-	moduleB := di.NewModule(di.Provides(func(b *b) a {
+	moduleB := di.NewModule(di.ProvidesCycle(func(b *b) a {
 		return a{"a", b}
 	}))
 
