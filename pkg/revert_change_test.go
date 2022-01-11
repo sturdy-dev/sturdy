@@ -17,7 +17,7 @@ import (
 	workers_ci "mash/pkg/ci/workers"
 	"mash/pkg/codebase"
 	db_codebase "mash/pkg/codebase/db"
-	graphql_codebase "mash/pkg/codebase/graphql"
+	graphql_codebase "mash/pkg/codebase/graphql/oss"
 	routes_v3_codebase "mash/pkg/codebase/routes"
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
@@ -265,7 +265,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		&workspaceRootResolver,
 	)
 
-	codebaseRootResolver := graphql_codebase.NewResolver(
+	codebaseRootResolver := graphql_codebase.NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		viewRepo,
@@ -274,7 +274,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		changeRepo,
 		changeCommitRepo,
 
-		nil,
 		nil,
 		nil,
 		nil,
@@ -649,7 +648,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		authService,
 	)
 
-	codebaseRootResolver := graphql_codebase.NewResolver(
+	codebaseRootResolver := graphql_codebase.NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		viewRepo,
@@ -658,7 +657,6 @@ func TestRevertChangeFromView(t *testing.T) {
 		changeRepo,
 		changeCommitRepo,
 
-		nil,
 		nil,
 		nil,
 		nil,
