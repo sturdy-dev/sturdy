@@ -1,4 +1,4 @@
-package oss
+package graphql
 
 import (
 	"context"
@@ -42,13 +42,14 @@ type CodebaseRootResolver struct {
 	changeRepo       db_change.Repository
 	changeCommitRepo db_change.CommitRepository
 
-	workspaceResolver              *resolvers.WorkspaceRootResolver
-	authorResolver                 *resolvers.AuthorRootResolver
-	viewResolver                   *resolvers.ViewRootResolver
-	aclResolver                    *resolvers.ACLRootResolver
-	changeRootResolver             *resolvers.ChangeRootResolver
-	fileRootResolver               *resolvers.FileRootResolver
-	instantIntegrationRootResolver *resolvers.IntegrationRootResolver
+	workspaceResolver                 *resolvers.WorkspaceRootResolver
+	authorResolver                    *resolvers.AuthorRootResolver
+	viewResolver                      *resolvers.ViewRootResolver
+	aclResolver                       *resolvers.ACLRootResolver
+	changeRootResolver                *resolvers.ChangeRootResolver
+	fileRootResolver                  *resolvers.FileRootResolver
+	instantIntegrationRootResolver    *resolvers.IntegrationRootResolver
+	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver
 
 	logger           *zap.Logger
 	viewEvents       events.EventReader
@@ -75,6 +76,7 @@ func NewCodebaseRootResolver(
 	changeRootResolver *resolvers.ChangeRootResolver,
 	fileRootResolver *resolvers.FileRootResolver,
 	instantIntegrationRootResolver *resolvers.IntegrationRootResolver,
+	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver,
 
 	logger *zap.Logger,
 	viewEvents events.EventReader,
@@ -83,7 +85,7 @@ func NewCodebaseRootResolver(
 	executorProvider executor.Provider,
 
 	authService *service_auth.Service,
-) *CodebaseRootResolver {
+) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
 		codebaseUserRepo: codebaseUserRepo,
@@ -93,13 +95,14 @@ func NewCodebaseRootResolver(
 		changeRepo:       changeRepo,
 		changeCommitRepo: changeCommitRepo,
 
-		workspaceResolver:              workspaceResolver,
-		authorResolver:                 authorResolver,
-		viewResolver:                   viewResolver,
-		aclResolver:                    aclResolver,
-		changeRootResolver:             changeRootResolver,
-		fileRootResolver:               fileRootResolver,
-		instantIntegrationRootResolver: instantIntegrationRootResolver,
+		workspaceResolver:                 workspaceResolver,
+		authorResolver:                    authorResolver,
+		viewResolver:                      viewResolver,
+		aclResolver:                       aclResolver,
+		changeRootResolver:                changeRootResolver,
+		fileRootResolver:                  fileRootResolver,
+		instantIntegrationRootResolver:    instantIntegrationRootResolver,
+		codebaseGitHubIntegrationResolver: codebaseGitHubIntegrationResolver,
 
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
@@ -441,7 +444,15 @@ func (r *CodebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewReso
 }
 
 func (r *CodebaseResolver) GitHubIntegration(ctx context.Context) (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	return nil, gqlerrors.Error(gqlerrors.ErrNotImplemented)
+	resolver, err := (*r.root.codebaseGitHubIntegrationResolver).InternalCodebaseGitHubIntegration(ctx, r.ID())
+	switch {
+	case err == nil:
+		return resolver, nil
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	default:
+		return nil, gqlerrors.Error(err)
+	}
 }
 
 func (r *CodebaseResolver) IsReady() bool {
