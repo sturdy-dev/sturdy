@@ -89,7 +89,6 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		nil,
 		executorProvider,
 		eventsSender,
 		nil,

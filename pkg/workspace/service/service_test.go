@@ -51,7 +51,6 @@ func setup(t *testing.T) *testCollaborators {
 
 		nil, // commentService
 		nil, // changeService
-		nil, // gitHubService
 
 		nil, // activitySender
 		executorProvider,

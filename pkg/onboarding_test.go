@@ -32,10 +32,7 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
-	"mash/pkg/github/config"
 	db_github "mash/pkg/github/db"
-	workers_github "mash/pkg/github/enterprise/workers"
-	service_github "mash/pkg/github/service"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
@@ -116,8 +113,6 @@ func TestCreate(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
 	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -137,30 +132,6 @@ func TestCreate(t *testing.T) {
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
-	importer := service_github.ImporterQueue(workers_github.NopImporter())
-	cloner := service_github.ClonerQueue(workers_github.NopCloner())
-	gitHubService := service_github.New(
-		logger,
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		nil, // gitHubUserRepo
-		nil, // gitHubPullRequestRepo
-		config.GitHubAppConfig{},
-		nil, // gitHubClientProvider
-		nil, // gitHubPersonalClientProvider
-		&importer,
-		&cloner,
-		workspaceWriter,
-		workspaceRepo,
-		codebaseUserRepo,
-		nil, // codebaseRepo
-		executorProvider,
-		gitSnapshotter,
-		nil, // postHogClient
-		nil, // notificationSender
-		nil, // eventsSender
-		nil, // userService
-	)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -179,7 +150,6 @@ func TestCreate(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,
@@ -668,8 +638,6 @@ func TestLargeFiles(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubInstallationRepo := db_github.NewGitHubInstallationRepo(d)
 	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -693,32 +661,6 @@ func TestLargeFiles(t *testing.T) {
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	importer := service_github.ImporterQueue(workers_github.NopImporter())
-	cloner := service_github.ClonerQueue(workers_github.NopCloner())
-
-	gitHubService := service_github.New(
-		logger,
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		nil, // gitHubUserRepo
-		nil, // gitHubPullRequestRepo
-		config.GitHubAppConfig{},
-		nil, // gitHubClientProvider
-		nil, // gitHubPersonalClientProvider
-		&importer,
-		&cloner,
-		workspaceWriter,
-		workspaceRepo,
-		codebaseUserRepo,
-		nil, // codebaseRepo
-		executorProvider,
-		gitSnapshotter,
-		nil, // postHogClient
-		nil, // notificationSender
-		nil, // eventsSender
-		nil, // userService
-	)
-
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -731,7 +673,6 @@ func TestLargeFiles(t *testing.T) {
 
 		commentsService,
 		changeService,
-		gitHubService,
 
 		activitySender,
 		executorProvider,

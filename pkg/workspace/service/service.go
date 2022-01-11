@@ -2,19 +2,18 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"mash/pkg/change"
 	"mash/pkg/change/decorate"
 	"mash/pkg/change/message"
 	service_change "mash/pkg/change/service"
 	change_vcs "mash/pkg/change/vcs"
 	workers_ci "mash/pkg/ci/workers"
 	service_comments "mash/pkg/comments/service"
-	service_github "mash/pkg/github/service"
 	db_review "mash/pkg/review/db"
 	"mash/pkg/snapshots"
 	"mash/pkg/snapshots/snapshotter"
@@ -51,7 +50,7 @@ type CreateWorkspaceRequest struct {
 type Service interface {
 	Create(CreateWorkspaceRequest) (*workspace.Workspace, error)
 	GetByID(context.Context, string) (*workspace.Workspace, error)
-	LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) error
+	LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*change.Change, error)
 	CreateWelcomeWorkspace(codebaseID, userID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspace.Workspace, opts ...CopyPatchesOption) error
@@ -59,7 +58,7 @@ type Service interface {
 	HasConflicts(context.Context, *workspace.Workspace) (bool, error)
 }
 
-type workspaceService struct {
+type WorkspaceService struct {
 	logger        *zap.Logger
 	postHogClient posthog.Client
 
@@ -71,7 +70,7 @@ type workspaceService struct {
 
 	commentService *service_comments.Service
 	changeService  *service_change.Service
-	gitHubService  *service_github.Service
+	// gitHubService  *service_github.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -93,7 +92,7 @@ func New(
 
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
-	gitHubService *service_github.Service,
+	// gitHubService *service_github.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -101,8 +100,8 @@ func New(
 	snapshotterQueue worker_snapshots.Queue,
 	snap snapshotter.Snapshotter,
 	buildQueue *workers_ci.BuildQueue,
-) Service {
-	return &workspaceService{
+) *WorkspaceService {
+	return &WorkspaceService{
 		logger:        logger,
 		postHogClient: postHogClient,
 
@@ -114,7 +113,7 @@ func New(
 
 		commentService: commentsService,
 		changeService:  changeService,
-		gitHubService:  gitHubService,
+		// gitHubService:  gitHubService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -152,7 +151,7 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 	return options
 }
 
-func (s *workspaceService) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
+func (s *WorkspaceService) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
 	ws, err := s.GetByID(ctx, workspaceID)
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to find workspace: %w", err)
@@ -166,7 +165,7 @@ func (s *workspaceService) Diffs(ctx context.Context, workspaceID string, oo ...
 	return s.diffsFromView(ctx, ws, options)
 }
 
-func (s *workspaceService) diffsFromSnapshot(ctx context.Context, ws *workspace.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, error) {
+func (s *WorkspaceService) diffsFromSnapshot(ctx context.Context, ws *workspace.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, error) {
 	if ws.LatestSnapshotID == nil {
 		return nil, nil
 	}
@@ -179,7 +178,7 @@ func (s *workspaceService) diffsFromSnapshot(ctx context.Context, ws *workspace.
 	return s.snap.Diffs(ctx, *ws.LatestSnapshotID, snapshotOptions...)
 }
 
-func (s *workspaceService) diffsFromView(ctx context.Context, ws *workspace.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, bool, error) {
+func (s *WorkspaceService) diffsFromView(ctx context.Context, ws *workspace.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, bool, error) {
 	var diffs []unidiff.FileDiff
 
 	isRebasing := false
@@ -218,7 +217,7 @@ func (s *workspaceService) diffsFromView(ctx context.Context, ws *workspace.Work
 	return diffs, isRebasing, nil
 }
 
-func (s *workspaceService) GetByID(ctx context.Context, id string) (*workspace.Workspace, error) {
+func (s *WorkspaceService) GetByID(ctx context.Context, id string) (*workspace.Workspace, error) {
 	return s.workspaceReader.Get(id)
 }
 
@@ -245,7 +244,7 @@ func getCopyPatchOptions(oo ...CopyPatchesOption) *CopyPatchesOptions {
 	return options
 }
 
-func (s *workspaceService) CopyPatches(ctx context.Context, dist, src *workspace.Workspace, opts ...CopyPatchesOption) error {
+func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace.Workspace, opts ...CopyPatchesOption) error {
 	if src.CodebaseID != dist.CodebaseID {
 		return fmt.Errorf("source and destination codebases must be the same")
 	}
@@ -293,7 +292,7 @@ func (s *workspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	return nil
 }
 
-func (s *workspaceService) Create(req CreateWorkspaceRequest) (*workspace.Workspace, error) {
+func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Workspace, error) {
 	t := time.Now()
 	ws := workspace.Workspace{
 		ID:               uuid.New().String(),
@@ -375,21 +374,10 @@ func (s *workspaceService) Create(req CreateWorkspaceRequest) (*workspace.Worksp
 	return &ws, nil
 }
 
-func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) error {
-	gitHubRepository, err := s.gitHubService.GetRepositoryByCodebaseID(ctx, ws.CodebaseID)
-	switch {
-	case err == nil, errors.Is(err, sql.ErrNoRows):
-	default:
-		return fmt.Errorf("failed to get gitHubRepository: %w", err)
-	}
-
-	if gitHubRepository != nil && gitHubRepository.IntegrationEnabled && gitHubRepository.GitHubSourceOfTruth {
-		return fmt.Errorf("landing disallowed when a github integration exists for codebase (github is source of truth)")
-	}
-
+func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*change.Change, error) {
 	user, err := s.userRepo.Get(ws.UserID)
 	if err != nil {
-		return fmt.Errorf("failed to get user: %w", err)
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	cleanCommitMessage := message.CommitMessage(ws.DraftDescription)
@@ -433,11 +421,11 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			}
 			return nil
 		}).ExecView(ws.CodebaseID, *ws.ViewID, "landChangeCreateAndLandFromView"); err != nil {
-			return fmt.Errorf("failed to share from view: %w", err)
+			return nil, fmt.Errorf("failed to share from view: %w", err)
 		}
 	} else {
 		if ws.LatestSnapshotID == nil {
-			return fmt.Errorf("the workspace has no snapshot")
+			return nil, fmt.Errorf("the workspace has no snapshot")
 		}
 		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
 			var err error
@@ -457,14 +445,14 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			}
 			return nil
 		}).ExecTrunk(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
-			return fmt.Errorf("failed to create and land from snaphsot: %w", err)
+			return nil, fmt.Errorf("failed to create and land from snaphsot: %w", err)
 		}
 	}
 
 	cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
 	change, err := s.changeService.Create(ctx, ws, createdCommitID, cleanCommitMessageTitle)
 	if err != nil {
-		return fmt.Errorf("failed to create change: %w", err)
+		return nil, fmt.Errorf("failed to create change: %w", err)
 	}
 
 	if ws.ViewID != nil {
@@ -475,7 +463,7 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			return nil
 		})
 		if err := executor.ExecView(ws.CodebaseID, *ws.ViewID, "landChangePush"); err != nil {
-			return fmt.Errorf("failed to push the landed result from view: %w", err)
+			return nil, fmt.Errorf("failed to push the landed result from view: %w", err)
 		}
 	} else {
 		executor := s.executorProvider.New().Git(func(repo vcs.Repo) error {
@@ -485,7 +473,7 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			return nil
 		})
 		if err := executor.ExecTrunk(ws.CodebaseID, "landChangePush"); err != nil {
-			return fmt.Errorf("failed to push the landed result from trunk: %w", err)
+			return nil, fmt.Errorf("failed to push the landed result from trunk: %w", err)
 		}
 		// The snapshot if merged and can't be merged again.
 		ws.LatestSnapshotID = nil
@@ -504,22 +492,16 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	}
 
 	if err := s.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
-		return fmt.Errorf("failed to dismiss all reviews: %w", err)
+		return nil, fmt.Errorf("failed to dismiss all reviews: %w", err)
 	}
 
 	if ws.ViewID != nil {
 		if err := s.snapshotterQueue.Enqueue(ctx, ws.CodebaseID, *ws.ViewID, ws.ID, []string{"."}, snapshots.ActionChangeLand); err != nil {
-			return fmt.Errorf("failed to enqueue snapshot: %w", err)
+			return nil, fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 
 		if err := s.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {
-			return fmt.Errorf("failed to send view updated event: %w", err)
-		}
-	}
-
-	if gitHubRepository != nil && gitHubRepository.IntegrationEnabled && !gitHubRepository.GitHubSourceOfTruth {
-		if s.gitHubService.Push(ctx, gitHubRepository, change); err != nil {
-			return fmt.Errorf("failed to push to github: %w", err)
+			return nil, fmt.Errorf("failed to send view updated event: %w", err)
 		}
 	}
 
@@ -530,7 +512,7 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	ws.DraftDescription = ""
 	ws.HeadCommitID = nil
 	if err := s.workspaceWriter.Update(ws); err != nil {
-		return fmt.Errorf("failed to update workspace: %w", err)
+		return nil, fmt.Errorf("failed to update workspace: %w", err)
 	}
 
 	// Send event that the workspace has been updated
@@ -540,7 +522,7 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 
 	// Clear 'up to date' cache for all workspaces
 	if err := s.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
-		return fmt.Errorf("failed to unset up_to_date_with_trunk: %w", err)
+		return nil, fmt.Errorf("failed to unset up_to_date_with_trunk: %w", err)
 	}
 
 	if err := s.postHogClient.Enqueue(posthog.Capture{
@@ -555,12 +537,12 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	}
 
 	if err := s.commentService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, change.ID); err != nil {
-		return fmt.Errorf("failed to move comments from workspace to change: %w", err)
+		return nil, fmt.Errorf("failed to move comments from workspace to change: %w", err)
 	}
 
 	// Create activity
 	if err := s.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.WorkspaceActivityTypeCreatedChange, string(change.ID)); err != nil {
-		return fmt.Errorf("failed to create workspace activity: %w", err)
+		return nil, fmt.Errorf("failed to create workspace activity: %w", err)
 	}
 
 	// Send events that the codebase has been updated
@@ -576,7 +558,7 @@ func (s *workspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		s.logger.Error("failed to enqueue change", zap.Error(err))
 	}
 
-	return nil
+	return change, nil
 }
 
 func EnsureCodebaseStatus(repo vcs.Repo) error {
@@ -617,7 +599,7 @@ const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <p>Happy hacking!</p>
 `
 
-func (svc *workspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebaseName string) error {
+func (svc *WorkspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebaseName string) error {
 	readMeContents := strings.ReplaceAll(readMeTemplate, "__CODEBASE__NAME__", codebaseName)
 	draftDescriptionContents := strings.ReplaceAll(draftDescriptionTemplate, "__CODEBASE__NAME__", codebaseName)
 
@@ -662,7 +644,7 @@ func (svc *workspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebase
 	return nil
 }
 
-func (s *workspaceService) RemovePatches(ctx context.Context, allower *unidiff.Allower, ws *workspace.Workspace, hunkIDs ...string) error {
+func (s *WorkspaceService) RemovePatches(ctx context.Context, allower *unidiff.Allower, ws *workspace.Workspace, hunkIDs ...string) error {
 	removePatches := vcs_workspace.Remove(s.logger, hunkIDs...)
 
 	if ws.ViewID != nil {
@@ -711,7 +693,7 @@ func (s *workspaceService) RemovePatches(ctx context.Context, allower *unidiff.A
 	return fmt.Errorf("failed to remove patches: no view or snapshot")
 }
 
-func (s *workspaceService) HasConflicts(ctx context.Context, ws *workspace.Workspace) (bool, error) {
+func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Workspace) (bool, error) {
 	if ws.LatestSnapshotID == nil {
 		// can not check for conflicts, have no snapshot
 		return false, nil

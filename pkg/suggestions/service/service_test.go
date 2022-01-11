@@ -232,7 +232,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
 
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, nil, executorProvider, zap.NewNop())
-	workspaceService := service_workspace.New(zap.NewNop(), posthog.NewFakeClient(), workspaceDB, workspaceDB, nil, nil, nil, nil, nil, nil, executorProvider, nil, nil, gitSnapshotter, nil)
+	workspaceService := service_workspace.New(zap.NewNop(), posthog.NewFakeClient(), workspaceDB, workspaceDB, nil, nil, nil, nil, nil, executorProvider, nil, nil, gitSnapshotter, nil)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, posthog.NewFakeClient(), sender.NewNoopNotificationSender(), eventsSender)
 	return &test{
 		repoProvider:      repoProvider,
