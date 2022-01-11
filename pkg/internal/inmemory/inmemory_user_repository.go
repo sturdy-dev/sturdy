@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"context"
+
 	"mash/pkg/user"
 	db_user "mash/pkg/user/db"
 )
@@ -18,6 +19,7 @@ func NewInMemoryUserRepo() db_user.Repository {
 func (f *inMemoryUserRepo) Create(newUser *user.User) error {
 	panic("not implemented")
 }
+
 func (f *inMemoryUserRepo) Get(id string) (*user.User, error) {
 	return &user.User{
 		ID:    id,
@@ -33,9 +35,15 @@ func (f *inMemoryUserRepo) GetByIDs(_ context.Context, ids ...string) ([]*user.U
 func (f *inMemoryUserRepo) GetByEmail(email string) (*user.User, error) {
 	panic("not implemented")
 }
+
 func (f *inMemoryUserRepo) Update(u *user.User) error {
 	panic("not implemented")
 }
+
 func (f *inMemoryUserRepo) UpdatePassword(u *user.User) error {
 	panic("not implemented")
+}
+
+func (f *inMemoryUserRepo) Count(_ context.Context) (int, error) {
+	return len(f.users), nil
 }
