@@ -25,6 +25,16 @@ export const routes: RouteRecordRaw[] = [
   },
   { path: '/new', component: () => import('./pages/CreateEmpty.vue'), name: 'codebaseCreate' },
   {
+    path: '/organizations/new',
+    component: () => import('./pages/organization/Create.vue'),
+    name: 'organizationCreate',
+  },
+  {
+    path: '/organizations/:id',
+    component: () => import('./pages/organization/View.vue'),
+    name: 'organizationView',
+  },
+  {
     path: '/setup-github',
     component: () => import('./pages/SetupGithub.vue'),
     name: 'setupGithub',

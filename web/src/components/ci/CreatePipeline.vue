@@ -18,7 +18,7 @@
 import LinkButton from '../shared/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'
 import Instructions, { Instruction } from './Instructions.vue'
-import TextInput from './TextInput.vue'
+import TextInput from '../../molecules/TextInput.vue'
 import { useCreateServiceToken } from '../../mutations/useCreateServiceToken'
 
 export default {
