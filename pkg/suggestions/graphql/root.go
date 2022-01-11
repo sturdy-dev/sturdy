@@ -43,7 +43,7 @@ func New(
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 
 	eventsReader events.EventReader,
-) *RootResolver {
+) resolvers.SuggestionRootResolver {
 	return &RootResolver{
 		logger: logger,
 

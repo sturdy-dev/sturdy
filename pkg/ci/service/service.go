@@ -47,6 +47,8 @@ type Service struct {
 	jwtService        *service_jwt.Service
 }
 
+type PublicAPIHostname string
+
 func New(
 	logger *zap.Logger,
 	executorProvider executor.Provider,
@@ -56,7 +58,7 @@ func New(
 	changeRepo db_change.Repository,
 	changeCommitRepo db_change.CommitRepository,
 
-	publicApiHostname string,
+	publicApiHostname PublicAPIHostname,
 	statusService *svc_statuses.Service,
 	jwtService *service_jwt.Service,
 ) *Service {
@@ -69,7 +71,7 @@ func New(
 		changeRepo:       changeRepo,
 		changeCommitRepo: changeCommitRepo,
 
-		publicApiHostname: publicApiHostname,
+		publicApiHostname: string(publicApiHostname),
 		statusService:     statusService,
 		jwtService:        jwtService,
 	}

@@ -14,7 +14,7 @@ type database struct {
 	db *sqlx.DB
 }
 
-func NewDatabase(db *sqlx.DB) *database {
+func NewDatabase(db *sqlx.DB) Repository {
 	return &database{
 		db: db,
 	}

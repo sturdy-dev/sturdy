@@ -7,82 +7,15 @@ import (
 	"net/http"
 	"time"
 
-	graphql_buildkite "mash/pkg/integrations/buildkite/graphql"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
-	graphql_ci "mash/pkg/integrations/graphql"
-	"mash/pkg/ip"
-	service_license "mash/pkg/license/service"
-	service_organization "mash/pkg/organization/service"
-
 	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	graphql_author "mash/pkg/author/graphql"
-	db_change "mash/pkg/change/db"
-	graphql_change "mash/pkg/change/graphql"
-	service_change "mash/pkg/change/service"
-	service_ci "mash/pkg/ci/service"
-	graphql_acl "mash/pkg/codebase/acl/graphql"
-	provider_acl "mash/pkg/codebase/acl/provider"
-	db_codebase "mash/pkg/codebase/db"
-	graphql_codebase "mash/pkg/codebase/graphql"
-	service_codebase "mash/pkg/codebase/service"
-	db_comments "mash/pkg/comments/db"
-	graphql_comments "mash/pkg/comments/graphql"
 	"mash/pkg/ctxlog"
 	graphql_features "mash/pkg/features/graphql"
-	graphql_file "mash/pkg/file/graphql"
-	github_client "mash/pkg/github/client"
-	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
-	graphql_github "mash/pkg/github/graphql"
-	graphql_pr "mash/pkg/github/graphql/pr"
-	service_github "mash/pkg/github/service"
 	"mash/pkg/graphql/dataloader"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/graphql/schema"
+	"mash/pkg/ip"
 	service_jwt "mash/pkg/jwt/service"
-	graphql_license "mash/pkg/license/graphql"
-	db_mutagen "mash/pkg/mutagen/db"
-	db_newsletter "mash/pkg/newsletter/db"
-	db_notification "mash/pkg/notification/db"
-	graphql_notification "mash/pkg/notification/graphql"
-	notification_sender "mash/pkg/notification/sender"
-	servcie_notification "mash/pkg/notification/service"
-	db_onboarding "mash/pkg/onboarding/db"
-	graphql_onboarding "mash/pkg/onboarding/graphql"
-	graphql_organization "mash/pkg/organization/graphql"
-	db_pki "mash/pkg/pki/db"
-	graphql_pki "mash/pkg/pki/graphql"
-	graphql_presence "mash/pkg/presence/graphql"
-	service_presence "mash/pkg/presence/service"
-	db_review "mash/pkg/review/db"
-	graphql_review "mash/pkg/review/graphql"
-	graphql_servicetokens "mash/pkg/servicetokens/graphql"
-	service_servicetokens "mash/pkg/servicetokens/service"
-	db_snapshots "mash/pkg/snapshots/db"
-	"mash/pkg/snapshots/snapshotter"
-	graphql_statuses "mash/pkg/statuses/graphql"
-	service_statuses "mash/pkg/statuses/service"
-	graphql_suggestion "mash/pkg/suggestions/graphql"
-	service_suggestion "mash/pkg/suggestions/service"
-	db_user "mash/pkg/user/db"
-	graphql_user "mash/pkg/user/graphql"
-	service_user "mash/pkg/user/service"
-	db_view "mash/pkg/view/db"
-	"mash/pkg/view/events"
-	graphql_view "mash/pkg/view/graphql"
-	"mash/pkg/view/view_workspace_snapshot"
-	db_activity "mash/pkg/workspace/activity/db"
-	graphql_workspace_activity "mash/pkg/workspace/activity/graphql"
-	activity_sender "mash/pkg/workspace/activity/sender"
-	service_activity "mash/pkg/workspace/activity/service"
-	db_workspace "mash/pkg/workspace/db"
-	graphql_workspace "mash/pkg/workspace/graphql"
-	service_workspace "mash/pkg/workspace/service"
-	graphql_workspace_watchers "mash/pkg/workspace/watchers/graphql"
-	service_workspace_watchers "mash/pkg/workspace/watchers/service"
-	"mash/vcs/executor"
 
 	"github.com/gin-gonic/gin"
 	"github.com/graph-gophers/graphql-go"
@@ -91,7 +24,6 @@ import (
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/graph-gophers/graphql-go/trace"
 	"github.com/graph-gophers/graphql-transport-ws/graphqlws"
-	"github.com/posthog/posthog-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
@@ -132,366 +64,34 @@ type RootResolver struct {
 
 func New(
 	logger *zap.Logger,
-	codebaseRepo db_codebase.CodebaseRepository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	workspaceReader db_workspace.WorkspaceReader,
-	userRepo db_user.Repository,
-	viewRepo db_view.Repository,
-	snapshotter snapshotter.Snapshotter,
-	viewWorkspaceSnapshotsRepo view_workspace_snapshot.Repository,
-	snapshotRepo db_snapshots.Repository,
-	commentsRepo db_comments.Repository,
-	viewEvents events.EventReadWriter,
-	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
-	notificationRepository db_notification.Repository,
-	notificationSender notification_sender.NotificationSender,
-	gitHubUserRepo db_github.GitHubUserRepo,
-	gitHubPRRepo db_github.GitHubPRRepo,
-	gitHubInstallationRepo db_github.GitHubInstallationRepo,
-	gitHubAppConfig config.GitHubAppConfig,
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	gitHubClientProvider github_client.ClientProvider,
-	gitHubPersonalClientProvider github_client.PersonalClientProvider,
-	postHogClient posthog.Client,
-	workspaceWriter db_workspace.WorkspaceWriter,
-	executorProvider executor.Provider,
-	viewStatusRepo db_mutagen.ViewStatusRepository,
-	notificationSettingsRepo db_newsletter.NotificationSettingsRepository,
-	workspaceActivityRepo db_activity.ActivityRepository,
-	aclProvider *provider_acl.Provider,
-	reviewRepo db_review.ReviewRepository,
-	workspaceActivityReadsRepo db_activity.ActivityReadsRepository,
-	activitySender activity_sender.ActivitySender,
-	eventSender events.EventSender,
-	gitSnapshottet snapshotter.Snapshotter,
-	presenceService service_presence.Service,
-	suggestionService *service_suggestion.Service,
-	workspaceService service_workspace.Service,
-	notificationPreferencesServcie *servcie_notification.Preferences,
-	changeService *service_change.Service,
-	userService *service_user.Service,
-	ciService *service_ci.Service,
-	statusesService *service_statuses.Service,
-	completedOnboardingStepsRepo db_onboarding.CompletedOnboardingStepsRepository,
-	workspaceWatchersService *service_workspace_watchers.Service,
 	jwtService *service_jwt.Service,
-	activityService *service_activity.Service,
-	pkiRepo db_pki.Repo,
-	gitHubService *service_github.Service,
-	codebaseService *service_codebase.Service,
-	serviceTokensService *service_servicetokens.Service,
-	buidkiteService *service_buildkite.Service,
-	authService *service_auth.Service,
-	organizationService *service_organization.Service,
-	licenseService *service_license.Service,
+
+	aclResovler *resolvers.ACLRootResolver,
+	authorResolver *resolvers.AuthorRootResolver,
+	buildkiteRootResolver *resolvers.BuildkiteInstantIntegrationRootResolver,
+	changeResolver *resolvers.ChangeRootResolver,
+	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver,
+	codebaseResolver *resolvers.CodebaseRootResolver,
+	commentsResolver *resolvers.CommentRootResolver,
+	instantIntegrationRootResolver *resolvers.IntegrationRootResolver,
+	notificationResolver *resolvers.NotificationRootResolver,
+	onboardingRootResolver *resolvers.OnboardingRootResolver,
+	organizationRootResolver *resolvers.OrganizationRootResolver,
+	pkiRootResolver *resolvers.PKIRootResolver,
+	prResolver *resolvers.GitHubPullRequestRootResolver,
+	presenceRootResolver *resolvers.PresenceRootResolver,
+	reviewResolver *resolvers.ReviewRootResolver,
+	serviceTokensRootResolver *resolvers.ServiceTokensRootResolver,
+	statusRootResolver *resolvers.StatusesRootResolver,
+	suggestionResolver *resolvers.SuggestionRootResolver,
+	userResolver *resolvers.UserRootResolver,
+	viewResolver *resolvers.ViewRootResolver,
+	workspaceActivityResolver *resolvers.WorkspaceActivityRootResolver,
+	workspaceResolver *resolvers.WorkspaceRootResolver,
+	workspaceWatcherRootResolver *resolvers.WorkspaceWatcherRootResolver,
+	licenseRootResolver resolvers.LicenseRootResolver,
+	githubAppResolver resolvers.GitHubAppRootResolver,
 ) *RootResolver {
-	// This pointer dance (pointer to interfaces) allows the resolvers to use each other, without cycles
-	var aclResovler = new(resolvers.ACLRootResolver)
-	var authorResolver = new(resolvers.AuthorRootResolver)
-	var buildkiteRootResolver = new(resolvers.BuildkiteInstantIntegrationRootResolver)
-	var changeResolver = new(resolvers.ChangeRootResolver)
-	var codebaseGitHubIntegrationResolver = new(resolvers.CodebaseGitHubIntegrationRootResolver)
-	var codebaseResolver = new(resolvers.CodebaseRootResolver)
-	var commentsResolver = new(resolvers.CommentRootResolver)
-	var fileDiffRootResolver = new(resolvers.FileDiffRootResolver)
-	var fileResolver = new(resolvers.FileRootResolver)
-	var instantIntegrationRootResolver = new(resolvers.IntegrationRootResolver)
-	var notificationResolver = new(resolvers.NotificationRootResolver)
-	var onboardingRootResolver = new(resolvers.OnboardingRootResolver)
-	var organizationRootResolver = new(resolvers.OrganizationRootResolver)
-	var pkiRootResolver = new(resolvers.PKIRootResolver)
-	var prResolver = new(resolvers.GitHubPullRequestRootResolver)
-	var presenceRootResolver = new(resolvers.PresenceRootResolver)
-	var reviewResolver = new(resolvers.ReviewRootResolver)
-	var serviceTokensRootResolver = new(resolvers.ServiceTokensRootResolver)
-	var statusRootResolver = new(resolvers.StatusesRootResolver)
-	var suggestionResolver = new(resolvers.SuggestionRootResolver)
-	var userResolver = new(resolvers.UserRootResolver)
-	var viewResolver = new(resolvers.ViewRootResolver)
-	var workspaceActivityResolver = new(resolvers.WorkspaceActivityRootResolver)
-	var workspaceResolver = new(resolvers.WorkspaceRootResolver)
-	var workspaceWatcherRootResolver = new(resolvers.WorkspaceWatcherRootResolver)
-
-	*aclResovler = graphql_acl.NewResolver(aclProvider, userRepo)
-	*authorResolver = graphql_author.NewResolver(userRepo, logger)
-	*changeResolver = graphql_change.NewResolver(
-		changeService,
-		changeRepo,
-		changeCommitRepo,
-		commentsRepo,
-		authService,
-		commentsResolver,
-		authorResolver,
-		statusRootResolver,
-		executorProvider,
-		logger,
-	)
-	*codebaseResolver = graphql_codebase.NewResolver(
-		codebaseRepo,
-		codebaseUserRepo,
-		viewRepo,
-		workspaceReader,
-		userRepo,
-		changeRepo,
-		changeCommitRepo,
-
-		workspaceResolver,
-		authorResolver,
-		viewResolver,
-		codebaseGitHubIntegrationResolver,
-		aclResovler,
-		changeResolver,
-		fileResolver,
-		instantIntegrationRootResolver,
-
-		logger,
-		viewEvents,
-		eventSender,
-		postHogClient,
-		executorProvider,
-
-		authService,
-	)
-	*commentsResolver = graphql_comments.NewResolver(
-		userRepo,
-		commentsRepo,
-		snapshotRepo,
-		workspaceReader,
-		viewRepo,
-		codebaseUserRepo,
-		changeRepo,
-		workspaceWatchersService,
-		authService,
-
-		eventSender,
-		viewEvents,
-		notificationSender,
-		activitySender,
-
-		authorResolver,
-		workspaceResolver,
-		changeResolver,
-
-		logger,
-		postHogClient,
-		executorProvider,
-	)
-	*codebaseGitHubIntegrationResolver = graphql_github.NewResolver(
-		gitHubRepositoryRepo,
-		gitHubInstallationRepo,
-		executorProvider,
-		logger,
-		gitHubAppConfig,
-		gitHubClientProvider,
-		workspaceReader,
-		workspaceWriter,
-		snapshotter,
-		snapshotRepo,
-		authService,
-		codebaseService,
-		workspaceResolver,
-		codebaseResolver,
-		gitHubService,
-	)
-	*fileDiffRootResolver = graphql_change.NewFileDiffRootResolver()
-	*suggestionResolver = graphql_suggestion.New(
-		logger,
-		authService,
-		suggestionService,
-		workspaceService,
-		authorResolver,
-		fileDiffRootResolver,
-		workspaceResolver,
-		viewEvents,
-	)
-	*notificationResolver = graphql_notification.NewResolver(
-		notificationRepository,
-		codebaseUserRepo,
-		codebaseRepo,
-		notificationPreferencesServcie,
-		authService,
-		commentsResolver,
-		codebaseResolver,
-		authorResolver,
-		workspaceResolver,
-		reviewResolver,
-		suggestionResolver,
-		codebaseGitHubIntegrationResolver,
-		viewEvents,
-		eventSender,
-		logger,
-	)
-	*userResolver = graphql_user.NewResolver(
-		userRepo,
-		gitHubUserRepo,
-		notificationSettingsRepo,
-		userService,
-		viewResolver,
-		notificationResolver,
-		logger,
-	)
-
-	viewStatusResolver := graphql_view.NewViewStatusRootResolver(viewStatusRepo, logger)
-
-	*viewResolver = graphql_view.NewResolver(
-		viewRepo,
-		workspaceReader,
-		snapshotter,
-		viewWorkspaceSnapshotsRepo,
-		snapshotRepo,
-		authorResolver,
-		workspaceResolver,
-		workspaceWriter,
-		viewEvents,
-		eventSender,
-		executorProvider,
-		logger,
-		viewStatusResolver,
-		workspaceWatchersService,
-		postHogClient,
-		codebaseResolver,
-		authService,
-	)
-	*prResolver = graphql_pr.NewResolver(
-		logger,
-		codebaseResolver,
-		workspaceResolver,
-		statusRootResolver,
-		userRepo,
-		codebaseRepo,
-		workspaceReader,
-		viewRepo,
-		gitHubAppConfig,
-		gitHubUserRepo,
-		gitHubPRRepo,
-		gitHubInstallationRepo,
-		gitHubRepositoryRepo,
-		gitHubClientProvider,
-		gitHubPersonalClientProvider,
-		viewEvents,
-		postHogClient,
-		authService,
-		gitHubService,
-	)
-
-	*statusRootResolver = graphql_statuses.New(
-		logger,
-		statusesService,
-		changeService,
-		workspaceService,
-		authService,
-		gitHubPRRepo,
-		changeResolver,
-		prResolver,
-		viewEvents,
-	)
-
-	*workspaceWatcherRootResolver = graphql_workspace_watchers.NewRootResolver(
-		logger,
-
-		workspaceWatchersService,
-		workspaceService,
-
-		authService,
-		viewEvents,
-
-		userResolver,
-		workspaceResolver,
-	)
-
-	*workspaceResolver = graphql_workspace.NewResolver(
-		workspaceReader,
-		codebaseRepo,
-		viewRepo,
-		commentsRepo,
-		snapshotRepo,
-
-		codebaseResolver,
-		authorResolver,
-		viewResolver,
-		commentsResolver,
-		prResolver,
-		changeResolver,
-		workspaceActivityResolver,
-		reviewResolver,
-		presenceRootResolver,
-		suggestionResolver,
-		statusRootResolver,
-		workspaceWatcherRootResolver,
-
-		suggestionService,
-		workspaceService,
-		authService,
-
-		logger,
-		viewEvents,
-		workspaceWriter,
-		executorProvider,
-		eventSender,
-		gitSnapshottet,
-	)
-	*workspaceActivityResolver = graphql_workspace_activity.New(
-		workspaceActivityRepo,
-		workspaceActivityReadsRepo,
-		authorResolver,
-		commentsResolver,
-		changeResolver,
-		reviewResolver,
-		workspaceResolver,
-		activityService,
-		authService,
-		eventSender,
-		viewEvents,
-		logger,
-	)
-	*reviewResolver = graphql_review.New(
-		logger,
-		reviewRepo,
-		workspaceReader,
-		authService,
-
-		authorResolver,
-		workspaceResolver,
-
-		eventSender,
-		viewEvents,
-		notificationSender,
-		activitySender,
-		workspaceWatchersService,
-	)
-	*fileResolver = graphql_file.NewFileRootResolver(
-		executorProvider,
-	)
-
-	*presenceRootResolver = graphql_presence.NewRootResolver(
-		presenceService,
-		authorResolver,
-		workspaceResolver,
-		logger,
-		viewEvents,
-	)
-
-	*instantIntegrationRootResolver = graphql_ci.NewRootResolver(
-		ciService,
-		changeRepo,
-		authService,
-		buildkiteRootResolver,
-		statusRootResolver,
-	)
-
-	*onboardingRootResolver = graphql_onboarding.NewRootResolver(completedOnboardingStepsRepo, eventSender, viewEvents)
-
-	*pkiRootResolver = graphql_pki.NewResolver(pkiRepo, userResolver)
-
-	*serviceTokensRootResolver = graphql_servicetokens.New(authService, serviceTokensService, codebaseService)
-
-	*buildkiteRootResolver = graphql_buildkite.New(authService, buidkiteService, ciService, instantIntegrationRootResolver)
-
-	*organizationRootResolver = graphql_organization.New(organizationService, authService, userService, authorResolver)
-
-	licenseRootResolver := graphql_license.New(licenseService, logger)
-
 	r := &RootResolver{
 		jwtService: jwtService,
 		logger:     logger,
@@ -504,7 +104,7 @@ func New(
 		CodebaseRootResolver:                    *codebaseResolver,
 		CommentRootResolver:                     *commentsResolver,
 		FeaturesRootResolver:                    graphql_features.Resolver,
-		GitHubAppRootResolver:                   graphql_github.NewGitHubAppRootResolver(gitHubAppConfig),
+		GitHubAppRootResolver:                   githubAppResolver,
 		GitHubPullRequestRootResolver:           *prResolver,
 		IntegrationRootResolver:                 *instantIntegrationRootResolver,
 		LicenseRootResolver:                     licenseRootResolver,

@@ -28,7 +28,7 @@ func NewSender(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceRepo db_workspace.WorkspaceReader,
 	events EventReadWriter,
-) *eventsSender {
+) EventSender {
 	return &eventsSender{
 		codebaseUserRepo: codebaseUserRepo,
 		workspaceRepo:    workspaceRepo,

@@ -24,7 +24,7 @@ func New(
 	authService *service_auth.Service,
 	serviceTokensService *service_servicetokens.Service,
 	codebaseService *service_codebase.Service,
-) *rootResolver {
+) resolvers.ServiceTokensRootResolver {
 	return &rootResolver{
 		authService:          authService,
 		serviceTokensService: serviceTokensService,

@@ -42,7 +42,7 @@ import (
 	client_license "mash/pkg/license/client"
 	db_license "mash/pkg/license/db"
 	service_license "mash/pkg/license/service"
-	"mash/pkg/license/validator"
+	validator_license "mash/pkg/license/validator"
 	"mash/pkg/metrics/zapprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -92,7 +92,9 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/jmoiron/sqlx"
 	"github.com/posthog/posthog-go"
+	"go.uber.org/dig"
 	"go.uber.org/zap"
 )
 
@@ -134,11 +136,6 @@ func main() {
 
 	ctx := context.Background()
 
-	d, err := db.Setup(*dbSourceAddr, true, "file://db/migrations")
-	if err != nil {
-		panic(err)
-	}
-
 	var logger *zap.Logger
 	if *productionLogger {
 		logger, _ = zap.NewProduction(zap.Hooks(zapprometheus.Hook))
@@ -146,345 +143,199 @@ func main() {
 		logger, _ = zap.NewDevelopment(zap.Hooks(zapprometheus.Hook))
 	}
 
-	gitHubAppConfig := config.GitHubAppConfig{
-		GitHubAppID:             *gitHubAppID,
-		GitHubAppName:           *gitHubAppName,
-		GitHubAppClientID:       *gitHubAppClientID,
-		GitHubAppSecret:         *gitHubAppSecret,
-		GitHubAppPrivateKeyPath: *gitHubAppPrivateKeyPath,
+	providers := []interface{}{
+		func() *zap.Logger { return logger },
+		func() (ghappclient.ClientProvider, ghappclient.PersonalClientProvider) {
+			return ghappclient.NewClient, ghappclient.NewPersonalClient
+		},
+		func() provider.RepoProvider {
+			return provider.New(*reposBasePath, *gitLfsHostname)
+		},
+		func() (*sqlx.DB, error) {
+			return db.Setup(*dbSourceAddr, true, "file://db/migrations")
+		},
+		func() config.GitHubAppConfig {
+			return config.GitHubAppConfig{
+				GitHubAppID:             *gitHubAppID,
+				GitHubAppName:           *gitHubAppName,
+				GitHubAppClientID:       *gitHubAppClientID,
+				GitHubAppSecret:         *gitHubAppSecret,
+				GitHubAppPrivateKeyPath: *gitHubAppPrivateKeyPath,
+			}
+		},
+		func() (*session.Session, error) {
+			awsSession, err := session.NewSession(
+				&aws.Config{
+					Region: aws.String("eu-north-1"),
+				})
+			return awsSession, err
+		},
+		func() (posthog.Client, error) {
+			if *sendPostHogEvents {
+				return posthog.NewWithConfig("ZuDRoGX9PgxGAZqY4RF9CCJJLpx14h3szUPzm7XBWSg", posthog.Config{Endpoint: "https://app.posthog.com"})
+			} else {
+				return ph.NewFakeClient(), nil
+			}
+		},
+		events.NewInMemory,
+		func(e events.EventReadWriter) events.EventReader {
+			return e
+		},
+		executor.NewProvider,
+		provider_acl.New,
+		func(awsSession *session.Session) (queue.Queue, error) {
+			if *localQueue {
+				return queue.NewInMemory(logger), nil
+			} else {
+				return queue.NewSQS(logger, awsSession, *hostname, *queuePrefix)
+			}
+		},
+		service_notification.NewPreferences,
+		service_jwt.NewService,
+		func(awsSession *session.Session) emails.Sender {
+			if *enableTransactionalEmails {
+				return emails.NewSES(awsSession)
+			}
+			return emails.NewLogs(logger)
+		},
+		func() service_ci.PublicAPIHostname {
+			return service_ci.PublicAPIHostname(*publicApiHostname)
+		},
+		func() service_change.ExportBucketName {
+			return service_change.ExportBucketName(exportBucketName)
+		},
+		func(repo db_workspace.Repository) db_workspace.WorkspaceReader {
+			return repo
+		},
+		db_onetime.New,
+		transactional.New,
+		service_onetime.New,
+		service_user.New,
+		events.NewSender,
+		notification_sender.NewNotificationSender,
+		service_activity.New,
+		activity_sender.NewActivitySender,
+		ws_meta.NewWriterWithEvents,
+		service_change.New,
+
+		func() *service_github.ImporterQueue {
+			return new(service_github.ImporterQueue)
+		},
+		func() *service_github.ClonerQueue {
+			return new(service_github.ClonerQueue)
+		},
+		service_github.New,
+
+		snapshotter.NewGitSnapshotter,
+		meta_view.NewViewUpdatedFunc,
+		service_statuses.New,
+		service_ci.New,
+		service_workspace.New,
+		service_workspace_watchers.New,
+		service_suggestion.New,
+		service_presence.New,
+		db_presence.NewRepo,
+		service_codebase.New,
+		service_auth.New,
+		db_servicetokens.NewDatabase,
+		service_servicetokens.New,
+		db_onboarding.New,
+		db_user.NewRepo,
+		db_acl.NewACLRepository,
+		db_codebase.NewRepo,
+		db_codebase.NewCodebaseUserRepo,
+		db_view.NewRepo,
+		db_workspace.NewRepo,
+		waitinglist.NewWaitingListRepo,
+		acl.NewACLInterestRepo,
+		instantintegration.NewInstantIntegrationInterestRepo,
+		db_pki.NewRepo,
+		db_snapshots.NewRepo,
+		db_change.NewRepo,
+		db_change.NewCommitRepository,
+		db_comments.NewRepo,
+		db_suggestion.New,
+		db_gc.NewRepository,
+		view_workspace_snapshot.NewRepo,
+		db_github.NewGitHubInstallationRepo,
+		db_github.NewGitHubRepositoryRepo,
+		db_github.NewGitHubUserRepo,
+		db_github.NewGitHubPRRepo,
+		db_notification.NewRepository,
+		db_mutagen.NewRepository,
+		db_newsletter.NewNotificationSettingsRepository,
+		db_activity.NewActivityRepo,
+		db_review.NewReviewRepository,
+		db_activity.NewActivityReadsRepo,
+		db_notification.NewPeferenceRepository,
+		db_keys.New,
+		db_statuses.New,
+		db_ci.NewCommitRepository,
+		db_integrations.NewIntegrationDatabase,
+		db_workspace_watchers.NewDB,
+		service_comments.New,
+		db_organization.New,
+		db_organization.NewMember,
+		service_sync.New,
+		service_organization.New,
+		func() http.DevelopmentAllowExtraCorsOrigin {
+			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
+		},
+		db_buildkite.NewDatabase,
+		service_buildkite.New,
+		worker_gc.New,
+		worker_snapshots.New,
+		workers_ci.New,
+		gitserver.New,
+		workers_github.NewClonerQueue,
+		workers_github.NewImporterQueue,
+		http.ProvideHandler,
+		http.ProvideServer,
+		api.ProvideAPI,
+		db_license.New,
+		db_license.NewValidationRepository,
+		service_license.New,
+		client_license.New,
+		validator_license.New,
 	}
 
-	userRepo := db_user.NewRepo(d)
-	aclRepo := db_acl.NewACLRepository(d)
-	codebaseRepo := db_codebase.NewRepo(d)
-	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
-	viewRepo := db_view.NewRepo(d)
-	workspaceRepo := db_workspace.NewRepo(d)
-	waitingListRepo := waitinglist.NewWaitingListRepo(d)
-	aclInterestRepo := acl.NewACLInterestRepo(d)
-	instantIntegrationInterestRepo := instantintegration.NewInstantIntegrationInterestRepo(d)
-	userPublicKeyRepo := db_pki.NewRepo(d)
-	snapshotRepo := db_snapshots.NewRepo(d)
-	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
-	commentRepo := db_comments.NewRepo(d)
-	suggestionRepo := db_suggestion.New(d)
-	gcRepo := db_gc.NewRepository(d)
-	viewWorkspaceSnapshotsRepo := view_workspace_snapshot.NewRepo(d)
-	gitHubInstallationsRepo := db_github.NewGitHubInstallationRepo(d)
-	gitHubRepositoryRepo := db_github.NewGitHubRepositoryRepo(d)
-	gitHubUserRepo := db_github.NewGitHubUserRepo(d)
-	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
-	notificationRepo := db_notification.NewRepository(d)
-	viewStatusRepo := db_mutagen.NewRepository(d)
-	notificationSettingsRepo := db_newsletter.NewNotificationSettingsRepository(d)
-	workspaceActivityRepo := db_activity.NewActivityRepo(d)
-	reviewRepo := db_review.NewReviewRepository(d)
-	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
-	notificationPreferencesRepo := db_notification.NewPeferenceRepository(d)
-	keysRepo := db_keys.New(d)
-	statusesRepo := db_statuses.New(d)
-	ciCommitRepo := db_ci.NewCommitRepository(d)
-	ciConfigRepo := db_integrations.NewIntegrationDatabase(d)
-	workspaceWatchersRepo := db_workspace_watchers.NewDB(d)
-	commentsService := service_comments.New(commentRepo)
-	organizationRepo := db_organization.New(d)
-	organizationMemberRepo := db_organization.NewMember(d)
-	organizationService := service_organization.New(organizationRepo, organizationMemberRepo)
-	licenseRepo := db_license.New(d)
-	licenseValidationsRepo := db_license.NewValidationRepository(d)
-	licenseService := service_license.New(licenseRepo, licenseValidationsRepo)
+	providers = append(providers, graphql.Providers...)
 
-	awsSession, err := session.NewSession(
-		&aws.Config{
-			Region: aws.String("eu-north-1"),
-		})
+	c, err := assembleContainer(providers...)
 	if err != nil {
-		logger.Fatal("failed to go create AWS session", zap.Error(err))
+		logger.Fatal("failed to assemble container", zap.Error(err))
 	}
 
-	var postHogClient posthog.Client
-	if *sendPostHogEvents {
-		postHogClient, err = posthog.NewWithConfig("ZuDRoGX9PgxGAZqY4RF9CCJJLpx14h3szUPzm7XBWSg", posthog.Config{Endpoint: "https://app.posthog.com"})
-		if err != nil {
-			panic(err)
+	for _, invoke := range graphql.Invokers {
+		if err := c.Invoke(invoke); err != nil {
+			logger.Fatal("failed to invoke graphql", zap.Error(err))
 		}
-	} else {
-		postHogClient = ph.NewFakeClient()
 	}
 
-	codebaseViewEvents := events.NewInMemory()
-	executorProvider := executor.NewProvider(logger, provider.New(*reposBasePath, *gitLfsHostname))
-	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
-	gitHubClientProvider := ghappclient.NewClient
-	gitHubPersonalClientProvider := ghappclient.NewPersonalClient
-
-	var q queue.Queue
-	if *localQueue {
-		q = queue.NewInMemory(logger)
-	} else {
-		sqs, err := queue.NewSQS(logger, awsSession, *hostname, *queuePrefix)
-		if err != nil {
-			logger.Fatal("failed to create sqs queue", zap.Error(err))
-		}
-		q = sqs
+	if err := c.Invoke(func(sq *service_github.ImporterQueue, wq workers_github.ImporterQueue) {
+		*sq = wq
+	}); err != nil {
+		logger.Fatal("failed to resolve importer queue cycle dependency", zap.Error(err))
 	}
 
-	notificationPreferencesService := service_notification.NewPreferences(notificationPreferencesRepo)
-	jwtService := service_jwt.NewService(logger, keysRepo)
-
-	var emailSender emails.Sender
-	if *enableTransactionalEmails {
-		emailSender = emails.NewSES(awsSession)
-	} else {
-		emailSender = emails.NewLogs(logger)
+	if err := c.Invoke(func(sq *service_github.ClonerQueue, wq *workers_github.ClonerQueue) {
+		*sq = wq
+	}); err != nil {
+		logger.Fatal("failed to resolve cloner queue cycle dependency", zap.Error(err))
 	}
 
-	transactionalEmailSender := transactional.New(
-		logger,
-		emailSender,
+	if err := c.Invoke(func(buildkiteService *service_buildkite.Service) {
+		integrations.Register(integrations.ProviderTypeBuildkite, buildkiteService)
+	}); err != nil {
+		logger.Fatal("failed to register buildkite integration", zap.Error(err))
+	}
 
-		userRepo,
-		codebaseUserRepo,
-		commentRepo,
-		changeRepo,
-		codebaseRepo,
-		workspaceRepo,
-		suggestionRepo,
-		reviewRepo,
-		notificationSettingsRepo,
-		gitHubRepositoryRepo,
-
-		jwtService,
-
-		notificationPreferencesService,
-		postHogClient,
-	)
-
-	oneTimeTokenDB := db_onetime.New(d)
-	oneTimeService := service_onetime.New(oneTimeTokenDB)
-
-	userService := service_user.New(logger, userRepo, jwtService, oneTimeService, transactionalEmailSender, postHogClient)
-
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, codebaseViewEvents)
-	notificationSender := notification_sender.NewNotificationSender(codebaseUserRepo, notificationRepo, userRepo, eventsSender, transactionalEmailSender)
-	activityService := service_activity.New(workspaceActivityReadsRepo, eventsSender)
-	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
-	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(executorProvider, awsSession, aclProvider, userRepo, changeRepo, changeCommitRepo, exportBucketName)
-
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceWriter, viewRepo, eventsSender, executorProvider, logger)
-
-	// pointer dance to solve circular dependency
-	var gitHubService = new(service_github.Service)
-	githubImporterQueue := workers_github.NewImporterQueue(logger, q, gitHubService)
-	githubClonerQueue := workers_github.NewClonerQueue(logger, q, gitHubService)
-	*gitHubService = *service_github.New(
-		logger,
-
-		gitHubRepositoryRepo,
-		gitHubInstallationsRepo,
-		gitHubUserRepo,
-		gitHubPRRepo,
-		gitHubAppConfig,
-		gitHubClientProvider,
-		gitHubPersonalClientProvider,
-
-		githubImporterQueue,
-		githubClonerQueue,
-
-		workspaceWriter,
-		workspaceRepo,
-		codebaseUserRepo,
-		codebaseRepo,
-
-		executorProvider,
-
-		gitSnapshotter,
-		postHogClient,
-		notificationSender,
-		eventsSender,
-
-		userService,
-	)
-
-	// Start queues
-	snapshotterQueue := worker_snapshots.New(logger, q, gitSnapshotter)
-
-	viewUpdatedFunc := meta_view.NewViewUpdatedFunc(workspaceRepo, workspaceWriter, eventsSender, snapshotterQueue)
-	statusesService := service_statuses.New(logger, statusesRepo, eventsSender)
-	ciService := service_ci.New(logger, executorProvider, ciConfigRepo, ciCommitRepo, changeRepo, changeCommitRepo, *publicApiHostname, statusesService, jwtService)
-	ciBuildQueue := workers_ci.New(logger, q, ciService)
-
-	workspaceService := service_workspace.New(
-		logger,
-		postHogClient,
-
-		workspaceWriter,
-		workspaceRepo,
-
-		userRepo,
-		reviewRepo,
-
-		commentsService,
-		changeService,
-		gitHubService,
-
-		activitySender,
-		executorProvider,
-		eventsSender,
-		snapshotterQueue,
-		gitSnapshotter,
-		ciBuildQueue,
-	)
-	workspaceWatchersService := service_workspace_watchers.New(workspaceWatchersRepo, eventsSender)
-
-	suggestionService := service_suggestion.New(
-		logger,
-		suggestionRepo,
-		workspaceService,
-		executorProvider,
-		gitSnapshotter,
-		postHogClient,
-		notificationSender,
-		eventsSender,
-	)
-	gcQueue := worker_gc.New(logger, q, gcRepo, viewRepo, snapshotRepo, workspaceRepo, suggestionService, executorProvider)
-
-	presenceRepo := db_presence.NewRepo(d)
-	presenceService := service_presence.New(presenceRepo, eventsSender)
-
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
-	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider, organizationService)
-	serviceTokensService := service_servicetokens.New(db_servicetokens.NewDatabase(d))
-
-	buildkiteService := service_buildkite.New(db_buildkite.NewDatabase(d))
-
-	// register ci integrations
-	integrations.Register(integrations.ProviderTypeBuildkite, buildkiteService)
-
-	syncService := service_sync.New(logger, executorProvider, viewRepo, workspaceRepo, workspaceWriter, gitSnapshotter)
-
-	completedOnboardingStepsRepo := db_onboarding.New(d)
-
-	gitsrv := gitserver.New(logger, serviceTokensService, jwtService, codebaseService, executorProvider)
-
-	licenseClient := client_license.New()
-	licenseValidator := validator.New(licenseClient, logger, userService)
-
-	gqlHandler := graphql.New(
-		logger,
-		codebaseRepo,
-		codebaseUserRepo,
-		workspaceRepo,
-		userRepo,
-		viewRepo,
-		gitSnapshotter,
-		viewWorkspaceSnapshotsRepo,
-		snapshotRepo,
-		commentRepo,
-		codebaseViewEvents,
-		changeRepo,
-		changeCommitRepo,
-		notificationRepo,
-		notificationSender,
-		gitHubUserRepo,
-		gitHubPRRepo,
-		gitHubInstallationsRepo,
-		gitHubAppConfig,
-		gitHubRepositoryRepo,
-		gitHubClientProvider,
-		gitHubPersonalClientProvider,
-		postHogClient,
-		workspaceWriter,
-		executorProvider,
-		viewStatusRepo,
-		notificationSettingsRepo,
-		workspaceActivityRepo,
-		aclProvider,
-		reviewRepo,
-		workspaceActivityReadsRepo,
-		activitySender,
-		eventsSender,
-		gitSnapshotter,
-		presenceService,
-		suggestionService,
-		workspaceService,
-		notificationPreferencesService,
-		changeService,
-		userService,
-		ciService,
-		statusesService,
-		completedOnboardingStepsRepo,
-		workspaceWatchersService,
-		jwtService,
-		activityService,
-		userPublicKeyRepo,
-		gitHubService,
-		codebaseService,
-		serviceTokensService,
-		buildkiteService,
-		authService,
-		organizationService,
-		licenseService,
-	)
-
-	handler := http.ProvideHandler(
-		logger,
-		userRepo,
-		postHogClient,
-		waitingListRepo,
-		aclInterestRepo,
-		instantIntegrationInterestRepo,
-		codebaseRepo,
-		codebaseUserRepo,
-		viewRepo,
-		workspaceRepo,
-		userPublicKeyRepo,
-		snapshotterQueue,
-		snapshotRepo,
-		changeRepo,
-		changeCommitRepo,
-		codebaseViewEvents,
-		gcQueue,
-		gitSnapshotter,
-		gitHubInstallationsRepo,
-		gitHubRepositoryRepo,
-		gitHubUserRepo,
-		gitHubPRRepo,
-		gitHubAppConfig,
-		gitHubClientProvider,
-		githubClonerQueue,
-		workspaceWriter,
-		viewUpdatedFunc,
-		executorProvider,
-		viewStatusRepo,
-		notificationSettingsRepo,
-		reviewRepo,
-		activitySender,
-		eventsSender,
-		presenceService,
-		suggestionService,
-		workspaceService,
-		userService,
-		ciService,
-		statusesService,
-		syncService,
-		jwtService,
-		commentsService,
-		gitHubService,
-		codebaseService,
-		serviceTokensService,
-		buildkiteService,
-		authService,
-		ciBuildQueue,
-		http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin),
-		gqlHandler,
-	)
-
-	srv := http.ProvideServer(handler)
-
-	apiServer := api.ProvideAPI(srv, githubClonerQueue, githubImporterQueue, snapshotterQueue, ciBuildQueue, gcQueue, gitsrv, licenseValidator)
+	var apiServer *api.API
+	if err := c.Invoke(func(api *api.API) {
+		apiServer = api
+	}); err != nil {
+		logger.Fatal("failed to invoke api", zap.Error(err))
+	}
 
 	if err := apiServer.Start(ctx, &api.Config{
 		GitListenAddr:       *gitListenAddr,
@@ -494,4 +345,14 @@ func main() {
 	}); err != nil {
 		logger.Fatal("failed to start api server", zap.Error(err))
 	}
+}
+
+func assembleContainer(constructors ...interface{}) (*dig.Container, error) {
+	c := dig.New()
+	for _, constructor := range constructors {
+		if err := c.Provide(constructor); err != nil {
+			return nil, err
+		}
+	}
+	return c, nil
 }

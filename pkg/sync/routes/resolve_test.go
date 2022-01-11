@@ -355,6 +355,8 @@ func TestResolveHighLevelV2(t *testing.T) {
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	importer := service_github.ImporterQueue(workers_github.NopImporter())
+	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
 		logger,
 		gitHubRepositoryRepo,
@@ -364,8 +366,8 @@ func TestResolveHighLevelV2(t *testing.T) {
 		config.GitHubAppConfig{},
 		nil, // gitHubClientProvider
 		nil,
-		workers_github.NopImporter(),
-		workers_github.NopCloner(),
+		&importer,
+		&cloner,
 		workspaceRepo,
 		workspaceRepo,
 		codebaseUserRepo,

@@ -248,7 +248,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 }
 
 func (svc *Service) EnqueueGitHubPullRequestImport(ctx context.Context, codebaseID, userID string) error {
-	if err := svc.gitHubPullRequestImporterQueue.Enqueue(ctx, codebaseID, userID); err != nil {
+	if err := (*svc.gitHubPullRequestImporterQueue).Enqueue(ctx, codebaseID, userID); err != nil {
 		return err
 	}
 	return nil

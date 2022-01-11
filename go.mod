@@ -54,6 +54,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/yuin/goldmark v1.4.4
 	go.opencensus.io v0.23.0
+	go.uber.org/dig v1.13.0
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
@@ -68,6 +69,7 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.0.0+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -116,6 +118,7 @@ require (
 	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/goleak v1.1.11 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
