@@ -9,6 +9,7 @@ import (
 
 	"mash/db"
 	"mash/pkg/api"
+	module_api "mash/pkg/api/module"
 	service_auth "mash/pkg/auth/service"
 	db_change "mash/pkg/change/db"
 	service_change "mash/pkg/change/service"
@@ -29,6 +30,7 @@ import (
 	ghappclient "mash/pkg/github/client"
 	"mash/pkg/github/config"
 	db_github "mash/pkg/github/db"
+	module_github "mash/pkg/github/module"
 	service_github "mash/pkg/github/service"
 	workers_github "mash/pkg/github/workers"
 	"mash/pkg/gitserver"
@@ -298,8 +300,9 @@ func main() {
 
 	hooks := []di.Hook{
 		di.Needs(http.Module),
+		di.Needs(module_github.Module),
 		di.Needs(graphql.Module),
-		di.Needs(api.Module),
+		di.Needs(module_api.Module),
 	}
 
 	for _, p := range providers {
@@ -311,7 +314,7 @@ func main() {
 		integrations.Register(integrations.ProviderTypeBuildkite, buildkiteService)
 	})
 
-	var apiServer *api.API
+	var apiServer api.API
 	if err := c.Build(&apiServer); err != nil {
 		log.Fatalf("%+v", err)
 	}
