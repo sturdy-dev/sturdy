@@ -9,8 +9,6 @@ import (
 	"mash/pkg/di"
 	graphql_features "mash/pkg/features/graphql"
 	graphql_file "mash/pkg/file/graphql"
-	graphql_github "mash/pkg/github/graphql"
-	graphql_github_pr "mash/pkg/github/graphql/pr"
 	graphql_buildkite "mash/pkg/integrations/buildkite/graphql"
 	graphql_ci "mash/pkg/integrations/graphql"
 	graphql_license "mash/pkg/license/graphql"
@@ -59,7 +57,5 @@ var Module = di.NewModule(
 	di.ProvidesCycle(graphql_license.New),
 
 	di.Needs(graphql_codebase.Module),
-	di.Needs(graphql_github_pr.Module),
-	di.Needs(graphql_github.Module),
 	di.Needs(graphql_features.Module),
 )
