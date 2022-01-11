@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"mash/pkg/codebase/graphql/oss"
 	gqlerrors "mash/pkg/graphql/errors"
@@ -53,8 +52,6 @@ func (r *CodebaseRootResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 		})
 	}
 
-	fmt.Printf("\nnikitag: %+v\n\n", enterpriseCodebases)
-
 	return enterpriseCodebases, nil
 }
 
@@ -64,7 +61,7 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 		return responseChan, err
 	}
 
-	c := make(chan resolvers.CodebaseResolver)
+	c := make(chan resolvers.CodebaseResolver, 100)
 	go func() {
 		for {
 			select {
