@@ -32,10 +32,10 @@ import (
 	db_github "mash/pkg/github/db"
 	module_github "mash/pkg/github/module"
 	service_github "mash/pkg/github/service"
-	workers_github "mash/pkg/github/workers"
 	"mash/pkg/gitserver"
 	"mash/pkg/graphql"
 	"mash/pkg/http"
+	"mash/pkg/http/oss"
 	"mash/pkg/integrations"
 	db_buildkite "mash/pkg/integrations/buildkite/db"
 	service_buildkite "mash/pkg/integrations/buildkite/service"
@@ -280,8 +280,8 @@ func main() {
 		db_organization.NewMember,
 		service_sync.New,
 		service_organization.New,
-		func() http.DevelopmentAllowExtraCorsOrigin {
-			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
+		func() oss.DevelopmentAllowExtraCorsOrigin {
+			return oss.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
 		db_buildkite.NewDatabase,
 		service_buildkite.New,
@@ -289,8 +289,6 @@ func main() {
 		worker_snapshots.New,
 		workers_ci.New,
 		gitserver.New,
-		workers_github.NewClonerQueue,
-		workers_github.NewImporterQueue,
 		db_license.New,
 		db_license.NewValidationRepository,
 		service_license.New,

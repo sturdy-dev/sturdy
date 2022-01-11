@@ -12,8 +12,6 @@ import (
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
 	"mash/pkg/github/db"
-	workers_github "mash/pkg/github/workers"
-	"mash/pkg/view/events"
 
 	"github.com/google/uuid"
 	"github.com/posthog/posthog-go"
@@ -30,10 +28,6 @@ func HandleInstallationRepositoriesEvent(
 	gitHubAppInstalledRepositoryRepository db.GitHubRepositoryRepo,
 	postHogClient posthog.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
-	gitHubUserRepo db.GitHubUserRepo,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	gitHubClonerPublisher *workers_github.ClonerQueue,
-	eventsSender events.EventSender,
 	gitHubService *service_github.Service,
 ) error {
 	_, err := gitHubAppInstallationsRepository.GetByInstallationID(event.Installation.GetID())

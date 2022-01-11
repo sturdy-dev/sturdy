@@ -9,11 +9,12 @@ import (
 	service_github "mash/pkg/github/service"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
 	"mash/pkg/github/db"
+
+	"github.com/google/uuid"
+	"github.com/posthog/posthog-go"
 
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"

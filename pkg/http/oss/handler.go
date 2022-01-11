@@ -1,4 +1,4 @@
-package http
+package oss
 
 import (
 	authz "mash/pkg/auth"
@@ -7,19 +7,11 @@ import (
 	routes_v3_change "mash/pkg/change/routes"
 	routes_ci "mash/pkg/ci/routes"
 	service_ci "mash/pkg/ci/service"
-	workers_ci "mash/pkg/ci/workers"
 	db_codebase "mash/pkg/codebase/db"
 	routes_v3_codebase "mash/pkg/codebase/routes"
 	service_codebase "mash/pkg/codebase/service"
-	service_comments "mash/pkg/comments/service"
 	worker_gc "mash/pkg/gc/worker"
 	"mash/pkg/ginzap"
-	ghappclient "mash/pkg/github/client"
-	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
-	routes_v3_ghapp "mash/pkg/github/routes"
-	service_github "mash/pkg/github/service"
-	workers_github "mash/pkg/github/workers"
 	sturdygrapql "mash/pkg/graphql"
 	service_buildkite "mash/pkg/integrations/buildkite/service"
 	service_jwt "mash/pkg/jwt/service"
@@ -31,7 +23,6 @@ import (
 	db_pki "mash/pkg/pki/db"
 	routes_v3_pki "mash/pkg/pki/routes"
 	service_presence "mash/pkg/presence/service"
-	db_review "mash/pkg/review/db"
 	service_servicetokens "mash/pkg/servicetokens/service"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
@@ -52,7 +43,6 @@ import (
 	"mash/pkg/waitinglist"
 	"mash/pkg/waitinglist/acl"
 	"mash/pkg/waitinglist/instantintegration"
-	activity_sender "mash/pkg/workspace/activity/sender"
 	db_workspace "mash/pkg/workspace/db"
 	routes_v3_workspace "mash/pkg/workspace/routes"
 	service_workspace "mash/pkg/workspace/service"
@@ -86,24 +76,14 @@ func ProvideHandler(
 	snapshotterQueue worker_snapshots.Queue,
 	snapshotRepo db_snapshots.Repository,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 	codebaseViewEvents events.EventReadWriter,
 	gcQueue *worker_gc.Queue,
 	gitSnapshotter snapshotter.Snapshotter,
-	gitHubInstallationsRepo db_github.GitHubInstallationRepo,
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	gitHubUserRepo db_github.GitHubUserRepo,
-	gitHubPRRepo db_github.GitHubPRRepo,
-	gitHubAppConfig config.GitHubAppConfig,
-	gitHubClientProvider ghappclient.ClientProvider,
-	gitHubClonerPublisher *workers_github.ClonerQueue,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	viewUpdatedFunc meta_view.ViewUpdatedFunc,
 	executorProvider executor.Provider,
 	viewStatusRepo db_mutagen.ViewStatusRepository,
 	notificationSettingsRepo db_newsletter.NotificationSettingsRepository,
-	reviewRepo db_review.ReviewRepository,
-	activitySender activity_sender.ActivitySender,
 	eventSender events.EventSender,
 	presenceService service_presence.Service,
 	suggestionService *service_suggestion.Service,
@@ -113,16 +93,13 @@ func ProvideHandler(
 	statusesService *service_statuses.Service,
 	syncService *service_sync.Service,
 	jwtService *service_jwt.Service,
-	commentsService *service_comments.Service,
-	gitHubService *service_github.Service,
 	codebaseService *service_codebase.Service,
 	servicetokensService *service_servicetokens.Service,
 	buildkiteService *service_buildkite.Service,
 	authService *service_auth.Service,
-	ciBuildQueue *workers_ci.BuildQueue,
 	developmentAllowExtraCorsOrigin DevelopmentAllowExtraCorsOrigin,
 	grapqhlResolver *sturdygrapql.RootResolver,
-) http.Handler {
+) *gin.Engine {
 	logger = logger.With(zap.String("component", "http"))
 	allowOrigins := []string{
 		// Production
@@ -206,8 +183,6 @@ func ProvideHandler(
 	publ.GET("/v3/mutagen/views/:id/allows", routes_v3_mutagen.ListAllows(logger, viewRepo, authService))                                                                                                     // Called form server-side mutagen
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen
 	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                                                         // Called from client-side sturdy-cli
-	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, postHogClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
-	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, codebaseRepo, statusesService, ciService, servicetokensService, buildkiteService))
 	return r

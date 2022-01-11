@@ -6,7 +6,7 @@ import (
 
 	"mash/pkg/api"
 	"mash/pkg/api/oss"
-	workers_github "mash/pkg/github/workers"
+	workers_github "mash/pkg/github/enterprise/workers"
 
 	"golang.org/x/sync/errgroup"
 )
