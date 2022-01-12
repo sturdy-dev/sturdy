@@ -16,7 +16,7 @@ import (
 	"mash/pkg/github"
 	github_client "mash/pkg/github/client"
 	config_github "mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
+	db_github "mash/pkg/github/enterprise/db"
 	github_vcs "mash/pkg/github/vcs"
 	"mash/vcs/executor"
 

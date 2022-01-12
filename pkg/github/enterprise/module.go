@@ -2,11 +2,13 @@ package enterprise
 
 import (
 	"mash/pkg/di"
+	"mash/pkg/github/enterprise/db"
 	"mash/pkg/github/enterprise/service"
 	"mash/pkg/github/enterprise/workers"
 )
 
 var Module = di.NewModule(
+	di.Needs(db.Module),
 	di.Needs(workers.Module),
 	di.Needs(service.Module),
 

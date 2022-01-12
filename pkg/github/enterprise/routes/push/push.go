@@ -16,7 +16,7 @@ import (
 	service_comments "mash/pkg/comments/service"
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
-	"mash/pkg/github/db"
+	"mash/pkg/github/enterprise/db"
 	vcs_github "mash/pkg/github/vcs"
 	db_review "mash/pkg/review/db"
 	service_sync "mash/pkg/sync/service"

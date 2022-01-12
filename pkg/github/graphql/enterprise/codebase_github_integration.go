@@ -8,7 +8,7 @@ import (
 	"mash/pkg/github"
 	github_client "mash/pkg/github/client"
 	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
+	db_github "mash/pkg/github/enterprise/db"
 	service_github "mash/pkg/github/enterprise/service"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"

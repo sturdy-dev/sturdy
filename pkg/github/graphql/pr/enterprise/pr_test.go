@@ -31,7 +31,7 @@ import (
 	"mash/pkg/github"
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
+	db_github "mash/pkg/github/enterprise/db"
 	"mash/pkg/github/enterprise/routes"
 	service_github "mash/pkg/github/enterprise/service"
 	workers_github "mash/pkg/github/enterprise/workers"
@@ -348,7 +348,6 @@ func TestPRHighLevel(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		gitHubPRRepo,
 		&changeResolver,
 		&prResolver,
 		viewUpdates,

@@ -3,7 +3,6 @@ package oss
 import (
 	"context"
 
-	"mash/pkg/github"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 )
@@ -14,7 +13,7 @@ func NewResolver() resolvers.GitHubPullRequestRootResolver {
 	return &prRootResolver{}
 }
 
-func (r *prRootResolver) InternalGitHubPullRequest(pr *github.GitHubPullRequest) (resolvers.GitHubPullRequestResolver, error) {
+func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(context.Context, string, string) (resolvers.GitHubPullRequestResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
 

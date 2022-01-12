@@ -23,7 +23,6 @@ import (
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
 	graphql_file "mash/pkg/file/graphql"
-	db_github "mash/pkg/github/db"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
@@ -98,7 +97,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
 	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
@@ -268,7 +266,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		gitHubPRRepo,
 		&changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,
@@ -434,7 +431,6 @@ func TestRevertChangeFromView(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
 	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
@@ -626,7 +622,6 @@ func TestRevertChangeFromView(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		gitHubPRRepo,
 		&changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,

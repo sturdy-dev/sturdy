@@ -2,13 +2,13 @@ package client
 
 import (
 	"context"
-	"mash/pkg/github/config"
 	"net/http"
 
-	"golang.org/x/oauth2"
+	"mash/pkg/github/config"
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/v39/github"
+	"golang.org/x/oauth2"
 )
 
 type ClientProvider func(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error)

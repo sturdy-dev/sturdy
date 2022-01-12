@@ -44,7 +44,7 @@ type UserResolver interface {
 	EmailVerified() bool
 	AvatarUrl() *string
 	NotificationPreferences(context.Context) ([]NotificationPreferenceResolver, error)
-	GitHubAccount() (GitHubAccountResolver, error)
+	GitHubAccount(context.Context) (GitHubAccountResolver, error)
 	NotificationsReceiveNewsletter() (bool, error)
 	Views() ([]ViewResolver, error)
 	LastUsedView(ctx context.Context, args LastUsedViewArgs) (ViewResolver, error)
@@ -52,9 +52,4 @@ type UserResolver interface {
 
 type LastUsedViewArgs struct {
 	CodebaseID graphql.ID
-}
-
-type GitHubAccountResolver interface {
-	ID() graphql.ID
-	Login() string
 }

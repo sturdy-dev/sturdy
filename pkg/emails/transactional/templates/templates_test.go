@@ -1,4 +1,4 @@
-package transactional
+package templates
 
 import (
 	"os"

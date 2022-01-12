@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (r *rootResolver) UpdatedChangesStatuses(ctx context.Context, args resolvers.UpdatedChangesStatusesArgs) (<-chan resolvers.StatusResolver, error) {
+func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolvers.UpdatedChangesStatusesArgs) (<-chan resolvers.StatusResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

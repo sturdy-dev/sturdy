@@ -2,6 +2,7 @@ package sender
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"mash/pkg/view/events"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type NotificationSender interface {
@@ -21,6 +23,8 @@ type NotificationSender interface {
 }
 
 type realNotificationSender struct {
+	logger *zap.Logger
+
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 	notificationRepo db_notification.Repository
 	userRepo         db_user.Repository
@@ -30,6 +34,8 @@ type realNotificationSender struct {
 }
 
 func NewNotificationSender(
+	logger *zap.Logger,
+
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	notificationRepo db_notification.Repository,
 	userRepo db_user.Repository,
@@ -38,6 +44,8 @@ func NewNotificationSender(
 	emailSender transactional.EmailSender,
 ) NotificationSender {
 	return &realNotificationSender{
+		logger: logger,
+
 		codebaseUserRepo: codebaseUserRepo,
 		notificationRepo: notificationRepo,
 		userRepo:         userRepo,
@@ -108,7 +116,9 @@ func (s *realNotificationSender) dispatch(ctx context.Context, notif *notificati
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	if err := s.emailSender.SendNotification(ctx, user, notif); err != nil {
+	if err := s.emailSender.SendNotification(ctx, user, notif); errors.Is(err, transactional.ErrNotSupported) {
+		s.logger.Warn("email notification not supported", zap.String("type", string(notif.NotificationType)))
+	} else if err != nil {
 		return fmt.Errorf("failed to notify via email: %w", err)
 	}
 	return nil

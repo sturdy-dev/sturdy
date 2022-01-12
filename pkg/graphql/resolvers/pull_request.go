@@ -2,14 +2,13 @@ package resolvers
 
 import (
 	"context"
-	"mash/pkg/github"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type GitHubPullRequestRootResolver interface {
 	// Internal
-	InternalGitHubPullRequest(*github.GitHubPullRequest) (GitHubPullRequestResolver, error)
+	InternalByCodebaseIDAndHeadSHA(context.Context, string, string) (GitHubPullRequestResolver, error)
 	InternalGitHubPullRequestByWorkspaceID(ctx context.Context, args GitHubPullRequestArgs) (GitHubPullRequestResolver, error)
 
 	// Mutations

@@ -8,10 +8,9 @@ import (
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/github"
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
-	"mash/pkg/github/db"
+	"mash/pkg/github/enterprise/db"
 	service_github "mash/pkg/github/enterprise/service"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
@@ -117,7 +116,11 @@ func NewResolver(
 	}
 }
 
-func (r *prRootResolver) InternalGitHubPullRequest(pr *github.GitHubPullRequest) (resolvers.GitHubPullRequestResolver, error) {
+func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(ctx context.Context, codebaseID string, commitSHA string) (resolvers.GitHubPullRequestResolver, error) {
+	pr, err := r.gitHubPRRepo.GetByCodebaseIDaAndHeadSHA(ctx, codebaseID, commitSHA)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
 	return &prResolver{root: r, pr: pr}, nil
 }
 
@@ -146,7 +149,7 @@ func (r *prRootResolver) InternalGitHubPullRequestByWorkspaceID(ctx context.Cont
 	if len(prs) > 1 {
 		r.logger.Warn("more than one opened pull requests for a workspace - this is an erroneous state", zap.Error(err), zap.String("workspace_id", string(*args.WorkspaceID)))
 	}
-	return r.InternalGitHubPullRequest(prs[0])
+	return &prResolver{root: r, pr: prs[0]}, nil
 }
 
 func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, args resolvers.CreateOrUpdateGitHubPullRequestArgs) (resolvers.GitHubPullRequestResolver, error) {
@@ -166,7 +169,7 @@ func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, ar
 	case err != nil:
 		return nil, gqlerrors.Error(err)
 	default:
-		return r.InternalGitHubPullRequest(pr)
+		return &prResolver{root: r, pr: pr}, nil
 	}
 }
 

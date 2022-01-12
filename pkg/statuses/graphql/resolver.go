@@ -2,36 +2,32 @@ package graphql
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/change"
 	service_changes "mash/pkg/change/service"
-	db_github "mash/pkg/github/db"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/statuses"
 	service_statuses "mash/pkg/statuses/service"
 	"mash/pkg/view/events"
 	service_workspace "mash/pkg/workspace/service"
-	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
 )
 
-type rootResolver struct {
+type RootResolver struct {
 	logger *zap.Logger
 
 	svc              *service_statuses.Service
 	changeService    *service_changes.Service
 	workspaceService service_workspace.Service
 	authService      *service_auth.Service
-
-	gitHubPrRepo db_github.GitHubPRRepo
 
 	changeRootResolver *resolvers.ChangeRootResolver
 	gitHubPrResovler   *resolvers.GitHubPullRequestRootResolver
@@ -45,29 +41,27 @@ func New(
 	changeService *service_changes.Service,
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
-	gitHubPrRepo db_github.GitHubPRRepo,
 	changeRootResolver *resolvers.ChangeRootResolver,
 	gitHubPrResovler *resolvers.GitHubPullRequestRootResolver,
 	eventsReader events.EventReader,
-) resolvers.StatusesRootResolver {
-	return &rootResolver{
+) *RootResolver {
+	return &RootResolver{
 		logger:             logger,
 		svc:                svc,
 		changeService:      changeService,
 		workspaceService:   workspaceService,
 		authService:        authService,
-		gitHubPrRepo:       gitHubPrRepo,
 		changeRootResolver: changeRootResolver,
 		gitHubPrResovler:   gitHubPrResovler,
 		eventsReader:       eventsReader,
 	}
 }
 
-func (r *rootResolver) InternalStatus(status *statuses.Status) resolvers.StatusResolver {
+func (r *RootResolver) InternalStatus(status *statuses.Status) resolvers.StatusResolver {
 	return &resolver{status: status, root: r}
 }
 
-func (r *rootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID, commitID string) ([]resolvers.StatusResolver, error) {
+func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID, commitID string) ([]resolvers.StatusResolver, error) {
 	ss, err := r.svc.List(ctx, codebaseID, commitID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -79,7 +73,7 @@ func (r *rootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Contex
 	return rr, nil
 }
 
-func (r *rootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateStatusArgs) (resolvers.StatusResolver, error) {
+func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateStatusArgs) (resolvers.StatusResolver, error) {
 	ch, err := r.changeService.GetChangeByID(ctx, change.ID(args.Input.ChangeID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -125,7 +119,7 @@ func (r *rootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateSt
 }
 
 type resolver struct {
-	root   *rootResolver
+	root   *RootResolver
 	status *statuses.Status
 }
 
@@ -178,13 +172,11 @@ func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error)
 }
 
 func (r *resolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullRequestResolver, error) {
-	pr, err := r.root.gitHubPrRepo.GetByCodebaseIDaAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitID)
-	switch {
-	case err == nil:
-		return (*r.root.gitHubPrResovler).InternalGitHubPullRequest(pr)
-	case errors.Is(err, sql.ErrNoRows):
+	if pullRequest, err := (*r.root.gitHubPrResovler).InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitID); errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
-	default:
-		return nil, gqlerrors.Error(fmt.Errorf("failed to get github pr: %w", err))
+	} else if err != nil {
+		return nil, err
+	} else {
+		return pullRequest, nil
 	}
 }
