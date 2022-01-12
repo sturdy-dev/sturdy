@@ -183,16 +183,20 @@ input CreateOrUpdateBuildkiteIntegrationInput {
 # input UpdateLicense {
 #     licenseKey: String!
 # }
-#
-# type License {
-#     id: ID!
-#     plan: LicensePlan!
-#     seats: Int!
-#     usedSeats: Int!
-#     expiresAt: Int!
-#     licenseKey: String!
-# }
-#
-# enum LicensePlan {
-#     Enterprise
-# }
+
+type LicenseSubscription {
+    id: ID!
+    seats: Int!
+    usedSeats: Int!
+    expiresAt: Int!
+    licenseKey: String!
+}
+
+enum OrganizationPlan {
+    Free
+    Pro
+}
+
+extend type Organization {
+    licenseSubscriptions: [LicenseSubscription!]!
+}

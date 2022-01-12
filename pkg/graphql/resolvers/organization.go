@@ -20,6 +20,8 @@ type OrganizationResolver interface {
 	Name() string
 	Members(context.Context) ([]AuthorResolver, error)
 	Codebases(context.Context) ([]CodebaseResolver, error)
+
+	LicenseSubscriptions(context.Context) ([]LicenseResolver, error)
 }
 
 type CreateOrganizationArgs struct {

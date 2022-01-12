@@ -41,10 +41,7 @@ import (
 	db_integrations "mash/pkg/integrations/db"
 	db_keys "mash/pkg/jwt/keys/db"
 	service_jwt "mash/pkg/jwt/service"
-	client_license "mash/pkg/license/client"
-	db_license "mash/pkg/license/db"
-	service_license "mash/pkg/license/service"
-	validator_license "mash/pkg/license/validator"
+	module_license "mash/pkg/license/module"
 	"mash/pkg/metrics/zapprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -278,11 +275,6 @@ func main() {
 		worker_snapshots.New,
 		workers_ci.New,
 		gitserver.New,
-		db_license.New,
-		db_license.NewValidationRepository,
-		service_license.New,
-		client_license.New,
-		validator_license.New,
 	}
 
 	hooks := []di.Hook{
@@ -291,6 +283,7 @@ func main() {
 		di.Needs(module_workspace.Module),
 		di.Needs(graphql.Module),
 		di.Needs(module_api.Module),
+		di.Needs(module_license.Module),
 	}
 
 	for _, p := range providers {

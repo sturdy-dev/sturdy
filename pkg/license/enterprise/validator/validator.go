@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"mash/pkg/graphql/model"
-	"mash/pkg/license/client"
+	"mash/pkg/license/enterprise/client"
 	service_user "mash/pkg/user/service"
 )
 

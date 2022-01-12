@@ -17,23 +17,29 @@ import (
 )
 
 type organizationRootResolver struct {
-	service            *service_organization.Service
-	authService        *service_auth.Service
-	userService        *service_user.Service
-	authorRootResolver *resolvers.AuthorRootResolver
+	service     *service_organization.Service
+	authService *service_auth.Service
+	userService *service_user.Service
+
+	authorRootResolver   *resolvers.AuthorRootResolver
+	licensesRootResolver *resolvers.LicenseRootResolver
 }
 
 func New(
 	service *service_organization.Service,
 	authService *service_auth.Service,
 	userService *service_user.Service,
+
 	authorRootResolver *resolvers.AuthorRootResolver,
+	licensesRootResolver *resolvers.LicenseRootResolver,
 ) resolvers.OrganizationRootResolver {
 	return &organizationRootResolver{
-		service:            service,
-		authService:        authService,
-		userService:        userService,
-		authorRootResolver: authorRootResolver,
+		service:     service,
+		authService: authService,
+		userService: userService,
+
+		authorRootResolver:   authorRootResolver,
+		licensesRootResolver: licensesRootResolver,
 	}
 }
 
@@ -141,4 +147,8 @@ func (r *organizationResolver) Members(ctx context.Context) ([]resolvers.AuthorR
 
 func (r *organizationResolver) Codebases(context.Context) ([]resolvers.CodebaseResolver, error) {
 	return nil, nil
+}
+
+func (r *organizationResolver) LicenseSubscriptions(ctx context.Context) ([]resolvers.LicenseResolver, error) {
+	return (*r.root.licensesRootResolver).InternalListForOrganization(ctx, r.org.ID)
 }
