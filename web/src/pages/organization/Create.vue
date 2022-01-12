@@ -1,5 +1,5 @@
 <template>
-  <PaddedApp>
+  <PaddedApp class="bg-white">
     <form class="space-y-4">
       <Header>
         <span>Create a new organization</span>
@@ -19,7 +19,7 @@ import { defineComponent } from 'vue'
 import PaddedApp from '../../layouts/PaddedApp.vue'
 import TextInput from '../../molecules/TextInput.vue'
 import Header from '../../molecules/Header.vue'
-import OrganizationLicenseTierPicker from '../../molecules/OrganizationLicenseTierPicker.vue'
+import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
 import { gql, useMutation } from '@urql/vue'
 import {
   CreateOrganizationMutation,

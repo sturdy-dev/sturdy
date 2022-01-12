@@ -8,18 +8,18 @@ import (
 
 	"github.com/google/uuid"
 
-	"mash/pkg/license"
-	db_license "mash/pkg/license/db"
+	"mash/pkg/license/enterprise/db"
+	"mash/pkg/license/enterprise/license"
 )
 
 type Service struct {
-	licenseRepository           db_license.Repository
-	licenseValidationRepository db_license.ValidationRepository
+	licenseRepository           db.Repository
+	licenseValidationRepository db.ValidationRepository
 }
 
 func New(
-	licenseRepository db_license.Repository,
-	licenseValidationRepository db_license.ValidationRepository,
+	licenseRepository db.Repository,
+	licenseValidationRepository db.ValidationRepository,
 ) *Service {
 	return &Service{
 		licenseRepository:           licenseRepository,
@@ -66,4 +66,8 @@ func validate(l *license.SelfHostedLicense, validation license.SelfHostedLicense
 	}
 	// TODO: More checks?
 	return nil
+}
+
+func (svc *Service) ListOrganizationSubscriptions(ctx context.Context, orgID string) ([]*license.SelfHostedLicense, error) {
+	return svc.licenseRepository.ListByCloudOrganizationID(ctx, orgID)
 }

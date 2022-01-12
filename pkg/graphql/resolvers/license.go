@@ -8,6 +8,16 @@ import (
 
 type LicenseRootResolver interface {
 	ValidateLicense(context.Context, ValidateLicenseArgs) (LicenseValidation, error)
+
+	InternalListForOrganization(ctx context.Context, id string) ([]LicenseResolver, error)
+}
+
+type LicenseResolver interface {
+	ID() graphql.ID
+	Seats() int32
+	UsedSeats() int32
+	ExpiresAt() int32
+	LicenseKey() string
 }
 
 type ValidateLicenseArgs struct {

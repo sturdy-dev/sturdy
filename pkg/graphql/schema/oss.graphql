@@ -873,5 +873,4 @@ type Organization {
     name: String!
     members: [Author!]!
     codebases: [Codebase!]!
-    # TODO: License status, etc
 }

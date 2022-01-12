@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mash/pkg/license"
+	"mash/pkg/license/enterprise/license"
 )
 
 type Repository interface {

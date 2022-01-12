@@ -10,7 +10,6 @@ import (
 	worker_gc "mash/pkg/gc/worker"
 	"mash/pkg/gitserver"
 	httpx "mash/pkg/http"
-	"mash/pkg/license/validator"
 	worker_snapshots "mash/pkg/snapshots/worker"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -23,7 +22,6 @@ type API struct {
 	ciBuildQueue     *workers_ci.BuildQueue
 	gcQueue          *worker_gc.Queue
 	gitsrv           *gitserver.Server
-	licenseValidator *validator.Validator
 }
 
 func ProvideAPI(
@@ -32,7 +30,6 @@ func ProvideAPI(
 	ciBuildQueue *workers_ci.BuildQueue,
 	gcQueue *worker_gc.Queue,
 	gitsrv *gitserver.Server,
-	licenseValidator *validator.Validator,
 ) *API {
 	return &API{
 		httpServer:       httpServer,
@@ -40,7 +37,6 @@ func ProvideAPI(
 		ciBuildQueue:     ciBuildQueue,
 		gcQueue:          gcQueue,
 		gitsrv:           gitsrv,
-		licenseValidator: licenseValidator,
 	}
 }
 
@@ -94,14 +90,6 @@ func (a *API) Start(ctx context.Context, cfg *api.Config) error {
 	wg.Go(func() error {
 		if err := a.httpServer.ListenAndServe(cfg.HTTPAddr); err != nil {
 			return fmt.Errorf("failed to start server: %w", err)
-		}
-		return nil
-	})
-
-	// TODO: Move to enterprise pkg
-	wg.Go(func() error {
-		if err := a.licenseValidator.Run(); err != nil {
-			return fmt.Errorf("failed to start license validator: %w", err)
 		}
 		return nil
 	})

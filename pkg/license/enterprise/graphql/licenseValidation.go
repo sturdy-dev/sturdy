@@ -1,54 +1,12 @@
 package graphql
 
 import (
-	"context"
-	"errors"
-	"time"
-
 	"github.com/graph-gophers/graphql-go"
-	"go.uber.org/zap"
+	"github.com/pkg/errors"
 
 	"mash/pkg/graphql/resolvers"
-	"mash/pkg/ip"
-	"mash/pkg/license"
-	service_license "mash/pkg/license/service"
+	service_license "mash/pkg/license/enterprise/service"
 )
-
-type licenseRootResovler struct {
-	service *service_license.Service
-	logger  *zap.Logger
-}
-
-func New(
-	service *service_license.Service,
-	logger *zap.Logger,
-) resolvers.LicenseRootResolver {
-	return &licenseRootResovler{
-		service: service,
-		logger:  logger,
-	}
-}
-
-func (r *licenseRootResovler) ValidateLicense(ctx context.Context, args resolvers.ValidateLicenseArgs) (resolvers.LicenseValidation, error) {
-	val := license.SelfHostedLicenseValidation{
-		// Populate with user provided values
-		ReportedUserCount:     int(args.Input.UserCount),
-		ReportedCodebaseCount: int(args.Input.CodebaseCount),
-		ReportedBootedAt:      time.Unix(int64(args.Input.BootedAt), 0),
-		ReportedVersion:       args.Input.Version,
-	}
-
-	if remoteIP, ok := ip.FromContext(ctx); ok {
-		val.FromIPAddr = remoteIP.String()
-	}
-
-	status := r.service.Validate(ctx, args.Input.Key, val)
-	if status != nil {
-		r.logger.Warn("failed to validate license", zap.Error(status), zap.Any("input", args.Input))
-	}
-
-	return &licenseValidation{status: status}, nil
-}
 
 type licenseValidation struct {
 	status  error

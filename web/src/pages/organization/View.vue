@@ -1,7 +1,22 @@
 <template>
-  <PaddedApp>
-    <pre>{{ data }}</pre>
-  </PaddedApp>
+  <PaddedAppLeftSidebar v-if="data" class="bg-white">
+    <template #navigation>
+      <VerticalNavigation />
+    </template>
+
+    <template #default>
+      <div class="max-w-7xl">
+        <Header>
+          <span>Manage {{ data.organization.name }}</span>
+        </Header>
+
+        <OrganizationMembers
+          :members="data.organization.members"
+          :organization-id="data.organization.id"
+        />
+      </div>
+    </template>
+  </PaddedAppLeftSidebar>
 </template>
 
 <script lang="ts">
@@ -10,9 +25,13 @@ import { defineComponent } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import { OrganizationQuery, OrganizationQueryVariables } from './__generated__/View'
 import { useRoute } from 'vue-router'
+import OrganizationMembers from '../../organisms/organization/OrganizationMembers.vue'
+import Header from '../../molecules/Header.vue'
+import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
+import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 
 export default defineComponent({
-  components: { PaddedApp },
+  components: { PaddedAppLeftSidebar, OrganizationMembers, Header, VerticalNavigation },
   setup() {
     let route = useRoute()
     let orgID = route.params.id as string
