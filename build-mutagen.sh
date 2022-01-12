@@ -33,4 +33,4 @@ build_agent() {
 build_agent "sturdy" "18fa4aac554f34841dc34bfaae5bbbde46ffad05" "v0.12.0-beta2"
 build_agent "sturdy-v0.12" "ff3b34ad09689b2af268ec69dcf17369d68f09b7" "v0.12.0-beta6"
 build_agent "sturdy-v0.12.0-beta7" "0a9d7522332600e273b32538244a77554b893b50" "v0.12.0-beta7" # Sturdy v0.7.0 and
-build_agent "sturdy-v0.13.0-beta2" "7ab32f9ea468769666a73fb059114a44becc3cc2" "v0.13.0-beta2"
+build_agent "sturdy-v0.13.0-beta2" "2ee7951a95c3ff9e4520bd348d72caf65403f846" "v0.13.0-beta2"
