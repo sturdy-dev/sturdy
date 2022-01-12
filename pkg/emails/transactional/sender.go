@@ -14,7 +14,7 @@ import (
 	db_comments "mash/pkg/comments/db"
 	decorate_comments "mash/pkg/comments/decorate"
 	"mash/pkg/emails"
-	db_github "mash/pkg/github/db"
+	"mash/pkg/emails/transactional/templates"
 	"mash/pkg/jwt"
 	service_jwt "mash/pkg/jwt/service"
 	db_newsletter "mash/pkg/newsletter/db"
@@ -38,7 +38,9 @@ type EmailSender interface {
 	SendMagicLink(context.Context, *user.User, string) error
 }
 
-type emailSender struct {
+var ErrNotSupported = errors.New("notification type not supported")
+
+type Sender struct {
 	logger *zap.Logger
 	sender emails.Sender
 
@@ -51,7 +53,6 @@ type emailSender struct {
 	suggestionRepo                 db_suggestion.Repository
 	reviewRepo                     db_review.ReviewRepository
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository
-	githubRepositoryRepo           db_github.GitHubRepositoryRepo
 
 	jwtService *service_jwt.Service
 
@@ -72,15 +73,14 @@ func New(
 	suggestionRepo db_suggestion.Repository,
 	reviewRepo db_review.ReviewRepository,
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository,
-	githubRepositoryRepo db_github.GitHubRepositoryRepo,
 
 	jwtService *service_jwt.Service,
 
 	notificationPreferences *service_notification.Preferences,
 
 	posthogClient posthog.Client,
-) EmailSender {
-	return &emailSender{
+) *Sender {
+	return &Sender{
 		logger: logger,
 		sender: sender,
 
@@ -93,7 +93,6 @@ func New(
 		suggestionRepo:                 suggestionRepo,
 		reviewRepo:                     reviewRepo,
 		notificationSettingsRepository: notificationSettingsRepository,
-		githubRepositoryRepo:           githubRepositoryRepo,
 
 		jwtService: jwtService,
 
@@ -102,28 +101,28 @@ func New(
 	}
 }
 
-func (e *emailSender) SendMagicLink(ctx context.Context, user *user.User, code string) error {
+func (e *Sender) SendMagicLink(ctx context.Context, user *user.User, code string) error {
 	title := fmt.Sprintf("[Sturdy] Confirmation code: %s", code)
-	return e.send(ctx, user, title, MagicLinkTemplate, &MagicLinkTemplateData{
+	return e.Send(ctx, user, title, templates.MagicLinkTemplate, &templates.MagicLinkTemplateData{
 		User: user,
 		Code: code,
 	})
 }
 
-func (e *emailSender) SendConfirmEmail(ctx context.Context, usr *user.User) error {
+func (e *Sender) SendConfirmEmail(ctx context.Context, usr *user.User) error {
 	token, err := e.jwtService.IssueToken(ctx, usr.ID, time.Hour, jwt.TokenTypeVerifyEmail)
 	if err != nil {
 		return fmt.Errorf("failed to issue jwt token: %w", err)
 	}
 
 	title := "[Sturdy] Confirm your email"
-	return e.send(ctx, usr, title, VerifyEmailTemplate, &VerifyEmailTemplateData{
+	return e.Send(ctx, usr, title, templates.VerifyEmailTemplate, &templates.VerifyEmailTemplateData{
 		User:  usr,
 		Token: token,
 	})
 }
 
-func (e *emailSender) shouldSendNotification(ctx context.Context, usr *user.User, notificationType notification.NotificationType) (bool, error) {
+func (e *Sender) shouldSendNotification(ctx context.Context, usr *user.User, notificationType notification.NotificationType) (bool, error) {
 	shouldSendEmail, err := shouldSendEmail(e.notificationSettingsRepository, usr)
 	if err != nil {
 		return false, err
@@ -151,7 +150,7 @@ func (e *emailSender) shouldSendNotification(ctx context.Context, usr *user.User
 	return false, fmt.Errorf("notification preference for %s not found", notificationType)
 }
 
-func (e *emailSender) SendNotification(ctx context.Context, usr *user.User, notif *notification.Notification) error {
+func (e *Sender) SendNotification(ctx context.Context, usr *user.User, notif *notification.Notification) error {
 	shouldSendNotification, err := e.shouldSendNotification(ctx, usr, notif.NotificationType)
 	if err != nil {
 		return err
@@ -182,18 +181,12 @@ func (e *emailSender) SendNotification(ctx context.Context, usr *user.User, noti
 			return fmt.Errorf("failed to send review notification: %w", err)
 		}
 		return nil
-	case notification.GitHubRepositoryImported:
-		if err := e.sendGitHubRepositoryImportedNotification(ctx, usr, notif.ReferenceID); err != nil {
-			return fmt.Errorf("failed to send github repository imported notification: %w", err)
-		}
-		return nil
 	default:
-		e.logger.Warn("email notification not supported", zap.String("type", string(notif.NotificationType)))
-		return nil
+		return ErrNotSupported
 	}
 }
 
-func (e *emailSender) sendReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
+func (e *Sender) sendReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
 	r, err := e.reviewRepo.Get(ctx, reviewID)
 	if err != nil {
 		return fmt.Errorf("failed to find review: %w", err)
@@ -215,7 +208,7 @@ func (e *emailSender) sendReviewNotification(ctx context.Context, usr *user.User
 	}
 
 	title := fmt.Sprintf("[Sturdy] %s sent you a review", author.Name)
-	data := &NotificationReviewTemplateData{
+	data := &templates.NotificationReviewTemplateData{
 		User: usr,
 
 		Author:    author,
@@ -223,10 +216,10 @@ func (e *emailSender) sendReviewNotification(ctx context.Context, usr *user.User
 		Workspace: w,
 		Codebase:  c,
 	}
-	return e.send(ctx, usr, title, NotificationReviewTemplate, data)
+	return e.Send(ctx, usr, title, templates.NotificationReviewTemplate, data)
 }
 
-func (e *emailSender) sendRequestedReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
+func (e *Sender) sendRequestedReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
 	r, err := e.reviewRepo.Get(ctx, reviewID)
 	if err != nil {
 		return fmt.Errorf("failed to find review: %w", err)
@@ -248,17 +241,17 @@ func (e *emailSender) sendRequestedReviewNotification(ctx context.Context, usr *
 	}
 
 	title := fmt.Sprintf("[Sturdy] %s asked for your feedback", requestedBy.Name)
-	data := &NotificationRequestedReviewTemplateData{
+	data := &templates.NotificationRequestedReviewTemplateData{
 		User: usr,
 
 		RequestedBy: requestedBy,
 		Workspace:   w,
 		Codebase:    c,
 	}
-	return e.send(ctx, usr, title, NotificationRequestedReviewTemplate, data)
+	return e.Send(ctx, usr, title, templates.NotificationRequestedReviewTemplate, data)
 }
 
-func (e *emailSender) sendNewSuggestionNotification(ctx context.Context, usr *user.User, suggestionID suggestions.ID) error {
+func (e *Sender) sendNewSuggestionNotification(ctx context.Context, usr *user.User, suggestionID suggestions.ID) error {
 	s, err := e.suggestionRepo.GetByID(ctx, suggestionID)
 	if err != nil {
 		return fmt.Errorf("failed to find suggestion: %w", err)
@@ -280,16 +273,16 @@ func (e *emailSender) sendNewSuggestionNotification(ctx context.Context, usr *us
 	}
 
 	title := fmt.Sprintf("[Sturdy] New suggestion on %s", workspace.NameOrFallback())
-	data := &NotificationNewSuggestionTemplateData{
+	data := &templates.NotificationNewSuggestionTemplateData{
 		User:      usr,
 		Author:    author,
 		Workspace: workspace,
 		Codebase:  codebase,
 	}
-	return e.send(ctx, usr, title, NotificationNewSuggestionTemplate, data)
+	return e.Send(ctx, usr, title, templates.NotificationNewSuggestionTemplate, data)
 }
 
-func (e *emailSender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*user.User, error) {
+func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*user.User, error) {
 	codebaseUsers, err := e.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)
@@ -307,7 +300,7 @@ func (e *emailSender) getUsersByCodebaseID(ctx context.Context, codebaseID strin
 	return users, nil
 }
 
-func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.User, commentID comments.ID) error {
+func (e *Sender) sendCommentNotification(ctx context.Context, usr *user.User, commentID comments.ID) error {
 	comment, err := e.commentsRepo.Get(commentID)
 	if err != nil {
 		return fmt.Errorf("failed to find comment: %w", err)
@@ -333,7 +326,7 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 		return fmt.Errorf("failed to get codebase: %w", err)
 	}
 
-	data := &NotificationCommentTemplateData{
+	data := &templates.NotificationCommentTemplateData{
 		User: usr,
 
 		Comment:  &comment,
@@ -353,7 +346,7 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 			return fmt.Errorf("failed to get parent author: %w", err)
 		}
 
-		data.Parent = &NotificationCommentTemplateData{
+		data.Parent = &templates.NotificationCommentTemplateData{
 			Comment:  &parentComment,
 			Author:   parentAuthor,
 			Codebase: codebase, // assumption: comments are always in the same codebase
@@ -369,7 +362,7 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 			title := fmt.Sprintf(
 				"[Strudy] %s repied to %s's comment on %s",
 				author.Name, parentAuthor.Name, *change.Title)
-			return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+			return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 		case parentComment.WorkspaceID != nil:
 			workspace, err := e.workspaceRepo.Get(*parentComment.WorkspaceID)
 			if err != nil {
@@ -378,11 +371,11 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 			data.Parent.Workspace = workspace
 			title := fmt.Sprintf("[Sturdy] %s replied to %s's comment on %s",
 				author.Name, parentAuthor.Name, *workspace.Name)
-			return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+			return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 		default:
 			title := fmt.Sprintf("[Sturdy] %s replied to %s's comment",
 				author.Name, parentAuthor.Name)
-			return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+			return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 		}
 	case comment.ChangeID != nil:
 		change, err := e.changeRepo.Get(*comment.ChangeID)
@@ -391,7 +384,7 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 		}
 		data.Change = &change
 		title := fmt.Sprintf("[Sturdy] %s commented on %s", author.Name, *change.Title)
-		return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+		return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 	case comment.WorkspaceID != nil:
 		workspace, err := e.workspaceRepo.Get(*comment.WorkspaceID)
 		if err != nil {
@@ -399,53 +392,32 @@ func (e *emailSender) sendCommentNotification(ctx context.Context, usr *user.Use
 		}
 		data.Workspace = workspace
 		title := fmt.Sprintf("[Sturdy] %s commented on %s", author.Name, workspace.NameOrFallback())
-		return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+		return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 	default:
 		title := fmt.Sprintf("[Sturdy] %s commented", author.Name)
-		return e.send(ctx, usr, title, NotificationCommentTemplate, data)
+		return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 	}
 }
 
-func (e *emailSender) sendGitHubRepositoryImportedNotification(ctx context.Context, u *user.User, gitHubRepoID string) error {
-	repo, err := e.githubRepositoryRepo.GetByID(gitHubRepoID)
-	if err != nil {
-		return fmt.Errorf("failed to get github reposotory: %w", err)
-	}
-	c, err := e.codebaseRepo.Get(repo.CodebaseID)
-	if err != nil {
-		return fmt.Errorf("failed to get codebase: %w", err)
-	}
-	return e.send(
-		ctx,
-		u,
-		fmt.Sprintf("[Sturdy] \"%s\" is now ready", c.Name),
-		NotificationGitHubRepositoryImportedTemplate,
-		&NotificationGitHubRepositoryImportedTemplateData{
-			GitHubRepo: repo,
-			Codebase:   c,
-			User:       u,
-		})
-}
-
-func (e *emailSender) SendWelcome(ctx context.Context, u *user.User) error {
-	return e.send(
+func (e *Sender) SendWelcome(ctx context.Context, u *user.User) error {
+	return e.Send(
 		ctx,
 		u,
 		"Welcome to Sturdy! 🐣",
-		WelcomeTemplate,
-		&WelcomeTemplateData{
+		templates.WelcomeTemplate,
+		&templates.WelcomeTemplateData{
 			User: u,
 		})
 }
 
-func (e *emailSender) send(
+func (e *Sender) Send(
 	ctx context.Context,
 	u *user.User,
 	subject string,
-	template Template,
+	template templates.Template,
 	data interface{},
 ) error {
-	content, err := Render(template, data)
+	content, err := templates.Render(template, data)
 	if err != nil {
 		return fmt.Errorf("failed to render email: %w", err)
 	}

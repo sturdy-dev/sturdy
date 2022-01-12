@@ -32,7 +32,6 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
-	db_github "mash/pkg/github/db"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
@@ -113,7 +112,6 @@ func TestCreate(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
 	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
@@ -281,7 +279,6 @@ func TestCreate(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		gitHubPRRepo,
 		&changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,
@@ -314,9 +311,9 @@ func TestCreate(t *testing.T) {
 	userRootResolver := graphql_user.NewResolver(
 		userRepo,
 		nil,
-		nil,
 		userService,
 		&viewRootResolver,
+		nil,
 		nil,
 		logger,
 	)
@@ -638,7 +635,6 @@ func TestLargeFiles(t *testing.T) {
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
-	gitHubPRRepo := db_github.NewGitHubPRRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
 	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
@@ -740,7 +736,6 @@ func TestLargeFiles(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		gitHubPRRepo,
 		&changeRootResolver,
 		nil, // githubpr resolver
 		viewEvents,

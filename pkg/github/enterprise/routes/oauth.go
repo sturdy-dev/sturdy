@@ -12,7 +12,7 @@ import (
 	"mash/pkg/auth"
 	"mash/pkg/github"
 	"mash/pkg/github/config"
-	"mash/pkg/github/db"
+	"mash/pkg/github/enterprise/db"
 	service_github "mash/pkg/github/enterprise/service"
 	db_user "mash/pkg/user/db"
 

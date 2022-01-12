@@ -10,7 +10,7 @@ import (
 	service_comments "mash/pkg/comments/service"
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
-	"mash/pkg/github/db"
+	"mash/pkg/github/enterprise/db"
 	"mash/pkg/github/enterprise/routes/installation"
 	"mash/pkg/github/enterprise/routes/pr"
 	"mash/pkg/github/enterprise/routes/push"

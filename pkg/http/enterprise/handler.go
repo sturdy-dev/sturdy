@@ -10,7 +10,7 @@ import (
 	service_comments "mash/pkg/comments/service"
 	ghappclient "mash/pkg/github/client"
 	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
+	db_github "mash/pkg/github/enterprise/db"
 	routes_v3_ghapp "mash/pkg/github/enterprise/routes"
 	service_github "mash/pkg/github/enterprise/service"
 	workers_github "mash/pkg/github/enterprise/workers"

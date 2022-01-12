@@ -1,4 +1,4 @@
-package transactional
+package templates
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	//go:embed templates/output/*.html templates/output/notification/*.html
+	//go:embed output/*.html output/notification/*.html
 	fs        embed.FS
 	templates = template.Must(template.New("").Funcs(map[string]interface{}{
 		"ternary": func(vt interface{}, vf interface{}, v bool) interface{} {
@@ -36,7 +36,7 @@ var (
 		"base64Encode": func(in string) string {
 			return base64.URLEncoding.EncodeToString([]byte(in))
 		},
-	}).ParseFS(fs, "templates/output/*.html", "templates/output/notification/*.html"))
+	}).ParseFS(fs, "output/*.html", "output/notification/*.html"))
 )
 
 type Template string

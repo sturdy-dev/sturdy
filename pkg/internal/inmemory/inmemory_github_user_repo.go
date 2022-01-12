@@ -3,10 +3,9 @@ package inmemory
 import (
 	"database/sql"
 	"mash/pkg/github"
-	db_github "mash/pkg/github/db"
 )
 
-func NewInMemoryGitHubUserRepo() db_github.GitHubUserRepo {
+func NewInMemoryGitHubUserRepo() *inMemoryGitHubUserRepo {
 	return &inMemoryGitHubUserRepo{
 		users: make([]github.GitHubUser, 0),
 	}

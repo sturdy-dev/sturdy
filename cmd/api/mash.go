@@ -24,12 +24,11 @@ import (
 	service_comments "mash/pkg/comments/service"
 	"mash/pkg/di"
 	"mash/pkg/emails"
-	"mash/pkg/emails/transactional"
+	module_transactional "mash/pkg/emails/transactional/module"
 	db_gc "mash/pkg/gc/db"
 	worker_gc "mash/pkg/gc/worker"
 	ghappclient "mash/pkg/github/client"
 	"mash/pkg/github/config"
-	db_github "mash/pkg/github/db"
 	module_github "mash/pkg/github/module"
 	"mash/pkg/gitserver"
 	"mash/pkg/graphql"
@@ -65,6 +64,7 @@ import (
 	"mash/pkg/snapshots/snapshotter"
 	worker_snapshots "mash/pkg/snapshots/worker"
 	db_statuses "mash/pkg/statuses/db"
+	module_statuses "mash/pkg/statuses/module"
 	service_statuses "mash/pkg/statuses/service"
 	db_suggestion "mash/pkg/suggestions/db"
 	service_suggestion "mash/pkg/suggestions/service"
@@ -206,7 +206,6 @@ func main() {
 			return repo
 		},
 		db_onetime.New,
-		transactional.New,
 		service_onetime.New,
 		service_user.New,
 		events.NewSender,
@@ -245,10 +244,6 @@ func main() {
 		db_suggestion.New,
 		db_gc.NewRepository,
 		view_workspace_snapshot.NewRepo,
-		db_github.NewGitHubInstallationRepo,
-		db_github.NewGitHubRepositoryRepo,
-		db_github.NewGitHubUserRepo,
-		db_github.NewGitHubPRRepo,
 		db_notification.NewRepository,
 		db_mutagen.NewRepository,
 		db_newsletter.NewNotificationSettingsRepository,
@@ -278,6 +273,8 @@ func main() {
 	}
 
 	hooks := []di.Hook{
+		di.Needs(module_statuses.Module),
+		di.Needs(module_transactional.Module),
 		di.Needs(http.Module),
 		di.Needs(module_github.Module),
 		di.Needs(module_workspace.Module),

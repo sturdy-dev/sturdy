@@ -10,7 +10,7 @@ import (
 
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
-	"mash/pkg/github/db"
+	"mash/pkg/github/enterprise/db"
 	service_github "mash/pkg/github/enterprise/service"
 
 	gh "github.com/google/go-github/v39/github"

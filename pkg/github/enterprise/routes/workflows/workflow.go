@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	db_github "mash/pkg/github/db"
+	db_github "mash/pkg/github/enterprise/db"
 	"mash/pkg/statuses"
 	service_statuses "mash/pkg/statuses/service"
 

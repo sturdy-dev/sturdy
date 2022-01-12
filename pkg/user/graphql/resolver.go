@@ -4,9 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"mash/pkg/auth"
-	"mash/pkg/github"
-	db_github "mash/pkg/github/db"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/newsletter"
@@ -22,36 +21,36 @@ import (
 
 type userRootResolver struct {
 	userRepo                 db_user.Repository
-	gitHubUserRepo           db_github.GitHubUserRepo
 	notificationSettingsRepo db_newsletter.NotificationSettingsRepository
 
 	userService *service_user.Service
 
-	viewRootResolver         *resolvers.ViewRootResolver
-	notificationRootResolver *resolvers.NotificationRootResolver
+	viewRootResolver          *resolvers.ViewRootResolver
+	notificationRootResolver  *resolvers.NotificationRootResolver
+	githubAccountRootResolver resolvers.GitHubAccountRootResolver
 }
 
 func NewResolver(
 	userRepo db_user.Repository,
-	gitHubUserRepo db_github.GitHubUserRepo,
 	notificationSettingsRepo db_newsletter.NotificationSettingsRepository,
 
 	userService *service_user.Service,
 
 	viewRootResolver *resolvers.ViewRootResolver,
 	notificationRootResolver *resolvers.NotificationRootResolver,
+	githubAccountRootResolver resolvers.GitHubAccountRootResolver,
 
 	logger *zap.Logger,
 ) resolvers.UserRootResolver {
 	return NewDataloader(&userRootResolver{
 		userRepo:                 userRepo,
-		gitHubUserRepo:           gitHubUserRepo,
 		notificationSettingsRepo: notificationSettingsRepo,
 
 		userService: userService,
 
-		viewRootResolver:         viewRootResolver,
-		notificationRootResolver: notificationRootResolver,
+		viewRootResolver:          viewRootResolver,
+		notificationRootResolver:  notificationRootResolver,
+		githubAccountRootResolver: githubAccountRootResolver,
 	}, logger)
 }
 
@@ -184,16 +183,14 @@ func (r *userResolver) NotificationsReceiveNewsletter() (bool, error) {
 	return settings.ReceiveNewsletter, nil
 }
 
-func (r *userResolver) GitHubAccount() (resolvers.GitHubAccountResolver, error) {
-	githubUser, err := r.root.gitHubUserRepo.GetByUserID(r.u.ID)
-	if errors.Is(err, sql.ErrNoRows) {
+func (r *userResolver) GitHubAccount(ctx context.Context) (resolvers.GitHubAccountResolver, error) {
+	if account, err := r.root.githubAccountRootResolver.InteralByID(ctx, r.u.ID); errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, gqlerrors.Error(err)
+	} else {
+		return account, nil
 	}
-
-	return &gitHubAccountResolver{githubUser: githubUser}, nil
 }
 
 func (r *userResolver) Views() ([]resolvers.ViewResolver, error) {
@@ -216,16 +213,4 @@ func (r *userResolver) LastUsedView(ctx context.Context, args resolvers.LastUsed
 		return nil, err
 	}
 	return resolver, err
-}
-
-type gitHubAccountResolver struct {
-	githubUser *github.GitHubUser
-}
-
-func (r *gitHubAccountResolver) ID() graphql.ID {
-	return graphql.ID(r.githubUser.ID)
-}
-
-func (r *gitHubAccountResolver) Login() string {
-	return r.githubUser.Username
 }

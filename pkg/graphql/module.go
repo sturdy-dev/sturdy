@@ -18,7 +18,6 @@ import (
 	graphql_presence "mash/pkg/presence/graphql"
 	graphql_review "mash/pkg/review/graphql"
 	graphql_servicetokens "mash/pkg/servicetokens/graphql"
-	graphql_statuses "mash/pkg/statuses/graphql"
 	graphql_suggestion "mash/pkg/suggestions/graphql"
 	graphql_user "mash/pkg/user/graphql"
 	graphql_view "mash/pkg/view/graphql"
@@ -40,7 +39,6 @@ var Module = di.NewModule(
 	di.ProvidesCycle(graphql_user.NewResolver),
 	di.ProvidesCycle(graphql_view.NewViewStatusRootResolver),
 	di.ProvidesCycle(graphql_view.NewResolver),
-	di.ProvidesCycle(graphql_statuses.New),
 	di.ProvidesCycle(graphql_workspace_watchers.NewRootResolver),
 	di.ProvidesCycle(graphql_workspace.NewResolver),
 	di.ProvidesCycle(graphql_workspace_activity.New),

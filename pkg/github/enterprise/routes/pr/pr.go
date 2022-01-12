@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"mash/pkg/github/db"
+	"time"
+
+	"mash/pkg/github/enterprise/db"
 	"mash/pkg/view/events"
 	db_workspace "mash/pkg/workspace/db"
-	"time"
 
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
