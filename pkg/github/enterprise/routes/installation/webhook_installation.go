@@ -6,17 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	service_github "mash/pkg/github/service"
 	"time"
 
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
 	"mash/pkg/github/db"
-
-	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
+	service_github "mash/pkg/github/enterprise/service"
 
 	gh "github.com/google/go-github/v39/github"
+	"github.com/google/uuid"
+	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"mash/pkg/change"
-	service_github "mash/pkg/github/service"
+	service_github "mash/pkg/github/enterprise/service"
 	"mash/pkg/workspace"
 	service_workspace "mash/pkg/workspace/service"
 	"mash/vcs"

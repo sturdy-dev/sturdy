@@ -31,7 +31,6 @@ import (
 	"mash/pkg/github/config"
 	db_github "mash/pkg/github/db"
 	module_github "mash/pkg/github/module"
-	service_github "mash/pkg/github/service"
 	"mash/pkg/gitserver"
 	"mash/pkg/graphql"
 	"mash/pkg/http"
@@ -219,15 +218,6 @@ func main() {
 		activity_sender.NewActivitySender,
 		ws_meta.NewWriterWithEvents,
 		service_change.New,
-
-		func() *service_github.ImporterQueue {
-			return new(service_github.ImporterQueue)
-		},
-		func() *service_github.ClonerQueue {
-			return new(service_github.ClonerQueue)
-		},
-		service_github.New,
-
 		snapshotter.NewGitSnapshotter,
 		meta_view.NewViewUpdatedFunc,
 		service_statuses.New,
