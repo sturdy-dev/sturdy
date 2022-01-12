@@ -1,9 +1,7 @@
 package executor
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sync"
 
@@ -50,50 +48,6 @@ func (ml *mutexLock) RUnlock() error {
 	return nil
 }
 
-type fileLock struct {
-	lock *flock.Flock
-}
-
-func (fl *fileLock) Lock() error {
-	if err := fl.lock.Lock(); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
-func (fl *fileLock) Unlock() error {
-	if err := fl.lock.Unlock(); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
-func (fl *fileLock) RLock() error {
-	if err := fl.lock.RLock(); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
-func (fl *fileLock) RUnlock() error {
-	if err := fl.lock.Unlock(); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
 func newLocker(provider provider.RepoProvider) *locker {
 	return &locker{
 		provider: provider,
@@ -126,7 +80,7 @@ func (l *locker) Get(codebaseID string, viewID *string) lock {
 
 	// for views, we use file locks to synchronize with mutagen process
 	lockFile := filepath.Join(l.provider.ViewPath(codebaseID, *viewID), lockFileName)
-	lock := &fileLock{flock.New(lockFile)}
+	lock := &FileLock{lock: flock.New(lockFile)}
 	l.locks[key] = lock
 	return lock
 }
