@@ -27,7 +27,6 @@ import (
 	module_transactional "mash/pkg/emails/transactional/module"
 	db_gc "mash/pkg/gc/db"
 	worker_gc "mash/pkg/gc/worker"
-	ghappclient "mash/pkg/github/client"
 	"mash/pkg/github/config"
 	module_github "mash/pkg/github/module"
 	"mash/pkg/gitserver"
@@ -143,9 +142,6 @@ func main() {
 
 	providers := []interface{}{
 		func() *zap.Logger { return logger },
-		func() (ghappclient.ClientProvider, ghappclient.PersonalClientProvider) {
-			return ghappclient.NewClient, ghappclient.NewPersonalClient
-		},
 		func() provider.RepoProvider {
 			return provider.New(*reposBasePath, *gitLfsHostname)
 		},

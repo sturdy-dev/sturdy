@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"mash/pkg/auth"
-	github_client "mash/pkg/github/client"
-	github_vcs "mash/pkg/github/vcs"
+	github_client "mash/pkg/github/enterprise/client"
+	github_vcs "mash/pkg/github/enterprise/vcs"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/snapshots"

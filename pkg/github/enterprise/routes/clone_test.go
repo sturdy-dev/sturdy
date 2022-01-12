@@ -6,15 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	gh "github.com/google/go-github/v39/github"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-
 	"mash/pkg/github"
-	"mash/pkg/github/client"
 	"mash/pkg/github/config"
+	"mash/pkg/github/enterprise/client"
 	"mash/pkg/github/enterprise/routes/installation"
 	"mash/pkg/github/enterprise/routes/internal/mock_client"
 	"mash/pkg/github/enterprise/routes/internal/mock_sender"
@@ -26,6 +20,12 @@ import (
 	events "mash/pkg/view/events"
 	"mash/vcs/testutil/executor"
 	"mash/vcs/testutil/history"
+
+	"github.com/golang/mock/gomock"
+	gh "github.com/google/go-github/v39/github"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 //go:generate mockgen -destination internal/mock_client/repositories_client_mock.go mash/pkg/github/client RepositoriesClient
