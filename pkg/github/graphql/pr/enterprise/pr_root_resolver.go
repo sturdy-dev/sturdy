@@ -112,8 +112,8 @@ func NewResolver(
 		events:                       events,
 		postHogClient:                postHogClient,
 
-		authService: authService,
-		// gitHubService: gitHubService,
+		authService:   authService,
+		gitHubService: gitHubService,
 	}
 }
 
