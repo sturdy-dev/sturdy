@@ -244,6 +244,7 @@ export default {
         credentials: 'include',
       })
         .then(http.checkStatus)
+        .then(() => this.emitter.emit('authed'))
         .then(this.successRedirect)
         .catch(() => {
           this.otpInvalid = true
