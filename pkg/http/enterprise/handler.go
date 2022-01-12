@@ -1,6 +1,8 @@
 package enterprise
 
 import (
+	"net/http"
+
 	authz "mash/pkg/auth"
 	db_change "mash/pkg/change/db"
 	workers_ci "mash/pkg/ci/workers"
@@ -10,8 +12,8 @@ import (
 	"mash/pkg/github/config"
 	db_github "mash/pkg/github/db"
 	routes_v3_ghapp "mash/pkg/github/enterprise/routes"
+	service_github "mash/pkg/github/enterprise/service"
 	workers_github "mash/pkg/github/enterprise/workers"
-	service_github "mash/pkg/github/service"
 	service_jwt "mash/pkg/jwt/service"
 	db_review "mash/pkg/review/db"
 	service_statuses "mash/pkg/statuses/service"
@@ -22,8 +24,6 @@ import (
 	db_workspace "mash/pkg/workspace/db"
 	service_workspace "mash/pkg/workspace/service"
 	"mash/vcs/executor"
-	"net/http"
-	_ "net/http/pprof"
 
 	"github.com/gin-gonic/gin"
 	"github.com/posthog/posthog-go"

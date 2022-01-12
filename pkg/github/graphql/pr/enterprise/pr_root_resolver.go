@@ -12,7 +12,7 @@ import (
 	"mash/pkg/github/client"
 	"mash/pkg/github/config"
 	"mash/pkg/github/db"
-	service_github "mash/pkg/github/service"
+	service_github "mash/pkg/github/enterprise/service"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	db_user "mash/pkg/user/db"
@@ -112,8 +112,8 @@ func NewResolver(
 		events:                       events,
 		postHogClient:                postHogClient,
 
-		authService:   authService,
-		gitHubService: gitHubService,
+		authService: authService,
+		// gitHubService: gitHubService,
 	}
 }
 

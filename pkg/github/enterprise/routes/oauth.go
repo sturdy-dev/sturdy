@@ -6,14 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"mash/pkg/auth"
-	service_github "mash/pkg/github/service"
 	"net/http"
 	"time"
 
+	"mash/pkg/auth"
 	"mash/pkg/github"
 	"mash/pkg/github/config"
 	"mash/pkg/github/db"
+	service_github "mash/pkg/github/enterprise/service"
 	db_user "mash/pkg/user/db"
 
 	"github.com/gin-gonic/gin"

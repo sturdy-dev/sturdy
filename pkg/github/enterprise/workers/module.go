@@ -1,6 +1,3 @@
-//go:build enterprise
-// +build enterprise
-
 package workers
 
 import (

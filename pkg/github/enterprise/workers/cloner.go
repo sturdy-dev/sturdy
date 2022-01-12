@@ -6,7 +6,7 @@ import (
 	"mash/pkg/github"
 	"time"
 
-	service_github "mash/pkg/github/service"
+	service_github "mash/pkg/github/enterprise/service"
 	"mash/pkg/queue"
 	"mash/pkg/queue/names"
 
