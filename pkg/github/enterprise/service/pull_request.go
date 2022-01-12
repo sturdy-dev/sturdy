@@ -13,18 +13,17 @@ import (
 	vcs_change "mash/pkg/change/vcs"
 	"mash/pkg/codebase"
 	"mash/pkg/github"
-	"mash/pkg/github/client"
-	"mash/pkg/github/vcs"
+	"mash/pkg/github/enterprise/client"
+	"mash/pkg/github/enterprise/vcs"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/view/events"
 	"mash/pkg/workspace"
 	vcsvcs "mash/vcs"
 
+	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
 	"github.com/posthog/posthog-go"
-
-	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )

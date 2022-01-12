@@ -9,7 +9,7 @@ import (
 
 	"mash/pkg/codebase"
 	sturdy_github "mash/pkg/github"
-	"mash/pkg/github/client"
+	"mash/pkg/github/enterprise/client"
 	"mash/pkg/notification"
 	"mash/pkg/view/events"
 

@@ -8,20 +8,18 @@ import (
 	"strings"
 	"time"
 
-	gh "github.com/google/go-github/v39/github"
-	"github.com/google/uuid"
-	"golang.org/x/oauth2"
-
 	"mash/pkg/codebase"
-	"mash/pkg/github"
-	"mash/pkg/shortid"
-
 	"mash/pkg/codebase/vcs"
-	ghappclient "mash/pkg/github/client"
+	"mash/pkg/github"
+	ghappclient "mash/pkg/github/enterprise/client"
+	"mash/pkg/shortid"
 	"mash/pkg/view/events"
 	"mash/vcs/provider"
 
+	gh "github.com/google/go-github/v39/github"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 )
 
 // Clone processes events to initiate the initial cloning of a codebase
