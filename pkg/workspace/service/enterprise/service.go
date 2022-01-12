@@ -37,9 +37,7 @@ func (s *Service) LandChange(ctx context.Context, ws *workspace.Workspace, patch
 		return nil, fmt.Errorf("failed to get gitHubRepository: %w", err)
 	}
 
-	integrationEnabled := gitHubRepository != nil && gitHubRepository.IntegrationEnabled
-	isGitHubASourceOfTruth := integrationEnabled && gitHubRepository.GitHubSourceOfTruth
-	if isGitHubASourceOfTruth {
+	if gitHubRepository != nil && gitHubRepository.IntegrationEnabled && gitHubRepository.GitHubSourceOfTruth {
 		return nil, fmt.Errorf("landing disallowed when a github integration exists for codebase (github is source of truth)")
 	}
 
@@ -48,13 +46,12 @@ func (s *Service) LandChange(ctx context.Context, ws *workspace.Workspace, patch
 		return nil, err
 	}
 
-	if integrationEnabled && !isGitHubASourceOfTruth {
+	if gitHubRepository != nil && gitHubRepository.IntegrationEnabled && !gitHubRepository.GitHubSourceOfTruth {
+		// TODO: move to a queue.
+		if err := s.gitHubService.Push(ctx, gitHubRepository, change); err != nil {
+			return nil, fmt.Errorf("failed to push to github: %w", err)
+		}
 		return change, nil
-	}
-
-	// TODO: move to a queue.
-	if err := s.gitHubService.Push(ctx, gitHubRepository, change); err != nil {
-		return nil, fmt.Errorf("failed to push to github: %w", err)
 	}
 
 	return change, nil
