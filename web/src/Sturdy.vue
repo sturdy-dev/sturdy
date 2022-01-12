@@ -122,6 +122,7 @@ import AppMutagenStatus from './components/AppMutagenStatus.vue'
 import AppRedirect from './components/AppRedirect.vue'
 import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { User, Feature } from './__generated__/types'
+import { UserQueryQuery, UserQueryQueryVariables } from './__generated__/Sturdy'
 
 type ToastNotificationMessage = {
   id: string
@@ -199,7 +200,7 @@ export default defineComponent({
     watch(route, onChangeRoute)
     onChangeRoute(route)
 
-    const { data, fetching, executeQuery } = useQuery({
+    const { data, fetching, executeQuery } = useQuery<UserQueryQuery, UserQueryQueryVariables>({
       query: gql`
         query UserQuery {
           features
@@ -217,6 +218,7 @@ export default defineComponent({
           }
         }
       `,
+      requestPolicy: 'cache-and-network',
     })
 
     return {
@@ -240,6 +242,9 @@ export default defineComponent({
       toastNotifications: [] as ToastNotificationMessage[],
       error: null,
     }
+  },
+  unmounted() {
+    this.emitter.off('authed', this.refreshUser)
   },
   computed: {
     features(): Feature[] {
@@ -362,6 +367,8 @@ export default defineComponent({
     })
   },
   mounted() {
+    this.emitter.on('authed', this.refreshUser)
+
     this.configureSentry()
     this.configurePostHog()
 
