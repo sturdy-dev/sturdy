@@ -13,10 +13,12 @@ steps:
     commands:
       - "./download && cd ./tmp_output"
       - | 
+        set -eou pipefail
         [[ -z $(go list -f '{{ join .Deps "\n"}}' mash/cmd/api | grep mash | grep enterprise) ]] || exit 1
 
   - label: ":coverage: :golang: Make sure Enterprise links Enterprise features"
     commands:
       - "./download && cd ./tmp_output"
       - | 
+        set -eou pipefail
         [[ ! -z $(go list -tags enterprise -f '{{ join .Deps "\n"}}' mash/cmd/api | grep mash | grep enterprise) ]] || exit 1
