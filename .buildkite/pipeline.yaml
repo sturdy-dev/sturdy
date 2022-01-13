@@ -1,14 +1,4 @@
 steps:
-  - label: ":docker: :golang: Run unit tests"
-    commands:
-      - "./download && cd ./tmp_output"
-      - "docker-compose -f ci/docker-compose.yaml -f ci/unit/docker-compose.yaml up --build --exit-code-from runner"
-
-  - label: ":docker: :yarn: Lint and test"
-    commands:
-      - "./download && cd ./tmp_output"
-      - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
-  
   - label: ":coverage: :golang: Make sure OSS doesn't link Enterprise features"
     commands:
       - "./download && cd ./tmp_output"
@@ -22,3 +12,14 @@ steps:
       - | 
         set -eou pipefail
         [[ ! -z $(go list -tags enterprise -f '{{ join .Deps "\n"}}' mash/cmd/api | grep mash | grep enterprise) ]] || exit 1
+
+  - label: ":docker: :golang: Run unit tests"
+    commands:
+      - "./download && cd ./tmp_output"
+      - "docker-compose -f ci/docker-compose.yaml -f ci/unit/docker-compose.yaml up --build --exit-code-from runner"
+
+  - label: ":docker: :yarn: Lint and test"
+    commands:
+      - "./download && cd ./tmp_output"
+      - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
+ 
