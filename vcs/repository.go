@@ -126,5 +126,4 @@ type RepoWriter interface {
 
 	// These are used only in tests. TODO: remove or extract.
 	InitRebase(ontoRemoteName, ontoBranchName string) (*SturdyRebase, []RebasedCommit, error)
-	RevertHEAD(commitID string) error
 }
