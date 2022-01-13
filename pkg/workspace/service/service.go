@@ -70,7 +70,6 @@ type WorkspaceService struct {
 
 	commentService *service_comments.Service
 	changeService  *service_change.Service
-	// gitHubService  *service_github.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -92,7 +91,6 @@ func New(
 
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
-	// gitHubService *service_github.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -113,7 +111,6 @@ func New(
 
 		commentService: commentsService,
 		changeService:  changeService,
-		// gitHubService:  gitHubService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,

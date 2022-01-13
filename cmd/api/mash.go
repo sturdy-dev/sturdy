@@ -10,16 +10,14 @@ import (
 	"mash/db"
 	"mash/pkg/api"
 	module_api "mash/pkg/api/module"
-	service_auth "mash/pkg/auth/service"
-	db_change "mash/pkg/change/db"
+	module_auth "mash/pkg/auth/module"
+	module_author "mash/pkg/author/module"
+	module_change "mash/pkg/change/module"
 	service_change "mash/pkg/change/service"
-	db_ci "mash/pkg/ci/db"
+	module_ci "mash/pkg/ci/module"
 	service_ci "mash/pkg/ci/service"
-	workers_ci "mash/pkg/ci/workers"
-	db_acl "mash/pkg/codebase/acl/db"
-	provider_acl "mash/pkg/codebase/acl/provider"
-	db_codebase "mash/pkg/codebase/db"
-	service_codebase "mash/pkg/codebase/service"
+	module_codebase_acl "mash/pkg/codebase/acl/module"
+	module_codebase "mash/pkg/codebase/module"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
 	"mash/pkg/di"
@@ -200,7 +198,6 @@ func main() {
 		},
 		events.NewInMemory,
 		executor.NewProvider,
-		provider_acl.New,
 		service_notification.NewPreferences,
 		service_jwt.NewService,
 		db_onetime.New,
@@ -211,24 +208,17 @@ func main() {
 		service_activity.New,
 		activity_sender.NewActivitySender,
 		ws_meta.NewWriterWithEvents,
-		service_change.New,
 		snapshotter.NewGitSnapshotter,
 		meta_view.NewViewUpdatedFunc,
 		service_statuses.New,
-		service_ci.New,
 		service_workspace_watchers.New,
 		service_suggestion.New,
 		service_presence.New,
 		db_presence.NewRepo,
-		service_codebase.New,
-		service_auth.New,
 		db_servicetokens.NewDatabase,
 		service_servicetokens.New,
 		db_onboarding.New,
 		db_user.NewRepo,
-		db_acl.NewACLRepository,
-		db_codebase.NewRepo,
-		db_codebase.NewCodebaseUserRepo,
 		db_view.NewRepo,
 		db_workspace.NewRepo,
 		waitinglist.NewWaitingListRepo,
@@ -236,8 +226,6 @@ func main() {
 		instantintegration.NewInstantIntegrationInterestRepo,
 		db_pki.NewRepo,
 		db_snapshots.NewRepo,
-		db_change.NewRepo,
-		db_change.NewCommitRepository,
 		db_comments.NewRepo,
 		db_suggestion.New,
 		db_gc.NewRepository,
@@ -251,7 +239,6 @@ func main() {
 		db_notification.NewPeferenceRepository,
 		db_keys.New,
 		db_statuses.New,
-		db_ci.NewCommitRepository,
 		db_integrations.NewIntegrationDatabase,
 		db_workspace_watchers.NewDB,
 		service_comments.New,
@@ -263,7 +250,6 @@ func main() {
 		service_buildkite.New,
 		worker_gc.New,
 		worker_snapshots.New,
-		workers_ci.New,
 		gitserver.New,
 	}
 
@@ -272,13 +258,22 @@ func main() {
 			c.Register(provider)
 		}
 
+		c.Import(module_api.Module)
+		c.Import(module_auth.Module)
+		c.Import(module_author.Module)
+		c.Import(module_change.Module)
+		c.Import(module_ci.Module)
+		c.Import(module_codebase.Module)
+		c.Import(module_codebase_acl.Module)
+
+		// todo: continue importing here
+
 		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
 		c.Import(http.Module)
 		c.Import(module_github.Module)
 		c.Import(module_workspace.Module)
 		c.Import(graphql.Module)
-		c.Import(module_api.Module)
 		c.Import(module_license.Module)
 	}
 
