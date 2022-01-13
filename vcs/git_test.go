@@ -70,9 +70,9 @@ func TestDiffFromBare(t *testing.T) {
 	assert.Len(t, logsMaster, 1)
 
 	// Verify logs on the new branch, on the bareRepo
-	logsBareBranch, err := bareRepo.LogBranchUntilTrunk("a-branch-name", 10)
+	logsBareBranch, err := bareRepo.LogBranch("a-branch-name", 10)
 	assert.NoError(t, err)
-	assert.Len(t, logsBareBranch, 1)
+	assert.Len(t, logsBareBranch, 2)
 }
 
 func TestHeadBranch(t *testing.T) {

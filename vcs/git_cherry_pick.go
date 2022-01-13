@@ -3,8 +3,6 @@ package vcs
 import (
 	"errors"
 	"fmt"
-	"os/exec"
-	"strings"
 
 	git "github.com/libgit2/git2go/v33"
 )
@@ -66,48 +64,6 @@ func (r *repository) CherryPickOnto(commitID, onto string) (newCommitID string, 
 	}
 
 	return newCommitID, false, nil, nil
-}
-
-// base = the commit (and parents that you're rebasing)
-// When you're rebasing, --left-only will return the commits that exist on base that don't exist on onto
-func (r *repository) RevlistCherryPickLeftOnly(base, onto string) ([]string, error) {
-	defer getMeterFunc("RevlistCherryPickLeftOnly")()
-	return r.revlistCherryPick(base, onto, []string{"--left-only"})
-}
-
-// When you're rebasing, --left-only will return the commits that exist on onto, that don't exist on base
-func (r *repository) RevlistCherryPickRightOnly(base, onto string) ([]string, error) {
-	defer getMeterFunc("RevlistCherryPickRightOnly")()
-	return r.revlistCherryPick(base, onto, []string{"--right-only"})
-}
-
-func (r *repository) revlistCherryPick(base, onto string, extraArgs []string) ([]string, error) {
-	defer getMeterFunc("revlistCherryPick")()
-	args := []string{"rev-list", "--cherry-pick"}
-	args = append(args, extraArgs...)
-	args = append(args, fmt.Sprintf("%s...%s", base, onto))
-
-	checkoutCmd := exec.Command("git", args...)
-	checkoutCmd.Dir = r.path
-
-	output, err := checkoutCmd.Output()
-	if err != nil {
-		return nil, err
-	}
-
-	var commits []string
-	for _, c := range strings.Split(strings.TrimSpace(string(output)), "\n") {
-		if len(c) == 40 {
-			commits = append(commits, c)
-		}
-	}
-
-	// reverse the list, so that it's returned in the same order as the commits would be picked when being applied
-	for i, j := 0, len(commits)-1; i < j; i, j = i+1, j-1 {
-		commits[i], commits[j] = commits[j], commits[i]
-	}
-
-	return commits, nil
 }
 
 func (r *repository) BranchCommitID(branchName string) (string, error) {

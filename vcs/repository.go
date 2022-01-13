@@ -72,10 +72,7 @@ type Repo interface {
 
 	RevertOnBranch(revertCommitID, branchName string) (string, error)
 
-	// These are used only in tests. TODO: remove or extract.
-	FetchOriginCLI() error
-	GetCommit(id string) (*git.Commit, error)
-	LogBranchUntilTrunk(branchName string, limit int) ([]*LogEntry, error)
+	OpenRebase() (*SturdyRebase, error)
 }
 
 // RepoReader needs to read repository files on the filesystem.
@@ -111,8 +108,6 @@ type RepoWriter interface {
 	MoveBranchToHEAD(branchName string) error
 
 	CherryPickOnto(commitID, onto string) (newCommitID string, conflicted bool, conflictingFiles []string, err error)
-	RevlistCherryPickLeftOnly(base, onto string) ([]string, error)
-	RevlistCherryPickRightOnly(base, onto string) ([]string, error)
 
 	InitRebaseRaw(head, onto string) (*SturdyRebase, []RebasedCommit, error)
 
@@ -120,10 +115,5 @@ type RepoWriter interface {
 
 	ApplyPatchesToWorkdir(patches [][]byte) error
 
-	OpenRebase() (*SturdyRebase, error)
-
 	ResetHard(commitID string) error
-
-	// These are used only in tests. TODO: remove or extract.
-	InitRebase(ontoRemoteName, ontoBranchName string) (*SturdyRebase, []RebasedCommit, error)
 }
