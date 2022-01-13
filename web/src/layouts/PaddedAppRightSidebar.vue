@@ -7,37 +7,25 @@
       <slot name="toolbar" />
     </div>
 
-    <div class="p-4 sm:p-8 grid grid-cols-1 xl:grid-cols-4">
+    <PaddedApp class="grid grid-cols-1 xl:grid-cols-4">
       <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
         <slot />
       </div>
       <div class="xl:pl-8 hidden xl:block">
         <slot name="sidebar" />
       </div>
-    </div>
+    </PaddedApp>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { gql, useQuery } from '@urql/vue'
+import PaddedApp from './PaddedApp.vue'
 
 export default defineComponent({
-  components: {},
+  components: { PaddedApp },
   setup() {
-    const result = useQuery({
-      query: gql`
-        query PaddedApp {
-          user {
-            id
-            name
-          }
-        }
-      `,
-    })
-
     return {
-      data: result.data,
       ipc: window.ipc,
     }
   },

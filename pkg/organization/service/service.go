@@ -115,3 +115,12 @@ func (svc *Service) GetMemberByUserIDAndOrganizationID(ctx context.Context, user
 	}
 	return member, nil
 }
+
+// TODO: Only allow calls to GetFirst from self hosted installations
+func (svc *Service) GetFirst(ctx context.Context) (*organization.Organization, error) {
+	org, err := svc.organizationRepository.GetFirst(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get first organization: %w", err)
+	}
+	return org, nil
+}

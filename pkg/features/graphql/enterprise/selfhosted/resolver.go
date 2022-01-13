@@ -1,4 +1,4 @@
-package enterprise
+package selfhosted
 
 import "mash/pkg/graphql/resolvers"
 

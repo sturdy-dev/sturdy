@@ -54,6 +54,7 @@ import (
 	service_presence "mash/pkg/presence/service"
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
+	module_serverstatus "mash/pkg/serverstatus/module"
 	db_servicetokens "mash/pkg/servicetokens/db"
 	service_servicetokens "mash/pkg/servicetokens/service"
 	db_snapshots "mash/pkg/snapshots/db"
@@ -275,6 +276,7 @@ func main() {
 		c.Import(module_workspace.Module)
 		c.Import(graphql.Module)
 		c.Import(module_license.Module)
+		c.Import(module_serverstatus.Module)
 	}
 
 	var apiServer api.API

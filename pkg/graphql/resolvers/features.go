@@ -7,6 +7,7 @@ type FeaturesRootResolver interface {
 type Feature string
 
 const (
-	FeatureBuildkite Feature = "Buildkite"
-	FeatureGitHub    Feature = "GitHub"
+	FeatureBuildkite    Feature = "Buildkite"
+	FeatureGitHub       Feature = "GitHub"
+	FeatureMultiTenancy Feature = "MultiTenancy"
 )

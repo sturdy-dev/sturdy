@@ -99,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, watch } from 'vue'
+import {computed, defineComponent, provide, watch} from 'vue'
 import http from './http'
 import posthog from 'posthog-js'
 import ToastNotification from './components/ToastNotification.vue'
@@ -220,6 +220,8 @@ export default defineComponent({
       `,
       requestPolicy: 'cache-and-network',
     })
+
+    provide('features', computed(() => data.value?.features))
 
     return {
       data,

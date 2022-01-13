@@ -1,4 +1,5 @@
-// +build !enterprise
+//go:build !enterprise && !cloud
+// +build !enterprise,!cloud
 
 package graphql
 

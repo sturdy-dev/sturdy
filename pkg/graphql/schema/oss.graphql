@@ -57,6 +57,8 @@ type Query {
 
     # Onboarding
     completedOnboardingSteps: [OnboardingStep!]!
+
+    serverStatus: ServerStatus!
 }
 
 type Mutation {
@@ -866,6 +868,7 @@ type OnboardingStep {
 enum Feature {
     GitHub
     Buildkite
+    MultiTenancy
 }
 
 type Organization {
@@ -873,4 +876,10 @@ type Organization {
     name: String!
     members: [Author!]!
     codebases: [Codebase!]!
+}
+
+type ServerStatus {
+    _id: ID!
+    needsFirstTimeSetup: Boolean!
+    version: String!
 }

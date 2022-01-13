@@ -11,6 +11,7 @@ import (
 
 type Repository interface {
 	Get(ctx context.Context, id string) (*organization.Organization, error)
+	GetFirst(ctx context.Context) (*organization.Organization, error)
 	Create(ctx context.Context, org organization.Organization) error
 	Update(ctx context.Context, org *organization.Organization) error
 }
@@ -21,6 +22,14 @@ type repository struct {
 
 func New(db *sqlx.DB) Repository {
 	return &repository{db: db}
+}
+
+func (r *repository) GetFirst(ctx context.Context) (*organization.Organization, error) {
+	var org organization.Organization
+	if err := r.db.GetContext(ctx, &org, `SELECT id, name, created_at, deleted_at FROM organizations`); err != nil {
+		return nil, fmt.Errorf("could not get organization: %w", err)
+	}
+	return &org, nil
 }
 
 func (r *repository) Get(ctx context.Context, id string) (*organization.Organization, error) {
