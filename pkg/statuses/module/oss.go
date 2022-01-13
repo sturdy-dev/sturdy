@@ -9,9 +9,6 @@ import (
 	"mash/pkg/statuses/graphql"
 )
 
-var Module = di.NewModule(
-	di.Provides(graphql.New),
-	di.ProvidesCycle(func(r *graphql.RootResolver) resolvers.StatusesRootResolver {
-		return r
-	}),
-)
+func Module(c *di.Container) {
+	c.Register(graphql.New, new(resolvers.StatusesRootResolver))
+}

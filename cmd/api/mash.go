@@ -33,7 +33,6 @@ import (
 	"mash/pkg/graphql"
 	"mash/pkg/http"
 	"mash/pkg/http/oss"
-	"mash/pkg/integrations"
 	db_buildkite "mash/pkg/integrations/buildkite/db"
 	service_buildkite "mash/pkg/integrations/buildkite/service"
 	db_integrations "mash/pkg/integrations/db"
@@ -268,28 +267,23 @@ func main() {
 		gitserver.New,
 	}
 
-	hooks := []di.Hook{
-		di.Needs(module_statuses.Module),
-		di.Needs(module_transactional.Module),
-		di.Needs(http.Module),
-		di.Needs(module_github.Module),
-		di.Needs(module_workspace.Module),
-		di.Needs(graphql.Module),
-		di.Needs(module_api.Module),
-		di.Needs(module_license.Module),
-	}
+	mainModule := func(c *di.Container) {
+		for _, provider := range providers {
+			c.Register(provider)
+		}
 
-	for _, p := range providers {
-		hooks = append(hooks, di.Provides(p))
+		c.Import(module_statuses.Module)
+		c.Import(module_transactional.Module)
+		c.Import(http.Module)
+		c.Import(module_github.Module)
+		c.Import(module_workspace.Module)
+		c.Import(graphql.Module)
+		c.Import(module_api.Module)
+		c.Import(module_license.Module)
 	}
-
-	c := di.NewModule(hooks...)
-	c.Invoke(func(buildkiteService *service_buildkite.Service) {
-		integrations.Register(integrations.ProviderTypeBuildkite, buildkiteService)
-	})
 
 	var apiServer api.API
-	if err := c.Build(&apiServer); err != nil {
+	if err := di.Init(&apiServer, mainModule); err != nil {
 		log.Fatalf("%+v", err)
 	}
 

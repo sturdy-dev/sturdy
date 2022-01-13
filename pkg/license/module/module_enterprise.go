@@ -12,11 +12,11 @@ import (
 	"mash/pkg/license/enterprise/validator"
 )
 
-var Module = di.NewModule(
-	di.Provides(db.New),
-	di.Provides(db.NewValidationRepository),
-	di.Provides(service.New),
-	di.Provides(client.New),
-	di.Provides(validator.New),
-	di.ProvidesCycle(graphql.New),
-)
+func Module(c *di.Container) {
+	c.Register(db.New)
+	c.Register(db.NewValidationRepository)
+	c.Register(service.New)
+	c.Register(client.New)
+	c.Register(validator.New)
+	c.Register(graphql.New)
+}

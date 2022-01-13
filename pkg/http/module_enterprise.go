@@ -9,8 +9,8 @@ import (
 	"mash/pkg/http/oss"
 )
 
-var Module = di.NewModule(
-	di.Provides(oss.ProvideHandler),
-	di.Provides(enterprise.ProvideHandler),
-	di.Provides(ProvideServer),
-)
+func Module(c *di.Container) {
+	c.Register(oss.ProvideHandler)
+	c.Register(enterprise.ProvideHandler)
+	c.Register(ProvideServer)
+}

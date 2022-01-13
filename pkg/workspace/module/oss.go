@@ -8,6 +8,6 @@ import (
 	"mash/pkg/workspace/service"
 )
 
-var Module = di.NewModule(
-	di.Provides(service.New, new(service.Service)),
-)
+func Module(c *di.Container) {
+	c.Register(service.New, new(service.Service))
+}

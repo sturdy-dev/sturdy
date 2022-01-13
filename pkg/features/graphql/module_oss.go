@@ -7,6 +7,6 @@ import (
 	"mash/pkg/features/graphql/oss"
 )
 
-var Module = di.NewModule(
-	di.Provides(oss.NewFeaturesRootResolver),
-)
+func Module(c *di.Container) {
+	c.Register(oss.NewFeaturesRootResolver)
+}

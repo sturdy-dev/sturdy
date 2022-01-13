@@ -26,32 +26,31 @@ import (
 	graphql_workspace_watchers "mash/pkg/workspace/watchers/graphql"
 )
 
-var Module = di.NewModule(
-	di.Provides(NewRootResolver),
+func Module(c *di.Container) {
+	c.Register(NewRootResolver)
+	c.Register(graphql_acl.NewResolver)
+	c.Register(graphql_author.NewResolver)
+	c.Register(graphql_change.NewResolver)
+	c.Register(graphql_comments.NewResolver)
+	c.Register(graphql_change.NewFileDiffRootResolver)
+	c.Register(graphql_suggestion.New)
+	c.Register(graphql_notification.NewResolver)
+	c.Register(graphql_user.NewResolver)
+	c.Register(graphql_view.NewViewStatusRootResolver)
+	c.Register(graphql_view.NewResolver)
+	c.Register(graphql_workspace_watchers.NewRootResolver)
+	c.Register(graphql_workspace.NewResolver)
+	c.Register(graphql_workspace_activity.New)
+	c.Register(graphql_review.New)
+	c.Register(graphql_file.NewFileRootResolver)
+	c.Register(graphql_presence.NewRootResolver)
+	c.Register(graphql_ci.NewRootResolver)
+	c.Register(graphql_onboarding.NewRootResolver)
+	c.Register(graphql_pki.NewResolver)
+	c.Register(graphql_servicetokens.New)
+	c.Register(graphql_buildkite.New)
+	c.Register(graphql_organization.New)
 
-	di.ProvidesCycle(graphql_acl.NewResolver),
-	di.ProvidesCycle(graphql_author.NewResolver),
-	di.ProvidesCycle(graphql_change.NewResolver),
-	di.ProvidesCycle(graphql_comments.NewResolver),
-	di.ProvidesCycle(graphql_change.NewFileDiffRootResolver),
-	di.ProvidesCycle(graphql_suggestion.New),
-	di.ProvidesCycle(graphql_notification.NewResolver),
-	di.ProvidesCycle(graphql_user.NewResolver),
-	di.ProvidesCycle(graphql_view.NewViewStatusRootResolver),
-	di.ProvidesCycle(graphql_view.NewResolver),
-	di.ProvidesCycle(graphql_workspace_watchers.NewRootResolver),
-	di.ProvidesCycle(graphql_workspace.NewResolver),
-	di.ProvidesCycle(graphql_workspace_activity.New),
-	di.ProvidesCycle(graphql_review.New),
-	di.ProvidesCycle(graphql_file.NewFileRootResolver),
-	di.ProvidesCycle(graphql_presence.NewRootResolver),
-	di.ProvidesCycle(graphql_ci.NewRootResolver),
-	di.ProvidesCycle(graphql_onboarding.NewRootResolver),
-	di.ProvidesCycle(graphql_pki.NewResolver),
-	di.ProvidesCycle(graphql_servicetokens.New),
-	di.ProvidesCycle(graphql_buildkite.New),
-	di.ProvidesCycle(graphql_organization.New),
-
-	di.Needs(graphql_codebase.Module),
-	di.Needs(graphql_features.Module),
-)
+	c.Import(graphql_codebase.Module)
+	c.Import(graphql_features.Module)
+}

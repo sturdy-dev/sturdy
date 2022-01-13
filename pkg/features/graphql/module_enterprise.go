@@ -7,6 +7,6 @@ import (
 	"mash/pkg/features/graphql/enterprise"
 )
 
-var Module = di.NewModule(
-	di.Provides(enterprise.NewFeaturesRootResolver),
-)
+func Module(c *di.Container) {
+	c.Register(enterprise.NewFeaturesRootResolver)
+}

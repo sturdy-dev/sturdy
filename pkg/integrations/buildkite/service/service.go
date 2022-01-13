@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+
 	"mash/pkg/integrations"
 	"mash/pkg/integrations/buildkite"
 	db_buildkite "mash/pkg/integrations/buildkite/db"
-	"net/http"
 )
 
 var _ integrations.Provider = &Service{}
@@ -19,9 +20,11 @@ type Service struct {
 }
 
 func New(configRepo db_buildkite.Repository) *Service {
-	return &Service{
+	s := &Service{
 		configRepo: configRepo,
 	}
+	integrations.Register(integrations.ProviderTypeBuildkite, s)
+	return s
 }
 
 func (b *Service) CreateIntegration(ctx context.Context, cfg *buildkite.Config) error {
