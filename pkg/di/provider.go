@@ -7,51 +7,83 @@ import (
 	"go.uber.org/dig"
 )
 
-type Module interface {
-	Build(interface{}) error
+type Module func(*Container)
+
+type Container struct {
+	container *dig.Container
 }
 
-type module struct {
-	hooks []Hook
-}
+// Register teaches container how to create an instance of the given type, for instance:
+//
+//     container.Register(
+//         // tell the container how to create an instance of *MyType
+//         func() *MyType { return &MyType{} },
+//     )
+//
+//     container.Register(
+//         // tell the container how to create an instance of *MyOtherType from *MyType
+//         func(*MyType) *MyOtherType { ... },
+//         // second argument registers *MyOtherType as MyOtherTypeInterface too.
+//         new(MyOtherTypeInterface),
+//     )
+//
+// Register also registers resolvers for pointers to the type, so circular dependencies are
+// possible:
+//
+//     container.Register(func(*MyOtherType) MyType { ... })
+//     container.Register(func(*MyType) MyOtherTypeType { ... })
+//
+func (c *Container) Register(provider interface{}, as ...interface{}) {
+	c.container.Provide(provider) // register provider for the type itself
 
-func NewModule(hooks ...Hook) *module {
-	return &module{
-		hooks: hooks,
+	oo := []dig.ProvideOption{}
+	asTypes := []reflect.Type{}
+	for _, as := range as {
+		oo = append(oo, dig.As(as))
+		asTypePtr := reflect.TypeOf(as)
+		if asTypePtr.Kind() != reflect.Ptr {
+			panic(fmt.Sprintf("as must be a pointer, got %T", as))
+		}
+		asTypes = append(asTypes, reflect.TypeOf(as))
+	}
+
+	c.container.Provide(provider, oo...) // register provider for the _as_ implementations
+
+	// register cycle resolvers for the type
+	outType := reflect.TypeOf(provider).Out(0)
+	outTypePtr := reflect.PtrTo(outType)
+	provideFn := providerFor(outTypePtr)
+	invokeFn := invokerFor(outTypePtr)
+
+	c.container.Provide(provideFn)
+	c.container.Invoke(invokeFn)
+
+	for _, asType := range asTypes {
+		cycleInvoker := invokerFor(asType)
+		cycleProvider := providerFor(asType)
+		c.container.Invoke(cycleInvoker)
+		c.container.Provide(cycleProvider)
 	}
 }
 
-func (m *module) Invoke(fn interface{}) {
-	m.hooks = append(m.hooks, func(c *dig.Container) (invoke, error) {
-		return func(c *dig.Container) error {
-			return c.Invoke(fn)
-		}, nil
-	})
+// Import can be used to combine multiple modules into one.
+func (c *Container) Import(module Module) {
+	module(c)
 }
 
-func (m *module) Build(dest interface{}) error {
-	container := dig.New()
-	var ii []invoke
-	for _, hook := range m.hooks {
-		i, err := hook(container)
-		if err != nil {
-			return err
-		}
-		if i != nil {
-			ii = append(ii, i)
-		}
+// Init retrieves an instance of the dest from the container.
+func Init(dest interface{}, module Module) error {
+	c := &Container{
+		container: dig.New(),
 	}
-	for _, i := range ii {
-		if err := i(container); err != nil {
-			return err
-		}
-	}
+	module(c)
 
 	destPtrValue := reflect.ValueOf(dest)
 	destTypePtr := destPtrValue.Type()
 	if destTypePtr.Kind() != reflect.Ptr {
 		return fmt.Errorf("dest must be a pointer")
 	}
+
 	destType := destTypePtr.Elem()
 	invokeFnType := reflect.FuncOf([]reflect.Type{destType}, nil, false)
 	invokeFn := reflect.MakeFunc(invokeFnType, func(args []reflect.Value) []reflect.Value {
@@ -59,76 +91,5 @@ func (m *module) Build(dest interface{}) error {
 		return []reflect.Value{}
 	})
 
-	if err := container.Invoke(invokeFn.Interface()); err != nil {
-		return err
-	}
-	return nil
-}
-
-type invoke func(c *dig.Container) error
-
-type Hook func(*dig.Container) (invoke, error)
-
-func Needs(m Module) Hook {
-	return func(c *dig.Container) (invoke, error) {
-		ii := []invoke{}
-		for _, hook := range m.(*module).hooks {
-			i, err := hook(c)
-			if err != nil {
-				return nil, err
-			}
-			if i != nil {
-				ii = append(ii, i)
-			}
-		}
-		return func(c *dig.Container) error {
-			for _, i := range ii {
-				if err := i(c); err != nil {
-					return err
-				}
-			}
-			return nil
-		}, nil
-	}
-}
-
-func Invoke(fn interface{}) Hook {
-	return func(c *dig.Container) (invoke, error) {
-		return func(c *dig.Container) error {
-			return c.Invoke(fn)
-		}, nil
-	}
-}
-
-func ProvidesCycle(provider interface{}, as ...interface{}) Hook {
-	outType := reflect.TypeOf(provider).Out(0)
-	outTypePtr := reflect.PtrTo(outType)
-	provideFn := providerFor(outTypePtr)
-	invokeFn := invokerFor(outTypePtr)
-
-	oo := []dig.ProvideOption{}
-	for _, as := range as {
-		oo = append(oo, dig.As(as))
-	}
-	return func(c *dig.Container) (invoke, error) {
-		if err := c.Provide(provider, oo...); err != nil {
-			return nil, err
-		}
-		if err := c.Provide(provideFn); err != nil {
-			return nil, err
-		}
-		return func(c *dig.Container) error {
-			return c.Invoke(invokeFn)
-		}, nil
-	}
-}
-
-func Provides(provider interface{}, as ...interface{}) Hook {
-	oo := []dig.ProvideOption{}
-	for _, as := range as {
-		oo = append(oo, dig.As(as))
-	}
-	return func(c *dig.Container) (invoke, error) {
-		return nil, c.Provide(provider, oo...)
-	}
+	return c.container.Invoke(invokeFn.Interface())
 }

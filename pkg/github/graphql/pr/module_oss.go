@@ -8,6 +8,6 @@ import (
 	"mash/pkg/github/graphql/pr/oss"
 )
 
-var Module = di.NewModule(
-	di.ProvidesCycle(oss.NewResolver),
-)
+func Module(c *di.Container) {
+	c.Register(oss.NewResolver)
+}

@@ -13,9 +13,11 @@ func TestModule_simple(t *testing.T) {
 	provideString := func() string {
 		return "test"
 	}
-	m := di.NewModule(di.Provides(provideString))
+	module := func(c *di.Container) {
+		c.Register(provideString)
+	}
 	var target string
-	assert.NoError(t, m.Build(&target))
+	assert.NoError(t, di.Init(&target, module))
 	assert.Equal(t, "test", target)
 }
 
@@ -26,52 +28,126 @@ func TestModule_multipleProviders(t *testing.T) {
 	provideString := func(i int) string {
 		return fmt.Sprintf("%d", i)
 	}
-	m := di.NewModule(di.Provides(provideString), di.Provides(provideInt))
+	module := func(c *di.Container) {
+		c.Register(provideInt)
+		c.Register(provideString)
+	}
 	var target string
-	assert.NoError(t, m.Build(&target))
+	assert.NoError(t, di.Init(&target, module))
 	assert.Equal(t, "1", target)
 }
 
 func TestModule_multipleModules(t *testing.T) {
-	intModule := di.NewModule(di.Provides(func() int {
+	provideInt := func() int {
 		return 1
-	}))
-	stringModule := di.NewModule(di.Provides(func(i int) string {
+	}
+	intModule := func(c *di.Container) {
+		c.Register(provideInt)
+	}
+
+	provideString := func(i int) string {
 		return fmt.Sprintf("%d", i)
-	}), di.Needs(intModule))
+	}
+	stringModule := func(c *di.Container) {
+		c.Register(provideString)
+		c.Import(intModule)
+	}
 
 	var target string
-	assert.NoError(t, stringModule.Build(&target))
+	assert.NoError(t, di.Init(&target, stringModule))
 	assert.Equal(t, "1", target)
 }
 
 type b struct {
-	v string
-	A *a
+	v  string
+	a  *a
+	ia *IA
 }
+
+func (*b) B() {}
+
+type IB interface {
+	B()
+}
+
 type a struct {
-	v string
-	B *b
+	v  string
+	b  *b
+	ib *IB
 }
 
-func TestModule_cycle(t *testing.T) {
-	moduleA := di.NewModule(di.ProvidesCycle(func(a *a) b {
-		return b{"b", a}
-	}))
+func (*a) A() {}
 
-	moduleB := di.NewModule(di.ProvidesCycle(func(b *b) a {
-		return a{"a", b}
-	}))
+type IA interface {
+	A()
+}
 
-	both := di.NewModule(di.Needs(moduleA), di.Needs(moduleB))
+func TestModule_cycleStructs(t *testing.T) {
+	moduleA := func(c *di.Container) {
+		c.Register(func(b *b) a {
+			return a{v: "a", b: b}
+		})
+	}
+	moduleB := func(c *di.Container) {
+		c.Register(func(a *a) b {
+			return b{v: "b", a: a}
+		})
+	}
+
+	both := func(c *di.Container) {
+		c.Import(moduleA)
+		c.Import(moduleB)
+	}
 
 	var targetA a
-	if assert.NoError(t, both.Build(&targetA)) {
-		assert.NotNil(t, targetA.B)
+	if assert.NoError(t, di.Init(&targetA, both)) {
+		assert.NotNil(t, targetA.b)
 	}
 
 	var targetB b
-	if assert.NoError(t, both.Build(&targetB)) {
-		assert.NotNil(t, targetB.A)
+	if assert.NoError(t, di.Init(&targetB, both)) {
+		assert.NotNil(t, targetB.a)
+	}
+}
+
+func TestModule_interface(t *testing.T) {
+	provideA := func() *a {
+		return &a{v: "a"}
+	}
+	moduleA := func(c *di.Container) {
+		c.Register(provideA, new(IA))
+	}
+	var target IA
+	assert.NoError(t, di.Init(&target, moduleA))
+	if assert.NotNil(t, target) {
+		assert.Equal(t, "a", target.(*a).v)
+	}
+}
+
+func TestModule_cycleInterfaces(t *testing.T) {
+	moduleA := func(c *di.Container) {
+		c.Register(func(ib *IB) *a {
+			return &a{v: "a", ib: ib}
+		}, new(IA))
+	}
+	moduleB := func(c *di.Container) {
+		c.Register(func(ia *IA) *b {
+			return &b{v: "b", ia: ia}
+		}, new(IB))
+	}
+
+	both := func(c *di.Container) {
+		c.Import(moduleA)
+		c.Import(moduleB)
+	}
+
+	var targetA *a
+	if assert.NoError(t, di.Init(&targetA, both)) {
+		assert.NotNil(t, targetA.ib)
+	}
+
+	var targetB *b
+	if assert.NoError(t, di.Init(&targetB, both)) {
+		assert.NotNil(t, targetB.ia)
 	}
 }

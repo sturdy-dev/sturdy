@@ -1,9 +1,7 @@
 package service
 
-import (
-	"mash/pkg/di"
-)
+import "mash/pkg/di"
 
-var Module = di.NewModule(
-	di.Provides(New),
-)
+func Module(c *di.Container) {
+	c.Register(New)
+}

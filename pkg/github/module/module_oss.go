@@ -9,7 +9,7 @@ import (
 	graphql_pr "mash/pkg/github/graphql/pr"
 )
 
-var Module = di.NewModule(
-	di.Needs(graphql.Module),
-	di.Needs(graphql_pr.Module),
-)
+func Module(c *di.Container) {
+	c.Import(graphql.Module)
+	c.Import(graphql_pr.Module)
+}

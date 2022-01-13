@@ -8,6 +8,6 @@ import (
 	"mash/pkg/license/oss/graphql"
 )
 
-var Module = di.NewModule(
-	di.ProvidesCycle(graphql.New),
-)
+func Module(c *di.Container) {
+	c.Register(graphql.New)
+}

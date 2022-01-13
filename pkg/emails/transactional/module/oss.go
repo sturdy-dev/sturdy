@@ -8,6 +8,6 @@ import (
 	"mash/pkg/emails/transactional"
 )
 
-var Module = di.NewModule(
-	di.Provides(transactional.New, new(transactional.EmailSender)),
-)
+func Module(c *di.Container) {
+	c.Register(transactional.New, new(transactional.EmailSender))
+}

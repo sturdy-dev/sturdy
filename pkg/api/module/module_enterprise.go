@@ -10,7 +10,7 @@ import (
 	"mash/pkg/di"
 )
 
-var Module = di.NewModule(
-	di.Provides(oss.ProvideAPI),
-	di.Provides(enterprise.ProvideAPI, new(api.API)),
-)
+func Module(c *di.Container) {
+	c.Register(oss.ProvideAPI)
+	c.Register(enterprise.ProvideAPI, new(api.API))
+}

@@ -4,7 +4,7 @@ import (
 	"mash/pkg/di"
 )
 
-var Module = di.NewModule(
-	di.Provides(NewImporterQueue),
-	di.Provides(NewClonerQueue),
-)
+func Module(c *di.Container) {
+	c.Register(NewImporterQueue)
+	c.Register(NewClonerQueue)
+}

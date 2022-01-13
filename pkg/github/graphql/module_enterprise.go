@@ -9,8 +9,8 @@ import (
 	"mash/pkg/graphql/resolvers"
 )
 
-var Module = di.NewModule(
-	di.Provides(enterprise.NewGitHubAccountRootResolver, new(resolvers.GitHubAccountRootResolver)),
-	di.Provides(enterprise.NewGitHubAppRootResolver),
-	di.ProvidesCycle(enterprise.NewResolver),
-)
+func Module(c *di.Container) {
+	c.Register(enterprise.NewGitHubAccountRootResolver, new(resolvers.GitHubAccountRootResolver))
+	c.Register(enterprise.NewGitHubAppRootResolver)
+	c.Register(enterprise.NewResolver)
+}
