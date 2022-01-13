@@ -95,45 +95,6 @@ func (r *repository) GetCommit(id string) (*git.Commit, error) {
 	return commit, nil
 }
 
-func (r *repository) RevertHEAD(commitID string) error {
-	defer getMeterFunc("RevertHEAD")()
-	id, err := git.NewOid(commitID)
-	if err != nil {
-
-		return err
-	}
-	commit, err := r.r.LookupCommit(id)
-	if err != nil {
-		return err
-	}
-	defer commit.Free()
-	ourCommit, err := r.HeadCommit()
-	if err != nil {
-		return err
-	}
-	defer ourCommit.Free()
-	opts, err := git.DefaultMergeOptions()
-	if err != nil {
-		return err
-	}
-	idx, err := r.r.RevertCommit(commit, ourCommit, 0, &opts)
-	if err != nil {
-		return err
-	}
-	defer idx.Free()
-	_, err = idx.WriteTreeTo(r.r)
-	if err != nil {
-		return err
-	}
-	err = r.r.CheckoutIndex(idx, &git.CheckoutOpts{
-		Strategy: git.CheckoutSafe,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (repo *repository) LogBranchUntilTrunk(branchName string, limit int) ([]*LogEntry, error) {
 	defer getMeterFunc("LogBranchUntilTrunk")()
 	branch, err := repo.r.LookupBranch(branchName, git.BranchLocal)
