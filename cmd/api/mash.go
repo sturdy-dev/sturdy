@@ -170,12 +170,9 @@ func main() {
 				return ph.NewFakeClient(), nil
 			}
 		},
-		events.NewInMemory,
 		func(e events.EventReadWriter) events.EventReader {
 			return e
 		},
-		executor.NewProvider,
-		provider_acl.New,
 		func(awsSession *session.Session) (queue.Queue, error) {
 			if *localQueue {
 				return queue.NewInMemory(logger), nil
@@ -183,8 +180,6 @@ func main() {
 				return queue.NewSQS(logger, awsSession, *hostname, *queuePrefix)
 			}
 		},
-		service_notification.NewPreferences,
-		service_jwt.NewService,
 		func(awsSession *session.Session) emails.Sender {
 			if *enableTransactionalEmails {
 				return emails.NewSES(awsSession)
@@ -200,6 +195,14 @@ func main() {
 		func(repo db_workspace.Repository) db_workspace.WorkspaceReader {
 			return repo
 		},
+		func() oss.DevelopmentAllowExtraCorsOrigin {
+			return oss.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
+		},
+		events.NewInMemory,
+		executor.NewProvider,
+		provider_acl.New,
+		service_notification.NewPreferences,
+		service_jwt.NewService,
 		db_onetime.New,
 		service_onetime.New,
 		service_user.New,
@@ -256,9 +259,6 @@ func main() {
 		db_organization.NewMember,
 		service_sync.New,
 		service_organization.New,
-		func() oss.DevelopmentAllowExtraCorsOrigin {
-			return oss.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
-		},
 		db_buildkite.NewDatabase,
 		service_buildkite.New,
 		worker_gc.New,

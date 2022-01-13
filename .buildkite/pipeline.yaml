@@ -8,3 +8,13 @@ steps:
     commands:
       - "./download && cd ./tmp_output"
       - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
+  
+  - label: ":coverage: :golang: Make sure OSS doesn't link Enterprise features"
+    commands:
+      - "./download && cd ./tmp_output"
+      - "[[ -z $(go list -f '{{ join .Deps "\n"}}' mash/cmd/api | grep mash | grep enterprise) ]] || exit 1"
+
+  - label: ":coverage: :golang: Make sure Enterprise links Enterprise features"
+    commands:
+      - "./download && cd ./tmp_output"
+      - "[[ ! -z $(go list -tags enterprise -f '{{ join .Deps "\n"}}' mash/cmd/api | grep mash | grep enterprise) ]] || exit 1"
