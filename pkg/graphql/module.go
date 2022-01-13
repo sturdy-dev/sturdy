@@ -1,10 +1,6 @@
 package graphql
 
 import (
-	graphql_author "mash/pkg/author/graphql"
-	graphql_change "mash/pkg/change/graphql"
-	graphql_acl "mash/pkg/codebase/acl/graphql"
-	graphql_codebase "mash/pkg/codebase/graphql"
 	graphql_comments "mash/pkg/comments/graphql"
 	"mash/pkg/di"
 	graphql_features "mash/pkg/features/graphql"
@@ -28,11 +24,8 @@ import (
 
 func Module(c *di.Container) {
 	c.Register(NewRootResolver)
-	c.Register(graphql_acl.NewResolver)
-	c.Register(graphql_author.NewResolver)
-	c.Register(graphql_change.NewResolver)
+
 	c.Register(graphql_comments.NewResolver)
-	c.Register(graphql_change.NewFileDiffRootResolver)
 	c.Register(graphql_suggestion.New)
 	c.Register(graphql_notification.NewResolver)
 	c.Register(graphql_user.NewResolver)
@@ -51,6 +44,5 @@ func Module(c *di.Container) {
 	c.Register(graphql_buildkite.New)
 	c.Register(graphql_organization.New)
 
-	c.Import(graphql_codebase.Module)
 	c.Import(graphql_features.Module)
 }
