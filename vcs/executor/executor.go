@@ -144,6 +144,11 @@ func (e *executor) Git(fn GitFunc) Executor {
 	return e
 }
 
+func (e *executor) gitFirst(fn GitFunc) Executor {
+	e.funs = append([]*executeFunc{{repoFun: fn}}, e.funs...)
+	return e
+}
+
 func (e *executor) AllowRebasingState() Executor {
 	e.allowRebasing = true
 	return e
@@ -198,7 +203,7 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	defer logger.Info("git executor completed", zap.Duration("duration", time.Since(t0)))
 
 	if !e.allowRebasing {
-		e.Git(func(repo vcs.Repo) error {
+		e.gitFirst(func(repo vcs.Repo) error {
 			if repo.IsRebasing() {
 				return ErrIsRebasing
 			}
