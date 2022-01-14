@@ -1,7 +1,6 @@
 package graphql
 
 import (
-	graphql_comments "mash/pkg/comments/graphql"
 	"mash/pkg/di"
 	graphql_features "mash/pkg/features/graphql"
 	graphql_file "mash/pkg/file/graphql"
@@ -23,7 +22,6 @@ import (
 func Module(c *di.Container) {
 	c.Register(NewRootResolver)
 
-	c.Register(graphql_comments.NewResolver)
 	c.Register(graphql_suggestion.New)
 	c.Register(graphql_notification.NewResolver)
 	c.Register(graphql_user.NewResolver)
