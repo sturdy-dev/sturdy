@@ -28,12 +28,11 @@ import (
 	"mash/pkg/github/config"
 	module_github "mash/pkg/github/module"
 	module_gitserver "mash/pkg/gitserver"
-	"mash/pkg/graphql"
-	"mash/pkg/http"
+	module_graphql "mash/pkg/graphql"
+	module_http "mash/pkg/http"
 	"mash/pkg/http/oss"
 	module_integrations "mash/pkg/integrations/module"
-	db_keys "mash/pkg/jwt/keys/db"
-	service_jwt "mash/pkg/jwt/service"
+	module_jwt "mash/pkg/jwt/module"
 	module_license "mash/pkg/license/module"
 	"mash/pkg/metrics/zapprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
@@ -197,7 +196,6 @@ func main() {
 		events.NewInMemory,
 		executor.NewProvider,
 		service_notification.NewPreferences,
-		service_jwt.NewService,
 		db_onetime.New,
 		service_onetime.New,
 		service_user.New,
@@ -233,7 +231,6 @@ func main() {
 		db_review.NewReviewRepository,
 		db_activity.NewActivityReadsRepo,
 		db_notification.NewPeferenceRepository,
-		db_keys.New,
 		db_statuses.New,
 		db_workspace_watchers.NewDB,
 		db_organization.New,
@@ -260,16 +257,17 @@ func main() {
 		c.Import(module_file.Module)
 		c.Import(module_gc.Module)
 		c.Import(module_github.Module)
-		c.Import(module_integrations.Module)
 		c.Import(module_gitserver.Module)
+		c.Import(module_graphql.Module)
+		c.Import(module_http.Module)
+		c.Import(module_integrations.Module)
+		c.Import(module_jwt.Module)
 
 		// todo: continue importing here
 
 		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
-		c.Import(http.Module)
 		c.Import(module_workspace.Module)
-		c.Import(graphql.Module)
 		c.Import(module_license.Module)
 	}
 
