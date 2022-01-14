@@ -162,7 +162,7 @@ func GetWorkspaceComments(
 		}
 		switch {
 		case err == nil:
-		case errors.Is(err, fs.ErrNotExist):
+		case errors.Is(err, fs.ErrNotExist), errors.Is(err, executor.ErrIsRebasing):
 			comms[i].LineStart = -1
 			comms[i].LineEnd = -1
 			continue
