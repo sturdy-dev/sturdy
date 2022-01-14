@@ -22,6 +22,8 @@ import (
 	"mash/pkg/di"
 	"mash/pkg/emails"
 	module_transactional "mash/pkg/emails/transactional/module"
+	module_features "mash/pkg/features/module"
+	module_file "mash/pkg/file/module"
 	db_gc "mash/pkg/gc/db"
 	worker_gc "mash/pkg/gc/worker"
 	"mash/pkg/github/config"
@@ -258,6 +260,8 @@ func main() {
 		c.Import(module_codebase.Module)
 		c.Import(module_codebase_acl.Module)
 		c.Import(module_comments.Module)
+		c.Import(module_features.Module)
+		c.Import(module_file.Module)
 		c.Import(module_integrations.Module)
 
 		// todo: continue importing here

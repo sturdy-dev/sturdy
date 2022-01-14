@@ -1,6 +1,6 @@
 // +build enterprise
 
-package grapqhl
+package graphql
 
 import (
 	"mash/pkg/di"
