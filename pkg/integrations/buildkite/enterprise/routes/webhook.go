@@ -9,8 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mash/pkg/integrations/buildkite"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,6 +16,8 @@ import (
 	"time"
 
 	svc_ci "mash/pkg/ci/service"
+	"mash/pkg/integrations/buildkite"
+	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
 	service_servicetokens "mash/pkg/servicetokens/service"
 	"mash/pkg/statuses"
 	svc_statuses "mash/pkg/statuses/service"

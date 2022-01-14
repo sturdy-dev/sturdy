@@ -5,8 +5,6 @@ import (
 	"mash/pkg/di"
 	graphql_features "mash/pkg/features/graphql"
 	graphql_file "mash/pkg/file/graphql"
-	graphql_buildkite "mash/pkg/integrations/buildkite/graphql"
-	graphql_ci "mash/pkg/integrations/graphql"
 	graphql_notification "mash/pkg/notification/graphql"
 	graphql_onboarding "mash/pkg/onboarding/graphql"
 	graphql_organization "mash/pkg/organization/graphql"
@@ -37,11 +35,9 @@ func Module(c *di.Container) {
 	c.Register(graphql_review.New)
 	c.Register(graphql_file.NewFileRootResolver)
 	c.Register(graphql_presence.NewRootResolver)
-	c.Register(graphql_ci.NewRootResolver)
 	c.Register(graphql_onboarding.NewRootResolver)
 	c.Register(graphql_pki.NewResolver)
 	c.Register(graphql_servicetokens.New)
-	c.Register(graphql_buildkite.New)
 	c.Register(graphql_organization.New)
 
 	c.Import(graphql_features.Module)

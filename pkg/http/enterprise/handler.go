@@ -5,6 +5,7 @@ import (
 
 	authz "mash/pkg/auth"
 	db_change "mash/pkg/change/db"
+	service_ci "mash/pkg/ci/service"
 	workers_ci "mash/pkg/ci/workers"
 	db_codebase "mash/pkg/codebase/db"
 	service_comments "mash/pkg/comments/service"
@@ -14,8 +15,11 @@ import (
 	routes_v3_ghapp "mash/pkg/github/enterprise/routes"
 	service_github "mash/pkg/github/enterprise/service"
 	workers_github "mash/pkg/github/enterprise/workers"
+	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
 	service_jwt "mash/pkg/jwt/service"
 	db_review "mash/pkg/review/db"
+	service_servicetokens "mash/pkg/servicetokens/service"
+	routes_ci "mash/pkg/statuses/enterprise/routes"
 	service_statuses "mash/pkg/statuses/service"
 	service_sync "mash/pkg/sync/service"
 	db_user "mash/pkg/user/db"
@@ -62,12 +66,17 @@ func ProvideHandler(
 	commentsService *service_comments.Service,
 	gitHubService *service_github.Service,
 	ciBuildQueue *workers_ci.BuildQueue,
+	ciService *service_ci.Service,
+	serviceTokensService *service_servicetokens.Service,
+	buildkiteService *service_buildkite.Service,
 	ossEngine *gin.Engine,
 ) http.Handler {
-	publ := ossEngine.Group("")
 	auth := ossEngine.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
-	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, postHogClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
 	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
+
+	publ := ossEngine.Group("")
+	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, postHogClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
+	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
 	return ossEngine
 }

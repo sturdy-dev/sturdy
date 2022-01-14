@@ -1,19 +1,21 @@
 package oss
 
 import (
+	"net/http"
+	_ "net/http/pprof"
+	"strings"
+	"time"
+
 	authz "mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_change "mash/pkg/change/db"
 	routes_v3_change "mash/pkg/change/routes"
-	routes_ci "mash/pkg/ci/routes"
-	service_ci "mash/pkg/ci/service"
 	db_codebase "mash/pkg/codebase/db"
 	routes_v3_codebase "mash/pkg/codebase/routes"
 	service_codebase "mash/pkg/codebase/service"
 	worker_gc "mash/pkg/gc/worker"
 	"mash/pkg/ginzap"
 	sturdygrapql "mash/pkg/graphql"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
 	service_jwt "mash/pkg/jwt/service"
 	"mash/pkg/metrics/ginprometheus"
 	db_mutagen "mash/pkg/mutagen/db"
@@ -23,11 +25,9 @@ import (
 	db_pki "mash/pkg/pki/db"
 	routes_v3_pki "mash/pkg/pki/routes"
 	service_presence "mash/pkg/presence/service"
-	service_servicetokens "mash/pkg/servicetokens/service"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
 	worker_snapshots "mash/pkg/snapshots/worker"
-	service_statuses "mash/pkg/statuses/service"
 	"mash/pkg/stream/routes"
 	service_suggestion "mash/pkg/suggestions/service"
 	routes_v3_sync "mash/pkg/sync/routes"
@@ -47,10 +47,6 @@ import (
 	routes_v3_workspace "mash/pkg/workspace/routes"
 	service_workspace "mash/pkg/workspace/service"
 	"mash/vcs/executor"
-	"net/http"
-	_ "net/http/pprof"
-	"strings"
-	"time"
 
 	ginCors "github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -89,13 +85,9 @@ func ProvideHandler(
 	suggestionService *service_suggestion.Service,
 	workspaceService service_workspace.Service,
 	userService *service_user.Service,
-	ciService *service_ci.Service,
-	statusesService *service_statuses.Service,
 	syncService *service_sync.Service,
 	jwtService *service_jwt.Service,
 	codebaseService *service_codebase.Service,
-	servicetokensService *service_servicetokens.Service,
-	buildkiteService *service_buildkite.Service,
 	authService *service_auth.Service,
 	developmentAllowExtraCorsOrigin DevelopmentAllowExtraCorsOrigin,
 	grapqhlResolver *sturdygrapql.RootResolver,
@@ -184,7 +176,6 @@ func ProvideHandler(
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen
 	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                                                         // Called from client-side sturdy-cli
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
-	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, codebaseRepo, statusesService, ciService, servicetokensService, buildkiteService))
 	return r
 }
 
