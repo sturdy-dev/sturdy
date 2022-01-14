@@ -439,7 +439,6 @@
                   :is-suggesting="isSuggesting"
                   :diffs="diffs"
                   :comments="nonArchivedComments"
-                  :too-many-patches="tooManyPatches"
                   :user="user"
                   :members="data.workspace.codebase.members"
                   :is-on-authoritative-view="isOnAuthoritativeView"
@@ -1085,7 +1084,6 @@ export default {
         eventStream: null,
         eventPingTimeout: null,
         diffs: [],
-        tooManyPatches: false,
         loadedDiffs: false,
 
         conflictDiffs: [],
@@ -1399,13 +1397,6 @@ export default {
         return
       }
 
-      if (ev.diffs.length > 250) {
-        this.diffs = []
-        this.tooManyPatches = true
-        return
-      }
-
-      this.tooManyPatches = false
       this.diffs = ev.diffs
     },
     handleConflictDiffsEvent(ev) {
