@@ -89,9 +89,11 @@ func (svc *Service) Clone(
 
 	logger.Info("cloning github repository")
 
-	if err := svc.executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-		return vcs.CloneFromGithub(logger, repoProvider, codebaseID, gitHubRepoDetails, *accessToken.Token)
-	}).ExecTrunk(codebaseID, "clone github repository"); err != nil {
+	if err := svc.executorProvider.New().
+		AllowRebasingState(). // allowed because the repo does not exist yet
+		Schedule(func(repoProvider provider.RepoProvider) error {
+			return vcs.CloneFromGithub(logger, repoProvider, codebaseID, gitHubRepoDetails, *accessToken.Token)
+		}).ExecTrunk(codebaseID, "clone github repository"); err != nil {
 		return fmt.Errorf("cloning failed: %w", err)
 	}
 

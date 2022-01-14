@@ -101,35 +101,36 @@ func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower,
 
 	var viewPath string
 
-	if err := svc.executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-		viewPath = repoProvider.ViewPath(codebaseID, viewID)
-		trunkPath := repoProvider.TrunkPath(codebaseID)
-		repo, err := vcs.CloneRepoShared(trunkPath, viewPath)
-		if err != nil {
-			return fmt.Errorf("failed to create checkout: %w", err)
-		}
-		repo.Free()
+	if err := svc.executorProvider.New().
+		AllowRebasingState(). // Allowed because the view does not exist yet
+		Schedule(func(repoProvider provider.RepoProvider) error {
+			viewPath = repoProvider.ViewPath(codebaseID, viewID)
+			trunkPath := repoProvider.TrunkPath(codebaseID)
+			repo, err := vcs.CloneRepoShared(trunkPath, viewPath)
+			if err != nil {
+				return fmt.Errorf("failed to create checkout: %w", err)
+			}
 
-		// open with LFS support
-		repo, err = repoProvider.ViewRepo(codebaseID, viewID)
-		if err != nil {
-			return fmt.Errorf("failed to open view: %w", err)
-		}
+			// open with LFS support
+			repo, err = repoProvider.ViewRepo(codebaseID, viewID)
+			if err != nil {
+				return fmt.Errorf("failed to open view: %w", err)
+			}
 
-		if err := repo.CreateNewBranchAt("archive", commitID); err != nil {
-			return fmt.Errorf("failed to create archive branch: %w", err)
-		}
+			if err := repo.CreateNewBranchAt("archive", commitID); err != nil {
+				return fmt.Errorf("failed to create archive branch: %w", err)
+			}
 
-		if err := repo.CheckoutBranchWithForce("archive"); err != nil {
-			return fmt.Errorf("failed to checkout archive: %w", err)
-		}
+			if err := repo.CheckoutBranchWithForce("archive"); err != nil {
+				return fmt.Errorf("failed to checkout archive: %w", err)
+			}
 
-		if err := repo.LargeFilesPull(); err != nil {
-			// ignore err
-		}
+			if err := repo.LargeFilesPull(); err != nil {
+				// ignore err
+			}
 
-		return nil
-	}).ExecView(codebaseID, viewID, "createArchive"); err != nil {
+			return nil
+		}).ExecView(codebaseID, viewID, "createArchive"); err != nil {
 		return "", fmt.Errorf("executor failed: %w", err)
 	}
 

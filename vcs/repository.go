@@ -7,7 +7,6 @@ import (
 
 // Repo only need access to .git on the filesystem.
 type Repo interface {
-	Free()
 	CodebaseID() string
 	IsTrunk() bool
 	ViewID() *string

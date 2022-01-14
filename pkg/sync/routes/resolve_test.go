@@ -28,6 +28,7 @@ import (
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
 	graphql_review "mash/pkg/review/graphql"
+	"mash/pkg/snapshots"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
 	worker_snapshots "mash/pkg/snapshots/worker"
@@ -91,6 +92,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		resolves                      []ResolveFileRequest
 		expectedContentsBeforeResolve []nameContents // data on disk when in the conflicting state
 		expectedContentsAfterResolve  []nameContents
+		tryToLandWithConflicts        bool
 	}{
 		{
 			name:              "no-conflicts",
@@ -101,6 +103,47 @@ func TestResolveHighLevelV2(t *testing.T) {
 				{path: "foo.txt", contents: str("foo-trunk")},
 				{path: "bar.txt", contents: str("bar-workspace")},
 			},
+		},
+
+		{
+			name:               "conflict-and-new-files",
+			commonHistoryFiles: []nameContents{{path: "foo.txt", contents: str("foo-history")}},
+			trunkFiles: []nameContents{
+				{path: "foo.txt", contents: str("foo-trunk")},
+				{path: "a.txt", contents: str("new-trunk")},
+			},
+			workspaceFiles: []nameContents{
+				{path: "foo.txt", contents: str("foo-workspace")},
+				{path: "b.txt", contents: str("new-workspace")},
+			},
+			expectedConflicts: true,
+			resolves:          []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			expectedContentsAfterResolve: []nameContents{
+				{path: "foo.txt", contents: str("foo-workspace")},
+				{path: "a.txt", contents: str("new-trunk")},
+				{path: "b.txt", contents: str("new-workspace")},
+			},
+		},
+
+		{
+			name:               "conflict-and-new-files-try-to-land",
+			commonHistoryFiles: []nameContents{{path: "foo.txt", contents: str("foo-history")}},
+			trunkFiles: []nameContents{
+				{path: "foo.txt", contents: str("foo-trunk")},
+				{path: "a.txt", contents: str("new-trunk")},
+			},
+			workspaceFiles: []nameContents{
+				{path: "foo.txt", contents: str("foo-workspace")},
+				{path: "b.txt", contents: str("new-workspace")},
+			},
+			expectedConflicts: true,
+			resolves:          []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			expectedContentsAfterResolve: []nameContents{
+				{path: "foo.txt", contents: str("foo-workspace")},
+				{path: "a.txt", contents: str("new-trunk")},
+				{path: "b.txt", contents: str("new-workspace")},
+			},
+			tryToLandWithConflicts: true,
 		},
 
 		{
@@ -405,7 +448,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		nil, // changeResolver
 		nil, // workspaceActivityResolver
 		reviewRootResolver,
-		nil, // presenseRootResolver
+		nil, // presenceRootResolver
 		nil, // suggestitonsRootResolver
 		nil, // statusesRootResolver
 		*workspaceWatchersRootResolver,
@@ -454,6 +497,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	startRoutev2 := StartV2(logger, syncService)
 	resolveRoutev2 := ResolveV2(logger, syncService)
+	statusRoute := Status(viewRepo, executorProvider, logger)
 
 	createViewRoute := routes_v3_view.Create(
 		logger,
@@ -515,7 +559,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 			viewPath := repoProvider.ViewPath(codebaseID, viewRes.ID)
 
-			makeAndLandChanges := func(changes []nameContents, workspaceID graphql.ID) error {
+			makeChanges := func(changes []nameContents) {
 				// Create change in workspace
 				for _, f := range changes {
 					if f.contents != nil {
@@ -530,6 +574,10 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 					assert.NoError(t, err)
 				}
+			}
+
+			makeAndLandChanges := func(changes []nameContents, workspaceID graphql.ID) error {
+				makeChanges(changes)
 
 				// Get diff
 				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, string(workspaceID))
@@ -578,11 +626,15 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 			// Make the new changes
 			if len(tc.workspaceFiles) > 0 {
-				err = makeAndLandChanges(tc.workspaceFiles, secondWorkspaceResolver.ID())
-				if tc.expectedConflicts {
-					assert.Error(t, err)
+				if tc.tryToLandWithConflicts {
+					err = makeAndLandChanges(tc.workspaceFiles, secondWorkspaceResolver.ID())
+					if tc.expectedConflicts {
+						assert.Error(t, err)
+					} else {
+						assert.NoError(t, err)
+					}
 				} else {
-					assert.NoError(t, err)
+					makeChanges(tc.workspaceFiles)
 				}
 			}
 
@@ -591,6 +643,14 @@ func TestResolveHighLevelV2(t *testing.T) {
 			var startRebaseRes sync.RebaseStatusResponse
 			requestWithParams(t, userID, startRoutev2, InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
 			assert.Equal(t, tc.expectedConflicts, startRebaseRes.HaveConflicts)
+
+			// start sync again??
+			{
+				viewIDParams := []gin.Param{{"viewID", viewRes.ID}}
+				var startRebaseRes sync.RebaseStatusResponse
+				requestWithParams(t, userID, startRoutev2, InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
+				// assert.Equal(t, tc.expectedConflicts, startRebaseRes.HaveConflicts)
+			}
 
 			// Conflict resolution if we had a conflict
 			if tc.expectedConflicts {
@@ -624,6 +684,19 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 				}
 
+				// Trigger snapshot! (just because, it usually happens when new files are written)
+				assert.NoError(t, snapshotPublisher.Enqueue(context.Background(), codebaseID, viewRes.ID, viewRes.WorkspaceID, []string{"."}, snapshots.ActionViewSync))
+
+				// get status, expect to say that we're syncing
+				{
+					var syncStatusRes sync.RebaseStatusResponse
+					requestWithParams(t, userID, statusRoute, struct{}{}, &syncStatusRes, viewIDParams)
+					assert.True(t, syncStatusRes.IsRebasing)
+					assert.True(t, syncStatusRes.HaveConflicts)
+					assert.Len(t, syncStatusRes.ConflictingFiles, len(tc.resolves))
+				}
+
+				// Write custom resolutions
 				for _, f := range tc.customWorkspaceResolutions {
 					if f.contents != nil {
 						err = ioutil.WriteFile(path.Join(viewPath, f.path), []byte(*f.contents), 0o644)
@@ -635,6 +708,18 @@ func TestResolveHighLevelV2(t *testing.T) {
 						err = os.Remove(path.Join(viewPath, f.path))
 					}
 					assert.NoError(t, err)
+				}
+
+				// Trigger snapshot! (just because, it usually happens when new files are written)
+				assert.NoError(t, snapshotPublisher.Enqueue(context.Background(), codebaseID, viewRes.ID, viewRes.WorkspaceID, []string{"."}, snapshots.ActionViewSync))
+
+				// get status, expect to say that we're syncing
+				{
+					var syncStatusRes sync.RebaseStatusResponse
+					requestWithParams(t, userID, statusRoute, struct{}{}, &syncStatusRes, viewIDParams)
+					assert.True(t, syncStatusRes.IsRebasing)
+					assert.True(t, syncStatusRes.HaveConflicts)
+					assert.Len(t, syncStatusRes.ConflictingFiles, len(tc.resolves))
 				}
 
 				// Resolve conflict

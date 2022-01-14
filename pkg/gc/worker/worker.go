@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"mash/vcs"
 	"time"
+
+	"mash/vcs"
 
 	"mash/pkg/gc"
 	"mash/pkg/gc/db"
@@ -265,15 +266,17 @@ func gcSnapshot(
 
 	// Delete branch on the view that created the snapshot
 	if snapshot.ViewID != "" {
-		if err := executorProvider.New().AllowRebasingState().Git(func(viewGitRepo vcs.Repo) error {
-			if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
-				return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
-			}
+		if err := executorProvider.New().
+			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
+			Git(func(viewGitRepo vcs.Repo) error {
+				if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
+					return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
+				}
 
-			logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
+				logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
 
-			return nil
-		}).ExecView(m.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
+				return nil
+			}).ExecView(m.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
 			logger.Error("failed to open view", zap.Error(err))
 			return nil
 		}

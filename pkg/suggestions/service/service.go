@@ -398,7 +398,6 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
 				}
 			}()
-			defer repo.Free()
 
 			if err := removePatches(repo); err != nil {
 				return err

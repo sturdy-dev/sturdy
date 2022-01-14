@@ -12,7 +12,6 @@ func Create(repoProvider provider.RepoProvider, codebaseID, checkoutBranchName, 
 	if err != nil {
 		return fmt.Errorf("failed to create a view of %s: %w", codebaseID, err)
 	}
-	defer view.Free()
 
 	if err := view.FetchBranch(checkoutBranchName); err != nil {
 		return fmt.Errorf("failed to fetch branch: %w", err)
@@ -34,8 +33,6 @@ func SetWorkspace(viewProvider provider.ViewProvider, codebaseID, viewID, worksp
 	if err != nil {
 		return fmt.Errorf("failed find codebaseID %s: %w", codebaseID, err)
 	}
-	defer repo.Free()
-
 	return SetWorkspaceRepo(repo, workspaceID)
 }
 

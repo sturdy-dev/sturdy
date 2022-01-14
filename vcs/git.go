@@ -113,10 +113,6 @@ func CreateEmptyBareRepo(path string) (*repository, error) {
 	return r, nil
 }
 
-func (r *repository) Free() {
-	r.r.Free()
-}
-
 func CloneRepo(source, target string) (*repository, error) {
 	cmd := exec.Command("git", "clone", "--local", source, target)
 	output, err := cmd.CombinedOutput()

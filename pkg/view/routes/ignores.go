@@ -23,14 +23,16 @@ func Ignores(logger *zap.Logger, executorProvider executor.Provider, viewRepo db
 		}
 
 		var res []string
-		err = executorProvider.New().AllowRebasingState().Read(func(repo vcs.RepoReader) error {
-			var err error
-			res, err = ignore.FindIgnore(os.DirFS(repo.Path()))
-			if err != nil {
-				return err
-			}
-			return nil
-		}).ExecView(view.CodebaseID, view.ID, "findIgnores")
+		err = executorProvider.New().
+			AllowRebasingState(). // allowed to get .gitignore even if conflicting
+			Read(func(repo vcs.RepoReader) error {
+				var err error
+				res, err = ignore.FindIgnore(os.DirFS(repo.Path()))
+				if err != nil {
+					return err
+				}
+				return nil
+			}).ExecView(view.CodebaseID, view.ID, "findIgnores")
 		if err != nil {
 			logger.Error("failed to find ignores", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)

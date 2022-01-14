@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"time"
+
 	change_vcs "mash/pkg/change/vcs"
 	"mash/pkg/snapshots"
 	"mash/pkg/snapshots/snapshotter"
@@ -14,7 +16,6 @@ import (
 	vcsvcs "mash/vcs"
 	"mash/vcs/executor"
 	"mash/vcs/provider"
-	"time"
 
 	git "github.com/libgit2/git2go/v33"
 
@@ -71,6 +72,19 @@ func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
 		repo, err := repoProvider.ViewRepo(view.CodebaseID, view.ID)
 		if err != nil {
 			return err
+		}
+
+		// Already rebasing, exit
+		if repo.IsRebasing() {
+			rb, _ := repo.OpenRebase()
+			if err != nil {
+				return fmt.Errorf("failed to open previous rebase: %w", err)
+			}
+			rebaseStatusResponse, err = Status(s.logger, rb)
+			if err != nil {
+				return fmt.Errorf("failed to get conflict status: %w", err)
+			}
+			return nil
 		}
 
 		if err := repo.FetchBranch("sturdytrunk"); err != nil {
@@ -173,7 +187,7 @@ func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
 
 	err = s.executorProvider.New().
 		AssertBranchName(view.WorkspaceID).
-		AllowRebasingState().
+		AllowRebasingState(). // allowed to get the state of existing conflicts
 		Schedule(startSyncFunc).
 		ExecView(view.CodebaseID, view.ID, "syncOnTrunk2")
 	if err != nil {
