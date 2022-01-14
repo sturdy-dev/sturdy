@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	integrations "mash/pkg/integrations"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	integrations "mash/pkg/integrations"
 
 	"mash/pkg/change"
 	db_change "mash/pkg/change/db"
@@ -119,72 +120,74 @@ func (svc *Service) createGit(ctx context.Context, commit *change.ChangeCommit, 
 	}
 
 	var commitID string
-	if err := svc.executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-		// Create repo if not exists
-		// This is a non-bare repository
-		ciPath := repoProvider.ViewPath(commit.CodebaseID, "ci")
+	if err := svc.executorProvider.New().
+		AllowRebasingState(). // allowed because the repo might not exist yet
+		Schedule(func(repoProvider provider.RepoProvider) error {
+			// Create repo if not exists
+			// This is a non-bare repository
+			ciPath := repoProvider.ViewPath(commit.CodebaseID, "ci")
 
-		var repo vcs.RepoWriter
-		// Create if not exists
-		if _, err := os.Open(ciPath); errors.Is(err, os.ErrNotExist) {
-			repo, err = vcs.CreateNonBareRepoWithRootCommit(ciPath, "main")
+			var repo vcs.RepoWriter
+			// Create if not exists
+			if _, err := os.Open(ciPath); errors.Is(err, os.ErrNotExist) {
+				repo, err = vcs.CreateNonBareRepoWithRootCommit(ciPath, "main")
+				if err != nil {
+					return fmt.Errorf("failed to init repo: %w", err)
+				}
+			} else if err != nil {
+				return fmt.Errorf("failed to create repo: %w", err)
+			} else {
+				repo, err = repoProvider.ViewRepo(commit.CodebaseID, "ci")
+				if err != nil {
+					return fmt.Errorf("failed to init repo: %w", err)
+				}
+			}
+
+			data, err := json.Marshal(sturdyJsonData{
+				CodebaseID: commit.CodebaseID,
+				ChangeID:   string(commit.ChangeID),
+			})
 			if err != nil {
-				return fmt.Errorf("failed to init repo: %w", err)
+				return fmt.Errorf("failed to create metadata file: %w", err)
 			}
-		} else if err != nil {
-			return fmt.Errorf("failed to create repo: %w", err)
-		} else {
-			repo, err = repoProvider.ViewRepo(commit.CodebaseID, "ci")
+
+			// Create commit for this change
+
+			// Write seed files
+			for sfPath, data := range seedFilesContents {
+				filepath := path.Join(ciPath, sfPath)
+				if err := os.MkdirAll(path.Dir(filepath), 0755); err != nil {
+					return fmt.Errorf("failed to create directory for seed file (%s): %w", sfPath, err)
+				}
+				if err := os.WriteFile(filepath, data, 0o644); err != nil {
+					return fmt.Errorf("failed to write seed file (%s): %w", sfPath, err)
+				}
+			}
+
+			// Add metadata sturdy.json
+			if err := os.WriteFile(path.Join(ciPath, "sturdy.json"), data, 0o644); err != nil {
+				return fmt.Errorf("failed to write metadata file: %w", err)
+			}
+
+			replacer := strings.NewReplacer(
+				"__PUBLIC_API__HOSTNAME__", svc.publicApiHostname,
+				"__JWT__", jwt.Token,
+			)
+
+			generatedDownloadScript := replacer.Replace(downloadBash)
+
+			// Write download script
+			if err := os.WriteFile(path.Join(ciPath, "download"), []byte(generatedDownloadScript), 0o744); err != nil {
+				return fmt.Errorf("failed to write download.bash: %w", err)
+			}
+
+			commitID, err = repo.AddAndCommit(fmt.Sprintf("Change %s on Sturdy", commit.ChangeID))
 			if err != nil {
-				return fmt.Errorf("failed to init repo: %w", err)
+				return fmt.Errorf("failed to create commit: %w", err)
 			}
-		}
 
-		data, err := json.Marshal(sturdyJsonData{
-			CodebaseID: commit.CodebaseID,
-			ChangeID:   string(commit.ChangeID),
-		})
-		if err != nil {
-			return fmt.Errorf("failed to create metadata file: %w", err)
-		}
-
-		// Create commit for this change
-
-		// Write seed files
-		for sfPath, data := range seedFilesContents {
-			filepath := path.Join(ciPath, sfPath)
-			if err := os.MkdirAll(path.Dir(filepath), 0755); err != nil {
-				return fmt.Errorf("failed to create directory for seed file (%s): %w", sfPath, err)
-			}
-			if err := os.WriteFile(filepath, data, 0o644); err != nil {
-				return fmt.Errorf("failed to write seed file (%s): %w", sfPath, err)
-			}
-		}
-
-		// Add metadata sturdy.json
-		if err := os.WriteFile(path.Join(ciPath, "sturdy.json"), data, 0o644); err != nil {
-			return fmt.Errorf("failed to write metadata file: %w", err)
-		}
-
-		replacer := strings.NewReplacer(
-			"__PUBLIC_API__HOSTNAME__", svc.publicApiHostname,
-			"__JWT__", jwt.Token,
-		)
-
-		generatedDownloadScript := replacer.Replace(downloadBash)
-
-		// Write download script
-		if err := os.WriteFile(path.Join(ciPath, "download"), []byte(generatedDownloadScript), 0o744); err != nil {
-			return fmt.Errorf("failed to write download.bash: %w", err)
-		}
-
-		commitID, err = repo.AddAndCommit(fmt.Sprintf("Change %s on Sturdy", commit.ChangeID))
-		if err != nil {
-			return fmt.Errorf("failed to create commit: %w", err)
-		}
-
-		return nil
-	}).ExecView(commit.CodebaseID, "ci", "prepareContinuousIntegrationRepo"); err != nil {
+			return nil
+		}).ExecView(commit.CodebaseID, "ci", "prepareContinuousIntegrationRepo"); err != nil {
 		return "", err
 	}
 

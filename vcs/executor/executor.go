@@ -238,7 +238,6 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	}
 
 	onceRepo := openOnce(e.repoProvider, codebaseID, viewID)
-	defer onceRepo.Free()
 
 	for _, fn := range e.funs {
 		if err := fn.Exec(onceRepo); err != nil {
@@ -278,10 +277,4 @@ func (or *onceRepo) Get() (vcs.RepoWriter, error) {
 		}
 	})
 	return or.repo, or.err
-}
-
-func (or *onceRepo) Free() {
-	if or.repo != nil {
-		or.repo.Free()
-	}
 }

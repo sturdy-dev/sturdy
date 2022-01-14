@@ -179,36 +179,39 @@ func (s *WorkspaceService) diffsFromView(ctx context.Context, ws *workspace.Work
 	var diffs []unidiff.FileDiff
 
 	isRebasing := false
-	if err := s.executorProvider.New().AssertBranchName(ws.ID).AllowRebasingState().Read(func(repo vcs.RepoReader) error {
-		isRebasing = repo.IsRebasing()
+	if err := s.executorProvider.New().
+		AssertBranchName(ws.ID).
+		AllowRebasingState(). // allowed to generate diffs even if conflicting
+		Read(func(repo vcs.RepoReader) error {
+			isRebasing = repo.IsRebasing()
 
-		gitDiffs, err := repo.Diffs(options.VCSDiffOptions...)
-		if err != nil {
-			return fmt.Errorf("failed to get git repo diffs: %w", err)
-		}
-		defer gitDiffs.Free()
+			gitDiffs, err := repo.Diffs(options.VCSDiffOptions...)
+			if err != nil {
+				return fmt.Errorf("failed to get git repo diffs: %w", err)
+			}
+			defer gitDiffs.Free()
 
-		filter, err := lfs.NewIgnoreLfsSmudgedFilter(repo)
-		if err != nil {
-			return fmt.Errorf("could not smudge lfs files: %w", err)
-		}
+			filter, err := lfs.NewIgnoreLfsSmudgedFilter(repo)
+			if err != nil {
+				return fmt.Errorf("could not smudge lfs files: %w", err)
+			}
 
-		differ := unidiff.NewUnidiff(unidiff.NewGitPatchReader(gitDiffs), s.logger).
-			WithExpandedHunks().
-			WithFilterFunc(filter)
+			differ := unidiff.NewUnidiff(unidiff.NewGitPatchReader(gitDiffs), s.logger).
+				WithExpandedHunks().
+				WithFilterFunc(filter)
 
-		if options.Allower != nil {
-			differ = differ.WithAllower(options.Allower)
-		}
+			if options.Allower != nil {
+				differ = differ.WithAllower(options.Allower)
+			}
 
-		hunkifiedDiff, err := differ.Decorate()
-		if err != nil {
-			return fmt.Errorf("could not decorate view diffs: %w", err)
-		}
+			hunkifiedDiff, err := differ.Decorate()
+			if err != nil {
+				return fmt.Errorf("could not decorate view diffs: %w", err)
+			}
 
-		diffs = hunkifiedDiff
-		return nil
-	}).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceViewDiffs"); err != nil {
+			diffs = hunkifiedDiff
+			return nil
+		}).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceViewDiffs"); err != nil {
 		return nil, false, fmt.Errorf("failed to get diffs from view: %w", err)
 	}
 	return diffs, isRebasing, nil
@@ -662,7 +665,6 @@ func (s *WorkspaceService) RemovePatches(ctx context.Context, allower *unidiff.A
 					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
 				}
 			}()
-			defer repo.Free()
 
 			if err := removePatches(repo); err != nil {
 				return fmt.Errorf("failed to remove patches: %w", err)
@@ -730,7 +732,6 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
 				}
 			}()
-			defer repo.Free()
 			return hasConflictsFunc(repo)
 		}).ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflicts")
 	} else {

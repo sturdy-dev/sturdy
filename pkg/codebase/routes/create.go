@@ -1,15 +1,16 @@
 package routes
 
 import (
+	"net/http"
+	"strings"
+	"time"
+
 	"mash/pkg/auth"
 	"mash/pkg/shortid"
 	"mash/pkg/view/events"
 	service_workspace "mash/pkg/workspace/service"
 	"mash/vcs/executor"
 	"mash/vcs/provider"
-	"net/http"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -134,9 +135,11 @@ func DoCreateCodebase(
 		return codebase.Codebase{}, err
 	}
 
-	if err := executorProvider.New().AllowRebasingState().Schedule(func(trunkProvider provider.RepoProvider) error {
-		return vcs.Create(trunkProvider, cb.ID)
-	}).ExecTrunk(cb.ID, "createCodebase"); err != nil {
+	if err := executorProvider.New().
+		AllowRebasingState(). // allowed because the repo does not exist yet
+		Schedule(func(trunkProvider provider.RepoProvider) error {
+			return vcs.Create(trunkProvider, cb.ID)
+		}).ExecTrunk(cb.ID, "createCodebase"); err != nil {
 		logger.Error("failed to create codebase repo", zap.Error(err))
 		return codebase.Codebase{}, err
 	}

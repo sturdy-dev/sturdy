@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"net/http"
+	"time"
+
 	"mash/pkg/auth"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
@@ -9,8 +12,6 @@ import (
 	db_workspace "mash/pkg/workspace/db"
 	"mash/vcs/executor"
 	"mash/vcs/provider"
-	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -83,9 +84,11 @@ func Create(
 			return
 		}
 
-		if err := executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-			return vcs.Create(repoProvider, req.CodebaseID, req.WorkspaceID, e.ID)
-		}).ExecView(req.CodebaseID, e.ID, "createView"); err != nil {
+		if err := executorProvider.New().
+			AllowRebasingState(). // allowed because the view does not exist yet
+			Schedule(func(repoProvider provider.RepoProvider) error {
+				return vcs.Create(repoProvider, req.CodebaseID, req.WorkspaceID, e.ID)
+			}).ExecView(req.CodebaseID, e.ID, "createView"); err != nil {
 			logger.Error("failed to create view", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to create view"})
 			return

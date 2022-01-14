@@ -12,7 +12,7 @@ func FastLand(viewRepo vcs.RepoWriter, commitID string) (err error) {
 	}
 
 	if err := SyncSingleCommitOnBranch(viewRepo, commitID, "origin", "sturdytrunk"); err != nil {
-		return fmt.Errorf("failed to sync: %w", err)
+		return fmt.Errorf("failed to land: %w", err)
 	}
 
 	return nil

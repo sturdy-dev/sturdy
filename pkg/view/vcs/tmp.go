@@ -35,7 +35,6 @@ func TemporaryViewFromSnapshotWithID(
 	}
 
 	return viewRepo, func() error {
-		viewRepo.Free()
 		return os.RemoveAll(repoProvider.ViewPath(codebaseID, viewID))
 	}, nil
 
@@ -71,7 +70,6 @@ func TemporaryViewWithID(
 	}
 
 	return viewRepo, func() error {
-		viewRepo.Free()
 		return os.RemoveAll(repoProvider.ViewPath(codebaseID, viewID))
 	}, nil
 

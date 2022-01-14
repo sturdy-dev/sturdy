@@ -319,9 +319,11 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err = r.executorProvider.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
-		return view_vcs.Create(repoProvider, ws.CodebaseID, ws.ID, e.ID)
-	}).ExecView(ws.CodebaseID, e.ID, "createView"); err != nil {
+	if err = r.executorProvider.New().
+		AllowRebasingState(). // allowed because the view does not exist yet
+		Schedule(func(repoProvider provider.RepoProvider) error {
+			return view_vcs.Create(repoProvider, ws.CodebaseID, ws.ID, e.ID)
+		}).ExecView(ws.CodebaseID, e.ID, "createView"); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -374,7 +376,7 @@ func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspa
 			return err
 		}
 
-		//TODO: What if we can't make a snapshot because the view is FUBAR?
+		// TODO: What if we can't make a snapshot because the view is FUBAR?
 		if err := vcs2.Restore(logger, repoProvider, ws.CodebaseID, ws.ID, newView, snapshot.ID, snapshot.CommitID); err != nil {
 			return fmt.Errorf("failed to restore snapshot: %w", err)
 		}
@@ -478,14 +480,16 @@ func (r *Resolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, er
 func (r *Resolver) IgnoredPaths(ctx context.Context) ([]string, error) {
 	var res []string
 
-	err := r.root.executorProvider.New().AllowRebasingState().Read(func(repo vcs.RepoReader) error {
-		var err error
-		res, err = ignore.FindIgnore(os.DirFS(repo.Path()))
-		if err != nil {
-			return err
-		}
-		return nil
-	}).ExecView(r.v.CodebaseID, r.v.ID, "findIgnores")
+	err := r.root.executorProvider.New().
+		AllowRebasingState(). // allowed to parse .gitignore even if rebasing
+		Read(func(repo vcs.RepoReader) error {
+			var err error
+			res, err = ignore.FindIgnore(os.DirFS(repo.Path()))
+			if err != nil {
+				return err
+			}
+			return nil
+		}).ExecView(r.v.CodebaseID, r.v.ID, "findIgnores")
 	if err != nil {
 		return nil, err
 	}

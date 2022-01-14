@@ -3,11 +3,12 @@ package vcs
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	vcs_change "mash/pkg/change/vcs"
 	"mash/pkg/unidiff"
 	"mash/vcs"
 	"mash/vcs/provider"
-	"time"
 
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
@@ -170,8 +171,6 @@ func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID,
 	if err != nil {
 		return err
 	}
-	defer repo.Free()
-
 	return RestoreRepo(logger, repo, codebaseID, workspaceID, snapshotID, snapshotCommitID)
 }
 
@@ -217,7 +216,6 @@ func Diff(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID, vi
 	if err != nil {
 		return nil, err
 	}
-	defer repo.Free()
 
 	diffs, err := repo.DiffCommits(snapshotCommitID, parentSnapshotCommitID)
 	if err != nil {

@@ -2,31 +2,31 @@ package vcs
 
 import (
 	"fmt"
+	"os"
+
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
+
 	"mash/vcs"
 	"mash/vcs/provider"
-	"os"
 
 	git "github.com/libgit2/git2go/v33"
 )
 
 func Create(trunkProvider provider.TrunkProvider, codebaseID string) error {
 	path := trunkProvider.TrunkPath(codebaseID)
-	repo, err := vcs.CreateBareRepoWithRootCommit(path)
+	_, err := vcs.CreateBareRepoWithRootCommit(path)
 	if err != nil {
 		return fmt.Errorf("failed to create trunk: %w", err)
 	}
-	repo.Free()
 	return nil
 }
 
 func Import(trunkProvider provider.TrunkProvider, codebaseID, gitURL string) error {
-	repo, err := vcs.RemoteBareClone(gitURL, trunkProvider.TrunkPath(codebaseID))
+	_, err := vcs.RemoteBareClone(gitURL, trunkProvider.TrunkPath(codebaseID))
 	if err != nil {
 		return fmt.Errorf("failed remote clone %s: %w", gitURL, err)
 	}
-	repo.Free()
 	return nil
 }
 

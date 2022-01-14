@@ -58,7 +58,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 	}
 	if err := r.gitExecutorProvider.
 		New().
-		AllowRebasingState().
+		AllowRebasingState(). // allowed because the view does not exist yet
 		Schedule(func(repoProvider provider.RepoProvider) error {
 			clone, err := vcs.CloneRepo(
 				repoProvider.TrunkPath(codebaseID),

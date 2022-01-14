@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"mash/pkg/sync"
 	vcsvcs "mash/vcs"
 )
@@ -52,7 +53,7 @@ func (s *Service) Resolve(viewID string, resolves []vcsvcs.SturdyRebaseResolve) 
 	}
 
 	err = s.executorProvider.New().
-		AllowRebasingState().
+		AllowRebasingState(). // allowed to get the state of existing conflicts
 		Write(resolveSyncFunc).
 		ExecView(view.CodebaseID, view.ID, "syncResolve2")
 	if err != nil {

@@ -2,9 +2,10 @@ package vcs
 
 import (
 	"fmt"
+	"time"
+
 	"mash/vcs"
 	"mash/vcs/provider"
-	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -15,7 +16,6 @@ func CopyUpload(logger *zap.Logger, viewProvider provider.ViewProvider, codebase
 	if err != nil {
 		return "", "", err
 	}
-	defer sourceRepo.Free()
 
 	preCommit, err := sourceRepo.HeadCommit()
 	if err != nil {
@@ -56,7 +56,6 @@ func Copy(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID, so
 	if err != nil {
 		return "", err
 	}
-	defer targetRepo.Free()
 
 	return checkoutCopy(targetRepo, copyBranchName, sourceWorkspaceID, preCommitID)
 }
@@ -68,7 +67,6 @@ func CheckoutWorkspaceSnapshot(repoProvider provider.RepoProvider, codebaseID, s
 	if err != nil {
 		return "", err
 	}
-	defer trunkRepo.Free()
 
 	copyCommitID, err := trunkRepo.BranchCommitID(copyBranchName)
 	if err != nil {
@@ -87,7 +85,6 @@ func CheckoutWorkspaceSnapshot(repoProvider provider.RepoProvider, codebaseID, s
 	if err != nil {
 		return "", err
 	}
-	defer targetRepo.Free()
 
 	return checkoutCopy(targetRepo, copyBranchName, sourceWorkspaceID, preCommitID)
 }
