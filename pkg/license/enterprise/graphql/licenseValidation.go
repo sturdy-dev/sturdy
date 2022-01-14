@@ -1,8 +1,9 @@
 package graphql
 
 import (
+	"errors"
+
 	"github.com/graph-gophers/graphql-go"
-	"github.com/pkg/errors"
 
 	"mash/pkg/graphql/resolvers"
 	service_license "mash/pkg/license/enterprise/service"

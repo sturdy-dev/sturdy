@@ -51,7 +51,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/tidwall/match v1.0.3
-	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/yuin/goldmark v1.4.4
 	go.opencensus.io v0.23.0
 	go.uber.org/dig v1.13.0
@@ -116,6 +115,7 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli/v2 v2.1.1 // indirect
 	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
+	github.com/vektah/gqlparser/v2 v2.2.0 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/goleak v1.1.11 // indirect
