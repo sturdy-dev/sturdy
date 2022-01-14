@@ -202,7 +202,7 @@ import Avatar from '../shared/Avatar.vue'
 import Button from '../shared/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, toRefs } from 'vue'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -215,6 +215,7 @@ import { useDismissSuggestionHunks } from '../../mutations/useDismissSuggestionH
 import { useUpdatedSuggestion } from '../../subscriptions/useUpdatedSuggestion'
 import { useDismissSuggestion } from '../../mutations/useDismissSuggestion'
 import { useRemovePatches } from '../../mutations/useRemovePatches'
+import { Feature } from '../../__generated__/types'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {
@@ -280,9 +281,15 @@ export default {
       type: Boolean,
       required: true,
     },
+    features: {
+      type: Array,
+      required: true,
+    },
   },
   emits: ['codebase-updated', 'pre-create-change'],
-  setup() {
+  setup(props) {
+    const { features } = toRefs(props)
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
     let route = useRoute()
     let workspaceID = ref(route.params.id)
     watch(
@@ -293,7 +300,7 @@ export default {
     )
     let { data, fetching, error, executeQuery } = useQuery({
       query: gql`
-        query LiveDetails($workspaceID: ID!) {
+        query LiveDetails($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID) {
             id
             upToDateWithTrunk
@@ -335,7 +342,7 @@ export default {
 
             codebase {
               id
-              gitHubIntegration {
+              gitHubIntegration @include(if: $isGitHubEnabled) {
                 id
                 owner
                 name
@@ -345,7 +352,7 @@ export default {
                 lastPushAt
               }
             }
-            gitHubPullRequest {
+            gitHubPullRequest @include(if: $isGitHubEnabled) {
               id
               pullRequestNumber
               open
@@ -356,7 +363,7 @@ export default {
         }
       `,
       requestPolicy: 'cache-and-network',
-      variables: { workspaceID: workspaceID },
+      variables: { workspaceID: workspaceID, isGitHubEnabled },
     })
 
     useUpdatedGitHubPullRequest(workspaceID)
