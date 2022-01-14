@@ -32,7 +32,7 @@ func (r *TopCommentResolver) Change(ctx context.Context) (resolvers.ChangeResolv
 		return nil, nil
 	}
 	id := graphql.ID(*r.comment.ChangeID)
-	return (*r.root.changeResolver).Change(ctx, resolvers.ChangeArgs{ID: &id})
+	return r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{ID: &id})
 }
 
 func (r *TopCommentResolver) Replies() ([]resolvers.ReplyCommentResolver, error) {

@@ -19,8 +19,8 @@ type rootResolver struct {
 	changeRepo  db_change.Repository
 	authService *service_auth.Service
 
-	buildkiteRootResolver *resolvers.BuildkiteInstantIntegrationRootResolver
-	statusesRootResolver  *resolvers.StatusesRootResolver
+	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver
+	statusesRootResolver  resolvers.StatusesRootResolver
 }
 
 func NewRootResolver(
@@ -28,8 +28,8 @@ func NewRootResolver(
 	changeRepo db_change.Repository,
 	authService *service_auth.Service,
 
-	buildkiteRootResolver *resolvers.BuildkiteInstantIntegrationRootResolver,
-	statusesRootResolver *resolvers.StatusesRootResolver,
+	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver,
+	statusesRootResolver resolvers.StatusesRootResolver,
 ) resolvers.IntegrationRootResolver {
 	return &rootResolver{
 		svc:         svc,
@@ -68,7 +68,7 @@ func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resol
 	}
 	rr := make([]resolvers.StatusResolver, 0, len(ss))
 	for _, s := range ss {
-		rr = append(rr, (*r.statusesRootResolver).InternalStatus(s))
+		rr = append(rr, r.statusesRootResolver.InternalStatus(s))
 	}
 
 	return rr, nil

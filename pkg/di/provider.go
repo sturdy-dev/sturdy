@@ -11,6 +11,7 @@ type Module func(*Container)
 
 type Container struct {
 	container *dig.Container
+	invokes   []interface{}
 }
 
 // Register teaches container how to create an instance of the given type, for instance:
@@ -34,36 +35,59 @@ type Container struct {
 //     container.Register(func(*MyType) MyOtherTypeType { ... })
 //
 func (c *Container) Register(provider interface{}, as ...interface{}) {
-	c.container.Provide(provider) // register provider for the type itself
-
-	oo := []dig.ProvideOption{}
-	asTypes := []reflect.Type{}
-	for _, as := range as {
-		oo = append(oo, dig.As(as))
-		asTypePtr := reflect.TypeOf(as)
-		if asTypePtr.Kind() != reflect.Ptr {
-			panic(fmt.Sprintf("as must be a pointer, got %T", as))
+	if len(as) == 0 {
+		if err := c.container.Provide(provider); err != nil {
+			panic(fmt.Sprintf("%+v", err))
 		}
-		asTypes = append(asTypes, reflect.TypeOf(as))
+	} else {
+		if err := c.container.Provide(provider, dig.As(as...)); err != nil {
+			panic(fmt.Sprintf("%+v", err))
+		}
 	}
 
-	c.container.Provide(provider, oo...) // register provider for the _as_ implementations
-
-	// register cycle resolvers for the type
-	outType := reflect.TypeOf(provider).Out(0)
-	outTypePtr := reflect.PtrTo(outType)
-	provideFn := providerFor(outTypePtr)
-	invokeFn := invokerFor(outTypePtr)
-
-	c.container.Provide(provideFn)
-	c.container.Invoke(invokeFn)
-
-	for _, asType := range asTypes {
-		cycleInvoker := invokerFor(asType)
-		cycleProvider := providerFor(asType)
-		c.container.Invoke(cycleInvoker)
-		c.container.Provide(cycleProvider)
+	errTyp := reflect.TypeOf(new(error)).Elem()
+	cycleForTypes := []reflect.Type{}
+	providerType := reflect.TypeOf(provider)
+	for i := 0; i < providerType.NumOut(); i++ {
+		outType := providerType.Out(i)
+		if outType == errTyp {
+			continue
+		}
+		if outType.Kind() == reflect.Ptr {
+			continue
+		}
+		cycleForTypes = append(cycleForTypes, outType)
 	}
+
+	for _, a := range as {
+		asTypePtr := reflect.TypeOf(a)
+		asType := asTypePtr.Elem()
+		if asType.Kind() != reflect.Ptr {
+			cycleForTypes = append(cycleForTypes, asType)
+		}
+	}
+
+	invokes := make([]interface{}, 0, len(cycleForTypes))
+	for _, cycleType := range cycleForTypes {
+		cycleValPtr := reflect.New(cycleType)
+
+		provideNullFuncType := reflect.FuncOf(nil, []reflect.Type{cycleValPtr.Type()}, false)
+		provideNullFun := reflect.MakeFunc(provideNullFuncType, func(args []reflect.Value) []reflect.Value {
+			return []reflect.Value{cycleValPtr}
+		}).Interface()
+		if err := c.container.Provide(provideNullFun); err != nil {
+			panic(fmt.Sprintf("%+v", err))
+		}
+
+		setNullFuncType := reflect.FuncOf([]reflect.Type{cycleType}, nil, false)
+		setNullFunc := reflect.MakeFunc(setNullFuncType, func(args []reflect.Value) []reflect.Value {
+			cycleValPtr.Elem().Set(args[0])
+			return []reflect.Value{}
+		}).Interface()
+
+		invokes = append(invokes, setNullFunc)
+	}
+	c.invokes = append(invokes, c.invokes...)
 }
 
 // Import can be used to combine multiple modules into one.
@@ -76,7 +100,14 @@ func Init(dest interface{}, module Module) error {
 	c := &Container{
 		container: dig.New(),
 	}
+
 	module(c)
+
+	for _, invoke := range c.invokes {
+		if err := c.container.Invoke(invoke); err != nil {
+			return err
+		}
+	}
 
 	destPtrValue := reflect.ValueOf(dest)
 	destTypePtr := destPtrValue.Type()

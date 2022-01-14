@@ -32,7 +32,7 @@ type reviewRootResolver struct {
 	workspaceReader db_workspace.WorkspaceReader
 	authService     *service_auth.Service
 
-	authorRootResolver    *resolvers.AuthorRootResolver
+	authorRootResolver    resolvers.AuthorRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
 
 	eventsSender       events.EventSender
@@ -49,7 +49,7 @@ func New(
 	workspaceReader db_workspace.WorkspaceReader,
 	authService *service_auth.Service,
 
-	authorRootResolver *resolvers.AuthorRootResolver,
+	authorRootResolver resolvers.AuthorRootResolver,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 
 	eventsSender events.EventSender,

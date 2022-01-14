@@ -21,7 +21,7 @@ func (r *reviewResolver) ID() graphql.ID {
 }
 
 func (r *reviewResolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	return (*r.root.authorRootResolver).Author(ctx, graphql.ID(r.rev.UserID))
+	return r.root.authorRootResolver.Author(ctx, graphql.ID(r.rev.UserID))
 }
 
 func (r *reviewResolver) Grade() string {
@@ -48,7 +48,7 @@ func (r *reviewResolver) RequestedBy(ctx context.Context) (resolvers.AuthorResol
 	if r.rev.RequestedBy == nil {
 		return nil, nil
 	}
-	return (*r.root.authorRootResolver).Author(ctx, graphql.ID(*r.rev.RequestedBy))
+	return r.root.authorRootResolver.Author(ctx, graphql.ID(*r.rev.RequestedBy))
 }
 
 func (r *reviewResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {

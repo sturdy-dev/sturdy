@@ -21,8 +21,8 @@ type organizationRootResolver struct {
 	authService *service_auth.Service
 	userService *service_user.Service
 
-	authorRootResolver   *resolvers.AuthorRootResolver
-	licensesRootResolver *resolvers.LicenseRootResolver
+	authorRootResolver   resolvers.AuthorRootResolver
+	licensesRootResolver resolvers.LicenseRootResolver
 }
 
 func New(
@@ -30,8 +30,8 @@ func New(
 	authService *service_auth.Service,
 	userService *service_user.Service,
 
-	authorRootResolver *resolvers.AuthorRootResolver,
-	licensesRootResolver *resolvers.LicenseRootResolver,
+	authorRootResolver resolvers.AuthorRootResolver,
+	licensesRootResolver resolvers.LicenseRootResolver,
 ) resolvers.OrganizationRootResolver {
 	return &organizationRootResolver{
 		service:     service,
@@ -131,7 +131,7 @@ func (r *organizationResolver) Members(ctx context.Context) ([]resolvers.AuthorR
 	var res []resolvers.AuthorResolver
 
 	for _, m := range members {
-		author, err := (*r.root.authorRootResolver).Author(ctx, graphql.ID(m.UserID))
+		author, err := r.root.authorRootResolver.Author(ctx, graphql.ID(m.UserID))
 		switch {
 		case err == nil:
 			res = append(res, author)
@@ -150,5 +150,5 @@ func (r *organizationResolver) Codebases(context.Context) ([]resolvers.CodebaseR
 }
 
 func (r *organizationResolver) LicenseSubscriptions(ctx context.Context) ([]resolvers.LicenseResolver, error) {
-	return (*r.root.licensesRootResolver).InternalListForOrganization(ctx, r.org.ID)
+	return r.root.licensesRootResolver.InternalListForOrganization(ctx, r.org.ID)
 }

@@ -29,8 +29,8 @@ type RootResolver struct {
 	workspaceService service_workspace.Service
 	authService      *service_auth.Service
 
-	changeRootResolver *resolvers.ChangeRootResolver
-	gitHubPrResovler   *resolvers.GitHubPullRequestRootResolver
+	changeRootResolver resolvers.ChangeRootResolver
+	gitHubPrResovler   resolvers.GitHubPullRequestRootResolver
 
 	eventsReader events.EventReader
 }
@@ -41,8 +41,8 @@ func New(
 	changeService *service_changes.Service,
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
-	changeRootResolver *resolvers.ChangeRootResolver,
-	gitHubPrResovler *resolvers.GitHubPullRequestRootResolver,
+	changeRootResolver resolvers.ChangeRootResolver,
+	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
 	eventsReader events.EventReader,
 ) *RootResolver {
 	return &RootResolver{
@@ -157,7 +157,7 @@ func (r *resolver) Timestamp() int32 {
 }
 
 func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
-	change, err := (*r.root.changeRootResolver).Change(ctx, resolvers.ChangeArgs{
+	change, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{
 		CodebaseID: (*graphql.ID)(&r.status.CodebaseID),
 		CommitID:   (*graphql.ID)(&r.status.CommitID),
 	})
@@ -172,7 +172,7 @@ func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error)
 }
 
 func (r *resolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullRequestResolver, error) {
-	if pullRequest, err := (*r.root.gitHubPrResovler).InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitID); errors.Is(err, gqlerrors.ErrNotFound) {
+	if pullRequest, err := r.root.gitHubPrResovler.InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitID); errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err

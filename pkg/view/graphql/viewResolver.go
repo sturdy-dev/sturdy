@@ -53,7 +53,7 @@ type ViewRootResolver struct {
 	snapshotter                snapshotter.Snapshotter
 	viewWorkspaceSnapshotsRepo view_workspace_snapshot.Repository
 	snapshotRepo               db_snapshots.Repository
-	authorResolver             *resolvers.AuthorRootResolver
+	authorResolver             resolvers.AuthorRootResolver
 	workspaceResolver          *resolvers.WorkspaceRootResolver
 	workspaceWriter            db_workspace.WorkspaceWriter
 	viewEvents                 events.EventReader
@@ -63,7 +63,7 @@ type ViewRootResolver struct {
 	viewStatusRootResolver     resolvers.ViewStatusRootResolver
 	workspaceWatchersService   *service_workspace_watchers.Service
 	postHogClient              posthog.Client
-	codebaseResolver           *resolvers.CodebaseRootResolver
+	codebaseResolver           resolvers.CodebaseRootResolver
 	authService                *service_auth.Service
 }
 
@@ -73,7 +73,7 @@ func NewResolver(
 	snapshotter snapshotter.Snapshotter,
 	viewWorkspaceSnapshotsRepo view_workspace_snapshot.Repository,
 	snapshotRepo db_snapshots.Repository,
-	authorResolver *resolvers.AuthorRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	viewEvents events.EventReader,
@@ -83,7 +83,7 @@ func NewResolver(
 	viewStatusRootResolver resolvers.ViewStatusRootResolver,
 	workspaceWatchersService *service_workspace_watchers.Service,
 	postHogClient posthog.Client,
-	codebaseResolver *resolvers.CodebaseRootResolver,
+	codebaseResolver resolvers.CodebaseRootResolver,
 	authService *service_auth.Service,
 ) resolvers.ViewRootResolver {
 	return &ViewRootResolver{
@@ -439,7 +439,7 @@ func (r *Resolver) CreatedAt() int32 {
 }
 
 func (r *Resolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	return (*r.root.authorResolver).Author(ctx, graphql.ID(r.v.UserID))
+	return r.root.authorResolver.Author(ctx, graphql.ID(r.v.UserID))
 }
 
 func (r *Resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
@@ -468,7 +468,7 @@ func (r *Resolver) Status(ctx context.Context) (resolvers.ViewStatusResolver, er
 
 func (r *Resolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
 	id := graphql.ID(r.v.CodebaseID)
-	cb, err := (*r.root.codebaseResolver).Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+	cb, err := r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

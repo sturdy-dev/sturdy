@@ -62,5 +62,5 @@ type buildkiteProviderResolver struct {
 }
 
 func (br *buildkiteProviderResolver) Configuration(ctx context.Context) (resolvers.BuildkiteConfigurationResolver, error) {
-	return (*br.root.buildkiteRootResolver).InternalBuildkiteConfigurationByIntegrationID(ctx, br.integration.ID)
+	return br.root.buildkiteRootResolver.InternalBuildkiteConfigurationByIntegrationID(ctx, br.integration.ID)
 }

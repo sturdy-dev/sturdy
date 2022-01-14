@@ -21,7 +21,9 @@ func Module(c *di.Container) {
 	c.Register(func() *service.ImporterQueue {
 		return iq
 	})
-	c.Register(func(wq workers.ImporterQueue) struct{} {
+
+	type importerHack struct{}
+	c.Register(func(wq workers.ImporterQueue) importerHack {
 		*iq = wq
 		return struct{}{}
 	})
@@ -31,7 +33,8 @@ func Module(c *di.Container) {
 	c.Register(func() *service.ClonerQueue {
 		return cq
 	})
-	c.Register(func(wq *workers.ClonerQueue) struct{} {
+	type clonerHack struct{}
+	c.Register(func(wq *workers.ClonerQueue) clonerHack {
 		*cq = wq
 		return struct{}{}
 	})
