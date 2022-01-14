@@ -1,6 +1,7 @@
 <template>
   <div id="differ-root" class="w-full z-10 relative">
-    <div class="overflow-x-auto flex-grow flex flex-col gap-4">
+    <TooManyFilesChanged v-if="hideDiffsTooMany" :count="diffs.length" />
+    <div v-else class="overflow-x-auto flex-grow flex flex-col gap-4">
       <DifferFile
         v-for="(fileDiffs, fileKey) in diffsByFile"
         :key="fileKey"
@@ -47,6 +48,7 @@ import {
   SetCommentComposingReply,
   SetCommentExpandedEvent,
 } from '../comments/CommentState'
+import TooManyFilesChanged from './TooManyFilesChanged.vue'
 
 const getIndicesOf = function (searchStr: string, str: string, caseSensitive: boolean): number[] {
   let searchStrLen = searchStr.length
@@ -70,10 +72,14 @@ const getIndicesOf = function (searchStr: string, str: string, caseSensitive: bo
 export default defineComponent({
   components: {
     DifferFile: defineAsyncComponent(() => import('./DifferFile.vue')),
+    TooManyFilesChanged,
   },
   props: {
     isSuggesting: Boolean,
-    diffs: Object, // []unidiff.FileDiff
+    diffs: {
+      type: Array, // []unidiff.FileDiff
+      required: true,
+    },
     comments: Object,
     extraClasses: String,
     newCommentAvatarUrl: String,
@@ -124,6 +130,9 @@ export default defineComponent({
     }
   },
   computed: {
+    hideDiffsTooMany() {
+      return this.diffs.length > 250
+    },
     searchResult() {
       let result = new Map<string, number[]>()
       if (!this.searchQuery || !this.diffs) {

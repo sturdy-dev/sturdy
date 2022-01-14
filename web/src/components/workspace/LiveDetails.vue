@@ -117,9 +117,9 @@
     </div>
 
     <div class="z-10 relative">
-      <TooManyFilesChanged v-if="tooManyPatches" />
+      <TooManyFilesChanged v-if="hideDiffs" :count="diffs.length" />
 
-      <div v-if="!loadedDiffs" class="space-y-8 mt-4">
+      <div v-else-if="!loadedDiffs" class="space-y-8 mt-4">
         <div
           v-for="k in [1, 2, 3]"
           :key="k"
@@ -140,7 +140,7 @@
         </div>
       </div>
 
-      <template v-else>
+      <template v-else-if="!hasLiveChanges">
         <div
           v-if="!hasHiddenChanges && !hasLiveChanges && workspace?.author?.id === user?.id"
           class="mt-8"
@@ -155,37 +155,39 @@
         </div>
       </template>
 
-      <div class="mt-2" />
+      <template v-else>
+        <div class="mt-2" />
 
-      <OnboardingStep
-        id="WorkspaceChanges"
-        :dependencies="['FindingYourWorkspace']"
-        :enabled="combinedDiffTypes.length > 0"
-      >
-        <template #title>Workspace Changes</template>
+        <OnboardingStep
+          id="WorkspaceChanges"
+          :dependencies="['FindingYourWorkspace']"
+          :enabled="combinedDiffTypes.length > 0"
+        >
+          <template #title>Workspace Changes</template>
 
-        <template #description>
-          These are the changes that currently reside within this workspace. Until these changes
-          have been published to the changelog, you can review them here.
-        </template>
+          <template #description>
+            These are the changes that currently reside within this workspace. Until these changes
+            have been published to the changelog, you can review them here.
+          </template>
 
-        <Differ
-          :diffs="combinedDiffTypes"
-          :suggestions-by-file="suggestionsByFile"
-          :init-show-suggestions-by-user="lastShowSuggestionsByUser"
-          :is-suggesting="isSuggesting"
-          :can-comment="isAuthorized"
-          :comments="comments"
-          :user="user"
-          :members="members"
-          :workspace="workspace"
-          :view="view"
-          :show-add-button="isAuthorized"
-          @selectedHunks="updateSelectedHunks"
-          @applyHunkedSuggestion="onApplyHunkedSuggestion"
-          @dismissHunkedSuggestion="onDismissHunkedSuggestion"
-        />
-      </OnboardingStep>
+          <Differ
+            :diffs="combinedDiffTypes"
+            :suggestions-by-file="suggestionsByFile"
+            :init-show-suggestions-by-user="lastShowSuggestionsByUser"
+            :is-suggesting="isSuggesting"
+            :can-comment="isAuthorized"
+            :comments="comments"
+            :user="user"
+            :members="members"
+            :workspace="workspace"
+            :view="view"
+            :show-add-button="isAuthorized"
+            @selectedHunks="updateSelectedHunks"
+            @applyHunkedSuggestion="onApplyHunkedSuggestion"
+            @dismissHunkedSuggestion="onDismissHunkedSuggestion"
+          />
+        </OnboardingStep>
+      </template>
     </div>
   </div>
 </template>
@@ -268,10 +270,6 @@ export default {
     },
     diffs: {
       type: Array,
-      required: true,
-    },
-    tooManyPatches: {
-      type: Boolean,
       required: true,
     },
     comments: {
@@ -465,6 +463,9 @@ export default {
     }
   },
   computed: {
+    hideDiffs() {
+      return this.diffs.length > 250
+    },
     filesWithDiffs() {
       const set = new Set()
       this.visible_diffs.map((d) => d.preferred_name).forEach((f) => set.add(f))

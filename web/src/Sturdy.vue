@@ -243,9 +243,6 @@ export default defineComponent({
       error: null,
     }
   },
-  unmounted() {
-    this.emitter.off('authed', this.refreshUser)
-  },
   computed: {
     features(): Feature[] {
       return this.data?.features ?? []
@@ -302,6 +299,9 @@ export default defineComponent({
         posthog.identify(this.data.user.id)
       }
     },
+  },
+  unmounted() {
+    this.emitter.off('authed', this.refreshUser)
   },
   errorCaptured(err) {
     if (err as CombinedError) {

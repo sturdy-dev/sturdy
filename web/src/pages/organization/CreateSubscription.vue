@@ -16,14 +16,7 @@
           <label class="text-xl">Seats</label>
 
           <div class="w-42">
-            <input
-              class="w-full"
-              type="range"
-              min="20"
-              max="500"
-              step="5"
-              v-model="seats"
-            />
+            <input v-model="seats" class="w-full" type="range" min="20" max="500" step="5" />
           </div>
 
           <p class="text-sm">One seat equals to one user, minimum 20 users.</p>
@@ -50,7 +43,7 @@
 
       <p class="my-2">Reach out to support@getsturdy.com to get started.</p>
 
-      <pre>data={{data}}</pre>
+      <pre>data={{ data }}</pre>
     </template>
   </PaddedAppLeftSidebar>
 </template>
@@ -61,12 +54,12 @@ import Header from '../../molecules/Header.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import { CurrencyDollarIcon, UserGroupIcon } from '@heroicons/vue/solid'
-import {gql, useQuery} from "@urql/vue";
-import {useRoute} from "vue-router";
+import { gql, useQuery } from '@urql/vue'
+import { useRoute } from 'vue-router'
 import {
   ListOrganizationSubscriptionsQuery,
-  ListOrganizationSubscriptionsQueryVariables
-} from "./__generated__/CreateSubscription";
+  ListOrganizationSubscriptionsQueryVariables,
+} from './__generated__/CreateSubscription'
 
 export default defineComponent({
   components: {
@@ -80,16 +73,19 @@ export default defineComponent({
     let route = useRoute()
     let orgID = route.params.id as string
 
-    let { data } = useQuery<ListOrganizationSubscriptionsQuery, ListOrganizationSubscriptionsQueryVariables>({
+    let { data } = useQuery<
+      ListOrganizationSubscriptionsQuery,
+      ListOrganizationSubscriptionsQueryVariables
+    >({
       query: gql`
         query ListOrganizationSubscriptions($id: ID!) {
           organization(id: $id) {
             id
             licenseSubscriptions {
-                id
-                seats
-                usedSeats
-                licenseKey
+              id
+              seats
+              usedSeats
+              licenseKey
             }
           }
         }

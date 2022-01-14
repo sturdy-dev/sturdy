@@ -4,11 +4,11 @@
 
     <div class="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
       <RadioGroupOption
-        as="template"
         v-for="tier in tiers"
         :key="tier.id"
-        :value="tier"
         v-slot="{ checked, active }"
+        as="template"
+        :value="tier"
       >
         <div
           :class="[
@@ -35,17 +35,17 @@
               </RadioGroupDescription>
 
               <RadioGroupDescription
+                v-if="tier.isStartTrial"
                 as="span"
                 class="mt-1 flex items-center text-sm text-gray-500"
-                v-if="tier.isStartTrial"
               >
                 <span>Start 14-day free trial, no credit card required</span>
               </RadioGroupDescription>
 
               <RadioGroupDescription
+                v-if="tier.minimumUsers"
                 as="span"
                 class="mt-1 flex items-center text-sm text-gray-500"
-                v-if="tier.minimumUsers"
               >
                 <span>Starts at {{ tier.minimumUsers }} users, billed annually.</span>
               </RadioGroupDescription>
