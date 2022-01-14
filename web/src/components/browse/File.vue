@@ -23,17 +23,20 @@
       <tbody v-if="hl">
         <tr v-for="(line, idx) in hl" :key="idx">
           <td
-            class="bg-white sticky left-0 z-20 text-gray-600 flex justify-end pr-2 pl-12 font-mono select-none w-2"
+            class="bg-white sticky left-0 text-gray-600 flex justify-end pr-2 pl-12 font-mono select-none w-2"
           >
             <span>{{ idx + 1 }}</span>
           </td>
-          <td class="px-4 font-mono break-all border-l border-blue-500 w-full" v-html="line"></td>
+          <td
+            class="px-4 font-mono break-all border-l border-blue-500 w-full whitespace-pre"
+            v-html="line"
+          ></td>
         </tr>
       </tbody>
       <tbody v-else>
         <tr v-for="(line, idx) in lines" :key="idx">
           <td
-            class="bg-white sticky left-0 z-20 text-gray-600 flex justify-end pr-2 pl-12 font-mono select-none w-2"
+            class="bg-white sticky left-0 text-gray-600 flex justify-end pr-2 pl-12 font-mono select-none w-2"
           >
             <span>{{ idx + 1 }}</span>
           </td>
