@@ -212,11 +212,11 @@ func TestCreate(t *testing.T) {
 		nil, // prResolver
 		nil, // changeResolver
 		nil, // workspaceActivityResolver
-		&reviewRootResolver,
+		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
-		statusesRootResolver,
-		workspaceWatchersRootResolver,
+		*statusesRootResolver,
+		*workspaceWatchersRootResolver,
 		suggestionsService,
 		workspaceService,
 		authService,
@@ -267,7 +267,7 @@ func TestCreate(t *testing.T) {
 		nil, // commentsRepo
 		authService,
 		nil, // commentResolver
-		&authorRootResolver,
+		authorRootResolver,
 		statusesRootResolver,
 		executorProvider,
 		logger,
@@ -279,7 +279,7 @@ func TestCreate(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,
 	)
@@ -293,10 +293,10 @@ func TestCreate(t *testing.T) {
 		changeRepo,
 		changeCommitRepo,
 		nil,
-		&authorRootResolver,
+		authorRootResolver,
 		nil,
 		nil,
-		&changeRootResolver,
+		changeRootResolver,
 		nil,
 		nil,
 		nil, // instantIntegrationRootResolver
@@ -312,7 +312,7 @@ func TestCreate(t *testing.T) {
 		userRepo,
 		nil,
 		userService,
-		&viewRootResolver,
+		viewRootResolver,
 		nil,
 		nil,
 		logger,
@@ -736,7 +736,7 @@ func TestLargeFiles(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // githubpr resolver
 		viewEvents,
 	)
@@ -754,11 +754,11 @@ func TestLargeFiles(t *testing.T) {
 		nil, // prResolver
 		nil, // changeResolver
 		nil, // workspaceActivityResolver
-		&reviewRootResolver,
+		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
-		statusesRootResolver,
-		workspaceWatchersRootResolver,
+		*statusesRootResolver,
+		*workspaceWatchersRootResolver,
 		suggestionsService,
 		workspaceService,
 		authService,

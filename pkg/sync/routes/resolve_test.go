@@ -404,11 +404,11 @@ func TestResolveHighLevelV2(t *testing.T) {
 		nil, // prResolver
 		nil, // changeResolver
 		nil, // workspaceActivityResolver
-		&reviewRootResolver,
+		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
 		nil, // statusesRootResolver
-		workspaceWatchersRootResolver,
+		*workspaceWatchersRootResolver,
 		nil, // suggestionsService
 		workspaceService,
 		authService,

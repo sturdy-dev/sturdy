@@ -279,15 +279,15 @@ func TestPRHighLevel(t *testing.T) {
 		nil, // codebaseResolver
 		nil, // authorResolver
 		nil, // viewResolver
-		&commentsResolver,
+		commentsResolver,
 		nil, // prResolver
 		nil, // changeResolver
 		nil, // workspaceActivityResolver
 		nil, // reviewRootResolver
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
-		statusesRootResolver,
-		workspaceWatchersRootResolver,
+		*statusesRootResolver,
+		*workspaceWatchersRootResolver,
 		suggestionsService,
 		workspaceService,
 		authService,
@@ -348,8 +348,8 @@ func TestPRHighLevel(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		&changeResolver,
-		&prResolver,
+		changeResolver,
+		prResolver,
 		viewUpdates,
 	)
 

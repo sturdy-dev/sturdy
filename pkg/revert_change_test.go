@@ -205,13 +205,13 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		nil, // viewResolver
 		nil, // commentResolver
 		nil, // prResolver
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // workspaceActivityResolver
-		&reviewRootResolver,
+		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
-		statusesRootResolver,
-		workspaceWatchersRootResolver,
+		*statusesRootResolver,
+		*workspaceWatchersRootResolver,
 		suggestionsService,
 		workspaceService,
 		authService,
@@ -246,8 +246,8 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		&changeRootResolver,
-		&fileRootResolver,
+		changeRootResolver,
+		fileRootResolver,
 		nil,
 		nil, // instantIntegrationRootResolver
 
@@ -266,7 +266,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,
 	)
@@ -541,13 +541,13 @@ func TestRevertChangeFromView(t *testing.T) {
 		nil, // viewResolver
 		nil, // commentResolver
 		nil, // prResolver
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // workspaceActivityResolver
-		&reviewRootResolver,
+		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
-		statusesRootResolver,
-		workspaceWatchersRootResolver,
+		*statusesRootResolver,
+		*workspaceWatchersRootResolver,
 		suggestionsService,
 		workspaceService,
 		authService,
@@ -602,8 +602,8 @@ func TestRevertChangeFromView(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		&changeRootResolver,
-		&fileRootResolver,
+		changeRootResolver,
+		fileRootResolver,
 		nil,
 		nil, // instantIntegrationRootResolver
 
@@ -622,7 +622,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		changeService,
 		workspaceService,
 		authService,
-		&changeRootResolver,
+		changeRootResolver,
 		nil, // github pr resolver
 		viewEvents,
 	)
