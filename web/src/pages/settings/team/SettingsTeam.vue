@@ -5,28 +5,28 @@
     </template>
 
     <template #default>
-      <div class="max-w-7xl space-y-4">
-        <Header>Restore Workspaces</Header>
-        <SettingsWorkspaces classs="mt-8" :codebase-id="data.codebase.id" />
+      <div class="max-w-7xl">
+        <Header>Team and collaborators</Header>
+        <SettingsCollaborators :codebase-id="data.codebase.id" />
       </div>
     </template>
   </PaddedAppLeftSidebar>
 </template>
 
 <script>
+import SettingsCollaborators from '../../../components/codebase/settings/SettingsCollaborators.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import PaddedAppLeftSidebar from '../layouts/PaddedAppLeftSidebar.vue'
-import SettingsVerticalNavigation from '../components/codebase/settings/SettingsVerticalNavigation.vue'
-import Header from '../molecules/Header.vue'
-import SettingsWorkspaces from '../components/codebase/settings/SettingsWorkspaces.vue'
+import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
+import SettingsVerticalNavigation from '../../../components/codebase/settings/SettingsVerticalNavigation.vue'
+import Header from '../../../molecules/Header.vue'
 
 export default {
   name: 'CodebaseSettings',
   components: {
-    SettingsWorkspaces,
     PaddedAppLeftSidebar,
     SettingsVerticalNavigation,
+    SettingsCollaborators,
     Header,
   },
   setup() {
@@ -34,7 +34,7 @@ export default {
 
     let { data } = useQuery({
       query: gql`
-        query SettingsWorkspaces($id: ID, $shortID: ID) {
+        query SettingsTeam($id: ID, $shortID: ID) {
           codebase(id: $id, shortID: $shortID) {
             id
           }

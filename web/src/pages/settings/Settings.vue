@@ -13,15 +13,15 @@
 </template>
 
 <script>
-import SettingsTitle from '../components/codebase/settings/SettingsTitle.vue'
-import SettingsGitHubIntegration from '../components/codebase/settings/SettingsGitHubIntegration.vue'
+import SettingsTitle from '../../components/codebase/settings/SettingsTitle.vue'
+import SettingsGitHubIntegration from '../../components/codebase/settings/SettingsGitHubIntegration.vue'
 import SettingsDangerzone, {
   SETTINGS_DANGERZONE,
-} from '../components/codebase/settings/SettingsDangerzone.vue'
+} from '../../components/codebase/settings/SettingsDangerzone.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import PaddedAppLeftSidebar from '../layouts/PaddedAppLeftSidebar.vue'
-import SettingsVerticalNavigation from '../components/codebase/settings/SettingsVerticalNavigation.vue'
+import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
+import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
 
 export default {
   name: 'CodebaseSettings',
