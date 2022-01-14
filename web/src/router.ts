@@ -47,37 +47,37 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:codebaseSlug/settings',
-    component: () => import('./pages/Settings.vue'),
+    component: () => import('./pages/settings/Settings.vue'),
     name: 'codebaseSettings',
   },
   {
     path: '/:codebaseSlug/settings/team',
-    component: () => import('./pages/SettingsTeam.vue'),
+    component: () => import('./pages/settings/team/SettingsTeam.vue'),
     name: 'codebaseSettingsTeam',
   },
   {
     path: '/:codebaseSlug/settings/acl',
-    component: () => import('./pages/SettingsACL.vue'),
+    component: () => import('./pages/settings/acl/SettingsACL.vue'),
     name: 'codebaseSettingsAcls',
   },
   {
     path: '/:codebaseSlug/settings/workspaces',
-    component: () => import('./pages/SettingsWorkspaces.vue'),
+    component: () => import('./pages/settings/workspaces/SettingsWorkspaces.vue'),
     name: 'codebaseSettingsWorkspaces',
   },
   {
     path: '/:codebaseSlug/settings/integrations',
-    component: () => import('./pages/ci/ListIntegrations.vue'),
+    component: () => import('./pages/settings/integrations/ListIntegrations.vue'),
     name: 'codebaseSettingsIntegrations',
   },
   {
     path: '/:codebaseSlug/settings/add/buildkite',
-    component: () => import('./pages/ci/Buildkite.vue'),
+    component: () => import('./pages/settings/integrations/add/buildkite/Buildkite.vue'),
     name: 'codebaseSettingsAddBuildkite',
   },
   {
     path: '/:codebaseSlug/settings/edit/buildkite/:integrationId',
-    component: () => import('./pages/ci/Buildkite.vue'),
+    component: () => import('./pages/settings/integrations/add/buildkite/Buildkite.vue'),
     name: 'codebaseSettingsEditBuildkite',
   },
   {

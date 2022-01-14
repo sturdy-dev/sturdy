@@ -101,27 +101,27 @@
 </template>
 
 <script lang="ts">
-import TextInput from '../../molecules/TextInput.vue'
-import Step from '../../components/ci/Step.vue'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import TextInput from '../../../../../molecules/TextInput.vue'
+import Step from '../../../../../components/ci/Step.vue'
+import LinkButton from '../../../../../components/shared/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'
-import { Status } from '../../components/ci/StepIndicator.vue'
-import Instructions, { Instruction } from '../../components/ci/Instructions.vue'
-import CreatePipelineStep from '../../components/ci/CreatePipeline.vue'
-import TestIntegration from '../../components/ci/TestIntegration.vue'
+import { Status } from '../../../../../components/ci/StepIndicator.vue'
+import Instructions, { Instruction } from '../../../../../components/ci/Instructions.vue'
+import CreatePipelineStep from '../../../../../components/ci/CreatePipeline.vue'
+import TestIntegration from '../../../../../components/ci/TestIntegration.vue'
 import { gql, useQuery } from '@urql/vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { IdFromSlug } from '../../slug'
+import { IdFromSlug } from '../../../../../slug'
 import {
   GetBuildkiteIntegrationsQuery,
   GetBuildkiteIntegrationsQueryVariables,
 } from './__generated__/Buildkite'
-import Pill from '../../components/shared/Pill.vue'
-import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
-import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
-import Header from '../../molecules/Header.vue'
-import { InputMaybe } from '../../__generated__/types'
+import Pill from '../../../../../components/shared/Pill.vue'
+import PaddedAppLeftSidebar from '../../../../../layouts/PaddedAppLeftSidebar.vue'
+import SettingsVerticalNavigation from '../../../../../components/codebase/settings/SettingsVerticalNavigation.vue'
+import Header from '../../../../../molecules/Header.vue'
+import { InputMaybe } from '../../../../../__generated__/types'
 
 const toKebabCase = (str: string): string => {
   return str.toLowerCase().replace(/ /, '-')

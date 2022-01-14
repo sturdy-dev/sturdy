@@ -14,10 +14,10 @@
         <ul role="list" class="divide-y divide-gray-200">
           <template v-for="item in list" :key="item.name">
             <li
-              class="px-6 py-4 flex space-x-4 hover:cursor-pointer hover:bg-gray-50 items-start"
-              @click="$router.push({ name: item.page })"
+              class="flex items-center space-x-4 px-6 py-4"
+              :class="!item.enabled ? ['opacity-50'] : []"
             >
-              <img src="../../components/ci/logos/BuildkiteLogo.svg" class="h-10 w-10" />
+              <img src="../../../components/ci/logos/BuildkiteLogo.svg" class="h-10 w-10" />
               <div class="flex-1">
                 <h3>{{ item.name }}</h3>
                 <p class="text-gray-500 text-sm">{{ item.description }}</p>
@@ -30,7 +30,8 @@
                 </Pill>
                 <Pill v-else color="gray">Not Installed</Pill>
               </div>
-              <Button>Add</Button>
+
+              <Button :disabled="!item.enabled">Add</Button>
             </li>
             <template v-if="configuredProviders.has(item.name)">
               <li
@@ -65,33 +66,21 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { IdFromSlug } from '../../slug'
+import { IdFromSlug } from '../../../slug'
 import {
   GetIntegrationsQuery,
   GetIntegrationsQueryVariables,
   IntegrationListItemFragment,
 } from './__generated__/ListIntegrations'
-import Pill from '../../components/shared/Pill.vue'
-import Button from '../../components/shared/Button.vue'
-import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
-import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
-import Header from '../../molecules/Header.vue'
-import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
-import { useDeleteIntegration } from '../../mutations/useDeleteIntegration'
-import { defineComponent } from 'vue'
-
-const list = [
-  {
-    name: 'Buildkite',
-    description: 'Setup CI/CD with Buildkite',
-    page: 'codebaseSettingsAddBuildkite',
-  },
-  // {
-  //   name: 'GitLab',
-  //   description: 'Setup CI/CD with GitLab',
-  //   page: 'codebaseSettingsAddBuildkite',
-  // },
-]
+import Pill from '../../../components/shared/Pill.vue'
+import Button from '../../../components/shared/Button.vue'
+import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
+import SettingsVerticalNavigation from '../../../components/codebase/settings/SettingsVerticalNavigation.vue'
+import Header from '../../../molecules/Header.vue'
+import RouterLinkButton from '../../../components/shared/RouterLinkButton.vue'
+import { useDeleteIntegration } from '../../../mutations/useDeleteIntegration'
+import { defineComponent, PropType } from 'vue'
+import { Feature } from '../../../__generated__/types'
 
 const INTEGRATION_FRAGMENT = gql`
   fragment IntegrationListItem on Integration {
@@ -118,6 +107,12 @@ export default defineComponent({
     Header,
     RouterLinkButton,
   },
+  props: {
+    features: {
+      type: Array as PropType<Feature[]>,
+      required: true,
+    },
+  },
   setup() {
     const route = useRoute()
     const shortCodebaseID = IdFromSlug(route.params.codebaseSlug as string)
@@ -142,10 +137,8 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
     })
 
-    let deleteIntegration = useDeleteIntegration()
-
+    const deleteIntegration = useDeleteIntegration()
     return {
-      list,
       data,
       shortCodebaseID,
 
@@ -155,6 +148,16 @@ export default defineComponent({
     }
   },
   computed: {
+    list() {
+      return [
+        {
+          name: 'Buildkite',
+          description: 'Setup CI/CD with Buildkite',
+          page: 'codebaseSettingsAddBuildkite',
+          enabled: this.features.includes(Feature.Buildkite),
+        },
+      ]
+    },
     nonDeletedIntegrations(): Array<IntegrationListItemFragment> {
       let res = this.data?.codebase?.integrations.filter((i) => !i.deletedAt)
       if (!res) {
