@@ -24,11 +24,10 @@ import (
 	module_transactional "mash/pkg/emails/transactional/module"
 	module_features "mash/pkg/features/module"
 	module_file "mash/pkg/file/module"
-	db_gc "mash/pkg/gc/db"
-	worker_gc "mash/pkg/gc/worker"
+	module_gc "mash/pkg/gc/module"
 	"mash/pkg/github/config"
 	module_github "mash/pkg/github/module"
-	"mash/pkg/gitserver"
+	module_gitserver "mash/pkg/gitserver"
 	"mash/pkg/graphql"
 	"mash/pkg/http"
 	"mash/pkg/http/oss"
@@ -226,7 +225,6 @@ func main() {
 		db_pki.NewRepo,
 		db_snapshots.NewRepo,
 		db_suggestion.New,
-		db_gc.NewRepository,
 		view_workspace_snapshot.NewRepo,
 		db_notification.NewRepository,
 		db_mutagen.NewRepository,
@@ -242,9 +240,7 @@ func main() {
 		db_organization.NewMember,
 		service_sync.New,
 		service_organization.New,
-		worker_gc.New,
 		worker_snapshots.New,
-		gitserver.New,
 	}
 
 	mainModule := func(c *di.Container) {
@@ -262,14 +258,16 @@ func main() {
 		c.Import(module_comments.Module)
 		c.Import(module_features.Module)
 		c.Import(module_file.Module)
+		c.Import(module_gc.Module)
+		c.Import(module_github.Module)
 		c.Import(module_integrations.Module)
+		c.Import(module_gitserver.Module)
 
 		// todo: continue importing here
 
 		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
 		c.Import(http.Module)
-		c.Import(module_github.Module)
 		c.Import(module_workspace.Module)
 		c.Import(graphql.Module)
 		c.Import(module_license.Module)
