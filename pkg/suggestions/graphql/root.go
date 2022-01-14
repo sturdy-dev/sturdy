@@ -24,8 +24,8 @@ type RootResolver struct {
 	suggestionsService *service_suggestions.Service
 	workspaceService   service_workspace.Service
 
-	authorResolver    *resolvers.AuthorRootResolver
-	fileDiffResolver  *resolvers.FileDiffRootResolver
+	authorResolver    resolvers.AuthorRootResolver
+	fileDiffResolver  resolvers.FileDiffRootResolver
 	workspaceResolver *resolvers.WorkspaceRootResolver
 
 	eventsReader events.EventReader
@@ -38,8 +38,8 @@ func New(
 	suggestionsService *service_suggestions.Service,
 	workspaceService service_workspace.Service,
 
-	authorResolver *resolvers.AuthorRootResolver,
-	fileDiffResolver *resolvers.FileDiffRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
+	fileDiffResolver resolvers.FileDiffRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 
 	eventsReader events.EventReader,

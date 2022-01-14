@@ -49,7 +49,7 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 			id = args.Input.OnTopOfChangeWithRevert
 		}
 
-		ch, err := (*r.changeResolver).Change(ctx, resolvers.ChangeArgs{ID: id})
+		ch, err := r.changeResolver.Change(ctx, resolvers.ChangeArgs{ID: id})
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}

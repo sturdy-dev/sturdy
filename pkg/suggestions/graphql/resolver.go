@@ -22,7 +22,7 @@ func (r *Resolver) ID() graphql.ID {
 }
 
 func (r *Resolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	return (*r.root.authorResolver).Author(ctx, graphql.ID(r.suggestion.UserID))
+	return r.root.authorResolver.Author(ctx, graphql.ID(r.suggestion.UserID))
 }
 
 func (r *Resolver) For(ctx context.Context) (resolvers.WorkspaceResolver, error) {
@@ -66,7 +66,7 @@ func (r *Resolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolver, err
 
 	rr := make([]resolvers.FileDiffResolver, 0, len(diffs))
 	for _, diff := range diffs {
-		rr = append(rr, (*r.root.fileDiffResolver).InternalFileDiff(&diff))
+		rr = append(rr, r.root.fileDiffResolver.InternalFileDiff(&diff))
 	}
 	return rr, nil
 }

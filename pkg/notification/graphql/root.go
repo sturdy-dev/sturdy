@@ -38,13 +38,13 @@ type notificationRootResolver struct {
 	preferencesService *service_notification.Preferences
 	authService        *service_auth.Service
 
-	commentResolver                       *resolvers.CommentRootResolver
-	codebaseResolver                      *resolvers.CodebaseRootResolver
-	authorRootResolver                    *resolvers.AuthorRootResolver
-	workspaceRootResolver                 *resolvers.WorkspaceRootResolver
-	reviewRootResolver                    *resolvers.ReviewRootResolver
-	suggestionRootResolver                *resolvers.SuggestionRootResolver
-	codebaseGitHubIntegrationRootResolver *resolvers.CodebaseGitHubIntegrationRootResolver
+	commentResolver                       resolvers.CommentRootResolver
+	codebaseResolver                      resolvers.CodebaseRootResolver
+	authorRootResolver                    resolvers.AuthorRootResolver
+	workspaceRootResolver                 resolvers.WorkspaceRootResolver
+	reviewRootResolver                    resolvers.ReviewRootResolver
+	suggestionRootResolver                resolvers.SuggestionRootResolver
+	codebaseGitHubIntegrationRootResolver resolvers.CodebaseGitHubIntegrationRootResolver
 
 	eventsReader events.EventReader
 	eventSender  events.EventSender
@@ -59,13 +59,13 @@ func NewResolver(
 	preferencesService *service_notification.Preferences,
 	authService *service_auth.Service,
 
-	commentResolver *resolvers.CommentRootResolver,
-	codebaseResolver *resolvers.CodebaseRootResolver,
-	authorRootResolver *resolvers.AuthorRootResolver,
-	workspaceRootResolver *resolvers.WorkspaceRootResolver,
-	reviewRootResolver *resolvers.ReviewRootResolver,
-	suggestionRootResolver *resolvers.SuggestionRootResolver,
-	codebaseGitHubIntegrationRootResolver *resolvers.CodebaseGitHubIntegrationRootResolver,
+	commentResolver resolvers.CommentRootResolver,
+	codebaseResolver resolvers.CodebaseRootResolver,
+	authorRootResolver resolvers.AuthorRootResolver,
+	workspaceRootResolver resolvers.WorkspaceRootResolver,
+	reviewRootResolver resolvers.ReviewRootResolver,
+	suggestionRootResolver resolvers.SuggestionRootResolver,
+	codebaseGitHubIntegrationRootResolver resolvers.CodebaseGitHubIntegrationRootResolver,
 
 	eventsReader events.EventReader,
 	eventSender events.EventSender,
@@ -383,21 +383,21 @@ func (r *notificationResolver) ArchivedAt() *int32 {
 
 func (r *notificationResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
 	id := graphql.ID(r.notif.CodebaseID)
-	return (*r.root.codebaseResolver).Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+	return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 }
 
 func (r *notificationResolver) sub(ctx context.Context) (interface{}, error) {
 	switch r.notif.NotificationType {
 	case notification.CommentNotificationType:
-		return (*r.root.commentResolver).Comment(ctx, resolvers.CommentArgs{ID: graphql.ID(r.notif.ReferenceID)})
+		return r.root.commentResolver.Comment(ctx, resolvers.CommentArgs{ID: graphql.ID(r.notif.ReferenceID)})
 	case notification.ReviewNotificationType:
-		return (*r.root.reviewRootResolver).InternalReview(ctx, r.notif.ReferenceID)
+		return r.root.reviewRootResolver.InternalReview(ctx, r.notif.ReferenceID)
 	case notification.RequestedReviewNotificationType:
-		return (*r.root.reviewRootResolver).InternalReview(ctx, r.notif.ReferenceID)
+		return r.root.reviewRootResolver.InternalReview(ctx, r.notif.ReferenceID)
 	case notification.NewSuggestionNotificationType:
-		return (*r.root.suggestionRootResolver).InternalSuggestionByID(ctx, suggestions.ID(r.notif.ReferenceID))
+		return r.root.suggestionRootResolver.InternalSuggestionByID(ctx, suggestions.ID(r.notif.ReferenceID))
 	case notification.GitHubRepositoryImported:
-		return (*r.root.codebaseGitHubIntegrationRootResolver).InternalGitHubRepositoryByID(r.notif.ReferenceID)
+		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(r.notif.ReferenceID)
 	default:
 		return resolvers.NotificationTypeUndefined, fmt.Errorf("unknown notification type")
 	}

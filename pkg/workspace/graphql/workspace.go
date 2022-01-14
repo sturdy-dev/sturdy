@@ -36,18 +36,18 @@ type WorkspaceRootResolver struct {
 	commentRepo     db_comments.Repository
 	snapshotsRepo   db_snapshots.Repository
 
-	codebaseResolver              *resolvers.CodebaseRootResolver
-	authorResolver                *resolvers.AuthorRootResolver
-	viewResolver                  *resolvers.ViewRootResolver
-	commentResolver               *resolvers.CommentRootResolver
-	prResolver                    *resolvers.GitHubPullRequestRootResolver
-	changeResolver                *resolvers.ChangeRootResolver
-	workspaceActivityRootResolver *resolvers.WorkspaceActivityRootResolver
-	reviewRootResolver            *resolvers.ReviewRootResolver
-	presenceRootResolver          *resolvers.PresenceRootResolver
-	suggestionRootResolver        *resolvers.SuggestionRootResolver
-	statusRootResolver            *resolvers.StatusesRootResolver
-	workspaceWatcherRootResolver  *resolvers.WorkspaceWatcherRootResolver
+	codebaseResolver              resolvers.CodebaseRootResolver
+	authorResolver                resolvers.AuthorRootResolver
+	viewResolver                  resolvers.ViewRootResolver
+	commentResolver               resolvers.CommentRootResolver
+	prResolver                    resolvers.GitHubPullRequestRootResolver
+	changeResolver                resolvers.ChangeRootResolver
+	workspaceActivityRootResolver resolvers.WorkspaceActivityRootResolver
+	reviewRootResolver            resolvers.ReviewRootResolver
+	presenceRootResolver          resolvers.PresenceRootResolver
+	suggestionRootResolver        resolvers.SuggestionRootResolver
+	statusRootResolver            resolvers.StatusesRootResolver
+	workspaceWatcherRootResolver  resolvers.WorkspaceWatcherRootResolver
 
 	suggestionsService *service_suggestions.Service
 	workspaceService   service_workspace.Service
@@ -68,18 +68,18 @@ func NewResolver(
 	commentRepo db_comments.Repository,
 	snapshotRepo db_snapshots.Repository,
 
-	codebaseResolver *resolvers.CodebaseRootResolver,
-	authorResolver *resolvers.AuthorRootResolver,
-	viewResolver *resolvers.ViewRootResolver,
-	commentResolver *resolvers.CommentRootResolver,
-	prResolver *resolvers.GitHubPullRequestRootResolver,
-	changeResolver *resolvers.ChangeRootResolver,
-	workspaceActivityRootResolver *resolvers.WorkspaceActivityRootResolver,
-	reviewRootResolver *resolvers.ReviewRootResolver,
-	presenceRootResolver *resolvers.PresenceRootResolver,
-	suggestionRootResolver *resolvers.SuggestionRootResolver,
-	statusRootResolver *resolvers.StatusesRootResolver,
-	workspaceWatcherRootResolver *resolvers.WorkspaceWatcherRootResolver,
+	codebaseResolver resolvers.CodebaseRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
+	viewResolver resolvers.ViewRootResolver,
+	commentResolver resolvers.CommentRootResolver,
+	prResolver resolvers.GitHubPullRequestRootResolver,
+	changeResolver resolvers.ChangeRootResolver,
+	workspaceActivityRootResolver resolvers.WorkspaceActivityRootResolver,
+	reviewRootResolver resolvers.ReviewRootResolver,
+	presenceRootResolver resolvers.PresenceRootResolver,
+	suggestionRootResolver resolvers.SuggestionRootResolver,
+	statusRootResolver resolvers.StatusesRootResolver,
+	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
 
 	suggestionsService *service_suggestions.Service,
 	workspaceService service_workspace.Service,
@@ -237,7 +237,7 @@ func (r *WorkspaceResolver) Name() string {
 
 func (r *WorkspaceResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
 	id := graphql.ID(r.w.CodebaseID)
-	cb, err := (*r.root.codebaseResolver).Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+	cb, err := r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -245,7 +245,7 @@ func (r *WorkspaceResolver) Codebase(ctx context.Context) (resolvers.CodebaseRes
 }
 
 func (r *WorkspaceResolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	author, err := (*r.root.authorResolver).Author(ctx, graphql.ID(r.w.UserID))
+	author, err := r.root.authorResolver.Author(ctx, graphql.ID(r.w.UserID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -320,11 +320,11 @@ func (r *WorkspaceResolver) View(ctx context.Context) (resolvers.ViewResolver, e
 	if r.w.ViewID == nil {
 		return nil, nil
 	}
-	return (*r.root.viewResolver).View(ctx, resolvers.ViewArgs{ID: graphql.ID(*r.w.ViewID)})
+	return r.root.viewResolver.View(ctx, resolvers.ViewArgs{ID: graphql.ID(*r.w.ViewID)})
 }
 
 func (r *WorkspaceResolver) Comments() ([]resolvers.TopCommentResolver, error) {
-	comments, err := (*r.root.commentResolver).InternalWorkspaceComments(r.w)
+	comments, err := r.root.commentResolver.InternalWorkspaceComments(r.w)
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
@@ -344,7 +344,7 @@ func (r *WorkspaceResolver) Comments() ([]resolvers.TopCommentResolver, error) {
 
 func (r *WorkspaceResolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullRequestResolver, error) {
 	id := graphql.ID(r.w.ID)
-	pr, err := (*r.root.prResolver).InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &id})
+	pr, err := r.root.prResolver.InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &id})
 	switch {
 	case err == nil:
 		return pr, nil
@@ -480,7 +480,7 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 	cid := graphql.ID(r.w.CodebaseID)
 	commitID := graphql.ID(*r.w.HeadCommitID)
 
-	resolver, err := (*r.root.changeResolver).Change(ctx, resolvers.ChangeArgs{
+	resolver, err := r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{
 		CodebaseID: &cid,
 		CommitID:   &commitID,
 	})
@@ -495,11 +495,11 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 }
 
 func (r *WorkspaceResolver) Activity(ctx context.Context, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {
-	return (*r.root.workspaceActivityRootResolver).InternalActivityByWorkspace(ctx, r.w.ID, args)
+	return r.root.workspaceActivityRootResolver.InternalActivityByWorkspace(ctx, r.w.ID, args)
 }
 
 func (r *WorkspaceResolver) Reviews(ctx context.Context) ([]resolvers.ReviewResolver, error) {
-	res, err := (*r.root.reviewRootResolver).InternalReviews(ctx, r.w.ID)
+	res, err := r.root.reviewRootResolver.InternalReviews(ctx, r.w.ID)
 	switch {
 	case err == nil:
 		return res, nil
@@ -511,14 +511,14 @@ func (r *WorkspaceResolver) Reviews(ctx context.Context) ([]resolvers.ReviewReso
 }
 
 func (r *WorkspaceResolver) Presence(ctx context.Context) ([]resolvers.PresenceResolver, error) {
-	return (*r.root.presenceRootResolver).InternalWorkspacePresence(ctx, r.w.ID)
+	return r.root.presenceRootResolver.InternalWorkspacePresence(ctx, r.w.ID)
 }
 
 func (r *WorkspaceResolver) Suggestion(ctx context.Context) (resolvers.SuggestionResolver, error) {
 	suggestion, err := r.root.suggestionsService.GetByWorkspaceID(ctx, r.w.ID)
 	switch {
 	case err == nil:
-		return (*r.root.suggestionRootResolver).InternalSuggestion(ctx, suggestion)
+		return r.root.suggestionRootResolver.InternalSuggestion(ctx, suggestion)
 	case errors.Is(err, sql.ErrNoRows):
 		return nil, nil
 	default:
@@ -534,7 +534,7 @@ func (r *WorkspaceResolver) Suggestions(ctx context.Context) ([]resolvers.Sugges
 
 	rr := make([]resolvers.SuggestionResolver, 0, len(ss))
 	for _, s := range ss {
-		r, err := (*r.root.suggestionRootResolver).InternalSuggestion(ctx, s)
+		r, err := r.root.suggestionRootResolver.InternalSuggestion(ctx, s)
 		if err != nil {
 			return nil, err
 		}
@@ -552,7 +552,7 @@ func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusRes
 	lastSnapshot, err := r.root.snapshotsRepo.Get(*r.w.LatestSnapshotID)
 	switch {
 	case err == nil:
-		return (*r.root.statusRootResolver).InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
+		return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
 	case errors.Is(err, sql.ErrNoRows):
 		return nil, nil
 	default:
@@ -561,7 +561,7 @@ func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusRes
 }
 
 func (r *WorkspaceResolver) Watchers(ctx context.Context) ([]resolvers.WorkspaceWatcherResolver, error) {
-	return (*r.root.workspaceWatcherRootResolver).InternalWorkspaceWatchers(ctx, r.w)
+	return r.root.workspaceWatcherRootResolver.InternalWorkspaceWatchers(ctx, r.w)
 }
 
 func (r *WorkspaceResolver) SuggestingViews() []resolvers.ViewResolver {

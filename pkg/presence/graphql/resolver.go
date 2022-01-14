@@ -21,7 +21,7 @@ import (
 type presenceRootResolver struct {
 	presenceService service_presence.Service
 
-	authorRootResolver    *resolvers.AuthorRootResolver
+	authorRootResolver    resolvers.AuthorRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
 	authService           *service_auth.Service
 
@@ -31,7 +31,7 @@ type presenceRootResolver struct {
 
 func NewRootResolver(
 	presenceService service_presence.Service,
-	authorRootResolver *resolvers.AuthorRootResolver,
+	authorRootResolver resolvers.AuthorRootResolver,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 	logger *zap.Logger,
 	eventsReadWriter events.EventReadWriter,
@@ -147,7 +147,7 @@ func (r *presenceResolver) ID() graphql.ID {
 }
 
 func (r *presenceResolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	author, err := (*r.root.authorRootResolver).Author(ctx, graphql.ID(r.pre.UserID))
+	author, err := r.root.authorRootResolver.Author(ctx, graphql.ID(r.pre.UserID))
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}

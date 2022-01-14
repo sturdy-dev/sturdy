@@ -66,11 +66,12 @@ type CommentRootResolver struct {
 	notificationSender notification_sender.NotificationSender
 	activitySender     sender_workspace_activity.ActivitySender
 
-	authorResolver    *resolvers.AuthorRootResolver
+	authorResolver    resolvers.AuthorRootResolver
 	workspaceResolver *resolvers.WorkspaceRootResolver
-	changeResolver    *resolvers.ChangeRootResolver
-	logger            *zap.Logger
-	postHogClient     posthog.Client
+	changeResolver    resolvers.ChangeRootResolver
+
+	logger        *zap.Logger
+	postHogClient posthog.Client
 }
 
 func NewResolver(
@@ -89,9 +90,9 @@ func NewResolver(
 	notificationSender notification_sender.NotificationSender,
 	activitySender sender_workspace_activity.ActivitySender,
 
-	authorResolver *resolvers.AuthorRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
-	changeResolver *resolvers.ChangeRootResolver,
+	changeResolver resolvers.ChangeRootResolver,
 
 	logger *zap.Logger,
 	postHogClient posthog.Client,
@@ -595,7 +596,7 @@ func (r *CommentResolver) ID() graphql.ID {
 }
 
 func (r *CommentResolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	return (*r.root.authorResolver).Author(ctx, graphql.ID(r.comment.UserID))
+	return r.root.authorResolver.Author(ctx, graphql.ID(r.comment.UserID))
 }
 
 func (r *CommentResolver) CreatedAt() int32 {

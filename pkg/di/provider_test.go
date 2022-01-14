@@ -126,9 +126,9 @@ func TestModule_interface(t *testing.T) {
 
 func TestModule_cycleInterfaces(t *testing.T) {
 	moduleA := func(c *di.Container) {
-		c.Register(func(ib *IB) *a {
+		c.Register(func(ib *IB) IA {
 			return &a{v: "a", ib: ib}
-		}, new(IA))
+		})
 	}
 	moduleB := func(c *di.Container) {
 		c.Register(func(ia *IA) *b {
@@ -136,18 +136,35 @@ func TestModule_cycleInterfaces(t *testing.T) {
 		}, new(IB))
 	}
 
+	type result struct {
+		ia *IA
+		ib *IB
+	}
 	both := func(c *di.Container) {
 		c.Import(moduleA)
 		c.Import(moduleB)
+		c.Register(func(ib *IB, ia *IA) *result {
+			return &result{ia: ia, ib: ib}
+		})
 	}
 
-	var targetA *a
-	if assert.NoError(t, di.Init(&targetA, both)) {
-		assert.NotNil(t, targetA.ib)
+	other := func(c *di.Container) {
+		c.Import(both)
 	}
 
-	var targetB *b
-	if assert.NoError(t, di.Init(&targetB, both)) {
-		assert.NotNil(t, targetB.ia)
-	}
+	var target *result
+	assert.NoError(t, di.Init(&target, other))
+
+	var targetA IA
+	var targetB IB
+	assert.NoError(t, di.Init(&targetA, both))
+	assert.NoError(t, di.Init(&targetB, both))
+
+	vb, ok := (*targetA.(*a).ib).(*b)
+	assert.True(t, ok)
+	assert.NotNil(t, vb)
+
+	va, ok := (*targetB.(*b).ia).(*a)
+	assert.True(t, ok)
+	assert.NotNil(t, va)
 }

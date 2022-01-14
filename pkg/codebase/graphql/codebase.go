@@ -43,13 +43,13 @@ type CodebaseRootResolver struct {
 	changeCommitRepo db_change.CommitRepository
 
 	workspaceResolver                 *resolvers.WorkspaceRootResolver
-	authorResolver                    *resolvers.AuthorRootResolver
+	authorResolver                    resolvers.AuthorRootResolver
 	viewResolver                      *resolvers.ViewRootResolver
-	aclResolver                       *resolvers.ACLRootResolver
-	changeRootResolver                *resolvers.ChangeRootResolver
-	fileRootResolver                  *resolvers.FileRootResolver
-	instantIntegrationRootResolver    *resolvers.IntegrationRootResolver
-	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver
+	aclResolver                       resolvers.ACLRootResolver
+	changeRootResolver                resolvers.ChangeRootResolver
+	fileRootResolver                  resolvers.FileRootResolver
+	instantIntegrationRootResolver    resolvers.IntegrationRootResolver
+	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver
 
 	logger           *zap.Logger
 	viewEvents       events.EventReader
@@ -70,13 +70,13 @@ func NewCodebaseRootResolver(
 	changeCommitRepo db_change.CommitRepository,
 
 	workspaceResolver *resolvers.WorkspaceRootResolver,
-	authorResolver *resolvers.AuthorRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
 	viewResolver *resolvers.ViewRootResolver,
-	aclResolver *resolvers.ACLRootResolver,
-	changeRootResolver *resolvers.ChangeRootResolver,
-	fileRootResolver *resolvers.FileRootResolver,
-	instantIntegrationRootResolver *resolvers.IntegrationRootResolver,
-	codebaseGitHubIntegrationResolver *resolvers.CodebaseGitHubIntegrationRootResolver,
+	aclResolver resolvers.ACLRootResolver,
+	changeRootResolver resolvers.ChangeRootResolver,
+	fileRootResolver resolvers.FileRootResolver,
+	instantIntegrationRootResolver resolvers.IntegrationRootResolver,
+	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver,
 
 	logger *zap.Logger,
 	viewEvents events.EventReader,
@@ -394,7 +394,7 @@ func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.A
 		return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
 	}
 	for _, cu := range codebaseUsers {
-		author, err := (*r.root.authorResolver).Author(ctx, graphql.ID(cu.UserID))
+		author, err := r.root.authorResolver.Author(ctx, graphql.ID(cu.UserID))
 		switch {
 		case err == nil:
 			resolvers = append(resolvers, author)
@@ -444,7 +444,7 @@ func (r *CodebaseResolver) LastUsedView(ctx context.Context) (resolvers.ViewReso
 }
 
 func (r *CodebaseResolver) GitHubIntegration(ctx context.Context) (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	resolver, err := (*r.root.codebaseGitHubIntegrationResolver).InternalCodebaseGitHubIntegration(ctx, r.ID())
+	resolver, err := r.root.codebaseGitHubIntegrationResolver.InternalCodebaseGitHubIntegration(ctx, r.ID())
 	switch {
 	case err == nil:
 		return resolver, nil
@@ -460,7 +460,7 @@ func (r *CodebaseResolver) IsReady() bool {
 }
 
 func (r *CodebaseResolver) ACL(ctx context.Context) (resolvers.ACLResolver, error) {
-	resolver, err := (*r.root.aclResolver).InternalACLByCodebaseID(ctx, graphql.ID(r.c.ID))
+	resolver, err := r.root.aclResolver.InternalACLByCodebaseID(ctx, graphql.ID(r.c.ID))
 	switch {
 	case err == nil:
 		return resolver, nil
@@ -500,7 +500,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 	var res []resolvers.ChangeResolver
 	for _, dc := range decoratedLog {
 		id := graphql.ID(dc.ChangeID)
-		r, err := (*r.root.changeRootResolver).Change(ctx, resolvers.ChangeArgs{ID: &id})
+		r, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{ID: &id})
 		switch {
 		case err == nil:
 			res = append(res, r)
@@ -517,7 +517,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
 	// GitHub supported names:
 	// https://github.com/github/markup/blob/master/README.md
-	fileResolver, err := (*r.root.fileRootResolver).InternalFile(ctx, r.c.ID, "README.md", "README.mkdn", "README.mdown", "README.markdown")
+	fileResolver, err := r.root.fileRootResolver.InternalFile(ctx, r.c.ID, "README.md", "README.mkdn", "README.mdown", "README.markdown")
 	switch {
 	case err == nil && fileResolver != nil:
 		if file, ok := fileResolver.ToFile(); ok {
@@ -533,7 +533,7 @@ func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, 
 }
 
 func (r *CodebaseResolver) File(ctx context.Context, args resolvers.CodebaseFileArgs) (resolvers.FileOrDirectoryResolver, error) {
-	fr, err := (*r.root.fileRootResolver).InternalFile(ctx, r.c.ID, args.Path)
+	fr, err := r.root.fileRootResolver.InternalFile(ctx, r.c.ID, args.Path)
 	switch {
 	case err == nil:
 		return fr, nil
@@ -546,14 +546,14 @@ func (r *CodebaseResolver) File(ctx context.Context, args resolvers.CodebaseFile
 
 func (r *CodebaseResolver) Integrations(ctx context.Context, args resolvers.IntegrationsArgs) ([]resolvers.IntegrationResolver, error) {
 	if args.ID != nil {
-		single, err := (*r.root.instantIntegrationRootResolver).InternalIntegrationByID(ctx, string(*args.ID))
+		single, err := r.root.instantIntegrationRootResolver.InternalIntegrationByID(ctx, string(*args.ID))
 		if err != nil {
 			return nil, err
 		}
 		return []resolvers.IntegrationResolver{single}, nil
 	}
 
-	return (*r.root.instantIntegrationRootResolver).InternalIntegrationsByCodebaseID(ctx, r.c.ID)
+	return r.root.instantIntegrationRootResolver.InternalIntegrationsByCodebaseID(ctx, r.c.ID)
 }
 
 func (r *CodebaseResolver) IsPublic() bool {

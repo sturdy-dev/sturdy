@@ -33,7 +33,7 @@ type ChangeRootResolver struct {
 	authService *service_auth.Service
 
 	commentResolver *resolvers.CommentRootResolver
-	authorResolver  *resolvers.AuthorRootResolver
+	authorResolver  resolvers.AuthorRootResolver
 	statusResovler  *resolvers.StatusesRootResolver
 
 	executorProvider executor.Provider
@@ -51,7 +51,7 @@ func NewResolver(
 	authService *service_auth.Service,
 
 	commentResolver *resolvers.CommentRootResolver,
-	authorResolver *resolvers.AuthorRootResolver,
+	authorResolver resolvers.AuthorRootResolver,
 	statusResovler *resolvers.StatusesRootResolver,
 
 	executorProvider executor.Provider,
@@ -169,12 +169,12 @@ func (r *ChangeResolver) Author(ctx context.Context) (resolvers.AuthorResolver, 
 	// TODO: fetch this data from Git
 	if r.ch.UserID == nil {
 		if r.ch.GitCreatorName != nil && r.ch.GitCreatorEmail != nil {
-			return (*r.root.authorResolver).InternalAuthorFromNameAndEmail(ctx, *r.ch.GitCreatorName, *r.ch.GitCreatorEmail), nil
+			return r.root.authorResolver.InternalAuthorFromNameAndEmail(ctx, *r.ch.GitCreatorName, *r.ch.GitCreatorEmail), nil
 		} else {
-			return (*r.root.authorResolver).InternalAuthorFromNameAndEmail(ctx, "Unknown", "unknown@getsturdy.com"), nil
+			return r.root.authorResolver.InternalAuthorFromNameAndEmail(ctx, "Unknown", "unknown@getsturdy.com"), nil
 		}
 	}
-	author, err := (*r.root.authorResolver).Author(ctx, graphql.ID(*r.ch.UserID))
+	author, err := r.root.authorResolver.Author(ctx, graphql.ID(*r.ch.UserID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

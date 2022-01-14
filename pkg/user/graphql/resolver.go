@@ -25,8 +25,8 @@ type userRootResolver struct {
 
 	userService *service_user.Service
 
-	viewRootResolver          *resolvers.ViewRootResolver
-	notificationRootResolver  *resolvers.NotificationRootResolver
+	viewRootResolver          resolvers.ViewRootResolver
+	notificationRootResolver  resolvers.NotificationRootResolver
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver
 }
 
@@ -36,8 +36,8 @@ func NewResolver(
 
 	userService *service_user.Service,
 
-	viewRootResolver *resolvers.ViewRootResolver,
-	notificationRootResolver *resolvers.NotificationRootResolver,
+	viewRootResolver resolvers.ViewRootResolver,
+	notificationRootResolver resolvers.NotificationRootResolver,
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver,
 
 	logger *zap.Logger,
@@ -169,7 +169,7 @@ func (r *userResolver) AvatarUrl() *string {
 }
 
 func (r *userResolver) NotificationPreferences(ctx context.Context) ([]resolvers.NotificationPreferenceResolver, error) {
-	return (*r.root.notificationRootResolver).InternalNotificationPreferences(ctx, r.u.ID)
+	return r.root.notificationRootResolver.InternalNotificationPreferences(ctx, r.u.ID)
 }
 
 func (r *userResolver) NotificationsReceiveNewsletter() (bool, error) {
@@ -194,7 +194,7 @@ func (r *userResolver) GitHubAccount(ctx context.Context) (resolvers.GitHubAccou
 }
 
 func (r *userResolver) Views() ([]resolvers.ViewResolver, error) {
-	resolvers, err := (*r.root.viewRootResolver).InternalViewsByUser(r.u.ID)
+	resolvers, err := r.root.viewRootResolver.InternalViewsByUser(r.u.ID)
 	if errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	}
@@ -205,7 +205,7 @@ func (r *userResolver) Views() ([]resolvers.ViewResolver, error) {
 }
 
 func (r *userResolver) LastUsedView(ctx context.Context, args resolvers.LastUsedViewArgs) (resolvers.ViewResolver, error) {
-	resolver, err := (*r.root.viewRootResolver).InternalLastUsedViewByUser(ctx, string(args.CodebaseID), r.u.ID)
+	resolver, err := r.root.viewRootResolver.InternalLastUsedViewByUser(ctx, string(args.CodebaseID), r.u.ID)
 	if errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	}

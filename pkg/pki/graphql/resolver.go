@@ -15,13 +15,13 @@ import (
 
 type pkiRootResolver struct {
 	repo  db.Repo
-	users *resolvers.UserRootResolver
+	users resolvers.UserRootResolver
 }
 
-func NewResolver(repo db.Repo, users *resolvers.UserRootResolver) resolvers.PKIRootResolver {
+func NewResolver(repo db.Repo, users resolvers.UserRootResolver) resolvers.PKIRootResolver {
 	return &pkiRootResolver{
-		repo,
-		users,
+		repo:  repo,
+		users: users,
 	}
 }
 
@@ -39,7 +39,7 @@ func (p *pkiRootResolver) AddPublicKey(ctx context.Context, args resolvers.AddPu
 		for _, row := range rows {
 			// If the user already has this public key registered, skip adding it again...
 			if row.PublicKey == args.PublicKey {
-				return (*p.users).User(ctx)
+				return p.users.User(ctx)
 			}
 		}
 		// ... otherwise continue
@@ -59,5 +59,5 @@ func (p *pkiRootResolver) AddPublicKey(ctx context.Context, args resolvers.AddPu
 		return nil, gqlerrors.Error(err)
 	}
 
-	return (*p.users).User(ctx)
+	return p.users.User(ctx)
 }
