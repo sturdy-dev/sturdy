@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	goerrors "errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -93,9 +92,6 @@ func NewRootResolver(
 	githubAppResolver resolvers.GitHubAppRootResolver,
 	featuresRootResolver resolvers.FeaturesRootResolver,
 ) *RootResolver {
-
-	fmt.Printf("\nnikitag: %+v\n\n", "new graphql")
-
 	r := &RootResolver{
 		jwtService: jwtService,
 		logger:     logger,
