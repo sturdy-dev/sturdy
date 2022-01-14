@@ -434,6 +434,7 @@
                 <LiveDetails
                   v-else
                   :view="displayView"
+                  :features="features"
                   :workspace="data.workspace"
                   :mutable="!!mutableView"
                   :is-suggesting="isSuggesting"
@@ -582,6 +583,7 @@ import SelectedHunksToolbar from '../components/workspace/SelectedHunksToolbar.v
 import SearchToolbar from '../components/workspace/SearchToolbar.vue'
 import ShareButton, { SHARE_BUTTON } from '../components/workspace/ShareButton.vue'
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
+import { Feature } from '../__generated__/types'
 
 export default {
   name: 'WorkspaceHome',
@@ -624,10 +626,15 @@ export default {
     user: {
       type: Object,
     },
+    features: {
+      type: Array,
+      required: true,
+    },
   },
   emits: ['workspaceUpdated', 'codebase-updated'],
   setup(props) {
-    const { user } = toRefs(props)
+    const { features } = toRefs(props)
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
     let route = useRoute()
     const router = useRouter()
     let workspaceID = ref(route.params.id)
@@ -664,7 +671,7 @@ export default {
 
     let { data, fetching, error, executeQuery } = useQuery({
       query: gql`
-        query WorkspaceHome($workspaceID: ID!) {
+        query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID) {
             id
             name
@@ -751,14 +758,14 @@ export default {
                 }
               }
             }
-            gitHubPullRequest {
+            gitHubPullRequest @include(if: $isGitHubEnabled) {
               ...GitHubPullRequest
             }
             codebase {
               id
               name
 
-              gitHubIntegration {
+              gitHubIntegration @include(if: $isGitHubEnabled) {
                 ...CodebaseGitHubIntegration
               }
               members {
@@ -815,8 +822,7 @@ export default {
         ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
       `,
-      requestPolicy: 'cache-and-network',
-      variables: { workspaceID: workspaceID },
+      variables: { workspaceID: workspaceID, isGitHubEnabled },
     })
 
     useHead({
