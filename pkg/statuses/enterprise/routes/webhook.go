@@ -2,9 +2,8 @@ package routes
 
 import (
 	service_ci "mash/pkg/ci/service"
-	db_codebase "mash/pkg/codebase/db"
-	routes_buildkite "mash/pkg/integrations/buildkite/routes"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
+	routes_buildkite "mash/pkg/integrations/buildkite/enterprise/routes"
+	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
 	service_servicetokens "mash/pkg/servicetokens/service"
 	service_statuses "mash/pkg/statuses/service"
 
@@ -14,7 +13,6 @@ import (
 
 func WebhookHandler(
 	logger *zap.Logger,
-	codebaseRepo db_codebase.CodebaseRepository,
 	statusesService *service_statuses.Service,
 	ciService *service_ci.Service,
 	serviceTokensService *service_servicetokens.Service,

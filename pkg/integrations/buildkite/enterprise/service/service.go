@@ -1,4 +1,4 @@
-package buildkite
+package service
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 
 	"mash/pkg/integrations"
 	"mash/pkg/integrations/buildkite"
-	db_buildkite "mash/pkg/integrations/buildkite/db"
+	db_buildkite "mash/pkg/integrations/buildkite/enterprise/db"
 )
 
 var _ integrations.Provider = &Service{}

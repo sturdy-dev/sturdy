@@ -31,9 +31,7 @@ import (
 	"mash/pkg/graphql"
 	"mash/pkg/http"
 	"mash/pkg/http/oss"
-	db_buildkite "mash/pkg/integrations/buildkite/db"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
-	db_integrations "mash/pkg/integrations/db"
+	module_integrations "mash/pkg/integrations/module"
 	db_keys "mash/pkg/jwt/keys/db"
 	service_jwt "mash/pkg/jwt/service"
 	module_license "mash/pkg/license/module"
@@ -239,15 +237,12 @@ func main() {
 		db_notification.NewPeferenceRepository,
 		db_keys.New,
 		db_statuses.New,
-		db_integrations.NewIntegrationDatabase,
 		db_workspace_watchers.NewDB,
 		service_comments.New,
 		db_organization.New,
 		db_organization.NewMember,
 		service_sync.New,
 		service_organization.New,
-		db_buildkite.NewDatabase,
-		service_buildkite.New,
 		worker_gc.New,
 		worker_snapshots.New,
 		gitserver.New,
@@ -265,6 +260,7 @@ func main() {
 		c.Import(module_ci.Module)
 		c.Import(module_codebase.Module)
 		c.Import(module_codebase_acl.Module)
+		c.Import(module_integrations.Module)
 
 		// todo: continue importing here
 

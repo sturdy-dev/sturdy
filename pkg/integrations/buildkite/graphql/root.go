@@ -2,161 +2,21 @@ package graphql
 
 import (
 	"context"
-	"fmt"
-	"mash/pkg/integrations"
-	"mash/pkg/integrations/buildkite"
-	service_buildkite "mash/pkg/integrations/buildkite/service"
-	"time"
 
-	service_auth "mash/pkg/auth/service"
-	service_ci "mash/pkg/ci/service"
-	"mash/pkg/codebase"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
-
-	"github.com/google/uuid"
 )
 
-type rootResolver struct {
-	authService                    *service_auth.Service
-	buildkiteService               *service_buildkite.Service
-	instantIntegrationServcie      *service_ci.Service
-	instantIntegrationRootResolver *resolvers.IntegrationRootResolver
-}
+type rootResolver struct{}
 
-var seedFiles = []string{
-	"buildkite.yml",
-	"buildkite.yaml",
-	"buildkite.json",
-	".buildkite/pipeline.yml",
-	".buildkite/pipeline.yaml",
-	".buildkite/pipeline.json",
-	"buildkite/pipeline.yml",
-	"buildkite/pipeline.yaml",
-	"buildkite/pipeline.json",
-}
-
-func New(
-	authService *service_auth.Service,
-	buildkiteService *service_buildkite.Service,
-	instantIntegrationServcie *service_ci.Service,
-	instantIntegrationRootResolver *resolvers.IntegrationRootResolver,
-) resolvers.BuildkiteInstantIntegrationRootResolver {
-	return &rootResolver{
-		authService:                    authService,
-		buildkiteService:               buildkiteService,
-		instantIntegrationServcie:      instantIntegrationServcie,
-		instantIntegrationRootResolver: instantIntegrationRootResolver,
-	}
-}
-
-func (root *rootResolver) createNewConfiguration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
-	integration := &integrations.Integration{
-		ID:         uuid.NewString(),
-		CodebaseID: string(args.Input.CodebaseID),
-		Provider:   integrations.ProviderTypeBuildkite,
-		CreatedAt:  time.Now(),
-		SeedFiles:  seedFiles,
-	}
-
-	if err := root.instantIntegrationServcie.CreateIntegration(ctx, integration); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to create integration: %w", err))
-	}
-
-	cfg := &buildkite.Config{
-		ID:               uuid.NewString(),
-		IntegrationID:    integration.ID,
-		CodebaseID:       string(args.Input.CodebaseID),
-		OrganizationName: args.Input.OrganizationName,
-		PipelineName:     args.Input.PipelineName,
-		APIToken:         args.Input.APIToken,
-		WebhookSecret:    args.Input.WebhookSecret,
-		CreatedAt:        time.Now(),
-	}
-
-	if err := root.buildkiteService.CreateIntegration(ctx, cfg); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to create configuration: %w", err))
-	}
-
-	return integration, nil
-}
-
-func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *buildkite.Config, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
-	existingIntegrations, err := root.instantIntegrationServcie.ListByCodebaseID(ctx, string(args.Input.CodebaseID))
-	if err != nil {
-		return nil, fmt.Errorf("failed to list existing integrations: %w", err)
-	}
-
-	var integration *integrations.Integration
-	for _, i := range existingIntegrations {
-		if i.Provider == integrations.ProviderTypeBuildkite {
-			integration = i
-		}
-	}
-
-	if integration == nil {
-		return nil, fmt.Errorf("integraion must exist, but it was not found: %w", err)
-	}
-
-	configChanged := existingCfg.OrganizationName != args.Input.OrganizationName ||
-		existingCfg.PipelineName != args.Input.PipelineName ||
-		existingCfg.APIToken != args.Input.APIToken ||
-		existingCfg.WebhookSecret != args.Input.WebhookSecret
-
-	if !configChanged {
-		return integration, nil
-	}
-
-	existingCfg.PipelineName = args.Input.PipelineName
-	existingCfg.OrganizationName = args.Input.OrganizationName
-	existingCfg.APIToken = args.Input.APIToken
-	existingCfg.WebhookSecret = args.Input.WebhookSecret
-	existingCfg.UpdatedAt = time.Now()
-	if err := root.buildkiteService.UpdateIntegration(ctx, existingCfg); err != nil {
-		return nil, fmt.Errorf("failed to update configuration: %w", err)
-	}
-
-	integration.UpdatedAt = time.Now()
-	if err := root.instantIntegrationServcie.UpdateIntegration(ctx, integration); err != nil {
-		return nil, fmt.Errorf("failed to update integration: %w", err)
-	}
-
-	return integration, nil
+func New() resolvers.BuildkiteInstantIntegrationRootResolver {
+	return &rootResolver{}
 }
 
 func (root *rootResolver) CreateOrUpdateBuildkiteIntegration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (resolvers.IntegrationResolver, error) {
-	if err := root.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	// Create new
-	if args.Input.IntegrationID == nil {
-		integration, err := root.createNewConfiguration(ctx, args)
-		if err != nil {
-			return nil, gqlerrors.Error(fmt.Errorf("failed to create new configuration: %w", err))
-		}
-		return (*root.instantIntegrationRootResolver).InternalIntegrationProvider(integration), nil
-	}
-
-	// Update existing
-	existingCfg, err := root.buildkiteService.GetConfigurationByIntegrationID(ctx, string(*args.Input.IntegrationID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	integration, err := root.updateConfiguration(ctx, existingCfg, args)
-	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to update existing configuration: %w", err))
-	}
-
-	return (*root.instantIntegrationRootResolver).InternalIntegrationProvider(integration), nil
+	return nil, gqlerrors.ErrNotImplemented
 }
 
 func (r *rootResolver) InternalBuildkiteConfigurationByIntegrationID(ctx context.Context, integrationID string) (resolvers.BuildkiteConfigurationResolver, error) {
-	cfg, err := r.buildkiteService.GetConfigurationByIntegrationID(ctx, integrationID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	return &buildkiteConfigurationResover{
-		buildkiteConfig: cfg,
-	}, nil
+	return nil, gqlerrors.ErrNotImplemented
 }
