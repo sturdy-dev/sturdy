@@ -18,8 +18,7 @@ import (
 	service_ci "mash/pkg/ci/service"
 	module_codebase_acl "mash/pkg/codebase/acl/module"
 	module_codebase "mash/pkg/codebase/module"
-	db_comments "mash/pkg/comments/db"
-	service_comments "mash/pkg/comments/service"
+	module_comments "mash/pkg/comments/module"
 	"mash/pkg/di"
 	"mash/pkg/emails"
 	module_transactional "mash/pkg/emails/transactional/module"
@@ -224,7 +223,6 @@ func main() {
 		instantintegration.NewInstantIntegrationInterestRepo,
 		db_pki.NewRepo,
 		db_snapshots.NewRepo,
-		db_comments.NewRepo,
 		db_suggestion.New,
 		db_gc.NewRepository,
 		view_workspace_snapshot.NewRepo,
@@ -238,7 +236,6 @@ func main() {
 		db_keys.New,
 		db_statuses.New,
 		db_workspace_watchers.NewDB,
-		service_comments.New,
 		db_organization.New,
 		db_organization.NewMember,
 		service_sync.New,
@@ -260,6 +257,7 @@ func main() {
 		c.Import(module_ci.Module)
 		c.Import(module_codebase.Module)
 		c.Import(module_codebase_acl.Module)
+		c.Import(module_comments.Module)
 		c.Import(module_integrations.Module)
 
 		// todo: continue importing here
