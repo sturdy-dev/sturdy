@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"mash/pkg/posthog"
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/view/vcs"
 
 	"mash/db"
@@ -82,13 +82,13 @@ func TestStream(t *testing.T) {
 	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, posthog.NewFakeClient())
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, disabled.NewClient())
 	authService := service_auth.New(codebaseService, userService, nil, aclProvider, nil /*organizationService*/)
 	suggestionsDB := db_suggestion.New(d)
 
 	workspaceService := service_workspace.New(
 		logger,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 
 		workspaceRepo,
 		workspaceRepo,

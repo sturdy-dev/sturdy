@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	"mash/pkg/change/decorate"
 	"mash/pkg/change/message"
@@ -23,7 +24,6 @@ import (
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )
@@ -311,14 +311,14 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 			return nil, err
 		}
 
-		if err := svc.postHogClient.Enqueue(posthog.Capture{
+		if err := svc.analyticsClient.Enqueue(analytics.Capture{
 			Event:      "created pull request",
 			DistinctId: userID,
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("github", true).
 				Set("codebase_id", codebaseID),
 		}); err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 
 		return &pr, nil
@@ -348,14 +348,14 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		return nil, err
 	}
 
-	if err := svc.postHogClient.Enqueue(posthog.Capture{
+	if err := svc.analyticsClient.Enqueue(analytics.Capture{
 		Event:      "updated pull request",
 		DistinctId: userID,
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("github", true).
 			Set("codebase_id", codebaseID),
 	}); err != nil {
-		logger.Error("posthog failed", zap.Error(err))
+		logger.Error("analytics failed", zap.Error(err))
 	}
 
 	return currentPR, nil

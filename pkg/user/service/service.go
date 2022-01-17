@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/emails/transactional"
 	"mash/pkg/jwt"
 	service_jwt "mash/pkg/jwt/service"
@@ -13,7 +14,6 @@ import (
 	db_user "mash/pkg/user/db"
 
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -23,7 +23,7 @@ type Service struct {
 	jwtService               *service_jwt.Service
 	onetimeService           *service_onetime.Service
 	transactionalEmailSender transactional.EmailSender
-	posthogClient            posthog.Client
+	analyticsClient          analytics.Client
 }
 
 func New(
@@ -32,7 +32,7 @@ func New(
 	jwtService *service_jwt.Service,
 	onetimeService *service_onetime.Service,
 	transactionalEmailSender transactional.EmailSender,
-	posthogClient posthog.Client,
+	analyticsClient analytics.Client,
 ) *Service {
 	return &Service{
 		logger:                   logger,
@@ -40,7 +40,7 @@ func New(
 		jwtService:               jwtService,
 		onetimeService:           onetimeService,
 		transactionalEmailSender: transactionalEmailSender,
-		posthogClient:            posthogClient,
+		analyticsClient:          analyticsClient,
 	}
 }
 
@@ -66,20 +66,20 @@ func (s *Service) Create(ctx context.Context, name, email string) (*user.User, e
 	}
 
 	// Send events
-	if err := s.posthogClient.Enqueue(posthog.Identify{
+	if err := s.analyticsClient.Enqueue(analytics.Identify{
 		DistinctId: newUser.ID,
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("name", newUser.Name).
 			Set("email", newUser.Email),
 	}); err != nil {
-		s.logger.Error("send to posthog failed", zap.Error(err))
+		s.logger.Error("send to analytics failed", zap.Error(err))
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: newUser.ID,
 		Event:      "created account",
 	}); err != nil {
-		s.logger.Error("send to posthog failed", zap.Error(err))
+		s.logger.Error("send to analytics failed", zap.Error(err))
 	}
 
 	// Send emails
@@ -103,22 +103,22 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *user.User, code str
 		return fmt.Errorf("failed to set email verified: %w", err)
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Identify{
+	if err := s.analyticsClient.Enqueue(analytics.Identify{
 		DistinctId: user.ID,
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("name", user.Name).
 			Set("email", user.Email),
 	}); err != nil {
-		s.logger.Error("send to posthog failed", zap.Error(err))
+		s.logger.Error("send to analytics failed", zap.Error(err))
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: user.ID,
 		Event:      "logged in",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("type", "code"),
 	}); err != nil {
-		s.logger.Error("send to posthog failed", zap.Error(err))
+		s.logger.Error("send to analytics failed", zap.Error(err))
 	}
 
 	return nil

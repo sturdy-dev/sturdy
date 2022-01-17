@@ -6,13 +6,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	"mash/vcs/executor"
 	"strings"
 	"sync"
 	"time"
 
+	"mash/pkg/analytics"
+	"mash/pkg/auth"
+	service_auth "mash/pkg/auth/service"
 	db_change "mash/pkg/change/db"
 	"mash/pkg/change/decorate"
 	"mash/pkg/codebase"
@@ -26,10 +26,10 @@ import (
 	"mash/pkg/view/events"
 	db_workspace "mash/pkg/workspace/db"
 	vcsvcs "mash/vcs"
+	"mash/vcs/executor"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/jxskiss/base62"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -54,7 +54,7 @@ type CodebaseRootResolver struct {
 	logger           *zap.Logger
 	viewEvents       events.EventReader
 	eventsSender     events.EventSender
-	postHogClient    posthog.Client
+	analyticsClient  analytics.Client
 	executorProvider executor.Provider
 
 	authService *service_auth.Service
@@ -81,7 +81,7 @@ func NewCodebaseRootResolver(
 	logger *zap.Logger,
 	viewEvents events.EventReader,
 	eventsSender events.EventSender,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	executorProvider executor.Provider,
 
 	authService *service_auth.Service,
@@ -107,7 +107,7 @@ func NewCodebaseRootResolver(
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
 		eventsSender:     eventsSender,
-		postHogClient:    postHogClient,
+		analyticsClient:  analyticsClient,
 		executorProvider: executorProvider,
 
 		authService: authService,
@@ -256,10 +256,10 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	if args.Input.IsPublic != nil {
 		cb.IsPublic = *args.Input.IsPublic
 		// track, will be used to review malicious activity and the codebases that are made public
-		_ = r.postHogClient.Enqueue(posthog.Capture{
+		_ = r.analyticsClient.Enqueue(analytics.Capture{
 			Event:      "set codebase is_public",
 			DistinctId: authSubject.ID,
-			Properties: posthog.NewProperties().Set("codebase_id", cb.ID),
+			Properties: analytics.NewProperties().Set("codebase_id", cb.ID),
 		})
 	}
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"mash/db"
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_change "mash/pkg/change/db"
@@ -27,7 +28,6 @@ import (
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
-	"mash/pkg/posthog"
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
 	graphql_review "mash/pkg/review/graphql"
@@ -87,7 +87,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	}
 
 	logger := zap.NewNop()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)
@@ -421,7 +421,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	}
 
 	logger := zap.NewNop()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)

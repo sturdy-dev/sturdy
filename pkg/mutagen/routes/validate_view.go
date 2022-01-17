@@ -1,11 +1,11 @@
 package routes
 
 import (
+	"mash/pkg/analytics"
 	"mash/pkg/view/events"
 	"net/http"
 	"time"
 
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ type ValidateViewRequest struct {
 	IsNewConnection bool   `json:"is_new_connection"`
 }
 
-func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, postHogClient posthog.Client, eventsSender events.EventSender) func(c *gin.Context) {
+func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsClient analytics.Client, eventsSender events.EventSender) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req ValidateViewRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,16 +65,16 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, postHogClient
 		}
 
 		if req.IsNewConnection {
-			err = postHogClient.Enqueue(posthog.Capture{
+			err = analyticsClient.Enqueue(analytics.Capture{
 				DistinctId: req.UserID,
 				Event:      "mutagen connection to view",
-				Properties: posthog.NewProperties().
+				Properties: analytics.NewProperties().
 					Set("codebase_id", req.CodebaseID).
 					Set("view_id", req.ViewID).
 					Set("is_new_connection", req.IsNewConnection), // This is always true...
 			})
 			if err != nil {
-				logger.Error("posthog failed", zap.Error(err))
+				logger.Error("analytics failed", zap.Error(err))
 			}
 		}
 

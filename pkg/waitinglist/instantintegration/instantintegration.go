@@ -2,15 +2,15 @@
 package instantintegration
 
 import (
-"fmt"
-"log"
-"net/http"
-"strings"
+	"fmt"
+	"log"
+	"mash/pkg/analytics"
+	"net/http"
+	"strings"
 
-"github.com/gin-gonic/gin"
-"github.com/jmoiron/sqlx"
-"github.com/posthog/posthog-go"
-"go.uber.org/zap"
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
 )
 
 type InstantIntegrationInterestRepo interface {
@@ -38,7 +38,7 @@ type IIAccessRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, postHogClient posthog.Client, repo InstantIntegrationInterestRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo InstantIntegrationInterestRepo) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 
@@ -65,12 +65,12 @@ func Insert(logger *zap.Logger, postHogClient posthog.Client, repo InstantIntegr
 			return
 		}
 
-		err = postHogClient.Enqueue(&posthog.Capture{
+		err = analyticsClient.Enqueue(&analytics.Capture{
 			DistinctId: req.Email,
 			Event:      "requested instant integration access",
 		})
 		if err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 		c.Status(http.StatusOK)
 	}

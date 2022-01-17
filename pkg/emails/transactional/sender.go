@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	db_change "mash/pkg/change/db"
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/comments"
@@ -27,7 +28,6 @@ import (
 	db_users "mash/pkg/user/db"
 	db_workspace "mash/pkg/workspace/db"
 
-	posthog "github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -57,7 +57,7 @@ type Sender struct {
 	jwtService *service_jwt.Service
 
 	notificationPreferences *service_notification.Preferences
-	posthogClient           posthog.Client
+	analyticsClient         analytics.Client
 }
 
 func New(
@@ -78,7 +78,7 @@ func New(
 
 	notificationPreferences *service_notification.Preferences,
 
-	posthogClient posthog.Client,
+	analyticsClient analytics.Client,
 ) *Sender {
 	return &Sender{
 		logger: logger,
@@ -97,7 +97,7 @@ func New(
 		jwtService: jwtService,
 
 		notificationPreferences: notificationPreferences,
-		posthogClient:           posthogClient,
+		analyticsClient:         analyticsClient,
 	}
 }
 
@@ -428,7 +428,7 @@ func (e *Sender) Send(
 		zap.String("template", string(template)),
 	)
 
-	if err := e.posthogClient.Enqueue(posthog.Capture{
+	if err := e.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: u.ID,
 		Event:      "email_sent",
 		Properties: map[string]interface{}{
@@ -437,7 +437,7 @@ func (e *Sender) Send(
 			"subject":  subject,
 		},
 	}); err != nil {
-		e.logger.Error("failed to enqueue posthog event", zap.Error(err))
+		e.logger.Error("failed to enqueue analytics event", zap.Error(err))
 	}
 
 	if err := e.sender.Send(ctx, &emails.Email{

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/github"
 	"mash/pkg/github/config"
 	"mash/pkg/github/enterprise/client"
@@ -16,7 +17,6 @@ import (
 	workers_github "mash/pkg/github/enterprise/workers"
 	"mash/pkg/internal/inmemory"
 	"mash/pkg/notification"
-	"mash/pkg/posthog"
 	events "mash/pkg/view/events"
 	"mash/vcs/testutil/executor"
 	"mash/vcs/testutil/history"
@@ -40,7 +40,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 	executorProvider := executor.TestingExecutorProvider(t)
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, events.NewInMemory())
 

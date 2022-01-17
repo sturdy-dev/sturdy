@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"mash/db"
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/codebase"
@@ -14,7 +15,6 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
-	"mash/pkg/posthog"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
 	"mash/pkg/user"
@@ -71,17 +71,16 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	codebaseViewEvents := events.NewInMemory()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, codebaseViewEvents)
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 
 	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
 	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
 
 	viewWorkspaceSnapshotsRepo := view_workspace_snapshot.NewRepo(d)
 
-	posHotClient := posthog.NewFakeClient()
 	workspaceService := service_workspace.New(
 		zap.NewNop(),
-		posHotClient,
+		postHogClient,
 		workspaceRepo,
 		workspaceRepo,
 		nil,

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	gqlerrors "mash/pkg/graphql/errors"
@@ -30,8 +31,6 @@ import (
 	"mash/vcs"
 	"mash/vcs/executor"
 	"mash/vcs/provider"
-
-	"github.com/posthog/posthog-go"
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
@@ -62,7 +61,7 @@ type ViewRootResolver struct {
 	logger                     *zap.Logger
 	viewStatusRootResolver     resolvers.ViewStatusRootResolver
 	workspaceWatchersService   *service_workspace_watchers.Service
-	postHogClient              posthog.Client
+	analyticsClient            analytics.Client
 	codebaseResolver           resolvers.CodebaseRootResolver
 	authService                *service_auth.Service
 }
@@ -82,7 +81,7 @@ func NewResolver(
 	logger *zap.Logger,
 	viewStatusRootResolver resolvers.ViewStatusRootResolver,
 	workspaceWatchersService *service_workspace_watchers.Service,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	codebaseResolver resolvers.CodebaseRootResolver,
 	authService *service_auth.Service,
 ) resolvers.ViewRootResolver {
@@ -101,7 +100,7 @@ func NewResolver(
 		logger:                     logger,
 		viewStatusRootResolver:     viewStatusRootResolver,
 		workspaceWatchersService:   workspaceWatchersService,
-		postHogClient:              postHogClient,
+		analyticsClient:            analyticsClient,
 		codebaseResolver:           codebaseResolver,
 		authService:                authService,
 	}
@@ -334,17 +333,17 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.postHogClient.Enqueue(posthog.Capture{
+	if err := r.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "create view",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("codebase_id", ws.CodebaseID).
 			Set("workspace_id", ws.ID).
 			Set("view_id", e.ID).
 			Set("mount_path", e.MountPath).
 			Set("mount_hostname", e.MountHostname),
 	}); err != nil {
-		r.logger.Error("posthog failed", zap.Error(err))
+		r.logger.Error("analytics failed", zap.Error(err))
 		// do not fail
 	}
 

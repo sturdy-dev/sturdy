@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/change"
 	db_change "mash/pkg/change/db"
 	"mash/pkg/change/decorate"
@@ -31,7 +32,6 @@ import (
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -52,7 +52,7 @@ func HandlePushEvent(
 	gitHubAppConfig config.GitHubAppConfig,
 	githubClientProvider client.ClientProvider,
 	eventsSender events.EventSender,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	reviewRepo db_review.ReviewRepository,
 	activitySender sender_workspace_activity.ActivitySender,
 	commentsService *service_comments.Service,
@@ -213,15 +213,15 @@ func HandlePushEvent(
 					return fmt.Errorf("failed to dissmiss reviews: %w", err)
 				}
 
-				if err := postHogClient.Enqueue(posthog.Capture{
+				if err := analyticsClient.Enqueue(analytics.Capture{
 					Event:      "pull request merged",
 					DistinctId: ws.UserID,
-					Properties: posthog.NewProperties().
+					Properties: analytics.NewProperties().
 						Set("github", true).
 						Set("codebase_id", ws.CodebaseID).
 						Set("workspace_id", ws.ID),
 				}); err != nil {
-					logger.Error("posthog failed", zap.Error(err))
+					logger.Error("analytics failed", zap.Error(err))
 				}
 
 				// Create workspace activity

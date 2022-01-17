@@ -4,12 +4,12 @@ package acl
 import (
 	"fmt"
 	"log"
+	"mash/pkg/analytics"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -38,7 +38,7 @@ type ACLAccessRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, postHogClient posthog.Client, repo ACLInterestRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo ACLInterestRepo) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 
@@ -65,12 +65,12 @@ func Insert(logger *zap.Logger, postHogClient posthog.Client, repo ACLInterestRe
 			return
 		}
 
-		err = postHogClient.Enqueue(&posthog.Capture{
+		err = analyticsClient.Enqueue(&analytics.Capture{
 			DistinctId: req.Email,
 			Event:      "requested enterprise ACL",
 		})
 		if err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 		c.Status(http.StatusOK)
 	}

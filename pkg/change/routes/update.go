@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"errors"
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	"mash/pkg/change"
 	"mash/pkg/change/message"
@@ -10,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 
 	changeDB "mash/pkg/change/db"
@@ -22,7 +22,7 @@ type UpdateRequest struct {
 	UpdatedDescription string `json:"updated_description" binding:"required"`
 }
 
-func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserRepository, postHogClient posthog.Client, changeRepo changeDB.Repository) func(c *gin.Context) {
+func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserRepository, analyticsClient analytics.Client, changeRepo changeDB.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())
 		if err != nil {
@@ -72,15 +72,15 @@ func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserReposito
 			return
 		}
 
-		err = postHogClient.Enqueue(posthog.Capture{
+		err = analyticsClient.Enqueue(analytics.Capture{
 			DistinctId: userID,
 			Event:      "updated change",
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("commit_id", changeID).
 				Set("codebase_id", ch.CodebaseID),
 		})
 		if err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 
 		// TODO: Migrate this to GraphQL, it's a temporary hack for now

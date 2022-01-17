@@ -2,11 +2,11 @@ package waitinglist
 
 import (
 	"log"
+	"mash/pkg/analytics"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -14,7 +14,7 @@ type WaitingListRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, postHogClient posthog.Client, repo WaitingListRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo WaitingListRepo) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 
@@ -41,12 +41,12 @@ func Insert(logger *zap.Logger, postHogClient posthog.Client, repo WaitingListRe
 			return
 		}
 
-		err = postHogClient.Enqueue(&posthog.Capture{
+		err = analyticsClient.Enqueue(&analytics.Capture{
 			DistinctId: req.Email,
 			Event:      "signed up for waiting list",
 		})
 		if err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 
 		logger.Info("added to waitinglist")
