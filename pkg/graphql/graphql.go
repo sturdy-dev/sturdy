@@ -47,6 +47,7 @@ type RootResolver struct {
 	resolvers.PKIRootResolver
 	resolvers.PresenceRootResolver
 	resolvers.ReviewRootResolver
+	resolvers.ServerStatusRootResolver
 	resolvers.ServiceTokensRootResolver
 	resolvers.StatusesRootResolver
 	resolvers.SuggestionRootResolver
@@ -72,7 +73,10 @@ func NewRootResolver(
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver,
 	codebaseResolver resolvers.CodebaseRootResolver,
 	commentsResolver resolvers.CommentRootResolver,
+	featuresRootResolver resolvers.FeaturesRootResolver,
+	githubAppResolver resolvers.GitHubAppRootResolver,
 	instantIntegrationRootResolver resolvers.IntegrationRootResolver,
+	licenseRootResolver resolvers.LicenseRootResolver,
 	notificationResolver resolvers.NotificationRootResolver,
 	onboardingRootResolver resolvers.OnboardingRootResolver,
 	organizationRootResolver resolvers.OrganizationRootResolver,
@@ -80,6 +84,7 @@ func NewRootResolver(
 	prResolver resolvers.GitHubPullRequestRootResolver,
 	presenceRootResolver resolvers.PresenceRootResolver,
 	reviewResolver resolvers.ReviewRootResolver,
+	serverStatusRootResolver resolvers.ServerStatusRootResolver,
 	serviceTokensRootResolver resolvers.ServiceTokensRootResolver,
 	statusRootResolver resolvers.StatusesRootResolver,
 	suggestionResolver resolvers.SuggestionRootResolver,
@@ -88,9 +93,6 @@ func NewRootResolver(
 	workspaceActivityResolver resolvers.WorkspaceActivityRootResolver,
 	workspaceResolver resolvers.WorkspaceRootResolver,
 	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
-	licenseRootResolver resolvers.LicenseRootResolver,
-	githubAppResolver resolvers.GitHubAppRootResolver,
-	featuresRootResolver resolvers.FeaturesRootResolver,
 ) *RootResolver {
 	r := &RootResolver{
 		jwtService: jwtService,
@@ -114,6 +116,7 @@ func NewRootResolver(
 		PKIRootResolver:                         pkiRootResolver,
 		PresenceRootResolver:                    presenceRootResolver,
 		ReviewRootResolver:                      reviewResolver,
+		ServerStatusRootResolver:                serverStatusRootResolver,
 		ServiceTokensRootResolver:               serviceTokensRootResolver,
 		StatusesRootResolver:                    statusRootResolver,
 		SuggestionRootResolver:                  suggestionResolver,

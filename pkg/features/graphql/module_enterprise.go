@@ -1,5 +1,5 @@
-//go:build enterprise || cloud
-// +build enterprise cloud
+//go:build enterprise
+// +build enterprise
 
 package graphql
 
