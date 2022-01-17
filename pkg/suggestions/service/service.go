@@ -235,9 +235,6 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 	if err != nil {
 		return fmt.Errorf("failed to get original workspace: %w", err)
 	}
-	if originalWorkspace.ViewID == nil {
-		return fmt.Errorf("original workspace has no view id")
-	}
 
 	fileDiffs, err := s.diffs(ctx, suggestion, originalWorkspace)
 	if err != nil {
@@ -265,10 +262,44 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 		}
 	}
 
-	if err := s.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
-		return repo.ApplyPatchesToWorkdir(patches)
-	}).ExecView(originalWorkspace.CodebaseID, *originalWorkspace.ViewID, "applySuggestionDiffs"); err != nil {
-		return fmt.Errorf("failed to apply diffs: %w", err)
+	if originalWorkspace.ViewID == nil { // apply patches to the snapshot
+		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
+			repo, cancel, err := vcs_view.TemporaryViewFromSnapshot(repoProvider, originalWorkspace.CodebaseID, originalWorkspace.ID, *originalWorkspace.LatestSnapshotID)
+			if err != nil {
+				return fmt.Errorf("failed to create temporary view: %w", err)
+			}
+			defer func() {
+				if err := cancel(); err != nil {
+					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
+				}
+			}()
+			defer repo.Free()
+
+			if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
+				return fmt.Errorf("failed to apply patches: %w", err)
+			}
+
+			if _, err := s.snapshotter.Snapshot(
+				originalWorkspace.CodebaseID,
+				originalWorkspace.ID,
+				snapshots.ActionSuggestionApply,
+				snapshotter.WithOnView(*repo.ViewID()),
+				snapshotter.WithOnRepo(repo),
+				snapshotter.WithMarkAsLatestInWorkspace(),
+			); err != nil {
+				return fmt.Errorf("failed to snapshot: %w", err)
+			}
+
+			return nil
+		}).ExecTrunk(originalWorkspace.CodebaseID, "applySuggestionDiffs"); err != nil {
+			return fmt.Errorf("failed to apply patches: %w", err)
+		}
+	} else { // apply to the view
+		if err := s.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
+			return repo.ApplyPatchesToWorkdir(patches)
+		}).ExecView(originalWorkspace.CodebaseID, *originalWorkspace.ViewID, "applySuggestionDiffs"); err != nil {
+			return fmt.Errorf("failed to apply patches: %w", err)
+		}
 	}
 
 	suggestion.AppliedHunks = append(suggestion.AppliedHunks, appliedHunks...)
@@ -298,9 +329,6 @@ func (s *Service) DismissHunks(ctx context.Context, suggestion *suggestions.Sugg
 	originalWorkspace, err := s.workspaceService.GetByID(ctx, suggestion.ForWorkspaceID)
 	if err != nil {
 		return fmt.Errorf("failed to get original workspace: %w", err)
-	}
-	if originalWorkspace.ViewID == nil {
-		return fmt.Errorf("original workspace has no view id")
 	}
 
 	fileDiffs, err := s.diffs(ctx, suggestion, originalWorkspace)
