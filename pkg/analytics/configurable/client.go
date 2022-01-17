@@ -7,11 +7,12 @@ import (
 	"mash/pkg/analytics"
 	"mash/pkg/analytics/disabled"
 	"mash/pkg/analytics/posthog"
+	"mash/pkg/analytics/proxy"
 )
 
 var (
 	analyticsEnabled = flag.Bool("analytics.enabled", true, "Enable analytics")
-	analyticsType    = flag.String("analytics.type", "", "Analytics type, must be one of: posthog")
+	analyticsType    = flag.String("analytics.type", defaultType, "Analytics type, must be one of: posthog, proxy")
 
 	posthogAPIToken = flag.String("analytics.posthog.api-token", "", "Posthog API token (required if analytics type is posthog)")
 )
@@ -27,6 +28,8 @@ func NewClient() (analytics.Client, error) {
 			return nil, fmt.Errorf("--analytics.posthog.api-token is required")
 		}
 		return posthog.NewClient(*posthogAPIToken), nil
+	case "proxy":
+		return proxy.NewClient()
 	case "":
 		return nil, fmt.Errorf("--analytics.type is required")
 	default:

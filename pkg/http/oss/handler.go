@@ -57,6 +57,8 @@ import (
 
 type DevelopmentAllowExtraCorsOrigin string
 
+type Engine gin.Engine
+
 func ProvideHandler(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
@@ -91,7 +93,7 @@ func ProvideHandler(
 	authService *service_auth.Service,
 	developmentAllowExtraCorsOrigin DevelopmentAllowExtraCorsOrigin,
 	grapqhlResolver *sturdygrapql.RootResolver,
-) *gin.Engine {
+) *Engine {
 	logger = logger.With(zap.String("component", "http"))
 	allowOrigins := []string{
 		// Production
@@ -176,7 +178,7 @@ func ProvideHandler(
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen
 	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                                                         // Called from client-side sturdy-cli
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
-	return r
+	return (*Engine)(r)
 }
 
 // accessLogger returns a gin.HandlerFunc (middleware) that logs requests using uber-go/zap.
