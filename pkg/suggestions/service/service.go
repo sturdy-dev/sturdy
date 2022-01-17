@@ -273,7 +273,6 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
 				}
 			}()
-			defer repo.Free()
 
 			if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
 				return fmt.Errorf("failed to apply patches: %w", err)
