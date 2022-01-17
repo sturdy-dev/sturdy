@@ -35,24 +35,18 @@ import (
 	module_jwt "mash/pkg/jwt/module"
 	module_license "mash/pkg/license/module"
 	"mash/pkg/metrics/zapprometheus"
-	db_mutagen "mash/pkg/mutagen/db"
-	db_newsletter "mash/pkg/newsletter/db"
-	db_notification "mash/pkg/notification/db"
-	notification_sender "mash/pkg/notification/sender"
-	service_notification "mash/pkg/notification/service"
-	db_onboarding "mash/pkg/onboarding/db"
-	db_onetime "mash/pkg/onetime/db"
-	service_onetime "mash/pkg/onetime/service"
-	db_organization "mash/pkg/organization/db"
-	service_organization "mash/pkg/organization/service"
-	db_pki "mash/pkg/pki/db"
+	module_mutagen "mash/pkg/mutagen/module"
+	module_newsletter "mash/pkg/newsletter/module"
+	module_notification "mash/pkg/notification/module"
+	module_onboarding "mash/pkg/onboarding/module"
+	module_onetime "mash/pkg/onetime/module"
+	module_organization "mash/pkg/organization/module"
+	module_pki "mash/pkg/pki/module"
 	ph "mash/pkg/posthog"
-	db_presence "mash/pkg/presence/db"
-	service_presence "mash/pkg/presence/service"
+	module_presence "mash/pkg/presence/module"
 	"mash/pkg/queue"
-	db_review "mash/pkg/review/db"
-	db_servicetokens "mash/pkg/servicetokens/db"
-	service_servicetokens "mash/pkg/servicetokens/service"
+	module_review "mash/pkg/review/module"
+	module_servicetokens "mash/pkg/servicetokens/module"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
 	worker_snapshots "mash/pkg/snapshots/worker"
@@ -195,12 +189,8 @@ func main() {
 		},
 		events.NewInMemory,
 		executor.NewProvider,
-		service_notification.NewPreferences,
-		db_onetime.New,
-		service_onetime.New,
 		service_user.New,
 		events.NewSender,
-		notification_sender.NewNotificationSender,
 		service_activity.New,
 		activity_sender.NewActivitySender,
 		ws_meta.NewWriterWithEvents,
@@ -209,34 +199,20 @@ func main() {
 		service_statuses.New,
 		service_workspace_watchers.New,
 		service_suggestion.New,
-		service_presence.New,
-		db_presence.NewRepo,
-		db_servicetokens.NewDatabase,
-		service_servicetokens.New,
-		db_onboarding.New,
 		db_user.NewRepo,
 		db_view.NewRepo,
 		db_workspace.NewRepo,
 		waitinglist.NewWaitingListRepo,
 		acl.NewACLInterestRepo,
 		instantintegration.NewInstantIntegrationInterestRepo,
-		db_pki.NewRepo,
 		db_snapshots.NewRepo,
 		db_suggestion.New,
 		view_workspace_snapshot.NewRepo,
-		db_notification.NewRepository,
-		db_mutagen.NewRepository,
-		db_newsletter.NewNotificationSettingsRepository,
 		db_activity.NewActivityRepo,
-		db_review.NewReviewRepository,
 		db_activity.NewActivityReadsRepo,
-		db_notification.NewPeferenceRepository,
 		db_statuses.New,
 		db_workspace_watchers.NewDB,
-		db_organization.New,
-		db_organization.NewMember,
 		service_sync.New,
-		service_organization.New,
 		worker_snapshots.New,
 	}
 
@@ -262,13 +238,23 @@ func main() {
 		c.Import(module_http.Module)
 		c.Import(module_integrations.Module)
 		c.Import(module_jwt.Module)
+		c.Import(module_license.Module)
+		c.Import(module_mutagen.Module)
+		c.Import(module_newsletter.Module)
+		c.Import(module_notification.Module)
+		c.Import(module_onboarding.Module)
+		c.Import(module_onetime.Module)
+		c.Import(module_organization.Module)
+		c.Import(module_pki.Module)
+		c.Import(module_presence.Module)
+		c.Import(module_review.Module)
+		c.Import(module_servicetokens.Module)
 
 		// todo: continue importing here
 
 		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
 		c.Import(module_workspace.Module)
-		c.Import(module_license.Module)
 	}
 
 	var apiServer api.API
