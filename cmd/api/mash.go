@@ -46,6 +46,7 @@ import (
 	module_presence "mash/pkg/presence/module"
 	"mash/pkg/queue"
 	module_review "mash/pkg/review/module"
+	module_serverstatus "mash/pkg/serverstatus/module"
 	module_servicetokens "mash/pkg/servicetokens/module"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
@@ -250,6 +251,7 @@ func main() {
 		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
 		c.Import(module_workspace.Module)
+		c.Import(module_serverstatus.Module)
 	}
 
 	var apiServer api.API
