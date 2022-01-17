@@ -8,9 +8,14 @@ import (
 
 	"mash/pkg/di"
 	"mash/pkg/http/oss"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Module(c *di.Container) {
-	c.Register(oss.ProvideHandler, new(http.Handler))
+	c.Register(oss.ProvideHandler)
+	c.Register(func(e *oss.Engine) http.Handler {
+		return (*gin.Engine)(e)
+	})
 	c.Register(ProvideServer)
 }
