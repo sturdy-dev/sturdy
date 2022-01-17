@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/change"
 	"mash/pkg/change/decorate"
 	"mash/pkg/change/message"
@@ -34,7 +35,6 @@ import (
 
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -59,8 +59,8 @@ type Service interface {
 }
 
 type WorkspaceService struct {
-	logger        *zap.Logger
-	postHogClient posthog.Client
+	logger          *zap.Logger
+	analyticsClient analytics.Client
 
 	workspaceWriter db.WorkspaceWriter
 	workspaceReader db.WorkspaceReader
@@ -81,7 +81,7 @@ type WorkspaceService struct {
 
 func New(
 	logger *zap.Logger,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 
 	workspaceWriter db.WorkspaceWriter,
 	workspaceReader db.WorkspaceReader,
@@ -100,8 +100,8 @@ func New(
 	buildQueue *workers_ci.BuildQueue,
 ) *WorkspaceService {
 	return &WorkspaceService{
-		logger:        logger,
-		postHogClient: postHogClient,
+		logger:          logger,
+		analyticsClient: analyticsClient,
 
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
@@ -360,15 +360,15 @@ func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Worksp
 		return nil, fmt.Errorf("failed to write workspace to db: %w", err)
 	}
 
-	if err := s.postHogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: req.UserID,
 		Event:      "create workspace",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("codebase_id", req.CodebaseID).
 			Set("name", ws.Name).
 			Set("at_existing_change", req.ChangeID != ""),
 	}); err != nil {
-		s.logger.Error("posthog failed", zap.Error(err))
+		s.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	return &ws, nil
@@ -479,16 +479,16 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		ws.LatestSnapshotID = nil
 	}
 
-	if err := s.postHogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: ws.UserID,
 		Event:      "created change",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("codebase_id", ws.CodebaseID).
 			Set("workspace_id", ws.ID).
 			Set("commit_id", createdCommitID).
 			Set("change_id", change.ID),
 	}); err != nil {
-		s.logger.Error("posthog failed", zap.Error(err))
+		s.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	if err := s.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
@@ -525,15 +525,15 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		return nil, fmt.Errorf("failed to unset up_to_date_with_trunk: %w", err)
 	}
 
-	if err := s.postHogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: ws.UserID,
 		Event:      "landed changes",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("codebase_id", ws.CodebaseID).
 			Set("workspace_id", ws.ID).
 			Set("change_id", change.ID),
 	}); err != nil {
-		s.logger.Error("posthog failed", zap.Error(err))
+		s.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	if err := s.commentService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, change.ID); err != nil {

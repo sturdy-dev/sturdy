@@ -3,6 +3,7 @@ package enterprise
 import (
 	"net/http"
 
+	"mash/pkg/analytics"
 	authz "mash/pkg/auth"
 	db_change "mash/pkg/change/db"
 	service_ci "mash/pkg/ci/service"
@@ -30,7 +31,6 @@ import (
 	"mash/vcs/executor"
 
 	"github.com/gin-gonic/gin"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -41,7 +41,7 @@ type Engine = gin.Engine
 func ProvideHandler(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceReader db_workspace.WorkspaceReader,
@@ -76,7 +76,7 @@ func ProvideHandler(
 	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
 
 	publ := ossEngine.Group("")
-	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, postHogClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
+	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, analyticsClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
 	return ossEngine
 }

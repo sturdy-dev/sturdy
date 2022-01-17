@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/codebase"
 	sturdy_github "mash/pkg/github"
 	"mash/pkg/github/enterprise/client"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -98,15 +98,15 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 				continue
 			}
 
-			if err := svc.postHogClient.Enqueue(posthog.Capture{
+			if err := svc.analyticsClient.Enqueue(analytics.Capture{
 				Event:      "added user to codebase",
 				DistinctId: gitHubUser.UserID,
-				Properties: posthog.NewProperties().
+				Properties: analytics.NewProperties().
 					Set("github", true).
 					Set("is_github_sender", false). // This event is not fired for the user that installed the GitHub app
 					Set("codebase_id", codebaseID),
 			}); err != nil {
-				logger.Error("posthog failed", zap.Error(err))
+				logger.Error("analytics failed", zap.Error(err))
 			}
 
 			// enqueue import pull requests for this user
@@ -197,31 +197,31 @@ func (svc *Service) AddUser(codebaseID string, gitHubUser *sturdy_github.GitHubU
 		return fmt.Errorf("failed to add sender to codebaseUserRepo: %w", err)
 	}
 
-	err = svc.postHogClient.Enqueue(posthog.Capture{
+	err = svc.analyticsClient.Enqueue(analytics.Capture{
 		Event:      "added user to codebase",
 		DistinctId: gitHubUser.UserID,
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("github", true).
 			Set("is_github_sender", true).
 			Set("codebase_id", codebaseID),
 	})
 	if err != nil {
-		svc.logger.Error("posthog failed", zap.Error(err))
+		svc.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", gitHubUser.UserID))
 
 	// Track installation event on the user that installed it
-	err = svc.postHogClient.Enqueue(posthog.Capture{
+	err = svc.analyticsClient.Enqueue(analytics.Capture{
 		Event:      "installed github repository",
 		DistinctId: gitHubUser.UserID,
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("github", true).
 			Set("is_github_sender", true).
 			Set("codebase_id", codebaseID),
 	})
 	if err != nil {
-		svc.logger.Error("posthog failed", zap.Error(err))
+		svc.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	// Send events

@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	"mash/pkg/analytics"
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
 	"mash/pkg/github/enterprise/db"
@@ -15,7 +16,6 @@ import (
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -25,31 +25,31 @@ func HandleInstallationEvent(
 	event *gh.InstallationEvent,
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
 	log.Printf("GitHub Installed: %+v", event)
 
-	// Identify the installation to PostHog
-	err := postHogClient.Enqueue(posthog.Identify{
+	// Identify the installation to analytics
+	err := analyticsClient.Enqueue(analytics.Identify{
 		DistinctId: fmt.Sprintf("%d", event.GetInstallation().GetID()), // Using the installation ID as a person?
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("installation_org", event.Installation.Account.GetLogin()).
 			Set("email", event.Installation.Account.GetLogin()).
 			Set("github_app_installation", true), // To differentiate between humans and installations
 	})
 	if err != nil {
-		logger.Error("posthog post failed", zap.Error(err))
+		logger.Error("analytics post failed", zap.Error(err))
 	}
 
-	// Track with PostHog
-	err = postHogClient.Enqueue(posthog.Capture{
+	// Track with analytics
+	err = analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: fmt.Sprintf("%d", event.GetInstallation().GetID()), // Using the installation ID as a person?
 		Event:      fmt.Sprintf("github installation %s", event.GetAction()),
 	})
 	if err != nil {
-		logger.Error("posthog post failed", zap.Error(err))
+		logger.Error("analytics post failed", zap.Error(err))
 	}
 
 	if event.GetAction() == "created" ||
@@ -103,7 +103,7 @@ func HandleInstallationEvent(
 					r,
 					event.GetSender(),
 					gitHubRepositoryRepo,
-					postHogClient,
+					analyticsClient,
 					codebaseRepo,
 					gitHubService,
 				)

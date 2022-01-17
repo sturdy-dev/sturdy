@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/codebase"
 	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/inmemory"
-	"mash/pkg/posthog"
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
@@ -42,7 +42,7 @@ func TestCodebaseAccess(t *testing.T) {
 		zap.NewNop(),
 		nil,
 		nil,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 		nil,
 		authService,
 	)

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/change"
@@ -35,7 +36,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
-	"github.com/posthog/posthog-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
@@ -70,8 +70,8 @@ type CommentRootResolver struct {
 	workspaceResolver *resolvers.WorkspaceRootResolver
 	changeResolver    resolvers.ChangeRootResolver
 
-	logger        *zap.Logger
-	postHogClient posthog.Client
+	logger          *zap.Logger
+	analyticsClient analytics.Client
 }
 
 func NewResolver(
@@ -95,7 +95,7 @@ func NewResolver(
 	changeResolver resolvers.ChangeRootResolver,
 
 	logger *zap.Logger,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	executroProvider executor.Provider,
 ) resolvers.CommentRootResolver {
 	return &CommentRootResolver{
@@ -120,8 +120,8 @@ func NewResolver(
 		workspaceResolver: workspaceResolver,
 		changeResolver:    changeResolver,
 
-		logger:        logger,
-		postHogClient: postHogClient,
+		logger:          logger,
+		analyticsClient: analyticsClient,
 	}
 }
 
@@ -276,14 +276,14 @@ func (r *CommentRootResolver) UpdateComment(ctx context.Context, args resolvers.
 		}
 	}
 
-	if err := r.postHogClient.Enqueue(posthog.Capture{
+	if err := r.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "updated comment",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("comment_id", comment.ID).
 			Set("codebase_id", comment.CodebaseID),
 	}); err != nil {
-		r.logger.Error("posthog failed", zap.Error(err))
+		r.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	return &CommentResolver{root: r, comment: *comment}, nil
@@ -304,14 +304,14 @@ func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.postHogClient.Enqueue(posthog.Capture{
+	if err := r.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "deleted comment",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("comment_id", comm.ID).
 			Set("codebase_id", comm.CodebaseID),
 	}); err != nil {
-		r.logger.Error("posthog failed", zap.Error(err))
+		r.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	t := time.Now()
@@ -487,17 +487,17 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 
 	id := comments.ID(uuid.NewString())
 
-	if err := r.postHogClient.Enqueue(posthog.Capture{
+	if err := r.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "created comment",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("is_reply", false).
 			Set("comment_id", id).
 			Set("codebase_id", codebaseID).
 			Set("workspace_id", workspaceID).
 			Set("change_id", changeID),
 	}); err != nil {
-		r.logger.Error("posthog failed", zap.Error(err))
+		r.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	newComm := &comments.Comment{
@@ -556,17 +556,17 @@ func (r *CommentRootResolver) prepareReplyComment(ctx context.Context, args reso
 		return nil, err
 	}
 
-	if err := r.postHogClient.Enqueue(posthog.Capture{
+	if err := r.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "created comment",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("is_reply", true).
 			Set("comment_id", id).
 			Set("codebase_id", parent.CodebaseID).
 			Set("workspace_id", parent.WorkspaceID).
 			Set("change_id", parent.ChangeID),
 	}); err != nil {
-		r.logger.Error("posthog failed", zap.Error(err))
+		r.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	return comment, nil

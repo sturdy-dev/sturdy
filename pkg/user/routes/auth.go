@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"strings"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	service_jwt "mash/pkg/jwt/service"
 	"mash/pkg/user/db"
 
 	"github.com/gin-gonic/gin"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,7 +19,7 @@ type AuthRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func Auth(logger *zap.Logger, repo db.Repository, postHogClient posthog.Client, jwtService *service_jwt.Service) func(c *gin.Context) {
+func Auth(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Client, jwtService *service_jwt.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req AuthRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,25 +54,25 @@ func Auth(logger *zap.Logger, repo db.Repository, postHogClient posthog.Client, 
 			return
 		}
 
-		// Identify to PostHog
-		err = postHogClient.Enqueue(posthog.Identify{
+		// Identify to analytics
+		err = analyticsClient.Enqueue(analytics.Identify{
 			DistinctId: getUser.ID,
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("name", getUser.Name).
 				Set("email", getUser.Email),
 		})
 		if err != nil {
-			logger.Error("send to posthog failed", zap.Error(err))
+			logger.Error("send to analytics failed", zap.Error(err))
 		}
 
-		err = postHogClient.Enqueue(posthog.Capture{
+		err = analyticsClient.Enqueue(analytics.Capture{
 			DistinctId: getUser.ID,
 			Event:      "logged in",
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("type", "password"),
 		})
 		if err != nil {
-			logger.Error("send to posthog failed", zap.Error(err))
+			logger.Error("send to analytics failed", zap.Error(err))
 		}
 
 		// Send the user object in the response

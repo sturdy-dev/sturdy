@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"mash/db"
+	module_analytics "mash/pkg/analytics/module"
 	"mash/pkg/api"
 	module_api "mash/pkg/api/module"
 	module_auth "mash/pkg/auth/module"
@@ -42,7 +43,6 @@ import (
 	module_onetime "mash/pkg/onetime/module"
 	module_organization "mash/pkg/organization/module"
 	module_pki "mash/pkg/pki/module"
-	ph "mash/pkg/posthog"
 	module_presence "mash/pkg/presence/module"
 	"mash/pkg/queue"
 	module_review "mash/pkg/review/module"
@@ -79,7 +79,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/jmoiron/sqlx"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -91,21 +90,23 @@ func main() {
 	metricsListenAddr := flag.String("metrics-listen-addr", "127.0.0.1:2112", "")
 	dbSourceAddr := flag.String("db", "postgres://mash:mash@127.0.0.1:5432/mash?sslmode=disable", "")
 	productionLogger := flag.Bool("production-logger", false, "")
-	sendPostHogEvents := flag.Bool("send-posthog-events", false, "")
-	_ = flag.Bool("send-invites-worker", false, "")
-	_ = flag.String("gmail-token-json-path", "", "used by the invite email sender")
-	_ = flag.String("gmail-credentials-json-path", "", "used by the invite email sender")
 	gitHubAppID := flag.Int64("github-app-id", 122610, "")
 	gitHubAppName := flag.String("github-app-name", "sturdy-gustav-localhost", "")
 	gitHubAppClientID := flag.String("github-app-client-id", "", "")
 	gitHubAppSecret := flag.String("github-app-secret", "", "")
 	gitHubAppPrivateKeyPath := flag.String("github-app-private-key-path", "", "")
-	_ = flag.Bool("unauthenticated-graphql-introspection", false, "")
 	gitLfsHostname := flag.String("git-lfs-hostname", "localhost:8888", "")
 	enableTransactionalEmails := flag.Bool("enable-transactional-emails", false, "")
 	exportBucketName := flag.String("export-bucket-name", "", "the S3 bucket to be used for change exports")
 	developmentAllowExtraCorsOrigin := flag.String("development-allow-extra-cors-origin", "", "Additional CORS origin to be allowed")
 	localQueue := flag.Bool("use-local-queues", false, "If set, local queue will be used instead of SQS")
+
+	// deprecated flags
+	_ = flag.Bool("send-posthog-events", false, "")
+	_ = flag.Bool("send-invites-worker", false, "")
+	_ = flag.String("gmail-token-json-path", "", "used by the invite email sender")
+	_ = flag.Bool("unauthenticated-graphql-introspection", false, "")
+	_ = flag.String("gmail-credentials-json-path", "", "used by the invite email sender")
 
 	publicApiHostname := flag.String("public-api-hostname", "localhost", "api.getsturdy.com in production")
 	// publicGitHostname := flag.String("public-git-hostname", "git.getsturdy.com", "")
@@ -151,13 +152,6 @@ func main() {
 					Region: aws.String("eu-north-1"),
 				})
 			return awsSession, err
-		},
-		func() (posthog.Client, error) {
-			if *sendPostHogEvents {
-				return posthog.NewWithConfig("ZuDRoGX9PgxGAZqY4RF9CCJJLpx14h3szUPzm7XBWSg", posthog.Config{Endpoint: "https://app.posthog.com"})
-			} else {
-				return ph.NewFakeClient(), nil
-			}
 		},
 		func(e events.EventReadWriter) events.EventReader {
 			return e
@@ -221,6 +215,7 @@ func main() {
 			c.Register(provider)
 		}
 
+		c.Import(module_analytics.Module)
 		c.Import(module_api.Module)
 		c.Import(module_auth.Module)
 		c.Import(module_author.Module)

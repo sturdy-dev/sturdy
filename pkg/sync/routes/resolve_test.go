@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"mash/db"
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_change "mash/pkg/change/db"
@@ -24,7 +25,6 @@ import (
 	service_comments "mash/pkg/comments/service"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
-	"mash/pkg/posthog"
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
 	graphql_review "mash/pkg/review/graphql"
@@ -394,7 +394,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
 	workspaceService := service_workspace.New(
 		logger,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 
 		workspaceRepo,
 		workspaceRepo,
@@ -503,7 +503,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		logger,
 		viewRepo,
 		codebaseUserRepo,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 		workspaceRepo,
 		gitSnapshotter,
 		snapshotsRepo,

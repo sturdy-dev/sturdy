@@ -3,9 +3,9 @@ package service
 import (
 	"testing"
 
+	"mash/pkg/analytics/disabled"
 	workers_ci "mash/pkg/ci/workers"
 	"mash/pkg/internal/inmemory"
-	"mash/pkg/posthog"
 	"mash/pkg/queue"
 	"mash/pkg/snapshots/snapshotter"
 	"mash/pkg/view/events"
@@ -28,7 +28,7 @@ func setup(t *testing.T) *testCollaborators {
 	repoProvider := testutil.TestingRepoProvider(t)
 	executorProvider := executor.NewProvider(logger, repoProvider)
 	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
 	viewRepo := inmemory.NewInMemoryViewRepo()
 	viewEvents := events.NewInMemory()

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/notification"
 	sender_notification "mash/pkg/notification/sender"
 	"mash/pkg/snapshots"
@@ -24,7 +25,6 @@ import (
 	"mash/vcs/provider"
 
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +37,7 @@ type Service struct {
 
 	executorProvider   executor.Provider
 	snapshotter        snapshotter.Snapshotter
-	posthogClient      posthog.Client
+	analyticsClient    analytics.Client
 	notificationSender sender_notification.NotificationSender
 	eventSender        events.EventSender
 }
@@ -48,7 +48,7 @@ func New(
 	workspaceService service_workspace.Service,
 	executorProvider executor.Provider,
 	snapshotter snapshotter.Snapshotter,
-	posthogClient posthog.Client,
+	analyticsClient analytics.Client,
 	notificationSender sender_notification.NotificationSender,
 	eventSender events.EventSender,
 ) *Service {
@@ -61,7 +61,7 @@ func New(
 
 		executorProvider:   executorProvider,
 		snapshotter:        snapshotter,
-		posthogClient:      posthogClient,
+		analyticsClient:    analyticsClient,
 		notificationSender: notificationSender,
 		eventSender:        eventSender,
 	}
@@ -167,14 +167,14 @@ func (s *Service) Create(ctx context.Context, userID string, forWorkspace *works
 		return nil, fmt.Errorf("failed to create: %w", err)
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: suggestion.UserID,
 		Event:      "suggestions-create",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("workspace_id", forWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
-		s.logger.Error("failed to send posthog event", zap.Error(err))
+		s.logger.Error("failed to send analytics event", zap.Error(err))
 	}
 
 	return suggestion, nil
@@ -306,14 +306,14 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 		return fmt.Errorf("failed to update: %w", err)
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: originalWorkspace.UserID,
 		Event:      "suggestions-apply",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("workspace_id", originalWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
-		s.logger.Error("failed to send posthog event", zap.Error(err))
+		s.logger.Error("failed to send analytics event", zap.Error(err))
 	}
 
 	return nil
@@ -357,14 +357,14 @@ func (s *Service) DismissHunks(ctx context.Context, suggestion *suggestions.Sugg
 		return fmt.Errorf("failed to update: %w", err)
 	}
 
-	if err := s.posthogClient.Enqueue(posthog.Capture{
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: originalWorkspace.UserID,
 		Event:      "suggestions-dismiss",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("workspace_id", originalWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
-		s.logger.Error("failed to send posthog event", zap.Error(err))
+		s.logger.Error("failed to send analytics event", zap.Error(err))
 	}
 
 	return nil

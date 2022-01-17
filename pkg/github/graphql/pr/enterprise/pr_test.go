@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"mash/db"
+	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/change"
@@ -40,7 +41,6 @@ import (
 	"mash/pkg/internal/inmemory"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
-	"mash/pkg/posthog"
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
 	db_snapshots "mash/pkg/snapshots/db"
@@ -121,7 +121,7 @@ func TestPRHighLevel(t *testing.T) {
 	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 	commentsService := service_comments.New(commentsRepo)
 
 	queue := queue.NewNoop()
@@ -197,7 +197,7 @@ func TestPRHighLevel(t *testing.T) {
 	webhookRoute := routes.Webhook(
 		logger,
 		config.GitHubAppConfig{},
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 		gitHubInstallationRepo,
 		gitHubRepositoryRepo,
 		codebaseRepo,
@@ -239,7 +239,7 @@ func TestPRHighLevel(t *testing.T) {
 		clientProvider,
 		personalClientProvider,
 		viewUpdates,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 		authService,
 		gitHubService,
 	)
@@ -266,7 +266,7 @@ func TestPRHighLevel(t *testing.T) {
 		nil,
 		nil,
 		logger,
-		posthog.NewFakeClient(),
+		disabled.NewClient(),
 		executorProvider,
 	)
 

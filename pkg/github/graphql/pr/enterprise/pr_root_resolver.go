@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	db_codebase "mash/pkg/codebase/db"
@@ -20,7 +21,6 @@ import (
 	db_workspace "mash/pkg/workspace/db"
 
 	"github.com/graph-gophers/graphql-go"
-	"github.com/posthog/posthog-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
@@ -54,7 +54,7 @@ type prRootResolver struct {
 	gitHubClientProvider         client.ClientProvider
 	gitHubPersonalClientProvider client.PersonalClientProvider
 	events                       events.EventReadWriter
-	postHogClient                posthog.Client
+	analyticsClient              analytics.Client
 
 	authService   *service_auth.Service
 	gitHubService *service_github.Service
@@ -82,7 +82,7 @@ func NewResolver(
 	gitHubClientProvider client.ClientProvider,
 	gitHubPersonalClientProvider client.PersonalClientProvider,
 	events events.EventReadWriter,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 
 	authService *service_auth.Service,
 	gitHubService *service_github.Service,
@@ -109,7 +109,7 @@ func NewResolver(
 		gitHubClientProvider:         gitHubClientProvider,
 		gitHubPersonalClientProvider: gitHubPersonalClientProvider,
 		events:                       events,
-		postHogClient:                postHogClient,
+		analyticsClient:              analyticsClient,
 
 		authService:   authService,
 		gitHubService: gitHubService,

@@ -4,27 +4,24 @@ import (
 	"net/http"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
+	"mash/pkg/codebase/access"
+	db_codebase "mash/pkg/codebase/db"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
+	"mash/pkg/view"
+	"mash/pkg/view/db"
 	"mash/pkg/view/events"
 	"mash/pkg/view/open"
+	"mash/pkg/view/vcs"
 	db_workspace "mash/pkg/workspace/db"
 	"mash/vcs/executor"
 	"mash/vcs/provider"
 
-	"github.com/google/uuid"
-
-	"github.com/posthog/posthog-go"
-
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
-
-	"mash/pkg/codebase/access"
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/view"
-	"mash/pkg/view/db"
-	"mash/pkg/view/vcs"
 )
 
 type CreateRequest struct {
@@ -39,7 +36,7 @@ func Create(
 	logger *zap.Logger,
 	viewRepo db.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	workspaceReader db_workspace.WorkspaceReader,
 	snapshotter snapshotter.Snapshotter,
 	snapshotRepo db_snapshots.Repository,
@@ -108,17 +105,17 @@ func Create(
 			return
 		}
 
-		if err := postHogClient.Enqueue(posthog.Capture{
+		if err := analyticsClient.Enqueue(analytics.Capture{
 			DistinctId: userID,
 			Event:      "create view",
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("codebase_id", req.CodebaseID).
 				Set("workspace_id", req.WorkspaceID).
 				Set("view_id", e.ID).
 				Set("mount_path", e.MountPath).
 				Set("mount_hostname", e.MountHostname),
 		}); err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 			// do not fail
 		}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/change"
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
@@ -20,7 +21,6 @@ import (
 	"mash/vcs"
 	"mash/vcs/executor"
 
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -55,7 +55,7 @@ type Service struct {
 	executorProvider executor.Provider
 
 	snap               snapshotter.Snapshotter
-	postHogClient      posthog.Client
+	analyticsClient    analytics.Client
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
 
@@ -83,7 +83,7 @@ func New(
 
 	executorProvider executor.Provider,
 	snap snapshotter.Snapshotter,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,
 
@@ -110,7 +110,7 @@ func New(
 
 		executorProvider:   executorProvider,
 		snap:               snap,
-		postHogClient:      postHogClient,
+		analyticsClient:    analyticsClient,
 		notificationSender: notificationSender,
 		eventsSender:       eventsSender,
 

@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"mash/pkg/analytics/disabled"
 	db_acl "mash/pkg/codebase/acl/db"
 	provider_acl "mash/pkg/codebase/acl/provider"
 	gqldataloader "mash/pkg/graphql/dataloader"
@@ -35,7 +36,6 @@ import (
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
-	"mash/pkg/posthog"
 	"mash/pkg/queue"
 	db_review "mash/pkg/review/db"
 	graphql_review "mash/pkg/review/graphql"
@@ -102,7 +102,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	logger := zap.NewNop()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)
@@ -625,7 +625,7 @@ func TestLargeFiles(t *testing.T) {
 	}
 
 	logger, _ := zap.NewDevelopment()
-	postHogClient := posthog.NewFakeClient()
+	postHogClient := disabled.NewClient()
 
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)

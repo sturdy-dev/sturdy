@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	"mash/pkg/analytics"
 	db_codebase "mash/pkg/codebase/db"
 	"mash/pkg/github"
 	"mash/pkg/github/enterprise/db"
@@ -25,7 +26,7 @@ func HandleInstallationRepositoriesEvent(
 	event *gh.InstallationRepositoriesEvent,
 	gitHubAppInstallationsRepository db.GitHubInstallationRepo,
 	gitHubAppInstalledRepositoryRepository db.GitHubRepositoryRepo,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
@@ -54,7 +55,7 @@ func HandleInstallationRepositoriesEvent(
 				r,
 				event.GetSender(),
 				gitHubAppInstalledRepositoryRepository,
-				postHogClient,
+				analyticsClient,
 				codebaseRepo,
 				gitHubService,
 			)
@@ -95,7 +96,7 @@ func handleInstalledRepository(
 	ghRepo *gh.Repository,
 	sender *gh.User,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
-	postHogClient posthog.Client,
+	analyticsClient posthog.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
@@ -104,15 +105,15 @@ func handleInstalledRepository(
 	logger.Info("handleInstalledRepository")
 
 	// Tracking on the GitHub installation itself, there is also some tracking on the user
-	err := postHogClient.Enqueue(posthog.Capture{
+	err := analyticsClient.Enqueue(posthog.Capture{
 		DistinctId: fmt.Sprintf("%d", installationID), // Using the installation ID as a person?
 		Event:      "installed repository",
-		Properties: posthog.NewProperties().
+		Properties: analytics.NewProperties().
 			Set("installation_id", installationID).
 			Set("repo_name", ghRepo.GetName()),
 	})
 	if err != nil {
-		logger.Error("posthog post failed", zap.Error(err))
+		logger.Error("analytics post failed", zap.Error(err))
 	}
 
 	existingGitHubRepo, err := gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID())

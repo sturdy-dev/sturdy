@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"mash/pkg/analytics"
 	"mash/pkg/auth"
 	"mash/pkg/shortid"
 	"mash/pkg/view/events"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 
 	"mash/pkg/codebase"
@@ -34,7 +34,7 @@ func Create(
 	repo db.CodebaseRepository,
 	codebaseUserRepo db.CodebaseUserRepository,
 	executorProvider executor.Provider,
-	postHogClient posthog.Client,
+	analyticsClient analytics.Client,
 	eventsSender events.EventSender,
 	workspaceService service_workspace.Service,
 ) func(c *gin.Context) {
@@ -84,15 +84,15 @@ func Create(
 			return
 		}
 
-		err = postHogClient.Enqueue(posthog.Capture{
+		err = analyticsClient.Enqueue(analytics.Capture{
 			DistinctId: userID,
 			Event:      "create codebase",
-			Properties: posthog.NewProperties().
+			Properties: analytics.NewProperties().
 				Set("codebase_id", cb.ID).
 				Set("name", cb.Name),
 		})
 		if err != nil {
-			logger.Error("posthog failed", zap.Error(err))
+			logger.Error("analytics failed", zap.Error(err))
 		}
 
 		if err := workspaceService.CreateWelcomeWorkspace(cb.ID, userID, cb.Name); err != nil {

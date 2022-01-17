@@ -8,11 +8,11 @@ import (
 	"path"
 	"testing"
 
+	"mash/pkg/analytics/disabled"
 	db_codebase "mash/pkg/codebase/db"
 	vcs_codebase "mash/pkg/codebase/vcs"
 	"mash/pkg/internal/inmemory"
 	"mash/pkg/notification/sender"
-	"mash/pkg/posthog"
 	"mash/pkg/snapshots"
 	db_snapshots "mash/pkg/snapshots/db"
 	"mash/pkg/snapshots/snapshotter"
@@ -232,8 +232,8 @@ func newTest(t *testing.T, operations []*operation) *test {
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
 
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, nil, executorProvider, zap.NewNop())
-	workspaceService := service_workspace.New(zap.NewNop(), posthog.NewFakeClient(), workspaceDB, workspaceDB, nil, nil, nil, nil, nil, executorProvider, nil, nil, gitSnapshotter, nil)
-	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, posthog.NewFakeClient(), sender.NewNoopNotificationSender(), eventsSender)
+	workspaceService := service_workspace.New(zap.NewNop(), disabled.NewClient(), workspaceDB, workspaceDB, nil, nil, nil, nil, nil, executorProvider, nil, nil, gitSnapshotter, nil)
+	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, disabled.NewClient(), sender.NewNoopNotificationSender(), eventsSender)
 	return &test{
 		repoProvider:      repoProvider,
 		executorProvider:  executorProvider,
