@@ -45,4 +45,5 @@ const (
 	ActionPreCheckoutOtherWorkspace Action = "pre_checkout_other_workspace"
 	ActionWorkspaceExtract          Action = "workspace_extract"
 	ActionChangeReverted            Action = "change_reverted"
+	ActionSuggestionApply           Action = "suggestion_apply"
 )
