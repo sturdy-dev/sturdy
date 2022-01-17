@@ -1,8 +1,6 @@
 package enterprise
 
 import (
-	"net/http"
-
 	"mash/pkg/analytics"
 	authz "mash/pkg/auth"
 	db_change "mash/pkg/change/db"
@@ -16,6 +14,7 @@ import (
 	routes_v3_ghapp "mash/pkg/github/enterprise/routes"
 	service_github "mash/pkg/github/enterprise/service"
 	workers_github "mash/pkg/github/enterprise/workers"
+	"mash/pkg/http/oss"
 	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
 	service_jwt "mash/pkg/jwt/service"
 	db_review "mash/pkg/review/db"
@@ -36,7 +35,7 @@ import (
 
 type DevelopmentAllowExtraCorsOrigin string
 
-type Engine = gin.Engine
+type Engine gin.Engine
 
 func ProvideHandler(
 	logger *zap.Logger,
@@ -69,8 +68,8 @@ func ProvideHandler(
 	ciService *service_ci.Service,
 	serviceTokensService *service_servicetokens.Service,
 	buildkiteService *service_buildkite.Service,
-	ossEngine *gin.Engine,
-) http.Handler {
+	ossEngine *oss.Engine,
+) *Engine {
 	auth := ossEngine.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
 	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
@@ -78,5 +77,5 @@ func ProvideHandler(
 	publ := ossEngine.Group("")
 	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, analyticsClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
-	return ossEngine
+	return (*Engine)(ossEngine)
 }
