@@ -1,8 +1,6 @@
-package configurable
+package proxy
 
-import (
-	"mash/pkg/di"
-)
+import "mash/pkg/di"
 
 func Module(c *di.Container) {
 	c.Register(NewClient)
