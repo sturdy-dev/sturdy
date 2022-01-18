@@ -48,14 +48,11 @@ import (
 	module_review "mash/pkg/review/module"
 	module_serverstatus "mash/pkg/serverstatus/module"
 	module_servicetokens "mash/pkg/servicetokens/module"
-	db_snapshots "mash/pkg/snapshots/db"
-	"mash/pkg/snapshots/snapshotter"
-	worker_snapshots "mash/pkg/snapshots/worker"
+	module_snapshots "mash/pkg/snapshots/module"
 	db_statuses "mash/pkg/statuses/db"
 	module_statuses "mash/pkg/statuses/module"
 	service_statuses "mash/pkg/statuses/service"
-	db_suggestion "mash/pkg/suggestions/db"
-	service_suggestion "mash/pkg/suggestions/service"
+	module_suggestions "mash/pkg/suggestions/module"
 	service_sync "mash/pkg/sync/service"
 	db_user "mash/pkg/user/db"
 	service_user "mash/pkg/user/service"
@@ -189,26 +186,21 @@ func main() {
 		service_activity.New,
 		activity_sender.NewActivitySender,
 		ws_meta.NewWriterWithEvents,
-		snapshotter.NewGitSnapshotter,
 		meta_view.NewViewUpdatedFunc,
 		service_statuses.New,
 		service_workspace_watchers.New,
-		service_suggestion.New,
 		db_user.NewRepo,
 		db_view.NewRepo,
 		db_workspace.NewRepo,
 		waitinglist.NewWaitingListRepo,
 		acl.NewACLInterestRepo,
 		instantintegration.NewInstantIntegrationInterestRepo,
-		db_snapshots.NewRepo,
-		db_suggestion.New,
 		view_workspace_snapshot.NewRepo,
 		db_activity.NewActivityRepo,
 		db_activity.NewActivityReadsRepo,
 		db_statuses.New,
 		db_workspace_watchers.NewDB,
 		service_sync.New,
-		worker_snapshots.New,
 	}
 
 	mainModule := func(c *di.Container) {
@@ -245,10 +237,12 @@ func main() {
 		c.Import(module_presence.Module)
 		c.Import(module_review.Module)
 		c.Import(module_servicetokens.Module)
+		c.Import(module_snapshots.Module)
+		c.Import(module_statuses.Module)
+		c.Import(module_suggestions.Module)
 
 		// todo: continue importing here
 
-		c.Import(module_statuses.Module)
 		c.Import(module_transactional.Module)
 		c.Import(module_workspace.Module)
 		c.Import(module_serverstatus.Module)
