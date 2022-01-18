@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"mash/db"
-	"mash/pkg/codebase/acl"
-	"mash/pkg/internal/sturdytest"
 	"os"
 	"testing"
 	"time"
+
+	"mash/pkg/codebase/acl"
+	"mash/pkg/db"
+	"mash/pkg/internal/sturdytest"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -25,8 +26,6 @@ func TestMain(m *testing.M) {
 func Test_Create(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 
@@ -46,8 +45,6 @@ func Test_Create(t *testing.T) {
 func Test_Create_twice_fails(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 
@@ -68,8 +65,6 @@ func Test_Create_twice_fails(t *testing.T) {
 func Test_GetByCodebaseID_not_found(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 
@@ -84,8 +79,6 @@ func Test_GetByCodebaseID_not_found(t *testing.T) {
 func Test_GetByCodebaseID(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 
@@ -117,8 +110,6 @@ func Test_GetByCodebaseID(t *testing.T) {
 func Test_Update(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 
@@ -170,8 +161,6 @@ func Test_Update(t *testing.T) {
 func Test_Update_not_found(t *testing.T) {
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../db/migrations",
 	)
 	assert.NoError(t, err)
 

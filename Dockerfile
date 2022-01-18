@@ -60,8 +60,5 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 # Copy driva
 COPY --from=builder /src/driva /usr/bin/driva
 
-# Copy runtime migrations
-COPY /db/migrations /db/migrations
-
 # Smoke test binaries
 RUN git version && git-lfs version

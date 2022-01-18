@@ -7,7 +7,6 @@ import (
 	_ "net/http/pprof"
 	"os"
 
-	"mash/db"
 	module_analytics "mash/pkg/analytics/module"
 	"mash/pkg/api"
 	module_api "mash/pkg/api/module"
@@ -20,6 +19,7 @@ import (
 	module_codebase_acl "mash/pkg/codebase/acl/module"
 	module_codebase "mash/pkg/codebase/module"
 	module_comments "mash/pkg/comments/module"
+	"mash/pkg/db"
 	"mash/pkg/di"
 	"mash/pkg/emails"
 	module_transactional "mash/pkg/emails/transactional/module"
@@ -137,7 +137,7 @@ func main() {
 			return provider.New(*reposBasePath, *gitLfsHostname)
 		},
 		func() (*sqlx.DB, error) {
-			return db.Setup(*dbSourceAddr, true, "file://db/migrations")
+			return db.Setup(*dbSourceAddr)
 		},
 		func() config.GitHubAppConfig {
 			return config.GitHubAppConfig{
