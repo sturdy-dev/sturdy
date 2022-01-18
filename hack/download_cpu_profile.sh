@@ -9,7 +9,7 @@ SECONDS="30"
 echo "Recording ${SECONDS}s cpu profile..."
 
 curl \
-    --output "${OUT_FILE}" \
-    "http://localhost:6060/debug/pprof/profile?seconds=${SECONDS}"
+  --output "${OUT_FILE}" \
+  "http://localhost:6060/debug/pprof/profile?seconds=${SECONDS}"
 
 echo "${OUT_FILE}"

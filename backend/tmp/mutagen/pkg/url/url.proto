@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package url;
+
+option go_package = "github.com/mutagen-io/mutagen/pkg/url";
+
+// Kind indicates the kind of a URL.
+enum Kind {
+    // Synchronization indicates a synchronization URL.
+    Synchronization = 0;
+    // Forwarding indicates a forwarding URL.
+    Forwarding = 1;
+}
+
+// Protocol indicates a location type.
+enum Protocol {
+    // Local indicates that the resource is on the local system.
+    Local = 0;
+    // SSH indicates that the resource is accessible via SSH.
+    SSH = 1;
+
+    // Enumeration value 2 is reserved for custom protocols.
+
+    // Enumeration value 3 was previously used for the mutagen.io-based tunnel
+    // protocol. This protocol was experimental and only available as part of
+    // the v0.11.x release series. It should not be re-used.
+
+    // Enumeration values 4-10 are reserved for core protocols.
+
+    // Docker indicates that the resource is inside a Docker container.
+    Docker = 11;
+}
+
+// URL represents a pointer to a resource.
+message URL {
+    // Kind indicates the URL kind.
+    // NOTE: This field number is out of order for historical reasons.
+    Kind kind = 7;
+    // Protocol indicates a location type.
+    Protocol protocol = 1;
+    // User is the user under which a resource should be accessed.
+    string user = 2;
+    // Host is protocol-specific, but generally indicates the location of the
+    // remote.
+    string host = 3;
+    // Port indicates a TCP port via which to access the remote location, if
+    // applicable.
+    uint32 port = 4;
+    // Path indicates the path of a resource.
+    string path = 5;
+    // Environment contains captured environment variable information. It is not
+    // a required component and its contents and their behavior depend on the
+    // transport implementation.
+    map<string, string> environment = 6;
+
+    // Field 7 is already used above for the kind field. It is out of order for
+    // historical reasons.
+
+    // Parameters are internal transport parameters. These are set for URLs
+    // generated internally that require additional metadata. Parameters are not
+    // required and their behavior is dependent on the transport implementation.
+    map<string, string> parameters = 8;
+}
