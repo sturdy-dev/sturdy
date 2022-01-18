@@ -27,8 +27,3 @@ RUN mkdir -p /tmp/lfs \
 
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
-
-# Cache dependency downloads
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
