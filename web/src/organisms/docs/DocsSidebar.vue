@@ -20,13 +20,13 @@ const links = [
   { name: 'v2DocsProductIntro', title: 'Getting Started' },
   { name: 'v2DocsHowSturdyAugmentsGit', title: 'Augmenting Git' },
   { name: 'v2DocsWorkingInTheOpen', title: 'Working in the open' },
-  { name: 'index', title: 'Self-host' },
-  { name: 'index', title: 'Cloud' },
-  { name: 'index', title: 'User Guides' },
-  { name: 'index', title: 'API' },
-  { name: 'index', title: 'API' },
-  { name: 'index', title: 'API' },
-  { name: 'index', title: 'API' },
+  //  { name: 'index', title: 'Self-host' },
+  //  { name: 'index', title: 'Cloud' },
+  //  { name: 'index', title: 'User Guides' },
+  //  { name: 'index', title: 'API' },
+  //  { name: 'index', title: 'API' },
+  //  { name: 'index', title: 'API' },
+  //  { name: 'index', title: 'API' },
 ]
 
 export default defineComponent({

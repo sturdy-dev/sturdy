@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1>Sturdy Documentation</h1>
+        <h1 id="sturdy-documentation">Sturdy Documentation</h1>
 
         <p>
           Sturdy is an open source version control platform which allows you to interact with your
@@ -30,7 +30,7 @@
 
       <div class="my-8 bg-gray-200 rounded-md px-4 py-2">
         <div class="prose max-w-full">
-          <h2>Get started</h2>
+          <h2 id="get-started">Get started</h2>
 
           There are three versions of Sturdy:
 
@@ -80,7 +80,7 @@ docker run -d --publish 9595:9595 \
           suggestions, early feedback.
         </p>
 
-        <h2>Collaboration</h2>
+        <h2 id="collaboration">Collaboration</h2>
 
         <p>Collaboration in Sturdy is built around two core principles:</p>
         <ul>
@@ -89,10 +89,12 @@ docker run -d --publish 9595:9595 \
         </ul>
 
         <p>
-          <router-link :to="{name: 'v2DocsWorkingInTheOpen'}"><strong>Continuous feedback</strong></router-link> reflects the reality of working together &mdash;
-          getting help and suggestions on an early version of the code is more effective than review
-          of a "completed" work. This means creating an environment which fosters experimentation
-          and working in the open.
+          <router-link :to="{ name: 'v2DocsWorkingInTheOpen' }"
+            ><strong>Continuous feedback</strong></router-link
+          >
+          reflects the reality of working together &mdash; getting help and suggestions on an early
+          version of the code is more effective than review of a "completed" work. This means
+          creating an environment which fosters experimentation and working in the open.
         </p>
 
         <p>
