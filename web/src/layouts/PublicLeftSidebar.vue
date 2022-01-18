@@ -1,5 +1,5 @@
 <template>
-  <Public>
+  <PublicOpenSource>
     <div class="flex mt-8 px-4 flex-col md:flex-row">
       <div class="w-full flex-1 md:min-w-[240px]">
         <div class="md:sticky md:top-4">
@@ -23,23 +23,24 @@
                 :href="'#' + toc.id"
                 class="text-gray-600 hover:text-gray-800 font-medium"
                 :class="toc.classes"
-                >{{ toc.title }}</a
-              >
+                >
+                {{ toc.title }}
+              </a>
             </li>
           </ol>
         </div>
       </div>
     </div>
-  </Public>
+  </PublicOpenSource>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import Public from './Public.vue'
+import { defineComponent } from 'vue'
+import PublicOpenSource from "./PublicOpenSource.vue";
 
 export default defineComponent({
   components: {
-    Public,
+    PublicOpenSource,
   },
   setup() {
     return {
