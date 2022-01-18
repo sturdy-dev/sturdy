@@ -7,7 +7,9 @@
         </div>
       </div>
 
-      <div class=" w-full 2xl:max-w-[800px] xl:max-w-[650px] max-w-full pb-14 relative md:pl-16 xl:px-16 2xl:px-32 box-content overflow-auto">
+      <div
+        class="w-full 2xl:max-w-[800px] xl:max-w-[650px] max-w-full pb-14 relative md:pl-16 xl:px-16 2xl:px-32 box-content overflow-auto"
+      >
         <slot name="default"></slot>
       </div>
 
@@ -17,7 +19,11 @@
           <ol class="leading-loose">
             <li><a href="#" class="text-gray-600 hover:text-gray-800 font-medium">Foo</a></li>
             <li><a href="#" class="text-gray-600 hover:text-gray-800 font-medium pl-4">Bar</a></li>
-            <li><a href="#" class="text-gray-600 hover:text-gray-800 font-medium pl-4">Bar baz foo baz</a></li>
+            <li>
+              <a href="#" class="text-gray-600 hover:text-gray-800 font-medium pl-4"
+                >Bar baz foo baz</a
+              >
+            </li>
             <li><a href="#" class="text-gray-600 hover:text-gray-800 font-medium">Foo</a></li>
           </ol>
         </div>
@@ -27,8 +33,8 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
-import Public from "./Public.vue";
+import { defineComponent } from 'vue'
+import Public from './Public.vue'
 
 export default defineComponent({
   components: {

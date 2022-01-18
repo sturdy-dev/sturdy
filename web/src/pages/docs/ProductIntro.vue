@@ -1,53 +1,30 @@
 <template>
   <PublicLeftSidebar>
     <template #sidebar>
-      <ol class="space-y-1">
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">Getting started
-          </router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">Self-host
-          </router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">Cloud</router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">User Guides
-          </router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">API</router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">API</router-link>
-        </li>
-        <li>
-          <router-link to="v2DocsProdutIntro" class="text-gray-600 hover:text-gray-800 font-medium">API</router-link>
-        </li>
-      </ol>
+      <DocsSidebar />
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
         <h1>Sturdy Documentation</h1>
 
         <p>
-          Sturdy is an open source version control platform which allows you to interact with your code at a higher
-          abstraction level. This provides an ergonomic, real-time workflow for individuals and teams.
+          Sturdy is an open source version control platform which allows you to interact with your
+          code at a higher abstraction level. This provides an ergonomic, real-time workflow for
+          individuals and teams.
         </p>
 
         <p>
-          In Sturdy, developers perform <strong>actions that are directly mapped to their intent</strong>, rather than
-          thinking about the underlying data structures. For example: "Ship this code to production" instead of "Create
-          a branch, stage files, make a commit, push to remote, merge, etc.".
+          In Sturdy, developers perform
+          <strong>actions that are directly mapped to their intent</strong>, rather than thinking
+          about the underlying data structures. For example: "Ship this code to production" instead
+          of "Create a branch, stage files, make a commit, push to remote, merge, etc.".
         </p>
 
         <p>
-          The dynamics of teams at tech companies are different from those of most open source projects. The biggest
-          difference is in how closely people collaborate with each other &mdash; at a software shop you already
-          synchronize,
-          share knowledge and plan together. Sturdy is built specifically for this workflow.
+          The dynamics of teams at tech companies are different from those of most open source
+          projects. The biggest difference is in how closely people collaborate with each other
+          &mdash; at a software shop you already synchronize, share knowledge and plan together.
+          Sturdy is built specifically for this workflow.
         </p>
       </div>
 
@@ -58,39 +35,49 @@
           There are three versions of Sturdy:
 
           <ul>
-            <li><a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a></li>
-            <li><strong>Sturdy Enterprise</strong> let’s you run Sturdy in your own environment.</li>
-            <li><strong>Sturdy OSS</strong> is an open-source version of Sturdy that gives you all of the core
-              functionality of Sturdy, but with some advanced features missing (OAuth, incremental migrations to Sturdy,
-              etc).
+            <li>
+              <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a>
+            </li>
+            <li>
+              <strong>Sturdy Enterprise</strong> let’s you run Sturdy in your own environment.
+            </li>
+            <li>
+              <strong>Sturdy OSS</strong> is an open-source version of Sturdy that gives you all of
+              the core functionality of Sturdy, but with some advanced features missing (OAuth,
+              incremental migrations to Sturdy, etc).
             </li>
           </ul>
 
           <h3>Want to take Sturdy for a spin?</h3>
 
-          Get started on <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a>, or run in Docker:
+          Get started on <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a
+          >, or run in Docker:
 
-          <pre>docker run -d --publish 9595:9595 \
+          <pre>
+docker run -d --publish 9595:9595 \
           --rm --volume ~/.sturdy/data:/var/opt/sturdy \
-          getsturdy/server:latest</pre>
+          getsturdy/server:latest</pre
+          >
         </div>
       </div>
 
       <div class="prose max-w-[800px] p-4">
         <p>
-          Sturdy is built on top of low-level Git data structures, so your code is always stored in a well-compatible
-          format, and allows you to easily migrate your team to Sturdy, even partially if you want.
+          Sturdy is built on top of low-level Git data structures, so your code is always stored in
+          a well-compatible format, and allows you to easily migrate your team to Sturdy, even
+          partially if you want.
         </p>
 
         <p>
-          You can use Sturdy <strong>by yourself</strong> and benefit from an optimized workflow even without anybody
-          else on your team using it. Sturdy has a bridge integration with GitHub that allows you to interact with your
-          existing projects.
+          You can use Sturdy <strong>by yourself</strong> and benefit from an optimized workflow
+          even without anybody else on your team using it. Sturdy has a bridge integration with
+          GitHub that allows you to interact with your existing projects.
         </p>
 
         <p>
-          On the other hand, as more people from <strong>your team</strong> use Sturdy, it also becomes possible to
-          benefit from a frictionless exchange of ideas &mdash; give code suggestions, early feedback.
+          On the other hand, as more people from <strong>your team</strong> use Sturdy, it also
+          becomes possible to benefit from a frictionless exchange of ideas &mdash; give code
+          suggestions, early feedback.
         </p>
 
         <h2>Collaboration</h2>
@@ -102,20 +89,24 @@
         </ul>
 
         <p>
-          <strong>Continuous feedback</strong> reflects the reality of working together &mdash; getting help and
-          suggestions on an early
-          version of the code is more effective than review of a "completed" work. This means creating an environment
-          which fosters experimentation and working in the open.
+          <strong>Continuous feedback</strong> reflects the reality of working together &mdash;
+          getting help and suggestions on an early version of the code is more effective than review
+          of a "completed" work. This means creating an environment which fosters experimentation
+          and working in the open.
         </p>
 
         <p>
-          <strong>Shipping small incremental changes</strong> is <a
-            href="https://cloud.google.com/devops/state-of-devops">proven</a> to increase speed of development as well
-          and reduce the risk of
-          deployments. Sturdy makes shipping of small and incremental changes the intuitive default. It embraces
-          <a href="https://cloud.google.com/architecture/devops/devops-tech-continuous-delivery">continuous delivery</a>
-          and <a href="https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development">trunk based
-          development</a>.
+          <strong>Shipping small incremental changes</strong> is
+          <a href="https://cloud.google.com/devops/state-of-devops">proven</a> to increase speed of
+          development as well and reduce the risk of deployments. Sturdy makes shipping of small and
+          incremental changes the intuitive default. It embraces
+          <a href="https://cloud.google.com/architecture/devops/devops-tech-continuous-delivery"
+            >continuous delivery</a
+          >
+          and
+          <a href="https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development"
+            >trunk based development</a
+          >.
         </p>
       </div>
     </template>
@@ -123,22 +114,23 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
-import PublicLeftSidebar from "../../layouts/PublicLeftSidebar.vue";
-import {useHead} from "@vueuse/head";
+import { defineComponent } from 'vue'
+import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
+import { useHead } from '@vueuse/head'
+import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
 export default defineComponent({
-  components: {PublicLeftSidebar},
+  components: { PublicLeftSidebar, DocsSidebar },
   setup() {
     // TODO: Remove when we're launching!
     useHead({
       meta: [
         {
-          name: "robots",
-          content: "noindex",
-        }
-      ]
+          name: 'robots',
+          content: 'noindex',
+        },
+      ],
     })
-  }
+  },
 })
 </script>
