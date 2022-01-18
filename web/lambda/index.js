@@ -51,6 +51,9 @@ exports.handler = (event, context, callback) => {
     '/careers',
     '/careers/founding-backend-engineer',
     '/careers/founding-frontend-engineer',
+    '/v2/docs',
+    '/v2/docs/how-sturdy-augments-git',
+    '/v2/docs/working-in-the-open'
   ]
 
   const request = event.Records[0].cf.request

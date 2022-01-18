@@ -89,7 +89,7 @@ docker run -d --publish 9595:9595 \
         </ul>
 
         <p>
-          <strong>Continuous feedback</strong> reflects the reality of working together &mdash;
+          <router-link :to="{name: 'v2DocsWorkingInTheOpen'}"><strong>Continuous feedback</strong></router-link> reflects the reality of working together &mdash;
           getting help and suggestions on an early version of the code is more effective than review
           of a "completed" work. This means creating an environment which fosters experimentation
           and working in the open.
