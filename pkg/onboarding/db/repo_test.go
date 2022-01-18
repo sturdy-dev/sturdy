@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"mash/db"
+	"mash/pkg/db"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/onboarding"
 
@@ -21,8 +21,6 @@ func getDB(t *testing.T) *sqlx.DB {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../db/migrations",
 	)
 	assert.NoError(t, err)
 	return d

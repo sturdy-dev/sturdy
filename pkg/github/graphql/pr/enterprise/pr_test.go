@@ -14,7 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"mash/db"
 	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
@@ -29,6 +28,7 @@ import (
 	db_comments "mash/pkg/comments/db"
 	graphql_comments "mash/pkg/comments/graphql"
 	service_comments "mash/pkg/comments/service"
+	"mash/pkg/db"
 	"mash/pkg/github"
 	"mash/pkg/github/config"
 	"mash/pkg/github/enterprise/client"
@@ -88,8 +88,6 @@ func TestPRHighLevel(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../../../db/migrations",
 	)
 	if err != nil {
 		panic(err)

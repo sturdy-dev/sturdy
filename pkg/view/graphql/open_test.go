@@ -6,13 +6,13 @@ import (
 	"os"
 	"testing"
 
-	"mash/db"
 	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/codebase"
 	db_codebase "mash/pkg/codebase/db"
 	service_codebase "mash/pkg/codebase/service"
+	"mash/pkg/db"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	db_snapshots "mash/pkg/snapshots/db"
@@ -53,8 +53,6 @@ func TestUpdateViewWorkspace(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../db/migrations",
 	)
 	if err != nil {
 		panic(err)

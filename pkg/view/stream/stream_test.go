@@ -10,7 +10,6 @@ import (
 	"mash/pkg/analytics/disabled"
 	"mash/pkg/view/vcs"
 
-	"mash/db"
 	service_auth "mash/pkg/auth/service"
 	"mash/pkg/codebase"
 	db_acl "mash/pkg/codebase/acl/db"
@@ -18,6 +17,7 @@ import (
 	db_codebase "mash/pkg/codebase/db"
 	service_codebase "mash/pkg/codebase/service"
 	codebasevcs "mash/pkg/codebase/vcs"
+	"mash/pkg/db"
 	"mash/pkg/internal/sturdytest"
 	db_suggestion "mash/pkg/suggestions/db"
 	service_suggestion "mash/pkg/suggestions/service"
@@ -66,8 +66,6 @@ func TestStream(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../db/migrations",
 	)
 	if err != nil {
 		panic(err)

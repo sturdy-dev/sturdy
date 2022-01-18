@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"mash/db"
+	"mash/pkg/db"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/workspace/watchers"
 	watchers_db "mash/pkg/workspace/watchers/db"
@@ -131,7 +131,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// register real db implementation
-	sqldb, err := db.Setup(sturdytest.PsqlDbSourceForTesting(), true, "file://../../../../db/migrations")
+	sqldb, err := db.Setup(sturdytest.PsqlDbSourceForTesting())
 	if err != nil {
 		panic(err)
 	}

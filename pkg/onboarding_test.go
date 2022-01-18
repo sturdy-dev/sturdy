@@ -18,7 +18,6 @@ import (
 	gqldataloader "mash/pkg/graphql/dataloader"
 	graphql_user "mash/pkg/user/graphql"
 
-	"mash/db"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
 	graphql_author "mash/pkg/author/graphql"
@@ -33,6 +32,7 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
+	"mash/pkg/db"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/notification/sender"
@@ -94,8 +94,6 @@ func TestCreate(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../db/migrations",
 	)
 	if err != nil {
 		panic(err)
@@ -617,8 +615,6 @@ func TestLargeFiles(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../db/migrations",
 	)
 	if err != nil {
 		panic(err)

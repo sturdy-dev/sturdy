@@ -11,7 +11,6 @@ import (
 	"path"
 	"testing"
 
-	"mash/db"
 	"mash/pkg/analytics/disabled"
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
@@ -23,6 +22,7 @@ import (
 	service_codebase "mash/pkg/codebase/service"
 	db_comments "mash/pkg/comments/db"
 	service_comments "mash/pkg/comments/service"
+	"mash/pkg/db"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/internal/sturdytest"
 	"mash/pkg/queue"
@@ -353,8 +353,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
-		true,
-		"file://../../../db/migrations",
 	)
 	if err != nil {
 		panic(err)
