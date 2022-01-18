@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Spinner from './shared/Spinner.vue'
 
 async function onBlurOnce() {
@@ -45,35 +45,38 @@ async function checkIfBlurs(f: () => void): Promise<boolean> {
 export default defineComponent({
   components: { Spinner },
   setup() {
-    const currentRoute = useRoute()
-    const isAppRoute = !currentRoute.meta.nonApp && !currentRoute.meta.neverElectron
-
     const showOverlay = ref(false)
     const isLoading = ref(false)
 
-    const isMobile = !import.meta.env.SSR && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    const currentRoute = useRoute()
+    const router = useRouter()
 
-    const disabled = import.meta.env.VITE_DISABLE_WEB_TO_APP_REDIRECT
+    router.isReady().then(() => {
+      const isAppRoute = !currentRoute.meta.nonApp && !currentRoute.meta.neverElectron
 
-    if (!import.meta.env.SSR && isAppRoute && !isMobile && window.ipc == null && !disabled) {
-      isLoading.value = true
-      checkIfBlurs(() => {
-        if (import.meta.env.DEV) {
-          location.assign(`sturdy-dev://${location.pathname}${location.search}`)
-        } else {
-          location.assign(`sturdy://${location.pathname}${location.search}`)
-        }
-      })
-        .then((blurred) => {
-          showOverlay.value = blurred
+      const isMobile = !import.meta.env.SSR && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      const disabled = import.meta.env.VITE_DISABLE_WEB_TO_APP_REDIRECT
+
+      if (!import.meta.env.SSR && isAppRoute && !isMobile && window.ipc == null && !disabled) {
+        isLoading.value = true
+        checkIfBlurs(() => {
+          if (import.meta.env.DEV) {
+            location.assign(`sturdy-dev://${location.pathname}${location.search}`)
+          } else {
+            location.assign(`sturdy://${location.pathname}${location.search}`)
+          }
         })
-        .catch((e) => {
-          console.error(e)
-        })
-        .finally(() => {
-          isLoading.value = false
-        })
-    }
+          .then((blurred) => {
+            showOverlay.value = blurred
+          })
+          .catch((e) => {
+            console.error(e)
+          })
+          .finally(() => {
+            isLoading.value = false
+          })
+      }
+    })
 
     return { showOverlay, isLoading }
   },
