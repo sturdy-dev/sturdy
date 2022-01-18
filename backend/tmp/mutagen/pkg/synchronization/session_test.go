@@ -1,3 +1,0 @@
-package synchronization
-
-// TODO: Implement.

@@ -1,3 +1,0 @@
-package rsync
-
-// TODO: Implement.
