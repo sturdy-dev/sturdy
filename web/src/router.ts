@@ -490,7 +490,13 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/v2/docs',
     component: () => import('./pages/docs/ProductIntro.vue'),
-    name: 'v2DocsProdutIntro',
+    name: 'v2DocsProductIntro',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/v2/docs/how-sturdy-augments-git',
+    component: () => import('./pages/docs/HowSturdyAugmentsGit.vue'),
+    name: 'v2DocsHowSturdyAugmentsGit',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
