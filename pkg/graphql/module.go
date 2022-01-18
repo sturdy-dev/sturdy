@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"mash/pkg/di"
-	graphql_suggestion "mash/pkg/suggestions/graphql"
 	graphql_user "mash/pkg/user/graphql"
 	graphql_view "mash/pkg/view/graphql"
 	graphql_workspace_activity "mash/pkg/workspace/activity/graphql"
@@ -13,7 +12,6 @@ import (
 func Module(c *di.Container) {
 	c.Register(NewRootResolver)
 
-	c.Register(graphql_suggestion.New)
 	c.Register(graphql_user.NewResolver)
 	c.Register(graphql_view.NewViewStatusRootResolver)
 	c.Register(graphql_view.NewResolver)
