@@ -5,14 +5,14 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1>How Sturdy augments Git</h1>
+        <h1 id="how-sturdy-augments-git">How Sturdy augments Git</h1>
 
         <p>
           Sturdy can run on top of Git and GitHub, but what does that mean? In a nutshell, it is all
           about creating a more leveraged development environment &mdash; a productivity hack.
         </p>
 
-        <h2>Expressiveness</h2>
+        <h2 id="expressiveness">Expressiveness</h2>
         <p>
           The command line is awesome because it is fast and efficient for getting things done, but
           it’s not as fast as not to do anything!
@@ -77,7 +77,9 @@
           changes, frequently, which are easier to review and reason around.
         </p>
 
-        <h2>There is no <span class="line-through">spoon</span> local or remote</h2>
+        <h2 id="there-is-no-local-or-remote" title="There is no local or remote">
+          There is no <span class="line-through">spoon</span> local or remote
+        </h2>
 
         <p>
           The big, glaring difference between Sturdy and Git is that there is no distinction between
@@ -108,7 +110,7 @@
           <li>Automatically stay up to day with the main / default branch.</li>
         </ol>
 
-        <h2>How Git and Sturdy concepts relate</h2>
+        <h2 id="how-git-and-sturdy-concepts-relate">How Git and Sturdy concepts relate</h2>
         <p>
           Having mentioned that Sturdy operates at a higher level, it is worth stressing that the
           output is fully compatible with Git. The underlying primitives are the same and a few
@@ -148,7 +150,7 @@
 
         <p>Pull and Push are not user facing operations in Sturdy.</p>
 
-        <h2>Implementation</h2>
+        <h2 id="implementation">Implementation</h2>
 
         <p>
           When Sturdy is configured with a git-bridge (such as "Sturdy for GitHub"), the codebase in
