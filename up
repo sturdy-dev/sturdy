@@ -2,18 +2,18 @@
 
 set -euo pipefail
 
-mkdir -p tmp/repos
+mkdir -p backend/tmp/repos
 
 ensure_mutagen_local_keys() {
-  pushd cmd/mutagen-ssh >/dev/null
+  pushd backend/cmd/mutagen-ssh >/dev/null
   ./generate-development.sh
   popd
 }
 
 ensure_mutagen() {
   echo "⭐ Cloning mutagen (if not exists)"
-  [ ! -d "tmp/mutagen/.git" ] && git clone git@github.com:sturdy-dev/mutagen.git tmp/mutagen
-  git -C tmp/mutagen fetch
+  [ ! -d "backend/tmp/mutagen/.git" ] && git clone git@github.com:sturdy-dev/mutagen.git backend/tmp/mutagen
+  git -C backend/tmp/mutagen fetch
 
   ensure_mutagen_local_keys
 }

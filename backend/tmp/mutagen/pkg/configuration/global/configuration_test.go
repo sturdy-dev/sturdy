@@ -1,3 +1,0 @@
-package global
-
-// TODO: Implement.

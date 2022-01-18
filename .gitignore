@@ -6,6 +6,7 @@ cmd/mutagen-client/cmd/mutagen-client/mutagen-client
 node_modules
 /dist
 /tmp
+/backend/tmp
 *.exe
 
 # local env files
