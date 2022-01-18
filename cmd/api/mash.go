@@ -32,6 +32,7 @@ import (
 	module_graphql "mash/pkg/graphql"
 	module_http "mash/pkg/http"
 	"mash/pkg/http/oss"
+	module_installations "mash/pkg/installations/module"
 	module_integrations "mash/pkg/integrations/module"
 	module_jwt "mash/pkg/jwt/module"
 	module_license "mash/pkg/license/module"
@@ -128,6 +129,9 @@ func main() {
 	}
 
 	providers := []interface{}{
+		func() context.Context {
+			return ctx
+		},
 		func() *zap.Logger { return logger },
 		func() provider.RepoProvider {
 			return provider.New(*reposBasePath, *gitLfsHostname)
@@ -224,6 +228,7 @@ func main() {
 		c.Import(module_gitserver.Module)
 		c.Import(module_graphql.Module)
 		c.Import(module_http.Module)
+		c.Import(module_installations.Module)
 		c.Import(module_integrations.Module)
 		c.Import(module_jwt.Module)
 		c.Import(module_license.Module)
