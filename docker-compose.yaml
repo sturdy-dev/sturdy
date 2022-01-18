@@ -27,7 +27,7 @@ services:
   ssh:
     build:
       context: ./backend
-      dockerfile: ./backend/Dockerfile.mutagen-ssh
+      dockerfile: ./Dockerfile.mutagen-ssh
     ports:
       - 2222:2222
       - 6061:6060
