@@ -22,8 +22,9 @@
           <li>Select one or multiple repositories you wish to work with</li>
           <li>You will be redirected back to Sturdy</li>
           <li>When the repositories are ready within Sturdy, you will be notified - this is usually instant</li>
-          <li>To edit your code, follow the "How to: edit code" guide</li>
-          <!-- TODO: Link -->
+          <li>To edit your code, follow the
+            <router-link :to="{ name: 'v2DocsHowToEditCode' }">"How to: edit code" guide</router-link>
+          </li>
         </ol>
 
         <p>
