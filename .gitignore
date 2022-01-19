@@ -47,3 +47,4 @@ __generated__/
 /app/dist/
 /app/sturdy-v0.7.6-beta3-windows-amd64.zip
 /web/src/components/emoji/emojis.json
+/backend/mash
