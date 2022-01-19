@@ -1,0 +1,4 @@
+#!/usr/bin/execlineb -P
+
+fdmove -c 2 1 # redirect stderr into stdout
+rudolfs --host=127.0.0.1:8888 --key=0bce26498d4f9765c6702d3b6cc43dca2daa2a4e9ac003373512d4f78828f183 local --path=/var/lib/rudolfs/data
