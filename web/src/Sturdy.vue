@@ -122,7 +122,7 @@ import AppMutagenStatus from './components/AppMutagenStatus.vue'
 import AppRedirect from './components/AppRedirect.vue'
 import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { User, Feature } from './__generated__/types'
-import { UserQueryQuery, UserQueryQueryVariables } from './__generated__/Sturdy'
+import { UserQueryQuery, UserQueryQueryVariables, FeaturesQuery, FeaturesQueryVariables } from './__generated__/Sturdy'
 
 type ToastNotificationMessage = {
   id: string
@@ -191,20 +191,34 @@ export default defineComponent({
     function onChangeRoute(currentRoute: RouteLocationNormalizedLoaded) {
       if (window.ipc && currentRoute.meta.nonApp && !currentRoute.meta.isAuth) {
         if (currentRoute.path !== '/') {
-          window.open(new URL(currentRoute.path, location.href))
+          window.open(new URL(currentRoute.path, location.href).href)
         }
-        router.push('/login')
+        // Use replace instead of push to make it possible to use the browser back to "skip" over this broken route
+        router.replace('/login')
       }
     }
 
     watch(route, onChangeRoute)
     onChangeRoute(route)
 
+    // TODO: If we can make user optional (in the GraphQL schema), the features and user query could be merged to the same query
+    const { data: featuresData } = useQuery<FeaturesQuery, FeaturesQueryVariables>({
+      query: gql`
+        query Features {
+          features
+        }
+      `,
+      requestPolicy: 'cache-and-network',
+    })
+
+    provide(
+      'features',
+      computed(() => featuresData.value?.features)
+    )
+
     const { data, fetching, executeQuery } = useQuery<UserQueryQuery, UserQueryQueryVariables>({
       query: gql`
         query UserQuery {
-          features
-
           user {
             id
             name
@@ -221,11 +235,6 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
     })
 
-    provide(
-      'features',
-      computed(() => data.value?.features)
-    )
-
     return {
       data,
       fetching,
@@ -235,6 +244,7 @@ export default defineComponent({
         })
       },
       appEnvironment: window.appEnvironment,
+      featuresData,
     }
   },
   data(): {
@@ -250,7 +260,7 @@ export default defineComponent({
   },
   computed: {
     features(): Feature[] {
-      return this.data?.features ?? []
+      return this.featuresData?.features ?? []
     },
     user(): User | null {
       return this.data?.user
@@ -404,7 +414,8 @@ export default defineComponent({
     },
 
     toAuth() {
-      this.$router.push({
+      // use replace instead of push to not break the browser history
+      this.$router.replace({
         name: 'login',
         query: {
           navigateTo: escape(this.$route.path),
