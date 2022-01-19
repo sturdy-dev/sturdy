@@ -19,8 +19,7 @@
 
         <h2 id="receiving-feedback">Receiving feedback or help</h2>
 
-        <p>With Sturdy setup and connected to a directory on your computer:</p>
-        <!-- TODO: Add a link to setup directory instructions -->
+        <p>With Sturdy setup and <router-link :to="{ name: 'v2DocsHowToEditCode' }">connected to a directory</router-link> on your computer:</p>
         <ol>
           <li>Create a new workspace and give it a good name</li>
           <li>Open the directory with the code in any text editor (tip: use the “Open in Visual Studio Code”-button)</li>
@@ -40,10 +39,10 @@
             </li>
           </ol>
           <li><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</li>
-          <li><em>Optional:</em> Taking / Dismissing code suggestions [link]</li>
+          <li><em>Optional:</em> Taking / Dismissing code suggestions [<a href="#taking-dismissing-suggestions">go to</a>]</li>
         </ol>
 
-        <h3 id="comment-on-code">Optional: Comment on code</h3>
+        <h3 id="comment-on-code" title="Comment on code">Optional: Comment on code</h3>
         <p>You can write comments on specific piece of code within the workspace</p>
         <ol>
           <li>Hover over the specific line that you wish to comment on - a plus icon will appear right next to the line
@@ -57,9 +56,9 @@
         </ol>
         <p>Comments on Sturdy are not attached to line numbers. This means that if a piece of code with a comment is moved to another place in the file, the comments will persist.</p>
 
-        <h3 id="taking-dismissing-suggestions">Optional: Taking / Dismissing code suggestions</h3>
+        <h3 id="taking-dismissing-suggestions" title="Taking / Dismissing code suggestions">Optional: Taking / Dismissing code suggestions</h3>
         <p>
-          Other members of the codebase can get the code and create suggestions [link to giving feedback]. When that happens you will see a green banner indicating that at the top of the workspace.
+          Other members of the codebase can get the code from your workspace and <a href="#give-suggestions">create suggestions for you</a>. When that happens you will see a green banner indicating that at the top of the workspace.
         </p>
         <ol>
           <li>When you have new suggestions you will get a notification - you can see your notifications via the bell
@@ -90,11 +89,11 @@
           <li>If the author of the workspace makes code changes, you will see them in real time, the same way you would
             see changes in your own workspaces.</li>
           <li><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</li>
-          <li><em>Optional:</em> Quickly indicating feedback [<a href="##quick-feedback">go to</a>]</li>
-          <li><em>Optional:</em> Trying the code [link]</li>
+          <li><em>Optional:</em> Quickly indicating feedback [<a href="#quick-feedback">go to</a>]</li>
+          <li><em>Optional:</em> Trying the code [<a href="#trying-code">go to</a>]</li>
         </ol>
 
-        <h3 id="#quick-feedback">Optional: Quickly indicating feedback</h3>
+        <h3 id="quick-feedback" title="Quickly indicating feedback">Optional: Quickly indicating feedback</h3>
         <p>You can give quick feedback without spelling it out in text.</p>
         <ol>
           <li>To quickly indicate that code looks good, use the button with the thumbs up icon in the right sidebar.</li>
@@ -103,7 +102,7 @@
             to elaborate.</li>
         </ol>
 
-        <h3 id="#trying-code">Optional: Trying the code</h3>
+        <h3 id="trying-code" title="Trying the code">Optional: Trying the code</h3>
         <ol>
           <li>While viewing the workspaces of another team member, press the "Connect
             <em>folder</em> for suggesting" button.
@@ -115,7 +114,7 @@
           </ol>
           <li>The folder on your computer now has the code of your team member's workspace.</li>
           <li>Explore or run the code as you normally would using your IDE / text editor / terminal</li>
-          <li><em>Optional:</em> Give code suggestions [<a href="##give-suggestions">go to</a>]</li>
+          <li><em>Optional:</em> Give code suggestions [<a href="#give-suggestions">go to</a>]</li>
           <li>When you are done you can navigate back to your own workspace and press the "Connect <em>folder</em> for
             editing" button to continue where you left off.</li>
         </ol>
@@ -134,7 +133,7 @@
           </ol>
         </ol>
 
-        <h3 id="#give-suggestions">Give code suggestions</h3>
+        <h3 id="give-suggestions">Give code suggestions</h3>
 
         <p>
           When you have the code from someone else's workspace on your computer, you can give suggestions by simply making changes in your IDE.
