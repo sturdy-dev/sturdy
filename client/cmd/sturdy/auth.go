@@ -5,14 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mash/cmd/sturdy/pkg/api"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"client/cmd/sturdy/config"
+	"client/pkg/api"
 
-	"mash/cmd/sturdy/config"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func auth(conf *config.Config, configPath string) {

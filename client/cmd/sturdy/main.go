@@ -4,12 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"mash/cmd/sturdy/legal"
-	"mash/cmd/sturdy/version"
 	"os"
 	"path"
 
-	"mash/cmd/sturdy/config"
+	"client/cmd/sturdy/config"
+	"client/cmd/sturdy/legal"
+	"client/cmd/sturdy/version"
 )
 
 func printHelpAndExit() {

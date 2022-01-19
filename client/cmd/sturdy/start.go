@@ -7,19 +7,20 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/ed25519"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
-	"mash/cmd/sturdy/pkg/edkey"
-	"mash/cmd/sturdy/pkg/mutagen"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"mash/cmd/sturdy/config"
-	"mash/cmd/sturdy/pkg/api"
+	"client/cmd/sturdy/config"
+	"client/pkg/api"
+	"client/pkg/edkey"
+	"client/pkg/mutagen"
+
+	"golang.org/x/crypto/ed25519"
+	"golang.org/x/crypto/ssh"
 )
 
 // SessionVersionNumber tracks versions of the sturdy configuration.

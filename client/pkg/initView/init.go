@@ -2,8 +2,9 @@ package initView
 
 import (
 	"fmt"
-	"mash/cmd/sturdy/pkg/api"
 	"os"
+
+	"client/pkg/api"
 )
 
 func CreateWorkspaceAndView(host, authToken, codebaseID, mountPath string) (string, error) {

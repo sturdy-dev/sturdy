@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPathIsInGitRepo_IsOutside(t *testing.T) {
