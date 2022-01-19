@@ -1,4 +1,0 @@
-#!/usr/bin/execlineb -P
-
-s6-setuidgid postgres
-initdb -D /var/lib/postgresql/data

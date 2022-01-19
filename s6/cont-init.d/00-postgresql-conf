@@ -1,4 +1,0 @@
-#!/usr/bin/execlineb -P
-
-echo "host all all 127.0.0.1/0 md5" >> /var/lib/postgresql/data/pg_hba.conf
-echo "listen_addresses='127.0.0.1'" >> /var/lib/postgresql/data/postgresql.conf

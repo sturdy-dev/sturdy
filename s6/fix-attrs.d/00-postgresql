@@ -1,2 +1,0 @@
-/var/lib/postgresql/data true postgres:postgres 0600 0700
-/run/postgresql/ true postgres:postgres 0600 0700
