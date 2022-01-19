@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv sh
+
+set -eou pipefail
+
+reproxy \
+  --assets.location='/web/dist' \
+  --assets.spa \
+  --static.enabled \
+  --static.rule="*,^/api/(.*),http://${API_HTTP_ADDR}/\$1," \
+  --gzip \
+  --logger.stdout \
+  --listen="${REPROXY_LISTEN_ADDR}"

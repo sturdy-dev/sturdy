@@ -119,6 +119,7 @@ create_datadir() {
 configure_postgresql() {
   create_rundir
   create_datadir
+  initialize_database
 
   # start postgres server internally for the creation of users and databases
   exec_as_postgres pg_ctl -D ${PG_DATADIR} -w start >/dev/null

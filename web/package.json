@@ -1,6 +1,5 @@
 {
-  "name": "web",
-  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "format": "prettier --write './src/**/*.{ts,vue,js}'",
     "serve": "vite preview",
@@ -10,6 +9,7 @@
     "lint": "eslint --ext .ts,.vue,.js --ignore-path .eslintignore .",
     "lint:fix": "eslint --ext .ts,.vue,.js --ignore-path .eslintignore --fix .",
     "build:server": "vite build --config vite.config.noexternal.js --ssr src/entry-server.js --outDir dist/server",
+    "build:oneliner": "vite build --mode oneliner --outDir dist/oneliner",
     "build:client": "vite build --outDir dist/client",
     "build:prerender": "vite build --config vite.config.noexternal.js --ssrManifest --outDir dist/static && yarn build:server && node prerender.js",
     "codegen": "graphql-codegen --config codegen.yml"

@@ -1,0 +1,4 @@
+#!/bin/execlineb
+
+# prefix reproxy logs
+sed "s/^/[reproxy] /"
