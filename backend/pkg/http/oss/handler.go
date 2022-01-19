@@ -100,6 +100,8 @@ func ProvideHandler(
 		"https://getsturdy.com",
 		// Development
 		"http://localhost:8080",
+		// docker oneliner
+		"http://localhost",
 		// Probably unused
 		"https://driva.dev",
 		// Staging environments for the website

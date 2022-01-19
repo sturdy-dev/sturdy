@@ -1,4 +1,4 @@
 #!/usr/bin/execlineb -S1
 
-# if postgresql stops, it brings the whole container down
+# if reproxy stops, it brings the whole container down
 s6-svscanctl -t /var/run/s6/services

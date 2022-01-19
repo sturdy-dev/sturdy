@@ -27,6 +27,32 @@ RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/api mash/cmd/
 
 FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder
 
+FROM node:17.3.1-alpine3.15 as web-builder
+WORKDIR /web
+RUN apk update \
+    && apk add --no-cache \
+        python3 \
+        make \
+        g++
+# cache web dependencies
+COPY ./web/package.json ./package.json
+COPY ./web/yarn.lock ./yarn.lock
+RUN yarn install --frozen-lockfile
+# build web
+COPY ./web .
+RUN yarn build:oneliner
+
+FROM alpine:3.15 as reproxy-builder
+ARG REPROXY_VERSION="v0.11.0"
+ARG REPROXY_SHA256_SUM="35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e"
+ADD "https://github.com/umputun/reproxy/releases/download/${REPROXY_VERSION}/reproxy_${REPROXY_VERSION}_linux_arm64.tar.gz" /tmp/reproxy.tar.gz
+RUN SHELL="/bin/ash" \
+    set -o pipefail \
+    && sha256sum "/tmp/reproxy.tar.gz" \
+    && echo "${REPROXY_SHA256_SUM}  /tmp/reproxy.tar.gz" | sha256sum -c \
+    && tar -xzf /tmp/reproxy.tar.gz -C /usr/bin \
+    && rm /tmp/reproxy.tar.gz
+
 FROM alpine:3.15
 # postgresql
 RUN apk update \
@@ -48,6 +74,10 @@ RUN apk update \
     && apk add --no-cache \
         openssh-keygen
 COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh
+# web
+COPY --from=web-builder /web/dist/oneliner /web/dist
+# reproxy
+COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay
 ARG S6_OVERLAY_VERSION="v2.2.0.3"
 ARG S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"

@@ -23,15 +23,27 @@ type client struct {
 func (c *client) Enqueue(event analytics.Message) error {
 	switch e := event.(type) {
 	case *analytics.Capture:
+		if e.Properties == nil {
+			e.Properties = make(map[string]interface{})
+		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type)
 	case analytics.Capture:
+		if e.Properties == nil {
+			e.Properties = make(map[string]interface{})
+		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type)
 	case analytics.Identify:
+		if e.Properties == nil {
+			e.Properties = make(map[string]interface{})
+		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type)
 	case *analytics.Identify:
+		if e.Properties == nil {
+			e.Properties = make(map[string]interface{})
+		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type)
 	}
