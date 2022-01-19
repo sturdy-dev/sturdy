@@ -1,6 +1,6 @@
 <template>
   <PaddedApp class="bg-white">
-    <OrganizationCreate />
+    <OrganizationCreate class="max-w-3xl" :with-tier-picker="false" />
   </PaddedApp>
 </template>
 

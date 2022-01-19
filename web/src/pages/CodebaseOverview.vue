@@ -132,7 +132,7 @@
   </PaddedApp>
 </template>
 
-<script>
+<script lang="ts">
 import time from '../time'
 import { PlusIcon } from '@heroicons/vue/solid'
 import { Slug } from '../slug'
@@ -145,10 +145,11 @@ import Tooltip from '../components/shared/Tooltip.vue'
 import Spinner from '../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { toRefs } from 'vue'
+import {defineComponent, toRefs} from 'vue'
 import { Feature } from '../__generated__/types'
+import {CodebaseOverviewQuery, CodebaseOverviewQueryVariables} from "./__generated__/CodebaseOverview";
 
-export default {
+export default defineComponent({
   components: {
     PaddedApp,
     GitHubIcon,
@@ -165,12 +166,11 @@ export default {
       required: true,
     },
   },
-  emits: ['toggleNavSize'],
   setup(props) {
     const { features } = toRefs(props)
     const isGitHubEnabled = features.value.includes(Feature.GitHub)
 
-    const result = useQuery({
+    const result = useQuery<CodebaseOverviewQuery, CodebaseOverviewQueryVariables>({
       query: gql`
         query CodebaseOverview($isGitHubEnabled: Boolean!) {
           codebases {
@@ -248,5 +248,5 @@ export default {
       this.$router.push({ name: 'codebaseHome', params: { codebaseSlug: this.codebaseSlug(cb) } })
     },
   },
-}
+})
 </script>
