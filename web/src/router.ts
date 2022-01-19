@@ -518,6 +518,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/how-to-import-code-from-github',
+    component: () => import('./pages/docs/HowToImportCodeFromGitHub.vue'),
+    name: 'v2DocsHowToImportCodeFromGitHub',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/join/:code',
     component: () => import('./components/join/Join.vue'),
     name: 'join',
