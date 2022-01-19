@@ -1,7 +1,9 @@
 package inmemory
 
 import (
+	"context"
 	"database/sql"
+
 	"mash/pkg/codebase"
 	db_codebase "mash/pkg/codebase/db"
 )
@@ -63,4 +65,14 @@ func (r *inMemoryCodebaseRepository) Update(entity *codebase.Codebase) error {
 		}
 	}
 	return sql.ErrNoRows
+}
+
+func (r *inMemoryCodebaseRepository) ListByOrganization(_ context.Context, id string) ([]*codebase.Codebase, error) {
+	var res []*codebase.Codebase
+	for _, cb := range r.codebases {
+		if cb.OrganizationID != nil && *cb.OrganizationID == id {
+			res = append(res, &cb)
+		}
+	}
+	return res, nil
 }

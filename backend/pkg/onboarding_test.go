@@ -296,8 +296,9 @@ func TestCreate(t *testing.T) {
 		nil,
 		changeRootResolver,
 		nil,
-		nil,
 		nil, // instantIntegrationRootResolver
+		nil,
+		nil,
 		logger,
 		nil,
 		nil,

@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/gosimple/slug"
 	"github.com/graph-gophers/graphql-go"
 
 	"mash/pkg/auth"
 	service_auth "mash/pkg/auth/service"
+	service_codebase "mash/pkg/codebase/service"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
 	"mash/pkg/organization"
@@ -17,29 +19,35 @@ import (
 )
 
 type organizationRootResolver struct {
-	service     *service_organization.Service
-	authService *service_auth.Service
-	userService *service_user.Service
+	service         *service_organization.Service
+	authService     *service_auth.Service
+	userService     *service_user.Service
+	codebaseService *service_codebase.Service
 
-	authorRootResolver   resolvers.AuthorRootResolver
-	licensesRootResolver resolvers.LicenseRootResolver
+	authorRootResolver    resolvers.AuthorRootResolver
+	licensesRootResolver  resolvers.LicenseRootResolver
+	codebasesRootResolver resolvers.CodebaseRootResolver
 }
 
 func New(
 	service *service_organization.Service,
 	authService *service_auth.Service,
 	userService *service_user.Service,
+	codebaseService *service_codebase.Service,
 
 	authorRootResolver resolvers.AuthorRootResolver,
 	licensesRootResolver resolvers.LicenseRootResolver,
+	codebasesRootResolver resolvers.CodebaseRootResolver,
 ) resolvers.OrganizationRootResolver {
 	return &organizationRootResolver{
-		service:     service,
-		authService: authService,
-		userService: userService,
+		service:         service,
+		authService:     authService,
+		userService:     userService,
+		codebaseService: codebaseService,
 
-		authorRootResolver:   authorRootResolver,
-		licensesRootResolver: licensesRootResolver,
+		authorRootResolver:    authorRootResolver,
+		licensesRootResolver:  licensesRootResolver,
+		codebasesRootResolver: codebasesRootResolver,
 	}
 }
 
@@ -67,9 +75,21 @@ func (r *organizationRootResolver) Organizations(ctx context.Context) ([]resolve
 }
 
 func (r *organizationRootResolver) Organization(ctx context.Context, args resolvers.OrganizationArgs) (resolvers.OrganizationResolver, error) {
-	org, err := r.service.GetByID(ctx, string(args.ID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
+
+	var org *organization.Organization
+
+	if args.ID != nil {
+		var err error
+		org, err = r.service.GetByID(ctx, string(*args.ID))
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+	} else if args.ShortID != nil {
+		var err error
+		org, err = r.service.GetByShortID(ctx, organization.ShortOrganizationID(*args.ShortID))
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
 	}
 
 	if err := r.authService.CanRead(ctx, org); err != nil {
@@ -118,6 +138,10 @@ func (r *organizationResolver) ID() graphql.ID {
 	return graphql.ID(r.org.ID)
 }
 
+func (r *organizationResolver) ShortID() graphql.ID {
+	return graphql.ID(slug.Make(r.org.Name) + "-" + string(r.org.ShortID))
+}
+
 func (r *organizationResolver) Name() string {
 	return r.org.Name
 }
@@ -145,8 +169,24 @@ func (r *organizationResolver) Members(ctx context.Context) ([]resolvers.AuthorR
 	return res, nil
 }
 
-func (r *organizationResolver) Codebases(context.Context) ([]resolvers.CodebaseResolver, error) {
-	return nil, nil
+func (r *organizationResolver) Codebases(ctx context.Context) ([]resolvers.CodebaseResolver, error) {
+	codebases, err := r.root.codebaseService.ListByOrganization(ctx, r.org.ID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	var res []resolvers.CodebaseResolver
+
+	for _, cb := range codebases {
+		id := graphql.ID(cb.ID)
+		resolver, err := r.root.codebasesRootResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		res = append(res, resolver)
+	}
+
+	return res, nil
 }
 
 func (r *organizationResolver) LicenseSubscriptions(ctx context.Context) ([]resolvers.LicenseResolver, error) {

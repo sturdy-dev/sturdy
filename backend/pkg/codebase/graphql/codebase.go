@@ -50,6 +50,7 @@ type CodebaseRootResolver struct {
 	fileRootResolver                  resolvers.FileRootResolver
 	instantIntegrationRootResolver    resolvers.IntegrationRootResolver
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver
+	organizationRootResolver          *resolvers.OrganizationRootResolver
 
 	logger           *zap.Logger
 	viewEvents       events.EventReader
@@ -77,6 +78,7 @@ func NewCodebaseRootResolver(
 	fileRootResolver resolvers.FileRootResolver,
 	instantIntegrationRootResolver resolvers.IntegrationRootResolver,
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver,
+	organizationRootResolver *resolvers.OrganizationRootResolver,
 
 	logger *zap.Logger,
 	viewEvents events.EventReader,
@@ -103,6 +105,7 @@ func NewCodebaseRootResolver(
 		fileRootResolver:                  fileRootResolver,
 		instantIntegrationRootResolver:    instantIntegrationRootResolver,
 		codebaseGitHubIntegrationResolver: codebaseGitHubIntegrationResolver,
+		organizationRootResolver:          organizationRootResolver,
 
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
@@ -558,6 +561,18 @@ func (r *CodebaseResolver) Integrations(ctx context.Context, args resolvers.Inte
 
 func (r *CodebaseResolver) IsPublic() bool {
 	return r.c.IsPublic
+}
+
+func (r *CodebaseResolver) Organization(ctx context.Context) (resolvers.OrganizationResolver, error) {
+	if r.c.OrganizationID == nil {
+		return nil, nil
+	}
+	id := graphql.ID(*r.c.OrganizationID)
+	res, err := (*r.root.organizationRootResolver).Organization(ctx, resolvers.OrganizationArgs{ID: &id})
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	return res, nil
 }
 
 func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.ID) (*CodebaseResolver, error) {
