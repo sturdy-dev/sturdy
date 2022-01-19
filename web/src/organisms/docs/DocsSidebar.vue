@@ -22,7 +22,8 @@ const links = [
   { name: 'v2DocsWorkingInTheOpen', title: 'Working in the open' },
   { name: 'v2DocsHotToShipSoftwareToProduction', title: 'How to: ship to production' },
   { name: 'v2DocsHowToCollaborateWithOthers', title: 'How to: collaborate with others' },
-  { name: 'v2DocsHowToImportCodeFromGitHub', title: 'How to: import code from GitHub'}
+  { name: 'v2DocsHowToImportCodeFromGitHub', title: 'How to: import code from GitHub'},
+  { name: 'v2DocsHowToEditCode', title: 'How to: edit code'},
   //  { name: 'index', title: 'Self-host' },
   //  { name: 'index', title: 'Cloud' },
   //  { name: 'index', title: 'User Guides' },
