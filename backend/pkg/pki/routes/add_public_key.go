@@ -1,12 +1,13 @@
 package routes
 
 import (
+	"crypto/subtle"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gliderlabs/ssh"
+	"golang.org/x/crypto/ssh"
 
 	"mash/pkg/auth"
 	"mash/pkg/pki"
@@ -97,7 +98,7 @@ func Verify(repo db.Repo) func(c *gin.Context) {
 			}
 
 			// This user has this key!
-			if ssh.KeysEqual(incomingKey, parsedAuthorizedKey) {
+			if KeysEqual(incomingKey, parsedAuthorizedKey) {
 				c.JSON(http.StatusOK, gin.H{"status": "ok"})
 				return
 			}
@@ -105,4 +106,16 @@ func Verify(repo db.Repo) func(c *gin.Context) {
 
 		c.JSON(http.StatusNotFound, gin.H{"status": "not found"})
 	}
+}
+
+// KeysEqual is constant time compare of the keys to avoid timing attacks.
+func KeysEqual(ak, bk ssh.PublicKey) bool {
+	//avoid panic if one of the keys is nil, return false instead
+	if ak == nil || bk == nil {
+		return false
+	}
+
+	a := ak.Marshal()
+	b := bk.Marshal()
+	return (len(a) == len(b) && subtle.ConstantTimeCompare(a, b) == 1)
 }
