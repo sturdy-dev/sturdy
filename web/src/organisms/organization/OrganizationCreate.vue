@@ -1,20 +1,19 @@
 <template>
   <form class="space-y-4">
     <Header>
-      <span>Create a new organization</span>
+      <span>Create a new team 🎉</span>
     </Header>
 
-    <TextInput v-model="organizationName" placeholder="Ex: Apple Inc." />
-
-    <OrganizationLicenseTierPicker />
-
-    <Button color="green" @click="create">Create</Button>
+    <form class="space-y-4" @submit.stop.prevent="create">
+      <TextInputWithLabel v-model="organizationName" placeholder="What's the name of your team or project?" label="Organization name" name="org-name" />
+      <OrganizationLicenseTierPicker v-if="withTierPicker" />
+      <Button color="green" @click="create">Get started</Button>
+    </form>
   </form>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import TextInput from '../../molecules/TextInput.vue'
 import Header from '../../molecules/Header.vue'
 import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
 import { gql, useMutation } from '@urql/vue'
@@ -24,8 +23,15 @@ import {
   CreateOrganizationMutation,
   CreateOrganizationMutationVariables,
 } from './__generated__/OrganizationCreate'
+import TextInputWithLabel from "../../molecules/TextInputWithLabel.vue";
 export default defineComponent({
-  components: { TextInput, Header, OrganizationLicenseTierPicker, Button },
+  components: {TextInputWithLabel, Header, OrganizationLicenseTierPicker, Button },
+  props: {
+    withTierPicker: {
+      type: Boolean,
+      required: true,
+    },
+  },
   setup() {
     let { executeMutation: executeCreateOrganization } = useMutation<
       CreateOrganizationMutation,
@@ -47,7 +53,7 @@ export default defineComponent({
             throw new Error(result.error)
           }
           router.push({
-            name: 'organizationView',
+            name: 'codebaseOverview',
             params: { id: result.data?.createOrganization.id },
           })
         })
@@ -57,6 +63,7 @@ export default defineComponent({
   data() {
     return {
       organizationName: '',
+      organizationLegalName: '',
     }
   },
   methods: {
