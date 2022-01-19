@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv sh
+
+set -euo pipefail
+
+fdmove -c 2 1 \
+mutagen-ssh \
+    --ssh-listen-addr="${MUTAGEN_SSH_ADDR}" \
+    --ssh-key-path="${MUTAGEN_SSH_KEY_PATH}" \
+    --sturdy-api-addr="${API_HTTP_ADDR}"

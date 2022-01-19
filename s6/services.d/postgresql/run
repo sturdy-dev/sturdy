@@ -1,5 +1,8 @@
-#!/usr/bin/execlineb -P
+#!/usr/bin/with-contenv sh
 
-fdmove -c 2 1 # redirect stderr into stdout
-s6-setuidgid postgres
-pg_ctl start -D /var/lib/postgresql/data
+set -eou pipefail
+
+fdmove -c 2 1 \
+  s6-setuidgid postgres \
+  pg_ctl start \
+  -D "${PG_DATADIR}"

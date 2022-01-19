@@ -1,7 +1,12 @@
 FROM golang:1.17.6-alpine3.15 as mutagen-ssh-builder
 WORKDIR /go/src/mutagen-ssh
-COPY ./backend/go.mod ./go.mod
-COPY ./backend/go.sum ./go.sum
+# cache mutagen-ssh depencencies
+COPY ./mutagen-ssh/go.mod ./go.mod
+COPY ./mutagen-ssh/go.sum ./go.sum
+RUN go mod download
+# build mutagen-ssh
+COPY ./mutagen-ssh .
+RUN go build -v -o /usr/bin/mutagen-ssh mutagen-ssh/cmd/mutagen-ssh
 
 FROM golang:1.17.6-alpine3.15 as api-builder
 # install github.com/libgit2/git2go dependencies
@@ -12,7 +17,7 @@ RUN apk update \
         gcc \
         libc-dev 
 WORKDIR /go/src/backend
-# cache backend dependencies
+# cache api dependencies
 COPY ./backend/go.mod ./go.mod
 COPY ./backend/go.sum ./go.sum
 RUN go mod download -x
@@ -26,17 +31,23 @@ FROM alpine:3.15
 # postgresql
 RUN apk update \
     && apk add --no-cache \
-        postgresql14=14.1-r5 \
-    && mkdir /run/postgresql
+        postgresql14=14.1-r5
 # rudolfs
+RUN apk update \
+    && apk add --no-cache \
+        openssl
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
-# libgit2 & git-lfs
+# api
 RUN apk update \
     && apk add --no-cache \
         git-lfs=3.0.2-r0 \
         libgit2=1.3.0-r0
-# backend
 COPY --from=api-builder /usr/bin/api /usr/bin/api
+# mutagen-ssh
+RUN apk update \
+    && apk add --no-cache \
+        openssh-keygen
+COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh
 # s6-overlay
 ARG S6_OVERLAY_VERSION="v2.2.0.3"
 ARG S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"
