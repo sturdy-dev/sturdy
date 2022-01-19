@@ -512,6 +512,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/how-to-collaborate-with-others',
+    component: () => import('./pages/docs/HowToCollaborateWithOthers.vue'),
+    name: 'v2DocsHowToCollaborateWithOthers',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/join/:code',
     component: () => import('./components/join/Join.vue'),
     name: 'join',
