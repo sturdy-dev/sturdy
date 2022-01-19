@@ -17,9 +17,9 @@
         <p>
           Regardless of which processes a team has chosen, the main point is that the team succeeds
           or fails together. This is why most highly effective teams
-          <a href="https://rework.withgoogle.com/print/guides/5721312655835136/"
-            >excel at collaboration</a
-          >.
+          <a href="https://rework.withgoogle.com/print/guides/5721312655835136/">
+            excel at collaboration
+          </a>.
         </p>
 
         <p>

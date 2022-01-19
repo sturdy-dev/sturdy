@@ -506,6 +506,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/how-to-ship-software-to-production',
+    component: () => import('./pages/docs/HowToShipSoftwareToProduction.vue'),
+    name: 'v2DocsHotToShipSoftwareToProduction',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/join/:code',
     component: () => import('./components/join/Join.vue'),
     name: 'join',
