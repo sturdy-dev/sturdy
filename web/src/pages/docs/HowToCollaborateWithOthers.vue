@@ -115,7 +115,7 @@
           </ol>
           <li>The folder on your computer now has the code of your team member's workspace.</li>
           <li>Explore or run the code as you normally would using your IDE / text editor / terminal</li>
-          <li><em>Optional:</em> Give code suggestions [<a href="##give-suggestions">go to</a> ]</li>
+          <li><em>Optional:</em> Give code suggestions [<a href="##give-suggestions">go to</a>]</li>
           <li>When you are done you can navigate back to your own workspace and press the "Connect <em>folder</em> for
             editing" button to continue where you left off.</li>
         </ol>
