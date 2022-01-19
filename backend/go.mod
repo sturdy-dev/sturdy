@@ -26,7 +26,6 @@ require (
 	github.com/gin-contrib/gzip v0.0.5
 	github.com/gin-contrib/zap v0.0.2
 	github.com/gin-gonic/gin v1.7.7
-	github.com/gliderlabs/ssh v0.3.3
 	github.com/gofrs/flock v0.8.1
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/mock v1.6.0
@@ -67,7 +66,6 @@ require (
 require (
 	cloud.google.com/go v0.88.0 // indirect
 	github.com/agnivade/levenshtein v1.1.0 // indirect
-	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect

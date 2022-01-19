@@ -25,9 +25,7 @@ services:
       - lfs-data:/lfs
 
   ssh:
-    build:
-      context: ./backend
-      dockerfile: ./Dockerfile.mutagen-ssh
+    build: ./mutagen-ssh
     ports:
       - 2222:2222
       - 6061:6060
@@ -37,7 +35,7 @@ services:
       - --ssh-key-path=/keys/id_ed25519
     volumes:
       - ./backend/tmp/repos:/repos
-      - ./backend/cmd/mutagen-ssh/keys:/keys
+      - ./mutagen-ssh/cmd/mutagen-ssh/keys:/keys
 
 volumes:
   db-data:

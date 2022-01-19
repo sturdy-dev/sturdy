@@ -1,4 +1,0 @@
-#!/bin/execlineb
-
-# prefix backend logs
-sed "s/^/[backend] /"

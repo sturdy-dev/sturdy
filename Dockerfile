@@ -1,3 +1,8 @@
+FROM golang:1.17.6-alpine3.15 as mutagen-ssh-builder
+WORKDIR /go/src/mutagen-ssh
+COPY ./backend/go.mod ./go.mod
+COPY ./backend/go.sum ./go.sum
+
 FROM golang:1.17.6-alpine3.15 as api-builder
 # install github.com/libgit2/git2go dependencies
 RUN apk update \
@@ -13,7 +18,7 @@ COPY ./backend/go.sum ./go.sum
 RUN go mod download -x
 # build backend
 COPY ./backend ./
-RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/backend mash/cmd/api
+RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/api mash/cmd/api
 
 FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder
 
@@ -31,7 +36,7 @@ RUN apk update \
         git-lfs=3.0.2-r0 \
         libgit2=1.3.0-r0
 # backend
-COPY --from=api-builder /usr/bin/backend /usr/bin/backend
+COPY --from=api-builder /usr/bin/api /usr/bin/api
 # s6-overlay
 ARG S6_OVERLAY_VERSION="v2.2.0.3"
 ARG S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"
