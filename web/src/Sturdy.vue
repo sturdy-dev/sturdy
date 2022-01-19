@@ -122,7 +122,12 @@ import AppMutagenStatus from './components/AppMutagenStatus.vue'
 import AppRedirect from './components/AppRedirect.vue'
 import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { User, Feature } from './__generated__/types'
-import { UserQueryQuery, UserQueryQueryVariables, FeaturesQuery, FeaturesQueryVariables } from './__generated__/Sturdy'
+import {
+  UserQueryQuery,
+  UserQueryQueryVariables,
+  FeaturesQuery,
+  FeaturesQueryVariables,
+} from './__generated__/Sturdy'
 
 type ToastNotificationMessage = {
   id: string

@@ -23,7 +23,7 @@
                 :href="'#' + toc.id"
                 class="text-gray-600 hover:text-gray-800 font-medium"
                 :class="toc.classes"
-                >
+              >
                 {{ toc.title }}
               </a>
             </li>
@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import PublicOpenSource from "./PublicOpenSource.vue";
+import PublicOpenSource from './PublicOpenSource.vue'
 
 export default defineComponent({
   components: {
@@ -66,12 +66,15 @@ export default defineComponent({
         return res
       }
 
-      const headings = content.querySelectorAll('h1, h2')
+      const headings = content.querySelectorAll('h1, h2, h3')
 
       for (const heading of headings) {
         let classes = []
         if (heading.nodeName === 'H2') {
           classes.push('pl-4')
+        }
+        if (heading.nodeName === 'H3') {
+          classes.push('pl-8')
         }
 
         let title

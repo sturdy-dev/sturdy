@@ -14,7 +14,7 @@ import { defineComponent } from 'vue'
 import IndexNavbar from '../components/IndexNavbar.vue'
 import IndexFooter from '../components/IndexFooter.vue'
 import { ClientOnly } from 'vite-ssr/vue'
-import DocumentationFooter from "../organisms/DocumentationFooter.vue";
+import DocumentationFooter from '../organisms/DocumentationFooter.vue'
 
 export default defineComponent({
   components: {
