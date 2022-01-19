@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"mash/cmd/sturdy/config"
-	"mash/cmd/sturdy/pkg/api"
 	"os"
 	"os/exec"
+
+	"client/cmd/sturdy/config"
+	"client/pkg/api"
 )
 
 func importCodebase(conf *config.Config, args []string, apiClient *api.HttpApiClient) {

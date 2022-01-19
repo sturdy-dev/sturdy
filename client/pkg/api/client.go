@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"mash/cmd/sturdy/version"
 	"net/http"
+
+	"client/cmd/sturdy/version"
 )
 
 var ErrUnauthorized = errors.New("unexpected response code 401")

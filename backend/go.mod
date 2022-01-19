@@ -20,7 +20,6 @@ require (
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/buildkite/go-buildkite/v3 v3.0.0
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.5
@@ -38,7 +37,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/jxskiss/base62 v0.0.0-20191017122030-4f11678b909b
-	github.com/kolide/launcher v0.11.22
 	github.com/lib/pq v1.10.4
 	github.com/libgit2/git2go/v33 v33.0.0
 	github.com/machinebox/graphql v0.2.2
@@ -52,7 +50,6 @@ require (
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/tidwall/match v1.0.3
 	github.com/yuin/goldmark v1.4.4
-	go.opencensus.io v0.23.0
 	go.uber.org/dig v1.13.0
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.19.1
@@ -73,9 +70,8 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-kit/kit v0.9.0 // indirect
-	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.6.1 // indirect
@@ -86,7 +82,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/groob/plist v0.0.0-20190114192801-a99fbe489d03 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -108,13 +103,13 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
-	github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli/v2 v2.1.1 // indirect
 	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
 	github.com/vektah/gqlparser/v2 v2.2.0 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
+	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/goleak v1.1.11 // indirect
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect

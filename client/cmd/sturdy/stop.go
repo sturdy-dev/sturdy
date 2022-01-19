@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"mash/cmd/sturdy/config"
-	"mash/cmd/sturdy/pkg/mutagen"
+
+	"client/cmd/sturdy/config"
+	"client/pkg/mutagen"
 )
 
 func stopMutagen(conf *config.Config) {

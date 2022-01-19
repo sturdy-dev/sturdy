@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"log"
-	"mash/cmd/sturdy/config"
 	"testing"
+
+	"client/cmd/sturdy/config"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadUntilValidTokenInput(t *testing.T) {

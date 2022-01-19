@@ -3,14 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"mash/cmd/sturdy/config"
-	"mash/cmd/sturdy/pkg/api"
-	"mash/cmd/sturdy/pkg/initView"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"client/cmd/sturdy/config"
+	"client/pkg/api"
+	"client/pkg/initView"
 )
 
 // User friendly init
