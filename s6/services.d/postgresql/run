@@ -1,0 +1,5 @@
+#!/usr/bin/execlineb -P
+
+fdmove -c 2 1 # redirect stderr into stdout
+s6-setuidgid postgres
+pg_ctl start -D /var/lib/postgresql/data

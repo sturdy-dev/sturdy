@@ -1,0 +1,11 @@
+#!/usr/bin/env ash
+
+fdmove -c 2 1 # redirect stderr into stdout
+
+backend \
+    --repos-base-path="/var/lib/sturdy/repos" \
+    --http-listen-addr="127.0.0.1:3000" \
+    --git-listen-addr="0.0.0.0:3002" \
+    --db="postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable" \
+    --production-logger \
+    --use-local-queues

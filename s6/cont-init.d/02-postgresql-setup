@@ -1,0 +1,49 @@
+#!/usr/bin/env ash
+
+# based on: https://raw.githubusercontent.com/sameersbn/docker-postgresql/master/runtime/functions
+
+set -eou pipefail
+
+PG_DATADIR=/var/lib/postgresql/data
+PG_USER=postgres
+
+DB_NAME=sturdy
+DB_USER=sturdy
+DB_PASS=strudy
+
+## Execute command as PG_USER
+exec_as_postgres() {
+    s6-setuidgid "${PG_USER}" "$@"
+}
+
+create_user() {
+    echo "Creating database user: ${DB_USER}"
+    if [[ -z $(psql -U ${PG_USER} -Atc "SELECT 1 FROM pg_catalog.pg_user WHERE usename = '${DB_USER}'";) ]]; then
+        psql -U ${PG_USER} -c "CREATE ROLE \"${DB_USER}\" with LOGIN CREATEDB PASSWORD '${DB_PASS}';" >/dev/null
+    fi
+}
+
+create_database() {
+    echo "Creating database: ${DB_NAME}"
+    if [[ -z $(psql -U ${PG_USER} -Atc "SELECT 1 FROM pg_catalog.pg_database WHERE datname = '${DB_NAME}'";) ]]; then
+        psql -U ${PG_USER} -c "CREATE DATABASE \"${DB_NAME}\";" >/dev/null
+    fi
+
+    if [[ -n ${DB_USER} ]]; then
+        echo "‣ Granting access to ${DB_USER} on ${DB_NAME}"
+        psql -U ${PG_USER} -c "GRANT ALL PRIVILEGES ON DATABASE \"${DB_NAME}\" to \"${DB_USER}\";" >/dev/null
+    fi
+}
+
+configure_postgresql() {
+  # start postgres server internally for the creation of users and databases
+  exec_as_postgres pg_ctl -D ${PG_DATADIR} -w start >/dev/null
+
+  create_user
+  create_database
+
+  # stop the postgres server
+  exec_as_postgres pg_ctl -D ${PG_DATADIR} -w stop >/dev/null
+}
+
+configure_postgresql

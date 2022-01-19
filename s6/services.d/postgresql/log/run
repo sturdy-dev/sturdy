@@ -1,0 +1,4 @@
+#!/bin/execlineb
+
+# prefix postgres logs
+sed "s/^/[postgres] /"
