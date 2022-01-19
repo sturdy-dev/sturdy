@@ -299,6 +299,9 @@ type Codebase {
     readme: File
 
     file(path: String!): FileOrDirectory
+
+    # TODO(gustav): make this field required once all codebases are a part of an organization
+    organization: Organization
 }
 
 input CodebaseChangesInput {
@@ -873,6 +876,7 @@ enum Feature {
 
 type Organization {
     id: ID!
+    shortID: ID!
     name: String!
     members: [Author!]!
     codebases: [Codebase!]!

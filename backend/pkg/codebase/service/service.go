@@ -44,3 +44,11 @@ func (s *Service) CanAccess(_ context.Context, userID string, codebaseID string)
 		return false, fmt.Errorf("failed to check user %s access to codebase %s: %w", userID, codebaseID, err)
 	}
 }
+
+func (s *Service) ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error) {
+	res, err := s.repo.ListByOrganization(ctx, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
+	}
+	return res, nil
+}

@@ -246,8 +246,9 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		nil,
 		changeRootResolver,
 		fileRootResolver,
-		nil,
 		nil, // instantIntegrationRootResolver
+		nil,
+		nil,
 
 		logger,
 		nil,
@@ -600,8 +601,9 @@ func TestRevertChangeFromView(t *testing.T) {
 		nil,
 		changeRootResolver,
 		fileRootResolver,
-		nil,
 		nil, // instantIntegrationRootResolver
+		nil,
+		nil,
 
 		logger,
 		nil,

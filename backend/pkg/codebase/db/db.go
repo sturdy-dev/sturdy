@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -90,4 +91,17 @@ func (r *Repo) Update(entity *codebase.Codebase) error {
 		return fmt.Errorf("failed to perform update: %w", err)
 	}
 	return nil
+}
+
+func (r *Repo) ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error) {
+	var res []*codebase.Codebase
+	err := r.db.SelectContext(ctx, &res, `
+		SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id
+		FROM codebases
+		WHERE organization_id = $1
+	    AND archived_at IS NULL`, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list codebases by organization: %w", err)
+	}
+	return res, nil
 }

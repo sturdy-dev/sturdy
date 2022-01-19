@@ -10,6 +10,7 @@ import (
 	"mash/pkg/auth"
 	"mash/pkg/organization"
 	db_organization "mash/pkg/organization/db"
+	"mash/pkg/shortid"
 )
 
 type Service struct {
@@ -62,6 +63,7 @@ func (svc *Service) Create(ctx context.Context, name string) (*organization.Orga
 
 	org := organization.Organization{
 		ID:        uuid.NewString(),
+		ShortID:   organization.ShortOrganizationID(shortid.New()),
 		Name:      name,
 		CreatedAt: time.Now(),
 		CreatedBy: userID,
@@ -102,6 +104,14 @@ func (svc *Service) AddMember(ctx context.Context, orgID, userID string) (*organ
 
 func (svc *Service) GetByID(ctx context.Context, organizationID string) (*organization.Organization, error) {
 	member, err := svc.organizationRepository.Get(ctx, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organization: %w", err)
+	}
+	return member, nil
+}
+
+func (svc *Service) GetByShortID(ctx context.Context, shortID organization.ShortOrganizationID) (*organization.Organization, error) {
+	member, err := svc.organizationRepository.GetByShortID(ctx, shortID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization: %w", err)
 	}

@@ -17,6 +17,7 @@ type OrganizationRootResolver interface {
 
 type OrganizationResolver interface {
 	ID() graphql.ID
+	ShortID() graphql.ID
 	Name() string
 	Members(context.Context) ([]AuthorResolver, error)
 	Codebases(context.Context) ([]CodebaseResolver, error)
@@ -42,5 +43,6 @@ type AddUserToOrganizationInput struct {
 }
 
 type OrganizationArgs struct {
-	ID graphql.ID
+	ID      *graphql.ID
+	ShortID *graphql.ID
 }

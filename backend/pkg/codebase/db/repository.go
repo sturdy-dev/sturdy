@@ -1,6 +1,10 @@
 package db
 
-import "mash/pkg/codebase"
+import (
+	"context"
+
+	"mash/pkg/codebase"
+)
 
 type CodebaseRepository interface {
 	Create(entity codebase.Codebase) error
@@ -9,4 +13,5 @@ type CodebaseRepository interface {
 	GetByInviteCode(inviteCode string) (*codebase.Codebase, error)
 	GetByShortID(shortID string) (*codebase.Codebase, error)
 	Update(entity *codebase.Codebase) error
+	ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error)
 }

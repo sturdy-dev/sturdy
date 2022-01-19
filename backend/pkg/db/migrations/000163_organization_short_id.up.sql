@@ -1,0 +1,2 @@
+ALTER TABLE organizations
+    ADD COLUMN short_id TEXT NOT NULL UNIQUE;

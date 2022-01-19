@@ -1,7 +1,9 @@
 package db
 
 import (
+	"context"
 	"database/sql"
+
 	"mash/pkg/codebase"
 )
 
@@ -64,4 +66,14 @@ func (m *memory) GetByShortID(shortID string) (*codebase.Codebase, error) {
 
 func (m *memory) Update(entity *codebase.Codebase) error {
 	return m.Create(*entity)
+}
+
+func (r *memory) ListByOrganization(_ context.Context, id string) ([]*codebase.Codebase, error) {
+	var res []*codebase.Codebase
+	for _, cb := range r.byID {
+		if cb.OrganizationID != nil && *cb.OrganizationID == id {
+			res = append(res, cb)
+		}
+	}
+	return res, nil
 }

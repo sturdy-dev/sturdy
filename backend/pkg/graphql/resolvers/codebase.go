@@ -60,6 +60,7 @@ type CodebaseResolver interface {
 	File(ctx context.Context, args CodebaseFileArgs) (FileOrDirectoryResolver, error)
 	Integrations(ctx context.Context, args IntegrationsArgs) ([]IntegrationResolver, error)
 	IsPublic() bool
+	Organization(ctx context.Context) (OrganizationResolver, error)
 }
 
 type CodebaseChangesArgs struct {
