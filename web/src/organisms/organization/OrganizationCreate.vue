@@ -5,7 +5,12 @@
     </Header>
 
     <form class="space-y-4" @submit.stop.prevent="create">
-      <TextInputWithLabel v-model="organizationName" placeholder="What's the name of your team or project?" label="Organization name" name="org-name" />
+      <TextInputWithLabel
+        v-model="organizationName"
+        placeholder="What's the name of your team or project?"
+        label="Organization name"
+        name="org-name"
+      />
       <OrganizationLicenseTierPicker v-if="withTierPicker" />
       <Button color="green" @click="create">Get started</Button>
     </form>
@@ -23,9 +28,9 @@ import {
   CreateOrganizationMutation,
   CreateOrganizationMutationVariables,
 } from './__generated__/OrganizationCreate'
-import TextInputWithLabel from "../../molecules/TextInputWithLabel.vue";
+import TextInputWithLabel from '../../molecules/TextInputWithLabel.vue'
 export default defineComponent({
-  components: {TextInputWithLabel, Header, OrganizationLicenseTierPicker, Button },
+  components: { TextInputWithLabel, Header, OrganizationLicenseTierPicker, Button },
   props: {
     withTierPicker: {
       type: Boolean,

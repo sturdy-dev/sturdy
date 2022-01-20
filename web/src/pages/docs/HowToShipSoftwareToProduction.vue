@@ -16,7 +16,11 @@
         <p><a href="#on-github">Jump to: Sturdy with GitHub bridge ⤵️</a></p>
 
         <h2 id="on-sturdy">Sturdy</h2>
-        <p>With Sturdy setup and <router-link :to="{ name: 'v2DocsHowToEditCode' }">connected to a directory</router-link> on your computer:</p>
+        <p>
+          With Sturdy setup and
+          <router-link :to="{ name: 'v2DocsHowToEditCode' }">connected to a directory</router-link>
+          on your computer:
+        </p>
 
         <!-- TODO: Add a link to setup directory instructions -->
 

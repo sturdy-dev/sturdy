@@ -1,9 +1,9 @@
 overwrite: true
 schema: 
-  - "../backend/pkg/graphql/schema/schema.graphql"
-  - "../backend/pkg/graphql/schema/oss.graphql"
-  - "../backend/pkg/graphql/schema/enterprise.graphql"
-  - "../backend/pkg/graphql/schema/cloud.graphql"
+  - "../api/pkg/graphql/schema/schema.graphql"
+  - "../api/pkg/graphql/schema/oss.graphql"
+  - "../api/pkg/graphql/schema/enterprise.graphql"
+  - "../api/pkg/graphql/schema/cloud.graphql"
 documents:
   - "src/**/*.vue"
   - "src/**/*.ts"
