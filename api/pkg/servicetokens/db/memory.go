@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"mash/pkg/servicetokens"
+	"getsturdy.com/api/pkg/servicetokens"
 )
 
 var _ Repository = &memory{}

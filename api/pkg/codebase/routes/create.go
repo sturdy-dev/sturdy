@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	service_codebase "mash/pkg/codebase/service"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
 
 	"github.com/gin-gonic/gin"
 )

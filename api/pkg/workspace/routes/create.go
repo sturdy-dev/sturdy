@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"mash/pkg/auth"
-	service_workspace "mash/pkg/workspace/service"
+	"getsturdy.com/api/pkg/auth"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
 	"net/http"
 	"strings"
 
@@ -10,8 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"mash/pkg/codebase/access"
-	db_codebase "mash/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase/access"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
 )
 
 type CreateRequest struct {

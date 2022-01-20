@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"mash/pkg/onetime"
+	"getsturdy.com/api/pkg/onetime"
 )
 
 var _ Repository = &Memory{}

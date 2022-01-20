@@ -1,8 +1,8 @@
 package enterprise
 
 import (
-	"mash/pkg/github/config"
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )

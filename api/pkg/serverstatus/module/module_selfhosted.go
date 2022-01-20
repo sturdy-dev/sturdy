@@ -4,10 +4,10 @@
 package module
 
 import (
-	"mash/pkg/serverstatus/selfhosted/graphql"
-	"mash/pkg/serverstatus/selfhosted/service"
+	"getsturdy.com/api/pkg/serverstatus/selfhosted/graphql"
+	"getsturdy.com/api/pkg/serverstatus/selfhosted/service"
 
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

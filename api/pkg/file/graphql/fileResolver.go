@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 	"path"
 
 	"github.com/graph-gophers/graphql-go"

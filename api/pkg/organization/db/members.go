@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mash/pkg/organization"
+	"getsturdy.com/api/pkg/organization"
 )
 
 type MemberRepository interface {

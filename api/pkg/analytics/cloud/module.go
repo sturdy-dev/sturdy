@@ -1,8 +1,8 @@
 package cloud
 
 import (
-	"mash/pkg/analytics/cloud/posthog"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/analytics/cloud/posthog"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

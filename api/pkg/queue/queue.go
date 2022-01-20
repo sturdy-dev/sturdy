@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 
-	"mash/pkg/queue/names"
+	"getsturdy.com/api/pkg/queue/names"
 )
 
 type Queue interface {

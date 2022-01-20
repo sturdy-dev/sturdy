@@ -6,8 +6,8 @@ package http
 import (
 	"net/http"
 
-	"mash/pkg/di"
-	"mash/pkg/http/oss"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/http/oss"
 
 	"github.com/gin-gonic/gin"
 )

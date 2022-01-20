@@ -4,9 +4,9 @@ package graphql
 
 import (
 	"context"
-	"mash/pkg/author/graphql/internal/mock_db"
-	gqldataloader "mash/pkg/graphql/dataloader"
-	"mash/pkg/user"
+	"getsturdy.com/api/pkg/author/graphql/internal/mock_db"
+	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
+	"getsturdy.com/api/pkg/user"
 	"testing"
 
 	"github.com/golang/mock/gomock"

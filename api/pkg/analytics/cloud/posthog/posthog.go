@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"mash/pkg/analytics"
-	"mash/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/analytics/disabled"
 
 	"github.com/posthog/posthog-go"
 )

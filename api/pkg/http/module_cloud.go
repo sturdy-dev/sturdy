@@ -4,10 +4,10 @@
 package http
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/http/cloud"
-	"mash/pkg/http/enterprise"
-	"mash/pkg/http/oss"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/http/cloud"
+	"getsturdy.com/api/pkg/http/enterprise"
+	"getsturdy.com/api/pkg/http/oss"
 	"net/http"
 )
 

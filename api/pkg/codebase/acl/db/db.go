@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/codebase/acl"
 
 	"github.com/jmoiron/sqlx"
 )

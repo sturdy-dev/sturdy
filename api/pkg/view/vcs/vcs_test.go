@@ -1,10 +1,10 @@
 package vcs
 
 import (
+	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
+	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
-	codebasevcs "mash/pkg/codebase/vcs"
-	workspacevcs "mash/pkg/workspace/vcs"
-	"mash/vcs/provider"
 	"os"
 	"testing"
 

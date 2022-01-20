@@ -3,7 +3,7 @@ package codebase
 import (
 	"time"
 
-	"mash/pkg/author"
+	"getsturdy.com/api/pkg/author"
 
 	"github.com/gosimple/slug"
 )

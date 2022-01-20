@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/servicetokens"
+	"getsturdy.com/api/pkg/servicetokens"
 )
 
 type Repository interface {

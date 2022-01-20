@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"mash/pkg/auth"
-	service_jwt "mash/pkg/jwt/service"
-	"mash/pkg/user/db"
+	"getsturdy.com/api/pkg/auth"
+	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	"getsturdy.com/api/pkg/user/db"
 
 	"github.com/gin-gonic/gin"
 )

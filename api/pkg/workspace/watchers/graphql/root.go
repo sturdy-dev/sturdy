@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/view/events"
-	"mash/pkg/workspace"
-	service_workspace "mash/pkg/workspace/service"
-	service_workspace_watchers "mash/pkg/workspace/watchers/service"
+	"getsturdy.com/api/pkg/auth"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
 
 	"go.uber.org/zap"
 )

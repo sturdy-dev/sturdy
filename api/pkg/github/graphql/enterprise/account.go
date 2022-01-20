@@ -3,10 +3,10 @@ package enterprise
 import (
 	"context"
 
-	"mash/pkg/github"
-	"mash/pkg/github/enterprise/db"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )

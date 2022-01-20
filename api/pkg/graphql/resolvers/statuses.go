@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"context"
-	"mash/pkg/statuses"
+	"getsturdy.com/api/pkg/statuses"
 
 	"github.com/graph-gophers/graphql-go"
 )

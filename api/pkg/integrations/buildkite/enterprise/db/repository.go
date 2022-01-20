@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"mash/pkg/integrations/buildkite"
+	"getsturdy.com/api/pkg/integrations/buildkite"
 )
 
 type Repository interface {

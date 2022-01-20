@@ -6,11 +6,11 @@ import (
 	"errors"
 	"time"
 
-	"mash/pkg/auth"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/pki"
-	"mash/pkg/pki/db"
+	"getsturdy.com/api/pkg/auth"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/pki"
+	"getsturdy.com/api/pkg/pki/db"
 )
 
 type pkiRootResolver struct {

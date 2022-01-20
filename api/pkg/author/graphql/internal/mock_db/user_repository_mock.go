@@ -6,7 +6,7 @@ package mock_db
 
 import (
 	context "context"
-	user "mash/pkg/user"
+	user "getsturdy.com/api/pkg/user"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

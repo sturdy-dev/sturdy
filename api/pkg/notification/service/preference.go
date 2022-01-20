@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/notification"
-	db_notification "mash/pkg/notification/db"
+	"getsturdy.com/api/pkg/notification"
+	db_notification "getsturdy.com/api/pkg/notification/db"
 )
 
 type Preferences struct {

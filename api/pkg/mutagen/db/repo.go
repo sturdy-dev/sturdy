@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"mash/pkg/mutagen"
+	"getsturdy.com/api/pkg/mutagen"
 
 	"github.com/jmoiron/sqlx"
 )

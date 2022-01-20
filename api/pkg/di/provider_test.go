@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/di"
 
 	"github.com/stretchr/testify/assert"
 )

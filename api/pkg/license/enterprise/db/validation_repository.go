@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mash/pkg/license/enterprise/license"
+	"getsturdy.com/api/pkg/license/enterprise/license"
 )
 
 type ValidationRepository interface {

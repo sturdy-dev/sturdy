@@ -1,11 +1,11 @@
 package routes
 
 import (
-	service_ci "mash/pkg/ci/service"
-	routes_buildkite "mash/pkg/integrations/buildkite/enterprise/routes"
-	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
-	service_servicetokens "mash/pkg/servicetokens/service"
-	service_statuses "mash/pkg/statuses/service"
+	service_ci "getsturdy.com/api/pkg/ci/service"
+	routes_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/routes"
+	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"mash/pkg/presence"
-	db_presence "mash/pkg/presence/db"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/presence"
+	db_presence "getsturdy.com/api/pkg/presence/db"
+	"getsturdy.com/api/pkg/view/events"
 	"time"
 
 	"github.com/google/uuid"

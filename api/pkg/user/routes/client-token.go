@@ -3,13 +3,13 @@ package routes
 import (
 	"errors"
 	"log"
-	"mash/pkg/auth"
-	"mash/pkg/jwt"
-	"mash/pkg/user/db"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/jwt"
+	"getsturdy.com/api/pkg/user/db"
 	"net/http"
 	"time"
 
-	service_jwt "mash/pkg/jwt/service"
+	service_jwt "getsturdy.com/api/pkg/jwt/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

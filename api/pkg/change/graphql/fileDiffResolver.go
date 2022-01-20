@@ -1,8 +1,8 @@
 package graphql
 
 import (
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/unidiff"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/unidiff"
 
 	"github.com/graph-gophers/graphql-go"
 )

@@ -1,8 +1,8 @@
 package module
 
 import (
-	"mash/pkg/auth/service"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

@@ -1,6 +1,6 @@
 package cloud
 
-import "mash/pkg/graphql/resolvers"
+import "getsturdy.com/api/pkg/graphql/resolvers"
 
 type FeaturesRootResolver struct{}
 

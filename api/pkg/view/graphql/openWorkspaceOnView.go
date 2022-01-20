@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/view/open"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/view/open"
 )
 
 func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolvers.OpenViewArgs) (resolvers.ViewResolver, error) {

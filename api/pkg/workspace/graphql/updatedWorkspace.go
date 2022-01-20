@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"mash/pkg/auth"
-	gq_errors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	gq_errors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/view/events"
 	"strings"
 
 	"github.com/graph-gophers/graphql-go"

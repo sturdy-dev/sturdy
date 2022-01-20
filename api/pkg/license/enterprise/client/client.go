@@ -7,8 +7,8 @@ import (
 
 	"github.com/machinebox/graphql"
 
-	"mash/pkg/graphql/model"
-	"mash/pkg/version"
+	"getsturdy.com/api/pkg/graphql/model"
+	"getsturdy.com/api/pkg/version"
 )
 
 type Client struct {

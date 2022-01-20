@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/gofrs/flock"
 )

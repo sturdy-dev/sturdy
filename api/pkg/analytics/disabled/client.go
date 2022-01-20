@@ -1,6 +1,6 @@
 package disabled
 
-import "mash/pkg/analytics"
+import "getsturdy.com/api/pkg/analytics"
 
 type Client struct{}
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"mash/pkg/jwt"
+	"getsturdy.com/api/pkg/jwt"
 )
 
 type jwtClaims struct {

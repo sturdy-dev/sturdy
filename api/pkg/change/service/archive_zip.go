@@ -3,8 +3,8 @@ package service
 import (
 	"archive/zip"
 	"fmt"
+	"getsturdy.com/api/pkg/unidiff"
 	"io"
-	"mash/pkg/unidiff"
 	"os"
 	"path/filepath"
 )

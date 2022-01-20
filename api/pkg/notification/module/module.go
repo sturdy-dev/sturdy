@@ -1,11 +1,11 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/notification/db"
-	"mash/pkg/notification/graphql"
-	"mash/pkg/notification/sender"
-	"mash/pkg/notification/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/notification/db"
+	"getsturdy.com/api/pkg/notification/graphql"
+	"getsturdy.com/api/pkg/notification/sender"
+	"getsturdy.com/api/pkg/notification/service"
 )
 
 func Module(c *di.Container) {

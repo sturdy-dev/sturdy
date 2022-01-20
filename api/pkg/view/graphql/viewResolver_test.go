@@ -1,8 +1,8 @@
 package graphql
 
 import (
+	"getsturdy.com/api/pkg/view"
 	"github.com/stretchr/testify/assert"
-	"mash/pkg/view"
 	"testing"
 )
 

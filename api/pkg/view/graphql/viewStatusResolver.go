@@ -2,10 +2,10 @@ package graphql
 
 import (
 	"context"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/mutagen"
-	db_mutagen "mash/pkg/mutagen/db"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/mutagen"
+	db_mutagen "getsturdy.com/api/pkg/mutagen/db"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"

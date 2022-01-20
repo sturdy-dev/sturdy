@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase"
 )
 
 type CodebaseRepository interface {

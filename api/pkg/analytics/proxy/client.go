@@ -3,9 +3,9 @@ package proxy
 import (
 	"flag"
 
-	"mash/pkg/analytics"
-	"mash/pkg/analytics/disabled"
-	"mash/pkg/installations"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/installations"
 
 	"github.com/posthog/posthog-go"
 )

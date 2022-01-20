@@ -2,8 +2,8 @@ package live
 
 import (
 	"fmt"
+	"getsturdy.com/api/pkg/comments"
 	"io/ioutil"
-	"mash/pkg/comments"
 	"strings"
 	"testing"
 

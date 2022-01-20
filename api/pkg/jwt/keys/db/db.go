@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/jwt/keys"
+	"getsturdy.com/api/pkg/jwt/keys"
 
 	"github.com/jmoiron/sqlx"
 )

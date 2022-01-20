@@ -2,8 +2,8 @@ package graphql
 
 import (
 	"context"
-	gqldataloader "mash/pkg/graphql/dataloader"
-	"mash/pkg/graphql/resolvers"
+	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/dataloader/v6"
 	"github.com/graph-gophers/graphql-go"

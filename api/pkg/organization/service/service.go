@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"mash/pkg/auth"
-	"mash/pkg/organization"
-	db_organization "mash/pkg/organization/db"
-	"mash/pkg/shortid"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/organization"
+	db_organization "getsturdy.com/api/pkg/organization/db"
+	"getsturdy.com/api/pkg/shortid"
 )
 
 type Service struct {

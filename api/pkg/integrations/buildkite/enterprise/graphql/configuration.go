@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"mash/pkg/integrations/buildkite"
+	"getsturdy.com/api/pkg/integrations/buildkite"
 
 	"github.com/graph-gophers/graphql-go"
 )

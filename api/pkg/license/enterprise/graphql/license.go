@@ -5,7 +5,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
-	"mash/pkg/license/enterprise/license"
+	"getsturdy.com/api/pkg/license/enterprise/license"
 )
 
 type licenseResolver struct {

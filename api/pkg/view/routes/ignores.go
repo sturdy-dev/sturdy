@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"os"
 
-	db_view "mash/pkg/view/db"
-	"mash/pkg/view/ignore"
-	"mash/vcs"
-	"mash/vcs/executor"
+	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/view/ignore"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

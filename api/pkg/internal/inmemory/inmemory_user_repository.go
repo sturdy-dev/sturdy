@@ -3,8 +3,8 @@ package inmemory
 import (
 	"context"
 
-	"mash/pkg/user"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/user"
+	db_user "getsturdy.com/api/pkg/user/db"
 )
 
 // inMemoryUserRepo implements user.Repository

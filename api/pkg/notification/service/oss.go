@@ -3,7 +3,7 @@
 
 package service
 
-import "mash/pkg/notification"
+import "getsturdy.com/api/pkg/notification"
 
 var supportedTypes = map[notification.NotificationType]bool{
 	notification.CommentNotificationType:         true,

@@ -1,20 +1,20 @@
 package routes
 
 import (
-	"mash/pkg/auth"
-	"mash/pkg/change/vcs"
-	"mash/pkg/snapshots"
-	"mash/pkg/view/meta"
-	"mash/vcs/executor"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/change/vcs"
+	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/view/meta"
+	"getsturdy.com/api/vcs/executor"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"mash/pkg/codebase/access"
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/view/db"
+	"getsturdy.com/api/pkg/codebase/access"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/view/db"
 )
 
 type IgnoreFileRequest struct {

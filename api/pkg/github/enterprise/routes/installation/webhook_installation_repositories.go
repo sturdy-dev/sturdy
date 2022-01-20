@@ -8,11 +8,11 @@ import (
 	"log"
 	"time"
 
-	"mash/pkg/analytics"
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/github"
-	"mash/pkg/github/enterprise/db"
-	service_github "mash/pkg/github/enterprise/service"
+	"getsturdy.com/api/pkg/analytics"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"

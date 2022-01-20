@@ -2,8 +2,8 @@ package inmemory
 
 import (
 	"database/sql"
-	"mash/pkg/workspace"
-	db_workspace "mash/pkg/workspace/db"
+	"getsturdy.com/api/pkg/workspace"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 )
 
 type inMemoryWorkspaceRepo struct {

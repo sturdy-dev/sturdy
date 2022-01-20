@@ -1,8 +1,8 @@
 package events
 
 import (
-	db_codebase "mash/pkg/codebase/db"
-	db_workspace "mash/pkg/workspace/db"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 )
 
 // TODO: support sending multiple events. Some users of this interface call methods in a loop.

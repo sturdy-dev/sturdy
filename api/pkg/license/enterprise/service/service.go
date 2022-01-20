@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"mash/pkg/license/enterprise/db"
-	"mash/pkg/license/enterprise/license"
+	"getsturdy.com/api/pkg/license/enterprise/db"
+	"getsturdy.com/api/pkg/license/enterprise/license"
 )
 
 type Service struct {

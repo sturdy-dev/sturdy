@@ -9,9 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/ssh"
 
-	"mash/pkg/auth"
-	"mash/pkg/pki"
-	"mash/pkg/pki/db"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/pki"
+	"getsturdy.com/api/pkg/pki/db"
 )
 
 type AddPublicKeyRequest struct {
@@ -110,7 +110,7 @@ func Verify(repo db.Repo) func(c *gin.Context) {
 
 // KeysEqual is constant time compare of the keys to avoid timing attacks.
 func KeysEqual(ak, bk ssh.PublicKey) bool {
-	//avoid panic if one of the keys is nil, return false instead
+	// avoid panic if one of the keys is nil, return false instead
 	if ak == nil || bk == nil {
 		return false
 	}

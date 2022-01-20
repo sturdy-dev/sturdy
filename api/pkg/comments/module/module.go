@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/comments/db"
-	"mash/pkg/comments/graphql"
-	"mash/pkg/comments/service"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/comments/db"
+	"getsturdy.com/api/pkg/comments/graphql"
+	"getsturdy.com/api/pkg/comments/service"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

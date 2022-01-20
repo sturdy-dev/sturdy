@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"time"
 
-	"mash/pkg/auth"
-	"mash/pkg/github"
-	"mash/pkg/github/config"
-	"mash/pkg/github/enterprise/db"
-	service_github "mash/pkg/github/enterprise/service"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	db_user "getsturdy.com/api/pkg/user/db"
 
 	"github.com/gin-gonic/gin"
 	gh "github.com/google/go-github/v39/github"

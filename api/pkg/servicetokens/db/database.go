@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/servicetokens"
+	"getsturdy.com/api/pkg/servicetokens"
 
 	"github.com/jmoiron/sqlx"
 )

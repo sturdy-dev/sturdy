@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/jwt/keys"
+	"getsturdy.com/api/pkg/jwt/keys"
 )
 
 type Repository interface {

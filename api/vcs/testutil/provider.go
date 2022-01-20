@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs/provider"
 )
 
 func TestingRepoProvider(t *testing.T) provider.RepoProvider {

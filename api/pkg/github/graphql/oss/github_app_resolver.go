@@ -1,7 +1,7 @@
 package oss
 
 import (
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type gitHubAppRootResolver struct{}

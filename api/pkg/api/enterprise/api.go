@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/api"
-	"mash/pkg/api/oss"
-	workers_github "mash/pkg/github/enterprise/workers"
-	"mash/pkg/license/enterprise/validator"
+	"getsturdy.com/api/pkg/api"
+	"getsturdy.com/api/pkg/api/oss"
+	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
+	"getsturdy.com/api/pkg/license/enterprise/validator"
 
 	"golang.org/x/sync/errgroup"
 )

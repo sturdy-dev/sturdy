@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	service_organization "mash/pkg/organization/service"
+	service_organization "getsturdy.com/api/pkg/organization/service"
 )
 
 type Service struct {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"mash/pkg/jwt/keys"
+	"getsturdy.com/api/pkg/jwt/keys"
 )
 
 var _ Repository = &memory{}

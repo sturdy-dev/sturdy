@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"mash/pkg/github"
-	"mash/pkg/github/config"
-	"mash/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/db"
 
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"

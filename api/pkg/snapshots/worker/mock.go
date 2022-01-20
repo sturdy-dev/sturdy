@@ -3,8 +3,8 @@ package worker
 import (
 	"context"
 
-	"mash/pkg/snapshots"
-	"mash/pkg/snapshots/snapshotter"
+	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/snapshots/snapshotter"
 )
 
 type inProcessPublisher struct {

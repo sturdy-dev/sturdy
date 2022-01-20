@@ -3,9 +3,9 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"mash/pkg/newsletter"
-	db_newsletter "mash/pkg/newsletter/db"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/newsletter"
+	db_newsletter "getsturdy.com/api/pkg/newsletter/db"
+	db_user "getsturdy.com/api/pkg/user/db"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/analytics"
-	"mash/pkg/codebase"
-	sturdy_github "mash/pkg/github"
-	"mash/pkg/github/enterprise/client"
-	"mash/pkg/notification"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/codebase"
+	sturdy_github "getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/view/events"
 
 	"github.com/google/go-github/v39/github"
 	"github.com/google/uuid"

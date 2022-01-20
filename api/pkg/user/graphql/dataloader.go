@@ -3,10 +3,10 @@ package graphql
 import (
 	"context"
 
-	"mash/pkg/auth"
-	gqldataloader "mash/pkg/graphql/dataloader"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/auth"
+	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/dataloader/v6"
 	"go.uber.org/zap"

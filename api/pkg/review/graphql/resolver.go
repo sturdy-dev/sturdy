@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/review"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/review"
 
 	"github.com/graph-gophers/graphql-go"
 )

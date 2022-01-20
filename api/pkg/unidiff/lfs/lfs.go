@@ -2,10 +2,10 @@ package lfs
 
 import (
 	"bytes"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/vcs"
 	"io"
 	"log"
-	"mash/pkg/unidiff"
-	"mash/vcs"
 	"os"
 	"os/exec"
 	"path"

@@ -3,9 +3,9 @@ package graphql
 import (
 	"context"
 	"fmt"
-	"mash/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations"
 
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )

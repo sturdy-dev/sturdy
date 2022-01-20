@@ -1,11 +1,11 @@
 package enterprise
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/github/enterprise/client"
-	"mash/pkg/github/enterprise/db"
-	"mash/pkg/github/enterprise/service"
-	"mash/pkg/github/enterprise/workers"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/github/enterprise/service"
+	"getsturdy.com/api/pkg/github/enterprise/workers"
 )
 
 func Module(c *di.Container) {

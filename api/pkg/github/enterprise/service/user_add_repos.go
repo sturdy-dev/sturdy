@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"mash/pkg/codebase"
-	"mash/pkg/github"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/view/events"
 	"time"
 
 	gh "github.com/google/go-github/v39/github"

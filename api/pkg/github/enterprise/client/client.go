@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"mash/pkg/github/config"
+	"getsturdy.com/api/pkg/github/config"
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/v39/github"

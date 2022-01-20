@@ -3,7 +3,7 @@ package executor
 import (
 	"testing"
 
-	"mash/vcs/testutil"
+	"getsturdy.com/api/vcs/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

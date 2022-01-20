@@ -2,7 +2,7 @@ package author
 
 import (
 	"fmt"
-	db_user "mash/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/user/db"
 )
 
 type Author struct {

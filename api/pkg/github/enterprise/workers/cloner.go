@@ -3,12 +3,12 @@ package workers
 import (
 	"context"
 	"fmt"
-	"mash/pkg/github"
+	"getsturdy.com/api/pkg/github"
 	"time"
 
-	service_github "mash/pkg/github/enterprise/service"
-	"mash/pkg/queue"
-	"mash/pkg/queue/names"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	"getsturdy.com/api/pkg/queue"
+	"getsturdy.com/api/pkg/queue/names"
 
 	"go.uber.org/zap"
 )

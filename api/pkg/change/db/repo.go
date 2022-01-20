@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"mash/pkg/change"
+	"getsturdy.com/api/pkg/change"
 
 	"github.com/jmoiron/sqlx"
 )

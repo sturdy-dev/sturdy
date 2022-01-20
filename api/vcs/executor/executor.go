@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"mash/vcs"
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	"go.uber.org/zap"
 )

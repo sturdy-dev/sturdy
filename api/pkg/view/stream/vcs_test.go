@@ -1,11 +1,11 @@
 package stream
 
 import (
+	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
+	vcs_view "getsturdy.com/api/pkg/view/vcs"
+	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
-	vcs_codebase "mash/pkg/codebase/vcs"
-	vcs_view "mash/pkg/view/vcs"
-	vcs_workspace "mash/pkg/workspace/vcs"
-	"mash/vcs/provider"
 	"os"
 	"testing"
 

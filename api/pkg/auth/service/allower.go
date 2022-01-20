@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 
-	"mash/pkg/auth"
-	"mash/pkg/change"
-	"mash/pkg/codebase"
-	"mash/pkg/codebase/acl"
-	"mash/pkg/suggestions"
-	"mash/pkg/unidiff"
-	"mash/pkg/workspace"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/suggestions"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/workspace"
 )
 
 var (

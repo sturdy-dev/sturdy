@@ -1,12 +1,12 @@
 package vcs
 
 import (
+	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/view/vcs"
+	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
-	codebasevcs "mash/pkg/codebase/vcs"
-	"mash/pkg/unidiff"
-	"mash/pkg/view/vcs"
-	workspacevcs "mash/pkg/workspace/vcs"
-	"mash/vcs/provider"
 	"os"
 	"path"
 	"testing"

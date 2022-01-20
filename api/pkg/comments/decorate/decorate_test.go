@@ -3,8 +3,8 @@ package decorate_test
 import (
 	"testing"
 
-	"mash/pkg/comments/decorate"
-	"mash/pkg/user"
+	"getsturdy.com/api/pkg/comments/decorate"
+	"getsturdy.com/api/pkg/user"
 
 	"github.com/stretchr/testify/assert"
 )

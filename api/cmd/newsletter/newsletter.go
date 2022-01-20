@@ -1,8 +1,8 @@
 package main
 
 import (
+	"getsturdy.com/api/pkg/newsletter"
 	"log"
-	"mash/pkg/newsletter"
 	"strings"
 	"time"
 

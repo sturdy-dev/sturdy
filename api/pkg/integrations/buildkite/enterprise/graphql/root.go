@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	service_auth "mash/pkg/auth/service"
-	service_ci "mash/pkg/ci/service"
-	"mash/pkg/codebase"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/integrations"
-	"mash/pkg/integrations/buildkite"
-	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	service_ci "getsturdy.com/api/pkg/ci/service"
+	"getsturdy.com/api/pkg/codebase"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations/buildkite"
+	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
 
 	"github.com/google/uuid"
 )

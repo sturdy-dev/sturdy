@@ -1,7 +1,7 @@
 package db
 
 import (
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/di"
 
 	"github.com/jmoiron/sqlx"
 )

@@ -4,9 +4,9 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/emails/transactional"
-	"mash/pkg/emails/transactional/enterprise"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/emails/transactional"
+	"getsturdy.com/api/pkg/emails/transactional/enterprise"
 )
 
 func Module(c *di.Container) {

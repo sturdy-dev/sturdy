@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"mash/vcs"
+	"getsturdy.com/api/vcs"
 	"path"
 )
 

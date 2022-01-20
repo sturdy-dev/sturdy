@@ -1,9 +1,9 @@
 package module
 
 import (
-	"mash/pkg/di"
-	keys_db "mash/pkg/jwt/keys/db"
-	"mash/pkg/jwt/service"
+	"getsturdy.com/api/pkg/di"
+	keys_db "getsturdy.com/api/pkg/jwt/keys/db"
+	"getsturdy.com/api/pkg/jwt/service"
 )
 
 func Module(c *di.Container) {

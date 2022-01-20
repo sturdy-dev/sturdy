@@ -7,8 +7,8 @@ import (
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
 
-	"mash/vcs"
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	git "github.com/libgit2/git2go/v33"
 )

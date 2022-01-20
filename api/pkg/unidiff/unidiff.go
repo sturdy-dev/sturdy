@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	sdiff "mash/vcs/diff"
+	sdiff "getsturdy.com/api/vcs/diff"
 
 	"github.com/sourcegraph/go-diff/diff"
 	"go.uber.org/multierr"

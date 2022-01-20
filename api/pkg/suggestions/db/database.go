@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/suggestions"
+	"getsturdy.com/api/pkg/suggestions"
 
 	"github.com/jmoiron/sqlx"
 )

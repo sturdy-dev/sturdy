@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/change"
-	service_ci "mash/pkg/ci/service"
-	"mash/pkg/queue"
-	"mash/pkg/queue/names"
+	"getsturdy.com/api/pkg/change"
+	service_ci "getsturdy.com/api/pkg/ci/service"
+	"getsturdy.com/api/pkg/queue"
+	"getsturdy.com/api/pkg/queue/names"
 
 	"go.uber.org/zap"
 )

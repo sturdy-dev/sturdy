@@ -10,16 +10,16 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"mash/pkg/analytics"
-	"mash/pkg/auth"
-	"mash/pkg/codebase"
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/codebase/vcs"
-	"mash/pkg/shortid"
-	"mash/pkg/view/events"
-	service_workspace "mash/pkg/workspace/service"
-	"mash/vcs/executor"
-	"mash/vcs/provider"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebase"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/shortid"
+	"getsturdy.com/api/pkg/view/events"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/provider"
 )
 
 type Service struct {

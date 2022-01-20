@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"sort"
 
-	"mash/pkg/workspace/watchers"
+	"getsturdy.com/api/pkg/workspace/watchers"
 )
 
 var _ Repository = &inMemory{}
@@ -49,7 +49,7 @@ func (i *inMemory) ListWatchingByWorkspaceID(ctx context.Context, workspaceID st
 	return nonIgnored, nil
 }
 
-func (i *inMemory) GetByUserIDAndWorkspaceID(ctx context.Context,userID string, workspaceID string) (*watchers.Watcher, error) {
+func (i *inMemory) GetByUserIDAndWorkspaceID(ctx context.Context, userID string, workspaceID string) (*watchers.Watcher, error) {
 	byWorkspaceID := i.byWorkspaceID[workspaceID]
 	byUserID := make([]*watchers.Watcher, 0, len(byWorkspaceID))
 	for _, watcher := range byWorkspaceID {
@@ -62,7 +62,7 @@ func (i *inMemory) GetByUserIDAndWorkspaceID(ctx context.Context,userID string, 
 		return nil, sql.ErrNoRows
 	}
 	// sort by CreatedAt
-	sort.Slice(byUserID, func(i, j int) bool{
+	sort.Slice(byUserID, func(i, j int) bool {
 		return byUserID[i].CreatedAt.Before(byUserID[j].CreatedAt)
 	})
 	return byUserID[0], nil

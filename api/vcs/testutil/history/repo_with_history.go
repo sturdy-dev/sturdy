@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"mash/vcs"
-	"mash/vcs/executor"
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/provider"
 )
 
 func CreateRepoWithRootCommit(t *testing.T, executorProvider executor.Provider) string {

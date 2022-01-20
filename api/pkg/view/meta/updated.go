@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/snapshots"
-	worker_snapshotter "mash/pkg/snapshots/worker"
-	"mash/pkg/view"
-	"mash/pkg/view/events"
-	db_workspace "mash/pkg/workspace/db"
-	workspace_meta "mash/pkg/workspace/meta"
+	"getsturdy.com/api/pkg/snapshots"
+	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
+	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/view/events"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	workspace_meta "getsturdy.com/api/pkg/workspace/meta"
 )
 
 type ViewUpdatedFunc func(ctx context.Context, view *view.View, action snapshots.Action) error

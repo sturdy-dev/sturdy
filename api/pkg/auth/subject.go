@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"mash/pkg/jwt"
+	"getsturdy.com/api/pkg/jwt"
 )
 
 type SubjectType string

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	service_sync "mash/pkg/sync/service"
+	service_sync "getsturdy.com/api/pkg/sync/service"
 )
 
 // Auth happens elsewhere

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/onetime"
+	"getsturdy.com/api/pkg/onetime"
 )
 
 type Repository interface {

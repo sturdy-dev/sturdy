@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"mash/pkg/auth"
-	"mash/pkg/codebase"
-	"mash/pkg/codebase/access"
-	"mash/pkg/codebase/db"
-	"mash/pkg/codebase/vcs"
-	db_user "mash/pkg/user/db"
-	vcsvcs "mash/vcs"
-	"mash/vcs/executor"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase/access"
+	"getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase/vcs"
+	db_user "getsturdy.com/api/pkg/user/db"
+	vcsvcs "getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 
 	"go.uber.org/zap"
 

@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/ci/db"
-	"mash/pkg/ci/service"
-	"mash/pkg/ci/workers"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/ci/db"
+	"getsturdy.com/api/pkg/ci/service"
+	"getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

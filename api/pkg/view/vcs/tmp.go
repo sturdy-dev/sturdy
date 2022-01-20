@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"mash/vcs"
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 )

@@ -1,7 +1,7 @@
 package access
 
 import (
-	codebaseDB "mash/pkg/codebase/db"
+	codebaseDB "getsturdy.com/api/pkg/codebase/db"
 )
 
 func UserHasAccessToCodebase(repo codebaseDB.CodebaseUserRepository, userID, codebaseID string) bool {

@@ -3,6 +3,6 @@
 
 package global
 
-import "mash/pkg/installations"
+import "getsturdy.com/api/pkg/installations"
 
 var installationType = installations.TypeCloud

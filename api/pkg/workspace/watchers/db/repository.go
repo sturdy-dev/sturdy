@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/workspace/watchers"
+	"getsturdy.com/api/pkg/workspace/watchers"
 )
 
 type Repository interface {

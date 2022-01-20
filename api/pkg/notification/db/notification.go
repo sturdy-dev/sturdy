@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"mash/pkg/notification"
+	"getsturdy.com/api/pkg/notification"
 
 	"github.com/jmoiron/sqlx"
 )

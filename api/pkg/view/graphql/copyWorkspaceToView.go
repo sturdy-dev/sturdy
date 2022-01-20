@@ -6,12 +6,12 @@ import (
 	"errors"
 	"fmt"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/snapshots"
-	"mash/pkg/snapshots/snapshotter"
-	"mash/pkg/view/vcs"
-	vcsvcs "mash/vcs"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	"getsturdy.com/api/pkg/view/vcs"
+	vcsvcs "getsturdy.com/api/vcs"
 
 	"go.uber.org/zap"
 )

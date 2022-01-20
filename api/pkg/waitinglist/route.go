@@ -1,8 +1,8 @@
 package waitinglist
 
 import (
+	"getsturdy.com/api/pkg/analytics"
 	"log"
-	"mash/pkg/analytics"
 	"net/http"
 	"strings"
 

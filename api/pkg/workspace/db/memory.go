@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	"mash/pkg/workspace"
+	"getsturdy.com/api/pkg/workspace"
 )
 
 var _ Repository = &memory{}

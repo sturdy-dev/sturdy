@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/workspace/activity"
+	"getsturdy.com/api/pkg/workspace/activity"
 
 	"github.com/jmoiron/sqlx"
 )

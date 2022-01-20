@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"strings"
 
-	"mash/pkg/comments/live"
-	db_snapshots "mash/pkg/snapshots/db"
-	"mash/pkg/workspace"
-	"mash/vcs/executor"
+	"getsturdy.com/api/pkg/comments/live"
+	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
+	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/vcs/executor"
 )
 
 func GetContext(lineNumber int, lineIsNew bool, filePath string, ws *workspace.Workspace, executorProvider executor.Provider, snapshotRepo db_snapshots.Repository) (context string, startsAtLine int, err error) {

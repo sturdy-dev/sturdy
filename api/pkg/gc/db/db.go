@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/gc"
+	"getsturdy.com/api/pkg/gc"
 	"time"
 
 	"github.com/jmoiron/sqlx"

@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"mash/pkg/jwt"
-	"mash/pkg/jwt/keys"
-	db_keys "mash/pkg/jwt/keys/db"
+	"getsturdy.com/api/pkg/jwt"
+	"getsturdy.com/api/pkg/jwt/keys"
+	db_keys "getsturdy.com/api/pkg/jwt/keys/db"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

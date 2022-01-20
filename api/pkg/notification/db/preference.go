@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/notification"
+	"getsturdy.com/api/pkg/notification"
 
 	"github.com/jmoiron/sqlx"
 )

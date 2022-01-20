@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/snapshots/db"
-	"mash/pkg/snapshots/snapshotter"
-	"mash/pkg/snapshots/worker"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/snapshots/db"
+	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	"getsturdy.com/api/pkg/snapshots/worker"
 )
 
 func Module(c *di.Container) {

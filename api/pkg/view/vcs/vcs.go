@@ -3,8 +3,8 @@ package vcs
 import (
 	"fmt"
 
-	"mash/vcs"
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 )
 
 func Create(repoProvider provider.RepoProvider, codebaseID, checkoutBranchName, viewID string) error {

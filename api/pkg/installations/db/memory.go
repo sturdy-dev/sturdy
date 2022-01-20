@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/installations"
+	"getsturdy.com/api/pkg/installations"
 )
 
 type Memory struct {

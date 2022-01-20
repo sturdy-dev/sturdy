@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	db_github "mash/pkg/github/enterprise/db"
-	"mash/pkg/statuses"
-	service_statuses "mash/pkg/statuses/service"
+	db_github "getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/statuses"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"

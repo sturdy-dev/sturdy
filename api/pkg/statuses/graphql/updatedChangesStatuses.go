@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"mash/pkg/auth"
-	"mash/pkg/change"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/change"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/view/events"
 
 	"go.uber.org/zap"
 )

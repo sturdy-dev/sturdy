@@ -9,14 +9,14 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/graph-gophers/graphql-go"
 
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	service_codebase "mash/pkg/codebase/service"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/organization"
-	service_organization "mash/pkg/organization/service"
-	service_user "mash/pkg/user/service"
+	"getsturdy.com/api/pkg/auth"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/organization"
+	service_organization "getsturdy.com/api/pkg/organization/service"
+	service_user "getsturdy.com/api/pkg/user/service"
 )
 
 type organizationRootResolver struct {

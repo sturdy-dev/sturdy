@@ -1,12 +1,12 @@
 package graphql
 
 import (
-	"mash/pkg/di"
-	graphql_user "mash/pkg/user/graphql"
-	graphql_view "mash/pkg/view/graphql"
-	graphql_workspace_activity "mash/pkg/workspace/activity/graphql"
-	graphql_workspace "mash/pkg/workspace/graphql"
-	graphql_workspace_watchers "mash/pkg/workspace/watchers/graphql"
+	"getsturdy.com/api/pkg/di"
+	graphql_user "getsturdy.com/api/pkg/user/graphql"
+	graphql_view "getsturdy.com/api/pkg/view/graphql"
+	graphql_workspace_activity "getsturdy.com/api/pkg/workspace/activity/graphql"
+	graphql_workspace "getsturdy.com/api/pkg/workspace/graphql"
+	graphql_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/graphql"
 )
 
 func Module(c *di.Container) {

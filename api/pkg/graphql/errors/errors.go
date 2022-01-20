@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"mash/pkg/auth"
+	"getsturdy.com/api/pkg/auth"
 )
 
 type ResolverError interface {

@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"mash/pkg/jwt"
-	db_keys "mash/pkg/jwt/keys/db"
-	"mash/pkg/jwt/service"
+	"getsturdy.com/api/pkg/jwt"
+	db_keys "getsturdy.com/api/pkg/jwt/keys/db"
+	"getsturdy.com/api/pkg/jwt/service"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

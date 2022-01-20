@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"strings"
 
-	"mash/pkg/onetime"
-	db_onetime "mash/pkg/onetime/db"
-	"mash/pkg/user"
+	"getsturdy.com/api/pkg/onetime"
+	db_onetime "getsturdy.com/api/pkg/onetime/db"
+	"getsturdy.com/api/pkg/user"
 )
 
 type Service struct {

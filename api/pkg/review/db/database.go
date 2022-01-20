@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/review"
+	"getsturdy.com/api/pkg/review"
 	"time"
 
 	"github.com/jmoiron/sqlx"

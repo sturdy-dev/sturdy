@@ -3,8 +3,8 @@ package vcs
 import (
 	"testing"
 
-	codebasevcs "mash/pkg/codebase/vcs"
-	"mash/vcs/testutil"
+	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/vcs/testutil"
 
 	"github.com/stretchr/testify/assert"
 )

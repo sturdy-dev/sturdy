@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/ci"
+	"getsturdy.com/api/pkg/ci"
 )
 
 type CommitRepository interface {

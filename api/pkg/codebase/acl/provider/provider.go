@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/codebase/acl"
-	db_acl "mash/pkg/codebase/acl/db"
-	db_codebase "mash/pkg/codebase/db"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/codebase/acl"
+	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_user "getsturdy.com/api/pkg/user/db"
 
 	"github.com/google/uuid"
 	"github.com/tailscale/hujson"

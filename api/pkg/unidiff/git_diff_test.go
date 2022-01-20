@@ -2,8 +2,8 @@ package unidiff
 
 import (
 	"fmt"
+	"getsturdy.com/api/vcs"
 	"io/ioutil"
-	"mash/vcs"
 	"os"
 	"path"
 	"testing"

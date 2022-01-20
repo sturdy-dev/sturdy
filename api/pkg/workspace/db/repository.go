@@ -1,6 +1,6 @@
 package db
 
-import "mash/pkg/workspace"
+import "getsturdy.com/api/pkg/workspace"
 
 type Repository interface {
 	WorkspaceWriter

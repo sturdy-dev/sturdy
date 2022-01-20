@@ -3,8 +3,8 @@ package oss
 import (
 	"context"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type GitHubAccountRootResolver struct{}

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"mash/pkg/auth"
-	"mash/pkg/img"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/img"
 
 	"github.com/google/uuid"
 
@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 
-	"mash/pkg/user/db"
+	"getsturdy.com/api/pkg/user/db"
 
 	"github.com/gin-gonic/gin"
 )

@@ -7,9 +7,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"mash/pkg/graphql/model"
-	"mash/pkg/license/enterprise/client"
-	service_user "mash/pkg/user/service"
+	"getsturdy.com/api/pkg/graphql/model"
+	"getsturdy.com/api/pkg/license/enterprise/client"
+	service_user "getsturdy.com/api/pkg/user/service"
 )
 
 type Validator struct {
