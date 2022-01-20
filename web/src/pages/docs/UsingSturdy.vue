@@ -7,28 +7,29 @@
       <div class="prose p-4 max-w-[800px]">
         <h1 id="using-sturdy">Using Sturdy</h1>
         <p>
-          This tutorial takes you from importing a repository from GitHub to merging your first pull
-          request. Make sure you have completed the Sturdy
-          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start setup</router-link>.
+          This tutorial takes you from setting up Sturdy with a repository from GitHub to merging a
+          pull request from Sturdy. Make sure you have completed the Sturdy
+          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start setup</router-link> before
+          continuing.
         </p>
 
         <h2 id="ui-overview">UI Overview</h2>
         <ol>
           <li>
-            The left side bar is where codebases and workspaces from your organization are displayed
-            - clicking an existing codebase or workspace takes you to it
+            The left sidebar lists <strong>codebases</strong> and <strong>workspaces</strong> from
+            your organization &mdash; click on a codebase or workspace to navigate to it
           </li>
           <li>
-            The top left corner has a three dots icon - clicking it opens additional actions, for
-            example creating a new codebase
+            The top left corner has a icon with tree dots &mdash; click the icon to open a menu with
+            additional actions, such as <strong>creating a new codebase</strong>
           </li>
           <li>
-            The bottom left corner has a bell icon indicating new notification - clicking that opens
-            a notifications panel
+            The bottom left corner has a bell icon &mdash; click the icon to open
+            <strong>the notifications panel</strong>
           </li>
           <li>
-            In the bottom left corner you can also see your avatar and a gearbox icon - clicking on
-            them take you to your profile configuration
+            The bottom left corned also shows your avatar and a gearbox icon &mdash; click on either
+            of them to go to your <strong>profile settings</strong>
           </li>
         </ol>
 
@@ -36,26 +37,26 @@
         <ol>
           <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
           <li>
-            On the codebase creation screen click the "Import repositories" button within the
-            "Coming from GitHub?" panel in the bottom.
+            On the codebase creation screen click the "Import repositories" button in the "Coming
+            from GitHub?" panel
           </li>
           <li>On GitHub, select the organization which contains the codebase you wish to import</li>
           <li>Follow the GitHub prompt for authentication</li>
           <li>Select the repository that you wish to import</li>
           <li>You will be redirected back to Sturdy</li>
-          <li>When the codebase is ready, you will be notified - in most cases this is instant</li>
+          <li>The codebase will be ready to use within a few seconds</li>
         </ol>
 
         <h2 id="exploring-the-codebase">Exploring the codebase</h2>
         <p>
-          Navigate to the codebase by selecting it's name in the sidebar on the left. This is the
-          root of the codebase - here you can see the following:
+          Navigate to the codebase by selecting it's name in the sidebar on the left. This page
+          shows you an overview of the codebase that shows you the following:
         </p>
         <ol>
           <li>A getting started panel</li>
           <li>The most recent changes</li>
           <li>A file explorer with the contents of the codebase</li>
-          <li>The README.md file rendered (if present)</li>
+          <li>The README.md file</li>
           <li>A list of collaborators</li>
         </ol>
 
@@ -64,26 +65,26 @@
         <ol>
           <li>
             Connect a directory where you want to have the code by clicking the "Connect directory"
-            button.
+            button
           </li>
           <li>
             Select a directory where you want to have the code. It is a good idea to create a new
-            folder.
+            folder
           </li>
           <ol>
             <li>The folder you select must be empty</li>
-            <li>The folder that you select cannot be inside a git repository</li>
+            <li>The folder that you select should not be inside a git repository</li>
           </ol>
           <li>
             Observe that a new workspace was created with the name "Your Name's Workspace". In
             Sturdy, work always happens inside a workspace
           </li>
           <li>Workspaces are listed in the sidebar on the left, below the codebase</li>
-          <li>Press the "Edit" button at the top and rename it to "My first change"</li>
+          <li>Press the "Edit" button at the top of the page and rename it to "My first change"</li>
           <li>Any changes made files in the connected directory will show up here</li>
           <li>
             The folder you chose is connected to this workspace. This is indicated at the top of the
-            workspace.
+            workspace
           </li>
         </ol>
 
@@ -95,12 +96,14 @@
           </li>
           <ol>
             <li>The directory connected to this workspace is indicated at the top</li>
-            <li>Optional: Open the codebase in Visual Studio Code with the "Open in" button</li>
+            <li>
+              <em>Optional:</em> Open the codebase in Visual Studio Code with the "Open in" button
+            </li>
           </ol>
           <li>Using your IDE / text editor, make changes to any file in the codebase</li>
           <li>
-            Within Sturdy - observe that the code diffs are displayed in the "My first change"
-            workspace
+            Within Sturdy &mdash; observe that changes you make are displayed as diffs in the "My
+            first change" workspace
           </li>
         </ol>
 
@@ -109,7 +112,7 @@
         <ol>
           <li>Write a description of your changes in the text box at the top</li>
           <ol>
-            <li>Description is automatically saved</li>
+            <li>The description is automatically saved</li>
           </ol>
           <li>
             Observe that after a description has been provided a "Create pull request" button
@@ -121,7 +124,7 @@
         <p>With the workspace "My first change" selected and a description provided:</p>
         <ol>
           <li>Click the "Create pull request" button at the top</li>
-          <li>Two new buttons will appear</li>
+          <li>Two new buttons will appear ("Update pull request" and "Merge")</li>
           <li>
             Click the "Merge" button. This is the same action as hitting "Merge" on GitHub, but
             without leaving Sturdy
@@ -132,22 +135,22 @@
           </li>
         </ol>
         <DocsInfoBox>
-          If your repository on GitHub requires formal approvals for pull requests, use the "Go to
-          pull request" link in order to open the pull request in the browser.
+          If your repository on GitHub requires approvals for pull requests, use the "Go to pull
+          request" link in order to open the pull request in the browser.
         </DocsInfoBox>
 
         <h2 id="exploring-the-changelog">Exploring the codebase changelog</h2>
         <p>After the pull request from the "My first change" workspace has been merged:</p>
         <ol>
-          <li>Navigate to the codebase root by clicking it's name in the sidebar on the left</li>
           <li>
-            The panel with recent changes now contains the latest change that you just created
+            Navigate to the codebase overview by clicking on the codebase in the sidebar on the left
           </li>
+          <li>The panel with recent changes now contains the change that you just created</li>
           <li>Click on the latest change</li>
           <li>You can see the diffs and description of the change as you created it</li>
           <li>
-            Observe that on the right side you have a list of older changes - clicking on any of
-            them shows you the respective diffs and description
+            Observe that on the right side you have a list of older changes &mdash; click on any of
+            them to show you the details of that change
           </li>
         </ol>
 
