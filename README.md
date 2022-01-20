@@ -1,63 +1,49 @@
-# Welcome to Sturdy! 📣🐢
+![](https://getsturdy.com/assets/Web/Logo/DuckAndName.png)
 
-## Links
+# Welcome to Sturdy! 📣🐣
 
-Here's a collection to tools, services, and so on that we're using. Everyone should have access to all of these.
+**[Sturdy](https://getsturdy.com/) is the easiest way to collaborate on code.**
 
-* [Kitemaker](https://toil.kitemaker.co/YtReAM-Sturdy/Xub625-Sturdy/boards/current) - Planning
-* [AWS](https://sturdy.awsapps.com/start#/)
-* * [Grafana](https://g-475af40809.grafana-workspace.eu-west-1.amazonaws.com/login) - Monitoring and alerting
-* * [Logs: API](https://eu-north-1.console.aws.amazon.com/cloudwatch/home?region=eu-north-1#logsV2:log-groups/log-group/driva/log-events)
-* * [Logs: SSH-server](https://eu-north-1.console.aws.amazon.com/cloudwatch/home?region=eu-north-1#logsV2:log-groups/log-group/mutagen-ssh/log-events)
-* * [Guide: Filter CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html)
-* [PostHog](https://app.posthog.com/dashboard/2592) - Analytics
-* [Slack](https://join.slack.com/t/getsturdy/signup) - Chatting!
-* [Discord](https://discord.gg/5HnSdzMqtA) - Community Server
-* [Umami](https://umami.getsturdy.com/realtime) - Real time web analytics
-* [Retool](https://sturdy.retool.com/) - Backoffice
+## Features
+
+* Cloud or self-hosted!
+* Fast and easy code collaboration, through easy to use workspaces
+* Enhance your existing GitHub setup, or _break free_ and use standalone Sturdy
+
+## Versions
+* [Sturdy Cloud](https://getsturdy.com/) - Let's you use all Sturdy features, fully managed by the team behind Sturdy. Ship code to your projects, review, and ship code. Using 100% Sturdy, or Sturdy on top of GitHub. Get started for **free**.
+* [Sturdy Enterprise](#) - Run Sturdy in your own environment.
+* [Sturdy OSS](#) - The fully Open Source version of Sturdy! Provides all the core functionality for free, and completely Open Source.
+
+## Get Started
+
+Want to run Sturdy on your machine?
+
+```bash
+docker run --detach --publish 30080:80 --publish 30022:22 \
+    --volume "$(pwd)/sturdydata:/var/data" \
+   getsturdy/server
+```
+
+## Learn more
+
+See the [Sturdy Docs](https://getsturdy.com/v2/docs) to learn more about Sturdy and why it's cool!
 
 ## Development
 
-```bash
-# Run unit tests
-docker compose -f ci/docker-compose.yaml -f ci/unit/docker-compose.yaml up --build --exit-code-from runner
+See [README_DEVELOPMENT.md](README_DEVELOPMENT.md) for instructions of how to build and develop Sturdy.
 
-# Run unit + E2E tests
-docker compose -f ci/docker-compose.yaml -f ci/e2e/docker-compose.yaml up --build --exit-code-from runner
-```
+## We're hiring!
 
-It's possible to run the services without Docker.
+Come and help make Sturdy even better! We're growing and are [hiring for multiple positions](https://getsturdy.com/careers).
 
-* Run PostreSQL, LFS, and the SSH servers: `./up`
-* Build and run the API server: `go build -tags enterprise -v -o mash mash/cmd/api && ./mash --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
-* Run the web application: `cd /web && yarn install && yarn run dev`.
-* Invoke the `sturdy` CLI with `--config` set, to override the default configuration (example below). Use like so: `sturdy auth --config ~/.sturdy-local`
+## License
 
-### Example `sturdy` (the CLI) configuration
-```json
-{
-  "remote": "127.0.0.1:3001",
-  "insecure-remote": true,
-  "api-remote": "http://127.0.0.1:3000",
-  "sync-remote": "127.0.0.1:2222",
-  "git-remote": "127.0.0.1:3002"
-}
-```
+This repository contains both OSS-licensed and non-OSS-licensed files.
 
-## GraphQL API
+All files under any directory named `enterprise` fall under [LICENSE.enterprise](LICENSE.enterprise).
 
-For authentication and CORS, set the following headers:
-
-Get the auth cookie from a session in your browser (Developer Tools (Option + Cmd + I) -> Application -> Cookies -> `auth`)
-
-```
-Cookie: auth=YOUR_JWT_GOES_HERE
-Origin: http://localhost:8080
-```
-
-[Altair](https://altair.sirmuel.design/) is a great desktop client to explore/test the graph.
-
-😎
+The remaining files fall under [TODO]. 
 
 <!-- Test: 13 -->
 <!-- 2021-11-23 - Hello from Electron/Windows! -->
