@@ -1,14 +1,18 @@
 <template>
-  <ol class="space-y-1">
-    <li v-for="(link, idx) in links" :key="idx">
-      <router-link
-        :to="{ name: link.name }"
-        class="hover:text-gray-800 font-medium"
-        :class="[isCurrent(link) ? 'text-gray-800' : 'text-gray-500']"
-      >
-        {{ link.title }}
-      </router-link>
-    </li>
+  <ol class="space-y-2">
+    <template v-for="(group, idx) in groups" :key="idx">
+      <li class="font-medium text-gray-400">{{ group.name }}</li>
+
+      <li v-for="(link, linkIdx) in group.links" :key="linkIdx" class="ml-4">
+        <router-link
+          :to="{ name: link.route }"
+          class="hover:text-gray-800 font-medium"
+          :class="[isCurrent(link) ? 'text-gray-800' : 'text-gray-500']"
+        >
+          {{ link.title }}
+        </router-link>
+      </li>
+    </template>
   </ol>
 </template>
 
@@ -16,16 +20,35 @@
 import { defineComponent } from 'vue'
 import { useRoute } from 'vue-router'
 
-const links = [
-  { name: 'v2DocsProductIntro', title: 'Getting Started' },
-  { name: 'v2DocsHowSturdyAugmentsGit', title: 'Augmenting Git' },
-  { name: 'v2DocsWorkingInTheOpen', title: 'Working in the open' },
-  { name: 'v2DocsHotToShipSoftwareToProduction', title: 'How to: ship to production' },
-  { name: 'v2DocsHowToCollaborateWithOthers', title: 'How to: collaborate with others' },
-  { name: 'v2DocsHowToImportCodeFromGitHub', title: 'How to: import code from GitHub' },
-  { name: 'v2DocsHowToEditCode', title: 'How to: edit code' },
-  { name: 'v2DocsQuickStart', title: 'Quick start' },
-  { name: 'v2DocsUsingSturdy', title: 'Using Sturdy'},
+const groups = [
+  {
+    name: 'Getting Started',
+    links: [
+      { route: 'v2DocsProductIntro', title: 'Getting Started' },
+      { route: 'v2DocsQuickStart', title: 'Quick start' },
+      { route: 'v2DocsUsingSturdy', title: 'Using Sturdy' },
+    ],
+  },
+
+  {
+    name: 'Git',
+    links: [{ route: 'v2DocsHowSturdyAugmentsGit', title: 'Augmenting Git' }],
+  },
+
+  {
+    name: 'Vision',
+    links: [{ route: 'v2DocsWorkingInTheOpen', title: 'Working in the open' }],
+  },
+
+  {
+    name: 'How to',
+    links: [
+      { route: 'v2DocsHotToShipSoftwareToProduction', title: 'Ship to production' },
+      { route: 'v2DocsHowToCollaborateWithOthers', title: 'Collaborate with others' },
+      { route: 'v2DocsHowToSetupSturdyOnGitHub', title: 'Setup Sturdy on GitHub' },
+      { route: 'v2DocsHowToEditCode', title: 'Edit code' },
+    ],
+  },
   //  { name: 'index', title: 'Self-host' },
   //  { name: 'index', title: 'Cloud' },
   //  { name: 'index', title: 'User Guides' },
@@ -40,13 +63,13 @@ export default defineComponent({
     let route = useRoute()
 
     return {
-      links,
+      groups,
       route,
     }
   },
   methods: {
     isCurrent(link) {
-      return link.name === this.route.name
+      return link.route === this.route.name
     },
   },
 })

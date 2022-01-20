@@ -9,10 +9,15 @@
 
         <p>There are two ways you could quickly try Sturdy out:</p>
         <ol>
-          <li>Sturdy in the cloud - zero setup [<a href="#sturdy-cloud">jump to ⤵️</a>]</li>
           <li>
-            Self hosted Sturdy instance - with a Docker one-liner [<a href="#self-hosted-sturdy"
-              >jump to ⤵</a
+            <strong>Sturdy in the cloud</strong> &mdash; zero setup [<a href="#sturdy-cloud"
+              >jump to ⤵️</a
+            >]
+          </li>
+          <li>
+            <strong>Self-hosted Sturdy instance</strong> &mdash; with a Docker one-liner [<a
+              href="#self-hosted-sturdy"
+              >jump to ⤵️️</a
             >️]
           </li>
         </ol>
@@ -22,7 +27,7 @@
         <ol>
           <li>
             Download and install
-            <router-link :to="{ name: 'download' }">the Sturdy app</router-link>
+            <router-link :to="{ name: 'download' }">Sturdy</router-link>
           </li>
           <li>After opening Sturdy, press the "Sign up now" button</li>
           <li>Enter your name and email address</li>
@@ -34,7 +39,7 @@
         <p>Next steps: Using Sturdy end-to-end tutorial</p>
         <!-- TODO: Add link -->
 
-        <h2 id="self-hosted-sturdy">Self hosted Sturdy instance</h2>
+        <h2 id="self-hosted-sturdy">Self-hosted Sturdy instance</h2>
 
         <p>With Docker installed and running on your computer:</p>
 
@@ -52,7 +57,7 @@ docker run --detach --publish 30080:80 --publish 30022:22 \
           <li>Follow the instructions to setup your organization</li>
           <li>
             Download and install
-            <router-link :to="{ name: 'download' }">the Sturdy app</router-link>
+            <router-link :to="{ name: 'download' }">Sturdy</router-link>
           </li>
           <li>After opening Sturdy, press the "Configure with self-hosted instance" button</li>
           <li>In the Sturdy host field enter "localhost" and press "Save"</li>

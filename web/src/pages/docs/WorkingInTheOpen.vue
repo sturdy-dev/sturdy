@@ -17,8 +17,8 @@
         <p>
           Regardless of which processes a team has chosen, the main point is that the team succeeds
           or fails together. This is why most highly effective teams
-          <a href="https://rework.withgoogle.com/print/guides/5721312655835136/">
-            excel at collaboration </a
+          <a href="https://rework.withgoogle.com/print/guides/5721312655835136/"
+            >excel at collaboration</a
           >.
         </p>
 
@@ -81,15 +81,13 @@
 
         <p>
           For example practices like
-          <a href="https://cloud.google.com/architecture/devops/devops-tech-continuous-delivery">
-            Continuous Delivery
-          </a>
-          and
-          <a
-            href="https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development"
+          <a href="https://cloud.google.com/architecture/devops/devops-tech-continuous-delivery"
+            >Continuous Delivery</a
           >
-            Trunk based development
-          </a>
+          and
+          <a href="https://cloud.google.com/architecture/devops/devops-tech-trunk-based-development"
+            >Trunk based development</a
+          >
           are known to yield not just faster development but a higher quality of the software.
         </p>
 
@@ -99,7 +97,10 @@
           and intuitive to exchange code ideas as it is to write messages in a Slack channel.
         </p>
 
-        <p>Sturdy does all of this through it's real-time design. Here are a few examples:</p>
+        <p>
+          Sturdy does all of this through it's <strong>real-time design</strong>. Here are a few
+          examples:
+        </p>
 
         <ul>
           <li>The team can easily discover code as it is being written by others</li>

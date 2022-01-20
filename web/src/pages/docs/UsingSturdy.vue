@@ -33,16 +33,16 @@
           </li>
         </ol>
 
-        <h2 id="import-a-repository">Import a repository</h2>
+        <h2 id="import-a-repository">Setup Sturdy on a GitHub repository</h2>
         <ol>
           <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
           <li>
             On the codebase creation screen click the "Import repositories" button in the "Coming
             from GitHub?" panel
           </li>
-          <li>On GitHub, select the organization which contains the codebase you wish to import</li>
+          <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
           <li>Follow the GitHub prompt for authentication</li>
-          <li>Select the repository that you wish to import</li>
+          <li>Select the repository that you wish to setup</li>
           <li>You will be redirected back to Sturdy</li>
           <li>The codebase will be ready to use within a few seconds</li>
         </ol>

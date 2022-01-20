@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How to Ship software to production</h1>
+        <h1 id="how-sturdy-augments-git">How to ship software to production</h1>
         <span class="">&hellip;or just get the code merged.</span>
 
         <p>
