@@ -90,6 +90,7 @@ type Mutation {
     updateUser(input: UpdateUserInput!): User
     verifyEmail(input: VerifyEmailInput!): User!
 
+    createCodebase(input: CreateCodebaseInput!): Codebase!
     updateCodebase(input: UpdateCodebaseInput!): Codebase!
 
     archiveNotifications(input: ArchiveNotificationsInput!): [Notification!]!
@@ -306,6 +307,12 @@ type Codebase {
 
 input CodebaseChangesInput {
     limit: Int
+}
+
+input CreateCodebaseInput {
+    name: String!
+    # TODO(gustav): make this field required
+    organizationID: ID
 }
 
 input UpdateCodebaseInput {
