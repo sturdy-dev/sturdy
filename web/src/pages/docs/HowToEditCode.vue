@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How to edit code</h1>
+        <h1 id="how-to-edit-code">How to edit code</h1>
         <p>
           With Sturdy, you access and edit your code with your choice of local IDE or text editor – no different from what you are used to.
         </p>
