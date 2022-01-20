@@ -93,7 +93,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		nil,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil)
 	authService := service_auth.New(codebaseService, nil, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	userID := uuid.New()

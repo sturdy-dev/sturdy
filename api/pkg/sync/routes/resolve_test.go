@@ -411,7 +411,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		buildQueue,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, logger, executorProvider, nil, eventsSender)
 	authService := service_auth.New(codebaseService, nil, workspaceService, nil, nil)
 
 	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)

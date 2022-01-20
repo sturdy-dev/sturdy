@@ -58,7 +58,7 @@ func TestCanWrite_codebase(t *testing.T) {
 
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil)
 
 	authService := service_auth.New(
 		codebaseService,
@@ -144,7 +144,7 @@ func TestCanRead_codebase(t *testing.T) {
 
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil)
 
 	authService := service_auth.New(
 		codebaseService,

@@ -131,7 +131,6 @@ func TestCreate(t *testing.T) {
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	workspaceService := service_workspace.New(
@@ -155,6 +154,8 @@ func TestCreate(t *testing.T) {
 		buildQueue,
 	)
 
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, logger, executorProvider, postHogClient, eventsSender)
+
 	suggestionsService := service_suggestion.New(
 		logger,
 		suggestionRepo,
@@ -171,7 +172,7 @@ func TestCreate(t *testing.T) {
 
 	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider, nil)
 
-	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
+	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
 	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, postHogClient, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventsSender)
 
@@ -305,6 +306,7 @@ func TestCreate(t *testing.T) {
 		postHogClient,
 		executorProvider,
 		authService,
+		codebaseService,
 	)
 
 	userRootResolver := graphql_user.NewResolver(
@@ -650,7 +652,6 @@ func TestLargeFiles(t *testing.T) {
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo)
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
@@ -675,6 +676,8 @@ func TestLargeFiles(t *testing.T) {
 		buildQueue,
 	)
 
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, logger, executorProvider, postHogClient, eventsSender)
+
 	suggestionsService := service_suggestion.New(
 		logger,
 		suggestionRepo,
@@ -688,7 +691,7 @@ func TestLargeFiles(t *testing.T) {
 
 	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
-	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseRepo, codebaseUserRepo, executorProvider, postHogClient, eventsSender, workspaceService)
+	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
 	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, postHogClient, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventsSender)
 
