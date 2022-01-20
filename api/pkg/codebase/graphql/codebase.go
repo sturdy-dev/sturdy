@@ -17,6 +17,7 @@ import (
 	"mash/pkg/change/decorate"
 	"mash/pkg/codebase"
 	db_codebase "mash/pkg/codebase/db"
+	service_codebase "mash/pkg/codebase/service"
 	"mash/pkg/codebase/vcs"
 	gqlerrors "mash/pkg/graphql/errors"
 	"mash/pkg/graphql/resolvers"
@@ -58,7 +59,8 @@ type CodebaseRootResolver struct {
 	analyticsClient  analytics.Client
 	executorProvider executor.Provider
 
-	authService *service_auth.Service
+	authService     *service_auth.Service
+	codebaseService *service_codebase.Service
 }
 
 func NewCodebaseRootResolver(
@@ -87,6 +89,7 @@ func NewCodebaseRootResolver(
 	executorProvider executor.Provider,
 
 	authService *service_auth.Service,
+	codebaseService *service_codebase.Service,
 ) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
@@ -113,7 +116,8 @@ func NewCodebaseRootResolver(
 		analyticsClient:  analyticsClient,
 		executorProvider: executorProvider,
 
-		authService: authService,
+		authService:     authService,
+		codebaseService: codebaseService,
 	}
 }
 
@@ -172,6 +176,21 @@ func (r *CodebaseRootResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 	}
 
 	return res, nil
+}
+
+func (r *CodebaseRootResolver) CreateCodebase(ctx context.Context, args resolvers.CreateCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	var orgID *string
+	if args.Input.OrganizationID != nil {
+		o := string(*args.Input.OrganizationID)
+		orgID = &o
+	}
+
+	cb, err := r.codebaseService.Create(ctx, args.Input.Name, orgID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return r.resolveCodebase(ctx, graphql.ID(cb.ID))
 }
 
 func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan resolvers.CodebaseResolver, error) {

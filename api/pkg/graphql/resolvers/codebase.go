@@ -19,11 +19,21 @@ type CodebaseRootResolver interface {
 	UpdatedCodebase(ctx context.Context) (<-chan CodebaseResolver, error)
 
 	// Mutations
+	CreateCodebase(ctx context.Context, args CreateCodebaseArgs) (CodebaseResolver, error)
 	UpdateCodebase(ctx context.Context, args UpdateCodebaseArgs) (CodebaseResolver, error)
 }
 
 type CodebaseViewsArgs struct {
 	IncludeOthers *bool
+}
+
+type CreateCodebaseArgs struct {
+	Input CreateCodebaseInput
+}
+
+type CreateCodebaseInput struct {
+	Name           string
+	OrganizationID *graphql.ID
 }
 
 type UpdateCodebaseArgs struct {
