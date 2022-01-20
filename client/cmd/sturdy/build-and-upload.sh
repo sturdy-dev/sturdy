@@ -77,11 +77,11 @@ build_upload() {
   fi
 
   BUILD_TARGET_NAME="$VERSION-$GOOS-$GOARCH"
-    # Add GOARM to name if set
-    if [ "$GOARM" != "" ]; then
-      BUILD_TARGET_NAME+="${GOARM}"
-    fi
-    BUILD_TARGET_NAME+=".$ARCHIVE_FORMAT"
+  # Add GOARM to name if set
+  if [ "$GOARM" != "" ]; then
+    BUILD_TARGET_NAME+="${GOARM}"
+  fi
+  BUILD_TARGET_NAME+=".$ARCHIVE_FORMAT"
 
   ARCHIVE_NAME="sturdy-$BUILD_TARGET_NAME"
 
@@ -91,8 +91,8 @@ build_upload() {
 
   # Build binary
   GOOS=$GOOS GOARCH=$GOARCH GOARM=$GOARM go build -o "${OUTPUT_DIR}/${STURDY_BIN_NAME}" \
-    -ldflags "-X mash/cmd/sturdy/version.Version=$VERSION" \
-    mash/cmd/sturdy
+    -ldflags "-X client/cmd/sturdy/version.Version=$VERSION" \
+    client/cmd/sturdy
 
   # Build mutagen
   cd $MUTAGEN_PATH
@@ -134,7 +134,7 @@ build_upload() {
       aws s3 cp --quiet "${OUTPUT_DIR}/${STURDY_BIN_NAME}" "s3://getsturdy.com/client/sturdy-$VERSION-$GOOS-$GOARCH.exe"
       aws s3 cp --quiet "${OUTPUT_DIR}/${STURDY_SYNC_BIN_NAME}" "s3://getsturdy.com/client/sturdy-sync-$VERSION-$GOOS-$GOARCH.exe"
     else
-        errecho "In dry-run, not uploading windows binaries!"
+      errecho "In dry-run, not uploading windows binaries!"
     fi
   fi
 
@@ -148,17 +148,17 @@ windows_codesign() {
   output=$2
 
   TMP_DIR=$(mktemp -d)
-  aws secretsmanager get-secret-value --secret-id sturdy/codesign/sturdy_sweden_ab.crt | jq --raw-output '.SecretString' > "${TMP_DIR}/sign.crt"
-  aws secretsmanager get-secret-value --secret-id sturdy/codesign/sturdy_sweden_ab.key | jq --raw-output '.SecretString' > "${TMP_DIR}/sign.key"
+  aws secretsmanager get-secret-value --secret-id sturdy/codesign/sturdy_sweden_ab.crt | jq --raw-output '.SecretString' >"${TMP_DIR}/sign.crt"
+  aws secretsmanager get-secret-value --secret-id sturdy/codesign/sturdy_sweden_ab.key | jq --raw-output '.SecretString' >"${TMP_DIR}/sign.key"
 
   osslsigncode sign \
-      -certs "${TMP_DIR}/sign.crt" \
-      -key "${TMP_DIR}/sign.key" \
-      -n "Sturdy" \
-      -i "https://getsturdy.com/" \
-      -t http://timestamp.digicert.com \
-      -in "${input}" \
-      -out "${output}"
+    -certs "${TMP_DIR}/sign.crt" \
+    -key "${TMP_DIR}/sign.key" \
+    -n "Sturdy" \
+    -i "https://getsturdy.com/" \
+    -t http://timestamp.digicert.com \
+    -in "${input}" \
+    -out "${output}"
 
   # Cleanup
   rm -f "${TMP_DIR}/sign.crt" "${TMP_DIR}/sign.key"
@@ -182,7 +182,7 @@ update_web_install() {
 }
 
 create_formula() {
-  local NAME_TITLECASE="$(tr '[:lower:]' '[:upper:]' <<< ${HOMEBREW_NAME:0:1})${HOMEBREW_NAME:1}"
+  local NAME_TITLECASE="$(tr '[:lower:]' '[:upper:]' <<<${HOMEBREW_NAME:0:1})${HOMEBREW_NAME:1}"
   cat >"${HOMEBREW_TAP_REPO_PATH}/Formula/${HOMEBREW_NAME}.rb" <<EOF
 class ${NAME_TITLECASE} < Formula
     desc "Sturdy Client"
@@ -219,10 +219,10 @@ commit_and_push_formula() {
 }
 
 update_windows() {
-    t=$(mktemp)
-    cat windows-installer.ps1 |
-      sed "s/\$VERSION=\".*\"/\$VERSION=\"${VERSION}\"/" >$t
-    mv $t windows-installer.ps1
+  t=$(mktemp)
+  cat windows-installer.ps1 |
+    sed "s/\$VERSION=\".*\"/\$VERSION=\"${VERSION}\"/" >$t
+  mv $t windows-installer.ps1
 }
 
 upload_windows() {
