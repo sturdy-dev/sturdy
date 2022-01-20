@@ -15,7 +15,7 @@
           </li>
           <li class="inline-flex space-x-2">
             <CheckIcon class="h-5 w-5 text-green-400" />
-            <span>Compatible with Pull Requests</span>
+            <span>Compatible with pull requests</span>
           </li>
         </ul>
       </div>

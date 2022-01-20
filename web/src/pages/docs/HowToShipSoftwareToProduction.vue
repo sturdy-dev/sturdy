@@ -73,12 +73,12 @@
               >go to</a
             >]
           </li>
-          <li>After writing a description, the “Create Pull Request” button will appear</li>
+          <li>After writing a description, the “Create pull request” button will appear</li>
           <li>
-            Click “Create Pull Request” to use Sturdy to a PR to the connected GitHub repository. A
+            Click “Create pull request” to use Sturdy to a PR to the connected GitHub repository. A
             single commit will be created containing all of the changes in the workspace. The
             Workspace title and description will be used as the description of the commit, and the
-            title/description of the Pull Request.
+            title/description of the pull request.
           </li>
           <li>
             <em>Optional:</em> If the above fails, debug GitHub errors [<a
@@ -87,10 +87,10 @@
             >]
           </li>
           <li>
-            New buttons will appear. “Go to Pull Request”, “Update Pull Request”, and “Merge”.
+            New buttons will appear. “Go to pull request”, “Update pull request”, and “Merge”.
           </li>
-          <li>“Go to Pull Request”: Open the PR in the browser</li>
-          <li>“Update Pull Request”: update the PR title, description, and code from Sturdy.</li>
+          <li>“Go to pull request”: Open the PR in the browser</li>
+          <li>“Update pull request”: update the PR title, description, and code from Sturdy.</li>
           <li>
             “Merge”: Merges the PR, it’s the same action as hitting “Merge” on GitHub, but without
             leaving Sturdy.

@@ -7,7 +7,7 @@
     >
       <template #title>Submitting to GitHub</template>
       <template #description>
-        When you're ready, use this button to create a Pull Request on GitHub. If you don't want to
+        When you're ready, use this button to create a pull request on GitHub. If you don't want to
         create a PR, but rather have GitHub just receive updates from Sturdy, update your GitHub
         Integration settings.
       </template>
@@ -18,7 +18,7 @@
           target="_blank"
           class="flex items-center text-sm text-blue-800"
         >
-          <span>Go to Pull Request</span>
+          <span>Go to pull request</span>
           <ExternalLinkIcon class="w-4 h-4 ml-1" />
         </a>
 
@@ -32,11 +32,11 @@
           >
             <div v-if="creatingOrUpdatingPR" class="flex items-center">
               <Spinner class="mr-1" />
-              <span v-if="!hasOpenGitHubPR">Creating Pull Request</span>
-              <span v-else> Updating Pull request </span>
+              <span v-if="!hasOpenGitHubPR">Creating pull request</span>
+              <span v-else> Updating pull request </span>
             </div>
-            <span v-else-if="!hasOpenGitHubPR">Create Pull Request</span>
-            <span v-else> Update Pull Request </span>
+            <span v-else-if="!hasOpenGitHubPR">Create pull request</span>
+            <span v-else> Update pull request </span>
           </Button>
 
           <Button
@@ -204,7 +204,7 @@ export default defineComponent({
 
       nextTick(() =>
         this.createOrUpdateGitHubPullRequest(input).catch((e) => {
-          let message = 'Failed to create or update Pull Request'
+          let message = 'Failed to create or update pull request'
 
           // Server generated error if the push fails (due to branch protection rules, etc)
           if (e.graphQLErrors && e.graphQLErrors.length > 0) {
@@ -240,7 +240,7 @@ export default defineComponent({
 
       await this.mergeGitHubPullRequest(input).catch((e) => {
         let title = 'Failed!'
-        let message = 'Failed to merge Pull Request'
+        let message = 'Failed to merge pull request'
 
         // Server generated error if the push fails (due to branch protection rules, etc)
         if (e.graphQLErrors && e.graphQLErrors.length > 0) {

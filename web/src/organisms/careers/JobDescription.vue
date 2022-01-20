@@ -27,7 +27,7 @@
 
           <p>
             We're building the future of how coders like you and me are collaborating on code. With
-            Sturdy developers don't have to fight branches, Pull Requests, or crazy command line
+            Sturdy developers don't have to fight branches, pull requests, or crazy command line
             arguments to get things done.
           </p>
 

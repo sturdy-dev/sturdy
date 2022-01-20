@@ -26,7 +26,7 @@
           <router-link
             :to="{ name: 'resourcesMigrateFromGitHub', hash: '#github-as-source-of-truth' }"
             >GitHub as the source of truth</router-link
-          >, changes you're making in Sturdy will be upstreamed to GitHub via Pull Requests. Every
+          >, changes you're making in Sturdy will be upstreamed to GitHub via pull requests. Every
           time you create or update a PR via Sturdy, the checks that are configured on the GitHub
           side will be run.
         </li>
