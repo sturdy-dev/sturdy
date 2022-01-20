@@ -37,7 +37,6 @@ cmd/mutagen-client/sturdy-v*
 mutagen-agent
 mutagen-agent-*
 /cmd/sturdy/sturdy
-/mutagen-ssh
 
 __generated__/
 
