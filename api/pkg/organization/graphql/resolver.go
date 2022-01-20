@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/gosimple/slug"
 	"github.com/graph-gophers/graphql-go"
@@ -75,7 +76,6 @@ func (r *organizationRootResolver) Organizations(ctx context.Context) ([]resolve
 }
 
 func (r *organizationRootResolver) Organization(ctx context.Context, args resolvers.OrganizationArgs) (resolvers.OrganizationResolver, error) {
-
 	var org *organization.Organization
 
 	if args.ID != nil {
@@ -85,8 +85,12 @@ func (r *organizationRootResolver) Organization(ctx context.Context, args resolv
 			return nil, gqlerrors.Error(err)
 		}
 	} else if args.ShortID != nil {
+		s := string(*args.ShortID)
+		if idx := strings.LastIndex(s, "-"); idx >= 0 {
+			s = s[idx+1:]
+		}
 		var err error
-		org, err = r.service.GetByShortID(ctx, organization.ShortOrganizationID(*args.ShortID))
+		org, err = r.service.GetByShortID(ctx, organization.ShortOrganizationID(s))
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}
