@@ -24,7 +24,6 @@ RUN go mod download
 RUN go build -v go.uber.org/zap && \
     go build -v github.com/gin-gonic/gin && \
     go build -v github.com/google/go-github/v39/github && \
-    go build -v github.com/gliderlabs/ssh && \
     go build -v github.com/aws/aws-sdk-go/service/s3/s3manager
 
 COPY . .
