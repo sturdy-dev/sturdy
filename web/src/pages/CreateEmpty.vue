@@ -44,7 +44,7 @@
                   </div>
                 </div>
 
-                <div class="col-span-3">
+                <div v-if="false" class="col-span-3">
                   <label for="description" class="block text-sm font-medium text-gray-700">
                     Description <span class="text-sm text-gray-500">(optional)</span>
                   </label>
@@ -112,31 +112,32 @@
   </PaddedApp>
 </template>
 
-<script>
-import http from '../http'
+<script lang="ts">
 import Banner from '../components/shared/Banner.vue'
-import { Slug } from '../slug'
-import { toRefs } from 'vue'
+import { defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
 import Button from '../components/shared/Button.vue'
 import RandomName from '../components/codebase/create/random-name.js'
 import PaddedApp from '../layouts/PaddedApp.vue'
+import { useCreateCodebase } from '../mutations/useCreateCodebase'
+import { CreateEmptyQuery, CreateEmptyQueryVariables } from './__generated__/CreateEmpty'
+import { Feature } from '../__generated__/types'
 
-export default {
+export default defineComponent({
   name: 'CreateEmpty',
   components: { PaddedApp, NoCodebasesGitHubAuth, Banner, Button },
   props: {
-    features: {
-      type: Array,
-      required: true,
+    createInOrganizationId: {
+      type: String,
+      required: false,
     },
   },
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes('GitHub')
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
 
-    const result = useQuery({
+    const result = useQuery<CreateEmptyQuery, CreateEmptyQueryVariables>({
       query: gql`
         query CreateEmpty($isGitHubEnabled: Boolean!) {
           user {
@@ -158,10 +159,16 @@ export default {
       },
     })
 
+    const createCodebaseResult = useCreateCodebase()
+
     return {
       fetching: result.fetching,
       data: result.data,
       error: result.error,
+
+      async createCodebase(name: string, organizationID: string | undefined) {
+        return createCodebaseResult({ name, organizationID })
+      },
     }
   },
   data() {
@@ -182,27 +189,18 @@ export default {
       this.isLoading = true
       this.show_failed_message = false
 
-      let t0 = new Date()
+      let t0 = +new Date()
 
-      fetch(http.url('v3/codebases'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          name: this.newCodebaseName,
-          description: this.newCodebaseDescription,
-        }),
-      })
-        .then(http.checkStatus)
-        .then((response) => response.json())
-        .then((data) => {
+      this.createCodebase(this.newCodebaseName, this.createInOrganizationId)
+        .then((result) => {
           // Always wait at least 300ms for a nice effect
-          let wait = 300 - (new Date() - t0)
+          let wait = 300 - (+new Date() - t0)
           setTimeout(() => {
             this.isLoading = false
+
             this.$router.push({
               name: 'codebaseHome',
-              params: { codebaseSlug: Slug(data.name, data.short_id) },
+              params: { codebaseSlug: result.createCodebase.shortID },
             })
           }, wait)
         })
@@ -215,5 +213,5 @@ export default {
         })
     },
   },
-}
+})
 </script>
