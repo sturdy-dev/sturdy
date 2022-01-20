@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/emails/transactional"
-	"mash/pkg/emails/transactional/templates"
-	db_github "mash/pkg/github/enterprise/db"
-	"mash/pkg/notification"
-	"mash/pkg/user"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/emails/transactional"
+	"getsturdy.com/api/pkg/emails/transactional/templates"
+	db_github "getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/user"
 )
 
 type Sender struct {

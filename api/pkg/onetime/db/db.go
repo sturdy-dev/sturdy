@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/onetime"
+	"getsturdy.com/api/pkg/onetime"
 
 	"github.com/jmoiron/sqlx"
 )

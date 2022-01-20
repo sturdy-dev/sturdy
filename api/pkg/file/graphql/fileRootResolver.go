@@ -2,10 +2,10 @@ package graphql
 
 import (
 	"context"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/vcs"
-	"mash/vcs/executor"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 	"strings"
 
 	"go.uber.org/multierr"

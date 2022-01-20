@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/onboarding"
+	"getsturdy.com/api/pkg/onboarding"
 
 	"github.com/jmoiron/sqlx"
 )

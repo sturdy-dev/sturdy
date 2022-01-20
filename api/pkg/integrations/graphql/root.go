@@ -3,15 +3,15 @@ package graphql
 import (
 	"context"
 	"fmt"
-	"mash/pkg/codebase"
-	"mash/pkg/integrations"
+	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/integrations"
 
-	service_auth "mash/pkg/auth/service"
-	"mash/pkg/change"
-	db_change "mash/pkg/change/db"
-	"mash/pkg/ci/service"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/change"
+	db_change "getsturdy.com/api/pkg/change/db"
+	"getsturdy.com/api/pkg/ci/service"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type rootResolver struct {

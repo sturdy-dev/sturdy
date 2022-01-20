@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/queue"
-	"mash/pkg/queue/names"
-	"mash/pkg/snapshots"
-	"mash/pkg/snapshots/snapshotter"
+	"getsturdy.com/api/pkg/queue"
+	"getsturdy.com/api/pkg/queue/names"
+	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/snapshots/snapshotter"
 
 	"go.uber.org/zap"
 )

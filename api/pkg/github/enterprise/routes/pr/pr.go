@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/github/enterprise/db"
-	"mash/pkg/view/events"
-	db_workspace "mash/pkg/workspace/db"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/view/events"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"

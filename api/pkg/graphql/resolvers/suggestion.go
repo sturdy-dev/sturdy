@@ -3,7 +3,7 @@ package resolvers
 import (
 	"context"
 
-	"mash/pkg/suggestions"
+	"getsturdy.com/api/pkg/suggestions"
 
 	"github.com/graph-gophers/graphql-go"
 )

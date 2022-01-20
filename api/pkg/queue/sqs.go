@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"mash/pkg/queue/broadcast"
-	"mash/pkg/queue/names"
+	"getsturdy.com/api/pkg/queue/broadcast"
+	"getsturdy.com/api/pkg/queue/names"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	service_auth "mash/pkg/auth/service"
-	service_codebase "mash/pkg/codebase/service"
-	gqlerror "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/servicetokens"
-	service_servicetokens "mash/pkg/servicetokens/service"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	gqlerror "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/servicetokens"
+	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 
 	"github.com/graph-gophers/graphql-go"
 )

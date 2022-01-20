@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/presence"
+	"getsturdy.com/api/pkg/presence"
 
 	"github.com/jmoiron/sqlx"
 )

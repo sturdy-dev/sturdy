@@ -4,8 +4,8 @@
 package module
 
 import (
-	"mash/pkg/analytics/proxy"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/analytics/proxy"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

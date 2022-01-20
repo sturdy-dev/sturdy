@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/servicetokens"
-	db_servicetokens "mash/pkg/servicetokens/db"
+	"getsturdy.com/api/pkg/servicetokens"
+	db_servicetokens "getsturdy.com/api/pkg/servicetokens/db"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"

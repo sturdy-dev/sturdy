@@ -15,12 +15,12 @@ import (
 	"strings"
 	"time"
 
-	svc_ci "mash/pkg/ci/service"
-	"mash/pkg/integrations/buildkite"
-	service_buildkite "mash/pkg/integrations/buildkite/enterprise/service"
-	service_servicetokens "mash/pkg/servicetokens/service"
-	"mash/pkg/statuses"
-	svc_statuses "mash/pkg/statuses/service"
+	svc_ci "getsturdy.com/api/pkg/ci/service"
+	"getsturdy.com/api/pkg/integrations/buildkite"
+	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
+	"getsturdy.com/api/pkg/statuses"
+	svc_statuses "getsturdy.com/api/pkg/statuses/service"
 
 	bk "github.com/buildkite/go-buildkite/v3/buildkite"
 	"github.com/gin-gonic/gin"

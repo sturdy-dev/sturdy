@@ -1,8 +1,8 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/mutagen/db"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/mutagen/db"
 )
 
 func Module(c *di.Container) {

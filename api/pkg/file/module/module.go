@@ -1,8 +1,8 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/file/graphql"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/file/graphql"
 )
 
 func Module(c *di.Container) {

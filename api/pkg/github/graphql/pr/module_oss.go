@@ -4,8 +4,8 @@
 package pr
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/github/graphql/pr/oss"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/github/graphql/pr/oss"
 )
 
 func Module(c *di.Container) {

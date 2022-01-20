@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
-	service_auth "mash/pkg/auth/service"
-	"mash/pkg/codebase"
-	"mash/pkg/codebase/db"
-	service_codebase "mash/pkg/codebase/service"
-	userDB "mash/pkg/user/db"
-	"mash/pkg/view/events"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase/db"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	userDB "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/view/events"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

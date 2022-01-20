@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/change"
+	"getsturdy.com/api/pkg/change"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -95,7 +95,6 @@ func (r *commitRepo) Insert(ch change.ChangeCommit) error {
 	}
 	return nil
 }
-
 
 func (r *commitRepo) Update(ch change.ChangeCommit) error {
 	_, err := r.db.NamedExec(`UPDATE change_commits

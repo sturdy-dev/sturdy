@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"mash/pkg/change"
-	service_github "mash/pkg/github/enterprise/service"
-	"mash/pkg/workspace"
-	service_workspace "mash/pkg/workspace/service"
-	"mash/vcs"
+	"getsturdy.com/api/pkg/change"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	"getsturdy.com/api/pkg/workspace"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/vcs"
 )
 
 type Service struct {

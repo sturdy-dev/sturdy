@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/emails/transactional"
-	"mash/pkg/notification"
-	db_notification "mash/pkg/notification/db"
-	db_user "mash/pkg/user/db"
-	"mash/pkg/view/events"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/emails/transactional"
+	"getsturdy.com/api/pkg/notification"
+	db_notification "getsturdy.com/api/pkg/notification/db"
+	db_user "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/view/events"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

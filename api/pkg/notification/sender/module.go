@@ -1,6 +1,6 @@
 package sender
 
-import "mash/pkg/di"
+import "getsturdy.com/api/pkg/di"
 
 func Module(c *di.Container) {
 	c.Register(NewNotificationSender)

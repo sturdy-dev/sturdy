@@ -3,7 +3,7 @@ package broadcast
 import (
 	"encoding/json"
 	"fmt"
-	"mash/pkg/queue/names"
+	"getsturdy.com/api/pkg/queue/names"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"

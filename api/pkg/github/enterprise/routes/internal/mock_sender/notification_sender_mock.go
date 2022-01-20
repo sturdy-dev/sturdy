@@ -6,7 +6,7 @@ package mock_sender
 
 import (
 	context "context"
-	notification "mash/pkg/notification"
+	notification "getsturdy.com/api/pkg/notification"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

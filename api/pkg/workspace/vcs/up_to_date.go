@@ -1,7 +1,7 @@
 package vcs
 
 import (
-	"mash/vcs"
+	"getsturdy.com/api/vcs"
 )
 
 func UpToDateWithTrunk(repo vcs.Repo, workspaceID string) (bool, error) {

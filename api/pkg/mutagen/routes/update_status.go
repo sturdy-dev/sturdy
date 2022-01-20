@@ -3,10 +3,10 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"mash/pkg/mutagen"
-	"mash/pkg/mutagen/db"
-	db_view "mash/pkg/view/db"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/mutagen"
+	"getsturdy.com/api/pkg/mutagen/db"
+	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/view/events"
 	"net/http"
 	"strings"
 

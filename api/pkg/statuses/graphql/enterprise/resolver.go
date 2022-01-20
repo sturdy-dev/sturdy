@@ -6,14 +6,14 @@ import (
 	"errors"
 	"fmt"
 
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	db_github "mash/pkg/github/enterprise/db"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/statuses/graphql"
-	service_statuses "mash/pkg/statuses/service"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	db_github "getsturdy.com/api/pkg/github/enterprise/db"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/statuses/graphql"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
+	"getsturdy.com/api/pkg/view/events"
 
 	"go.uber.org/zap"
 )

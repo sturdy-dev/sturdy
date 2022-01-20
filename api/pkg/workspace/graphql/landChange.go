@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/vcs"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/vcs"
 )
 
 func (r *WorkspaceRootResolver) LandWorkspaceChange(ctx context.Context, args resolvers.LandWorkspaceArgs) (resolvers.WorkspaceResolver, error) {

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"mash/pkg/integrations/buildkite"
+	"getsturdy.com/api/pkg/integrations/buildkite"
 
 	"github.com/jmoiron/sqlx"
 )

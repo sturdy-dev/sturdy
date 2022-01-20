@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"mash/pkg/ctxlog"
-	"mash/pkg/jwt"
-	service_jwt "mash/pkg/jwt/service"
+	"getsturdy.com/api/pkg/ctxlog"
+	"getsturdy.com/api/pkg/jwt"
+	service_jwt "getsturdy.com/api/pkg/jwt/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

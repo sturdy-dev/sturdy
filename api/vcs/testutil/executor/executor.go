@@ -5,8 +5,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"mash/vcs/executor"
-	"mash/vcs/testutil"
+	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/testutil"
 )
 
 func TestingExecutorProvider(t *testing.T) executor.Provider {

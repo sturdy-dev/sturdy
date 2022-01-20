@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )

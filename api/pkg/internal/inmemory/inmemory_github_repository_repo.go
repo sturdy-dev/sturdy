@@ -2,7 +2,7 @@ package inmemory
 
 import (
 	"database/sql"
-	"mash/pkg/github"
+	"getsturdy.com/api/pkg/github"
 )
 
 func NewInMemoryGitHubRepositoryRepo() *inMemoryGithubRepositoryRepo {

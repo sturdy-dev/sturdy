@@ -1,4 +1,4 @@
-module mash
+module getsturdy.com/api
 
 go 1.17
 

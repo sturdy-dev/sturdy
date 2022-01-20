@@ -1,7 +1,7 @@
 package vcs
 
 import (
-	"mash/vcs/testutil"
+	"getsturdy.com/api/vcs/testutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

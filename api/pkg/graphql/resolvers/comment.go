@@ -2,8 +2,8 @@ package resolvers
 
 import (
 	"context"
-	"mash/pkg/comments"
-	"mash/pkg/workspace"
+	"getsturdy.com/api/pkg/comments"
+	"getsturdy.com/api/pkg/workspace"
 
 	"github.com/graph-gophers/graphql-go"
 )

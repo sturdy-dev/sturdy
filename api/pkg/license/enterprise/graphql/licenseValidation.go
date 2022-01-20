@@ -5,8 +5,8 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
-	"mash/pkg/graphql/resolvers"
-	service_license "mash/pkg/license/enterprise/service"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	service_license "getsturdy.com/api/pkg/license/enterprise/service"
 )
 
 type licenseValidation struct {

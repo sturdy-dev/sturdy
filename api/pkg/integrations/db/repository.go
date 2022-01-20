@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"mash/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations"
 )
 
 type IntegrationsRepository interface {

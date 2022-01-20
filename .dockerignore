@@ -1,2 +1,5 @@
 web/node_modules
 app/node_modules
+tmp
+hack
+docs

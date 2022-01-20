@@ -2,7 +2,7 @@ package view_workspace_snapshot
 
 import (
 	"fmt"
-	"mash/pkg/view"
+	"getsturdy.com/api/pkg/view"
 
 	"github.com/jmoiron/sqlx"
 )

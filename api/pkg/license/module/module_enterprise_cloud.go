@@ -4,12 +4,12 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/license/enterprise/client"
-	"mash/pkg/license/enterprise/db"
-	"mash/pkg/license/enterprise/graphql"
-	"mash/pkg/license/enterprise/service"
-	"mash/pkg/license/enterprise/validator"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/license/enterprise/client"
+	"getsturdy.com/api/pkg/license/enterprise/db"
+	"getsturdy.com/api/pkg/license/enterprise/graphql"
+	"getsturdy.com/api/pkg/license/enterprise/service"
+	"getsturdy.com/api/pkg/license/enterprise/validator"
 )
 
 func Module(c *di.Container) {

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"mash/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations"
 )
 
 var _ IntegrationsRepository = &memory{}

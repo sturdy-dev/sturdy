@@ -3,7 +3,7 @@ package vcs
 import (
 	"fmt"
 
-	"mash/vcs"
+	"getsturdy.com/api/vcs"
 )
 
 func Create(repo vcs.Repo, workspaceID string) error {

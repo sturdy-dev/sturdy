@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	vcs_change "mash/pkg/change/vcs"
-	"mash/pkg/unidiff"
-	"mash/vcs"
-	"mash/vcs/provider"
+	vcs_change "getsturdy.com/api/pkg/change/vcs"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"

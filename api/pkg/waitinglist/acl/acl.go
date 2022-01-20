@@ -3,8 +3,8 @@ package acl
 
 import (
 	"fmt"
+	"getsturdy.com/api/pkg/analytics"
 	"log"
-	"mash/pkg/analytics"
 	"net/http"
 	"strings"
 

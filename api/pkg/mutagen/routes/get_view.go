@@ -3,10 +3,10 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"mash/pkg/auth"
-	"mash/pkg/codebase/access"
-	db_codebase "mash/pkg/codebase/db"
-	db_view "mash/pkg/view/db"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebase/access"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_view "getsturdy.com/api/pkg/view/db"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

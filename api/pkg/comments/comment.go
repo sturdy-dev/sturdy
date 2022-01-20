@@ -1,7 +1,7 @@
 package comments
 
 import (
-	"mash/pkg/change"
+	"getsturdy.com/api/pkg/change"
 	"time"
 )
 

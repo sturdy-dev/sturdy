@@ -5,11 +5,11 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
-	service_serverstatus "mash/pkg/serverstatus/selfhosted/service"
+	service_serverstatus "getsturdy.com/api/pkg/serverstatus/selfhosted/service"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/version"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/version"
 )
 
 type rootResolver struct {

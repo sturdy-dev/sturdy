@@ -4,8 +4,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/unidiff"
 	"io/ioutil"
-	"mash/pkg/unidiff"
 	"os"
 	"path"
 	"testing"

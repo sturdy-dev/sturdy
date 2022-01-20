@@ -1,10 +1,10 @@
 package enterprise
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/integrations/buildkite/enterprise/db"
-	"mash/pkg/integrations/buildkite/enterprise/graphql"
-	"mash/pkg/integrations/buildkite/enterprise/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/integrations/buildkite/enterprise/db"
+	"getsturdy.com/api/pkg/integrations/buildkite/enterprise/graphql"
+	"getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
 )
 
 func Module(c *di.Container) {

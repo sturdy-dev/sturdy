@@ -3,9 +3,9 @@ package vcs
 import (
 	"fmt"
 
-	"mash/pkg/unidiff"
-	"mash/pkg/unidiff/lfs"
-	"mash/vcs"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/unidiff/lfs"
+	"getsturdy.com/api/vcs"
 
 	"go.uber.org/zap"
 )

@@ -1,8 +1,8 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/newsletter/db"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/newsletter/db"
 )
 
 func Module(c *di.Container) {

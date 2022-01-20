@@ -4,9 +4,9 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/installations/db"
-	"mash/pkg/installations/global"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/installations/db"
+	"getsturdy.com/api/pkg/installations/global"
 )
 
 func Module(c *di.Container) {

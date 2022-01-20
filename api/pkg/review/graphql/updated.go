@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/auth"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/view/events"
 
 	"go.uber.org/zap"
 )

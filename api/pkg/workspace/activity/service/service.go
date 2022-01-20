@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"mash/pkg/view/events"
-	"mash/pkg/workspace/activity"
-	db_activity "mash/pkg/workspace/activity/db"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace/activity"
+	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 
 	"github.com/google/uuid"
 )

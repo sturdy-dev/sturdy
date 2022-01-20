@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
-	"mash/pkg/analytics"
-	"mash/pkg/auth"
-	service_jwt "mash/pkg/jwt/service"
-	"mash/pkg/user/db"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/auth"
+	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	"getsturdy.com/api/pkg/user/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

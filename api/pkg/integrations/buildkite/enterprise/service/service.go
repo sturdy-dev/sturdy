@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"mash/pkg/integrations"
-	"mash/pkg/integrations/buildkite"
-	db_buildkite "mash/pkg/integrations/buildkite/enterprise/db"
+	"getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations/buildkite"
+	db_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/db"
 )
 
 var _ integrations.Provider = &Service{}

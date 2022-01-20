@@ -3,7 +3,7 @@ package routes
 import (
 	"time"
 
-	"mash/pkg/analytics"
+	"getsturdy.com/api/pkg/analytics"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

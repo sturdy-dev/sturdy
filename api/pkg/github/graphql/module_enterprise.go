@@ -4,9 +4,9 @@
 package graphql
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/github/graphql/enterprise"
-	"mash/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/github/graphql/enterprise"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 func Module(c *di.Container) {

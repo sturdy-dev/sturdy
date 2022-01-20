@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/presence/db"
-	"mash/pkg/presence/graphql"
-	"mash/pkg/presence/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/presence/db"
+	"getsturdy.com/api/pkg/presence/graphql"
+	"getsturdy.com/api/pkg/presence/service"
 )
 
 func Module(c *di.Container) {

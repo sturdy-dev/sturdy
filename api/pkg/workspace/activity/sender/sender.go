@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	db_codebase "mash/pkg/codebase/db"
-	"mash/pkg/view/events"
-	"mash/pkg/workspace/activity"
-	db_activity "mash/pkg/workspace/activity/db"
-	service_activity "mash/pkg/workspace/activity/service"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace/activity"
+	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
+	service_activity "getsturdy.com/api/pkg/workspace/activity/service"
 
 	"github.com/google/uuid"
 )

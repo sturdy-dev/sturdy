@@ -4,8 +4,8 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/workspace/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/workspace/service"
 )
 
 func Module(c *di.Container) {

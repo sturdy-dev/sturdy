@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	vcsvcs "mash/vcs"
+	vcsvcs "getsturdy.com/api/vcs"
 )
 
 const UnsavedCommitMessage = "Unsaved workspace changes"

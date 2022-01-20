@@ -1,7 +1,7 @@
 package executor
 
 import (
-	"mash/vcs/provider"
+	"getsturdy.com/api/vcs/provider"
 
 	"go.uber.org/zap"
 )

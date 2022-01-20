@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/view/events"
-	"mash/pkg/workspace/watchers"
-	db_watchers "mash/pkg/workspace/watchers/db"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace/watchers"
+	db_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
 )
 
 type Service struct {

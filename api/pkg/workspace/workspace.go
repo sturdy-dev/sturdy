@@ -2,8 +2,8 @@ package workspace
 
 import (
 	"fmt"
-	"mash/pkg/author"
-	"mash/pkg/jsontime"
+	"getsturdy.com/api/pkg/author"
+	"getsturdy.com/api/pkg/jsontime"
 	"time"
 )
 

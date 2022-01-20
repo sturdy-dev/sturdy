@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"mash/pkg/author"
-	"mash/pkg/codebase/db"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/author"
+	"getsturdy.com/api/pkg/codebase/db"
+	db_user "getsturdy.com/api/pkg/user/db"
 )
 
 func membersAsAuthors(codebaseUserRepo db.CodebaseUserRepository, userRepo db_user.Repository, codebaseID string) ([]author.Author, error) {

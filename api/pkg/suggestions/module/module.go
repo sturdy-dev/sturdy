@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/suggestions/db"
-	"mash/pkg/suggestions/graphql"
-	"mash/pkg/suggestions/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/suggestions/db"
+	"getsturdy.com/api/pkg/suggestions/graphql"
+	"getsturdy.com/api/pkg/suggestions/service"
 )
 
 func Module(c *di.Container) {

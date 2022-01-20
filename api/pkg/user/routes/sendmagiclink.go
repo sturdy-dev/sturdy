@@ -1,7 +1,7 @@
 package routes
 
 import (
-	service_user "mash/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/user/service"
 	"net/http"
 	"strings"
 

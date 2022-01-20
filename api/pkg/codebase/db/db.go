@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mash/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase"
 )
 
 var _ CodebaseRepository = &Repo{}

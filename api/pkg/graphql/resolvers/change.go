@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"context"
-	"mash/pkg/unidiff"
+	"getsturdy.com/api/pkg/unidiff"
 
 	"github.com/graph-gophers/graphql-go"
 )

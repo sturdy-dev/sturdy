@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 
-	"mash/pkg/sync"
-	vcsvcs "mash/vcs"
+	"getsturdy.com/api/pkg/sync"
+	vcsvcs "getsturdy.com/api/vcs"
 )
 
 // Resolve resolves the conflicts in viewID with the resolutions in resolves

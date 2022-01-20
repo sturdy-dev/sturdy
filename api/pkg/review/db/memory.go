@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"mash/pkg/review"
+	"getsturdy.com/api/pkg/review"
 	"time"
 )
 

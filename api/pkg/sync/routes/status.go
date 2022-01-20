@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"mash/pkg/sync"
-	"mash/pkg/sync/service"
-	db_view "mash/pkg/view/db"
-	"mash/vcs"
-	"mash/vcs/executor"
+	"getsturdy.com/api/pkg/sync"
+	"getsturdy.com/api/pkg/sync/service"
+	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"mash/pkg/api"
-	workers_ci "mash/pkg/ci/workers"
-	worker_gc "mash/pkg/gc/worker"
-	"mash/pkg/gitserver"
-	httpx "mash/pkg/http"
-	worker_snapshots "mash/pkg/snapshots/worker"
+	"getsturdy.com/api/pkg/api"
+	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	worker_gc "getsturdy.com/api/pkg/gc/worker"
+	"getsturdy.com/api/pkg/gitserver"
+	httpx "getsturdy.com/api/pkg/http"
+	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"

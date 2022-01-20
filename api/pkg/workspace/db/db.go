@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"mash/pkg/workspace"
+	"getsturdy.com/api/pkg/workspace"
 
 	"github.com/jmoiron/sqlx"
 )

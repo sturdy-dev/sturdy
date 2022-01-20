@@ -4,10 +4,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/github/enterprise"
-	"mash/pkg/github/graphql"
-	graphql_pr "mash/pkg/github/graphql/pr"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/github/enterprise"
+	"getsturdy.com/api/pkg/github/graphql"
+	graphql_pr "getsturdy.com/api/pkg/github/graphql/pr"
 )
 
 func Module(c *di.Container) {

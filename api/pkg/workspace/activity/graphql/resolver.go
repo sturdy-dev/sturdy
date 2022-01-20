@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
-	"mash/pkg/auth"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/workspace/activity"
+	"getsturdy.com/api/pkg/auth"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/workspace/activity"
 
 	"github.com/graph-gophers/graphql-go"
 )

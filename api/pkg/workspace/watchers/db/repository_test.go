@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"mash/pkg/db"
-	"mash/pkg/internal/sturdytest"
-	"mash/pkg/workspace/watchers"
-	watchers_db "mash/pkg/workspace/watchers/db"
+	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/workspace/watchers"
+	watchers_db "getsturdy.com/api/pkg/workspace/watchers/db"
 
 	"github.com/stretchr/testify/assert"
 )

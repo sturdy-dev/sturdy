@@ -5,12 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"mash/pkg/auth"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/onboarding"
-	"mash/pkg/onboarding/db"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/onboarding"
+	"getsturdy.com/api/pkg/onboarding/db"
+	"getsturdy.com/api/pkg/view/events"
 
 	"github.com/graph-gophers/graphql-go"
 )

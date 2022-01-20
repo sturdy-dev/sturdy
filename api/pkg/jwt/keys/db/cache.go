@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"mash/pkg/jwt/keys"
+	"getsturdy.com/api/pkg/jwt/keys"
 	"sync"
 )
 

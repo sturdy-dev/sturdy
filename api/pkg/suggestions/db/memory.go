@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sort"
 
-	"mash/pkg/suggestions"
+	"getsturdy.com/api/pkg/suggestions"
 )
 
 var _ Repository = &memory{}

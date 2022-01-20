@@ -2,9 +2,9 @@ package unidiff
 
 import (
 	"fmt"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
-	"mash/vcs"
-	"mash/vcs/provider"
 	"os"
 	"path"
 	"testing"
@@ -147,7 +147,7 @@ func TestDecorate(t *testing.T) {
 					PreferredName: "vendor/go/build/testdata/empty/dummy",
 					IsNew:         true,
 					Hunks: []Hunk{{
-						ID: "5b8042925dd40be6b84660435a6953b4290290189040805d6b8de83b1d441d13",
+						ID:    "5b8042925dd40be6b84660435a6953b4290290189040805d6b8de83b1d441d13",
 						Patch: "diff --git /dev/null \"b/vendor/go/build/testdata/empty/dummy\"\nnew file mode 100644\nindex 0000000..e69de29\n",
 					}},
 				},
@@ -163,7 +163,7 @@ func TestDecorate(t *testing.T) {
 					PreferredName: "docs/integrations/email-notifications.md",
 					IsMoved:       true,
 					Hunks: []Hunk{{
-						ID: "0aec6557aa614110301ac44c0b17ea3d44ff161f9fea0766999d7a63ee08e737",
+						ID:    "0aec6557aa614110301ac44c0b17ea3d44ff161f9fea0766999d7a63ee08e737",
 						Patch: "diff --git \"a/docs/integrations/Email_Notifications.md\" \"b/docs/integrations/email-notifications.md\"\nsimilarity index 100%\nrename from \"docs/integrations/Email_Notifications.md\"\nrename to \"docs/integrations/email-notifications.md\"\n",
 					}},
 				},
@@ -179,7 +179,7 @@ func TestDecorate(t *testing.T) {
 					PreferredName: "vendor/go/build/testdata/empty/dummy",
 					IsDeleted:     true,
 					Hunks: []Hunk{{
-						ID: "b58e43d2a21696bb6d7f5275809705e0e60ac965675a5352d528cf913d3d490a",
+						ID:    "b58e43d2a21696bb6d7f5275809705e0e60ac965675a5352d528cf913d3d490a",
 						Patch: "diff --git \"a/vendor/go/build/testdata/empty/dummy\" /dev/null\ndeleted file mode 100644\nindex e69de29..0000000\n",
 					}},
 				},
@@ -213,7 +213,7 @@ func TestDecorate(t *testing.T) {
 					PreferredName: "vendor/go/build/testdata/empty/dummy",
 					IsDeleted:     true,
 					Hunks: []Hunk{{
-						ID: "b58e43d2a21696bb6d7f5275809705e0e60ac965675a5352d528cf913d3d490a",
+						ID:    "b58e43d2a21696bb6d7f5275809705e0e60ac965675a5352d528cf913d3d490a",
 						Patch: "diff --git \"a/vendor/go/build/testdata/empty/dummy\" /dev/null\ndeleted file mode 100644\nindex e69de29..0000000\n",
 					}},
 				},

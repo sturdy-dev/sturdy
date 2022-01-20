@@ -23,7 +23,7 @@ COPY ./api/go.sum ./go.sum
 RUN go mod download -x
 # build api
 COPY ./api ./
-RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/api mash/cmd/api
+RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/api getsturdy.com/api/cmd/api
 
 FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder
 
@@ -46,6 +46,7 @@ FROM alpine:3.15 as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
 ARG REPROXY_SHA256_SUM="35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e"
 ADD "https://github.com/umputun/reproxy/releases/download/${REPROXY_VERSION}/reproxy_${REPROXY_VERSION}_linux_arm64.tar.gz" /tmp/reproxy.tar.gz
+RUN apk update && apk add --no-cache bash
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -o pipefail \
     && sha256sum "/tmp/reproxy.tar.gz" \
@@ -64,7 +65,8 @@ RUN apk update \
         openssl=1.1.1l-r8 \
         git-lfs=3.0.2-r0 \
         libgit2=1.3.0-r0 \
-        openssh-keygen=8.8_p1-r1
+        openssh-keygen=8.8_p1-r1 \
+        bash
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh

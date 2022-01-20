@@ -4,8 +4,8 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/integrations/buildkite/enterprise"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/integrations/buildkite/enterprise"
 )
 
 func Module(c *di.Container) {

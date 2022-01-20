@@ -5,14 +5,14 @@ import (
 	"database/sql"
 	"errors"
 
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/suggestions"
-	service_suggestions "mash/pkg/suggestions/service"
-	"mash/pkg/view/events"
-	service_workspace "mash/pkg/workspace/service"
+	"getsturdy.com/api/pkg/auth"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/suggestions"
+	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
+	"getsturdy.com/api/pkg/view/events"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"go.uber.org/zap"
 )

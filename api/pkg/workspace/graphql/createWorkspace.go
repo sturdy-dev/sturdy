@@ -3,10 +3,10 @@ package graphql
 import (
 	"context"
 
-	"mash/pkg/auth"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/workspace/service"
+	"getsturdy.com/api/pkg/auth"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/workspace/service"
 
 	"github.com/graph-gophers/graphql-go"
 )

@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"mash/pkg/auth"
-	"mash/pkg/jwt"
-	db_jwt_keys "mash/pkg/jwt/keys/db"
-	service_jwt "mash/pkg/jwt/service"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/jwt"
+	db_jwt_keys "getsturdy.com/api/pkg/jwt/keys/db"
+	service_jwt "getsturdy.com/api/pkg/jwt/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

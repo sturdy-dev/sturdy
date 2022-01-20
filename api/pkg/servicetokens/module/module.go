@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/servicetokens/db"
-	"mash/pkg/servicetokens/graphql"
-	"mash/pkg/servicetokens/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/servicetokens/db"
+	"getsturdy.com/api/pkg/servicetokens/graphql"
+	"getsturdy.com/api/pkg/servicetokens/service"
 )
 
 func Module(c *di.Container) {

@@ -3,12 +3,12 @@ package graphql
 import (
 	"context"
 
-	"mash/pkg/codebase/acl"
-	"mash/pkg/codebase/acl/access"
-	provider_acl "mash/pkg/codebase/acl/provider"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	db_user "mash/pkg/user/db"
+	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/codebase/acl/access"
+	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	db_user "getsturdy.com/api/pkg/user/db"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/tailscale/hujson"

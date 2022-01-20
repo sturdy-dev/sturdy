@@ -3,19 +3,19 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"mash/pkg/analytics"
-	"mash/pkg/auth"
-	"mash/pkg/change"
-	"mash/pkg/change/message"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/change/message"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	changeDB "mash/pkg/change/db"
-	"mash/pkg/codebase/access"
-	codebaseDB "mash/pkg/codebase/db"
+	changeDB "getsturdy.com/api/pkg/change/db"
+	"getsturdy.com/api/pkg/codebase/access"
+	codebaseDB "getsturdy.com/api/pkg/codebase/db"
 )
 
 type UpdateRequest struct {

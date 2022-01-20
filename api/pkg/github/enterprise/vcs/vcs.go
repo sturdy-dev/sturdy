@@ -3,8 +3,8 @@ package vcs
 import (
 	"fmt"
 
-	"mash/vcs"
-	"mash/vcs/executor"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"

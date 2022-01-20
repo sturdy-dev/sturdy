@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	service_auth "mash/pkg/auth/service"
-	db_view "mash/pkg/view/db"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	db_view "getsturdy.com/api/pkg/view/db"
 
 	"github.com/gin-gonic/gin"
 )

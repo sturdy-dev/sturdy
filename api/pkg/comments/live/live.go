@@ -9,11 +9,11 @@ import (
 	"strings"
 	"unicode"
 
-	"mash/pkg/comments"
-	db_comments "mash/pkg/comments/db"
-	db_snapshots "mash/pkg/snapshots/db"
-	"mash/pkg/workspace"
-	"mash/vcs/executor"
+	"getsturdy.com/api/pkg/comments"
+	db_comments "getsturdy.com/api/pkg/comments/db"
+	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
+	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/vcs/executor"
 )
 
 func contextMatchCount(rows []string, startRowNum int, context []string, preprocess func(string) string) (fuzzyMatches int) {

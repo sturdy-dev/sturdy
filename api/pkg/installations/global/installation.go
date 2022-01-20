@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/installations"
-	"mash/pkg/installations/db"
+	"getsturdy.com/api/pkg/installations"
+	"getsturdy.com/api/pkg/installations/db"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"mash/pkg/author"
-	db2 "mash/pkg/user/db"
-	"mash/pkg/view/events"
-	"mash/pkg/workspace"
-	"mash/pkg/workspace/db"
+	"getsturdy.com/api/pkg/author"
+	db2 "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspace/db"
 
 	"go.uber.org/zap"
 )

@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"mash/pkg/analytics"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/view/events"
 	"net/http"
 	"time"
 
@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	db_view "mash/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/view/db"
 )
 
 type ValidateViewRequest struct {

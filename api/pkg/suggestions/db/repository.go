@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/suggestions"
+	"getsturdy.com/api/pkg/suggestions"
 )
 
 type Repository interface {

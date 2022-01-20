@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/codebase/db"
-	"mash/pkg/codebase/graphql"
-	"mash/pkg/codebase/service"
-	"mash/pkg/di"
+	"getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase/graphql"
+	"getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {

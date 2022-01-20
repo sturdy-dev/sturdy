@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"mash/pkg/unidiff"
+	"getsturdy.com/api/pkg/unidiff"
 
 	"github.com/stretchr/testify/assert"
 )

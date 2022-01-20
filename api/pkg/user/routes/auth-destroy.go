@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"mash/pkg/auth"
+	"getsturdy.com/api/pkg/auth"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

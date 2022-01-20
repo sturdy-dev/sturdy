@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"mash/pkg/codebase/acl"
-	"mash/pkg/db"
-	"mash/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/internal/sturdytest"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"mash/pkg/codebase"
-	db_codebase "mash/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
 )
 
 type inMemoryCodebaseRepository struct {

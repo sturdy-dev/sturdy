@@ -6,11 +6,11 @@ import (
 
 	"go.uber.org/zap"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/ip"
-	"mash/pkg/license/enterprise/license"
-	service_license "mash/pkg/license/enterprise/service"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/ip"
+	"getsturdy.com/api/pkg/license/enterprise/license"
+	service_license "getsturdy.com/api/pkg/license/enterprise/service"
 )
 
 type licenseRootResovler struct {

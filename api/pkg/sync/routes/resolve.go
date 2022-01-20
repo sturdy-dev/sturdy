@@ -1,8 +1,8 @@
 package routes
 
 import (
-	service_sync "mash/pkg/sync/service"
-	vcsvcs "mash/vcs"
+	service_sync "getsturdy.com/api/pkg/sync/service"
+	vcsvcs "getsturdy.com/api/vcs"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

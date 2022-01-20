@@ -4,10 +4,10 @@
 package graphql
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/statuses/graphql"
-	"mash/pkg/statuses/graphql/enterprise"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/statuses/graphql"
+	"getsturdy.com/api/pkg/statuses/graphql/enterprise"
 )
 
 func Module(c *di.Container) {

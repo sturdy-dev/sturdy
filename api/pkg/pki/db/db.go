@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"mash/pkg/pki"
+	"getsturdy.com/api/pkg/pki"
 
 	"github.com/jmoiron/sqlx"
 )

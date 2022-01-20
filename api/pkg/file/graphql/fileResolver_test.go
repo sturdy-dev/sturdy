@@ -2,11 +2,11 @@ package graphql
 
 import (
 	"context"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/testutil"
 	"io/ioutil"
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/vcs"
-	"mash/vcs/executor"
-	"mash/vcs/testutil"
 	"path"
 	"testing"
 

@@ -2,8 +2,8 @@ package inmemory
 
 import (
 	"database/sql"
-	"mash/pkg/snapshots"
-	db_snapshots "mash/pkg/snapshots/db"
+	"getsturdy.com/api/pkg/snapshots"
+	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 )
 
 // snapshotRepo implements snapshot.Repository

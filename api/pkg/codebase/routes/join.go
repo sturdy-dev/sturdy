@@ -3,18 +3,18 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"mash/pkg/auth"
-	"mash/pkg/view/events"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/view/events"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 
-	"mash/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase"
 
 	"go.uber.org/zap"
 
-	"mash/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebase/db"
 
 	"github.com/gin-gonic/gin"
 )

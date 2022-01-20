@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"fmt"
-	"mash/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"

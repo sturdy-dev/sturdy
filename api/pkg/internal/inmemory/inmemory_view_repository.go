@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"mash/pkg/view"
-	db_view "mash/pkg/view/db"
+	"getsturdy.com/api/pkg/view"
+	db_view "getsturdy.com/api/pkg/view/db"
 	"sort"
 )
 

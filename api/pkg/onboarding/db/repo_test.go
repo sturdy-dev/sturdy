@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"mash/pkg/db"
-	"mash/pkg/internal/sturdytest"
-	"mash/pkg/onboarding"
+	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/onboarding"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"

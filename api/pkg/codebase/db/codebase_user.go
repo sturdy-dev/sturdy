@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"mash/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase"
 
 	"github.com/jmoiron/sqlx"
 )

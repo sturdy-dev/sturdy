@@ -8,14 +8,14 @@ import (
 	"sync"
 	"time"
 
-	"mash/pkg/auth"
-	"mash/pkg/ctxlog"
-	service_suggestions "mash/pkg/suggestions/service"
-	"mash/pkg/unidiff"
-	"mash/pkg/view"
-	"mash/pkg/view/events"
-	"mash/pkg/workspace"
-	service_workspace "mash/pkg/workspace/service"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/ctxlog"
+	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
+	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/workspace"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"go.uber.org/zap"
 )

@@ -1,7 +1,7 @@
 package snapshots
 
 import (
-	"mash/pkg/jsontime"
+	"getsturdy.com/api/pkg/jsontime"
 	"time"
 
 	"github.com/lib/pq"

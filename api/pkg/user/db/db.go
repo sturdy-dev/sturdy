@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/user"
+	"getsturdy.com/api/pkg/user"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"

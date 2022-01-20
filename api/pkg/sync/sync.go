@@ -1,7 +1,7 @@
 package sync
 
 import (
-	"mash/pkg/unidiff"
+	"getsturdy.com/api/pkg/unidiff"
 	"time"
 )
 

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	gqlerrors "mash/pkg/graphql/errors"
-	"mash/pkg/graphql/resolvers"
-	"mash/pkg/workspace/watchers"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/workspace/watchers"
 
 	"github.com/graph-gophers/graphql-go"
 )

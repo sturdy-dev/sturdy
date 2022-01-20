@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/workspace/watchers"
+	"getsturdy.com/api/pkg/workspace/watchers"
 
 	"github.com/jmoiron/sqlx"
 )

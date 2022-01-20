@@ -3,7 +3,7 @@ package vcs
 import (
 	"fmt"
 
-	"mash/vcs"
+	"getsturdy.com/api/vcs"
 )
 
 func FastLand(viewRepo vcs.RepoWriter, commitID string) (err error) {

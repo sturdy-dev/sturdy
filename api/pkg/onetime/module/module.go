@@ -1,9 +1,9 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/onetime/db"
-	"mash/pkg/onetime/service"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/onetime/db"
+	"getsturdy.com/api/pkg/onetime/service"
 )
 
 func Module(c *di.Container) {

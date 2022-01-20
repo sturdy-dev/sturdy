@@ -2,8 +2,8 @@ package db
 
 import (
 	"fmt"
-	"mash/pkg/change"
-	"mash/pkg/comments"
+	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/comments"
 
 	"github.com/jmoiron/sqlx"
 )

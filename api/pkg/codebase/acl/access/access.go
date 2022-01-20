@@ -3,9 +3,9 @@ package access
 import (
 	"context"
 
-	"mash/pkg/auth"
-	"mash/pkg/codebase/acl"
-	"mash/pkg/user"
+	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/user"
 )
 
 type userRepository interface {

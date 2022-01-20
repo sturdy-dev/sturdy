@@ -2,7 +2,7 @@ package vcs
 
 import (
 	"fmt"
-	"mash/vcs/diff"
+	"getsturdy.com/api/vcs/diff"
 
 	git "github.com/libgit2/git2go/v33"
 )

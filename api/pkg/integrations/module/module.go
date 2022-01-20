@@ -1,10 +1,10 @@
 package module
 
 import (
-	"mash/pkg/di"
-	module_buildkite "mash/pkg/integrations/buildkite/module"
-	"mash/pkg/integrations/db"
-	"mash/pkg/integrations/graphql"
+	"getsturdy.com/api/pkg/di"
+	module_buildkite "getsturdy.com/api/pkg/integrations/buildkite/module"
+	"getsturdy.com/api/pkg/integrations/db"
+	"getsturdy.com/api/pkg/integrations/graphql"
 )
 
 func Module(c *di.Container) {

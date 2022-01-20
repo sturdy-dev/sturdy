@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"mash/pkg/change"
-	db_comments "mash/pkg/comments/db"
+	"getsturdy.com/api/pkg/change"
+	db_comments "getsturdy.com/api/pkg/comments/db"
 )
 
 type Service struct {

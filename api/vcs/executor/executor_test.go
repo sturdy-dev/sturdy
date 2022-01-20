@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
-	"mash/vcs"
-	"mash/vcs/provider"
-	"mash/vcs/testutil"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
+	"getsturdy.com/api/vcs/testutil"
 )
 
 func TestExecutor_AllowRebasingState(t *testing.T) {

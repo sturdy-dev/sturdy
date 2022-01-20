@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"mash/pkg/review"
+	"getsturdy.com/api/pkg/review"
 )
 
 type ReviewRepository interface {

@@ -1,9 +1,9 @@
 package cloud
 
 import (
-	"mash/pkg/analytics"
-	"mash/pkg/analytics/cloud/routes"
-	"mash/pkg/http/enterprise"
+	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/analytics/cloud/routes"
+	"getsturdy.com/api/pkg/http/enterprise"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

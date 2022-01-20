@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"mash/pkg/auth"
-	service_auth "mash/pkg/auth/service"
-	"mash/pkg/codebase"
-	service_codebase "mash/pkg/codebase/service"
-	"mash/pkg/internal/inmemory"
+	"getsturdy.com/api/pkg/auth"
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebase"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/internal/inmemory"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

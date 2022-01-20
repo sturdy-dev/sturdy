@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"mash/pkg/codebase"
+	"getsturdy.com/api/pkg/codebase"
 )
 
 var _ CodebaseRepository = &memory{}

@@ -1,9 +1,9 @@
 package module
 
 import (
-	"mash/pkg/di"
-	"mash/pkg/onboarding/db"
-	"mash/pkg/onboarding/graphql"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/onboarding/db"
+	"getsturdy.com/api/pkg/onboarding/graphql"
 )
 
 func Module(c *di.Container) {
