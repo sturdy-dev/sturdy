@@ -5,13 +5,12 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How to import code from GitHub</h1>
+        <h1 id="how-sturdy-augments-git">How to setup Sturdy on GitHub</h1>
 
         <p>
-          If you have an existing repository on GitHub, adding it to Sturdy is easy. With a few
-          clicks you can give access to one or multiple specific repositories. This integration is
-          not just for getting the code but also for the bridge interaction between Sturdy and
-          GitHub.
+          It's easy to add existing GitHub repositories to Sturdy. With a few clicks, you can
+          install Sturdy on as many repositories as you want. <strong>Sturdy for GitHub</strong> is
+          a fully-featured version of Sturdy that runs on top of your existing repository.
         </p>
 
         <ol>
@@ -20,19 +19,16 @@
             On the codebase creation screen click the "Import repositories" button within the
             "Coming from GitHub?" panel in the bottom.
           </li>
-          <li>On GitHub, select the organization which contains the codebase you want to import</li>
+          <li>On GitHub, select the organization which contains the codebase you want to setpu</li>
           <li>Follow the GitHub prompt for authentication</li>
           <li>Select one or multiple repositories you wish to work with</li>
           <li>You will be redirected back to Sturdy</li>
-          <li>
-            When the repositories are ready within Sturdy, you will be notified - this is usually
-            instant
-          </li>
+          <li>The repositories will be setup as codebases in Sturdy within a few seconds</li>
           <li>
             To edit your code, follow the
             <router-link :to="{ name: 'v2DocsHowToEditCode' }"
-              >"How to: edit code" guide</router-link
-            >
+              >"How to: edit code" guide
+            </router-link>
           </li>
         </ol>
 
@@ -43,9 +39,9 @@
         </p>
 
         <p>
-          It is important to note that whenever new code is pushed to the default (main/master)
-          branch on GitHub, by your or somebody else, Sturdy will keep itself up to date
-          automatically.
+          Sturdy runs on top of the repository, and will automatically keep itself updated. Whenever
+          new code is pushed to the default branch (main/master/etc) on GitHub, by your or somebody
+          else, Sturdy will keep itself up to date automatically.
         </p>
 
         <DocsInfoBox>
