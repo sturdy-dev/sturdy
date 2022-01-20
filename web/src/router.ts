@@ -535,6 +535,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/quickstart',
+    component: () => import('./pages/docs/QuickStart.vue'),
+    name: 'v2DocsQuickStart',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/join/:code',
     component: () => import('./components/join/Join.vue'),
     name: 'join',
