@@ -1,18 +1,19 @@
 <template>
   <div>
     <label :for="name" class="block text-sm font-medium text-gray-700">
-      {{  label }}
+      {{ label }}
     </label>
     <div class="mt-1">
-      <TextInput v-model="value" :placeholder="placeholder" :name="name" :id="name" />
+      <TextInput :id="name" v-model="value" :placeholder="placeholder" :name="name" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import TextInput from "./TextInput.vue";
+import TextInput from './TextInput.vue'
 export default defineComponent({
+  components: { TextInput },
   props: {
     modelValue: {
       type: String,
@@ -29,10 +30,9 @@ export default defineComponent({
     name: {
       type: String,
       required: true,
-    }
+    },
   },
   emits: ['update:modelValue'],
-  components: {TextInput},
   computed: {
     value: {
       get() {

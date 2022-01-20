@@ -53,9 +53,11 @@
           Get started on <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a
           >, or run in Docker:
 
-          <pre>docker run --detach --publish 30080:80 --publish 30022:22 \
+          <pre>
+docker run --detach --publish 30080:80 --publish 30022:22 \
            --volume "$(pwd)/sturdydata:/var/data" \
-           getsturdy/server</pre>
+           getsturdy/server</pre
+          >
         </div>
       </div>
 

@@ -7,18 +7,23 @@
       <div class="prose p-4 max-w-[800px]">
         <h1 id="quick-start">Quick Start</h1>
 
-        <p>
-          There are two ways you could quickly try Sturdy out:
-        </p>
+        <p>There are two ways you could quickly try Sturdy out:</p>
         <ol>
           <li>Sturdy in the cloud - zero setup [<a href="#sturdy-cloud">jump to ⤵️</a>]</li>
-          <li>Self hosted Sturdy instance - with a Docker one-liner [<a href="#self-hosted-sturdy">jump to ⤵</a>️]</li>
+          <li>
+            Self hosted Sturdy instance - with a Docker one-liner [<a href="#self-hosted-sturdy"
+              >jump to ⤵</a
+            >️]
+          </li>
         </ol>
-        
+
         <h2 id="sturdy-cloud">Sturdy in the cloud</h2>
         <p>Trying Sturdy in the cloud required zero setup:</p>
         <ol>
-          <li>Download and install <router-link :to="{ name: 'download' }">the Sturdy app</router-link></li>
+          <li>
+            Download and install
+            <router-link :to="{ name: 'download' }">the Sturdy app</router-link>
+          </li>
           <li>After opening Sturdy, press the "Sign up now" button</li>
           <li>Enter your name and email address</li>
           <li>Paste the code that you received in your email</li>
@@ -34,16 +39,21 @@
         <p>With Docker installed and running on your computer:</p>
 
         <ol>
-          <li>In your terminal run the following docker command:
-            <pre>docker run --detach --publish 30080:80 --publish 30022:22 \
+          <li>
+            In your terminal run the following docker command:
+            <pre>
+docker run --detach --publish 30080:80 --publish 30022:22 \
            --volume "$(pwd)/sturdydata:/var/data" \
            getsturdy/server</pre
             >
           </li>
           <!-- TODO: update -->
-          <li>In your browser, go <a href="http://localhost:9001">http://localhost:9001</a> </li>
+          <li>In your browser, go <a href="http://localhost:9001">http://localhost:9001</a></li>
           <li>Follow the instructions to setup your organization</li>
-          <li>Download and install <router-link :to="{ name: 'download' }">the Sturdy app</router-link></li>
+          <li>
+            Download and install
+            <router-link :to="{ name: 'download' }">the Sturdy app</router-link>
+          </li>
           <li>After opening Sturdy, press the "Configure with self-hosted instance" button</li>
           <li>In the Sturdy host field enter "localhost" and press "Save"</li>
           <li>Press the "Sign up now" button</li>
