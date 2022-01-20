@@ -7,7 +7,7 @@
         </div>
 
         <div class="relative flex items-center justify-between">
-          <span class="pr-2 bg-gray-100 text-sm text-gray-500"> Your codebases on Sturdy </span>
+          <span class="pr-2 bg-gray-100 text-sm text-gray-500"> {{ data.organization.name }} </span>
 
           <div class="pl-2 bg-gray-100 text-sm text-gray-500">
             <router-link
@@ -15,13 +15,13 @@
                 class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <PlusIcon class="-ml-0.5 mr-2 h-4 w-4"/>
-              <span>New</span>
+              <span>New Codebase</span>
             </router-link>
           </div>
         </div>
       </div>
 
-      <div v-if="data.codebases.length > 0" class="flex flex-col">
+      <div v-if="data.organization.codebases.length > 0" class="flex flex-col">
         <div class="align-middle inline-block min-w-full">
           <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
             <table class="min-w-full divide-y divide-gray-200 table-fixed">
@@ -43,7 +43,7 @@
               </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-              <template v-for="cb in data.codebases" :key="cb.id">
+              <template v-for="cb in data.organization.codebases" :key="cb.id">
                 <tr
                     v-if="cb.isReady"
                     class="hover:bg-gray-100 cursor-pointer"
@@ -123,7 +123,7 @@
     </div>
 
     <NoCodebasesGitHubAuth
-        v-if="isGitHubEnabled && data && (data.codebases.length === 0 || !data.user.gitHubAccount)"
+        v-if="isGitHubEnabled && data && (data.organization.codebases.length === 0 || !data.user.gitHubAccount)"
         class="mt-4"
         :git-hub-account="data.user.gitHubAccount"
         :git-hub-app="data.gitHubApp"
@@ -145,7 +145,7 @@ import Tooltip from '../../components/shared/Tooltip.vue'
 import Spinner from '../../components/shared/Spinner.vue'
 import {useUpdatedCodebase} from '../../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../../layouts/PaddedApp.vue'
-import {defineComponent, inject, ref, Ref} from 'vue'
+import {computed, defineComponent, inject, ref, Ref} from 'vue'
 import {Feature} from '../../__generated__/types'
 import {useRoute} from "vue-router";
 import {CodebaseListPageQuery, CodebaseListPageQueryVariables} from "./__generated__/CodebaseListPage";
@@ -177,7 +177,18 @@ export default defineComponent({
     const result = useQuery<CodebaseListPageQuery, CodebaseListPageQueryVariables>({
       query: gql`
         query CodebaseListPage($organizationID: ID!, $isGitHubEnabled: Boolean!) {
-            organization(id: $organizationID) {
+            organization(shortID: $organizationID) {
+
+               id
+               name
+
+               members {
+                    id
+                    name
+                    email
+                    avatarUrl
+               }
+
               codebases {
                 id
                 shortID
@@ -222,7 +233,7 @@ export default defineComponent({
       `,
       variables: {
         isGitHubEnabled,
-        organizationID: route.params.organizationSlug as string
+        organizationID: computed(() => route.params.organizationSlug as string)
       },
     })
 
