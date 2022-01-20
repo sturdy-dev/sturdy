@@ -541,6 +541,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/using-sturdy',
+    component: () => import('./pages/docs/UsingSturdy.vue'),
+    name: 'v2DocsUsingSturdy',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/join/:code',
     component: () => import('./components/join/Join.vue'),
     name: 'join',

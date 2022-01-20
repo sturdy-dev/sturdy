@@ -25,6 +25,7 @@ const links = [
   { name: 'v2DocsHowToImportCodeFromGitHub', title: 'How to: import code from GitHub' },
   { name: 'v2DocsHowToEditCode', title: 'How to: edit code' },
   { name: 'v2DocsQuickStart', title: 'Quick start' },
+  { name: 'v2DocsUsingSturdy', title: 'Using Sturdy'},
   //  { name: 'index', title: 'Self-host' },
   //  { name: 'index', title: 'Cloud' },
   //  { name: 'index', title: 'User Guides' },

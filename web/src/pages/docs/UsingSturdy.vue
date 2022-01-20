@@ -1,0 +1,143 @@
+<template>
+  <PublicLeftSidebar>
+    <template #sidebar>
+      <DocsSidebar />
+    </template>
+    <template #default>
+      <div class="prose p-4 max-w-[800px]">
+        <h1 id="using-sturdy">Using Sturdy</h1>
+        <p>
+          This tutorial takes you from importing a repository from GitHub to merging your first Pull Request. Make sure you have completed the Sturdy
+          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start setup</router-link>.
+        </p>
+
+        <h2 id="ui-overview">UI Overview</h2>
+        <ol>
+          <li>The left side bar is where codebases and workspaces from your organization are displayed - clicking an existing codebase or workspace takes you to it</li>
+          <li>The top left corner has a three dots icon - clicking it opens additional actions, for example creating a new codebase</li>
+          <li>The bottom left corner has a bell icon indicating new notification - clicking that opens a notifications panel</li>
+          <li>In the bottom left corner you can also see your avatar and a gearbox icon - clicking on them take you to your profile configuration</li>
+        </ol>
+
+        <h2 id="import-a-repository">Import a repository</h2>
+        <ol>
+          <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
+          <li>On the codebase creation screen click the "Import repositories" button within the "Coming from GitHub?"
+            panel in the bottom.</li>
+          <li>On GitHub, select the organization which contains the codebase you wish to import</li>
+          <li>Follow the GitHub prompt for authentication</li>
+          <li>Select the repository that you wish to import</li>
+          <li>You will be redirected back to Sturdy</li>
+          <li>When the codebase is ready, you will be notified - in most cases this is instant</li>
+        </ol>
+
+        <h2 id="exploring-the-codebase">Exploring the codebase</h2>
+        <p>Navigate to the codebase by selecting it's name in the sidebar on the left.
+          This is the root of the codebase - here you can see the following:</p>
+        <ol>
+          <li>A getting started panel</li>
+          <li>The most recent changes</li>
+          <li>A file explorer with the contents of the codebase</li>
+          <li>The README.md file rendered (if present)</li>
+          <li> A list of collaborators</li>
+        </ol>
+
+        <h2 id="connecting-a-directory">Connecting a directory</h2>
+        <p>With the codebase selected:</p>
+        <ol>
+          <li>Connect a directory where you want to have the code by clicking the "Connect directory" button.</li>
+          <li>Select a directory where you want to have the code. It is a good idea to create a new folder.</li>
+          <ol>
+            <li>The folder you select must be empty</li>
+            <li>The folder that you select cannot be inside a git repository</li>
+          </ol>
+          <li>Observe that a new workspace was created with the name "Your Name's Workspace". In Sturdy, work always happens inside a workspace</li>
+          <li>Workspaces are listed in the sidebar on the left, below the codebase</li>
+          <li>Press the "Edit" button at the top and rename it to "My first change"</li>
+          <li>Any changes made files in the connected directory will show up here</li>
+          <li>The folder you chose is connected to this workspace. This is indicated at the top of the workspace.</li>
+        </ol>
+
+        <h2 id="creating-a-change">Creating your first change</h2>
+        <p>With the workspace "My first change" selected:</p>
+        <ol>
+          <li>Open the connected folder on your computer with an IDE or text editor of your choice</li>
+          <ol>
+            <li>The directory connected to this workspace is indicated at the top</li>
+            <li>Optional: Open the codebase in Visual Studio Code with the "Open in" button</li>
+          </ol>
+          <li>Using your IDE / text editor, make changes to any file in the codebase</li>
+          <li>Within Sturdy - observe that the code diffs are displayed in the "My first change" workspace</li>
+        </ol>
+
+        <h2 id="describing-a-change">Describing your changes</h2>
+        <p>With the workspace "My first change" selected:</p>
+        <ol>
+          <li>Write a description of your changes in the text box at the top</li>
+          <ol>
+            <li>Description is automatically saved</li>
+          </ol>
+          <li>Observe that after a description has been provided a "Create Pull Request" button appears</li>
+        </ol>
+
+        <h2 id="creating-and-merging-a-pull-request">Creating and merging a Pull Request</h2>
+        <p>With the workspace "My first change" selected and a description provided:</p>
+        <ol>
+          <li>Click the "Create Pull Request" button at the top</li>
+          <li>Two new buttons will appear</li>
+          <li>Click the "Merge" button. This is the same action as hitting "Merge" on GitHub, but without leaving Sturdy</li>
+          <li>After a few seconds the PR will be merged, and the workspace will be rebased to the latest version of the codebase automatically</li>
+        </ol>
+        <DocsInfoBox>If your repository on GitHub requires formal approvals for pull requests, use the "Go to Pull Request" link in order to navigate to the pull request</DocsInfoBox>
+
+        <h2 id="exploring-the-changelog">Exploring the codebase changelog</h2>
+        <p>After the pull request from the "My first change" workspace has been merged:</p>
+        <ol>
+          <li>Navigate to the codebase root by clicking it's name in the sidebar on the left</li>
+          <li>The panel with recent changes now contains the latest change that you just created</li>
+          <li>Click on the latest change</li>
+          <li>You can see the diffs and description of the change as you created it</li>
+          <li>Observe that on the right side you have a list of older changes - clicking on any of them shows you the respective diffs and description</li>
+        </ol>
+
+        <h2 id="next-steps">Next steps</h2>
+        <p>You can read more about:</p>
+        <ul>
+          <li>
+            <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers' }">How to collaborate with others</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'v2DocsHowSturdyAugmentsGit' }">How Sturdy augments Git</router-link>
+          </li>
+          <li>
+            <router-link :to="{ name: 'v2DocsWorkingInTheOpen' }">Working in the open (within your team)</router-link>
+          </li>
+        </ul>
+
+      </div>
+    </template>
+  </PublicLeftSidebar>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue'
+import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
+import { useHead } from '@vueuse/head'
+import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
+import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+
+export default defineComponent({
+  components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
+  setup() {
+    // TODO: Remove when we're launching!
+    useHead({
+      meta: [
+        {
+          name: 'robots',
+          content: 'noindex',
+        },
+      ],
+    })
+  },
+})
+</script>
