@@ -2,7 +2,7 @@
   <div v-if="data">
     <Banner v-if="showPullRequestMergedBanner" status="success" class="mb-2">
       <div class="flex items-center">
-        <span>Your <a :href="gitHubPRLink" class="font-bold">Pull Request</a></span>
+        <span>Your <a :href="gitHubPRLink" class="font-bold">pull request</a></span>
         <ExternalLinkIcon class="w-4 h-4 mx-1" />
         <span> has been merged. Sync with upstream changes.</span>
       </div>

@@ -17,9 +17,9 @@
       class="text-sm font-medium"
       :class="[gitHubPullRequest.open ? 'text-green-700' : 'text-gray-900']"
     >
-      <span v-if="gitHubPullRequest.open">Pull Request</span>
-      <span v-else-if="gitHubPullRequest.merged">Merged Pull Request</span>
-      <span v-else>Pull Request</span>
+      <span v-if="gitHubPullRequest.open">Pull request</span>
+      <span v-else-if="gitHubPullRequest.merged">Merged pull request</span>
+      <span v-else>Pull request</span>
 
       <span
         class="font-medium"
