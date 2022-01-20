@@ -268,5 +268,11 @@ func HandlePushEvent(
 			}
 		}
 	}
+
+	// Allow all workspaces to be rebased/synced on the latest head
+	if err := workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(repo.CodebaseID); err != nil {
+		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
+	}
+
 	return nil
 }
