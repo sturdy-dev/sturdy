@@ -1,4 +1,4 @@
-![](https://getsturdy.com/assets/Web/Logo/DuckAndName.png)
+<p align="center"><img src="https://getsturdy.com/assets/Web/Logo/DuckAndName.png" height="128"></p>
 
 # Welcome to Sturdy! 📣🐣
 
