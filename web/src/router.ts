@@ -30,17 +30,22 @@ export const routes: RouteRecordRaw[] = [
   },
   { path: '/new', component: () => import('./pages/CreateEmpty.vue'), name: 'codebaseCreate' },
   {
-    path: '/organizations/new',
-    component: () => import('./pages/organization/CreateCodebasePage.vue'),
+    path: '/org/new',
+    component: () => import('./pages/organization/CreateOrganizationPage.vue'),
     name: 'organizationCreate',
   },
   {
-    path: '/organizations/:id',
-    component: () => import('./pages/organization/ViewOrganizationPage.vue'),
-    name: 'organizationView',
+    path: '/org/:organizationSlug/settings',
+    component: () => import('./pages/organization/OrganizationSettingsPage.vue'),
+    name: 'organizationSettings',
   },
   {
-    path: '/organizations/:id/subscriptions/new',
+    path: '/org/:organizationSlug/new',
+    component: () => import('./pages/organization/CreateOrganizationCodebasePage.vue'),
+    name: 'organizationCreateCodebase',
+  },
+  {
+    path: '/org/:organizationSlug/subscriptions/new',
     component: () => import('./pages/organization/CreateSubscriptionPage.vue'),
     name: 'organizationCreateSubscription',
   },

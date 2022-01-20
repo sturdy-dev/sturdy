@@ -14,9 +14,14 @@ export default defineComponent({
 
     const navigation = [
       {
+        name: 'Codebases',
+        linkName: 'organizationListCodebases',
+        current: route.name === 'organizationListCodebases',
+      },
+      {
         name: 'Settings',
-        linkName: 'organizationView',
-        current: route.name === 'organizationView',
+        linkName: 'organizationSettings',
+        current: route.name === 'organizationSettings',
       },
       {
         name: 'Subscriptions',
