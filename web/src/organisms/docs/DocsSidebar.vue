@@ -47,6 +47,7 @@ const groups = [
       { route: 'v2DocsHowToCollaborateWithOthers', title: 'Collaborate with others' },
       { route: 'v2DocsHowToSetupSturdyOnGitHub', title: 'Setup Sturdy on GitHub' },
       { route: 'v2DocsHowToEditCode', title: 'Edit code' },
+      { route: 'v2DocsHowToSwitchBetweenTasks', title: 'Switch between tasks' },
     ],
   },
   //  { name: 'index', title: 'Self-host' },

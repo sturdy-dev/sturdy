@@ -540,6 +540,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2/docs/how-to-switch-between-tasks',
+    component: () => import('./pages/docs/HowToSwitchBetweenTasks.vue'),
+    name: 'v2DocsHowToSwitchBetweenTasks',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/v2/docs/quickstart',
     component: () => import('./pages/docs/QuickStart.vue'),
     name: 'v2DocsQuickStart',
