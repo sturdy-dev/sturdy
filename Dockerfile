@@ -16,13 +16,13 @@ RUN apk update \
         pkgconfig \
         gcc \
         libc-dev 
-WORKDIR /go/src/backend
+WORKDIR /go/src/api
 # cache api dependencies
-COPY ./backend/go.mod ./go.mod
-COPY ./backend/go.sum ./go.sum
+COPY ./api/go.mod ./go.mod
+COPY ./api/go.sum ./go.sum
 RUN go mod download -x
-# build backend
-COPY ./backend ./
+# build api
+COPY ./api ./
 RUN go build -tags enterprise,static,system_libgit2 -v -o /usr/bin/api mash/cmd/api
 
 FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder

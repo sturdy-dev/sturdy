@@ -34,7 +34,7 @@ services:
       - --ssh-listen-addr=0.0.0.0:2222
       - --ssh-key-path=/keys/id_ed25519
     volumes:
-      - ./backend/tmp/repos:/repos
+      - ./api/tmp/repos:/repos
       - ./mutagen-ssh/cmd/mutagen-ssh/keys:/keys
 
 volumes:

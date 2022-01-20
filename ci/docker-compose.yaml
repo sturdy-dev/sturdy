@@ -5,7 +5,7 @@ services:
       context: ..
       dockerfile: ci/Dockerfile
     volumes:
-      - ../backend:/app
+      - ../api:/app
       - go-modules:/go/pkg/mod
     working_dir: /app
 
