@@ -101,7 +101,7 @@ func ProvideHandler(
 		// Development
 		"http://localhost:8080",
 		// docker oneliner
-		"http://localhost",
+		"http://localhost:30080",
 		// Probably unused
 		"https://driva.dev",
 		// Staging environments for the website
