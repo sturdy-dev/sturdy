@@ -88,7 +88,7 @@ const cloud = new Host(
 )
 const selfhosted = new Host(
   'selfhosted',
-  'Selfhosted',
+  'Self-hosted',
   new URL('http://localhost:30080'),
   new URL('http://localhost:30080/api/graphql'),
   new URL('ssh://localhost:30022')
@@ -238,7 +238,8 @@ async function main() {
     app.setAppUserModelId('com.getsturdy.sturdy')
   }
 
-  manager.refresh()
+  // make sure we know the state of all hosts
+  await manager.refresh()
   // kick off the app with the default host
   manager.set(defaultHost)
 }

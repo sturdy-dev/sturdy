@@ -93,6 +93,11 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   }
 
   appendMenu(menu: Menu) {
+    const enabledMenues = Array.from(this.#menuItems.values()).filter((item) => item.enabled)
+    if (enabledMenues.length <= 1) {
+      // don't show the menu if there is only one backend available
+      return
+    }
     menu.append(
       new MenuItem({
         label: 'Server',
@@ -103,12 +108,16 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     )
   }
 
-  refresh() {
-    this.#hosts.forEach((host) =>
-      host.isUp().then((isUp) => {
-        this.#menuItems.get(host.id)!.enabled = isUp
-      })
-    )
+  async refresh() {
+    const promises = []
+    for (const [, host] of this.#hosts) {
+      promises.push(
+        host.isUp().then((isUp) => {
+          this.#menuItems.get(host.id)!.enabled = isUp
+        })
+      )
+    }
+    await Promise.all(promises)
   }
 
   async cleanup() {

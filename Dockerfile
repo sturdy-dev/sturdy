@@ -85,4 +85,8 @@ RUN sha256sum "/tmp/s6-overlay-installer" \
 COPY s6 /etc
 ENV S6_KILL_GRACETIME=0 \
     S6_SERVICES_GRACETIME=0
+# 30080 is a port for web + api
+# 30022 is a port for ssh
+EXPOSE 30080 30022
+VOLUME [ "/var/data" ]
 ENTRYPOINT [ "/init" ]

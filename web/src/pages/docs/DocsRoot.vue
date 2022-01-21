@@ -54,7 +54,7 @@
           >, or run in Docker:
 
           <pre>
-docker run --detach --publish 30080:80 --publish 30022:22 \
+docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
            --volume "$(pwd)/sturdydata:/var/data" \
            getsturdy/server</pre
           >
