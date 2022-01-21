@@ -42,7 +42,7 @@ const navigation = [
     title: 'Product',
     links: [
       // {name: 'Pricing', route: 'pricing'},
-      // {name: 'Documentation', route: 'v2DocsProductIntro'},
+      // {name: 'Documentation', route: 'v2DocsRoot'},
       // // { name: 'Guides', href: '#' },
       // {name: 'API Status', href: 'https://sturdy.statuspage.io/'},
       { name: 'Get Started', route: '' },
@@ -55,7 +55,7 @@ const navigation = [
     title: 'Support',
     links: [
       { name: 'Pricing', route: 'pricing' },
-      { name: 'Documentation', route: 'v2DocsProductIntro' },
+      { name: 'Documentation', route: 'v2DocsRoot' },
       { name: 'API Status', href: 'https://sturdy.statuspage.io/' },
       { name: 'Contact', route: 'contact' },
       { name: 'Discord', href: 'https://discord.gg/5HnSdzMqtA' },
