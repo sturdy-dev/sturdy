@@ -18,6 +18,8 @@ import { createOrUpdateBuildkiteIntegrationUpdateResolver } from './useCreateOrU
 import { triggerInstantIntegrationUpdateResolver } from './useTriggerInstantIntegration'
 import { createSuggestionUpdateResolver } from './useCreateSuggestion'
 import { landWorkspaceChangeUpdateResolver } from './useLandWorkspaceChange'
+import { setupGitHubUpdateResolver } from './useSetupGitHubRepository'
+import { createCodebaseUpdateResolver } from './useCreateCodebase'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,
@@ -36,6 +38,8 @@ export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   triggerInstantIntegration: triggerInstantIntegrationUpdateResolver,
   createSuggestion: createSuggestionUpdateResolver,
   landWorkspaceChange: landWorkspaceChangeUpdateResolver,
+  createCodebase: createCodebaseUpdateResolver,
+  setupGitHubRepository: setupGitHubUpdateResolver,
 }
 
 export const optimisticMutationResolvers: Record<string, OptimisticMutationResolver> = {

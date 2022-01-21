@@ -7,12 +7,13 @@
     <template #default>
       <div class="max-w-7xl">
         <Header>
-          <span>Manage {{ data.organization.name }}</span>
+          <span>Setup codebase from GitHub in {{ data.organization.name }}</span>
         </Header>
 
-        <OrganizationMembers
-          :members="data.organization.members"
+        <OrganizationSetupGitHub
           :organization-id="data.organization.id"
+          :git-hub-app="data.gitHubApp"
+          :git-hub-account="data.user.gitHubAccount"
         />
       </div>
     </template>
@@ -23,36 +24,47 @@
 import { defineComponent } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import {
-  OrganizationSettingsPageQuery,
-  OrganizationSettingsPageQueryVariables,
-} from './__generated__/OrganizationSettingsPage'
+  OrganizationSetupGitHubPageQuery,
+  OrganizationSetupGitHubPageQueryVariables,
+} from './__generated__/OrganizationSetupGitHubPage'
 import { useRoute } from 'vue-router'
-import OrganizationMembers from '../../organisms/organization/OrganizationMembers.vue'
 import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
+import OrganizationSetupGitHub from '../../organisms/organization/OrganizationSetupGitHub.vue'
 
 export default defineComponent({
-  components: { PaddedAppLeftSidebar, OrganizationMembers, Header, VerticalNavigation },
+  components: {
+    OrganizationSetupGitHub,
+    PaddedAppLeftSidebar,
+    Header,
+    VerticalNavigation,
+  },
   setup() {
     let route = useRoute()
 
-    let { data } = useQuery<OrganizationSettingsPageQuery, OrganizationSettingsPageQueryVariables>({
+    let { data } = useQuery<
+      OrganizationSetupGitHubPageQuery,
+      OrganizationSetupGitHubPageQueryVariables
+    >({
       query: gql`
-        query OrganizationSettingsPage($shortID: ID!) {
+        query OrganizationSetupGitHubPage($shortID: ID!) {
           organization(shortID: $shortID) {
             id
             name
-            members {
+          }
+
+          gitHubApp {
+            _id
+            clientID
+            name
+          }
+
+          user {
+            id
+            gitHubAccount {
               id
-              name
-              email
-              avatarUrl
-            }
-            codebases {
-              id
-              shortID
-              name
+              login
             }
           }
         }

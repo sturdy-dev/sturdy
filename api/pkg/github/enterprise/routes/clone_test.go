@@ -202,6 +202,10 @@ func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id i
 	}, nil, nil
 }
 
+func (f *fakeGitHubAppsClient) GetInstallation(ctx context.Context, id int64) (*gh.Installation, *gh.Response, error) {
+	panic("implement me")
+}
+
 type fakeGitHubRepositoriesClient struct{}
 
 func (f *fakeGitHubRepositoriesClient) Get(ctx context.Context, owner, repo string) (*gh.Repository, *gh.Response, error) {

@@ -12,5 +12,6 @@ import (
 func Module(c *di.Container) {
 	c.Register(enterprise.NewGitHubAccountRootResolver, new(resolvers.GitHubAccountRootResolver))
 	c.Register(enterprise.NewGitHubAppRootResolver)
-	c.Register(enterprise.NewResolver)
+	c.Register(enterprise.NewCodebaseGitHubIntegrationRootResolver)
+	c.Register(enterprise.NewGitHubRootResolver)
 }

@@ -11,7 +11,7 @@ import (
 
 type codebaseGitHubIntegrationRootResolver struct{}
 
-func NewResolver() resolvers.CodebaseGitHubIntegrationRootResolver {
+func NewCodebaseGitHubIntegrationRootResolver() resolvers.CodebaseGitHubIntegrationRootResolver {
 	return &codebaseGitHubIntegrationRootResolver{}
 }
 

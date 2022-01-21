@@ -5,10 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/view/events"
-	"time"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
@@ -52,9 +53,14 @@ func (svc *Service) AddUserToCodebases(ctx context.Context, userID string) error
 
 func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID string, userAuthClient *gh.Client, installationID int64) error {
 	// Truth from GitHub
-	repoIDs, err := svc.userAccessibleRepoIDs(ctx, userAuthClient, installationID)
+	repos, err := svc.userAccessibleRepoIDs(ctx, userAuthClient, installationID)
 	if err != nil {
 		return fmt.Errorf("failed to get user accessible repo IDs from github: %w", err)
+	}
+
+	var repoIDs []int64
+	for _, r := range repos {
+		repoIDs = append(repoIDs, r.id)
 	}
 
 	gitHubRepositories, err := svc.gitHubRepositoryRepo.ListByInstallationID(installationID)
@@ -103,8 +109,13 @@ func contains(s []int64, e int64) bool {
 	return false
 }
 
-func (svc *Service) userAccessibleRepoIDs(ctx context.Context, userAuthClient *gh.Client, installationID int64) ([]int64, error) {
-	var res []int64
+type accessibleRepo struct {
+	id   int64
+	name string
+}
+
+func (svc *Service) userAccessibleRepoIDs(ctx context.Context, userAuthClient *gh.Client, installationID int64) ([]accessibleRepo, error) {
+	var res []accessibleRepo
 
 	for page := 0; page < 100; page++ {
 		repos, response, err := userAuthClient.Apps.ListUserRepos(ctx, installationID, &gh.ListOptions{
@@ -117,7 +128,10 @@ func (svc *Service) userAccessibleRepoIDs(ctx context.Context, userAuthClient *g
 			return nil, fmt.Errorf("failed to ListUserRepos: %w", err)
 		}
 		for _, r := range repos.Repositories {
-			res = append(res, r.GetID())
+			res = append(res, accessibleRepo{
+				id:   r.GetID(),
+				name: r.GetName(),
+			})
 		}
 		if response.LastPage <= page || len(repos.Repositories) == 0 {
 			break

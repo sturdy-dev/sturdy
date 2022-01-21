@@ -39,6 +39,7 @@ type RootResolver struct {
 	resolvers.FeaturesRootResolver
 	resolvers.GitHubAppRootResolver
 	resolvers.GitHubPullRequestRootResolver
+	resolvers.GitHubRootResolver
 	resolvers.IntegrationRootResolver
 	resolvers.LicenseRootResolver
 	resolvers.NotificationRootResolver
@@ -74,6 +75,7 @@ func NewRootResolver(
 	codebaseResolver resolvers.CodebaseRootResolver,
 	commentsResolver resolvers.CommentRootResolver,
 	featuresRootResolver resolvers.FeaturesRootResolver,
+	gitHubRootResolver resolvers.GitHubRootResolver,
 	githubAppResolver resolvers.GitHubAppRootResolver,
 	instantIntegrationRootResolver resolvers.IntegrationRootResolver,
 	licenseRootResolver resolvers.LicenseRootResolver,
@@ -108,6 +110,7 @@ func NewRootResolver(
 		FeaturesRootResolver:                    featuresRootResolver,
 		GitHubAppRootResolver:                   githubAppResolver,
 		GitHubPullRequestRootResolver:           prResolver,
+		GitHubRootResolver:                      gitHubRootResolver,
 		IntegrationRootResolver:                 instantIntegrationRootResolver,
 		LicenseRootResolver:                     licenseRootResolver,
 		NotificationRootResolver:                notificationResolver,

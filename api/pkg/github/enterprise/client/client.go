@@ -28,6 +28,7 @@ type RepositoriesClient interface {
 
 type AppsClient interface {
 	CreateInstallationToken(ctx context.Context, id int64, opts *github.InstallationTokenOptions) (*github.InstallationToken, *github.Response, error)
+	GetInstallation(ctx context.Context, id int64) (*github.Installation, *github.Response, error)
 }
 
 type PullRequestsClient interface {

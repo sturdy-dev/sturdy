@@ -41,7 +41,7 @@ type codebaseGitHubIntegrationRootResolver struct {
 	gitHubService *service_github.Service
 }
 
-func NewResolver(
+func NewCodebaseGitHubIntegrationRootResolver(
 	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
 	gitHubInstallationRepo db_github.GitHubInstallationRepo,
 	gitExecutorProvider executor.Provider,

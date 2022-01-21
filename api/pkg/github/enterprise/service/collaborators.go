@@ -9,7 +9,6 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/codebase"
-	sturdy_github "getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/notification"
 	"getsturdy.com/api/pkg/view/events"
@@ -184,12 +183,12 @@ func listCollaborators(ctx context.Context, reposClient client.RepositoriesClien
 	return users, rsp.NextPage, nil
 }
 
-func (svc *Service) AddUser(codebaseID string, gitHubUser *sturdy_github.GitHubUser, gitHubRepo *sturdy_github.GitHubRepository) error {
+func (svc *Service) AddUser(codebaseID, userID string) error {
 	// Add access to this user directly
 	t := time.Now()
 	err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
 		ID:         uuid.NewString(),
-		UserID:     gitHubUser.UserID,
+		UserID:     userID,
 		CodebaseID: codebaseID,
 		CreatedAt:  &t,
 	})
@@ -199,7 +198,7 @@ func (svc *Service) AddUser(codebaseID string, gitHubUser *sturdy_github.GitHubU
 
 	err = svc.analyticsClient.Enqueue(analytics.Capture{
 		Event:      "added user to codebase",
-		DistinctId: gitHubUser.UserID,
+		DistinctId: userID,
 		Properties: analytics.NewProperties().
 			Set("github", true).
 			Set("is_github_sender", true).
@@ -209,12 +208,12 @@ func (svc *Service) AddUser(codebaseID string, gitHubUser *sturdy_github.GitHubU
 		svc.logger.Error("analytics failed", zap.Error(err))
 	}
 
-	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", gitHubUser.UserID))
+	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", userID))
 
 	// Track installation event on the user that installed it
 	err = svc.analyticsClient.Enqueue(analytics.Capture{
 		Event:      "installed github repository",
-		DistinctId: gitHubUser.UserID,
+		DistinctId: userID,
 		Properties: analytics.NewProperties().
 			Set("github", true).
 			Set("is_github_sender", true).
