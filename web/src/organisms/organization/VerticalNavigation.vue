@@ -24,6 +24,11 @@ export default defineComponent({
         current: route.name === 'organizationSettings',
       },
       {
+        name: 'GitHub',
+        linkName: 'organizationSettingsGitHub',
+        current: route.name === 'organizationSettingsGitHub',
+      },
+      {
         name: 'Subscriptions',
         linkName: 'organizationCreateSubscription',
         current: route.name === 'organizationCreateSubscription',

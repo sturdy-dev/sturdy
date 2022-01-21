@@ -40,6 +40,11 @@ export const routes: RouteRecordRaw[] = [
     name: 'organizationSettings',
   },
   {
+    path: '/org/:organizationSlug/settings/github',
+    component: () => import('./pages/organization/OrganizationSetupGitHubPage.vue'),
+    name: 'organizationSettingsGitHub',
+  },
+  {
     path: '/org/:organizationSlug/new',
     component: () => import('./pages/organization/CreateOrganizationCodebasePage.vue'),
     name: 'organizationCreateCodebase',

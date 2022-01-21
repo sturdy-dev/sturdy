@@ -122,6 +122,10 @@ func (s *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string
 	return s.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 }
 
+func (s *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, installationID, repositoryID int64) (*github.GitHubRepository, error) {
+	return s.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
+}
+
 func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *change.Change) error {
 	installation, err := s.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
 	if err != nil {

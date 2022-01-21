@@ -808,6 +808,10 @@ func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id i
 	}, nil, nil
 }
 
+func (f *fakeGitHubAppsClient) GetInstallation(ctx context.Context, id int64) (*gh.Installation, *gh.Response, error) {
+	panic("implement me")
+}
+
 func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, reqType string, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)

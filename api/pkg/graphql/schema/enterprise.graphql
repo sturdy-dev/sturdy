@@ -1,6 +1,9 @@
 extend type Query {
     # GitHub Integration Metadata
     gitHubApp: GitHubApp!
+
+    # List all available repositories that the user can setup with Sturdy
+    gitHubRepositories: [GitHubRepository!]!
 }
 
 extend type Mutation {
@@ -12,6 +15,9 @@ extend type Mutation {
     createWorkspaceFromGitHubBranch(input: CreateWorkspaceFromGitHubBranchInput!): Workspace!
     importGitHubPullRequests(input: ImportGitHubPullRequestsInput!): Codebase!
     refreshGitHubCodebases: [Codebase!]!
+
+    # Setup a codebase with GitHub
+    setupGitHubRepository(input: SetupGitHubRepositoryInput!): Codebase!
 
     createOrUpdateBuildkiteIntegration(input: CreateOrUpdateBuildkiteIntegrationInput!): Integration!
 
@@ -199,4 +205,21 @@ enum OrganizationPlan {
 
 extend type Organization {
     licenseSubscriptions: [LicenseSubscription!]!
+}
+
+input SetupGitHubRepositoryInput {
+    organizationID: ID!
+
+    gitHubInstallationID: ID!
+    gitHubRepositoryID: ID!
+}
+
+type GitHubRepository {
+    id: ID!
+    gitHubInstallationID: ID!
+    gitHubRepositoryID: ID!
+    gitHubOwner: String!
+    gitHubName: String!
+
+    codebase: Codebase
 }
