@@ -5,17 +5,20 @@ import { createWriteStream } from 'fs'
 import { spawn } from 'child_process'
 import { homedir } from 'os'
 import { MessageChannel, Worker } from 'worker_threads'
-import { AppStatus } from './AppStatus'
+import { Status } from './application'
+import { Logger } from './Logger'
 
 export class SSHKeys {
+  readonly #logger: Logger
   readonly #client: Client
-  readonly #status: AppStatus
+  readonly #status: Status
   readonly #syncHostURL: URL
   readonly #directory: string
   readonly #worker: Worker
   #sequence: Promise<any> = Promise.resolve()
 
-  constructor(client: Client, status: AppStatus, syncHostURL: URL, directory: string) {
+  constructor(logger: Logger, client: Client, status: Status, syncHostURL: URL, directory: string) {
+    this.#logger = logger.withPrefix('ssh-keys')
     this.#client = client
     this.#status = status
     this.#syncHostURL = syncHostURL
@@ -126,7 +129,7 @@ export class SSHKeys {
   }
 
   async #trustSyncHost() {
-    console.log('Adding sync trust')
+    this.#logger.log('Adding sync trust')
 
     const keyscan = spawn(
       'ssh-keyscan',

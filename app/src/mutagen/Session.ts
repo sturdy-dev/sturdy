@@ -1,7 +1,8 @@
-import { MutagenSessionConfigurator } from './MutagenSessionConfigurator'
-import { ViewConfig } from './Config'
-import { MutagenExecutable } from './MutagenExecutable'
-import { MutagenDaemon } from './MutagenDaemon'
+import { MutagenSessionConfigurator } from './SessionConfigurator'
+import { ViewConfig } from '../Config'
+import { MutagenExecutable } from './Executable'
+import { MutagenDaemon } from './Daemon'
+import { Logger } from '../Logger'
 
 // SESSION_VERSION_NUMBER tracks versions of the sturdy configuration.
 //
@@ -23,6 +24,7 @@ interface ListOutputSession {
 }
 
 export interface SessionSharedConfig {
+  logger: Logger
   configPath: string
   userID: string
   apiURL: URL
@@ -56,6 +58,7 @@ export enum MutagenSessionState {
 }
 
 export class MutagenSession {
+  readonly #logger: Logger
   readonly #executable: MutagenExecutable
   readonly #daemon: MutagenDaemon
   readonly #sessionVersion: string
@@ -68,6 +71,7 @@ export class MutagenSession {
   #isSubscribedToStateUpdates: boolean = false
 
   constructor(
+    logger: Logger,
     executable: MutagenExecutable,
     daemon: MutagenDaemon,
     sessionVersion: string,
@@ -75,6 +79,7 @@ export class MutagenSession {
     viewID: string,
     path: string
   ) {
+    this.#logger = logger.withPrefix('session', name)
     this.#executable = executable
     this.#daemon = daemon
     this.#sessionVersion = sessionVersion
@@ -90,7 +95,7 @@ export class MutagenSession {
       return
     }
 
-    console.log('MutagenSession subscribeToStateUpdates', { name: this.name })
+    this.#logger.log('subscribe to status updates')
 
     let listener = (name: string, oldState: MutagenSessionState, newState: MutagenSessionState) => {
       if (name === this.name) {
@@ -130,16 +135,18 @@ export class MutagenSession {
       case MutagenSessionState.StagingBeta:
         return true
       default:
-        console.error('unexpected mutagen state', this.#state)
+        this.#logger.error('unexpected mutagen state', this.#state)
         return true
     }
   }
 
   static async reconcile(
+    logger: Logger,
     configurator: MutagenSessionConfigurator,
     expectedViews: ViewConfig[]
   ): Promise<MutagenSession[]> {
     const existingSessions = await MutagenSession.list(
+      logger,
       configurator.executable,
       configurator.daemon,
       configurator.apiURL
@@ -176,7 +183,7 @@ export class MutagenSession {
             const session = await configurator.configureAndStart(v.id, v.path)
             return [session]
           } catch (e) {
-            console.error(e)
+            logger.error(e)
             return []
           }
         }),
@@ -190,13 +197,19 @@ export class MutagenSession {
   }
 
   static async list(
+    logger: Logger,
     executable: MutagenExecutable,
     daemon: MutagenDaemon,
     apiURL: URL
   ): Promise<MutagenSession[]> {
-    const [list, onExit] = executable.execute(['sync', 'list', '--json'], {
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
+    const [list, onExit] = executable.execute(
+      ['sync', 'list', '--json'],
+      {
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+      daemon.log,
+      daemon.mutagenDataDirectory
+    )
 
     const chunks: Buffer[] = []
     list.stdout.on('data', (chunk) => chunks.push(chunk))
@@ -214,6 +227,7 @@ export class MutagenSession {
         .filter((s) => s.labels?.sturdyApiHost === apiURL.hostname)
         .map((s) => {
           return new MutagenSession(
+            logger,
             executable,
             daemon,
             s.labels.sessionVersion,
@@ -226,6 +240,7 @@ export class MutagenSession {
   }
 
   static async create({
+    logger,
     configPath,
     mountPath,
     userID,
@@ -261,6 +276,7 @@ export class MutagenSession {
     // Create session object before calling the daemon to create it
     // This allows us to catch events from during the creation process _inside_ the MutagenSession
     let newSession = new MutagenSession(
+      logger,
       executable,
       daemon,
       SESSION_VERSION_NUMBER.toString(),
@@ -269,28 +285,43 @@ export class MutagenSession {
       mountPath
     )
 
-    const [, onExit] = executable.execute(args, {
-      stdio: ['ignore', 'ignore', 'ignore'],
-    })
+    const [, onExit] = executable.execute(
+      args,
+      {
+        stdio: ['ignore', 'ignore', 'ignore'],
+      },
+      daemon.log,
+      daemon.mutagenDataDirectory
+    )
     await onExit
 
     return newSession
   }
 
   async pause() {
-    const [, onExit] = this.#executable.execute(['sync', 'pause', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
-      timeout: 10000,
-    })
+    const [, onExit] = this.#executable.execute(
+      ['sync', 'pause', this.name],
+      {
+        stdio: ['ignore', 'ignore', 'ignore'],
+        timeout: 10000,
+      },
+      this.#daemon.log,
+      this.#daemon.mutagenDataDirectory
+    )
     await onExit
     this.#unsubscribeToStateUpdates()
   }
 
   async resume() {
     this.#subscribeToStateUpdates()
-    const [, onExit] = this.#executable.execute(['sync', 'resume', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
-    })
+    const [, onExit] = this.#executable.execute(
+      ['sync', 'resume', this.name],
+      {
+        stdio: ['ignore', 'ignore', 'ignore'],
+      },
+      this.#daemon.log,
+      this.#daemon.mutagenDataDirectory
+    )
     await onExit
   }
 
@@ -299,9 +330,14 @@ export class MutagenSession {
   }
 
   async terminate() {
-    const [, onExit] = this.#executable.execute(['sync', 'terminate', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
-    })
+    const [, onExit] = this.#executable.execute(
+      ['sync', 'terminate', this.name],
+      {
+        stdio: ['ignore', 'ignore', 'ignore'],
+      },
+      this.#daemon.log,
+      this.#daemon.mutagenDataDirectory
+    )
     await onExit
     this.#unsubscribeToStateUpdates()
   }

@@ -1,9 +1,10 @@
 import { ChildProcess } from 'child_process'
-import { MutagenExecutable } from './MutagenExecutable'
+import { MutagenExecutable } from './Executable'
 import { rm } from 'fs/promises'
 import { Readable, Writable } from 'stream'
-import { TypedEventEmitter } from './TypedEventEmitter'
-import { MutagenSessionState } from './MutagenSession'
+import { TypedEventEmitter } from '../TypedEventEmitter'
+import { MutagenSessionState } from './Session'
+import { Logger } from '../Logger'
 
 interface MutagenDaemonEvents {
   'session-manager-initialized': []
@@ -20,18 +21,35 @@ interface MutagenDaemonEvents {
 export class MutagenDaemon extends TypedEventEmitter<MutagenDaemonEvents> {
   static readonly #MUTAGEN_STATE_TRANSITION_LOG_PATTERN =
     /([a-z0-9-]+): ([A-Za-z]+) -> ([A-Za-z]+):/
-  readonly #executable: MutagenExecutable
-  #log: Writable
-  #process?: ChildProcess
-  #mutagenDataDirectory: string
 
-  constructor(executable: MutagenExecutable, mutagenDataDirectory: string, log: Writable) {
+  readonly #executable: MutagenExecutable
+  readonly #log: Writable
+  readonly #logger: Logger
+  readonly #mutagenDataDirectory: string
+
+  #process?: ChildProcess
+
+  constructor(
+    logger: Logger,
+    executable: MutagenExecutable,
+    mutagenDataDirectory: string,
+    log: Writable
+  ) {
     super()
+    this.#logger = logger.withPrefix('mutagen-daemon')
     this.#executable = executable
     this.#mutagenDataDirectory = mutagenDataDirectory
     this.#log = log
 
     this.setMaxListeners(50)
+  }
+
+  get log() {
+    return this.#log
+  }
+
+  get mutagenDataDirectory() {
+    return this.#mutagenDataDirectory
   }
 
   get isRunning() {
@@ -90,9 +108,14 @@ export class MutagenDaemon extends TypedEventEmitter<MutagenDaemonEvents> {
       return
     }
 
-    const daemonProcess = (this.#process = this.#executable.spawn(['daemon', 'run'], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }))
+    const daemonProcess = (this.#process = this.#executable.spawn(
+      ['daemon', 'run'],
+      {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+      this.#log,
+      this.#mutagenDataDirectory
+    ))
 
     this.#handleStdio(daemonProcess.stdout)
     this.#handleStdio(daemonProcess.stderr)
@@ -151,7 +174,7 @@ export class MutagenDaemon extends TypedEventEmitter<MutagenDaemonEvents> {
     if (this.#mutagenDataDirectory.length < 10) {
       throw new Error('not deleting mutagen dir, path is very short')
     }
-    console.log('deleting mutagen dir', this.#mutagenDataDirectory)
+    this.#logger.log('deleting mutagen dir', this.#mutagenDataDirectory)
     await rm(this.#mutagenDataDirectory, { recursive: true, force: true })
   }
 }
