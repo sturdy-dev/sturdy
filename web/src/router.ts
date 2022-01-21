@@ -499,7 +499,13 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/v2/docs',
-    component: () => import('./pages/docs/ProductIntro.vue'),
+    component: () => import('./pages/docs/DocsRoot.vue'),
+    name: 'v2DocsRoot',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/v2/docs/product-intro',
+    component: () => import('./pages/docs/SturdyProductIntro.vue'),
     name: 'v2DocsProductIntro',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },

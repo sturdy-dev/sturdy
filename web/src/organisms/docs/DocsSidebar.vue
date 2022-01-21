@@ -24,7 +24,8 @@ const groups = [
   {
     name: 'Getting Started',
     links: [
-      { route: 'v2DocsProductIntro', title: 'Getting Started' },
+      { route: 'v2DocsRoot', title: 'Getting Started' },
+      { route: 'v2DocsProductIntro', title: 'Product Intro' },
       { route: 'v2DocsQuickStart', title: 'Quick start' },
       { route: 'v2DocsUsingSturdy', title: 'Using Sturdy' },
     ],
