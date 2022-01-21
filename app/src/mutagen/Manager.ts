@@ -1,43 +1,46 @@
-import { MutagenExecutable } from './MutagenExecutable'
+import { MutagenExecutable } from './Executable'
 import { mkdir, readdir, stat } from 'fs/promises'
 import path from 'path'
 import { homedir, hostname } from 'os'
 import { BrowserWindow, dialog } from 'electron'
 import { createClient, gql } from '@urql/core'
-import { SSHKeys } from './SSHKeys'
-import { MutagenSessionConfigurator } from './MutagenSessionConfigurator'
-import { MutagenSession } from './MutagenSession'
-import { MutagenIPC, sharedMutagenIpc } from './ipc'
-import { MutagenDaemon } from './MutagenDaemon'
-import { dataPath } from './resources'
-import { ConfigFile } from './ConfigFile'
-import { AppStatus } from './AppStatus'
-import { PostHogTracker } from './PostHogTracker'
-import { Auth } from './Auth'
+import { SSHKeys } from '../SSHKeys'
+import { MutagenSessionConfigurator } from './SessionConfigurator'
+import { MutagenSession } from './Session'
+import { MutagenIPC, sharedMutagenIpc } from '../ipc'
+import { MutagenDaemon } from './Daemon'
+import { dataPath } from '../resources'
+import { File } from '../config'
+import { Status, Auth } from '../application'
+import { PostHogTracker } from '../PostHogTracker'
+import { Logger } from '../Logger'
 
 export class MutagenManager {
+  readonly #logger: Logger
   readonly #mutagen: MutagenDaemon
   readonly #mutagenExecutable: MutagenExecutable
-  readonly #status: AppStatus
-  #sessions: MutagenSession[] = []
-  readonly #configFile: ConfigFile
+  readonly #status: Status
+  readonly #configFile: File
   readonly #apiURL: URL
   readonly #syncHostURL: URL
   readonly #postHog: PostHogTracker
   readonly #auth: Auth
 
+  #sessions: MutagenSession[] = []
   #mainWindow: BrowserWindow | undefined
 
   constructor(
+    logger: Logger,
     mutagen: MutagenDaemon,
     mutagenExecutable: MutagenExecutable,
-    status: AppStatus,
-    configFile: ConfigFile,
+    status: Status,
+    configFile: File,
     apiURL: URL,
     syncHostURL: URL,
     postHog: PostHogTracker,
     auth: Auth
   ) {
+    this.#logger = logger.withPrefix('mutagen-manager')
     this.#mutagen = mutagen
     this.#mutagenExecutable = mutagenExecutable
     this.#status = status
@@ -69,24 +72,24 @@ export class MutagenManager {
 
   async preStartMutagen() {
     try {
+      this.#logger.log('checking for cmd sturdy-client...')
       await stat(path.join(homedir(), '.sturdy-sync', 'daemon', 'daemon.sock'))
-      await dialog.showErrorBox(
+      dialog.showErrorBox(
         'Conflicting Sturdy Installations',
         "Looks like you're running the CLI version of Sturdy. The app and the CLI isn't supposed to work in tandem. Please run 'sturdy stop' and try to start the app again."
       )
       process.exit(1)
-      return
     } catch {}
   }
 
   start() {
     this.#start().catch((e: Error) => {
-      console.log('failed to start mutagen, retrying once', e)
+      this.#logger.log('failed to start mutagen, retrying once', e)
 
       // Try to force restart once, otherwise give up and let user decide
       // whether to force restart again.
       this.forceRestart().catch((e) => {
-        console.log('failed to force restart mutagen', e)
+        this.#logger.log('failed to force restart mutagen', e)
       })
     })
   }
@@ -137,11 +140,12 @@ export class MutagenManager {
     const agentDir = dataPath(process.env.AGENT_DIR_NAME || 'sturdy-agent')
     await mkdir(agentDir, { recursive: true })
 
-    const sshKeys = new SSHKeys(client, this.#status, this.#syncHostURL, agentDir)
+    const sshKeys = new SSHKeys(this.#logger, client, this.#status, this.#syncHostURL, agentDir)
 
     await sshKeys.ensure()
 
     const sessionConfigurator = new MutagenSessionConfigurator(
+      this.#logger,
       agentDir,
       this.#mutagenExecutable,
       this.#mutagen,
@@ -158,9 +162,16 @@ export class MutagenManager {
       )
     )
 
-    this.#sessions = await MutagenSession.reconcile(sessionConfigurator, expectedViews)
+    this.#sessions = await MutagenSession.reconcile(
+      this.#logger,
+      sessionConfigurator,
+      expectedViews
+    )
 
-    console.log('Reconciled sessions:', this.#sessions)
+    this.#logger.log(
+      'reconciled sessions:',
+      this.#sessions.map((s) => s.name)
+    )
     this.#status.reconciledSessions()
 
     let manager = this
@@ -231,16 +242,16 @@ export class MutagenManager {
   async cleanup() {
     try {
       await Promise.all(
-        this.#sessions?.map((session) => session.pause().catch((e) => console.error(e))) ?? []
+        this.#sessions?.map((session) => session.pause().catch((e) => this.#logger.error(e))) ?? []
       )
     } catch (e) {
-      console.error(e)
+      this.#logger.error(e)
     }
 
     try {
       await this.#mutagen.stop()
     } catch (e) {
-      console.error(e)
+      this.#logger.error(e)
     }
   }
 

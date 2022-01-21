@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "rollup -c rollup.config.js && yarn electron-dev",
     "dev-prod": "rollup -c rollup.config.js && yarn electron-dev-prod",
-    "electron-dev": "cross-env AGENT_DIR_NAME=sturdy-agent-dev MUTAGEN_DIR_NAME=mutagen-dev STURDY_OLD_CONFIG_PATH=$HOME/.sturdy-local STURDY_WEB_URL=http://localhost:8080 STURDY_API_URL=http://localhost:3000/graphql STURDY_SYNC_URL=ssh://127.0.0.1:2222 STURDY_PROTOCOL=sturdy-dev STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo electron .",
+    "electron-dev": "cross-env AGENT_DIR_NAME=sturdy-agent-dev MUTAGEN_DIR_NAME=mutagen-dev STURDY_OLD_CONFIG_PATH=$HOME/.sturdy-local STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo STURDY_DEFAULT_BACKEND=development electron .",
     "electron-dev-prod": "cross-env AGENT_DIR_NAME=sturdy-agent-dev-prod MUTAGEN_DIR_NAME=mutagen-dev-prod STURDY_OLD_CONFIG_PATH=$HOME/.sturdy STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo electron .",
     "build": "rollup -c",
     "format": "prettier --write .",

@@ -1,41 +1,43 @@
 import { Menu, MenuItem, nativeImage } from 'electron'
-import { MutagenSession } from './MutagenSession'
-import { resourcePath } from './resources'
-import { TypedEventEmitter } from './TypedEventEmitter'
+import { Logger } from '../Logger'
+import { MutagenSession } from '../mutagen'
+import { resourcePath } from '../resources'
+import { TypedEventEmitter } from '../TypedEventEmitter'
 
-export type AppStatusState =
-  | 'offline'
-  | 'starting'
-  | 'creating-ssh-key'
-  | 'uploading-ssh-key'
-  | 'online'
+export type State = 'offline' | 'starting' | 'creating-ssh-key' | 'uploading-ssh-key' | 'online'
 
 const disconnectedIcon = nativeImage.createFromPath(resourcePath('TrayStatusDisconnected.png'))
 const connectingIcon = nativeImage.createFromPath(resourcePath('TrayStatusConnecting.png'))
 const connectedIcon = nativeImage.createFromPath(resourcePath('TrayStatusConnected.png'))
 
-export interface AppStatusEvents {
-  change: [state: AppStatusState]
+export interface StatusEvents {
+  change: [state: State]
 }
 
-export class AppStatus extends TypedEventEmitter<AppStatusEvents> {
-  #state: AppStatusState = 'starting'
+export class Status extends TypedEventEmitter<StatusEvents> {
+  #state: State = 'starting'
+  readonly #logger: Logger
+
+  constructor(logger: Logger) {
+    super()
+    this.#logger = logger.withPrefix('status')
+  }
 
   readonly #connectedMenuItem = new MenuItem({
     label: 'Connected',
-    enabled: false,
+    enabled: true,
     visible: false,
     icon: connectedIcon,
   })
   readonly #connectingMenuItem = new MenuItem({
     label: 'Connecting',
-    enabled: false,
+    enabled: true,
     visible: false,
     icon: connectingIcon,
   })
   readonly #disconnectedMenuItem = new MenuItem({
     label: 'Disconnected',
-    enabled: false,
+    enabled: true,
     visible: false,
     icon: disconnectedIcon,
   })
@@ -46,10 +48,10 @@ export class AppStatus extends TypedEventEmitter<AppStatusEvents> {
     menu.append(this.#disconnectedMenuItem)
   }
 
-  #setState(value: AppStatusState) {
+  #setState(value: State) {
     this.#state = value
     this.emit('change', value)
-    console.log('AppStatus', { state: value })
+    this.#logger.log(value)
 
     switch (value) {
       case 'offline':
@@ -72,7 +74,7 @@ export class AppStatus extends TypedEventEmitter<AppStatusEvents> {
     }
   }
 
-  get state(): AppStatusState {
+  get state(): State {
     return this.#state
   }
 

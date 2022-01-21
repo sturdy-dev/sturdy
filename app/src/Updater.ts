@@ -2,14 +2,19 @@ import { autoUpdater } from 'electron-updater'
 import { MenuItem, Menu } from 'electron'
 import { spawn } from 'child_process'
 import { app } from 'electron'
+import { Logger } from './Logger'
 
 export class Updater {
   readonly #checkForUpdatesMenuItem: MenuItem
   readonly #checkingForUpdatesMenuItem: MenuItem
   readonly #restartToApplyMenuItem: MenuItem
+  readonly #logger: Logger
+
   #interval?: NodeJS.Timer
 
-  private constructor(menu: Menu) {
+  private constructor(logger: Logger, menu: Menu) {
+    this.#logger = logger.withPrefix('updater')
+
     this.#checkForUpdatesMenuItem = new MenuItem({
       label: 'Check for Updates',
       click: this.checkForUpdates.bind(this),
@@ -32,8 +37,8 @@ export class Updater {
     menu.append(this.#restartToApplyMenuItem)
   }
 
-  static async start(menu: Menu): Promise<Updater> {
-    const updater = new Updater(menu)
+  static async start(logger: Logger, menu: Menu): Promise<Updater> {
+    const updater = new Updater(logger, menu)
     updater.#listen()
     await updater.checkForUpdates()
     return updater

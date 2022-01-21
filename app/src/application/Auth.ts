@@ -1,7 +1,6 @@
 import Electron, { Session } from 'electron'
-import { EventEmitter } from 'events'
 import { decode } from 'jsonwebtoken'
-import { TypedEventEmitter } from './TypedEventEmitter'
+import { TypedEventEmitter } from '../TypedEventEmitter'
 
 export interface AuthEvents {
   'logged-in': [jwt: string]

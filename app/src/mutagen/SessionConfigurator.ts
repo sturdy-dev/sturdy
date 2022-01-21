@@ -1,10 +1,11 @@
 import { Client, gql } from '@urql/core'
-import { SSHKeys } from './SSHKeys'
+import { SSHKeys } from '../SSHKeys'
 import { writeFile, mkdir } from 'fs/promises'
 import { join as joinPath } from 'path'
-import { MutagenSession, SessionConfig } from './MutagenSession'
-import { MutagenExecutable } from './MutagenExecutable'
-import { MutagenDaemon } from './MutagenDaemon'
+import { MutagenSession, SessionConfig } from './Session'
+import { MutagenExecutable } from './Executable'
+import { MutagenDaemon } from './Daemon'
+import { Logger } from '../Logger'
 
 interface MutagenConfig {
   sync: MutagenSyncConfig
@@ -26,6 +27,7 @@ interface MutagenSyncEndpointIgnoreConfig {
 }
 
 export class MutagenSessionConfigurator {
+  readonly #logger: Logger
   readonly #directory: string
   readonly #executable: MutagenExecutable
   readonly #daemon: MutagenDaemon
@@ -35,6 +37,7 @@ export class MutagenSessionConfigurator {
   readonly #client: Client
 
   constructor(
+    logger: Logger,
     directory: string,
     executable: MutagenExecutable,
     daemon: MutagenDaemon,
@@ -43,6 +46,7 @@ export class MutagenSessionConfigurator {
     syncHostURL: URL,
     client: Client
   ) {
+    this.#logger = logger.withPrefix('session')
     this.#directory = directory
     this.#executable = executable
     this.#daemon = daemon
@@ -128,6 +132,7 @@ export class MutagenSessionConfigurator {
     await mkdir(path, { recursive: true })
 
     return {
+      logger: this.#logger,
       configPath: sessionConfigPath,
       mountPath: path,
       viewID,

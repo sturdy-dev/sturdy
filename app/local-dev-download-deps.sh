@@ -17,7 +17,7 @@ done
 
 if [ "$STURDY_SYNC_VERSION" == "" ]; then
   echoerr "--sturdy-sync-version is not set!"
-  exit 1;
+  exit 1
 fi
 
 source build-common.sh

@@ -1,4 +1,4 @@
-import { AppStatusState } from './AppStatus'
+import { State } from './application'
 
 export class IPCMethod<A extends any[], R> {
   readonly #channel: string
@@ -55,7 +55,7 @@ export var sharedAppIpc = {
   canGoForward: new IPCMethod<[], boolean>('canGoForward'),
   goBack: new IPCMethod<[], void>('goBack'),
   goForward: new IPCMethod<[], void>('goForward'),
-  state: new IPCMethod<[], AppStatusState>('state'),
+  state: new IPCMethod<[], State>('state'),
   forceRestartMutagen: new IPCMethod<[], void>('forceRestartMutagen'),
 }
 

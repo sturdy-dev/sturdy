@@ -1,9 +1,9 @@
-import { readFile, writeFile, rm } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { Config, ViewConfig } from './Config'
 import { join } from 'path'
 import { homedir } from 'os'
 
-export class ConfigFile {
+export class File {
   readonly #path: string
   #data!: Config
 
@@ -11,8 +11,12 @@ export class ConfigFile {
     this.#path = path
   }
 
+  get path() {
+    return this.#path
+  }
+
   static async open(path: string) {
-    const file = new ConfigFile(path)
+    const file = new File(path)
     await file.#read()
     return file
   }
