@@ -6,6 +6,7 @@ import (
 	"log"
 	_ "net/http/pprof"
 	"os"
+	"time"
 
 	module_analytics "getsturdy.com/api/pkg/analytics/module"
 	"getsturdy.com/api/pkg/api"
@@ -137,7 +138,7 @@ func main() {
 			return provider.New(*reposBasePath, *gitLfsHostname)
 		},
 		func() (*sqlx.DB, error) {
-			return db.Setup(*dbSourceAddr)
+			return db.TrySetup(logger, *dbSourceAddr, 5*time.Second)
 		},
 		func() config.GitHubAppConfig {
 			return config.GitHubAppConfig{

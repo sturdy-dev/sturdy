@@ -1,12 +1,12 @@
 {
   "private": true,
-  "version": "0.3.0-beta1",
+  "version": "0.4.0-beta1",
   "name": "SturdyDev",
   "main": "dist/main.js",
   "scripts": {
     "dev": "rollup -c rollup.config.js && yarn electron-dev",
     "dev-prod": "rollup -c rollup.config.js && yarn electron-dev-prod",
-    "electron-dev": "cross-env AGENT_DIR_NAME=sturdy-agent-dev MUTAGEN_DIR_NAME=mutagen-dev STURDY_OLD_CONFIG_PATH=$HOME/.sturdy-local STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo STURDY_DEFAULT_BACKEND=development electron .",
+    "electron-dev": "cross-env AGENT_DIR_NAME=sturdy-agent-dev MUTAGEN_DIR_NAME=mutagen-dev STURDY_PROTOCOL=sturdy-dev STURDY_OLD_CONFIG_PATH=$HOME/.sturdy-local STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo STURDY_DEFAULT_BACKEND=development electron .",
     "electron-dev-prod": "cross-env AGENT_DIR_NAME=sturdy-agent-dev-prod MUTAGEN_DIR_NAME=mutagen-dev-prod STURDY_OLD_CONFIG_PATH=$HOME/.sturdy STURDY_POSTHOG_API_KEY=AFCRFwnQF8Y_Y4yvPasmyf3UOxG3rJVEGC6v4NG_ZRo electron .",
     "build": "rollup -c",
     "format": "prettier --write .",

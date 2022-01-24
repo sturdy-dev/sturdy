@@ -27,25 +27,25 @@ func (c *client) Enqueue(event analytics.Message) error {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type)
+		e.Properties.Set("installation_type", c.installation.Type.String())
 	case analytics.Capture:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type)
+		e.Properties.Set("installation_type", c.installation.Type.String())
 	case analytics.Identify:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type)
+		e.Properties.Set("installation_type", c.installation.Type.String())
 	case *analytics.Identify:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type)
+		e.Properties.Set("installation_type", c.installation.Type.String())
 	}
 
 	return c.Client.Enqueue(event)

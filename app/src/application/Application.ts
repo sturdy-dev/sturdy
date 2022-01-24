@@ -4,10 +4,8 @@ import { PostHogTracker } from '../PostHogTracker'
 import { Auth } from './Auth'
 import { MutagenManager, MutagenExecutable, MutagenDaemon } from '../mutagen'
 import { dataPath, resourcePath } from '../resources'
-import { createWriteStream, mkdirSync } from 'fs'
 import { Status } from './Status'
 import { dialog, BrowserWindow, shell, app } from 'electron'
-import { WriteStream } from 'fs'
 import { Logger } from '../Logger'
 import { File } from '../Config'
 import { AppIPC, MutagenIPC, sharedAppIpc, sharedMutagenIpc } from '../ipc'
@@ -19,7 +17,6 @@ export class Application {
   readonly #protocol: string
   readonly #mutagenManager: MutagenManager
   readonly #postHogTracker: PostHogTracker
-  readonly #mutagenLog: WriteStream
   readonly #status: Status
   readonly #logger: Logger
 
@@ -32,7 +29,6 @@ export class Application {
     protocol: string,
     mutagenManager: MutagenManager,
     postHogTracker: PostHogTracker,
-    mutagenLog: WriteStream,
     status: Status,
     logger: Logger
   ) {
@@ -42,7 +38,6 @@ export class Application {
     this.#protocol = protocol
     this.#postHogTracker = postHogTracker
     this.#mutagenManager = mutagenManager
-    this.#mutagenLog = mutagenLog
     this.#status = status
     this.#logger = logger
   }
@@ -54,6 +49,8 @@ export class Application {
     isAppPackaged,
     protocol,
     logger,
+    daemon,
+    status,
   }: {
     host: Host
     mutagenExecutable: MutagenExecutable
@@ -61,14 +58,15 @@ export class Application {
     isAppPackaged: boolean
     protocol: string
     logger: Logger
+    daemon: MutagenDaemon
+    status: Status
   }) {
     logger = logger.withPrefix(host.id)
     logger.log('starting')
     const isUp = await host.isUp()
     if (!isUp) throw new Error(`Can't start, ${host.title} is not up`)
 
-    const auth = await Auth.start(host.apiURL)
-    const status = new Status(logger)
+    const auth = await Auth.start(host.graphqlURL)
 
     const configFile =
       host.id === 'cloud'
@@ -76,41 +74,7 @@ export class Application {
         : await File.open(dataPath(host.id, 'config.json'))
     logger.log('config file', configFile.path)
 
-    const logsDir =
-      host.id === 'cloud'
-        ? dataPath('logs') // fallback to support apps before the multi-backend update
-        : dataPath(host.id, 'logs')
-    logger.log('logs dir', logsDir)
-    mkdirSync(logsDir, { recursive: true })
-
-    const mutagenLog = createWriteStream(path.join(logsDir, 'mutagen.log'), {
-      flags: 'a',
-      mode: 0o666,
-    })
-    logger.log('mutagen log', mutagenLog.path)
-
-    const mutagenDataDirectoryPath =
-      host.id === 'cloud'
-        ? dataPath('mutagen') // fallback to support apps before the multi-backend update
-        : dataPath(host.id, 'mutagen')
-    logger.log('mutagen data directory', mutagenDataDirectoryPath)
-
-    const daemon = new MutagenDaemon(
-      logger,
-      mutagenExecutable,
-      mutagenDataDirectoryPath,
-      mutagenLog
-    )
-    daemon.on('session-manager-initialized', status.mutagenStarted.bind(status))
-    daemon.on('failed-to-start', status.mutagenFailedToStart.bind(status))
-    daemon.on('is-running-changed', (isRunning) => {
-      if (!isRunning) {
-        status.mutagenStopped()
-      }
-    })
-    daemon.on('connection-to-server-dropped', status.connectionDropped.bind(status))
-
-    const postHogTracker = new PostHogTracker(host.apiURL, postHogToken)
+    const postHogTracker = new PostHogTracker(host.graphqlURL, postHogToken)
     const mutagenManager = new MutagenManager(
       logger,
       daemon,
@@ -118,9 +82,11 @@ export class Application {
       status,
       configFile,
       host.apiURL,
+      host.graphqlURL,
       host.syncURL,
       postHogTracker,
-      auth
+      auth,
+      host.reposBasePath
     )
 
     await mutagenManager.preStartMutagen()
@@ -169,7 +135,6 @@ export class Application {
       protocol,
       mutagenManager,
       postHogTracker,
-      mutagenLog,
       status,
       logger
     )
@@ -303,7 +268,6 @@ export class Application {
     this.#logger.log('cleaning up...')
     this.#postHogTracker.flush()
     await this.#mutagenManager?.cleanup()
-    this.#mutagenLog?.end()
   }
 
   get host() {

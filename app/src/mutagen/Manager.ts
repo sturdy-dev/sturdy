@@ -22,9 +22,11 @@ export class MutagenManager {
   readonly #status: Status
   readonly #configFile: File
   readonly #apiURL: URL
+  readonly #graphqlURL: URL
   readonly #syncHostURL: URL
   readonly #postHog: PostHogTracker
   readonly #auth: Auth
+  readonly #reposBasePath: string
 
   #sessions: MutagenSession[] = []
   #mainWindow: BrowserWindow | undefined
@@ -36,9 +38,11 @@ export class MutagenManager {
     status: Status,
     configFile: File,
     apiURL: URL,
+    graphqlURL: URL,
     syncHostURL: URL,
     postHog: PostHogTracker,
-    auth: Auth
+    auth: Auth,
+    reposBasePath: string
   ) {
     this.#logger = logger.withPrefix('mutagen-manager')
     this.#mutagen = mutagen
@@ -46,9 +50,11 @@ export class MutagenManager {
     this.#status = status
     this.#configFile = configFile
     this.#apiURL = apiURL
+    this.#graphqlURL = graphqlURL
     this.#syncHostURL = syncHostURL
     this.#postHog = postHog
     this.#auth = auth
+    this.#reposBasePath = reposBasePath
 
     mutagen.on('session-state-changed', (name, fromState, toState) => {
       // Wait for sessions to update their states
@@ -84,12 +90,12 @@ export class MutagenManager {
 
   start() {
     this.#start().catch((e: Error) => {
-      this.#logger.log('failed to start mutagen, retrying once', e)
+      this.#logger.error('failed to start mutagen, retrying once', e)
 
       // Try to force restart once, otherwise give up and let user decide
       // whether to force restart again.
       this.forceRestart().catch((e) => {
-        this.#logger.log('failed to force restart mutagen', e)
+        this.#logger.error('failed to force restart mutagen', e)
       })
     })
   }
@@ -106,7 +112,7 @@ export class MutagenManager {
     }
 
     const client = createClient({
-      url: this.#apiURL.href,
+      url: this.#graphqlURL.href,
       fetch: (await import('node-fetch')).default as any,
       fetchOptions: {
         credentials: 'include',
@@ -152,7 +158,8 @@ export class MutagenManager {
       sshKeys,
       this.#apiURL,
       this.#syncHostURL,
-      client
+      client,
+      this.#reposBasePath
     )
 
     // Only the views that configured and exist on the server for this user are expected

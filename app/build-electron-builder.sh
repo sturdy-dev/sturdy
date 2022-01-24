@@ -34,15 +34,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ "$STURDY_SYNC_VERSION" == "" ]; then
-  echoerr "--sturdy-sync-version is not set!"
-  exit 1;
-fi
-
 source build-common.sh
 
+if [ "$STURDY_SYNC_VERSION" == "" ]; then
+  echoerr "--sturdy-sync-version is not set!"
+  exit 1
+fi
 
-if (( NOTARIZE )); then
+if ((NOTARIZE)); then
   setup_darwin_notarize
 fi
 
@@ -55,6 +54,6 @@ build windows amd64 zip
 # build linux amd64
 # build linux arm64
 
-if (( DO_UPLOAD )); then
+if ((DO_UPLOAD)); then
   invalidate_cloudfront "${CHANNEL}"
 fi

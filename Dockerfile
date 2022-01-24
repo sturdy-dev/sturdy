@@ -1,5 +1,11 @@
 FROM golang:1.17.6-alpine3.15 as mutagen-ssh-builder
 WORKDIR /go/src/mutagen-ssh
+RUN apk update \
+    && apk add --no-cache \
+        bash \
+        git
+COPY ./mutagen-ssh/build-mutagen.sh ./build-mutagen.sh
+RUN bash ./build-mutagen.sh
 # cache mutagen-ssh depencencies
 COPY ./mutagen-ssh/go.mod ./go.mod
 COPY ./mutagen-ssh/go.sum ./go.sum
@@ -9,7 +15,7 @@ COPY ./mutagen-ssh .
 RUN go build -v -o /usr/bin/mutagen-ssh mutagen-ssh/cmd/mutagen-ssh
 
 FROM golang:1.17.6-alpine3.15 as api-builder
-# install github.com/libgit2/git2go dependencies
+# github.com/libgit2/git2go dependencies
 RUN apk update \
     && apk add --no-cache \
         libgit2-dev=1.3.0-r0 \
@@ -59,6 +65,7 @@ FROM alpine:3.15
 # openssl is needed by rudolfs to generate secret
 # git-lfs and libgit2 are needed by api
 # openssh-keygen is needed by mutagen-ssh to generate ssh keys
+# ca-cerificates is needed by mutagen-ssh to connect to tls hosts
 RUN apk update \
     && apk add --no-cache \
         postgresql14=14.1-r5 \
@@ -66,10 +73,15 @@ RUN apk update \
         git-lfs=3.0.2-r0 \
         libgit2=1.3.0-r0 \
         openssh-keygen=8.8_p1-r1 \
-        bash
+        bash \
+        ca-certificates=20211220-r0 
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh
+COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
+COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
+COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
+COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay
@@ -85,8 +97,8 @@ RUN sha256sum "/tmp/s6-overlay-installer" \
 COPY s6 /etc
 ENV S6_KILL_GRACETIME=0 \
     S6_SERVICES_GRACETIME=0
-# 30080 is a port for web + api
-# 30022 is a port for ssh
-EXPOSE 30080 30022
+# 80 is a port for web + api
+# 22 is a port for ssh
+EXPOSE 80 22
 VOLUME [ "/var/data" ]
 ENTRYPOINT [ "/init" ]

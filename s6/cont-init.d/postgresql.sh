@@ -41,7 +41,7 @@ set_hba_param() {
 }
 
 initialize_database() {
-  if [[ ! -f ${PG_DATADIR} ]]; then
+  if [[ ! -d ${PG_DATADIR} ]]; then
     echo "Initializing database..."
 
     if [[ -n $PG_PASSWORD ]]; then

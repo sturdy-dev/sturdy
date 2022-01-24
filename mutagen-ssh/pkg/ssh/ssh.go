@@ -41,9 +41,6 @@ func New(logger *zap.Logger, cfg *Config) *Server {
 }
 
 func (srv *Server) Start(ctx context.Context) error {
-	srv.logger.Info("Starting SSH server",
-		zap.String("addr", srv.cfg.ListenAddr),
-	)
 
 	srv.sshServer = &ssh.Server{
 		Handler: srv.sshHandler,
@@ -58,13 +55,13 @@ func (srv *Server) Start(ctx context.Context) error {
 		// This is disabled for now.
 		// MaxTimeout:  time.Second * 45,
 	}
+
 	if err := srv.sshServer.SetOption(ssh.HostKeyFile(srv.cfg.KeyHostPath)); err != nil {
 		return fmt.Errorf("failed to set host key file: %w", err)
 	}
 	if err := srv.sshServer.SetOption(ssh.PublicKeyAuth(validateKey(srv.logger, srv.cfg.SturdyApiAddr))); err != nil {
 		return fmt.Errorf("failed to set public key auth: %w", err)
 	}
-
 	if err := srv.sshServer.SetOption(ssh.WrapConn(func(_ ssh.Context, conn net.Conn) net.Conn {
 		if err := conn.(*net.TCPConn).SetKeepAlive(true); err != nil {
 			log.Fatal(err)
@@ -76,6 +73,10 @@ func (srv *Server) Start(ctx context.Context) error {
 	})); err != nil {
 		return fmt.Errorf("failed to set tcp connection option: %w", err)
 	}
+
+	srv.logger.Info("Starting SSH server",
+		zap.String("addr", srv.cfg.ListenAddr),
+	)
 
 	if err := srv.sshServer.ListenAndServe(); err != ssh.ErrServerClosed {
 		return fmt.Errorf("failed to listen and serve: %w", err)

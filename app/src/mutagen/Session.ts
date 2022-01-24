@@ -31,6 +31,7 @@ export interface SessionSharedConfig {
   syncHostURL: URL
   executable: MutagenExecutable
   daemon: MutagenDaemon
+  reposBasePath: string
 }
 
 export interface SessionConfig extends SessionSharedConfig {
@@ -202,14 +203,9 @@ export class MutagenSession {
     daemon: MutagenDaemon,
     apiURL: URL
   ): Promise<MutagenSession[]> {
-    const [list, onExit] = executable.execute(
-      ['sync', 'list', '--json'],
-      {
-        stdio: ['ignore', 'pipe', 'ignore'],
-      },
-      daemon.log,
-      daemon.mutagenDataDirectory
-    )
+    const [list, onExit] = executable.execute(['sync', 'list', '--json'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
 
     const chunks: Buffer[] = []
     list.stdout.on('data', (chunk) => chunks.push(chunk))
@@ -250,8 +246,10 @@ export class MutagenSession {
     syncHostURL,
     executable,
     daemon,
+    reposBasePath,
   }: SessionConfig): Promise<MutagenSession> {
     const name = `view-${viewID}`
+    logger.log(`new session ${name}`)
     // prettier-ignore
     const args = [
             'sync', 'create',
@@ -263,6 +261,7 @@ export class MutagenSession {
             '--label', `sturdyApiProto=${apiURL.protocol.slice(0, -1)}`,
             '--label', `sturdyApiHost=${apiURL.hostname}`,
             '--label', `sturdyApiHostPort=${apiURL.port}`,
+            '--label', `sturdyApiPrefix=${apiURL.pathname === '' ? '' : apiURL.pathname.slice(1)}`,
             '--label', `sturdyViewId=${viewID}`,
             '--stage-mode-beta=neighboring',
 
@@ -270,7 +269,7 @@ export class MutagenSession {
             mountPath,
 
             // Beta
-            `${userID}@${syncHostURL.host}:/repos/${codebaseID}/${viewID}/`,
+            `${userID}@${syncHostURL.host}:${reposBasePath}/${codebaseID}/${viewID}/`,
         ]
 
     // Create session object before calling the daemon to create it
@@ -285,43 +284,28 @@ export class MutagenSession {
       mountPath
     )
 
-    const [, onExit] = executable.execute(
-      args,
-      {
-        stdio: ['ignore', 'ignore', 'ignore'],
-      },
-      daemon.log,
-      daemon.mutagenDataDirectory
-    )
+    const [, onExit] = executable.execute(args, {
+      stdio: ['ignore', 'ignore', 'ignore'],
+    })
     await onExit
 
     return newSession
   }
 
   async pause() {
-    const [, onExit] = this.#executable.execute(
-      ['sync', 'pause', this.name],
-      {
-        stdio: ['ignore', 'ignore', 'ignore'],
-        timeout: 10000,
-      },
-      this.#daemon.log,
-      this.#daemon.mutagenDataDirectory
-    )
+    const [, onExit] = this.#executable.execute(['sync', 'pause', this.name], {
+      stdio: ['ignore', 'ignore', 'ignore'],
+      timeout: 10000,
+    })
     await onExit
     this.#unsubscribeToStateUpdates()
   }
 
   async resume() {
     this.#subscribeToStateUpdates()
-    const [, onExit] = this.#executable.execute(
-      ['sync', 'resume', this.name],
-      {
-        stdio: ['ignore', 'ignore', 'ignore'],
-      },
-      this.#daemon.log,
-      this.#daemon.mutagenDataDirectory
-    )
+    const [, onExit] = this.#executable.execute(['sync', 'resume', this.name], {
+      stdio: ['ignore', 'ignore', 'ignore'],
+    })
     await onExit
   }
 
@@ -330,14 +314,9 @@ export class MutagenSession {
   }
 
   async terminate() {
-    const [, onExit] = this.#executable.execute(
-      ['sync', 'terminate', this.name],
-      {
-        stdio: ['ignore', 'ignore', 'ignore'],
-      },
-      this.#daemon.log,
-      this.#daemon.mutagenDataDirectory
-    )
+    const [, onExit] = this.#executable.execute(['sync', 'terminate', this.name], {
+      stdio: ['ignore', 'ignore', 'ignore'],
+    })
     await onExit
     this.#unsubscribeToStateUpdates()
   }

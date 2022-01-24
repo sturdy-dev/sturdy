@@ -1,14 +1,15 @@
 import path from 'path'
 import { app, crashReporter, Menu, MenuItem, nativeImage, Tray } from 'electron'
 import { Updater } from './Updater'
-import { resourceBinary, resourcePath } from './resources'
+import { dataPath, resourceBinary, resourcePath } from './resources'
 import * as Sentry from '@sentry/electron'
-import { Host } from './application'
+import { Host, Status } from './application'
 import { CaptureConsole } from '@sentry/integrations'
 import { Application } from './Application'
-import { MutagenExecutable } from './mutagen'
+import { MutagenDaemon, MutagenExecutable } from './mutagen'
 import { ApplicationManager } from './ApplicationManager'
 import { Logger } from './Logger'
+import { createWriteStream } from 'fs'
 
 // Start crash reporter before setting up logging
 crashReporter.start({
@@ -72,27 +73,33 @@ const postHogToken =
 
 const runAutoUpdater = app.isPackaged && !process.env.STURDY_DISABLE_AUTO_UPDATER
 
-const development = new Host(
-  'development',
-  'Development',
-  new URL('http://localhost:8080'),
-  new URL('http://localhost:3000/graphql'),
-  new URL('ssh://127.0.0.1:2222')
-)
-const cloud = new Host(
-  'cloud',
-  'Cloud',
-  new URL('https://getsturdy.com'),
-  new URL('https://api.getsturdy.com/graphql'),
-  new URL('ssh://sync.getsturdy.com')
-)
-const selfhosted = new Host(
-  'selfhosted',
-  'Self-hosted',
-  new URL('http://localhost:30080'),
-  new URL('http://localhost:30080/api/graphql'),
-  new URL('ssh://localhost:30022')
-)
+const development = new Host({
+  id: 'development',
+  title: 'Development',
+  webURL: new URL('http://localhost:8080'),
+  graphqlURL: new URL('http://localhost:3000/graphql'),
+  apiURL: new URL('http://localhost:3000'),
+  syncURL: new URL('ssh://127.0.0.1:2222'),
+  reposBasePath: '/repos',
+})
+const cloud = new Host({
+  id: 'cloud',
+  title: 'Cloud',
+  webURL: new URL('https://getsturdy.com'),
+  graphqlURL: new URL('https://api.getsturdy.com/graphql'),
+  apiURL: new URL('https://api.getsturdy.com'),
+  syncURL: new URL('ssh://sync.getsturdy.com'),
+  reposBasePath: '/repos',
+})
+const selfhosted = new Host({
+  id: 'selfhosted',
+  title: 'Self-hosted',
+  webURL: new URL('http://localhost:30080'),
+  graphqlURL: new URL('http://localhost:30080/api/graphql'),
+  apiURL: new URL('http://localhost:30080/api'),
+  syncURL: new URL('ssh://localhost:30022'),
+  reposBasePath: '/var/data/repos',
+})
 
 const knownHosts =
   process.env.STURDY_DEFAULT_BACKEND === 'development'
@@ -101,10 +108,35 @@ const knownHosts =
 
 const defaultHost = knownHosts.find((h) => h.id === process.env.STURDY_DEFAULT_BACKEND) ?? cloud
 
+const logsDir = dataPath('logs')
+
+const mutagenLog = createWriteStream(path.join(logsDir, 'mutagen.log'), {
+  flags: 'a',
+  mode: 0o666,
+})
+logger.log('mutagen log', mutagenLog.path)
+
+const mutagenDataDirectoryPath = dataPath('mutagen')
+logger.log('mutagen data directory', mutagenDataDirectoryPath)
+
 const mutagenExecutable = new MutagenExecutable({
   executablePath: resourceBinary('sturdy-sync'),
   logger: logger,
+  log: mutagenLog,
+  dataDirectory: mutagenDataDirectoryPath,
 })
+
+const status = new Status(logger)
+
+const daemon = new MutagenDaemon(logger, mutagenExecutable)
+daemon.on('session-manager-initialized', status.mutagenStarted.bind(status))
+daemon.on('failed-to-start', status.mutagenFailedToStart.bind(status))
+daemon.on('is-running-changed', (isRunning) => {
+  if (!isRunning) {
+    status.mutagenStopped()
+  }
+})
+daemon.on('connection-to-server-dropped', status.connectionDropped.bind(status))
 
 const manager = new ApplicationManager(
   knownHosts,
@@ -112,14 +144,16 @@ const manager = new ApplicationManager(
   postHogToken,
   app.isPackaged,
   protocol,
-  logger
+  logger,
+  daemon,
+  status
 )
 
 let tray: Tray | undefined
 
 const menu = (application: Application) => {
   const menu = new Menu()
-  application.status.appendMenuItem(menu)
+  status.appendMenuItem(menu)
   menu.append(new MenuItem({ type: 'separator' }))
   menu.append(
     new MenuItem({
@@ -151,6 +185,8 @@ const menu = (application: Application) => {
       click: async () => {
         try {
           await manager.cleanup()
+          mutagenExecutable.abort()
+          mutagenLog.end()
         } finally {
           process.exit()
         }
@@ -161,7 +197,7 @@ const menu = (application: Application) => {
   return menu
 }
 
-manager.on('status', (state) => {
+status.on('change', (state) => {
   if (state === 'online') {
     tray?.setImage(iconTray)
   } else {
@@ -249,6 +285,7 @@ main().catch(async (e) => {
   try {
     await manager.cleanup()
     mutagenExecutable.abort()
+    mutagenLog.end()
   } catch (er) {
     logger.error(er)
   } finally {

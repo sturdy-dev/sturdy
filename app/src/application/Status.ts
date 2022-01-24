@@ -49,9 +49,13 @@ export class Status extends TypedEventEmitter<StatusEvents> {
   }
 
   #setState(value: State) {
+    if (this.#state === value) {
+      return
+    }
+
+    this.#logger.log(value)
     this.#state = value
     this.emit('change', value)
-    this.#logger.log(value)
 
     switch (value) {
       case 'offline':
