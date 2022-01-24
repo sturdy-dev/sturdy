@@ -11,20 +11,20 @@ export class Auth extends TypedEventEmitter<AuthEvents> {
   static readonly #AUTH_COOKIE_NAME = 'auth'
 
   readonly #session: Session
-  readonly #apiURL: URL
+  readonly #graphqlURL: URL
   #jwt?: string
 
-  private constructor(session: Session, apiURL: URL) {
+  private constructor(session: Session, graphqlURL: URL) {
     super()
     this.#session = session
-    this.#apiURL = apiURL
+    this.#graphqlURL = graphqlURL
   }
 
   static async start(
-    apiURL: URL,
+    graphqlURL: URL,
     session: Session = Electron.session.defaultSession
   ): Promise<Auth> {
-    const auth = new Auth(session, apiURL)
+    const auth = new Auth(session, graphqlURL)
 
     await auth.#start()
 
@@ -34,7 +34,7 @@ export class Auth extends TypedEventEmitter<AuthEvents> {
   async #start() {
     const cookies = await this.#session.cookies.get({
       name: Auth.#AUTH_COOKIE_NAME,
-      domain: this.#apiURL.hostname,
+      domain: this.#graphqlURL.hostname,
     })
 
     for (const cookie of cookies) {
@@ -51,7 +51,7 @@ export class Auth extends TypedEventEmitter<AuthEvents> {
     }
 
     this.#session.cookies.on('changed', (_, cookie, __, removed) => {
-      if (cookie.name !== Auth.#AUTH_COOKIE_NAME || cookie.domain !== this.#apiURL.hostname) {
+      if (cookie.name !== Auth.#AUTH_COOKIE_NAME || cookie.domain !== this.#graphqlURL.hostname) {
         return
       }
 

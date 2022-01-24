@@ -4,12 +4,12 @@ import PostHog from 'posthog-node'
 const { app } = require('electron')
 
 export class PostHogTracker {
-  readonly #apiURL: URL
+  readonly #graphqlURL: URL
   #userID: string | undefined
   readonly #client: PostHog
 
-  constructor(apiURL: URL, postHogToken: string) {
-    this.#apiURL = apiURL
+  constructor(graphqlURL: URL, postHogToken: string) {
+    this.#graphqlURL = graphqlURL
     this.#client = new PostHog(postHogToken)
   }
 
@@ -19,7 +19,7 @@ export class PostHogTracker {
 
   async updateUser(jwt: string): Promise<string> {
     const client = createClient({
-      url: this.#apiURL.href,
+      url: this.#graphqlURL.href,
       fetch: (await import('node-fetch')).default as any,
       fetchOptions: {
         credentials: 'include',

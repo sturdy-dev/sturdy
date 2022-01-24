@@ -5,16 +5,36 @@ export class Host {
   readonly #title: string
   readonly #webURL: URL
   readonly #apiURL: URL
+  readonly #graphqlURL: URL
   readonly #syncURL: URL
+  readonly #reposBasePath: string
   readonly #logger: Logger
 
-  constructor(id: string, title: string, webURL: URL, apiURL: URL, syncURL: URL) {
+  constructor({
+    id,
+    title,
+    webURL,
+    apiURL,
+    graphqlURL,
+    syncURL,
+    reposBasePath,
+  }: {
+    id: string
+    title: string
+    webURL: URL
+    apiURL: URL
+    graphqlURL: URL
+    syncURL: URL
+    reposBasePath: string
+  }) {
     this.#id = id
     this.#title = title
     this.#webURL = webURL
     this.#apiURL = apiURL
+    this.#graphqlURL = graphqlURL
     this.#syncURL = syncURL
     this.#logger = new Logger('host', id)
+    this.#reposBasePath = reposBasePath
   }
 
   get id() {
@@ -33,8 +53,16 @@ export class Host {
     return this.#apiURL
   }
 
+  get graphqlURL() {
+    return this.#graphqlURL
+  }
+
   get syncURL() {
     return this.#syncURL
+  }
+
+  get reposBasePath() {
+    return this.#reposBasePath
   }
 
   async isUp(): Promise<boolean> {

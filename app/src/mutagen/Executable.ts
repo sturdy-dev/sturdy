@@ -15,33 +15,51 @@ export class MutagenExecutable {
   readonly #executablePath: string
   readonly #runningProcesses = new Set<ChildProcess>()
   readonly #logger: Logger
+  readonly #dataDirectory: string
+  readonly #log: Writable
 
-  constructor({ executablePath, logger }: { executablePath: string; logger: Logger }) {
+  constructor({
+    executablePath,
+    logger,
+    dataDirectory,
+    log,
+  }: {
+    executablePath: string
+    logger: Logger
+    dataDirectory: string
+    log: Writable
+  }) {
     this.#executablePath = executablePath
     this.#logger = logger.withPrefix('mutagen')
+    this.#dataDirectory = dataDirectory
+    this.#log = log
   }
 
-  #decorateSpawnOptions<O extends SpawnOptions>(
-    options: O,
-    log: Writable,
-    dataDirectory: string
-  ): O {
+  get log(): Writable {
+    return this.#log
+  }
+
+  get dataDirectory(): string {
+    return this.#dataDirectory
+  }
+
+  #decorateSpawnOptions<O extends SpawnOptions>(options: O): O {
     let stdio: StdioOptions
     switch (typeof options.stdio) {
       case 'undefined':
-        stdio = ['ignore', log, log]
+        stdio = ['ignore', this.#log, this.#log]
         break
       case 'string':
-        stdio = options.stdio === 'ignore' ? ['ignore', log, log] : options.stdio
+        stdio = options.stdio === 'ignore' ? ['ignore', this.#log, this.#log] : options.stdio
         break
       default:
-        stdio = options.stdio.map((io, idx) => (idx > 0 && io === 'ignore' ? log : io))
+        stdio = options.stdio.map((io, idx) => (idx > 0 && io === 'ignore' ? this.#log : io))
         break
     }
     return {
       ...options,
       env: {
-        MUTAGEN_DATA_DIRECTORY: dataDirectory,
+        MUTAGEN_DATA_DIRECTORY: this.#dataDirectory,
         MUTAGEN_DISABLE_AUTOSTART: '1',
         ...(options.env ?? process.env),
       },
@@ -60,63 +78,47 @@ export class MutagenExecutable {
 
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>
   ): [proc: ChildProcessByStdio<Writable, Readable, Readable>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>
   ): [proc: ChildProcessByStdio<Writable, Readable, null>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>
   ): [proc: ChildProcessByStdio<Writable, null, Readable>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>
   ): [proc: ChildProcessByStdio<null, Readable, Readable>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>
   ): [proc: ChildProcessByStdio<Writable, null, null>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>
   ): [proc: ChildProcessByStdio<null, Readable, null>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>
   ): [proc: ChildProcessByStdio<null, null, Readable>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>
   ): [proc: ChildProcessByStdio<null, null, null>, onExit: Promise<void>]
   execute(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<any, any, any>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<any, any, any>
   ): [proc: ChildProcess, onExit: Promise<void>] {
-    const proc = spawn(
-      this.#executablePath,
+    this.#logger.log('execute', {
+      path: this.#executablePath,
       args,
-      this.#decorateSpawnOptions(options, log, dataDirectory)
-    )
+      cwd: options.cwd,
+    })
+
+    const proc = spawn(this.#executablePath, args, this.#decorateSpawnOptions(options))
 
     this.#register(proc)
 
@@ -139,64 +141,42 @@ export class MutagenExecutable {
 
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>
   ): ChildProcessByStdio<Writable, Readable, Readable>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>
   ): ChildProcessByStdio<Writable, Readable, null>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>
   ): ChildProcessByStdio<Writable, null, Readable>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>
   ): ChildProcessByStdio<null, Readable, Readable>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>
   ): ChildProcessByStdio<Writable, null, null>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>
   ): ChildProcessByStdio<null, Readable, null>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>
   ): ChildProcessByStdio<null, null, Readable>
   spawn(
     args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>,
-    log: Writable,
-    dataDirectory: string
+    options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>
   ): ChildProcessByStdio<null, null, null>
-  spawn(
-    args: readonly string[],
-    options: SpawnOptionsWithStdioTuple<any, any, any>,
-    log: Writable,
-    dataDirectory: string
-  ): ChildProcess {
-    const spawnOpts = this.#decorateSpawnOptions(options, log, dataDirectory)
+  spawn(args: readonly string[], options: SpawnOptionsWithStdioTuple<any, any, any>): ChildProcess {
+    const spawnOpts = this.#decorateSpawnOptions(options)
     this.#logger.log('spawn', {
       path: this.#executablePath,
       args,
       cwd: spawnOpts.cwd,
-      dataDirectory,
     })
     const process = spawn(this.#executablePath, args, spawnOpts)
     this.#register(process)

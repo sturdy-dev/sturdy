@@ -1,7 +1,7 @@
 import { Menu, MenuItem } from 'electron'
-import { Application, Host, State } from './application'
+import { Application, Host, State, Status } from './application'
 import { TypedEventEmitter } from './TypedEventEmitter'
-import { MutagenExecutable } from './mutagen'
+import { MutagenDaemon, MutagenExecutable } from './mutagen'
 import { Logger } from './Logger'
 
 export interface ApplicationManagerEvents {
@@ -21,6 +21,8 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   readonly #isAppPackaged: boolean
   readonly #protocol: string
   readonly #logger: Logger
+  readonly #daemon: MutagenDaemon
+  readonly #status: Status
 
   constructor(
     hosts: Host[],
@@ -28,7 +30,9 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     postHogToken: string,
     isAppPackaged: boolean,
     protocol: string,
-    logger: Logger
+    logger: Logger,
+    daemon: MutagenDaemon,
+    status: Status
   ) {
     super()
 
@@ -51,6 +55,8 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     this.#isAppPackaged = isAppPackaged
     this.#protocol = protocol
     this.#logger = logger.withPrefix('apps')
+    this.#daemon = daemon
+    this.#status = status
   }
 
   async getOrCreateApplication(host: Host) {
@@ -64,7 +70,9 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
       postHogToken: this.#postHogToken,
       isAppPackaged: this.#isAppPackaged,
       protocol: this.#protocol,
+      status: this.#status,
       logger: this.#logger,
+      daemon: this.#daemon,
     })
     this.#activeApplication = host.id
     this.#applications.set(host.id, application)

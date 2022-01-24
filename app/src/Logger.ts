@@ -10,10 +10,18 @@ export class Logger {
   }
 
   log(...args: any[]) {
-    console.log(`[${this.#prefix.join('.')}]`, ...args)
+    if (this.#prefix.length > 0) {
+      console.log(`[${this.#prefix.join('.')}]`, ...args)
+    } else {
+      console.log(...args)
+    }
   }
 
   error(...args: any[]) {
-    console.error(`[${this.#prefix.join('.')}]`, ...args)
+    if (this.#prefix.length > 0) {
+      console.error(`[${this.#prefix.join('.')}]`, ...args)
+    } else {
+      console.error(...args)
+    }
   }
 }

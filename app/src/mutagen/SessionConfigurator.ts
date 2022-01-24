@@ -35,6 +35,7 @@ export class MutagenSessionConfigurator {
   readonly #apiURL: URL
   readonly #syncHostURL: URL
   readonly #client: Client
+  readonly #reposBasePath: string
 
   constructor(
     logger: Logger,
@@ -44,7 +45,8 @@ export class MutagenSessionConfigurator {
     sshKeys: SSHKeys,
     apiURL: URL,
     syncHostURL: URL,
-    client: Client
+    client: Client,
+    reposBasePath: string
   ) {
     this.#logger = logger.withPrefix('session')
     this.#directory = directory
@@ -54,6 +56,7 @@ export class MutagenSessionConfigurator {
     this.#apiURL = apiURL
     this.#syncHostURL = syncHostURL
     this.#client = client
+    this.#reposBasePath = reposBasePath
   }
 
   get executable() {
@@ -142,6 +145,7 @@ export class MutagenSessionConfigurator {
       syncHostURL: this.#syncHostURL,
       executable: this.#executable,
       daemon: this.#daemon,
+      reposBasePath: this.#reposBasePath,
     }
   }
 }

@@ -1,5 +1,6 @@
 web/node_modules
 app/node_modules
+api/tmp
 tmp
 hack
 docs
