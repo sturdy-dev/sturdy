@@ -1,7 +1,8 @@
 <template>
   <form class="space-y-4">
     <Header>
-      <span>Create a new team 🎉</span>
+      <span v-if="isFirst">Create your first organization 🎉</span>
+      <span v-else>Create a new organization 🎉</span>
     </Header>
 
     <form class="space-y-4" @submit.stop.prevent="create">
@@ -16,10 +17,10 @@
     </form>
 
     <p class="text-gray-700 text-sm">
-      Create your a team to manage your projects, codebases, members, and billing.
+      Create a organization to manage your projects, codebases, members, and billing.
     </p>
     <p class="text-gray-700 text-sm">
-      If you're creating a team for work, use the company name as the team name.
+      If you're creating a organization for work, use the company name as the name.
     </p>
   </form>
 </template>
@@ -31,12 +32,9 @@ import OrganizationLicenseTierPicker from '../../organisms/organization/Organiza
 import { gql, useMutation } from '@urql/vue'
 import Button from '../../components/shared/Button.vue'
 import { useRouter } from 'vue-router'
-import {
-  CreateOrganizationMutation,
-  CreateOrganizationMutationVariables,
-  OrganizationCreateUserFragment,
-} from './__generated__/OrganizationCreate'
+import { OrganizationCreateUserFragment } from './__generated__/OrganizationCreate'
 import TextInputWithLabel from '../../molecules/TextInputWithLabel.vue'
+import { useCreateOrganization } from '../../mutations/useCreateOrganization'
 
 export const ORGANIZATION_CREATE_USER = gql`
   fragment OrganizationCreateUser on User {
@@ -56,31 +54,22 @@ export default defineComponent({
       type: Object as PropType<OrganizationCreateUserFragment>,
       required: true,
     },
+    isFirst: {
+      type: Boolean,
+      required: true,
+    },
   },
   setup() {
-    let { executeMutation: executeCreateOrganization } = useMutation<
-      CreateOrganizationMutation,
-      CreateOrganizationMutationVariables
-    >(gql`
-      mutation createOrganization($name: String!) {
-        createOrganization(input: { name: $name }) {
-          id
-          name
-          shortID
-        }
-      }
-    `)
+    let executeCreateOrganization = useCreateOrganization()
+
     let router = useRouter()
     return {
       async createMutation(name: string) {
         const variables = { name }
         await executeCreateOrganization(variables).then((result) => {
-          if (result.error) {
-            throw new Error(result.error)
-          }
           router.push({
             name: 'organizationListCodebases',
-            params: { organizationSlug: result.data?.createOrganization.shortID },
+            params: { organizationSlug: result.createOrganization.shortID },
           })
         })
       },
@@ -89,7 +78,6 @@ export default defineComponent({
   data() {
     return {
       organizationName: this.proposedTeamName(),
-      organizationLegalName: '',
     }
   },
   computed: {},
@@ -100,7 +88,7 @@ export default defineComponent({
     proposedTeamName(): string {
       let name = this.user.name.split(' ')
       if (name.length === 0) {
-        return 'My first team'
+        return 'My startup'
       }
 
       let fname = name[0]
@@ -109,7 +97,7 @@ export default defineComponent({
         apos = "'"
       }
 
-      return `${fname}${apos} first team`
+      return `${fname}${apos} startup`
     },
   },
 })
