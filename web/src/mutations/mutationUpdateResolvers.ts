@@ -20,6 +20,7 @@ import { createSuggestionUpdateResolver } from './useCreateSuggestion'
 import { landWorkspaceChangeUpdateResolver } from './useLandWorkspaceChange'
 import { setupGitHubUpdateResolver } from './useSetupGitHubRepository'
 import { createCodebaseUpdateResolver } from './useCreateCodebase'
+import { createOrganizationUpdateResolver } from './useCreateOrganization'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,
@@ -40,6 +41,7 @@ export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   landWorkspaceChange: landWorkspaceChangeUpdateResolver,
   createCodebase: createCodebaseUpdateResolver,
   setupGitHubRepository: setupGitHubUpdateResolver,
+  createOrganization: createOrganizationUpdateResolver,
 }
 
 export const optimisticMutationResolvers: Record<string, OptimisticMutationResolver> = {
