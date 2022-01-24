@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@urql/vue'
-import { Codebase, CreateCodebaseInput } from '../__generated__/types'
+import { CreateCodebaseInput } from '../__generated__/types'
 import { DeepMaybeRef } from '@vueuse/core'
 import {
   CreateCodebaseMutation,
