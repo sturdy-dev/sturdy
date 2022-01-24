@@ -8,7 +8,7 @@
         <h1 id="sturdy-documentation">Sturdy Documentation</h1>
 
         <p>
-          Sturdy is an open source version control platform which allows you to interact with your
+          Sturdy is an open-source version control platform that allows you to interact with your
           code at a higher abstraction level. This provides an ergonomic, real-time workflow for
           individuals and teams.
         </p>
