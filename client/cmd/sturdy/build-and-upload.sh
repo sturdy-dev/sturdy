@@ -8,7 +8,7 @@ LOCAL_INSTALL=0
 BUILD_DARWIN_ONLY=0
 HOMEBREW_NAME="sturdy"
 WINDOWS_INSTALLER_NAME="windows-installer.ps1"
-MUTAGEN_RELEASE="1fa71b32c9659cc22d60c4a9197d92aa196801a5" # sturdy-v0.13.0-beta2
+MUTAGEN_RELEASE="e42274bc5746bfc4312d7fe026b73a5f5c0b6b34" # sturdy-v0.13.0-beta2
 MUTAGEN_PATH="${HOME}/src/mutagen"
 HOMEBREW_TAP_REPO_PATH="${HOME}/src/sturdy-dev-homebrew-tap"
 
@@ -176,9 +176,9 @@ sign_windows_binaries() {
 # Update InstallationInstructions.vue version number
 update_web_install() {
   t=$(mktemp)
-  cat ../../web/src/components/install/InstallationInstructions.vue |
+  cat ../../../web/src/components/install/InstallationInstructions.vue |
     sed "s/const latestVersion = '.*'/const latestVersion = '${VERSION}'/" >$t
-  mv $t ../../web/src/components/install/InstallationInstructions.vue
+  mv $t ../../../web/src/components/install/InstallationInstructions.vue
 }
 
 create_formula() {
