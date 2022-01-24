@@ -1,5 +1,5 @@
 <template>
-  <Listbox v-if="val" v-model="val" as="div">
+  <Listbox v-if="val" v-model="organizationID" as="div">
     <div class="mt-1 relative">
       <ListboxButton
         class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -23,7 +23,7 @@
             :key="organization.id"
             v-slot="{ active, selected }"
             as="template"
-            :value="organization"
+            :value="organization.id"
           >
             <li
               :class="[
@@ -80,26 +80,14 @@ export default defineComponent({
       type: Object as PropType<Array<OrganizationPickerFragment>>,
       required: true,
     },
+    currentOrganization: {
+      type: Object as PropType<OrganizationPickerFragment>,
+      required: true,
+    },
     modelValue: {
       type: Object as PropType<OrganizationPickerFragment>,
       required: true,
     },
-  },
-  emits: ['update:modelValue'],
-  data() {
-    return { val: null }
-  },
-  watch: {
-    modelValue(val) {
-      // <- copy this
-      this.val = val
-    },
-    val(val) {
-      this.$emit('update:modelValue', val)
-    },
-  },
-  mounted() {
-    this.val = this.modelValue
   },
 })
 </script>

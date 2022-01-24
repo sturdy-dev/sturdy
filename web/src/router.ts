@@ -24,6 +24,11 @@ export const routes: RouteRecordRaw[] = [
     name: 'codebaseOverview',
   },
   {
+    path: '/home',
+    component: () => import('./pages/HomePage.vue'),
+    name: 'home',
+  },
+  {
     path: '/org/:organizationSlug',
     component: () => import('./pages/organization/CodebaseListPage.vue'),
     name: 'organizationListCodebases',
