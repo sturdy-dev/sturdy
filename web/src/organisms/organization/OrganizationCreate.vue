@@ -1,12 +1,16 @@
 <template>
   <form class="space-y-4">
-    <template v-if="isFirst">
+    <template v-if="isFirst && isMultiTennant">
       <h1 class="text-gray-800 text-4xl font-bold">Let's get you setup 🎉</h1>
       <p class="text-gray-500">Create your first organization</p>
     </template>
-    <template v-else>
+    <template v-else-if="isMultiTennant">
       <h1 class="text-gray-800 text-4xl font-bold">Create a new organization 🎉</h1>
       <p class="text-gray-500">Create a organization to organize your work</p>
+    </template>
+    <template v-else-if="!isMultiTennant">
+      <h1 class="text-gray-800 text-4xl font-bold">Let's get you setup 🎉</h1>
+      <p class="text-gray-500">Create an organization for your Sturdy server</p>
     </template>
 
     <form class="space-y-4" @submit.stop.prevent="create">
@@ -20,12 +24,21 @@
       <Button color="green" @click="create">Get started</Button>
     </form>
 
-    <p class="text-gray-700 text-sm">
-      Create a organization to manage your projects, codebases, members, and billing.
-    </p>
-    <p class="text-gray-700 text-sm">
-      If you're creating a organization for work, use the company name as the name.
-    </p>
+    <template v-if="isMultiTennant">
+      <p class="text-gray-700 text-sm">
+        Create a organization to manage your projects, codebases, members, and billing.
+      </p>
+      <p class="text-gray-700 text-sm">
+        If you're creating a organization for work, use the company name as the name.
+      </p>
+    </template>
+    <template v-else>
+      <p class="text-gray-700 text-sm">Create an organization to setup your Sturdy server.</p>
+      <p class="text-gray-700 text-sm">
+        If you're creating a organization for work, use the company name as the name of the
+        organization.
+      </p>
+    </template>
   </form>
 </template>
 
@@ -58,6 +71,10 @@ export default defineComponent({
       required: true,
     },
     isFirst: {
+      type: Boolean,
+      required: true,
+    },
+    isMultiTennant: {
       type: Boolean,
       required: true,
     },

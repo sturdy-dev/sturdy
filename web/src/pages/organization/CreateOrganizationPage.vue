@@ -3,6 +3,7 @@
     <OrganizationCreate
       class="max-w-3xl"
       :with-tier-picker="false"
+      :is-multi-tennant="false"
       :user="data.user"
       :is-first="isFirst"
     />

@@ -125,6 +125,25 @@
           :git-hub-app="data.gitHubApp"
           :show-start-from-scratch="true"
         />
+
+        <div
+          v-if="!isGitHubEnabled && data && data.organization.codebases.length === 0"
+          class="bg-gray-100 sm:rounded-lg"
+        >
+          <div class="flex justify-between px-4 py-5 sm:p-6">
+            <div>
+              <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Create the first codebase 🚀
+              </h3>
+              <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Create a codebase to start coding.</p>
+              </div>
+            </div>
+            <div>
+              <CurvedRightIcon class="h-12 w-12 text-gray-700 -rotate-90" />
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </PaddedAppLeftSidebar>
@@ -153,9 +172,11 @@ import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import OrganizationNoCodebasesSetupGitHub from '../../organisms/organization/OrganizationNoCodebasesSetupGitHub.vue'
+import CurvedRightIcon from '../../molecules/icons/CurvedRightIcon.vue'
 
 export default defineComponent({
   components: {
+    CurvedRightIcon,
     OrganizationSettingsHeader,
     PaddedAppLeftSidebar,
     VerticalNavigation,

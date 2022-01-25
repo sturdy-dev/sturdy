@@ -1,106 +1,107 @@
 <template>
-  <PaddedApp>
-    <div v-if="data">
-      <slot name="header"></slot>
+  <div v-if="data">
+    <slot name="header"></slot>
 
-      <Banner
-        v-if="show_failed_message"
-        class="my-4"
-        status="error"
-        message="Could not create a codebase at this time. Try again later!"
-      />
+    <Banner
+      v-if="show_failed_message"
+      class="my-4"
+      status="error"
+      message="Could not create a codebase at this time. Try again later!"
+    />
 
-      <div class="space-y-6 lg:col-span-9 max-w-4xl">
-        <form @submit.stop.prevent="doCreateNewCodebase">
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-            <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
-              <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-3">
-                  <label for="codebase_name" class="block text-sm font-medium text-gray-700">
-                    Codebase name
-                  </label>
-                  <div class="mt-1 rounded-md shadow-sm flex">
-                    <!--<span class="bg-gray-50 border border-r-0 border-gray-300 rounded-l-md px-3 inline-flex items-center text-gray-500 sm:text-sm">
+    <div class="space-y-6 lg:col-span-9 max-w-4xl">
+      <form @submit.stop.prevent="doCreateNewCodebase">
+        <div class="shadow sm:rounded-md sm:overflow-hidden">
+          <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
+            <div class="grid grid-cols-3 gap-6">
+              <div class="col-span-3">
+                <label for="codebase_name" class="block text-sm font-medium text-gray-700">
+                  Codebase name
+                </label>
+                <div class="mt-1 rounded-md shadow-sm flex">
+                  <!--<span class="bg-gray-50 border border-r-0 border-gray-300 rounded-l-md px-3 inline-flex items-center text-gray-500 sm:text-sm">
                     getsturdy.com/
                   </span>-->
-                    <input
-                      id="codebase_name"
-                      v-model="newCodebaseName"
-                      type="text"
-                      name="codebase_name"
-                      autocomplete="off"
-                      class="focus:ring-blue-500 focus:border-blue-500 flex-grow block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
-                    />
-                  </div>
-                </div>
-
-                <div v-if="false" class="col-span-3">
-                  <label for="description" class="block text-sm font-medium text-gray-700">
-                    Description <span class="text-sm text-gray-500">(optional)</span>
-                  </label>
-                  <div class="mt-1">
-                    <textarea
-                      id="description"
-                      v-model="newCodebaseDescription"
-                      name="description"
-                      rows="3"
-                      autocomplete="off"
-                      class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md"
-                      placeholder="This codebase ..."
-                    />
-                  </div>
-                </div>
-
-                <div class="col-span-3">
-                  <p class="mt-1 text-sm text-gray-500">
-                    Codebases are <strong>private</strong>, and only you will be able to see it's
-                    contents.
-                  </p>
-                  <p class="mt-1 text-sm text-gray-500">
-                    You can invite collaborators to the codebase on the next page.
-                  </p>
+                  <input
+                    id="codebase_name"
+                    v-model="newCodebaseName"
+                    type="text"
+                    name="codebase_name"
+                    autocomplete="off"
+                    class="focus:ring-blue-500 focus:border-blue-500 flex-grow block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
+                  />
                 </div>
               </div>
-            </div>
-            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-              <Button type="submit" :disabled="newCodebaseName === ''" size="wider" color="blue">
-                Create
 
-                <svg
-                  v-if="isLoading"
-                  class="animate-spin ml-3 -mr-1 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
+              <div v-if="false" class="col-span-3">
+                <label for="description" class="block text-sm font-medium text-gray-700">
+                  Description <span class="text-sm text-gray-500">(optional)</span>
+                </label>
+                <div class="mt-1">
+                  <textarea
+                    id="description"
+                    v-model="newCodebaseDescription"
+                    name="description"
+                    rows="3"
+                    autocomplete="off"
+                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md"
+                    placeholder="This codebase ..."
                   />
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              </Button>
+                </div>
+              </div>
+
+              <div class="col-span-3">
+                <p class="mt-1 text-sm text-gray-500">
+                  Codebases are <strong>private</strong>, and only you will be able to see it's
+                  contents.
+                </p>
+                <p class="mt-1 text-sm text-gray-500">
+                  You can invite collaborators to the codebase on the next page.
+                </p>
+              </div>
             </div>
           </div>
-        </form>
+          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+            <Button type="submit" :disabled="newCodebaseName === ''" size="wider" color="blue">
+              Create
 
-        <div class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden">
-          <NoCodebasesGitHubAuth
-            :git-hub-account="data.user.gitHubAccount"
-            :git-hub-app="data.gitHubApp"
-          />
+              <svg
+                v-if="isLoading"
+                class="animate-spin ml-3 -mr-1 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </Button>
+          </div>
         </div>
+      </form>
+
+      <div
+        v-if="data.gitHubApp"
+        class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden"
+      >
+        <NoCodebasesGitHubAuth
+          :git-hub-account="data.user.gitHubAccount"
+          :git-hub-app="data.gitHubApp"
+        />
       </div>
     </div>
-  </PaddedApp>
+  </div>
 </template>
 
 <script lang="ts">
@@ -110,7 +111,6 @@ import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
 import Button from '../components/shared/Button.vue'
 import RandomName from '../components/codebase/create/random-name.js'
-import PaddedApp from '../layouts/PaddedApp.vue'
 import { useCreateCodebase } from '../mutations/useCreateCodebase'
 import {
   CreateCodebasePageQuery,
@@ -120,7 +120,7 @@ import { Feature } from '../__generated__/types'
 import { Slug } from '../slug'
 
 export default defineComponent({
-  components: { PaddedApp, NoCodebasesGitHubAuth, Banner, Button },
+  components: { NoCodebasesGitHubAuth, Banner, Button },
   props: {
     createInOrganizationId: {
       type: String,
