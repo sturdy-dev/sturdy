@@ -1,35 +1,48 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
-    <!--    <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120]">-->
-    <!--    </div>-->
-    <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
-      <h1
-        class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+    <div class="relative">
+      <div class="px-4 sm:px-6 md:px-8">
+        <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient">
+          <div class="absolute inset-0 bg-bottom border-b border-slate-100/5 bestagons" />
+        </div>
+        <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
+          <h1
+            class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+          >
+            Real-time code collaboration.
+          </h1>
+          <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
+            Sturdy is an
+            <code class="font-mono font-semibold text-amber-500"
+              >open-source version control platform</code
+            >
+            that allows you to interact with your code at a higher abstraction level.
+          </p>
+          <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
+            <router-link
+              :to="{ name: 'download' }"
+              class="text-white bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            >
+              <DownloadIcon class="h-6 w-6 mr-1" />
+              {{ mainDownloadText }}
+            </router-link>
+            <router-link
+              :to="{ name: 'v2DocsRoot' }"
+              class="text-slate-300 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            >
+              Read the Docs
+              <ChevronRightIcon class="h-6 w-6 ml-1" />
+            </router-link>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-20 sm:mt-24 lg:mt-32 lg:grid lg:gap-8 lg:grid-cols-12 lg:items-center"
       >
-        Real-time code collaboration.
-      </h1>
-      <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
-        Sturdy is an
-        <code class="font-mono font-semibold text-amber-500"
-          >open-source version control platform</code
-        >
-        that allows you to interact with your code at a higher abstraction level.
-      </p>
-      <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
-        <router-link
-          :to="{ name: 'download' }"
-          class="text-white bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-        >
-          <DownloadIcon class="h-6 w-6 mr-1" />
-          {{ mainDownloadText }}
-        </router-link>
-        <router-link
-          :to="{ name: 'v2DocsRoot' }"
-          class="text-slate-300 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-        >
-          Read the Docs
-          <ChevronRightIcon class="h-6 w-6 ml-1" />
-        </router-link>
+        <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
+          <UspVideo />
+        </div>
       </div>
     </div>
 
@@ -160,4 +173,14 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.gradient {
+  background-image: url('./gradient.svg');
+  background-size: 86.125rem;
+}
+
+.bestagons {
+  background-image: url('./bestagons.svg');
+  background-size: 86.125rem;
+}
+</style>
