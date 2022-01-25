@@ -107,25 +107,28 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/auth/:email?',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'authWithEmail',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
   },
   {
     path: '/auth',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'auth',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
   },
   {
     path: '/signup',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'signup',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
+    props: {
+      startWithSignUp: true,
+    },
   },
   {
     path: '/login',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'login',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
   },
@@ -137,15 +140,21 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/get-started/yc',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'getStartedYC',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
+    props: {
+      startWithSignUp: true,
+    },
   },
   {
     path: '/get-started/github',
-    component: () => import('./components/auth/UserAuth.vue'),
+    component: () => import('./pages/LoginRegister.vue'),
     name: 'getStartedGitHub',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
+    props: {
+      startWithSignUp: true,
+    },
   },
   { path: '/user', component: () => import('./pages/User.vue'), name: 'user' },
   {

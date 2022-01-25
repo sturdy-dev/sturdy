@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import SingleOtpInput from './SingleOtpInput.vue'
+import { SingleOtpInput } from '../../atoms/auth'
 
 const BACKSPACE = 8
 const LEFT_ARROW = 37
