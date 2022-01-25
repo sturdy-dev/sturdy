@@ -21,6 +21,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	service_organization "getsturdy.com/api/pkg/organization/service"
 	db_user "getsturdy.com/api/pkg/user/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -59,8 +60,9 @@ type CodebaseRootResolver struct {
 	analyticsClient  analytics.Client
 	executorProvider executor.Provider
 
-	authService     *service_auth.Service
-	codebaseService *service_codebase.Service
+	authService         *service_auth.Service
+	codebaseService     *service_codebase.Service
+	organizationService *service_organization.Service
 }
 
 func NewCodebaseRootResolver(
@@ -90,6 +92,7 @@ func NewCodebaseRootResolver(
 
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
+	organizationService *service_organization.Service,
 ) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
@@ -116,8 +119,9 @@ func NewCodebaseRootResolver(
 		analyticsClient:  analyticsClient,
 		executorProvider: executorProvider,
 
-		authService:     authService,
-		codebaseService: codebaseService,
+		authService:         authService,
+		codebaseService:     codebaseService,
+		organizationService: organizationService,
 	}
 }
 
@@ -415,8 +419,26 @@ func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.A
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
 	}
+
+	userIDs := make(map[string]struct{})
+
 	for _, cu := range codebaseUsers {
-		author, err := r.root.authorResolver.Author(ctx, graphql.ID(cu.UserID))
+		userIDs[cu.UserID] = struct{}{}
+	}
+
+	// also list members of the organization
+	if r.c.OrganizationID != nil {
+		members, err := r.root.organizationService.Members(ctx, *r.c.OrganizationID)
+		if err != nil {
+			return nil, gqlerrors.Error(fmt.Errorf("failed to get organization members: %w", err))
+		}
+		for _, member := range members {
+			userIDs[member.UserID] = struct{}{}
+		}
+	}
+
+	for userID := range userIDs {
+		author, err := r.root.authorResolver.Author(ctx, graphql.ID(userID))
 		switch {
 		case err == nil:
 			resolvers = append(resolvers, author)
@@ -424,9 +446,9 @@ func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.A
 			continue
 		default:
 			return nil, gqlerrors.Error(fmt.Errorf("failed to get author by user id: %w", err))
-
 		}
 	}
+
 	return
 }
 

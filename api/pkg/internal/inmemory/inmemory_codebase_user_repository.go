@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"database/sql"
+
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 )
@@ -18,9 +19,17 @@ func (r *inMemoryCodebaseUserRepository) Create(entity codebase.CodebaseUser) er
 	r.users = append(r.users, entity)
 	return nil
 }
+
 func (r *inMemoryCodebaseUserRepository) GetByUser(userID string) ([]*codebase.CodebaseUser, error) {
-	panic("not implemented")
+	var res []*codebase.CodebaseUser
+	for _, u := range r.users {
+		if u.UserID == userID {
+			res = append(res, &u)
+		}
+	}
+	return res, nil
 }
+
 func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*codebase.CodebaseUser, error) {
 	var res []*codebase.CodebaseUser
 	for _, u := range r.users {
@@ -30,6 +39,7 @@ func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*co
 	}
 	return res, nil
 }
+
 func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID, codebaseID string) (*codebase.CodebaseUser, error) {
 	for _, u := range r.users {
 		if u.UserID == userID && u.CodebaseID == codebaseID {

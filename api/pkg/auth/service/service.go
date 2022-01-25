@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
@@ -239,11 +240,22 @@ func (s *Service) canUserAccessCodebase(ctx context.Context, userID string, at a
 		return fmt.Errorf("failed to check if user can access codebase: %w", err)
 	}
 
-	if !accessAllowed {
-		return fmt.Errorf("user doesn't have acces to the codebase: %w", auth.ErrForbidden)
+	if accessAllowed {
+		return nil
 	}
 
-	return nil
+	if codebase.OrganizationID != nil {
+		org, err := s.organizationService.GetByID(ctx, *codebase.OrganizationID)
+		if err != nil {
+			return fmt.Errorf("failed to check if user can access codebase: %w", err)
+		}
+
+		if err := s.canUserAccessOrganization(ctx, userID, accessTypeWrite, org); err == nil {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("user doesn't have acces to the codebase: %w", auth.ErrForbidden)
 }
 
 func (s *Service) canAnonymousAccessCodebase(ctx context.Context, at accessType, codebase *codebase.Codebase) error {
@@ -441,10 +453,28 @@ func (s *Service) canAnonymousAccessReview(ctx context.Context, at accessType, r
 }
 
 func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, at accessType, org *organization.Organization) error {
+
 	// user can access a organization if they are a member of it
 	_, err := s.organizationService.GetMemberByUserIDAndOrganizationID(ctx, userID, org.ID)
-	if err != nil {
-		return err
+	if err == nil {
+		return nil
 	}
-	return nil
+
+	// user can read a organization if they are a member of any of it's codebases
+	if at == accessTypeRead {
+		ok, err := s.codebaseService.UserIsMemberOfCodebaseInOrganization(ctx, userID, org.ID)
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+	}
+
+	//
+	// if err := s.codebaseService.Is(ctx, org.ID, userID); err != nil {
+	// 	return err
+	// }
+
+	return errors.New("user does not have access to organization")
 }

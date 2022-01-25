@@ -86,6 +86,76 @@ func (s *Service) ListByOrganization(ctx context.Context, organizationID string)
 	return res, nil
 }
 
+func (s *Service) ListByOrganizationAndUser(ctx context.Context, organizationID, userID string) ([]*codebase.Codebase, error) {
+	codebases, err := s.repo.ListByOrganization(ctx, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
+	}
+
+	var res []*codebase.Codebase
+
+	for _, cb := range codebases {
+		_, err := s.codebaseUserRepo.GetByUserAndCodebase(userID, cb.ID)
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			continue
+		case err != nil:
+			return nil, fmt.Errorf("could not codebase user: %w", err)
+		case err == nil:
+			res = append(res, cb)
+		}
+	}
+
+	return res, nil
+}
+
+// ListOrgsByUser returns a list of organization IDs that the user can _see_ through it's explicit membership
+// of one of it's codebases.
+func (svc *Service) ListOrgsByUser(ctx context.Context, userID string) ([]string, error) {
+	orgIDs, err := svc.orgsByUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []string
+	for k := range orgIDs {
+		res = append(res, k)
+	}
+
+	return res, nil
+}
+
+func (svc *Service) UserIsMemberOfCodebaseInOrganization(ctx context.Context, userID, organizationID string) (bool, error) {
+	orgIDs, err := svc.orgsByUser(ctx, userID)
+	if err != nil {
+		return false, err
+	}
+
+	_, ok := orgIDs[organizationID]
+	return ok, nil
+}
+
+func (svc *Service) orgsByUser(ctx context.Context, userID string) (map[string]struct{}, error) {
+	codebaseUsers, err := svc.codebaseUserRepo.GetByUser(userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not ListByUser: %w", err)
+	}
+
+	orgIDs := make(map[string]struct{})
+
+	for _, cu := range codebaseUsers {
+		cb, err := svc.repo.Get(cu.CodebaseID)
+		if err != nil {
+			return nil, fmt.Errorf("could not get codebase: %w", err)
+		}
+		if cb.OrganizationID != nil {
+			orgIDs[*cb.OrganizationID] = struct{}{}
+		}
+	}
+
+	return orgIDs, nil
+}
+
 func (svc *Service) Create(ctx context.Context, name string, organizationID *string) (*codebase.Codebase, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
