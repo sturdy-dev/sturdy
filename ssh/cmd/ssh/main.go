@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"mutagen-ssh/pkg/ssh"
+	"getsturdy.com/ssh/pkg/ssh"
 
 	"go.uber.org/zap"
 )

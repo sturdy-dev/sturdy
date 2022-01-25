@@ -1,4 +1,4 @@
-module mutagen-ssh
+module getsturdy.com/ssh
 
 go 1.17
 
