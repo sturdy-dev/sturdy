@@ -517,6 +517,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
+    path: '/v2',
+    component: () => import('./pages/landing/Index.vue'),
+    name: 'v2Index',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/v2/docs',
     component: () => import('./pages/docs/DocsRoot.vue'),
     name: 'v2DocsRoot',
