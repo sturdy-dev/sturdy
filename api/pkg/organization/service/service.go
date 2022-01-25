@@ -55,6 +55,14 @@ func (svc *Service) Members(ctx context.Context, organizationID string) ([]*orga
 	return members, nil
 }
 
+func (svc *Service) GetMember(ctx context.Context, organizationID, userID string) (*organization.Member, error) {
+	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
+	if err != nil {
+		return nil, err
+	}
+	return member, nil
+}
+
 func (svc *Service) Create(ctx context.Context, name string) (*organization.Organization, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {

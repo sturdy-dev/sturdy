@@ -11,6 +11,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebase"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -58,14 +59,41 @@ func (r *organizationRootResolver) Organizations(ctx context.Context) ([]resolve
 		return nil, gqlerrors.Error(err)
 	}
 
-	orgs, err := r.service.ListByUserID(ctx, userID)
+	// List of organizations that the user is a member of directly
+	explicitMemberships, err := r.service.ListByUserID(ctx, userID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
+	loaded := make(map[string]struct{})
+
 	var res []resolvers.OrganizationResolver
 
-	for _, org := range orgs {
+	for _, org := range explicitMemberships {
+		loaded[org.ID] = struct{}{}
+		res = append(res, &organizationResolver{
+			root: r,
+			org:  org,
+		})
+	}
+
+	// List of organizations that the user is an indirect member of (the user is a member of one of the organizations codebases)
+	implicitMemberships, err := r.codebaseService.ListOrgsByUser(ctx, userID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	for _, orgID := range implicitMemberships {
+		if _, ok := loaded[orgID]; ok {
+			continue
+		}
+		loaded[orgID] = struct{}{}
+
+		org, err := r.service.GetByID(ctx, orgID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+
 		res = append(res, &organizationResolver{
 			root: r,
 			org:  org,
@@ -174,9 +202,37 @@ func (r *organizationResolver) Members(ctx context.Context) ([]resolvers.AuthorR
 }
 
 func (r *organizationResolver) Codebases(ctx context.Context) ([]resolvers.CodebaseResolver, error) {
-	codebases, err := r.root.codebaseService.ListByOrganization(ctx, r.org.ID)
+	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
+	}
+
+	var isMemberOfOrganization bool
+
+	_, err = r.root.service.GetMember(ctx, r.org.ID, userID)
+	switch {
+	case err == nil:
+		isMemberOfOrganization = true
+	case errors.Is(err, sql.ErrNoRows):
+		isMemberOfOrganization = false
+	case err != nil:
+		return nil, gqlerrors.Error(err)
+	}
+
+	var codebases []*codebase.Codebase
+
+	// List all codebases in the organization
+	if isMemberOfOrganization {
+		codebases, err = r.root.codebaseService.ListByOrganization(ctx, r.org.ID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+	} else {
+		// List codebases that the user is a member of
+		codebases, err = r.root.codebaseService.ListByOrganizationAndUser(ctx, r.org.ID, userID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
 	}
 
 	var res []resolvers.CodebaseResolver
