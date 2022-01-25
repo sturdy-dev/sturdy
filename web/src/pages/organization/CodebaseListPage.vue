@@ -14,7 +14,7 @@
     </template>
 
     <template #default>
-      <div class="space-y-8">
+      <div class="space-y-8 flex flex-col">
         <div v-if="data.organization.codebases.length > 0" class="flex flex-col">
           <div class="align-middle inline-block min-w-full">
             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
@@ -114,18 +114,18 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <OrganizationNoCodebasesSetupGitHub
-        v-if="
-          isGitHubEnabled &&
-          data &&
-          (data.organization.codebases.length === 0 || !data.user.gitHubAccount)
-        "
-        :git-hub-account="data.user.gitHubAccount"
-        :git-hub-app="data.gitHubApp"
-        :show-start-from-scratch="true"
-      />
+        <OrganizationNoCodebasesSetupGitHub
+          v-if="
+            isGitHubEnabled &&
+            data &&
+            (data.organization.codebases.length === 0 || !data.user.gitHubAccount)
+          "
+          :git-hub-account="data.user.gitHubAccount"
+          :git-hub-app="data.gitHubApp"
+          :show-start-from-scratch="true"
+        />
+      </div>
     </template>
   </PaddedAppLeftSidebar>
 </template>
