@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-mkdir -p backend/tmp/repos
+mkdir -p tmp/repos
 
 ensure_mutagen_local_keys() {
   pushd mutagen-ssh/cmd/mutagen-ssh >/dev/null

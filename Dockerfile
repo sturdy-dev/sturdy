@@ -1,28 +1,28 @@
-FROM golang:1.17.6-alpine3.15 as mutagen-ssh-builder
-WORKDIR /go/src/mutagen-ssh
+FROM golang:1.17.6-alpine3.15 as ssh-builder
+WORKDIR /go/src/ssh
 RUN apk update \
     && apk add --no-cache \
         bash \
         git
-COPY ./mutagen-ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
+COPY ./ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
 RUN bash ./scripts/build-mutagen.sh
-# cache mutagen-ssh depencencies
-COPY ./mutagen-ssh/go.mod ./go.mod
-COPY ./mutagen-ssh/go.sum ./go.sum
+# cache ssh depencencies
+COPY ./ssh/go.mod ./go.mod
+COPY ./ssh/go.sum ./go.sum
 RUN go mod download
-# build mutagen-ssh
-COPY ./mutagen-ssh .
-RUN go build -v -o /usr/bin/mutagen-ssh mutagen-ssh/cmd/mutagen-ssh
+# build ssh
+COPY ./ssh .
+RUN go build -v -o /usr/bin/ssh getsturdy.com/ssh/cmd/ssh
 
-FROM alpine:3.15 as mutagen-ssh
+FROM alpine:3.15 as ssh
 RUN apk update \
     apk add --no-cache \
         ca-certificates=20211220-r0 
-COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
+COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 
 FROM golang:1.17.6-alpine3.15 as api-builder
 # github.com/libgit2/git2go dependencies
@@ -84,8 +84,8 @@ FROM alpine:3.15 as oneliner
 # postgresql
 # openssl is needed by rudolfs to generate secret
 # git, git-lfs and libgit2 are needed by api
-# openssh-keygen is needed by mutagen-ssh to generate ssh keys
-# ca-cerificates is needed by mutagen-ssh to connect to tls hosts
+# openssh-keygen is needed by ssh to generate ssh keys
+# ca-cerificates is needed by ssh to connect to tls hosts
 RUN apk update \
     && apk add --no-cache \
         postgresql14=14.1-r5 \
@@ -98,11 +98,11 @@ RUN apk update \
         ca-certificates=20211220-r0 
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
-COPY --from=mutagen-ssh-builder /usr/bin/mutagen-ssh /usr/bin/mutagen-ssh
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
-COPY --from=mutagen-ssh-builder /go/src/mutagen-ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
+COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay

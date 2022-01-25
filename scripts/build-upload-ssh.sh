@@ -14,7 +14,7 @@ ECR_NAME="902160009014.dkr.ecr.eu-north-1.amazonaws.com/mutagen-ssh:${VERSION}"
 docker buildx build \
   --platform linux/amd64 \
   --tag "$ECR_NAME" \
-  --target mutagen-ssh \
+  --target ssh \
   --push \
   "$CWD/.."
 
