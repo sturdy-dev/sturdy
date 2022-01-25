@@ -4,12 +4,12 @@ set -euo pipefail
 
 mkdir -p tmp/repos
 
-ensure_mutagen_local_keys() {
-  pushd mutagen-ssh/cmd/mutagen-ssh >/dev/null
+ensure_ssh_local_keys() {
+  pushd ssh/cmd/ssh >/dev/null
   ./generate-development.sh
   popd
 }
 
-ensure_mutagen_local_keys
+ensure_ssh_local_keys
 
 docker compose up "$@"

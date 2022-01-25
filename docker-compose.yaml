@@ -32,7 +32,7 @@ services:
       - 2222:2222
       - 6061:6060
     command:
-      - mutagen-ssh
+      - ssh
       - --ssh-listen-addr=0.0.0.0:2222
       - --ssh-key-path=/keys/id_ed25519
     volumes:
