@@ -25,7 +25,9 @@ services:
       - lfs-data:/lfs
 
   ssh:
-    build: ./mutagen-ssh
+    build:
+      context: .
+      target: mutagen-ssh
     ports:
       - 2222:2222
       - 6061:6060
