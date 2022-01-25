@@ -1,6 +1,11 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
-    <OrganizationCreate class="max-w-3xl" :with-tier-picker="false" :user="data.user" />
+    <OrganizationCreate
+      class="max-w-3xl"
+      :with-tier-picker="false"
+      :user="data.user"
+      :is-first="isFirst"
+    />
   </PaddedApp>
 </template>
 
@@ -20,11 +25,24 @@ export default defineComponent({
             id
             name
           }
+
+          organizations {
+            id
+          }
         }
       `,
     })
 
     return { data }
+  },
+
+  computed: {
+    isFirst() {
+      if (this.data?.organizations && this.data.organizations.length > 0) {
+        return false
+      }
+      return true
+    },
   },
 })
 </script>

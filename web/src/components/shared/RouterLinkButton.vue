@@ -1,6 +1,5 @@
 <template>
   <router-link
-    :type="buttonType"
     :class="classes"
     :disabled="disabled"
     class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5"
@@ -32,10 +31,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
-    },
-    buttonType: {
-      type: String,
-      default: 'button',
     },
     color: {
       type: String,

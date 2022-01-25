@@ -1,10 +1,13 @@
 <template>
-  <PaddedApp class="flex flex-col md:flex-row md:space-x-4 space-y-8 md:space-y-0">
-    <div class="md:w-60">
-      <slot name="navigation" />
-    </div>
-    <div class="md:flex-1 md:max-w-7xl">
-      <slot />
+  <PaddedApp class="flex flex-col space-y-4">
+    <slot name="header"></slot>
+    <div class="flex flex-col md:flex-row md:space-x-4 space-y-8 md:space-y-0">
+      <div class="md:w-60">
+        <slot name="navigation" />
+      </div>
+      <div class="md:flex-1 md:max-w-7xl">
+        <slot />
+      </div>
     </div>
   </PaddedApp>
 </template>

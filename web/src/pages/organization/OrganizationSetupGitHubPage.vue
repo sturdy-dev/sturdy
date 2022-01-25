@@ -4,14 +4,18 @@
       <VerticalNavigation />
     </template>
 
+    <template #header>
+      <OrganizationSettingsHeader :name="data.organization.name" />
+    </template>
+
     <template #default>
       <div class="max-w-7xl">
         <Header>
-          <span>Setup codebase from GitHub in {{ data.organization.name }}</span>
+          <span>Sturdy for GitHub</span>
         </Header>
 
         <OrganizationSetupGitHub
-          :organization-id="data.organization.id"
+          :organization="data.organization"
           :git-hub-app="data.gitHubApp"
           :git-hub-account="data.user.gitHubAccount"
         />
@@ -32,10 +36,12 @@ import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSetupGitHub from '../../organisms/organization/OrganizationSetupGitHub.vue'
+import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 
 export default defineComponent({
   components: {
     OrganizationSetupGitHub,
+    OrganizationSettingsHeader,
     PaddedAppLeftSidebar,
     Header,
     VerticalNavigation,
