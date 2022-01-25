@@ -218,6 +218,8 @@ export default defineComponent({
       screenHeight: window.innerHeight,
       bubbleWidth: 200,
       bubbleHeight: 250,
+
+      resizeTimeout: null,
     }
   },
   computed: {
@@ -319,7 +321,7 @@ export default defineComponent({
   },
   mounted() {
     window.addEventListener('resize', this.onResize)
-    this.interval = setInterval(this.align, 1000)
+    this.interval = setInterval(this.align, 5000)
   },
   unmounted() {
     window.removeEventListener('resize', this.onResize)
@@ -327,6 +329,10 @@ export default defineComponent({
   },
   methods: {
     onResize() {
+      clearTimeout(this.resizeTimeout)
+      this.resizeTimeout = setTimeout(this.onResizeFinished, 50)
+    },
+    onResizeFinished() {
       this.screenWidth = window.innerWidth
       this.screenHeight = window.innerHeight
       this.align()
