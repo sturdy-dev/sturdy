@@ -12,5 +12,4 @@ fdmove -c 2 1 \
   --git-listen-addr="${API_GIT_ADDR}" \
   --db="${DB_ADDR}" \
   --production-logger \
-  --use-local-queues \
-  --analytics.enabled=false 
+  --use-local-queues
