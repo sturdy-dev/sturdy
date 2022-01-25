@@ -10,4 +10,5 @@ const (
 	FeatureBuildkite    Feature = "Buildkite"
 	FeatureGitHub       Feature = "GitHub"
 	FeatureMultiTenancy Feature = "MultiTenancy"
+	FeatureLicense      Feature = "License"
 )

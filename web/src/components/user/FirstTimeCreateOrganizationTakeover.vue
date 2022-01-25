@@ -1,6 +1,12 @@
 <template>
   <div class="max-w-3xl mx-auto mt-16 flex flex-col gap-2">
-    <OrganizationCreate class="max-w-3xl" :with-tier-picker="false" :user="user" :is-first="true" />
+    <OrganizationCreate
+      class="max-w-3xl"
+      :with-tier-picker="false"
+      :user="user"
+      :is-first="true"
+      :is-multi-tennant="false"
+    />
   </div>
 </template>
 

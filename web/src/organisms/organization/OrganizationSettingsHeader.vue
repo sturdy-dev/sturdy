@@ -4,7 +4,7 @@
       <div class="w-full border-t border-gray-300" />
     </div>
 
-    <div class="relative flex items-center justify-between">
+    <div class="relative flex items-center justify-between h-10">
       <span class="pr-2 bg-white text-sm text-gray-500">
         {{ name }}
       </span>

@@ -15,6 +15,7 @@ export default defineComponent({
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = features.value.includes(Feature.GitHub)
+    const isLicenseEnabled = features.value.includes(Feature.License)
 
     const navigation = [
       {
@@ -37,11 +38,13 @@ export default defineComponent({
           }
         : null,
 
-      {
-        name: 'Subscriptions',
-        linkName: 'organizationCreateSubscription',
-        current: route.name === 'organizationCreateSubscription',
-      },
+      isLicenseEnabled
+        ? {
+            name: 'Subscriptions',
+            linkName: 'organizationCreateSubscription',
+            current: route.name === 'organizationCreateSubscription',
+          }
+        : null,
     ].filter((nav) => nav)
 
     return {

@@ -30,27 +30,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
 import { gql, useMutation } from '@urql/vue'
-import { NoNameTakeoverUserFragment } from './__generated__/FirstTimeUserNoNameTakeover'
 import { LightningBoltIcon as LightningBoltOutlineIcon } from '@heroicons/vue/outline'
 import { LightningBoltIcon as LightningBoltSolidIcon } from '@heroicons/vue/solid'
 
-export const NO_NAME_TAKEOVER_USER = gql`
-  fragment NoNameTakeoverUser on User {
-    id
-    name
-  }
-`
-
 export default defineComponent({
   components: { LightningBoltOutlineIcon, LightningBoltSolidIcon },
-  props: {
-    user: {
-      type: Object as PropType<NoNameTakeoverUserFragment>,
-      required: true,
-    },
-  },
   setup() {
     const { executeMutation: updateUserResult } = useMutation(gql`
       mutation NoNameTakeoverUserUpdateUser($name: String) {

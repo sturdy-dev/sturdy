@@ -879,6 +879,7 @@ enum Feature {
     GitHub
     Buildkite
     MultiTenancy
+    License
 }
 
 type Organization {
