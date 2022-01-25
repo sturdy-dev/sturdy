@@ -63,8 +63,6 @@ export class Application {
   }) {
     logger = logger.withPrefix(host.id)
     logger.log('starting')
-    const isUp = await host.isUp()
-    if (!isUp) throw new Error(`Can't start, ${host.title} is not up`)
 
     const auth = await Auth.start(host.graphqlURL)
 
@@ -148,11 +146,15 @@ export class Application {
   }
 
   async open(startURL?: URL) {
-    this.#logger.log('open', { startURL })
+    if (startURL) {
+      this.#logger.log('open', { startURL })
+    } else {
+      this.#logger.log('open')
+    }
 
     // Re-use window if exists
     if (this.#window != null) {
-      this.#logger.log('re-using window')
+      this.#logger.log('re-using existing window')
       if (this.#window.isMinimized()) {
         this.#window.restore()
       }
@@ -164,7 +166,7 @@ export class Application {
       return this.#window
     }
 
-    this.#logger.log('creating window')
+    this.#logger.log('creating new window')
     app.dock.show()
 
     this.#window = new BrowserWindow({
