@@ -23,6 +23,8 @@ type OrganizationResolver interface {
 	Codebases(context.Context) ([]CodebaseResolver, error)
 
 	LicenseSubscriptions(context.Context) ([]LicenseResolver, error)
+	
+	Writeable(context.Context) bool
 }
 
 type CreateOrganizationArgs struct {

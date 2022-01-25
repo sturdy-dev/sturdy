@@ -187,6 +187,15 @@ func (r *CodebaseRootResolver) CreateCodebase(ctx context.Context, args resolver
 	if args.Input.OrganizationID != nil {
 		o := string(*args.Input.OrganizationID)
 		orgID = &o
+
+		// Verify access to organization
+		org, err := r.organizationService.GetByID(ctx, o)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		if err := r.authService.CanWrite(ctx, org); err != nil {
+			return nil, gqlerrors.Error(err)
+		}
 	}
 
 	cb, err := r.codebaseService.Create(ctx, args.Input.Name, orgID)
@@ -614,6 +623,13 @@ func (r *CodebaseResolver) Organization(ctx context.Context) (resolvers.Organiza
 		return nil, gqlerrors.Error(err)
 	}
 	return res, nil
+}
+
+func (r *CodebaseResolver) Writeable(ctx context.Context) bool {
+	if err := r.root.authService.CanWrite(ctx, r.c); err == nil {
+		return true
+	}
+	return false
 }
 
 func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.ID) (*CodebaseResolver, error) {

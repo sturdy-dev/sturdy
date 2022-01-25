@@ -71,6 +71,8 @@ type CodebaseResolver interface {
 	Integrations(ctx context.Context, args IntegrationsArgs) ([]IntegrationResolver, error)
 	IsPublic() bool
 	Organization(ctx context.Context) (OrganizationResolver, error)
+
+	Writeable(context.Context) bool
 }
 
 type CodebaseChangesArgs struct {

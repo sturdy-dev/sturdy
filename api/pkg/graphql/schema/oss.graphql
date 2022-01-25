@@ -271,7 +271,7 @@ type ACL {
 }
 
 # Codebase
-type Codebase {
+type Codebase implements Writeable {
     id: ID!
     shortID: ID!
     name: String!
@@ -303,6 +303,8 @@ type Codebase {
 
     # TODO(gustav): make this field required once all codebases are a part of an organization
     organization: Organization
+
+    writeable: Boolean!
 }
 
 input CodebaseChangesInput {
@@ -882,16 +884,23 @@ enum Feature {
     License
 }
 
-type Organization {
+type Organization implements Writeable {
     id: ID!
     shortID: ID!
     name: String!
     members: [Author!]!
     codebases: [Codebase!]!
+
+    writeable: Boolean!
 }
 
 type ServerStatus {
     _id: ID!
     needsFirstTimeSetup: Boolean!
     version: String!
+}
+
+# Writeable returns the result of canI Write for the resource itself
+interface Writeable {
+    writeable: Boolean!
 }
