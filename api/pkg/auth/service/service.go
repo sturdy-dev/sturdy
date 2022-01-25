@@ -459,8 +459,8 @@ func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, 
 	if err == nil {
 		return nil
 	}
-
-	// user can read a organization if they are a member of any of it's codebases
+	
+	// user can read (but not write) a organization if they are a member of any of it's codebases
 	if at == accessTypeRead {
 		ok, err := s.codebaseService.UserIsMemberOfCodebaseInOrganization(ctx, userID, org.ID)
 		if err != nil {
@@ -470,11 +470,6 @@ func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, 
 			return nil
 		}
 	}
-
-	//
-	// if err := s.codebaseService.Is(ctx, org.ID, userID); err != nil {
-	// 	return err
-	// }
 
 	return errors.New("user does not have access to organization")
 }
