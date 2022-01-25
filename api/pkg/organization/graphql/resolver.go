@@ -252,3 +252,10 @@ func (r *organizationResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 func (r *organizationResolver) LicenseSubscriptions(ctx context.Context) ([]resolvers.LicenseResolver, error) {
 	return r.root.licensesRootResolver.InternalListForOrganization(ctx, r.org.ID)
 }
+
+func (r *organizationResolver) Writeable(ctx context.Context) bool {
+	if err := r.root.authService.CanWrite(ctx, r.org); err == nil {
+		return true
+	}
+	return false
+}
