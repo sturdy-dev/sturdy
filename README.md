@@ -20,9 +20,9 @@
 Want to run Sturdy on your machine?
 
 ```bash
-docker run --detach --publish 30080:80 --publish 30022:22 \
-    --volume "$(pwd)/sturdydata:/var/data" \
-   getsturdy/server
+docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
+        --volume "$(pwd)/sturdydata:/var/data" \
+    getsturdy/server
 ```
 
 ## Learn more
