@@ -1,15 +1,14 @@
 import path from 'path'
 import { app, crashReporter, Menu, MenuItem, nativeImage, Tray } from 'electron'
 import { Updater } from './Updater'
-import { dataPath, resourceBinary, resourcePath } from './resources'
+import { dataPath, resourcePath } from './resources'
 import * as Sentry from '@sentry/electron'
 import { Host, Status } from './application'
 import { CaptureConsole } from '@sentry/integrations'
 import { Application } from './Application'
-import { MutagenDaemon, MutagenExecutable } from './mutagen'
 import { ApplicationManager } from './ApplicationManager'
 import { Logger } from './Logger'
-import { createWriteStream } from 'fs'
+import log from 'electron-log'
 
 // Start crash reporter before setting up logging
 crashReporter.start({
@@ -20,10 +19,11 @@ crashReporter.start({
     'https://o952367.ingest.sentry.io/api/6075838/minidump/?sentry_key=59a9e2de840941b58b49f82b0732e170',
 })
 
-// TODO
+const logsDir = dataPath('logs')
+
 // Setup logging to file after crash reporter.
-// Object.assign(console, log.functions)
-// log.transports.file.resolvePath = () => path.join(logsDir, 'main.log')
+Object.assign(console, log.functions)
+log.transports.file.resolvePath = () => path.join(logsDir, 'main.log')
 
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -108,45 +108,15 @@ const knownHosts =
 
 const defaultHost = knownHosts.find((h) => h.id === process.env.STURDY_DEFAULT_BACKEND) ?? cloud
 
-const logsDir = dataPath('logs')
-
-const mutagenLog = createWriteStream(path.join(logsDir, 'mutagen.log'), {
-  flags: 'a',
-  mode: 0o666,
-})
-logger.log('mutagen log', mutagenLog.path)
-
-const mutagenDataDirectoryPath = dataPath('mutagen')
-logger.log('mutagen data directory', mutagenDataDirectoryPath)
-
-const mutagenExecutable = new MutagenExecutable({
-  executablePath: resourceBinary('sturdy-sync'),
-  logger: logger,
-  log: mutagenLog,
-  dataDirectory: mutagenDataDirectoryPath,
-})
-
 const status = new Status(logger)
-
-const daemon = new MutagenDaemon(logger, mutagenExecutable)
-daemon.on('session-manager-initialized', status.mutagenStarted.bind(status))
-daemon.on('failed-to-start', status.mutagenFailedToStart.bind(status))
-daemon.on('is-running-changed', (isRunning) => {
-  if (!isRunning) {
-    status.mutagenStopped()
-  }
-})
-daemon.on('connection-to-server-dropped', status.connectionDropped.bind(status))
-
 const manager = new ApplicationManager(
   knownHosts,
-  mutagenExecutable,
   postHogToken,
   app.isPackaged,
   protocol,
   logger,
-  daemon,
-  status
+  status,
+  logsDir
 )
 
 let tray: Tray | undefined
@@ -185,8 +155,6 @@ const menu = (application: Application) => {
       click: async () => {
         try {
           await manager.cleanup()
-          mutagenExecutable.abort()
-          mutagenLog.end()
         } finally {
           process.exit()
         }
@@ -205,59 +173,51 @@ status.on('change', (state) => {
   }
 })
 
-manager.on('switch', async (application) => {
-  tray?.setContextMenu(menu(application))
+app.on('window-all-closed', () => {
+  // Don't do anything
+  // Keep the app running in the tray
+})
 
-  app.on('window-all-closed', () => {
-    // Don't do anything
-    // Keep the app running in the tray
-  })
-
-  app.on('open-url', async (event, url) => {
-    try {
-      logger.log('open-url', url)
-      if (!url.startsWith(protocol + '://')) {
-        return
-      }
-      event.preventDefault()
-
-      const sturdyUrl = new URL(url)
-      const newUrl = new URL(sturdyUrl.pathname + sturdyUrl.search, application.host.webURL)
-
-      await application.open(newUrl)
-    } catch (e) {
-      logger.error(e)
-    }
-  })
-
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    logger.log('second-instance', commandLine)
-
-    // Windows handling for opening protocol links while there is already a window open
-    if (process.platform === 'win32') {
-      const argWithUrl = commandLine.find((arg) => arg.indexOf(protocol) > -1)
-      if (argWithUrl) {
-        const sturdyUrl = new URL(argWithUrl)
-        const newUrl = new URL(sturdyUrl.pathname + sturdyUrl.search, application.host.webURL)
-        application.open(newUrl)
-      } else {
-        application.open()
-      }
+app.on('open-url', async (event, url) => {
+  try {
+    logger.log('open-url', url)
+    if (!url.startsWith(protocol + '://')) {
       return
     }
+    event.preventDefault()
 
-    // Not windows
-    application.open()
-  })
+    await manager.open(url)
+  } catch (e) {
+    logger.error(e)
+  }
+})
 
-  app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (process.platform === 'darwin') {
-      application.open()
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  logger.log('second-instance', commandLine)
+
+  // Windows handling for opening protocol links while there is already a window open
+  if (process.platform === 'win32') {
+    const argWithUrl = commandLine.find((arg) => arg.indexOf(protocol) > -1)
+    if (argWithUrl) {
+      manager.open(argWithUrl)
+    } else {
+      manager.open()
     }
-  })
+  } else {
+    manager.open()
+  }
+})
 
+app.on('activate', () => {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (process.platform === 'darwin') {
+    manager.open()
+  }
+})
+
+manager.on('switch', async (application) => {
+  tray?.setContextMenu(menu(application))
   await application.open()
 })
 
@@ -274,8 +234,7 @@ async function main() {
     app.setAppUserModelId('com.getsturdy.sturdy')
   }
 
-  // make sure we know the state of all hosts
-  await manager.refresh()
+  await manager.whenReady()
   // kick off the app with the default host
   manager.set(defaultHost)
 }
@@ -284,8 +243,6 @@ main().catch(async (e) => {
   logger.error(e)
   try {
     await manager.cleanup()
-    mutagenExecutable.abort()
-    mutagenLog.end()
   } catch (er) {
     logger.error(er)
   } finally {

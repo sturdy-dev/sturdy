@@ -3,6 +3,10 @@ import { Application, Host, State, Status } from './application'
 import { TypedEventEmitter } from './TypedEventEmitter'
 import { MutagenDaemon, MutagenExecutable } from './mutagen'
 import { Logger } from './Logger'
+import { dataPath, resourceBinary } from './resources'
+import { createWriteStream } from 'fs'
+import path from 'path'
+import { WriteStream } from 'fs'
 
 export interface ApplicationManagerEvents {
   switch: [application: Application]
@@ -22,22 +26,47 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   readonly #protocol: string
   readonly #logger: Logger
   readonly #daemon: MutagenDaemon
+  readonly #mutagenLog: WriteStream
   readonly #status: Status
 
   constructor(
     hosts: Host[],
-    mutagenExecutable: MutagenExecutable,
     postHogToken: string,
     isAppPackaged: boolean,
     protocol: string,
     logger: Logger,
-    daemon: MutagenDaemon,
-    status: Status
+    status: Status,
+    logsDir: string
   ) {
     super()
 
-    this.#hosts = new Map(hosts.map((host) => [host.id, host]))
+    logger = logger.withPrefix('apps')
 
+    const mutagenLog = createWriteStream(path.join(logsDir, 'mutagen.log'), {
+      flags: 'a',
+      mode: 0o666,
+    })
+    logger.log('mutagen log', mutagenLog.path)
+    const mutagenDataDirectoryPath = dataPath('mutagen')
+    logger.log('mutagen data directory', mutagenDataDirectoryPath)
+    const mutagenExecutable = new MutagenExecutable({
+      executablePath: resourceBinary('sturdy-sync'),
+      logger: logger,
+      log: mutagenLog,
+      dataDirectory: mutagenDataDirectoryPath,
+    })
+
+    const daemon = new MutagenDaemon(logger, mutagenExecutable)
+    daemon.on('session-manager-initialized', status.mutagenStarted.bind(status))
+    daemon.on('failed-to-start', status.mutagenFailedToStart.bind(status))
+    daemon.on('is-running-changed', (isRunning) => {
+      if (!isRunning) {
+        status.mutagenStopped()
+      }
+    })
+    daemon.on('connection-to-server-dropped', status.connectionDropped.bind(status))
+
+    this.#hosts = new Map(hosts.map((host) => [host.id, host]))
     this.#menuItems = new Map(
       hosts.map((host) => [
         host.id,
@@ -49,14 +78,14 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
         }),
       ])
     )
-
     this.#mutagenExecutable = mutagenExecutable
     this.#postHogToken = postHogToken
     this.#isAppPackaged = isAppPackaged
     this.#protocol = protocol
-    this.#logger = logger.withPrefix('apps')
+    this.#logger = logger
     this.#daemon = daemon
     this.#status = status
+    this.#mutagenLog = mutagenLog
   }
 
   async getOrCreateApplication(host: Host) {
@@ -92,11 +121,27 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     const application = await this.getOrCreateApplication(host)
     this.#menuItems.get(host.id)!.checked = true
     this.emit('switch', application)
+
+    // close all other applications
     for (let [id, app] of this.#applications) {
       if (id === host.id) {
         continue
       }
       app.close()
+    }
+  }
+
+  async open(url?: string) {
+    if (!this.#activeApplication) {
+      return
+    }
+    const application = this.#applications.get(this.#activeApplication)!
+    if (url) {
+      const sturdyUrl = new URL(url)
+      const newUrl = new URL(sturdyUrl.pathname + sturdyUrl.search, application.host.webURL)
+      await application.open(newUrl)
+    } else {
+      await application.open()
     }
   }
 
@@ -116,7 +161,8 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     )
   }
 
-  async refresh() {
+  async whenReady() {
+    // fetch status of all known hosts
     const promises = []
     for (const [, host] of this.#hosts) {
       promises.push(
@@ -131,5 +177,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   async cleanup() {
     this.#logger.log('cleaning up...')
     await Promise.all(Array.from(this.#applications.values()).map((ctx) => ctx.cleanup()))
+    this.#mutagenExecutable.abort()
+    this.#mutagenLog.end()
   }
 }
