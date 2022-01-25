@@ -104,7 +104,10 @@
           </MenuItem>
         </div>
 
-        <div v-if="authenticated" class="py-1">
+        <div
+          v-if="authenticated && nonCurrentOrganizations && nonCurrentOrganizations.length > 0"
+          class="py-1"
+        >
           <MenuItem v-for="org in nonCurrentOrganizations" :key="org.id" v-slot="{ active }">
             <router-link
               :to="{ name: 'organizationListCodebases', params: { organizationSlug: org.shortID } }"
