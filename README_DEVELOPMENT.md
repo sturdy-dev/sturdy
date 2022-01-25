@@ -24,8 +24,8 @@ It's possible to run the services without Docker.
 
 * Run PostgreSQL, LFS, and the SSH servers: `./up --build`
 * Build and run the API server: `cd api && go build getsturdy.com/api/cmd/api && ./api --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
-* Run the web frontend: `cd web && yarn install && yarn run dev`
-* Run the Electron app: `cd app && yarn install && yarn run dev`
+* Build and run the web frontend: `cd web && yarn && yarn codegen && yarn dev`
+* Build and run the Electron app: `cd app && yarn && yarn dev`
 
 ## Testing
 
