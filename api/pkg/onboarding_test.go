@@ -307,6 +307,7 @@ func TestCreate(t *testing.T) {
 		executorProvider,
 		authService,
 		codebaseService,
+		nil,
 	)
 
 	userRootResolver := graphql_user.NewResolver(

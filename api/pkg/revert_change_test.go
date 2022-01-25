@@ -259,6 +259,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 		authService,
 		codebaseService,
+		nil,
 	)
 
 	*statusesRootResolver = graphql_statuses.New(
@@ -616,6 +617,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 		authService,
 		codebaseService,
+		nil,
 	)
 
 	*statusesRootResolver = graphql_statuses.New(
