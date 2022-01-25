@@ -4,6 +4,10 @@
       <VerticalNavigation />
     </template>
 
+    <template #header>
+      <OrganizationSettingsHeader :name="data.organization.name" />
+    </template>
+
     <template #default>
       <div class="max-w-7xl">
         <Header>
@@ -31,9 +35,16 @@ import OrganizationMembers from '../../organisms/organization/OrganizationMember
 import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
+import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 
 export default defineComponent({
-  components: { PaddedAppLeftSidebar, OrganizationMembers, Header, VerticalNavigation },
+  components: {
+    PaddedAppLeftSidebar,
+    OrganizationMembers,
+    Header,
+    VerticalNavigation,
+    OrganizationSettingsHeader,
+  },
   setup() {
     let route = useRoute()
 

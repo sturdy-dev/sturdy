@@ -1,9 +1,13 @@
 <template>
   <form class="space-y-4">
-    <Header>
-      <span v-if="isFirst">Create your first organization 🎉</span>
-      <span v-else>Create a new organization 🎉</span>
-    </Header>
+    <template v-if="isFirst">
+      <h1 class="text-gray-800 text-4xl font-bold">Let's get you setup 🎉</h1>
+      <p class="text-gray-500">Create your first organization</p>
+    </template>
+    <template v-else>
+      <h1 class="text-gray-800 text-4xl font-bold">Create a new organization 🎉</h1>
+      <p class="text-gray-500">Create a organization to organize your work</p>
+    </template>
 
     <form class="space-y-4" @submit.stop.prevent="create">
       <TextInputWithLabel
@@ -13,7 +17,7 @@
         name="org-name"
       />
       <OrganizationLicenseTierPicker v-if="withTierPicker" />
-      <Button color="green" @click="create">Create team</Button>
+      <Button color="green" @click="create">Get started</Button>
     </form>
 
     <p class="text-gray-700 text-sm">
@@ -27,9 +31,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import Header from '../../molecules/Header.vue'
 import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
-import { gql, useMutation } from '@urql/vue'
+import { gql } from '@urql/vue'
 import Button from '../../components/shared/Button.vue'
 import { useRouter } from 'vue-router'
 import { OrganizationCreateUserFragment } from './__generated__/OrganizationCreate'
@@ -44,7 +47,7 @@ export const ORGANIZATION_CREATE_USER = gql`
 `
 
 export default defineComponent({
-  components: { TextInputWithLabel, Header, OrganizationLicenseTierPicker, Button },
+  components: { TextInputWithLabel, OrganizationLicenseTierPicker, Button },
   props: {
     withTierPicker: {
       type: Boolean,

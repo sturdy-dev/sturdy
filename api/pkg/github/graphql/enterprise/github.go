@@ -37,12 +37,14 @@ func (r *gitHubRootResolver) GitHubRepositories(ctx context.Context) ([]resolver
 	}
 
 	repos, err := r.svc.ListAllAccessibleRepositoriesFromGitHub(ctx, userID)
-	if err != nil {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	case err != nil:
 		return nil, gqlerrors.Error(err)
 	}
 
 	var res []resolvers.GitHubRepositoryResolver
-
 	for _, repo := range repos {
 		res = append(res, &gitHubRepositoryResolver{root: r, repo: repo})
 	}

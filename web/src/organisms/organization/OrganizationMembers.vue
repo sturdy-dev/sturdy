@@ -6,9 +6,9 @@
       </label>
 
       <Banner v-if="showInvitedBanner" status="success">Invited!</Banner>
-      <Banner v-if="showFailedBanner" status="error"
-        >User not found or could not be invited.</Banner
-      >
+      <Banner v-if="showFailedBanner" status="error">
+        User not found or could not be invited.
+      </Banner>
 
       <div class="flex">
         <div class="flex-grow">

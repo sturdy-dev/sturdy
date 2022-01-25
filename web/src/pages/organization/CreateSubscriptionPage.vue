@@ -1,7 +1,11 @@
 <template>
-  <PaddedAppLeftSidebar class="bg-white">
+  <PaddedAppLeftSidebar v-if="data" class="bg-white">
     <template #navigation>
       <VerticalNavigation />
+    </template>
+
+    <template #header>
+      <OrganizationSettingsHeader :name="data.organization.name" />
     </template>
 
     <template #default>
@@ -42,14 +46,12 @@
       </div>
 
       <p class="my-2">Reach out to support@getsturdy.com to get started.</p>
-
-      <pre>data={{ data }}</pre>
     </template>
   </PaddedAppLeftSidebar>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import Header from '../../molecules/Header.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
@@ -59,28 +61,30 @@ import { useRoute } from 'vue-router'
 import {
   ListOrganizationSubscriptionsQuery,
   ListOrganizationSubscriptionsQueryVariables,
-} from './__generated__/CreateSubscription'
+} from './__generated__/CreateSubscriptionPage'
+import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 
 export default defineComponent({
   components: {
     Header,
     VerticalNavigation,
     PaddedAppLeftSidebar,
+    OrganizationSettingsHeader,
     UserGroupIcon,
     CurrencyDollarIcon,
   },
   setup() {
     let route = useRoute()
-    let orgID = route.params.id as string
 
     let { data } = useQuery<
       ListOrganizationSubscriptionsQuery,
       ListOrganizationSubscriptionsQueryVariables
     >({
       query: gql`
-        query ListOrganizationSubscriptions($id: ID!) {
-          organization(id: $id) {
+        query ListOrganizationSubscriptions($shortID: ID!) {
+          organization(shortID: $shortID) {
             id
+            name
             licenseSubscriptions {
               id
               seats
@@ -92,7 +96,7 @@ export default defineComponent({
       `,
       requestPolicy: 'cache-and-network',
       variables: {
-        id: orgID,
+        shortID: computed(() => route.params.organizationSlug as string),
       },
     })
 

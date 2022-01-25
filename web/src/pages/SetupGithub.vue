@@ -38,7 +38,6 @@ import Spinner from '../components/shared/Spinner.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
 
 export default defineComponent({
-  name: 'SetupGithub',
   components: { PaddedApp, Banner, Spinner },
   setup() {
     let route = useRoute()
@@ -48,8 +47,6 @@ export default defineComponent({
     let show_redirected_to_app = ref(false)
 
     onMounted(async () => {
-      console.log('setupGitHub ONMOUNTED')
-
       // If this request is rendered on the web, open in the app.
       if (typeof ipc === 'undefined' && route.query.state === 'install-app') {
         if (import.meta.env.DEV) {
@@ -84,6 +81,8 @@ export default defineComponent({
             router.push({ name: 'user' })
           } else if (route.query.state === 'codebase-overview') {
             router.push({ name: 'codebaseOverview' })
+          } else if (route.query.state.startsWith('web-')) {
+            router.push(route.query.state.substring(4))
           }
         })
         .catch(() => {
