@@ -10,7 +10,7 @@
         User not found or could not be invited.
       </Banner>
 
-      <div class="flex">
+      <div v-if="organization.writeable" class="flex">
         <div class="flex-grow">
           <input
             id="add-team-members"
@@ -31,10 +31,16 @@
         </span>
       </div>
     </div>
+    <div v-if="!organization.writeable">
+      <p class="text-sm tetx-gray-500">
+        You don't have permissions to invite users to this organization, ask an admin for help if
+        you want to invite someone.
+      </p>
+    </div>
 
     <div class="border-b border-gray-200">
       <ul role="list" class="divide-y divide-gray-200">
-        <li v-for="member in members" :key="member.id" class="py-4 flex">
+        <li v-for="member in organization.members" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
           <div class="ml-3 flex flex-col">
             <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
@@ -52,31 +58,32 @@ import { gql, useMutation } from '@urql/vue'
 import {
   InviteUserToOrganizationMutation,
   InviteUserToOrganizationMutationVariables,
-  OrganizationMembersFragment,
+  OrganizationMembersOrganizationFragment,
 } from './__generated__/OrganizationMembers'
 import { PlusIcon } from '@heroicons/vue/solid'
 import Avatar from '../../components/shared/Avatar.vue'
 import Button from '../../components/shared/Button.vue'
 import Banner from '../../components/shared/Banner.vue'
 
-export const ORGANIZATION_MEMBERS_FRAGMENT = gql`
-  fragment OrganizationMembers on Author {
+export const ORGANIZATION_FRAGMENT = gql`
+  fragment OrganizationMembersOrganization on Organization {
     id
     name
-    email
-    avatarUrl
+    members {
+      id
+      name
+      email
+      avatarUrl
+    }
+    writeable
   }
 `
 
 export default defineComponent({
   components: { PlusIcon, Avatar, Button, Banner },
   props: {
-    organizationId: {
-      type: String,
-      required: true,
-    },
-    members: {
-      type: Array as PropType<Array<OrganizationMembersFragment>>,
+    organization: {
+      type: Object as PropType<OrganizationMembersOrganizationFragment>,
       required: true,
     },
   },
@@ -118,7 +125,7 @@ export default defineComponent({
       this.showInvitedBanner = false
       this.showFailedBanner = false
 
-      this.inviteUserToOrganization(this.addUserEmail, this.organizationId)
+      this.inviteUserToOrganization(this.addUserEmail, this.organization.id)
         .then(() => {
           this.showInvitedBanner = true
           this.showFailedBanner = false

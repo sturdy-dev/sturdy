@@ -14,10 +14,7 @@
           <span>Manage {{ data.organization.name }}</span>
         </Header>
 
-        <OrganizationMembers
-          :members="data.organization.members"
-          :organization-id="data.organization.id"
-        />
+        <OrganizationMembers :organization="data.organization" />
       </div>
     </template>
   </PaddedAppLeftSidebar>
@@ -60,11 +57,7 @@ export default defineComponent({
               email
               avatarUrl
             }
-            codebases {
-              id
-              shortID
-              name
-            }
+            writeable
           }
         }
       `,
