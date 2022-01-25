@@ -1,5 +1,7 @@
 # Sturdy GitHub App locally
 
+> TODO: This needs to be updated.
+
 Step 0, install localtunnel (or similar):
 
 ```

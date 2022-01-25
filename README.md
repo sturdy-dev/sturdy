@@ -21,7 +21,7 @@ Want to run Sturdy on your machine?
 
 ```bash
 docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
-        --volume "$(pwd)/sturdydata:/var/data" \
+    --volume "$HOME/.sturdydata:/var/data" \
     getsturdy/server
 ```
 
