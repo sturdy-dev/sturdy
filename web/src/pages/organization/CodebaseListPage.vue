@@ -6,7 +6,10 @@
 
     <template #header>
       <OrganizationSettingsHeader :name="data.organization.name">
-        <RouterLinkButton :to="{ name: 'organizationCreateCodebase' }">
+        <RouterLinkButton
+          v-if="data.organization.writeable"
+          :to="{ name: 'organizationCreateCodebase' }"
+        >
           <PlusIcon class="-ml-0.5 mr-2 h-4 w-4" />
           <span>New Codebase</span>
         </RouterLinkButton>
@@ -239,6 +242,8 @@ export default defineComponent({
                 gitHubIsSourceOfTruth
               }
             }
+
+            writeable
           }
 
           gitHubApp @include(if: $isGitHubEnabled) {
