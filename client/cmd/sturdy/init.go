@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"client/cmd/sturdy/config"
-	"client/pkg/api"
-	"client/pkg/initView"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/pkg/api"
+	"getsturdy.com/client/pkg/initView"
 )
 
 // User friendly init

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"client/cmd/sturdy/config"
-	"client/pkg/api"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/pkg/api"
 
 	"github.com/dgrijalva/jwt-go"
 )

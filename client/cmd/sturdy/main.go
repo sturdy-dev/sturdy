@@ -7,9 +7,9 @@ import (
 	"os"
 	"path"
 
-	"client/cmd/sturdy/config"
-	"client/cmd/sturdy/legal"
-	"client/cmd/sturdy/version"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/cmd/sturdy/legal"
+	"getsturdy.com/client/cmd/sturdy/version"
 )
 
 func printHelpAndExit() {

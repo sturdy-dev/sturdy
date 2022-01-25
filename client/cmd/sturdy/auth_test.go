@@ -7,7 +7,7 @@ import (
 	"log"
 	"testing"
 
-	"client/cmd/sturdy/config"
+	"getsturdy.com/client/cmd/sturdy/config"
 
 	"github.com/stretchr/testify/assert"
 )

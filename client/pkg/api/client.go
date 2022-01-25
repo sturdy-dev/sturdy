@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"client/cmd/sturdy/version"
+	"getsturdy.com/client/cmd/sturdy/version"
 )
 
 var ErrUnauthorized = errors.New("unexpected response code 401")

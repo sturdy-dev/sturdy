@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 
-	"client/cmd/sturdy/config"
+	"getsturdy.com/client/cmd/sturdy/config"
 )
 
 type HttpApiClient struct {

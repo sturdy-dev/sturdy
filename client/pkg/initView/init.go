@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"client/pkg/api"
+	"getsturdy.com/client/pkg/api"
 )
 
 func CreateWorkspaceAndView(host, authToken, codebaseID, mountPath string) (string, error) {

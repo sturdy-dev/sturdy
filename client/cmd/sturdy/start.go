@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"client/cmd/sturdy/config"
-	"client/pkg/api"
-	"client/pkg/edkey"
-	"client/pkg/mutagen"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/pkg/api"
+	"getsturdy.com/client/pkg/edkey"
+	"getsturdy.com/client/pkg/mutagen"
 
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/ssh"

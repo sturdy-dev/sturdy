@@ -91,8 +91,8 @@ build_upload() {
 
   # Build binary
   GOOS=$GOOS GOARCH=$GOARCH GOARM=$GOARM go build -o "${OUTPUT_DIR}/${STURDY_BIN_NAME}" \
-    -ldflags "-X client/cmd/sturdy/version.Version=$VERSION" \
-    client/cmd/sturdy
+    -ldflags "-X getsturdy.com/client/cmd/sturdy/version.Version=$VERSION" \
+    getsturdy.com/client/cmd/sturdy
 
   # Build mutagen
   cd $MUTAGEN_PATH
