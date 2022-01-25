@@ -4,8 +4,7 @@
       <strong>Debug: This is a self-hosted instance of Sturdy.</strong>
     </div>
 
-    <FirstTimeSetup v-if="data && data?.serverStatus?.needsFirstTimeSetup" />
-    <FirstTimeUserNoNameTakeover v-else-if="data && data.user && !data.user.name" :user="user" />
+    <FirstTimeUserNoNameTakeover v-if="data && data.user && !data.user.name" :user="data.user" />
     <slot v-else></slot>
   </div>
 </template>
@@ -14,11 +13,10 @@
 import { defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import FirstTimeUserNoNameTakeover from '../components/user/FirstTimeUserNoNameTakeover.vue'
-import FirstTimeSetup from '../organisms/serverstatus/FirstTimeSetup.vue'
 import { Feature } from '../__generated__/types'
 
 export default defineComponent({
-  components: { FirstTimeUserNoNameTakeover, FirstTimeSetup },
+  components: { FirstTimeUserNoNameTakeover },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
