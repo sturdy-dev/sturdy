@@ -23,7 +23,7 @@ Here's a collection to tools, services, and so on that we're using. Everyone sho
 It's possible to run the services without Docker.
 
 * Run PostgreSQL, LFS, and the SSH servers: `./up --build`
-* Build and run the API server: `cd api && go build -tags enterprise -v -o mash mash/cmd/api && ./mash --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
+* Build and run the API server: `cd api && go build getsturdy.com/api/cmd/api && ./api --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
 * Run the web frontend: `cd web && yarn install && yarn run dev`
 * Run the Electron app: `cd app && yarn install && yarn run dev`
 
