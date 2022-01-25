@@ -7,7 +7,7 @@ Remove-Item 'sturdy-windows' -Recurse -ErrorAction SilentlyContinue
 Remove-Item 'sturdy-windows.zip' -ErrorAction SilentlyContinue
 
 echo "Downloading"
-Invoke-WebRequest -Uri "https://getsturdy.com/client/sturdy-$VERSION-windows-amd64.zip" -OutFile "sturdy-windows.zip"
+Invoke-WebRequest -Uri "https://getsturdy.com/getsturdy.com/client/sturdy-$VERSION-windows-amd64.zip" -OutFile "sturdy-windows.zip"
 
 echo "Copying"
 Expand-Archive -LiteralPath 'sturdy-windows.zip' -DestinationPath sturdy-windows

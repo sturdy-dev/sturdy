@@ -1,4 +1,4 @@
-module client
+module getsturdy.com/client
 
 go 1.17
 

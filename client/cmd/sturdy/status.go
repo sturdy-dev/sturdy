@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"client/cmd/sturdy/config"
-	"client/pkg/mutagen"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/pkg/mutagen"
 )
 
 func status(conf *config.Config) {

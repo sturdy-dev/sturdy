@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/exec"
 
-	"client/cmd/sturdy/config"
-	"client/pkg/api"
+	"getsturdy.com/client/cmd/sturdy/config"
+	"getsturdy.com/client/pkg/api"
 )
 
 func importCodebase(conf *config.Config, args []string, apiClient *api.HttpApiClient) {
