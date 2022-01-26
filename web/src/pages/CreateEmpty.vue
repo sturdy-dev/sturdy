@@ -1,6 +1,6 @@
 <template>
   <PaddedApp>
-    <CreateCodebase>
+    <CreateCodebase :show-setup-git-hub="true">
       <template #header>
         <div class="py-8 px-4">
           <div class="">

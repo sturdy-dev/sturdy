@@ -21,7 +21,8 @@ export default defineComponent({
       {
         name: 'Codebases',
         linkName: 'organizationListCodebases',
-        current: route.name === 'organizationListCodebases',
+        current:
+          route.name === 'organizationListCodebases' || route.name === 'organizationCreateCodebase',
       },
 
       {

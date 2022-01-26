@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-2">
-    <div class="mt-2 bg-gray-200 p-8 rounded">
+    <div class="mt-2 bg-gray-100 p-8 rounded">
       <p v-if="!gitHubAccount">
         Authenticate with GitHub and install <strong>Sturdy for GitHub</strong> to use Sturdy on top
         of your existing repositories.
@@ -11,27 +11,33 @@
       </p>
 
       <ul class="list-inside mt-2 block inline-flex flex-col text-gray-800">
-        <li class="inline-flex space-x-2 items-center">
+        <li class="inline-flex space-x-2">
           <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-          <span>Fully compatible</span>
+          <span>Use Sturdy on top of GitHub</span>
         </li>
         <li class="inline-flex space-x-2">
           <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-          <span>Auto import from GitHub to Sturdy</span>
+          <span>Fine grained permissions</span>
         </li>
         <li class="inline-flex space-x-2">
           <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-          <span>1-click pull requests</span>
+          <span>Install on only the repositories that you want to use Sturdy on</span>
         </li>
         <li class="inline-flex space-x-2">
           <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-          <span>Use Sturdy with your existing integrations</span>
+          <span>Work in Sturdy, create pull requests with your code when you're done</span>
+        </li>
+        <li class="inline-flex space-x-2">
+          <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+          <span>Sturdy automatically syncs data from GitHub</span>
         </li>
       </ul>
     </div>
 
     <GitHubConnectButton
       already-installed-text="Update GitHub-app installation"
+      not-connected-text="Login with GitHub"
+      color="blue"
       :git-hub-app="gitHubApp"
       :git-hub-account="gitHubAccount"
     />
