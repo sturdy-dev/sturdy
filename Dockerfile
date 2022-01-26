@@ -70,11 +70,15 @@ RUN yarn build:oneliner
 
 FROM alpine:3.15 as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
-ARG REPROXY_SHA256_SUM="35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e"
-ADD "https://github.com/umputun/reproxy/releases/download/${REPROXY_VERSION}/reproxy_${REPROXY_VERSION}_linux_arm64.tar.gz" /tmp/reproxy.tar.gz
-RUN apk update && apk add --no-cache bash
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN set -o pipefail \
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
+        ARCH='arm64'; \
+        REPROXY_SHA256_SUM='35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e'; \
+    elif [[ "$(uname -m)" == 'x86_64' ]]; then \
+        ARCH='x86_64'; \
+        REPROXY_SHA256_SUM='100a1389882b8ab68ae94f37e9222f5f928ece299d8cfdf5b26c9f12f902c23a'; \
+    fi \
+    && wget --quiet --output-document "/tmp/reproxy.tar.gz" "https://github.com/umputun/reproxy/releases/download/${REPROXY_VERSION}/reproxy_${REPROXY_VERSION}_linux_${ARCH}.tar.gz" \
     && sha256sum "/tmp/reproxy.tar.gz" \
     && echo "${REPROXY_SHA256_SUM}  /tmp/reproxy.tar.gz" | sha256sum -c \
     && tar -xzf /tmp/reproxy.tar.gz -C /usr/bin \
@@ -106,11 +110,17 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay
-ARG S6_OVERLAY_VERSION="v2.2.0.3" \
-    S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"
-ADD "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-aarch64-installer" /tmp/s6-overlay-installer
+ARG S6_OVERLAY_VERSION="v2.2.0.3"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN sha256sum "/tmp/s6-overlay-installer" \
+RUN if [[ "$(uname -m)" == 'x86_64' ]]; then \
+        ARCH='x86'; \
+        S6_OVERLAY_SHA256_SUM="2f38adf08dc3aba06324c73f155e5f5b97b2d15d1c1bf7d95e7a09716247c4ca"; \
+    elif [[ "$(uname -m)" == 'aarch64' ]]; then \
+        ARCH='aarch64'; \
+        S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"; \
+    fi \
+    && wget --quiet --output-document "/tmp/s6-overlay-installer" "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}-installer" \
+    && sha256sum "/tmp/s6-overlay-installer" \
     && echo "${S6_OVERLAY_SHA256_SUM}  /tmp/s6-overlay-installer" | sha256sum -c \
     && chmod +x /tmp/s6-overlay-installer \
     && /tmp/s6-overlay-installer / \
