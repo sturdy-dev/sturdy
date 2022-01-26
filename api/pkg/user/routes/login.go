@@ -14,14 +14,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
+func Login(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Client, jwtService *service_jwt.Service) func(c *gin.Context) {
+	type request struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
 
-func Auth(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Client, jwtService *service_jwt.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var req AuthRequest
+		var req request
 		if err := c.ShouldBindJSON(&req); err != nil {
 			logger.Warn("failed to bind input", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
@@ -34,16 +34,15 @@ func Auth(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Clie
 		getUser, err := repo.GetByEmail(req.Email)
 		if err != nil {
 			logger.Warn("failed to get user", zap.Error(err))
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid password"})
 			return
 		}
 
 		// Compare the input password against our hashed version
-		err = bcrypt.CompareHashAndPassword(
+		if err := bcrypt.CompareHashAndPassword(
 			[]byte(getUser.PasswordHash),
 			[]byte(req.Password),
-		)
-		if err != nil {
+		); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid password"})
 			return
 		}
@@ -55,23 +54,21 @@ func Auth(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Clie
 		}
 
 		// Identify to analytics
-		err = analyticsClient.Enqueue(analytics.Identify{
+		if err := analyticsClient.Enqueue(analytics.Identify{
 			DistinctId: getUser.ID,
 			Properties: analytics.NewProperties().
 				Set("name", getUser.Name).
 				Set("email", getUser.Email),
-		})
-		if err != nil {
+		}); err != nil {
 			logger.Error("send to analytics failed", zap.Error(err))
 		}
 
-		err = analyticsClient.Enqueue(analytics.Capture{
+		if err := analyticsClient.Enqueue(analytics.Capture{
 			DistinctId: getUser.ID,
 			Event:      "logged in",
 			Properties: analytics.NewProperties().
 				Set("type", "password"),
-		})
-		if err != nil {
+		}); err != nil {
 			logger.Error("send to analytics failed", zap.Error(err))
 		}
 

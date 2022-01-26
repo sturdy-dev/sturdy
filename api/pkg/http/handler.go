@@ -1,4 +1,4 @@
-package oss
+package http
 
 import (
 	"net/http"
@@ -140,7 +140,8 @@ func ProvideHandler(
 	// Private endpoints, requires a valid auth cookie
 	auth := r.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
-	publ.POST("/v3/auth", routes_v3_user.Auth(logger, userRepo, analyticsClient, jwtService))
+	publ.POST("/v3/auth", routes_v3_user.Login(logger, userRepo, analyticsClient, jwtService))
+	publ.POST("/v3/users", routes_v3_user.Signup(logger, userService, jwtService, analyticsClient))
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
 	publ.POST("/v3/auth/magic-link/send", routes_v3_user.SendMagicLink(logger, userService))
 	publ.POST("/v3/auth/magic-link/verify", routes_v3_user.VerifyMagicLink(logger, userService, jwtService))

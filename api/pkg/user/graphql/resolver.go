@@ -89,7 +89,7 @@ func (r *userRootResolver) UpdateUser(ctx context.Context, args resolvers.Update
 	// User password is updated by a separate method
 	if args.Input.Password != nil && len(*args.Input.Password) >= 8 {
 		// Salt and hash password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*args.Input.Password), 8)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*args.Input.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}

@@ -14,7 +14,7 @@ import (
 	routes_v3_ghapp "getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
-	"getsturdy.com/api/pkg/http/oss"
+	"getsturdy.com/api/pkg/http"
 	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	db_review "getsturdy.com/api/pkg/review/db"
@@ -68,7 +68,7 @@ func ProvideHandler(
 	ciService *service_ci.Service,
 	serviceTokensService *service_servicetokens.Service,
 	buildkiteService *service_buildkite.Service,
-	ossEngine *oss.Engine,
+	ossEngine *http.Engine,
 ) *Engine {
 	auth := ossEngine.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))

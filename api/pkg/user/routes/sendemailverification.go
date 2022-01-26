@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	"getsturdy.com/api/pkg/auth"
 	service_user "getsturdy.com/api/pkg/user/service"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

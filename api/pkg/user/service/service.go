@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	service_onetime "getsturdy.com/api/pkg/onetime/service"
 	"getsturdy.com/api/pkg/user"
 	db_user "getsturdy.com/api/pkg/user/db"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -42,6 +45,62 @@ func New(
 		transactionalEmailSender: transactionalEmailSender,
 		analyticsClient:          analyticsClient,
 	}
+}
+
+var (
+	ErrExists = fmt.Errorf("user already exists")
+)
+
+func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error) {
+	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {
+		// all good
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	} else {
+		return nil, ErrExists
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	t := time.Now()
+	newUser := &user.User{
+		ID:           uuid.New().String(),
+		Name:         name,
+		Email:        email,
+		PasswordHash: string(hash),
+		CreatedAt:    &t,
+	}
+
+	if err := s.userRepo.Create(newUser); err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	// Send events
+	if err := s.analyticsClient.Enqueue(analytics.Identify{
+		DistinctId: newUser.ID,
+		Properties: analytics.NewProperties().
+			Set("name", newUser.Name).
+			Set("email", newUser.Email),
+	}); err != nil {
+		s.logger.Error("send to analytics failed", zap.Error(err))
+	}
+
+	if err := s.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: newUser.ID,
+		Event:      "created account",
+	}); err != nil {
+		s.logger.Error("send to analytics failed", zap.Error(err))
+	}
+
+	// Send emails
+	if err := s.transactionalEmailSender.SendWelcome(ctx, newUser); err != nil {
+		s.logger.Error("failed to send welcome email", zap.Error(err))
+	}
+
+	return newUser, nil
 }
 
 func (s *Service) Create(ctx context.Context, name, email string) (*user.User, error) {

@@ -7,15 +7,15 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/http/oss"
+	httpx "getsturdy.com/api/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Module(c *di.Container) {
-	c.Register(oss.ProvideHandler)
-	c.Register(func(e *oss.Engine) http.Handler {
+	c.Register(httpx.ProvideHandler)
+	c.Register(func(e *httpx.Engine) http.Handler {
 		return (*gin.Engine)(e)
 	})
-	c.Register(ProvideServer)
+	c.Register(httpx.ProvideServer)
 }

@@ -24,6 +24,19 @@
                   />
                 </div>
 
+                <div v-if="passwordEnabled" class="col-span-12 sm:col-span-6">
+                  <label for="password" class="block text-sm font-medium text-gray-700"
+                    >Password</label
+                  >
+                  <input
+                    id="password"
+                    v-model="userPassword"
+                    type="password"
+                    name="name"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-light-blue-500 focus:border-light-blue-500 sm:text-sm"
+                  />
+                </div>
+
                 <div class="col-span-12 sm:col-span-6">
                   <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                   <input
@@ -244,11 +257,17 @@ export default {
     })
 
     const { executeMutation: updateUserResult } = useMutation(gql`
-      mutation UpdateUser($name: String, $email: String, $notificationsReceiveNewsletter: Boolean) {
+      mutation UpdateUser(
+        $name: String
+        $password: String
+        $email: String
+        $notificationsReceiveNewsletter: Boolean
+      ) {
         updateUser(
           input: {
             name: $name
             email: $email
+            password: $password
             notificationsReceiveNewsletter: $notificationsReceiveNewsletter
           }
         ) {
@@ -263,6 +282,7 @@ export default {
     // One way data bindings
     let userName = ref('')
     let userEmail = ref('')
+    let userPassword = ref('')
     let userNotificationsReceiveNewsletter = ref(false)
     watch(data, () => {
       if (data && data.value && data.value.user) {
@@ -281,6 +301,7 @@ export default {
 
       userName,
       userEmail,
+      userPassword,
       userNotificationsReceiveNewsletter,
 
       refresh() {
@@ -289,10 +310,11 @@ export default {
         })
       },
 
-      async updateUser(name, email, notificationsReceiveNewsletter) {
+      async updateUser(name, password, email, notificationsReceiveNewsletter) {
         const variables = {
           name,
           email,
+          password,
           notificationsReceiveNewsletter,
         }
         await updateUserResult(variables).then((result) => {
@@ -319,7 +341,12 @@ export default {
   },
   methods: {
     save() {
-      this.updateUser(this.userName, this.userEmail, this.userNotificationsReceiveNewsletter)
+      this.updateUser(
+        this.userName,
+        this.userPassword,
+        this.userEmail,
+        this.userNotificationsReceiveNewsletter
+      )
         .then(() => {
           this.status_success = true
           this.status_failed = false
@@ -355,6 +382,11 @@ export default {
           this.status_avatar_failed = true
         })
         .finally(this.refresh)
+    },
+  },
+  computed: {
+    passwordEnabled() {
+      return this.features.includes(Feature.PasswordAuth)
     },
   },
 }
