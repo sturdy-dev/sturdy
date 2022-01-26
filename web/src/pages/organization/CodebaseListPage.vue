@@ -192,15 +192,9 @@ export default defineComponent({
     Spinner,
     RouterLinkButton,
   },
-  props: {
-    features: {
-      type: Array,
-      required: true,
-    },
-  },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     let route = useRoute()
 

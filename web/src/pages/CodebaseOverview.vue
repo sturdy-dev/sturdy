@@ -145,7 +145,7 @@ import Tooltip from '../components/shared/Tooltip.vue'
 import Spinner from '../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { defineComponent, toRefs } from 'vue'
+import { computed, defineComponent, inject, ref, Ref, toRefs } from 'vue'
 import { Feature } from '../__generated__/types'
 import {
   CodebaseOverviewQuery,
@@ -163,15 +163,9 @@ export default defineComponent({
     Tooltip,
     Spinner,
   },
-  props: {
-    features: {
-      type: Array,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     const result = useQuery<CodebaseOverviewQuery, CodebaseOverviewQueryVariables>({
       query: gql`

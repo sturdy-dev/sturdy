@@ -24,10 +24,10 @@
                   />
                 </div>
 
-                <div v-if="passwordEnabled" class="col-span-12 sm:col-span-6">
-                  <label for="password" class="block text-sm font-medium text-gray-700"
-                    >Password</label
-                  >
+                <div v-if="isPasswordAuthEnabled" class="col-span-12 sm:col-span-6">
+                  <label for="password" class="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
                   <input
                     id="password"
                     v-model="userPassword"
@@ -153,7 +153,6 @@
             <VerifyEmail :email-verified="data.user.emailVerified" />
 
             <NotificationPreferences
-              :features="features"
               :preferences="data.user.notificationPreferences"
               :email-verified="data.user.emailVerified"
             />
@@ -192,12 +191,12 @@
   </PaddedApp>
 </template>
 
-<script>
+<script lang="ts">
 import http from '../http'
 import Banner from '../components/shared/Banner.vue'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import Button from '../components/shared/Button.vue'
-import { ref, watch, toRefs } from 'vue'
+import { ref, watch, defineComponent, inject, computed, Ref } from 'vue'
 import NotificationPreferences from '../components/user/NotificationPreferences.vue'
 import VerifyEmail from '../components/user/VerifyEmail.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
@@ -207,7 +206,7 @@ import Integrations, {
 } from '../organisms/user/Integrations.vue'
 import { Feature } from '../__generated__/types'
 
-export default {
+export default defineComponent({
   components: {
     PaddedApp,
     Banner,
@@ -216,15 +215,10 @@ export default {
     VerifyEmail,
     Integrations,
   },
-  props: {
-    features: {
-      type: Array,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isPasswordAuthEnabled = computed(() => features?.value?.includes(Feature.PasswordAuth))
 
     let { data, fetching, error, executeQuery } = useQuery({
       query: gql`
@@ -294,6 +288,7 @@ export default {
 
     return {
       isGitHubEnabled,
+      isPasswordAuthEnabled,
 
       data,
       fetching,
@@ -384,10 +379,5 @@ export default {
         .finally(this.refresh)
     },
   },
-  computed: {
-    passwordEnabled() {
-      return this.features.includes(Feature.PasswordAuth)
-    },
-  },
-}
+})
 </script>

@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import FirstTimeUserNoNameTakeover from '../components/user/FirstTimeUserNoNameTakeover.vue'
 import { Feature } from '../__generated__/types'
@@ -19,7 +19,7 @@ export default defineComponent({
   components: { FirstTimeUserNoNameTakeover },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
+    const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
 
     const { data, error } = useQuery({
       query: gql`
@@ -43,7 +43,7 @@ export default defineComponent({
     })
 
     return {
-      displaySelfHostedBanner: !isMultiTenancyEnabled,
+      displaySelfHostedBanner: !isMultiTenancyEnabled.value,
       data,
       error,
       features,

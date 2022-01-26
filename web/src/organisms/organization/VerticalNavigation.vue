@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import VerticalNavigation from '../VerticalNavigation.vue'
-import { defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Feature } from '../../__generated__/types'
 
@@ -14,8 +14,8 @@ export default defineComponent({
     let route = useRoute()
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
-    const isLicenseEnabled = features.value.includes(Feature.License)
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isLicenseEnabled = computed(() => features?.value?.includes(Feature.License))
 
     const navigation = [
       {
@@ -31,7 +31,7 @@ export default defineComponent({
         current: route.name === 'organizationSettings',
       },
 
-      isGitHubEnabled
+      isGitHubEnabled.value
         ? {
             name: 'GitHub',
             linkName: 'organizationSettingsGitHub',
@@ -39,7 +39,7 @@ export default defineComponent({
           }
         : null,
 
-      isLicenseEnabled
+      isLicenseEnabled.value
         ? {
             name: 'Subscriptions',
             linkName: 'organizationCreateSubscription',

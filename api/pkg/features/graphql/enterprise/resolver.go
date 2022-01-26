@@ -13,5 +13,6 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 		resolvers.FeatureBuildkite,
 		resolvers.FeatureGitHub,
 		resolvers.FeatureLicense,
+		resolvers.FeaturePasswordAuth,
 	}
 }

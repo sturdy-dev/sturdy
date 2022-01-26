@@ -530,7 +530,7 @@
   </main>
 </template>
 
-<script>
+<script lang="ts">
 import {
   AnnotationIcon,
   ArchiveIcon,
@@ -548,7 +548,17 @@ import Button from '../components/shared/Button.vue'
 import debounce from '../debounce'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, defineAsyncComponent, onUnmounted, ref, watch, toRefs } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  ref,
+  watch,
+  toRefs,
+  defineComponent,
+  inject,
+  Ref,
+} from 'vue'
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
 import Avatar from '../components/shared/Avatar.vue'
@@ -585,8 +595,7 @@ import ShareButton, { SHARE_BUTTON } from '../components/workspace/ShareButton.v
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
 import { Feature } from '../__generated__/types'
 
-export default {
-  name: 'WorkspaceHome',
+export default defineComponent({
   components: {
     ShareButton,
     SelectedHunksToolbar,
@@ -626,15 +635,12 @@ export default {
     user: {
       type: Object,
     },
-    features: {
-      type: Array,
-      required: true,
-    },
   },
   emits: ['workspaceUpdated', 'codebase-updated'],
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     let route = useRoute()
     const router = useRouter()
     let workspaceID = ref(route.params.id)
@@ -1465,5 +1471,5 @@ export default {
       }
     },
   },
-}
+})
 </script>
