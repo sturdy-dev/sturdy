@@ -882,6 +882,7 @@ enum Feature {
     Buildkite
     MultiTenancy
     License
+    EmailAuth
 }
 
 type Organization implements Writeable {

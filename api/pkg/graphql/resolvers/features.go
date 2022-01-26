@@ -11,4 +11,6 @@ const (
 	FeatureGitHub       Feature = "GitHub"
 	FeatureMultiTenancy Feature = "MultiTenancy"
 	FeatureLicense      Feature = "License"
+	FeaturePasswordAuth Feature = "PasswordAuth"
+	FeatureEmailAuth    Feature = "EmailAuth"
 )

@@ -22,7 +22,7 @@
           </AppTitleBarSpacer>
         </ClientOnly>
 
-        <router-view :user="user" />
+        <router-view :user="user" :features="features" />
         <IndexFooter v-if="showNavigation" />
       </template>
       <template v-else>

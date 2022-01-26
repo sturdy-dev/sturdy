@@ -31,8 +31,8 @@ import (
 	module_github "getsturdy.com/api/pkg/github/module"
 	module_gitserver "getsturdy.com/api/pkg/gitserver"
 	module_graphql "getsturdy.com/api/pkg/graphql"
-	module_http "getsturdy.com/api/pkg/http"
-	"getsturdy.com/api/pkg/http/oss"
+	"getsturdy.com/api/pkg/http"
+	module_http "getsturdy.com/api/pkg/http/module"
 	module_installations "getsturdy.com/api/pkg/installations/module"
 	module_integrations "getsturdy.com/api/pkg/integrations/module"
 	module_jwt "getsturdy.com/api/pkg/jwt/module"
@@ -181,8 +181,8 @@ func main() {
 		func(repo db_workspace.Repository) db_workspace.WorkspaceReader {
 			return repo
 		},
-		func() oss.DevelopmentAllowExtraCorsOrigin {
-			return oss.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
+		func() http.DevelopmentAllowExtraCorsOrigin {
+			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
 		events.NewInMemory,
 		executor.NewProvider,

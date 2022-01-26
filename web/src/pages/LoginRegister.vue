@@ -17,23 +17,28 @@
           </a>
         </p>
       </div>
-      <EmailAuth :askName="isLogin" @success="successRedirect" />
+      <EmailAuth v-if="emailAuth" :askName="isLogin" @success="successRedirect" />
+      <PasswordAuth v-else :sign-up="!isLogin" @success="successRedirect" />
     </div>
   </div>
 </template>
 
-<script>
-import { EmailAuth } from '../organisms/auth'
+<script lang="ts">
+import { EmailAuth, PasswordAuth } from '../organisms/auth'
+import { Feature } from '../__generated__/types'
+import { PropType } from 'vue'
 
 export default {
   name: 'LoginRegister',
   components: {
     EmailAuth,
+    PasswordAuth,
   },
   props: {
     user: { type: Object, default: null },
     startWithSignUp: { type: Boolean, default: false },
     navigateTo: { type: String, default: () => '/codebases' },
+    features: { type: Array as PropType<Feature[]>, required: true },
   },
   data() {
     return {
@@ -46,6 +51,9 @@ export default {
     },
     subheaderText() {
       return this.isLogin ? 'sign up now' : 'login to your existing account'
+    },
+    emailAuth() {
+      return this.features.includes(Feature.EmailAuth)
     },
   },
   watch: {
@@ -62,7 +70,7 @@ export default {
   methods: {
     async successRedirect() {
       const queryParam = this.$route.query.navigateTo
-      const to = queryParam ? queryParam : this.navigateTo
+      const to = queryParam ? (queryParam as string) : this.navigateTo
       await this.$router.push(to)
     },
   },
