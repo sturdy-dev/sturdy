@@ -16,8 +16,8 @@
     <form class="space-y-4" @submit.stop.prevent="create">
       <TextInputWithLabel
         v-model="organizationName"
-        placeholder="What's the name of your team or project?"
-        label="Team name"
+        placeholder="What's the name of your organization or project?"
+        label="Organization name"
         name="org-name"
       />
       <OrganizationLicenseTierPicker v-if="withTierPicker" />
@@ -26,24 +26,36 @@
 
     <template v-if="isMultiTennant">
       <p class="text-gray-700 text-sm">
-        Create a organization to manage your projects, codebases, members, and billing.
+        Create a organization to manage your codebases, members, and billing.
       </p>
       <p class="text-gray-700 text-sm">
         If you're creating a organization for work, use the company name as the name.
       </p>
     </template>
     <template v-else>
-      <p class="text-gray-700 text-sm">Create an organization to setup your Sturdy server.</p>
       <p class="text-gray-700 text-sm">
         If you're creating a organization for work, use the company name as the name of the
         organization.
+      </p>
+
+      <p v-if="isLicenseEnabled" class="text-gray-700 text-sm">
+        Create a organization to manage your codebases, members, and billing.
+      </p>
+      <p v-else class="text-gray-700 text-sm">
+        Create a organization to manage your codebases and members.
+      </p>
+
+      <p class="text-gray-700 text-sm">
+        <strong>Note:</strong> You'll become the administrator of this server. Other users that sign
+        up, will automatically become members of this organization. Don't make your Sturdy server
+        public to the internet.
       </p>
     </template>
   </form>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType, ref, Ref } from 'vue'
 import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
 import { gql } from '@urql/vue'
 import Button from '../../components/shared/Button.vue'
@@ -51,6 +63,7 @@ import { useRouter } from 'vue-router'
 import { OrganizationCreateUserFragment } from './__generated__/OrganizationCreate'
 import TextInputWithLabel from '../../molecules/TextInputWithLabel.vue'
 import { useCreateOrganization } from '../../mutations/useCreateOrganization'
+import { Feature } from '../../__generated__/types'
 
 export const ORGANIZATION_CREATE_USER = gql`
   fragment OrganizationCreateUser on User {
@@ -82,8 +95,13 @@ export default defineComponent({
   setup() {
     let executeCreateOrganization = useCreateOrganization()
 
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isLicenseEnabled = features.value.includes(Feature.License)
+
     let router = useRouter()
     return {
+      isLicenseEnabled,
+
       async createMutation(name: string) {
         const variables = { name }
         await executeCreateOrganization(variables).then((result) => {
@@ -108,7 +126,7 @@ export default defineComponent({
     proposedTeamName(): string {
       let name = this.user.name.split(' ')
       if (name.length === 0) {
-        return 'My startup'
+        return 'My project'
       }
 
       let fname = name[0]
@@ -117,7 +135,7 @@ export default defineComponent({
         apos = "'"
       }
 
-      return `${fname}${apos} startup`
+      return `${fname}${apos} project`
     },
   },
 })
