@@ -60,7 +60,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useElementVisibility } from '@vueuse/core/index'
 
