@@ -21,7 +21,7 @@
           <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
             <router-link
               :to="{ name: 'download' }"
-              class="text-white bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+              class="text-slate-900 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
             >
               <DownloadIcon class="h-6 w-6 mr-1" />
               {{ mainDownloadText }}
@@ -56,12 +56,15 @@
       >
         <template #left>
           <p>
-            Sturdy maps developer intent to concrete actions, rather than manipulating Git data
-            structures. It allows you to focus on your code and the problems you are solving.
+            Sturdy maps developer
+            <span class="text-amber-500">intent</span>
+            to
+            <span class="text-amber-500">concrete actions</span>.
+            It allows you to focus on your code and the problems you are solving, rather than manipulating Git data structures.
           </p>
           <p>
-            Think &mdash; "Ship this code to production" instead of "Create a branch, stage files,
-            make a commit, push to remote, merge, etc.".
+            Think "Ship this code to production" instead of "Create a branch, stage files, make a
+            commit, push to remote, merge" etc.
           </p>
         </template>
         <template #right>
@@ -76,13 +79,35 @@
       >
         <template #left>
           <p>
-            When it comes to working together on code, we believe that continuous feedback is better
-            than formal code "reviews".
+            When it comes to working together on code, we believe that
+            <span class="text-amber-500">continuous feedback</span>
+            is better than formal code "reviews".
           </p>
           <p>
             Sturdy allows you to quickly try your teammates' code on your machine. Give code
-            suggestions by just typing in your text editor.
+            suggestions by just editing the code in your IDE.
           </p>
+        </template>
+        <template #bottomLeft>
+          <UspDetailsPair
+            left-title="Trying code"
+            left-body="Get your your teammates' code with a single click."
+            right-title="Suggesting code"
+            right-body="Give code suggestions by simpy typing in your IDE."
+          >
+            <template #leftIcon>
+              <PlayIcon class="h-10 w-10 mb-4 text-purple-500" />
+            </template>
+            <template #leftLink>
+              <span>See it in action</span>
+            </template>
+            <template #rightIcon>
+              <LightBulbIcon class="h-10 w-10 mb-4 text-purple-500" />
+            </template>
+            <template #rightLink>
+              <span>See it in action</span>
+            </template>
+          </UspDetailsPair>
         </template>
         <template #right>
           <UspVideo />
@@ -100,9 +125,31 @@
             compatible format.
           </p>
           <p>
-            Use Sturdy together with GitHub, either with your team or by yourself, and benefit from
-            a leveraged workflow.
+            Use Sturdy
+            <span class="text-amber-500">together with GitHub</span>, with your team or by
+            yourself, and benefit from a leveraged workflow.
           </p>
+        </template>
+        <template #bottomLeft>
+          <UspDetailsPair
+            left-title="Connect GitHub"
+            left-body="Setup a bridge between Sturdy and GitHub for one or multiple repositories."
+            right-title="Create pull requests"
+            right-body="Submit and merge pull requests without leaving Sturdy."
+          >
+            <template #leftIcon>
+              <PlayIcon class="h-10 w-10 mb-4 text-purple-500" />
+            </template>
+            <template #leftLink>
+              <span>See it in action</span>
+            </template>
+            <template #rightIcon>
+              <LightBulbIcon class="h-10 w-10 mb-4 text-purple-500" />
+            </template>
+            <template #rightLink>
+              <span>See it in action</span>
+            </template>
+          </UspDetailsPair>
         </template>
         <template #right>
           <UspVideo />
@@ -111,7 +158,7 @@
 
       <Usp
         title="Streamlined"
-        subtitle="The best feedback comes from production."
+        subtitle="Built for the workflow that you're already using."
         link="v2DocsHotToShipSoftwareToProduction"
       >
         <template #left>
@@ -120,14 +167,40 @@
             developing in long-lived feature branches.
           </p>
           <p>
-            We are building Sturdy specifically around trunk-based development and continuous
-            delivery. It optimizes for integration frequency and makes shipping of small incremental
-            changes the intuitive default.
+            We are building Sturdy specifically around
+            <span class="text-amber-500">trunk-based development</span> and
+            <span class="text-amber-500">continuous delivery</span>. It optimizes for integration
+            frequency and makes shipping of small incremental changes the intuitive default.
           </p>
         </template>
         <template #right>
           <UspVideo />
         </template>
+
+      <Usp
+        title="Open"
+        subtitle="By engineers, for engineers."
+        link="v2DocsRoot"
+      >
+        <template #left>
+          <p>
+
+            We believe that, for most software, shipping small and often is more effective than
+            developing in long-lived feature branches.
+          </p>
+          <p>
+            We are building Sturdy specifically around
+            <span class="text-amber-500">trunk-based development</span>, and
+            <span class="text-amber-500">continuous delivery</span>. It optimizes for integration
+            frequency and makes shipping of small incremental changes the intuitive default.
+          </p>
+        </template>
+        <template #right>
+          <UspVideo />
+        </template>
+
+      </Usp>
+
       </Usp>
     </div>
   </div>
@@ -136,13 +209,23 @@
 <script lang="ts">
 import UspVideo from './UspVideo.vue'
 import Usp from './Usp.vue'
+import UspDetailsPair from './UspDetailsPair.vue'
 import ThingsYouAreNotDoing from './ThingsYouAreNotDoing.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
-import { DownloadIcon, ChevronRightIcon } from '@heroicons/vue/outline'
+import { DownloadIcon, ChevronRightIcon, PlayIcon, LightBulbIcon } from '@heroicons/vue/outline'
 
 export default defineComponent({
-  components: { UspVideo, Usp, ThingsYouAreNotDoing, DownloadIcon, ChevronRightIcon },
+  components: {
+    UspVideo,
+    Usp,
+    ThingsYouAreNotDoing,
+    UspDetailsPair,
+    DownloadIcon,
+    ChevronRightIcon,
+    PlayIcon,
+    LightBulbIcon,
+  },
   setup() {
     // TODO: Remove when we're launching!
     useHead({
