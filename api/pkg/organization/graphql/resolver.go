@@ -154,7 +154,12 @@ func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, ar
 		return nil, gqlerrors.Error(err)
 	}
 
-	if _, err := r.service.AddMember(ctx, org.ID, user.ID); err != nil {
+	addedByUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := r.service.AddMember(ctx, org.ID, user.ID, addedByUserID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

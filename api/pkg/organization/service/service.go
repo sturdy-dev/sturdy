@@ -82,19 +82,14 @@ func (svc *Service) Create(ctx context.Context, name string) (*organization.Orga
 	}
 
 	// add the creator as a member
-	if _, err := svc.AddMember(ctx, org.ID, userID); err != nil {
+	if _, err := svc.AddMember(ctx, org.ID, userID, userID); err != nil {
 		return nil, fmt.Errorf("failed to invite creator to organization: %w", err)
 	}
 
 	return &org, nil
 }
 
-func (svc *Service) AddMember(ctx context.Context, orgID, userID string) (*organization.Member, error) {
-	addedByUserID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID string) (*organization.Member, error) {
 	member := organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: orgID,

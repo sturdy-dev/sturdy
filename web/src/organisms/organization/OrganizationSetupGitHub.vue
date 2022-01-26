@@ -43,11 +43,15 @@
     />
 
     <template v-if="data && data.gitHubRepositories.length > 0">
-      <p class="mt-4 text-sm p-4">
-        Click <em>Setup</em> to import the repository to Sturdy, and connect it to
-        <em>{{ organization.name }}</em
-        >.
-      </p>
+      <div class="text-sm p-4">
+        <p>
+          Click <em>Setup</em> to create a new codebase that's connected to the selected repository.
+        </p>
+        <p>
+          Not seeing the repository you want to install setup? Update the app installation above to
+          install <em>Sturdy for GitHub</em> on more organizations or repositories.
+        </p>
+      </div>
 
       <div class="border-b border-gray-200">
         <ul role="list" class="divide-y divide-gray-200">

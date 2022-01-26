@@ -57,7 +57,7 @@ import (
 	module_suggestions "getsturdy.com/api/pkg/suggestions/module"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	db_user "getsturdy.com/api/pkg/user/db"
-	service_user "getsturdy.com/api/pkg/user/service"
+	module_user "getsturdy.com/api/pkg/user/module"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/events"
 	meta_view "getsturdy.com/api/pkg/view/meta"
@@ -186,7 +186,6 @@ func main() {
 		},
 		events.NewInMemory,
 		executor.NewProvider,
-		service_user.New,
 		events.NewSender,
 		service_activity.New,
 		activity_sender.NewActivitySender,
@@ -246,6 +245,7 @@ func main() {
 		c.Import(module_snapshots.Module)
 		c.Import(module_statuses.Module)
 		c.Import(module_suggestions.Module)
+		c.Import(module_user.Module)
 
 		// todo: continue importing here
 
