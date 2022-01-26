@@ -1,54 +1,74 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
-    <div class="relative">
-      <div class="px-4 sm:px-6 md:px-8">
-        <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient">
-          <div class="absolute inset-0 bg-bottom border-b border-slate-100/5 bestagons" />
-        </div>
-        <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
-          <h1
-            class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
-          >
-            Real-time code collaboration.
-          </h1>
-          <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
-            Sturdy is an
-            <code class="font-mono font-semibold text-amber-500"
-              >open-source version control platform</code
-            >
-            that allows you to interact with your code at a higher abstraction level.
-          </p>
-          <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
-            <router-link
-              :to="{ name: 'download' }"
-              class="text-slate-900 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-            >
-              <DownloadIcon class="h-6 w-6 mr-1" />
-              {{ mainDownloadText }}
+    <div
+      class="blurr border-b border-slate-700/10 sticky top-0 z-50 py-2 lg:py-3 px-6 lg:px-20 flex items-center justify-between leading-6"
+    >
+      <img
+        src="./logotype.svg"
+        alt="Sturdy logotype"
+        class="rounded-xl object-contain"
+        width="110"
+      />
+
+      <div class="flex items-center font-semibold text-sm">
+        <nav>
+          <ul class="flex items-center space-x-8">
+            <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
+              Docs
             </router-link>
-            <router-link
-              :to="{ name: 'v2DocsRoot' }"
-              class="text-slate-300 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-            >
-              Read the Docs
-              <ChevronRightIcon class="h-6 w-6 ml-1" />
+            <router-link :to="{ name: 'pricing' }" class="hover:text-amber-500">
+              Pricing
             </router-link>
-          </div>
-        </div>
+            <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="px-4 sm:px-6 md:px-8">
+      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient">
+        <div class="absolute inset-0 bg-bottom border-b border-slate-100/5 bestagons" />
       </div>
 
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-20 sm:mt-24 lg:mt-32 lg:grid lg:gap-8 lg:grid-cols-12 lg:items-center"
-      >
-        <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
-          <UspVideo />
+      <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
+        <h1
+          class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+        >
+          Real-time code collaboration.
+        </h1>
+        <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
+          Sturdy is an
+          <code class="font-mono font-semibold text-amber-500"
+            >open-source version control platform</code
+          >
+          that allows you to interact with your code at a higher abstraction level.
+        </p>
+        <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
+          <router-link
+            :to="{ name: 'download' }"
+            class="text-slate-900 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+          >
+            <DownloadIcon class="h-6 w-6 mr-1" />
+            {{ mainDownloadText }}
+          </router-link>
+          <router-link
+            :to="{ name: 'v2DocsRoot' }"
+            class="text-slate-300 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+          >
+            Read the Docs
+            <ChevronRightIcon class="h-6 w-6 ml-1" />
+          </router-link>
         </div>
       </div>
     </div>
 
-    <div
-      class="pt-20 mb-20 space-y-20 overflow-hidden sm:pt-32 sm:mb-32 sm:space-y-32 md:pt-40 md:mb-40 md:space-y-40"
-    >
+    <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
+      <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
+        <UspVideo />
+      </div>
+    </div>
+
+    <div class="mb-20 space-y-20 overflow-hidden sm:mb-32 sm:space-y-32 md:mb-40 md:space-y-40">
       <Usp
         title="Expressive"
         subtitle="Don't hand-hold your version control."
@@ -177,7 +197,7 @@
           <UspVideo />
         </template>
       </Usp>
-      <Usp title="Open" subtitle="By engineers, for engineers." link="v2DocsRoot">
+      <Usp title="Open-source" subtitle="For engineers, by engineers." link="v2DocsRoot">
         <template #left>
           <p>
             We believe that, for most software, shipping small and often is more effective than
@@ -250,12 +270,24 @@ export default defineComponent({
 
 <style scoped>
 .gradient {
-  background-image: url('./gradient.svg');
-  background-size: 86.125rem;
+  background-image: #0b1120;
+  background-image: radial-gradient(at 23% 84%, hsla(223, 49%, 9%, 1) 0, transparent 56%),
+    radial-gradient(at 81% 30%, hsla(223, 49%, 9%, 1) 0, transparent 46%),
+    radial-gradient(at 87% 34%, hsla(223, 49%, 9%, 1) 0, transparent 57%),
+    radial-gradient(at 16% 71%, hsla(223, 49%, 9%, 1) 0, transparent 40%),
+    radial-gradient(at 100% 100%, hsla(223, 49%, 9%, 1) 0, transparent 52%),
+    radial-gradient(at 51% 63%, hsla(271, 92%, 66%, 1) 0, transparent 49%),
+    radial-gradient(at 0% 5%, hsla(223, 49%, 9%, 1) 0, transparent 49%),
+    radial-gradient(at 74% 76%, hsla(44, 97%, 57%, 1) 0, transparent 50%),
+    radial-gradient(at 45% 37%, hsla(38, 93%, 51%, 1) 0, transparent 50%);
 }
 
 .bestagons {
   background-image: url('./bestagons.svg');
-  background-size: 86.125rem;
+  background-size: 76.125rem;
+}
+
+.blurr {
+  backdrop-filter: saturate(70%) brightness(80%) blur(5px);
 }
 </style>
