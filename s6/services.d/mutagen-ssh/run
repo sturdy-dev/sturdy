@@ -3,7 +3,7 @@
 set -euo pipefail
 
 fdmove -c 2 1 \
-mutagen-ssh \
+ssh \
     --ssh-listen-addr="${MUTAGEN_SSH_ADDR}" \
     --ssh-key-path="${MUTAGEN_SSH_KEY_PATH}" \
     --http-pprof-listen-addr="${MUTAGEN_SSH_HTTPPPROF_LISTEN_ADDR}" \
