@@ -12,7 +12,7 @@
     <div class="space-y-6 lg:col-span-9 max-w-4xl">
       <form @submit.stop.prevent="doCreateNewCodebase">
         <div class="shadow sm:rounded-md sm:overflow-hidden">
-          <div class="bg-white py-6 px-4 space-y-6 sm:p-6">
+          <div class="py-6 px-4 space-y-6 sm:p-6" :class="[mainBg]">
             <div class="grid grid-cols-3 gap-6">
               <div class="col-span-3">
                 <label for="codebase_name" class="block text-sm font-medium text-gray-700">
@@ -61,7 +61,7 @@
               </div>
             </div>
           </div>
-          <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+          <div class="px-4 py-3 text-right sm:px-6" :class="[bottomBg]">
             <Button type="submit" :disabled="newCodebaseName === ''" size="wider" color="blue">
               Create
 
@@ -92,7 +92,7 @@
       </form>
 
       <div
-        v-if="data.gitHubApp"
+        v-if="data.gitHubApp && showSetupGitHub"
         class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden"
       >
         <NoCodebasesGitHubAuth
@@ -125,6 +125,20 @@ export default defineComponent({
     createInOrganizationId: {
       type: String,
       required: false,
+    },
+    showSetupGitHub: {
+      type: Boolean,
+      required: false,
+    },
+    mainBg: {
+      type: String,
+      required: false,
+      default: 'bg-white',
+    },
+    bottomBg: {
+      type: String,
+      required: false,
+      default: 'bg-gray-50',
     },
   },
   setup() {
