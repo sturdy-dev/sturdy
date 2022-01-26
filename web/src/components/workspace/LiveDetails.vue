@@ -192,7 +192,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Differ from '../differ/Differ.vue'
 import http from '../../http'
 import { ExternalLinkIcon, XIcon } from '@heroicons/vue/outline'
@@ -202,7 +202,7 @@ import Avatar from '../shared/Avatar.vue'
 import Button from '../shared/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { computed, ref, watch, toRefs } from 'vue'
+import { computed, ref, watch, defineComponent, inject, Ref } from 'vue'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -227,8 +227,7 @@ export const LIVE_DETAILS_WORKSPACE = gql`
   ${NO_CHANGES_OTHERS_WORKSPACE}
 `
 
-export default {
-  name: 'LiveDetails',
+export default defineComponent({
   components: {
     XIcon,
     NoChangesOthersWorkspace,
@@ -248,6 +247,7 @@ export default {
     },
     user: {
       type: Object,
+      required: false,
     },
     members: {
       type: Array,
@@ -255,7 +255,7 @@ export default {
     },
     isOnAuthoritativeView: {
       type: Boolean,
-      reqired: true,
+      required: true,
     },
     workspace: {
       type: Object,
@@ -281,15 +281,12 @@ export default {
       type: Boolean,
       required: true,
     },
-    features: {
-      type: Array,
-      required: true,
-    },
   },
   emits: ['codebase-updated', 'pre-create-change'],
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     let route = useRoute()
     let workspaceID = ref(route.params.id)
     watch(
@@ -741,5 +738,5 @@ export default {
       this.suggestionsByUser[userId].map((s) => s.id).forEach(this.dismissSuggestion)
     },
   },
-}
+})
 </script>

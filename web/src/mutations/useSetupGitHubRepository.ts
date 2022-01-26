@@ -78,7 +78,6 @@ export const setupGitHubUpdateResolver: UpdateResolver<
           data.organizations = data.organizations.map((org) => {
             if (org.id === args.input.organizationID) {
               if (!org.codebases.some((cb) => cb.id === result.setupGitHubRepository.id)) {
-                console.log('added to ORG!', org.id)
                 org.codebases.push(result.setupGitHubRepository)
               }
             }

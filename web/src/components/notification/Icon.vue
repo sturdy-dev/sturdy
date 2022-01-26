@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { toRefs, defineComponent, PropType } from 'vue'
+import { toRefs, defineComponent, PropType, inject, Ref, ref, computed } from 'vue'
 import { BellIcon as BellIconSolid } from '@heroicons/vue/solid'
 import NotificationOverlay from './Overlay.vue'
 import { NOTIFICATION_FRAGMENT as NOTIFICATION_DATA_FRAGMENT } from './Feed.vue'
@@ -193,11 +193,10 @@ export default defineComponent({
   },
   props: {
     user: { type: Object as PropType<User>, required: true },
-    features: { type: Array as PropType<Feature[]>, required: true },
   },
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     let { data, fetching, error, executeQuery } = useQuery<
       NotificationIconQuery,

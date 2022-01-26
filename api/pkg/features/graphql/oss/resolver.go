@@ -9,5 +9,7 @@ func NewFeaturesRootResolver() resolvers.FeaturesRootResolver {
 }
 
 func (r *FeaturesRootResolver) Features() []resolvers.Feature {
-	return []resolvers.Feature{}
+	return []resolvers.Feature{
+		resolvers.FeaturePasswordAuth,
+	}
 }

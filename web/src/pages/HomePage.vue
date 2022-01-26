@@ -62,7 +62,7 @@ import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
 import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { defineComponent, toRefs } from 'vue'
+import { computed, defineComponent, inject, ref, Ref, toRefs } from 'vue'
 import { Feature } from '../__generated__/types'
 import { ChevronRightIcon } from '@heroicons/vue/solid'
 import { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
@@ -76,15 +76,9 @@ export default defineComponent({
     ChevronRightIcon,
     RouterLinkButton,
   },
-  props: {
-    features: {
-      type: Array,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { features } = toRefs(props)
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     const result = useQuery<HomePageQuery, HomePageQueryVariables>({
       query: gql`

@@ -64,7 +64,7 @@
                 class="flex-1 flex flex-col overflow-x-auto"
                 :class="[appEnvironment ? 'spacer-padding' : '']"
               >
-                <router-view v-if="showRoute" :user="user" :features="features" class="flex-1" />
+                <router-view v-if="showRoute" :user="user" class="flex-1" />
                 <Error v-else-if="error" :error="error" @reset-error="error = null" />
                 <ComingSoon v-else class="pt-2 px-2" />
               </section>

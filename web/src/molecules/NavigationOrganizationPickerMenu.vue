@@ -126,7 +126,7 @@
         </div>
 
         <div class="py-1">
-          <MenuItem v-if="authenticated" v-slot="{ active }">
+          <MenuItem v-if="authenticated && isMultiTenancyEnabled" v-slot="{ active }">
             <router-link
               :to="{ name: 'organizationCreate' }"
               :class="[
@@ -262,8 +262,9 @@ import {
   SupportIcon,
 } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { NavigationOrganizationPickerMenuFragment } from './__generated__/NavigationOrganizationPickerMenu'
+import { Feature } from '../__generated__/types'
 
 const ORGANIZATION_FRAGMENT = gql`
   fragment NavigationOrganizationPickerMenu on Organization {
@@ -307,7 +308,11 @@ export default defineComponent({
   },
   emits: ['logout'],
   setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
+
     return {
+      isMultiTenancyEnabled,
       ipc: window.ipc,
     }
   },

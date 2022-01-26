@@ -79,7 +79,7 @@ import SettingsVerticalNavigation from '../../../components/codebase/settings/Se
 import Header from '../../../molecules/Header.vue'
 import RouterLinkButton from '../../../components/shared/RouterLinkButton.vue'
 import { useDeleteIntegration } from '../../../mutations/useDeleteIntegration'
-import { defineComponent, PropType } from 'vue'
+import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { Feature } from '../../../__generated__/types'
 
 const INTEGRATION_FRAGMENT = gql`
@@ -107,15 +107,12 @@ export default defineComponent({
     Header,
     RouterLinkButton,
   },
-  props: {
-    features: {
-      type: Array as PropType<Feature[]>,
-      required: true,
-    },
-  },
   setup() {
     const route = useRoute()
     const shortCodebaseID = IdFromSlug(route.params.codebaseSlug as string)
+
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     const { data } = useQuery<GetIntegrationsQuery, GetIntegrationsQueryVariables>({
       query: gql`
@@ -139,6 +136,8 @@ export default defineComponent({
 
     const deleteIntegration = useDeleteIntegration()
     return {
+      isGitHubEnabled,
+
       data,
       shortCodebaseID,
 
@@ -154,7 +153,7 @@ export default defineComponent({
           name: 'Buildkite',
           description: 'Setup CI/CD with Buildkite',
           page: 'codebaseSettingsAddBuildkite',
-          enabled: this.features.includes(Feature.Buildkite),
+          enabled: this.isGitHubEnabled,
         },
       ]
     },

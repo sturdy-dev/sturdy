@@ -883,6 +883,7 @@ enum Feature {
     MultiTenancy
     License
     EmailAuth
+    PasswordAuth
 }
 
 type Organization implements Writeable {
