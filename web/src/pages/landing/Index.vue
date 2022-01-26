@@ -59,8 +59,8 @@
             Sturdy maps developer
             <span class="text-amber-500">intent</span>
             to
-            <span class="text-amber-500">concrete actions</span>.
-            It allows you to focus on your code and the problems you are solving, rather than manipulating Git data structures.
+            <span class="text-amber-500">concrete actions</span>. It allows you to focus on your
+            code and the problems you are solving, rather than manipulating Git data structures.
           </p>
           <p>
             Think "Ship this code to production" instead of "Create a branch, stage files, make a
@@ -126,8 +126,8 @@
           </p>
           <p>
             Use Sturdy
-            <span class="text-amber-500">together with GitHub</span>, with your team or by
-            yourself, and benefit from a leveraged workflow.
+            <span class="text-amber-500">together with GitHub</span>, with your team or by yourself,
+            and benefit from a leveraged workflow.
           </p>
         </template>
         <template #bottomLeft>
@@ -176,15 +176,10 @@
         <template #right>
           <UspVideo />
         </template>
-
-      <Usp
-        title="Open"
-        subtitle="By engineers, for engineers."
-        link="v2DocsRoot"
-      >
+      </Usp>
+      <Usp title="Open" subtitle="By engineers, for engineers." link="v2DocsRoot">
         <template #left>
           <p>
-
             We believe that, for most software, shipping small and often is more effective than
             developing in long-lived feature branches.
           </p>
@@ -198,9 +193,6 @@
         <template #right>
           <UspVideo />
         </template>
-
-      </Usp>
-
       </Usp>
     </div>
   </div>
