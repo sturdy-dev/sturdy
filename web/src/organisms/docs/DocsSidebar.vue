@@ -51,13 +51,11 @@ const groups = [
       { route: 'v2DocsHowToSwitchBetweenTasks', title: 'Switch between tasks' },
     ],
   },
-  //  { name: 'index', title: 'Self-host' },
-  //  { name: 'index', title: 'Cloud' },
-  //  { name: 'index', title: 'User Guides' },
-  //  { name: 'index', title: 'API' },
-  //  { name: 'index', title: 'API' },
-  //  { name: 'index', title: 'API' },
-  //  { name: 'index', title: 'API' },
+
+  {
+    name: 'Enterprise',
+    links: [{ route: 'v2DocsPricing', title: 'Pricing' }],
+  },
 ]
 
 export default defineComponent({
