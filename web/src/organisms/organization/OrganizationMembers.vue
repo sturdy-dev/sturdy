@@ -2,7 +2,7 @@
   <div class="space-y-2">
     <div class="space-y-1">
       <label for="add-team-members" class="block text-sm font-medium text-gray-700">
-        Team Members
+        Members
       </label>
 
       <Banner v-if="showInvitedBanner" status="success">Invited!</Banner>
@@ -10,27 +10,41 @@
         User not found or could not be invited.
       </Banner>
 
-      <div v-if="organization.writeable" class="flex">
-        <div class="flex-grow">
-          <input
-            id="add-team-members"
-            v-model="addUserEmail"
-            type="text"
-            name="add-team-members"
-            class="block w-full shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm border-gray-300 rounded-md"
-            placeholder="Email address"
-            aria-describedby="add-team-members-helper"
-            @keydown.enter="invite"
-          />
+      <template v-if="isMultiTenancyEnabled">
+        <p class="text-sm text-gray-600">
+          Invite a collaborator to <strong>{{ organization.name }}</strong> by entering the email
+          address they used to sign up for Sturdy.
+        </p>
+
+        <div v-if="organization.writeable" class="flex">
+          <div class="flex-grow">
+            <input
+              id="add-team-members"
+              v-model="addUserEmail"
+              type="text"
+              name="add-team-members"
+              class="block w-full shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm border-gray-300 rounded-md"
+              placeholder="Email address"
+              aria-describedby="add-team-members-helper"
+              @keydown.enter="invite"
+            />
+          </div>
+          <span class="ml-3">
+            <Button :disabled="!addUserEmail" @click="invite">
+              <PlusIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              <span>Invite</span>
+            </Button>
+          </span>
         </div>
-        <span class="ml-3">
-          <Button :disabled="!addUserEmail" @click="invite">
-            <PlusIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-            <span>Invite</span>
-          </Button>
-        </span>
+      </template>
+      <div v-else>
+        <p class="text-sm text-gray-600">
+          Users that sign up to this self-hosted instance of Sturdy will automatically join this
+          organization.
+        </p>
       </div>
     </div>
+
     <div v-if="!organization.writeable">
       <p class="text-sm tetx-gray-500">
         You don't have permissions to invite users to this organization, ask an admin for help if
@@ -38,7 +52,7 @@
       </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div>
       <ul role="list" class="divide-y divide-gray-200">
         <li v-for="member in organization.members" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
@@ -53,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { gql, useMutation } from '@urql/vue'
 import {
   InviteUserToOrganizationMutation,
@@ -64,6 +78,7 @@ import { PlusIcon } from '@heroicons/vue/solid'
 import Avatar from '../../components/shared/Avatar.vue'
 import Button from '../../components/shared/Button.vue'
 import Banner from '../../components/shared/Banner.vue'
+import { Feature } from '../../__generated__/types'
 
 export const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationMembersOrganization on Organization {
@@ -88,6 +103,9 @@ export default defineComponent({
     },
   },
   setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
+
     let { executeMutation: execInviteUserToOrganization } = useMutation<
       InviteUserToOrganizationMutation,
       InviteUserToOrganizationMutationVariables
@@ -103,6 +121,8 @@ export default defineComponent({
     `)
 
     return {
+      isMultiTenancyEnabled,
+
       async inviteUserToOrganization(email: string, organizationID: string) {
         const variables = { email, organizationID }
         return execInviteUserToOrganization(variables).then((result) => {

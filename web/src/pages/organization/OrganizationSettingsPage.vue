@@ -11,7 +11,7 @@
     <template #default>
       <div class="max-w-7xl">
         <Header>
-          <span>Manage {{ data.organization.name }}</span>
+          <span>Settings</span>
         </Header>
 
         <OrganizationMembers :organization="data.organization" />

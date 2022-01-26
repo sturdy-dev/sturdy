@@ -17,7 +17,7 @@
           </a>
         </p>
       </div>
-      <EmailAuth v-if="emailAuth" :askName="isLogin" @success="successRedirect" />
+      <EmailAuth v-if="isEmailAuthEnabled" :ask-name="isLogin" @success="successRedirect" />
       <PasswordAuth v-else :sign-up="!isLogin" @success="successRedirect" />
     </div>
   </div>
@@ -26,7 +26,7 @@
 <script lang="ts">
 import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
-import { PropType } from 'vue'
+import { computed, inject, ref, Ref } from 'vue'
 
 export default {
   name: 'LoginRegister',
@@ -38,7 +38,13 @@ export default {
     user: { type: Object, default: null },
     startWithSignUp: { type: Boolean, default: false },
     navigateTo: { type: String, default: () => '/codebases' },
-    features: { type: Array as PropType<Feature[]>, required: true },
+  },
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isEmailAuthEnabled = computed(() => features?.value?.includes(Feature.EmailAuth))
+    return {
+      isEmailAuthEnabled,
+    }
   },
   data() {
     return {
@@ -51,9 +57,6 @@ export default {
     },
     subheaderText() {
       return this.isLogin ? 'sign up now' : 'login to your existing account'
-    },
-    emailAuth() {
-      return this.features.includes(Feature.EmailAuth)
     },
   },
   watch: {
