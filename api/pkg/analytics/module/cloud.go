@@ -4,7 +4,7 @@
 package module
 
 import (
-	"getsturdy.com/api/pkg/analytics/cloud"
+	"getsturdy.com/api/pkg/analytics/enterprise/cloud"
 	"getsturdy.com/api/pkg/di"
 )
 

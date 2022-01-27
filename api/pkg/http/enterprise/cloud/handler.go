@@ -2,7 +2,7 @@ package cloud
 
 import (
 	"getsturdy.com/api/pkg/analytics"
-	"getsturdy.com/api/pkg/analytics/cloud/routes"
+	"getsturdy.com/api/pkg/analytics/enterprise/cloud/routes"
 	"getsturdy.com/api/pkg/http/enterprise/selfhosted"
 	routes_v3_licenses "getsturdy.com/api/pkg/licenses/enterprise/cloud/routes"
 	service_licenses "getsturdy.com/api/pkg/licenses/enterprise/cloud/service"
