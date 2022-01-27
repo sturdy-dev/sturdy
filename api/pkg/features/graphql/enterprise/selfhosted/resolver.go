@@ -1,4 +1,4 @@
-package enterprise
+package selfhosted
 
 import "getsturdy.com/api/pkg/graphql/resolvers"
 

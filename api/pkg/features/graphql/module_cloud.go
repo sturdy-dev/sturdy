@@ -5,7 +5,7 @@ package graphql
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/features/graphql/cloud"
+	"getsturdy.com/api/pkg/features/graphql/enterprise/cloud"
 )
 
 func Module(c *di.Container) {
