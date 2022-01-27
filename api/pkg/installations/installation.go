@@ -1,30 +1,17 @@
 package installations
 
-type Type uint
-
-const (
-	TypeUndefined Type = iota
-	TypeOSS
-	TypeEnterprise
-	TypeCloud
+import (
+	"getsturdy.com/api/pkg/licenses"
+	"getsturdy.com/api/pkg/version"
 )
 
-func (t Type) String() string {
-	switch t {
-	case TypeOSS:
-		return "oss"
-	case TypeEnterprise:
-		return "enterprise"
-	case TypeCloud:
-		return "cloud"
-	default:
-		return "undefined"
-	}
-}
+type Type uint
 
 // Installation represents a selfhosted installation of Sturdy.
 type Installation struct {
-	ID      string `db:"id"`
-	Type    Type   `db:"-"`
-	Version string `db:"-"`
+	ID         string                   `db:"id"`
+	Type       version.DistributionType `db:"-"`
+	Version    string                   `db:"-"`
+	LicenseKey *string                  `db:"license_key"`
+	License    *licenses.License        `db:"-"`
 }

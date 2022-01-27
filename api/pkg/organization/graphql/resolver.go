@@ -254,8 +254,8 @@ func (r *organizationResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 	return res, nil
 }
 
-func (r *organizationResolver) LicenseSubscriptions(ctx context.Context) ([]resolvers.LicenseResolver, error) {
-	return r.root.licensesRootResolver.InternalListForOrganization(ctx, r.org.ID)
+func (r *organizationResolver) Licenses(ctx context.Context) ([]resolvers.LicenseResolver, error) {
+	return r.root.licensesRootResolver.InternalListForOrganizationID(ctx, r.org.ID)
 }
 
 func (r *organizationResolver) Writeable(ctx context.Context) bool {

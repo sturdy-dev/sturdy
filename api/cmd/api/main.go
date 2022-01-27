@@ -36,7 +36,7 @@ import (
 	module_installations "getsturdy.com/api/pkg/installations/module"
 	module_integrations "getsturdy.com/api/pkg/integrations/module"
 	module_jwt "getsturdy.com/api/pkg/jwt/module"
-	module_license "getsturdy.com/api/pkg/license/module"
+	module_license "getsturdy.com/api/pkg/licenses/module"
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
 	module_mutagen "getsturdy.com/api/pkg/mutagen/module"
 	module_newsletter "getsturdy.com/api/pkg/newsletter/module"
@@ -252,7 +252,7 @@ func main() {
 		c.Import(module_workspace.Module)
 	}
 
-	var apiServer api.API
+	var apiServer api.Starter
 	if err := di.Init(&apiServer, mainModule); err != nil {
 		log.Fatalf("%+v", err)
 	}

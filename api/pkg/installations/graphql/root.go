@@ -1,22 +1,35 @@
 package graphql
 
 import (
+	"context"
+
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/installations"
 	service_installations "getsturdy.com/api/pkg/installations/service"
 )
 
 type rootResolver struct {
-	installation *installations.Installation
-	service      *service_installations.Service
+	service         *service_installations.Service
+	licenseResolver resolvers.LicenseRootResolver
 }
 
-func New(installation *installations.Installation) resolvers.InstallationsRootResolver {
+func New(
+	service *service_installations.Service,
+	licenseResolver resolvers.LicenseRootResolver,
+) resolvers.InstallationsRootResolver {
 	return &rootResolver{
-		installation: installation,
+		service:         service,
+		licenseResolver: licenseResolver,
 	}
 }
 
-func (r *rootResolver) Installation() (resolvers.InstallationsResolver, error) {
-	return &resolver{root: r}, nil
+func (r *rootResolver) Installation(ctx context.Context) (resolvers.InstallationsResolver, error) {
+	installation, err := r.service.Get(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	return &resolver{
+		root:         r,
+		installation: installation,
+	}, nil
 }
