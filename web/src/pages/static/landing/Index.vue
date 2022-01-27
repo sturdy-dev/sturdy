@@ -1,40 +1,39 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
-    <header class="relative">
-      <div
-        class="blurr border-b border-slate-700/10 sticky top-0 z-50 py-2 lg:py-3 px-6 lg:px-20 flex items-center justify-between leading-6"
-      >
-        <img
-          src="./logotype.svg"
-          alt="Sturdy logotype"
-          class="rounded-xl object-contain"
-          width="110"
-        />
+    <div
+      class="blurr border-b border-slate-700/10 sticky top-0 z-50 py-2 lg:py-3 px-6 lg:px-20 flex items-center justify-between leading-6"
+    >
+      <img
+        src="./logotype.svg"
+        alt="Sturdy logotype"
+        class="rounded-xl object-contain"
+        width="110"
+      />
+      <div class="flex items-center font-semibold text-sm">
+        <nav>
+          <ul
+            class="flex items-center space-x-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+          >
+            <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
+              Docs
+            </router-link>
+            <router-link :to="{ name: 'pricing' }" class="hover:text-amber-500">
+              Pricing
+            </router-link>
+            <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
 
-        <div class="flex items-center font-semibold text-sm">
-          <nav>
-            <ul
-              class="flex items-center space-x-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+            <router-link
+              :to="{ name: 'download' }"
+              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
             >
-              <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
-                Docs
-              </router-link>
-              <router-link :to="{ name: 'pricing' }" class="hover:text-amber-500">
-                Pricing
-              </router-link>
-              <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
-
-              <router-link
-                :to="{ name: 'download' }"
-                class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
-              >
-                Get started
-              </router-link>
-            </ul>
-          </nav>
-        </div>
+              Get started
+            </router-link>
+          </ul>
+        </nav>
       </div>
+    </div>
 
+    <div class="relative -mt-6 lg:-mt-20">
       <div class="px-4 sm:px-6 md:px-8">
         <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
 
@@ -69,13 +68,12 @@
           </div>
         </div>
       </div>
-
       <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
         <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
           <UspVideo />
         </div>
       </div>
-    </header>
+    </div>
 
     <section id="features">
       <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
@@ -83,35 +81,40 @@
           <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
             A new home for your code
           </h1>
-          <div class="pt-8 px-4 flex flex-col sm:flex-row sm:space-x-14">
-            <MiniUsp class="sm:w-1/4" title="Expressive">
-              <p>
-                Ship the code to production &mdash; <br />
-                instead of the usual dance of creating a branch, staging and committing files,
-                pushing, and merging.
-              </p>
-            </MiniUsp>
+          <div class="pt-8 px-4 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
+            <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
+              <MiniUsp class="md:w-1/2" title="Expressive">
+                <p>
+                  Ship the code to production &mdash; <br />
+                  instead of the usual dance of creating a branch, staging and committing files,
+                  pushing, and merging.
+                </p>
+              </MiniUsp>
 
-            <MiniUsp class="sm:w-1/4" title="Collaborative">
-              <div>
-                Try each others code and give actionable feedback &mdash; <br />
-                instead of guessing what a pull request does and LGTM-ing anyway.
-              </div>
-            </MiniUsp>
+              <MiniUsp class="md:w-1/2" title="Collaborative">
+                <div>
+                  Try each others code and give actionable feedback &mdash; <br />
+                  instead of guessing what a pull request does and LGTM-ing anyway.
+                </div>
+              </MiniUsp>
+            </div>
 
-            <MiniUsp class="sm:w-1/4" title="Compatible">
-              <div>
-                Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or with
-                others on your team. Run your own instance &mdash; or use Sturdy in the cloud.
-              </div>
-            </MiniUsp>
+            <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
+              <MiniUsp class="md:w-1/2" title="Compatible">
+                <div>
+                  Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or
+                  with others on your team. Run your own instance &mdash; or use Sturdy in the
+                  cloud.
+                </div>
+              </MiniUsp>
 
-            <MiniUsp class="sm:w-1/4" title="Streamlined">
-              <div>
-                Ship small, incremental changes as the default &mdash;<br />
-                instead of reminding yourself to "push often" and "keep the PR small".
-              </div>
-            </MiniUsp>
+              <MiniUsp class="md:w-1/2" title="Streamlined">
+                <div>
+                  Ship small, incremental changes as the default &mdash;<br />
+                  instead of reminding yourself to "push often" and "keep the PR small".
+                </div>
+              </MiniUsp>
+            </div>
           </div>
         </div>
       </div>
@@ -263,6 +266,33 @@
           <UspVideo />
         </template>
       </Usp>
+
+      <section id="featured">
+        <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
+          <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+            <h1 class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300">
+              Featured at
+            </h1>
+            <div class="flex space-x-10 items-center">
+              <a href="https://websummit.com/schedule/ws21/timeslot/breakout-startups-1104-0927">
+                <img
+                  src="./web-summit.png"
+                  alt="Web Summit logotype"
+                  class="rounded-xl object-contain h-6"
+                />
+              </a>
+              <a href="https://devsecops.fm/episodes/36-sturdy/">
+                <img
+                  src="./devsecops.png"
+                  alt="DevSecOps logotype"
+                  class="rounded-xl object-contain h-8"
+                />
+              </a>
+              <img src="./devcon.png" alt="Devcon logotype" class="rounded-xl object-contain h-8" />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
