@@ -8,13 +8,13 @@
     <div class="my-4 text-sm">
       <slot></slot>
     </div>
-    <router-link
-      class="grow text-amber-500 hover:text-slate-50 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
-      :to="{ hash: '#' + title.toLowerCase() }"
-      hash="expressive"
+    <div
+      class="text-sm grow text-amber-500/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
     >
-      Go to ⤵️
-    </router-link>
+      <router-link :to="{ hash: '#' + title.toLowerCase() }" hash="expressive">
+        Go to ⤵️
+      </router-link>
+    </div>
   </div>
 </template>
 
