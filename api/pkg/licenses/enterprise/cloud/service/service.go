@@ -29,8 +29,9 @@ func (s *Service) ValidateByKey(ctx context.Context, key string) (*licenses.Lice
 			Status: licenses.StatusInvalid,
 			Messages: []*licenses.Message{
 				{
-					Type: licenses.TypeBanner,
-					Text: "No license found",
+					Type:  licenses.TypeBanner,
+					Text:  "No license found",
+					Level: licenses.LevelInfo,
 				},
 			},
 		}, nil
@@ -77,8 +78,9 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 	if license.ExpiresAt.Before(time.Now()) {
 		return licenses.StatusInvalid, []*licenses.Message{
 			{
-				Type: licenses.TypeBanner,
-				Text: "license expired",
+				Type:  licenses.TypeBanner,
+				Level: licenses.LevelError,
+				Text:  "license expired",
 			},
 		}, nil
 	}
@@ -87,8 +89,9 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 	untilExpiration := time.Until(license.ExpiresAt)
 	if untilExpiration < expiryLeeway {
 		messages = append(messages, &licenses.Message{
-			Type: licenses.TypeBanner,
-			Text: "License expires in less than three days",
+			Type:  licenses.TypeBanner,
+			Level: licenses.LevelWarning,
+			Text:  "License expires in less than three days",
 		})
 	}
 
