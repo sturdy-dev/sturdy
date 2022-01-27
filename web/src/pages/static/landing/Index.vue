@@ -81,37 +81,33 @@
           <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
             A new home for your code
           </h1>
-          <div class="px-4 flex flex-col md:flex-row space-x-14">
-            <MiniUsp class="w-1/4" title="Expressive">
+          <div class="pt-8 px-4 flex flex-col sm:flex-row sm:space-x-14">
+            <MiniUsp class="sm:w-1/4" title="Expressive">
               <p>
-                <span class="text-purple-500 font-bold">"</span>
-                Ship this code to production
-                <span class="text-purple-500 font-bold">"</span>
-                &mdash; <br />
-                instead of the usual create a branch, stage files, make a commit, push to remote,
-                merge.
+                Ship the code to production &mdash; <br />
+                instead of the usual dance of creating a branch, staging and committing files,
+                pushing, and merging.
               </p>
             </MiniUsp>
 
-            <MiniUsp class="w-1/4" title="Collaborative">
+            <MiniUsp class="sm:w-1/4" title="Collaborative">
               <div>
                 Try each others code and give actionable feedback &mdash; <br />
                 instead of guessing what a pull request does and LGTM-ing anyway.
               </div>
             </MiniUsp>
 
-            <MiniUsp class="w-1/4" title="Compatible">
+            <MiniUsp class="sm:w-1/4" title="Compatible">
               <div>
                 Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or with
                 others on your team. Run your own instance &mdash; or use Sturdy in the cloud.
               </div>
             </MiniUsp>
 
-            <MiniUsp class="w-1/4" title="Streamlined">
+            <MiniUsp class="sm:w-1/4" title="Streamlined">
               <div>
-                Ship small incremental changes per default &mdash;<br />
-                instead of reminding yourself and the team to "keep the pull requests small" and
-                "push often".
+                Ship small, incremental changes as the default &mdash;<br />
+                instead of reminding yourself to "push often" and "keep the PR small".
               </div>
             </MiniUsp>
           </div>
