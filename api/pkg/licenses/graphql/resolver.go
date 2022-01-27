@@ -13,6 +13,10 @@ func New() resolvers.LicenseRootResolver {
 	return &licenseRootResovler{}
 }
 
+func (r *licenseRootResovler) InternalByKey(context.Context, string) (resolvers.LicenseResolver, error) {
+	return nil, gqlerrors.ErrNotImplemented
+}
+
 func (*licenseRootResovler) InternalListForOrganizationID(context.Context, string) ([]resolvers.LicenseResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
