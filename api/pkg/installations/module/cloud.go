@@ -5,6 +5,9 @@ package module
 
 import (
 	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/installations/cloud"
 )
 
-func Module(c *di.Container) {}
+func Module(c *di.Container) {
+	c.Import(cloud.Module)
+}

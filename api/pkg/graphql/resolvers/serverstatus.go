@@ -7,7 +7,7 @@ import (
 )
 
 type ServerStatusRootResolver interface {
-	ServerStatus(context.Context) (ServerStatusResolver, error)
+	ServerStatus() (ServerStatusResolver, error)
 }
 
 type ServerStatusResolver interface {

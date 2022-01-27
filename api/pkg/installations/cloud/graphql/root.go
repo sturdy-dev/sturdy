@@ -1,18 +1,16 @@
 package graphql
 
 import (
-	"context"
-
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
-type resolver struct{}
+type rootResolver struct{}
 
 func New() resolvers.ServerStatusRootResolver {
-	return resolver{}
+	return &rootResolver{}
 }
 
-func (resolver) ServerStatus(_ context.Context) (resolvers.ServerStatusResolver, error) {
+func (r *rootResolver) ServerStatus() (resolvers.ServerStatusResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }

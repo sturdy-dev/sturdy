@@ -29,8 +29,8 @@ export default defineComponent({
             name
           }
 
-          serverStatus @skip(if: $isMultiTenancyEnabled) {
-            _id
+          installation @skip(if: $isMultiTenancyEnabled) {
+            id
             needsFirstTimeSetup
             version
           }
