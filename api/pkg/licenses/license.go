@@ -36,11 +36,11 @@ type Message struct {
 }
 
 type License struct {
-	ID             ID        `db:"id" json:"-"`
-	OrganizationID string    `db:"organization_id" json:"-"`
-	Key            string    `db:"key" json:"-"`
-	CreatedAt      time.Time `db:"created_at" json:"-"`
-	ExpiresAt      time.Time `db:"expires_at" json:"-"`
+	ID             ID        `db:"id" json:"id"`
+	OrganizationID string    `db:"organization_id" json:"organizationId"`
+	Key            string    `db:"key" json:"key"`
+	CreatedAt      time.Time `db:"created_at" json:"createdAt"`
+	ExpiresAt      time.Time `db:"expires_at" json:"expiresAt"`
 
 	Status   Status     `db:"-" json:"status"`
 	Messages []*Message `db:"-" json:"messages"`

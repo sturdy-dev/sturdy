@@ -33,6 +33,19 @@ export default defineComponent({
             id
             needsFirstTimeSetup
             version
+
+            license {
+              id
+              key
+              createdAt
+              expiresAt
+              status
+              messages {
+                level
+                text
+                type
+              }
+            }
           }
         }
       `,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"getsturdy.com/api/pkg/licenses"
@@ -30,9 +31,15 @@ func (v *Validator) Validate(ctx context.Context, licenseKey string) (*licenses.
 	if err != nil {
 		return nil, fmt.Errorf("failed to get license: %w", err)
 	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
 
 	license := &licenses.License{}
-	if err := json.NewDecoder(resp.Body).Decode(license); err != nil {
+	if err := json.Unmarshal(body, &license); err != nil {
 		return nil, fmt.Errorf("failed to decode license: %w", err)
 	}
 
