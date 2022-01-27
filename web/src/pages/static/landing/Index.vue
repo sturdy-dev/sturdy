@@ -1,79 +1,81 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
-    <div
-      class="blurr border-b border-slate-700/10 sticky top-0 z-50 py-2 lg:py-3 px-6 lg:px-20 flex items-center justify-between leading-6"
-    >
-      <img
-        src="./logotype.svg"
-        alt="Sturdy logotype"
-        class="rounded-xl object-contain"
-        width="110"
-      />
+    <header class="relative">
+      <div
+        class="blurr border-b border-slate-700/10 sticky top-0 z-50 py-2 lg:py-3 px-6 lg:px-20 flex items-center justify-between leading-6"
+      >
+        <img
+          src="./logotype.svg"
+          alt="Sturdy logotype"
+          class="rounded-xl object-contain"
+          width="110"
+        />
 
-      <div class="flex items-center font-semibold text-sm">
-        <nav>
-          <ul
-            class="flex items-center space-x-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
-          >
-            <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
-              Docs
-            </router-link>
-            <router-link :to="{ name: 'pricing' }" class="hover:text-amber-500">
-              Pricing
-            </router-link>
-            <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
-
-            <router-link
-              :to="{ name: 'download' }"
-              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+        <div class="flex items-center font-semibold text-sm">
+          <nav>
+            <ul
+              class="flex items-center space-x-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
             >
-              Get started
-            </router-link>
-          </ul>
-        </nav>
-      </div>
-    </div>
+              <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
+                Docs
+              </router-link>
+              <router-link :to="{ name: 'pricing' }" class="hover:text-amber-500">
+                Pricing
+              </router-link>
+              <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
 
-    <div class="px-4 sm:px-6 md:px-8">
-      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient"></div>
-
-      <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
-        <h1
-          class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
-        >
-          Real-time code collaboration.
-        </h1>
-        <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
-          Sturdy is an
-          <code class="font-mono font-semibold text-amber-500"
-            >open-source version control platform</code
-          >
-          that allows you to interact with your code at a higher abstraction level.
-        </p>
-        <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
-          <router-link
-            :to="{ name: 'download' }"
-            class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-          >
-            <DownloadIcon class="h-6 w-6 mr-1" />
-            {{ mainDownloadText }}
-          </router-link>
-          <router-link
-            :to="{ name: 'v2DocsRoot' }"
-            class="text-slate-300 bg-slate-600 hover:text-slate-300 hover:bg-slate-900/10 border border-transparent hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-          >
-            Read the Docs
-            <ChevronRightIcon class="h-6 w-6 ml-1" />
-          </router-link>
+              <router-link
+                :to="{ name: 'download' }"
+                class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+              >
+                Get started
+              </router-link>
+            </ul>
+          </nav>
         </div>
       </div>
-    </div>
 
-    <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
-      <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
-        <UspVideo />
+      <div class="px-4 sm:px-6 md:px-8">
+        <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
+
+        <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
+          <h1
+            class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+          >
+            Real-time code collaboration.
+          </h1>
+          <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
+            Sturdy is an
+            <code class="font-mono font-semibold text-amber-500"
+              >open-source version control platform</code
+            >
+            that allows you to interact with your code at a higher abstraction level.
+          </p>
+          <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
+            <router-link
+              :to="{ name: 'download' }"
+              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            >
+              <DownloadIcon class="h-6 w-6 mr-1" />
+              {{ mainDownloadText }}
+            </router-link>
+            <router-link
+              :to="{ name: 'v2DocsRoot' }"
+              class="text-slate-300 bg-slate-600 hover:text-slate-300 hover:bg-slate-900/10 border border-transparent hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            >
+              Read the Docs
+              <ChevronRightIcon class="h-6 w-6 ml-1" />
+            </router-link>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
+        <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
+          <UspVideo />
+        </div>
+      </div>
+    </header>
 
     <section id="features">
       <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
