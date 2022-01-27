@@ -6,11 +6,11 @@ import (
 	"github.com/graph-gophers/graphql-go"
 )
 
-type ServerStatusRootResolver interface {
-	ServerStatus() (ServerStatusResolver, error)
+type InstallationsRootResolver interface {
+	Installation() (InstallationsResolver, error)
 }
 
-type ServerStatusResolver interface {
+type InstallationsResolver interface {
 	ID() graphql.ID
 	NeedsFirstTimeSetup(context.Context) (bool, error)
 	Version() string
