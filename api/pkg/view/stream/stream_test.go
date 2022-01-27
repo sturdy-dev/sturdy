@@ -79,7 +79,7 @@ func TestStream(t *testing.T) {
 	aclRepo := db_acl.NewACLRepository(d)
 	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, disabled.NewClient())
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, disabled.NewClient(), nil)
 	suggestionsDB := db_suggestion.New(d)
 
 	workspaceService := service_workspace.New(
