@@ -48,7 +48,6 @@ import (
 	module_presence "getsturdy.com/api/pkg/presence/module"
 	"getsturdy.com/api/pkg/queue"
 	module_review "getsturdy.com/api/pkg/review/module"
-	module_serverstatus "getsturdy.com/api/pkg/serverstatus/module"
 	module_servicetokens "getsturdy.com/api/pkg/servicetokens/module"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
@@ -251,7 +250,6 @@ func main() {
 
 		c.Import(module_transactional.Module)
 		c.Import(module_workspace.Module)
-		c.Import(module_serverstatus.Module)
 	}
 
 	var apiServer api.API

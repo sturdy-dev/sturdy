@@ -24,6 +24,7 @@ func (t Type) String() string {
 
 // Installation represents a selfhosted installation of Sturdy.
 type Installation struct {
-	ID   string `db:"id"`
-	Type Type   `db:"-"`
+	ID      string `db:"id"`
+	Type    Type   `db:"-"`
+	Version string `db:"-"`
 }

@@ -58,7 +58,7 @@ type Query {
     # Onboarding
     completedOnboardingSteps: [OnboardingStep!]!
 
-    serverStatus: ServerStatus!
+    installation: Installation!
 }
 
 type Mutation {
@@ -896,8 +896,8 @@ type Organization implements Writeable {
     writeable: Boolean!
 }
 
-type ServerStatus {
-    _id: ID!
+type Installation {
+    id: ID!
     needsFirstTimeSetup: Boolean!
     version: String!
 }
