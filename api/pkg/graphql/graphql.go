@@ -48,7 +48,7 @@ type RootResolver struct {
 	resolvers.PKIRootResolver
 	resolvers.PresenceRootResolver
 	resolvers.ReviewRootResolver
-	resolvers.ServerStatusRootResolver
+	resolvers.InstallationsRootResolver
 	resolvers.ServiceTokensRootResolver
 	resolvers.StatusesRootResolver
 	resolvers.SuggestionRootResolver
@@ -86,7 +86,7 @@ func NewRootResolver(
 	prResolver resolvers.GitHubPullRequestRootResolver,
 	presenceRootResolver resolvers.PresenceRootResolver,
 	reviewResolver resolvers.ReviewRootResolver,
-	serverStatusRootResolver resolvers.ServerStatusRootResolver,
+	serverStatusRootResolver resolvers.InstallationsRootResolver,
 	serviceTokensRootResolver resolvers.ServiceTokensRootResolver,
 	statusRootResolver resolvers.StatusesRootResolver,
 	suggestionResolver resolvers.SuggestionRootResolver,
@@ -119,7 +119,7 @@ func NewRootResolver(
 		PKIRootResolver:                         pkiRootResolver,
 		PresenceRootResolver:                    presenceRootResolver,
 		ReviewRootResolver:                      reviewResolver,
-		ServerStatusRootResolver:                serverStatusRootResolver,
+		InstallationsRootResolver:               serverStatusRootResolver,
 		ServiceTokensRootResolver:               serviceTokensRootResolver,
 		StatusesRootResolver:                    statusRootResolver,
 		SuggestionRootResolver:                  suggestionResolver,

@@ -11,12 +11,12 @@ type rootResolver struct {
 	service      *service_installations.Service
 }
 
-func New(installation *installations.Installation) resolvers.ServerStatusRootResolver {
+func New(installation *installations.Installation) resolvers.InstallationsRootResolver {
 	return &rootResolver{
 		installation: installation,
 	}
 }
 
-func (r *rootResolver) ServerStatus() (resolvers.ServerStatusResolver, error) {
+func (r *rootResolver) Installation() (resolvers.InstallationsResolver, error) {
 	return &resolver{root: r}, nil
 }

@@ -7,10 +7,10 @@ import (
 
 type rootResolver struct{}
 
-func New() resolvers.ServerStatusRootResolver {
+func New() resolvers.InstallationsRootResolver {
 	return &rootResolver{}
 }
 
-func (r *rootResolver) ServerStatus() (resolvers.ServerStatusResolver, error) {
+func (r *rootResolver) Installation() (resolvers.InstallationsResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
