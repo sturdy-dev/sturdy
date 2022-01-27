@@ -7,42 +7,49 @@ import (
 )
 
 type LicenseRootResolver interface {
-	ValidateLicense(context.Context, ValidateLicenseArgs) (LicenseValidation, error)
-
-	InternalListForOrganization(ctx context.Context, id string) ([]LicenseResolver, error)
+	// Internal
+	InternalByKey(ctx context.Context, key string) (LicenseResolver, error)
+	InternalListForOrganizationID(ctx context.Context, id string) ([]LicenseResolver, error)
 }
 
 type LicenseResolver interface {
 	ID() graphql.ID
-	Seats() int32
-	UsedSeats() int32
-	ExpiresAt() int32
-	LicenseKey() string
+	Key() string
+	ExpiresAt() (int32, error)
+	CreatedAt() (int32, error)
+
+	Status(context.Context) (LicenseStatus, error)
+	Messages(context.Context) ([]LicenseMessageResolver, error)
 }
 
-type ValidateLicenseArgs struct {
-	Input ValidateLicenseInput
-}
-
-type ValidateLicenseInput struct {
-	Key           string
-	Version       string
-	BootedAt      int32
-	UserCount     int32
-	CodebaseCount int32
-}
-
-type LicenseValidation interface {
-	ID() graphql.ID
-	Status() LicenseValidationStatus
-	Message() *string
-}
-
-type LicenseValidationStatus string
+type LicenseStatus string
 
 const (
-	LicenseValidationStatusUnknown LicenseValidationStatus = "Unknown"
-	LicenseValidationStatusOk      LicenseValidationStatus = "Ok"
-	LicenseValidationStatusInvalid LicenseValidationStatus = "Invalid"
-	LicenseValidationStatusExpired LicenseValidationStatus = "Expired"
+	LicenseStatusUnknown LicenseStatus = ""
+	LicenseStatusValid   LicenseStatus = "Valid"
+	LicenseStatusInvalid LicenseStatus = "Invalid"
 )
+
+type LicenseMessageType string
+
+const (
+	LicenseMessageTypeUnknown      LicenseMessageType = ""
+	LicenseMessageTypeNotification LicenseMessageType = "Notification"
+	LicenseMessageTypeBanner       LicenseMessageType = "Banner"
+	LicenseMessageTypeFullscreen   LicenseMessageType = "Fullscreen"
+)
+
+type LicenseMessageLevel string
+
+const (
+	LicenseMessageLevelUnknown LicenseMessageLevel = ""
+	LicenseMessageLevelInfo    LicenseMessageLevel = "Info"
+	LicenseMessageLevelWarning LicenseMessageLevel = "Warning"
+	LicenseMessageLevelError   LicenseMessageLevel = "Error"
+)
+
+type LicenseMessageResolver interface {
+	Text() string
+	Type() LicenseMessageType
+	Level() LicenseMessageLevel
+}

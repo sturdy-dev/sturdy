@@ -9,6 +9,6 @@ type Config struct {
 	HTTPAddr            string
 }
 
-type API interface {
+type Starter interface {
 	Start(context.Context, *Config) error
 }

@@ -182,29 +182,50 @@ input CreateOrUpdateBuildkiteIntegrationInput {
     webhookSecret: String!
 }
 
-# type Installation {
-#     _id: ID! # Always "sturdy"
-# }
-#
-# input UpdateLicense {
-#     licenseKey: String!
-# }
-
-type LicenseSubscription {
-    id: ID!
-    seats: Int!
-    usedSeats: Int!
-    expiresAt: Int!
-    licenseKey: String!
-}
-
 enum OrganizationPlan {
     Free
     Pro
 }
 
 extend type Organization {
-    licenseSubscriptions: [LicenseSubscription!]!
+    licenses: [License!]!
+}
+
+extend type Installation {
+    license: License
+}
+
+type License {
+    id: ID!
+    key: String!
+    createdAt: Int!
+    expiresAt: Int!
+
+    status: LicenseStatus!
+    messages: [LicenseMessage!]!
+}
+
+enum LicenseStatus {
+    Valid
+    Invalid
+}
+
+type LicenseMessage {
+    level: LicenseMessageLevel!
+    type : LicenseMessageType!
+    text: String!
+}
+
+enum LicenseMessageType {
+    Notification
+    Banner
+    Fullscreen
+}
+
+enum LicenseMessageLevel {
+    Error
+    Warning
+    Info
 }
 
 input SetupGitHubRepositoryInput {

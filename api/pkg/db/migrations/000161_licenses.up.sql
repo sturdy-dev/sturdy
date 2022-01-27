@@ -20,3 +20,5 @@ CREATE TABLE self_hosted_license_validations (
 
 CREATE INDEX self_hosted_licenses_cloud_organization_id_idx ON self_hosted_licenses(cloud_organization_id);
 CREATE INDEX self_hosted_license_validations_self_hosted_license_id_idx ON self_hosted_license_validations(self_hosted_license_id);
+
+DROP TABLE licenses;

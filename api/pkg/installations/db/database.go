@@ -19,7 +19,7 @@ func NewDatabase(db *sqlx.DB) Repository {
 
 func (d *Database) Create(ctx context.Context, installation *installations.Installation) error {
 	if _, err := d.db.NamedExecContext(ctx, `
-		INSERT INTO installations (id) VALUES (:id)
+		INSERT INTO installations (id, license_key) VALUES (:id, :license_key)
 	`, installation); err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
 	}
@@ -29,7 +29,7 @@ func (d *Database) Create(ctx context.Context, installation *installations.Insta
 func (d *Database) ListAll(ctx context.Context) ([]*installations.Installation, error) {
 	var list []*installations.Installation
 	if err := d.db.SelectContext(ctx, &list, `
-		SELECT id FROM installations
+		SELECT id, license_key FROM installations
 	`); err != nil {
 		return nil, fmt.Errorf("failed to select: %w", err)
 	}

@@ -22,8 +22,8 @@ type OrganizationResolver interface {
 	Members(context.Context) ([]AuthorResolver, error)
 	Codebases(context.Context) ([]CodebaseResolver, error)
 
-	LicenseSubscriptions(context.Context) ([]LicenseResolver, error)
-	
+	Licenses(context.Context) ([]LicenseResolver, error)
+
 	Writeable(context.Context) bool
 }
 

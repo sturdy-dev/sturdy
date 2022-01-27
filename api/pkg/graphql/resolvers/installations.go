@@ -7,11 +7,12 @@ import (
 )
 
 type InstallationsRootResolver interface {
-	Installation() (InstallationsResolver, error)
+	Installation(context.Context) (InstallationsResolver, error)
 }
 
 type InstallationsResolver interface {
 	ID() graphql.ID
 	NeedsFirstTimeSetup(context.Context) (bool, error)
 	Version() string
+	License(context.Context) (LicenseResolver, error)
 }
