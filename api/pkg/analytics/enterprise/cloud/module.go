@@ -1,7 +1,7 @@
 package cloud
 
 import (
-	"getsturdy.com/api/pkg/analytics/cloud/posthog"
+	"getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog"
 	"getsturdy.com/api/pkg/di"
 )
 
