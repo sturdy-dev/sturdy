@@ -85,11 +85,11 @@ export default defineComponent({
           organization(shortID: $shortID) {
             id
             name
-            licenseSubscriptions {
+            licenses {
               id
-              seats
-              usedSeats
-              licenseKey
+              key
+              createdAt
+              expiresAt
             }
           }
         }
