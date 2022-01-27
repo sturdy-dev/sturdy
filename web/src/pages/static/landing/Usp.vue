@@ -15,11 +15,11 @@
           <div class="mt-4 max-w-3xl space-y-6">
             <slot name="left"></slot>
             <router-link
-              class="bg-amber-500 text-slate-900 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 group inline-flex items-center h-9 rounded-full text-sm font-semibold whitespace-nowrap px-3 focus:outline-none focus:ring-2"
+              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2 group inline-flex items-center h-9 rounded-full text-sm font-semibold whitespace-nowrap px-3"
               :to="{ name: link }"
             >
               Learn more
-              <ChevronRightIcon class="h-4 w-4 ml-1 text-slate-900" />
+              <ChevronRightIcon class="h-4 w-4 ml-1" />
             </router-link>
           </div>
           <div class="mt-12 max-w-3xl space-y-6">

@@ -12,7 +12,9 @@
 
       <div class="flex items-center font-semibold text-sm">
         <nav>
-          <ul class="flex items-center space-x-8">
+          <ul
+            class="flex items-center space-x-8 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+          >
             <router-link :to="{ name: 'v2DocsRoot' }" class="hover:text-amber-500">
               Docs
             </router-link>
@@ -20,15 +22,20 @@
               Pricing
             </router-link>
             <router-link :to="{ name: 'blog' }" class="hover:text-amber-500"> Blog </router-link>
+
+            <router-link
+              :to="{ name: 'download' }"
+              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+            >
+              Get started
+            </router-link>
           </ul>
         </nav>
       </div>
     </div>
 
     <div class="px-4 sm:px-6 md:px-8">
-      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient">
-        <div class="absolute inset-0 bg-bottom border-b border-slate-100/5 bestagons" />
-      </div>
+      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat bg-[#0B1120] gradient"></div>
 
       <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
         <h1
@@ -46,14 +53,14 @@
         <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
           <router-link
             :to="{ name: 'download' }"
-            class="text-slate-900 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
           >
             <DownloadIcon class="h-6 w-6 mr-1" />
             {{ mainDownloadText }}
           </router-link>
           <router-link
             :to="{ name: 'v2DocsRoot' }"
-            class="text-slate-300 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            class="text-slate-300 bg-slate-600 hover:text-slate-300 hover:bg-slate-900/10 border border-transparent hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
           >
             Read the Docs
             <ChevronRightIcon class="h-6 w-6 ml-1" />
@@ -67,6 +74,50 @@
         <UspVideo />
       </div>
     </div>
+
+    <section id="features">
+      <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
+        <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+          <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
+            A new home for your code
+          </h1>
+          <div class="px-4 flex flex-col md:flex-row space-x-14">
+            <MiniUsp class="w-1/4" title="Expressive">
+              <p>
+                <span class="text-purple-500 font-bold">"</span>
+                Ship this code to production
+                <span class="text-purple-500 font-bold">"</span>
+                &mdash; <br />
+                instead of the usual create a branch, stage files, make a commit, push to remote,
+                merge.
+              </p>
+            </MiniUsp>
+
+            <MiniUsp class="w-1/4" title="Collaborative">
+              <div>
+                Try each others code and give actionable feedback &mdash; <br />
+                instead of guessing what a pull request does and LGTM-ing anyway.
+              </div>
+            </MiniUsp>
+
+            <MiniUsp class="w-1/4" title="Compatible">
+              <div>
+                Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or with
+                others on your team. Run your own instance &mdash; or use Sturdy in the cloud.
+              </div>
+            </MiniUsp>
+
+            <MiniUsp class="w-1/4" title="Streamlined">
+              <div>
+                Ship small incremental changes per default &mdash;<br />
+                instead of reminding yourself and the team to "keep the pull requests small" and
+                "push often".
+              </div>
+            </MiniUsp>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div class="mb-20 space-y-20 overflow-hidden sm:mb-32 sm:space-y-32 md:mb-40 md:space-y-40">
       <Usp
@@ -178,7 +229,7 @@
 
       <Usp
         title="Streamlined"
-        subtitle="Built for the workflow that you're already using."
+        subtitle="For the workflow that you're already using."
         link="v2DocsHotToShipSoftwareToProduction"
       >
         <template #left>
@@ -221,6 +272,7 @@
 <script lang="ts">
 import UspVideo from './UspVideo.vue'
 import Usp from './Usp.vue'
+import MiniUsp from './MiniUsp.vue'
 import UspDetailsPair from './UspDetailsPair.vue'
 import ThingsYouAreNotDoing from './ThingsYouAreNotDoing.vue'
 import { defineComponent } from 'vue'
@@ -231,6 +283,7 @@ export default defineComponent({
   components: {
     UspVideo,
     Usp,
+    MiniUsp,
     ThingsYouAreNotDoing,
     UspDetailsPair,
     DownloadIcon,
@@ -280,11 +333,6 @@ export default defineComponent({
     radial-gradient(at 0% 5%, hsla(223, 49%, 9%, 1) 0, transparent 49%),
     radial-gradient(at 74% 76%, hsla(44, 97%, 57%, 1) 0, transparent 50%),
     radial-gradient(at 45% 37%, hsla(38, 93%, 51%, 1) 0, transparent 50%);
-}
-
-.bestagons {
-  background-image: url('./bestagons.svg');
-  background-size: 76.125rem;
 }
 
 .blurr {
