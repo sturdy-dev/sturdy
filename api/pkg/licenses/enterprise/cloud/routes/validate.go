@@ -25,10 +25,12 @@ func Validate(
 			return
 		}
 
-		if _, err := serviceValidations.Create(c.Request.Context(), license.ID, license.Status); err != nil {
-			logger.Error("failed to create validation", zap.Error(err))
-			c.Status(http.StatusInternalServerError)
-			return
+		if license.ID != "" {
+			if _, err := serviceValidations.Create(c.Request.Context(), license.ID, license.Status); err != nil {
+				logger.Error("failed to create validation", zap.Error(err))
+				c.Status(http.StatusInternalServerError)
+				return
+			}
 		}
 
 		c.JSON(http.StatusOK, license)
