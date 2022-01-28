@@ -1,8 +1,10 @@
 package provider
 
 import (
-	"getsturdy.com/api/vcs"
+	"flag"
 	"path"
+
+	"getsturdy.com/api/vcs"
 )
 
 // RepoProvider
@@ -31,10 +33,15 @@ type repoProvider struct {
 	lfsHostname   string
 }
 
-func New(reposBasePath, lfsHostname string) RepoProvider {
+var (
+	reposBasePath  = flag.String("repos-base-path", "tmp/repos", "path on the filesystem to where all repos can be found")
+	gitLfsHostname = flag.String("git-lfs-hostname", "localhost:8888", "")
+)
+
+func New() RepoProvider {
 	return &repoProvider{
-		reposBasePath: reposBasePath,
-		lfsHostname:   lfsHostname,
+		reposBasePath: *reposBasePath,
+		lfsHostname:   *gitLfsHostname,
 	}
 }
 
