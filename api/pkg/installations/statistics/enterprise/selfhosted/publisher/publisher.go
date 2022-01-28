@@ -1,7 +1,9 @@
 package publisher
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -19,7 +21,12 @@ func New() *Publisher {
 }
 
 func (p *Publisher) Publish(ctx context.Context, statistics *statistics.Statistic) error {
-	req, err := http.NewRequest("GET", "https://api.getsturdy.com/v3/statistics", nil)
+	payload, err := json.Marshal(statistics)
+	if err != nil {
+		return fmt.Errorf("failed to marshal statistics: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://api.getsturdy.com/v3/statistics", bytes.NewReader(payload))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
