@@ -12,7 +12,7 @@ import (
 
 func SendEmailVerification(
 	logger *zap.Logger,
-	userService *service_user.Service,
+	userService service_user.Service,
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())

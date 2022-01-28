@@ -1,3 +1,6 @@
+//go:build !enterprise
+// +build !enterprise
+
 package module
 
 import (
@@ -8,7 +11,7 @@ import (
 )
 
 func Module(c *di.Container) {
-	c.Import(service.Module)
 	c.Import(db.Module)
 	c.Import(graphql.Module)
+	c.Register(service.New, new(service.Service))
 }

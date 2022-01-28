@@ -1,16 +1,17 @@
 package routes
 
 import (
+	"net/http"
+
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	service_user "getsturdy.com/api/pkg/user/service"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func VerifyMagicLink(logger *zap.Logger, userService *service_user.Service, jwtService *service_jwt.Service) gin.HandlerFunc {
+func VerifyMagicLink(logger *zap.Logger, userService service_user.Service, jwtService *service_jwt.Service) gin.HandlerFunc {
 	type request struct {
 		Code  string `json:"code" binding:"required"`
 		Email string `json:"email" binding:"required"`

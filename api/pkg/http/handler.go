@@ -14,6 +14,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/events"
 	worker_gc "getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/ginzap"
 	sturdygrapql "getsturdy.com/api/pkg/graphql"
@@ -38,7 +39,6 @@ import (
 	service_user "getsturdy.com/api/pkg/user/service"
 	view_auth "getsturdy.com/api/pkg/view/auth"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	meta_view "getsturdy.com/api/pkg/view/meta"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
 	"getsturdy.com/api/pkg/waitinglist"
@@ -86,7 +86,7 @@ func ProvideHandler(
 	presenceService service_presence.Service,
 	suggestionService *service_suggestion.Service,
 	workspaceService service_workspace.Service,
-	userService *service_user.Service,
+	userService service_user.Service,
 	syncService *service_sync.Service,
 	jwtService *service_jwt.Service,
 	codebaseService *service_codebase.Service,

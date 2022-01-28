@@ -8,6 +8,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/change"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	config_github "getsturdy.com/api/pkg/github/config"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
@@ -16,7 +17,6 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_user "getsturdy.com/api/pkg/user/service"
-	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -59,7 +59,7 @@ type Service struct {
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
 
-	userService *service_user.Service
+	userService service_user.Service
 }
 
 func New(
@@ -87,7 +87,7 @@ func New(
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,
 
-	userService *service_user.Service,
+	userService service_user.Service,
 ) *Service {
 	return &Service{
 		logger: logger,

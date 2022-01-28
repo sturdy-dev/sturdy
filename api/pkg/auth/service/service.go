@@ -25,7 +25,7 @@ import (
 
 type Service struct {
 	codebaseService     *service_codebase.Service
-	userService         *service_user.Service
+	userService         service_user.Service
 	workspaceService    service_workspace.Service
 	aclProvider         *provider_acl.Provider
 	organizationService *service_organization.Service
@@ -33,7 +33,7 @@ type Service struct {
 
 func New(
 	codebaseService *service_codebase.Service,
-	userService *service_user.Service,
+	userService service_user.Service,
 	workspaceService service_workspace.Service,
 	aclProvider *provider_acl.Provider,
 	organizationService *service_organization.Service,
@@ -459,7 +459,7 @@ func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, 
 	if err == nil {
 		return nil
 	}
-	
+
 	// user can read (but not write) a organization if they are a member of any of it's codebases
 	if at == accessTypeRead {
 		ok, err := s.codebaseService.UserIsMemberOfCodebaseInOrganization(ctx, userID, org.ID)

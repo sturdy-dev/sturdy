@@ -23,7 +23,7 @@ import (
 type organizationRootResolver struct {
 	service         *service_organization.Service
 	authService     *service_auth.Service
-	userService     *service_user.Service
+	userService     service_user.Service
 	codebaseService *service_codebase.Service
 
 	authorRootResolver    resolvers.AuthorRootResolver
@@ -34,7 +34,7 @@ type organizationRootResolver struct {
 func New(
 	service *service_organization.Service,
 	authService *service_auth.Service,
-	userService *service_user.Service,
+	userService service_user.Service,
 	codebaseService *service_codebase.Service,
 
 	authorRootResolver resolvers.AuthorRootResolver,

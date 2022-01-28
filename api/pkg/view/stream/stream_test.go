@@ -18,6 +18,7 @@ import (
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	db_suggestion "getsturdy.com/api/pkg/suggestions/db"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
@@ -26,7 +27,6 @@ import (
 	service_user "getsturdy.com/api/pkg/user/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -79,7 +79,7 @@ func TestStream(t *testing.T) {
 	aclRepo := db_acl.NewACLRepository(d)
 	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, disabled.NewClient(), nil)
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, disabled.NewClient())
 	suggestionsDB := db_suggestion.New(d)
 
 	workspaceService := service_workspace.New(

@@ -21,7 +21,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type commonService struct {
+type UserSerice struct {
 	logger                   *zap.Logger
 	userRepo                 db_user.Repository
 	jwtService               *service_jwt.Service
@@ -30,11 +30,41 @@ type commonService struct {
 	analyticsClient          analytics.Client
 }
 
+type Service interface {
+	CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error)
+	Create(ctx context.Context, name, email string) (*user.User, error)
+	SendMagicLink(ctx context.Context, user *user.User) error
+	GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error)
+	GetByID(_ context.Context, id string) (*user.User, error)
+	GetByEmail(_ context.Context, email string) (*user.User, error)
+	SendEmailVerification(ctx context.Context, userID string) error
+	VerifyEmail(ctx context.Context, userID string, rawToken string) (*user.User, error)
+	VerifyMagicLink(ctx context.Context, user *user.User, code string) error
+}
+
+func New(
+	logger *zap.Logger,
+	userRepo db_user.Repository,
+	jwtService *service_jwt.Service,
+	onetimeService *service_onetime.Service,
+	transactionalEmailSender transactional.EmailSender,
+	analyticsClient analytics.Client,
+) *UserSerice {
+	return &UserSerice{
+		logger:                   logger,
+		userRepo:                 userRepo,
+		jwtService:               jwtService,
+		onetimeService:           onetimeService,
+		transactionalEmailSender: transactionalEmailSender,
+		analyticsClient:          analyticsClient,
+	}
+}
+
 var (
 	ErrExists = fmt.Errorf("user already exists")
 )
 
-func (s *commonService) CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error) {
+func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error) {
 	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {
 		// all good
 	} else if err != nil {
@@ -86,7 +116,7 @@ func (s *commonService) CreateWithPassword(ctx context.Context, name, password, 
 	return newUser, nil
 }
 
-func (s *commonService) Create(ctx context.Context, name, email string) (*user.User, error) {
+func (s *UserSerice) Create(ctx context.Context, name, email string) (*user.User, error) {
 	// If user already exists, send OTP
 	if existingUser, err := s.userRepo.GetByEmail(email); err == nil {
 		if err := s.SendMagicLink(ctx, existingUser); err != nil {
@@ -136,7 +166,7 @@ func (s *commonService) Create(ctx context.Context, name, email string) (*user.U
 	return newUser, nil
 }
 
-func (s *commonService) VerifyMagicLink(ctx context.Context, user *user.User, code string) error {
+func (s *UserSerice) VerifyMagicLink(ctx context.Context, user *user.User, code string) error {
 	if _, err := s.onetimeService.Resolve(ctx, user, code); err != nil {
 		return fmt.Errorf("failed to resolve magic link: %w", err)
 	}
@@ -166,7 +196,7 @@ func (s *commonService) VerifyMagicLink(ctx context.Context, user *user.User, co
 	return nil
 }
 
-func (s *commonService) SendMagicLink(ctx context.Context, user *user.User) error {
+func (s *UserSerice) SendMagicLink(ctx context.Context, user *user.User) error {
 	token, err := s.onetimeService.CreateToken(ctx, user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create token: %w", err)
@@ -181,19 +211,19 @@ func (s *commonService) SendMagicLink(ctx context.Context, user *user.User) erro
 	return nil
 }
 
-func (s *commonService) GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error) {
+func (s *UserSerice) GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error) {
 	return s.userRepo.GetByIDs(ctx, ids...)
 }
 
-func (s *commonService) GetByID(_ context.Context, id string) (*user.User, error) {
+func (s *UserSerice) GetByID(_ context.Context, id string) (*user.User, error) {
 	return s.userRepo.Get(id)
 }
 
-func (s *commonService) GetByEmail(_ context.Context, email string) (*user.User, error) {
+func (s *UserSerice) GetByEmail(_ context.Context, email string) (*user.User, error) {
 	return s.userRepo.GetByEmail(email)
 }
 
-func (s *commonService) SendEmailVerification(ctx context.Context, userID string) error {
+func (s *UserSerice) SendEmailVerification(ctx context.Context, userID string) error {
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
 		return err
@@ -210,7 +240,7 @@ func (s *commonService) SendEmailVerification(ctx context.Context, userID string
 	return nil
 }
 
-func (s *commonService) VerifyEmail(ctx context.Context, userID string, rawToken string) (*user.User, error) {
+func (s *UserSerice) VerifyEmail(ctx context.Context, userID string, rawToken string) (*user.User, error) {
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -236,7 +266,7 @@ func (s *commonService) VerifyEmail(ctx context.Context, userID string, rawToken
 	return user, nil
 }
 
-func (s *commonService) setEmailVerified(ctx context.Context, user *user.User) error {
+func (s *UserSerice) setEmailVerified(ctx context.Context, user *user.User) error {
 	if user.EmailVerified {
 		return nil
 	}
@@ -249,7 +279,7 @@ func (s *commonService) setEmailVerified(ctx context.Context, user *user.User) e
 	return nil
 }
 
-func (s *commonService) UserCount(ctx context.Context) (int, error) {
+func (s *UserSerice) UserCount(ctx context.Context) (int, error) {
 	count, err := s.userRepo.Count(ctx)
 	if err != nil {
 		return 0, err
