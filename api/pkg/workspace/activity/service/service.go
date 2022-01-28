@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/activity"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 

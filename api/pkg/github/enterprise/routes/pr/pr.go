@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/github/enterprise/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 
 	gh "github.com/google/go-github/v39/github"

@@ -7,7 +7,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	gq_errors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"strings"
 
 	"github.com/graph-gophers/graphql-go"

@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/notification"
 	db_notification "getsturdy.com/api/pkg/notification/db"
 	db_user "getsturdy.com/api/pkg/user/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

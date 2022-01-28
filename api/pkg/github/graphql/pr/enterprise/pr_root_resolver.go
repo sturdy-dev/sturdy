@@ -17,7 +17,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_user "getsturdy.com/api/pkg/user/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 
 	"github.com/graph-gophers/graphql-go"

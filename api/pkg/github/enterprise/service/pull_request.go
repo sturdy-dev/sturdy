@@ -17,7 +17,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	vcsvcs "getsturdy.com/api/vcs"
 

@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/suggestions"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"go.uber.org/zap"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/watchers"
 	db_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
 )

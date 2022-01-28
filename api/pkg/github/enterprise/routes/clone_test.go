@@ -17,7 +17,7 @@ import (
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification"
-	events "getsturdy.com/api/pkg/view/events"
+	events "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/vcs/testutil/executor"
 	"getsturdy.com/api/vcs/testutil/history"
 

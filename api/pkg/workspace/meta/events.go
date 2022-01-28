@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/author"
 	db2 "getsturdy.com/api/pkg/user/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/db"
 

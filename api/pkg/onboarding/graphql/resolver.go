@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/onboarding"
 	"getsturdy.com/api/pkg/onboarding/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/graph-gophers/graphql-go"
 )

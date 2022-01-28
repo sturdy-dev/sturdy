@@ -7,7 +7,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	workspace_meta "getsturdy.com/api/pkg/workspace/meta"
 )

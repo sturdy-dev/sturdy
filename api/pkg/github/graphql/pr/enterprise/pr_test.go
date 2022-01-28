@@ -55,7 +55,7 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	service_user "getsturdy.com/api/pkg/user/service"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"

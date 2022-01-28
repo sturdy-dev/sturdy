@@ -12,7 +12,7 @@ import (
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	db_workspaces "getsturdy.com/api/pkg/workspace/db"
 
 	"github.com/gin-gonic/gin"

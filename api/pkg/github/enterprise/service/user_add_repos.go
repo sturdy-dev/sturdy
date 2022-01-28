@@ -9,7 +9,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"

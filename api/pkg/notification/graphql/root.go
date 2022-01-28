@@ -15,7 +15,7 @@ import (
 	db_notification "getsturdy.com/api/pkg/notification/db"
 	service_notification "getsturdy.com/api/pkg/notification/service"
 	"getsturdy.com/api/pkg/suggestions"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/prometheus/client_golang/prometheus"

@@ -6,7 +6,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
-	events2 "getsturdy.com/api/pkg/view/events"
+	events2 "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"

@@ -24,6 +24,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/emails"
 	module_email_transactional "getsturdy.com/api/pkg/emails/transactional/module"
+	module_events "getsturdy.com/api/pkg/events"
 	module_features "getsturdy.com/api/pkg/features/module"
 	module_file "getsturdy.com/api/pkg/file/module"
 	module_gc "getsturdy.com/api/pkg/gc/module"
@@ -57,7 +58,6 @@ import (
 	module_suggestions "getsturdy.com/api/pkg/suggestions/module"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	module_user "getsturdy.com/api/pkg/user/module"
-	"getsturdy.com/api/pkg/view/events"
 	module_view "getsturdy.com/api/pkg/view/module"
 	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
 	module_workspace_activity "getsturdy.com/api/pkg/workspace/activity/module"
@@ -146,9 +146,6 @@ func main() {
 				})
 			return awsSession, err
 		},
-		func(e events.EventReadWriter) events.EventReader {
-			return e
-		},
 		func(awsSession *session.Session) (queue.Queue, error) {
 			if *localQueue {
 				return queue.NewInMemory(logger), nil
@@ -171,9 +168,7 @@ func main() {
 		func() http.DevelopmentAllowExtraCorsOrigin {
 			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
-		events.NewInMemory,
 		executor.NewProvider,
-		events.NewSender,
 		service_statuses.New,
 		db_statuses.New,
 		service_sync.New,
@@ -194,6 +189,7 @@ func main() {
 		c.Import(module_codebase_acl.Module)
 		c.Import(module_comments.Module)
 		c.Import(module_email_transactional.Module)
+		c.Import(module_events.Module)
 		c.Import(module_features.Module)
 		c.Import(module_file.Module)
 		c.Import(module_gc.Module)
