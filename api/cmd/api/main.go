@@ -23,7 +23,7 @@ import (
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/emails"
-	module_transactional "getsturdy.com/api/pkg/emails/transactional/module"
+	module_email_transactional "getsturdy.com/api/pkg/emails/transactional/module"
 	module_features "getsturdy.com/api/pkg/features/module"
 	module_file "getsturdy.com/api/pkg/file/module"
 	module_gc "getsturdy.com/api/pkg/gc/module"
@@ -56,20 +56,13 @@ import (
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	module_suggestions "getsturdy.com/api/pkg/suggestions/module"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	db_user "getsturdy.com/api/pkg/user/db"
 	module_user "getsturdy.com/api/pkg/user/module"
-	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/events"
-	meta_view "getsturdy.com/api/pkg/view/meta"
-	"getsturdy.com/api/pkg/view/view_workspace_snapshot"
-	"getsturdy.com/api/pkg/waitinglist"
-	"getsturdy.com/api/pkg/waitinglist/acl"
-	"getsturdy.com/api/pkg/waitinglist/instantintegration"
+	module_view "getsturdy.com/api/pkg/view/module"
+	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	service_activity "getsturdy.com/api/pkg/workspace/activity/service"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	ws_meta "getsturdy.com/api/pkg/workspace/meta"
 	module_workspace "getsturdy.com/api/pkg/workspace/module"
 	db_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
@@ -178,9 +171,6 @@ func main() {
 		func() service_change.ExportBucketName {
 			return service_change.ExportBucketName(exportBucketName)
 		},
-		func(repo db_workspace.Repository) db_workspace.WorkspaceReader {
-			return repo
-		},
 		func() http.DevelopmentAllowExtraCorsOrigin {
 			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
@@ -189,17 +179,8 @@ func main() {
 		events.NewSender,
 		service_activity.New,
 		activity_sender.NewActivitySender,
-		ws_meta.NewWriterWithEvents,
-		meta_view.NewViewUpdatedFunc,
 		service_statuses.New,
 		service_workspace_watchers.New,
-		db_user.NewRepo,
-		db_view.NewRepo,
-		db_workspace.NewRepo,
-		waitinglist.NewWaitingListRepo,
-		acl.NewACLInterestRepo,
-		instantintegration.NewInstantIntegrationInterestRepo,
-		view_workspace_snapshot.NewRepo,
 		db_activity.NewActivityRepo,
 		db_activity.NewActivityReadsRepo,
 		db_statuses.New,
@@ -221,6 +202,7 @@ func main() {
 		c.Import(module_codebase.Module)
 		c.Import(module_codebase_acl.Module)
 		c.Import(module_comments.Module)
+		c.Import(module_email_transactional.Module)
 		c.Import(module_features.Module)
 		c.Import(module_file.Module)
 		c.Import(module_gc.Module)
@@ -247,10 +229,8 @@ func main() {
 		c.Import(module_statuses.Module)
 		c.Import(module_suggestions.Module)
 		c.Import(module_user.Module)
-
-		// todo: continue importing here
-
-		c.Import(module_transactional.Module)
+		c.Import(module_view.Module)
+		c.Import(module_waitinglist.Module)
 		c.Import(module_workspace.Module)
 	}
 

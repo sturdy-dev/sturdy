@@ -22,7 +22,6 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/events"
-	"getsturdy.com/api/pkg/view/view_workspace_snapshot"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -74,8 +73,6 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
 	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
 
-	viewWorkspaceSnapshotsRepo := view_workspace_snapshot.NewRepo(d)
-
 	workspaceService := service_workspace.New(
 		zap.NewNop(),
 		postHogClient,
@@ -104,7 +101,6 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		viewRepo,
 		workspaceRepo,
 		gitSnapshotter,
-		viewWorkspaceSnapshotsRepo,
 		snapshotRepo,
 		nil,
 		nil,

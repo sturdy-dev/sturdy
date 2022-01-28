@@ -47,7 +47,6 @@ import (
 	"getsturdy.com/api/pkg/view/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	"getsturdy.com/api/pkg/view/view_workspace_snapshot"
 	"getsturdy.com/api/pkg/workspace"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
@@ -436,7 +435,6 @@ func TestRevertChangeFromView(t *testing.T) {
 	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
 	viewEvents := events.NewInMemory()
 	executorProvider := executor.NewProvider(logger, repoProvider)
-	viewWorkspaceSnapshotsRepo := view_workspace_snapshot.NewRepo(d)
 	reviewRepo := db_review.NewReviewRepository(d)
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, viewEvents)
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
@@ -574,7 +572,6 @@ func TestRevertChangeFromView(t *testing.T) {
 		viewRepo,
 		workspaceRepo,
 		gitSnapshotter,
-		viewWorkspaceSnapshotsRepo,
 		snapshotRepo,
 		nil,
 		nil,
