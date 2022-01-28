@@ -1,4 +1,0 @@
-#!/bin/execlineb
-
-# prefix rudolfs logs
-sed "s/^/[rudolfs] /"

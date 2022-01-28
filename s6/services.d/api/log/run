@@ -1,4 +1,0 @@
-#!/bin/execlineb
-
-# prefix api logs
-sed "s/^/[api] /"

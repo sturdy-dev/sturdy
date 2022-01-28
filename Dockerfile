@@ -38,7 +38,7 @@ COPY ./api/go.mod ./go.mod
 COPY ./api/go.sum ./go.sum
 RUN go mod download -x
 # build api
-ARG API_BUILD=notset
+ARG API_BUILD
 COPY ./api ./
 RUN go build -tags "${API_BUILD},static,system_libgit2" -v -o /usr/bin/api getsturdy.com/api/cmd/api
 
@@ -98,7 +98,6 @@ RUN apk update \
         git-lfs=3.0.2-r0 \
         libgit2=1.3.0-r0 \
         openssh-keygen=8.8_p1-r1 \
-        bash \
         ca-certificates=20211220-r0 
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
@@ -110,24 +109,44 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay
-ARG S6_OVERLAY_VERSION="v2.2.0.3"
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        ARCH='x86'; \
-        S6_OVERLAY_SHA256_SUM="2f38adf08dc3aba06324c73f155e5f5b97b2d15d1c1bf7d95e7a09716247c4ca"; \
-    elif [[ "$(uname -m)" == 'aarch64' ]]; then \
-        ARCH='aarch64'; \
-        S6_OVERLAY_SHA256_SUM="a24ebad7b9844cf9a8de70a26795f577a2e682f78bee9da72cf4a1a7bfd5977e"; \
+ARG S6_OVERLAY_VERSION="3.0.0.0-1" \
+    S6_OVERLAY_NOARCH_SHA256_SUM="3ef9053812141e7f6d5ea024732e767f8196ce7854cb7b5babac11d27d992587" \
+    S6_OVERLAY_SYMLINKS_ARCH_SHA256_SUM="19963d826a753561e24926c2be9cff08041b5cec11a4ffb08f7278637bba91e8" \
+    S6_OVERLAY_SYMLINKS_NOARCH_SHA256_SUM="743068b5297c3387ec8be8cb6fa6334e0da0f01d8a96a03b7cc4e24e60b0bcd0"
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+RUN ARCH="$(uname -m)" \
+    && if [[ "$ARCH" == 'x86_64' ]]; then \
+        S6_OVERLAY_ARCH_SHA256_SUM="0a343cfbdaf8656db6ac9aae8ca61b750c400fc05e02df3ac7818bfc703989c5"; \
+    elif [[ "$ARCH" == 'aarch64' ]]; then \
+        S6_OVERLAY_ARCH_SHA256_SUM="01f1542a0df429ac160e083c9249b53ccd5f57b71771aaa74f6fa87748919daa"; \
     fi \
-    && wget --quiet --output-document "/tmp/s6-overlay-installer" "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}-installer" \
-    && sha256sum "/tmp/s6-overlay-installer" \
-    && echo "${S6_OVERLAY_SHA256_SUM}  /tmp/s6-overlay-installer" | sha256sum -c \
-    && chmod +x /tmp/s6-overlay-installer \
-    && /tmp/s6-overlay-installer / \
-    && rm /tmp/s6-overlay-installer
-COPY s6 /etc
+    && wget --quiet --output-document "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && sha256sum "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && echo "${S6_OVERLAY_NOARCH_SHA256_SUM}  /tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" | sha256sum -c \
+    && tar -C / -Jxpf "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && rm "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    \
+    && wget --quiet --output-document "/tmp/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" \
+    && sha256sum "/tmp/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" \
+    && echo "${S6_OVERLAY_ARCH_SHA256_SUM}  /tmp/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" | sha256sum -c \
+    && tar -C / -Jxpf "/tmp/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" \
+    && rm "/tmp/s6-overlay-${ARCH}-${S6_OVERLAY_VERSION}.tar.xz" \
+    \
+    && wget --quiet --output-document "/tmp/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && sha256sum "/tmp/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && echo "${S6_OVERLAY_SYMLINKS_NOARCH_SHA256_SUM}  /tmp/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" | sha256sum -c \
+    && tar -C / -Jxpf "/tmp/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && rm "/tmp/s6-overlay-symlinks-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
+    \
+    && wget --quiet --output-document "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && sha256sum "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && echo "${S6_OVERLAY_SYMLINKS_ARCH_SHA256_SUM}  /tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" | sha256sum -c \
+    && tar -C / -Jxpf "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" \
+    && rm "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz"
+COPY oneliner/etc /etc
 ENV S6_KILL_GRACETIME=0 \
-    S6_SERVICES_GRACETIME=0
+    S6_SERVICES_GRACETIME=0 \
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000
 # 80 is a port for web + api
 # 22 is a port for ssh
 EXPOSE 80 22

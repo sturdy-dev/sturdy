@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -eou pipefail
+
+exec 2>&1
+exec rudolfs \
+  --host=127.0.0.1:8888 \
+  --key=$(cat /var/data/rudolfs/key) \
+  local \
+  --path=/var/data/rudolfs/data

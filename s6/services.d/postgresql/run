@@ -1,8 +1,0 @@
-#!/usr/bin/with-contenv sh
-
-set -eou pipefail
-
-fdmove -c 2 1 \
-  s6-setuidgid postgres \
-  pg_ctl start \
-  -D "${PG_DATADIR}"
