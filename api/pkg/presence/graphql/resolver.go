@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/presence"
 	service_presence "getsturdy.com/api/pkg/presence/service"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"

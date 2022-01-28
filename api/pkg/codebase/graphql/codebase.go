@@ -25,7 +25,7 @@ import (
 	db_user "getsturdy.com/api/pkg/user/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"

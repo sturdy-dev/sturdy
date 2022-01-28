@@ -15,7 +15,7 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/review"
 	db_review "getsturdy.com/api/pkg/review/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/activity"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"net/http"
 	"time"
 

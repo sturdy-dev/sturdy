@@ -2,7 +2,7 @@ package routes
 
 import (
 	"getsturdy.com/api/pkg/analytics"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"net/http"
 	"time"
 

@@ -26,7 +26,7 @@ import (
 	"getsturdy.com/api/pkg/user"
 	db_user "getsturdy.com/api/pkg/user/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"

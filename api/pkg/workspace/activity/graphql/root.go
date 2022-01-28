@@ -10,7 +10,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/activity"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	service_activity "getsturdy.com/api/pkg/workspace/activity/service"

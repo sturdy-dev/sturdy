@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/change"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )

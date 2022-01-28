@@ -16,7 +16,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/shortid"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"

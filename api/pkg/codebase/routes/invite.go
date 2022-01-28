@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	userDB "getsturdy.com/api/pkg/user/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

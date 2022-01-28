@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/statuses"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )

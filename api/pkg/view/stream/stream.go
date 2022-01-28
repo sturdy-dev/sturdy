@@ -13,7 +13,7 @@ import (
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 

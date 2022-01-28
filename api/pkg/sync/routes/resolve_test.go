@@ -39,7 +39,7 @@ import (
 	db_user "getsturdy.com/api/pkg/user/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"

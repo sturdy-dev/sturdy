@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"getsturdy.com/api/pkg/presence"
 	db_presence "getsturdy.com/api/pkg/presence/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"time"
 
 	"github.com/google/uuid"

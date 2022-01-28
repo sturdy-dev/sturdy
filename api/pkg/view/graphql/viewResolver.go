@@ -20,7 +20,7 @@ import (
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/view/ignore"
 	"getsturdy.com/api/pkg/view/open"
 	view_vcs "getsturdy.com/api/pkg/view/vcs"

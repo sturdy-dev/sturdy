@@ -5,7 +5,7 @@ import (
 	"time"
 
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/activity"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	service_activity "getsturdy.com/api/pkg/workspace/activity/service"

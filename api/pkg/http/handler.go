@@ -38,7 +38,7 @@ import (
 	service_user "getsturdy.com/api/pkg/user/service"
 	view_auth "getsturdy.com/api/pkg/view/auth"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	meta_view "getsturdy.com/api/pkg/view/meta"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
 	"getsturdy.com/api/pkg/waitinglist"

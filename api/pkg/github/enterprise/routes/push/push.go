@@ -21,7 +21,7 @@ import (
 	vcs_github "getsturdy.com/api/pkg/github/enterprise/vcs"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/view/events"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
