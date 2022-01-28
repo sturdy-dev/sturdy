@@ -1,9 +1,14 @@
 <template>
   <div class="flex flex-col">
-    <h2
-      class="-ml-4 pl-4 border-l-2 border-purple-500 text-slate-50 font-semibold highlight tracking-tight"
-    >
-      {{ title }}
+    <h2 class="text-slate-50 font-semibold highlight tracking-tight">
+      <div class="flex flex-col space-y-2">
+        <div class="w-16 h-16">
+          <slot name="icon"></slot>
+        </div>
+        <div>
+          {{ title }}
+        </div>
+      </div>
     </h2>
     <div class="my-4 text-sm">
       <slot></slot>

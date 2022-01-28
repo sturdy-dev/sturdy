@@ -8,7 +8,10 @@
         class="relative pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto flex flex-col items-center md:flex-row lg:gap-8 space-y-6"
       >
         <div class="md:w-1/2">
-          <h2 class="mt-8 font-semibold text-amber-500">{{ title }}</h2>
+          <div class="w-24">
+            <slot name="icon"></slot>
+          </div>
+          <h2 class="mt-4 font-semibold text-amber-500">{{ title }}</h2>
           <p class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
             {{ subtitle }}
           </p>
