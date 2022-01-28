@@ -1,4 +1,0 @@
-#!/bin/execlineb
-
-# prefix mutagen-ssh logs
-sed "s/^/[mutagen-ssh] /"

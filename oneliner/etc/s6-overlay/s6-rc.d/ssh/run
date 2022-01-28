@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -euo pipefail
+
+exec 2>&1
+exec ssh \
+  --ssh-listen-addr="0.0.0.0:22" \
+  --ssh-key-path="/var/data/ssh/keys/ed25519" \
+  --http-pprof-listen-addr="127.0.0.1:7060" \
+  --sturdy-api-addr="http://127.0.0.1:3000"

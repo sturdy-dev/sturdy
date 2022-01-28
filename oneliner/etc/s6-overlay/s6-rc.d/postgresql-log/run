@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+set -eou pipefail
+
+sed 's/^/[postgresql] /'
