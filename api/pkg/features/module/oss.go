@@ -1,3 +1,6 @@
+//go:build !enterprise && !cloud
+// +build !enterprise,!cloud
+
 package module
 
 import (

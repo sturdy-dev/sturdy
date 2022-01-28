@@ -1,4 +1,4 @@
-package selfhosted
+package graphql
 
 import "getsturdy.com/api/pkg/graphql/resolvers"
 
@@ -12,7 +12,7 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 	return []resolvers.Feature{
 		resolvers.FeatureBuildkite,
 		resolvers.FeatureGitHub,
-		resolvers.FeatureLicense,
-		resolvers.FeaturePasswordAuth,
+		resolvers.FeatureMultiTenancy,
+		resolvers.FeatureEmailAuth,
 	}
 }

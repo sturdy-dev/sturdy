@@ -1,4 +1,4 @@
-package oss
+package graphql
 
 import "getsturdy.com/api/pkg/graphql/resolvers"
 
