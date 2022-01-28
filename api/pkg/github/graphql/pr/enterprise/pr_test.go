@@ -315,7 +315,6 @@ func TestPRHighLevel(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		nil,
 		workspaceRepo,
 		viewUpdates,
 		eventsSender,

@@ -24,7 +24,6 @@ import (
 	"getsturdy.com/api/pkg/view/ignore"
 	"getsturdy.com/api/pkg/view/open"
 	view_vcs "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/view/view_workspace_snapshot"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
@@ -47,30 +46,28 @@ var (
 )
 
 type ViewRootResolver struct {
-	viewRepo                   db_view.Repository
-	workspaceReader            db_workspace.WorkspaceReader
-	snapshotter                snapshotter.Snapshotter
-	viewWorkspaceSnapshotsRepo view_workspace_snapshot.Repository
-	snapshotRepo               db_snapshots.Repository
-	authorResolver             resolvers.AuthorRootResolver
-	workspaceResolver          *resolvers.WorkspaceRootResolver
-	workspaceWriter            db_workspace.WorkspaceWriter
-	viewEvents                 events.EventReader
-	eventSender                events.EventSender
-	executorProvider           executor.Provider
-	logger                     *zap.Logger
-	viewStatusRootResolver     resolvers.ViewStatusRootResolver
-	workspaceWatchersService   *service_workspace_watchers.Service
-	analyticsClient            analytics.Client
-	codebaseResolver           resolvers.CodebaseRootResolver
-	authService                *service_auth.Service
+	viewRepo                 db_view.Repository
+	workspaceReader          db_workspace.WorkspaceReader
+	snapshotter              snapshotter.Snapshotter
+	snapshotRepo             db_snapshots.Repository
+	authorResolver           resolvers.AuthorRootResolver
+	workspaceResolver        *resolvers.WorkspaceRootResolver
+	workspaceWriter          db_workspace.WorkspaceWriter
+	viewEvents               events.EventReader
+	eventSender              events.EventSender
+	executorProvider         executor.Provider
+	logger                   *zap.Logger
+	viewStatusRootResolver   resolvers.ViewStatusRootResolver
+	workspaceWatchersService *service_workspace_watchers.Service
+	analyticsClient          analytics.Client
+	codebaseResolver         resolvers.CodebaseRootResolver
+	authService              *service_auth.Service
 }
 
 func NewResolver(
 	viewRepo db_view.Repository,
 	workspaceReader db_workspace.WorkspaceReader,
 	snapshotter snapshotter.Snapshotter,
-	viewWorkspaceSnapshotsRepo view_workspace_snapshot.Repository,
 	snapshotRepo db_snapshots.Repository,
 	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
@@ -86,23 +83,22 @@ func NewResolver(
 	authService *service_auth.Service,
 ) resolvers.ViewRootResolver {
 	return &ViewRootResolver{
-		viewRepo:                   viewRepo,
-		workspaceReader:            workspaceReader,
-		snapshotter:                snapshotter,
-		viewWorkspaceSnapshotsRepo: viewWorkspaceSnapshotsRepo,
-		snapshotRepo:               snapshotRepo,
-		authorResolver:             authorResolver,
-		workspaceResolver:          workspaceResolver,
-		workspaceWriter:            workspaceWriter,
-		viewEvents:                 viewEvents,
-		eventSender:                eventSender,
-		executorProvider:           executorProvider,
-		logger:                     logger,
-		viewStatusRootResolver:     viewStatusRootResolver,
-		workspaceWatchersService:   workspaceWatchersService,
-		analyticsClient:            analyticsClient,
-		codebaseResolver:           codebaseResolver,
-		authService:                authService,
+		viewRepo:                 viewRepo,
+		workspaceReader:          workspaceReader,
+		snapshotter:              snapshotter,
+		snapshotRepo:             snapshotRepo,
+		authorResolver:           authorResolver,
+		workspaceResolver:        workspaceResolver,
+		workspaceWriter:          workspaceWriter,
+		viewEvents:               viewEvents,
+		eventSender:              eventSender,
+		executorProvider:         executorProvider,
+		logger:                   logger,
+		viewStatusRootResolver:   viewStatusRootResolver,
+		workspaceWatchersService: workspaceWatchersService,
+		analyticsClient:          analyticsClient,
+		codebaseResolver:         codebaseResolver,
+		authService:              authService,
 	}
 }
 
@@ -266,7 +262,7 @@ func (r *ViewRootResolver) RepairView(ctx context.Context, args struct{ ID graph
 			restoreWs = ws
 		}
 
-		if err := recreateView(repoProvider, vw, restoreWs, r.snapshotRepo, r.logger, r.snapshotter); err != nil {
+		if err := recreateView(repoProvider, vw, restoreWs, r.logger, r.snapshotter); err != nil {
 			return err
 		}
 		return nil
@@ -350,7 +346,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	return r.resolveView(ctx, graphql.ID(e.ID))
 }
 
-func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspace.Workspace, snapshotRepo db_snapshots.Repository, logger *zap.Logger, gitSnapshotter snapshotter.Snapshotter) error {
+func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspace.Workspace, logger *zap.Logger, gitSnapshotter snapshotter.Snapshotter) error {
 	trunkPath := repoProvider.TrunkPath(vw.CodebaseID)
 	newView := vw.ID + "-recreate-" + uuid.NewString()
 	newViewPath := repoProvider.ViewPath(vw.CodebaseID, newView)

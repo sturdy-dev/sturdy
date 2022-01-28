@@ -42,7 +42,6 @@ import (
 	"getsturdy.com/api/pkg/view/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	"getsturdy.com/api/pkg/view/view_workspace_snapshot"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	service_activity "getsturdy.com/api/pkg/workspace/activity/service"
@@ -369,8 +368,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	executorProvider := executor.NewProvider(logger, repoProvider)
 
-	viewWorksapceSnapshotRepo := view_workspace_snapshot.NewRepo(d)
-
 	changeRepo := db_change.NewRepo(d)
 	changeCommitRepo := db_change.NewCommitRepository(d)
 
@@ -475,7 +472,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 		viewRepo,
 		workspaceRepo,
 		gitSnapshotter,
-		viewWorksapceSnapshotRepo,
 		snapshotsRepo,
 		nil,
 		nil,
