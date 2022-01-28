@@ -311,7 +311,50 @@
           </p>
         </template>
         <template #right>
-          <UspVideo />
+          <div
+            class="border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl max-h-[60vh] sm:max-h-[none] h-72 lg:h-80 xl:h-96"
+          >
+            <div class="relative w-full flex flex-col">
+              <div class="flex-none border-b border-slate-300/30">
+                <div class="flex items-center h-8 space-x-1.5 px-3">
+                  <div class="w-2.5 h-2.5 bg-red-700 rounded-full"></div>
+                  <div class="w-2.5 h-2.5 bg-yellow-600 rounded-full"></div>
+                  <div class="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
+                </div>
+
+                <div
+                  class="-mt-6 mb-1 text-sm font-semibold text-slate-400 text-center select-none"
+                >
+                  Bash
+                </div>
+              </div>
+
+              <div class="relative min-h-0 flex-auto flex flex-col">
+                <div class="w-full flex-auto flex min-h-0">
+                  <div class="w-full flex-auto flex min-h-0 overflow-auto">
+                    <div class="w-full relative flex-auto">
+                      <div class="flex flex-col min-h-full text-sm leading-6">
+                        <code
+                          class="inline-flex flex-auto relative block text-slate-50 overflow-auto p-4"
+                        >
+                          <span class="text-slate-400 mr-4 select-none">$</span>
+                          <pre id="oneliner"
+                            >{{ dockerOneliner }}
+                          </pre>
+                        </code>
+                        <div class="flex flex-row-reverse">
+                          <DuplicateIcon
+                            class="cursor-pointer m-4 w-8 h-8 hover:text-slate-50"
+                            @click="copyDockerOneliner"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
       </Usp>
 
@@ -358,7 +401,14 @@ import IconLaptop from './IconLaptop.vue'
 import IconMobile from './IconMobile.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
-import { DownloadIcon, ChevronRightIcon, PlayIcon, LightBulbIcon } from '@heroicons/vue/outline'
+import {
+  DownloadIcon,
+  ChevronRightIcon,
+  PlayIcon,
+  LightBulbIcon,
+  DuplicateIcon,
+} from '@heroicons/vue/outline'
+import time from '../../../time'
 
 export default defineComponent({
   components: {
@@ -376,6 +426,7 @@ export default defineComponent({
     ChevronRightIcon,
     PlayIcon,
     LightBulbIcon,
+    DuplicateIcon,
   },
   setup() {
     // TODO: Remove when we're launching!
@@ -403,6 +454,20 @@ export default defineComponent({
     return {
       mainDownloadText,
     }
+  },
+  data() {
+    return {
+      dockerOneliner: `docker run --interactive --tty \\
+             --publish 30080:80 --publish 30022:22 \\
+             --volume "$(pwd)/sturdydata:/var/data" \\
+             getsturdy/server`,
+    }
+  },
+
+  methods: {
+    copyDockerOneliner() {
+      navigator.clipboard.writeText(this.dockerOneliner)
+    },
   },
 })
 </script>

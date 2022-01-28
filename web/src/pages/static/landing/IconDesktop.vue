@@ -878,25 +878,25 @@ a:hover {
   }
 }
 .icon-design .anchor-part {
-  animation: move 2s linear infinite;
+  animation: move 2s linear;
 }
 .icon-design .anchor-part--2 {
-  animation: move2 2s linear infinite;
+  animation: move2 2s linear;
 }
 .icon-design .pen-part {
   transform-origin: 140px 180px;
-  animation: bounce2 2s ease-in-out infinite;
+  animation: bounce2 2s ease-in-out;
 }
 .icon-design .ruler-part {
   transform-origin: 140px 180px;
-  animation: bounce 1s ease-in-out infinite;
+  animation: bounce 1s ease-in-out;
 }
 .icon-design .circle-part {
   transform-origin: 139.8px 167.8px;
-  animation: rotate 4s linear infinite;
+  animation: rotate 4s linear;
 }
 .icon-design .cursor-part {
-  animation: bounceBFt2 2s ease-in-out infinite;
+  animation: bounceBFt2 2s ease-in-out;
 }
 @keyframes move {
   0%,
@@ -926,12 +926,12 @@ a:hover {
   animation: rotate-reverse 6s;
 }
 .icon-develop .gear-s {
-  animation: rotate 12s linear infinite;
+  animation: rotate 12s linear;
 }
 .icon-develop #XMLID_87_,
 .icon-develop #XMLID_85_,
 .icon-develop #XMLID_83_ {
-  animation: twinkle 3s ease-in-out infinite;
+  animation: twinkle 3s ease-in-out;
 }
 .icon-develop #XMLID_85_ {
   animation-delay: 0.4s;
@@ -942,7 +942,7 @@ a:hover {
 .icon-develop .line-t,
 .icon-develop .line-m,
 .icon-develop .line-b {
-  animation: shrink 1.8s ease-in-out infinite;
+  animation: shrink 1.8s ease-in-out;
 }
 .icon-develop .line-m {
   animation-delay: 0.3s;
@@ -951,13 +951,13 @@ a:hover {
   animation-delay: 0.6s;
 }
 .icon-develop .code-letter_o {
-  animation: typingO 3s linear infinite;
+  animation: typingO 3s linear;
 }
 .icon-develop .code-letter_d {
-  animation: typingD 3s linear infinite;
+  animation: typingD 3s linear;
 }
 .icon-develop .code-letter_e {
-  animation: typingE 3s linear infinite;
+  animation: typingE 3s linear;
 }
 @keyframes typingE {
   20.1%,
@@ -991,7 +991,7 @@ a:hover {
 }
 .icon-develop .hover {
   animation-play-state: paused !important;
-  animation-iteration-count: infinite;
+  animation-iteration-count: ;
   animation-timing-function: linear;
 }
 .icon-develop:hover .hover {
@@ -1007,11 +1007,11 @@ a:hover {
 }
 .icon-support .clock {
   transform-origin: 223.6px 132.8px;
-  animation: rotate 12s linear infinite;
+  animation: rotate 12s linear;
 }
 .icon-support .hover {
   animation-play-state: paused;
-  animation-iteration-count: infinite;
+  animation-iteration-count: ;
   animation-timing-function: linear;
 }
 .icon-support:hover .hover {
@@ -1021,20 +1021,20 @@ a:hover {
   transform: translate(82px, -214px);
 }
 .icon-eComm .bubble-b {
-  animation: bubble-b 3.4s linear infinite;
+  animation: bubble-b 3.4s linear;
 }
 .icon-eComm .bubble-m {
-  animation: bubble-m 3.4s linear infinite;
+  animation: bubble-m 3.4s linear;
 }
 .icon-eComm .bubble-t {
-  animation: bubble-t 3.4s linear infinite;
+  animation: bubble-t 3.4s linear;
 }
 .icon-eComm .hand,
 .icon-eComm .bag-f,
 .icon-eComm .bag-b,
 .icon-eComm .bag-f--tag {
   transform-origin: 320px 200px;
-  animation: bounce2 1.6s ease-in-out infinite;
+  animation: bounce2 1.6s ease-in-out;
 }
 .icon-eComm .bag-bb {
   animation-delay: 0.4s;
@@ -1042,17 +1042,17 @@ a:hover {
 .icon-eComm .bag-f--tag,
 .icon-eComm .bag-bb {
   transform-origin: 200px 190px;
-  animation: bounce 1.6s ease-in-out infinite;
+  animation: bounce 1.6s ease-in-out;
 }
 .icon-eComm .bag-b {
   transform-origin: 160px 160px;
-  animation: bounce 1.6s ease-in-out infinite;
+  animation: bounce 1.6s ease-in-out;
 }
 .icon-eComm .credit-card circle:nth-of-type(1) {
-  animation: shift 6s ease-in-out infinite;
+  animation: shift 6s ease-in-out;
 }
 .icon-eComm .credit-card circle:nth-of-type(2) {
-  animation: shift2 6s ease-in-out infinite;
+  animation: shift2 6s ease-in-out;
 }
 @keyframes shift {
   0% {
@@ -1089,15 +1089,15 @@ a:hover {
   animation-play-state: running;
 }
 .icon-mobApps .gear {
-  animation: rotate 30s linear infinite;
+  animation: rotate 30s linear;
 }
 .icon-mobApps .line-t,
 .icon-mobApps .line-m,
 .icon-mobApps .line-b {
-  animation: shrink 2.2s ease-in-out infinite;
+  animation: shrink 2.2s ease-in-out;
 }
 .icon-mobApps .play-btn polygon {
-  animation: twinkle 3s linear infinite;
+  animation: twinkle 3s linear;
 }
 .icon-mobApps .line-m {
   animation-delay: 0.3s;
@@ -1107,11 +1107,11 @@ a:hover {
 }
 .icon-mobApps .ruler {
   transform-origin: 300px 200px;
-  animation: bounceBFt2 2s ease-in-out infinite;
+  animation: bounceBFt2 2s ease-in-out;
 }
 .icon-mobApps .hook {
   transform-origin: 148px 24px;
-  animation: bounce3 1.6s ease-in-out infinite;
+  animation: bounce3 1.6s ease-in-out;
 }
 .icon-mobApps .play-bar--play {
   opacity: 1;
@@ -1135,16 +1135,16 @@ a:hover {
   width: 80%;
 }
 .icon-wordpress .graph {
-  animation: bounce 1.4s ease-in-out infinite;
+  animation: bounce 1.4s ease-in-out;
 }
 .icon-wordpress .mouse {
-  animation: bounceBFt2 1.6s ease-in-out infinite;
+  animation: bounceBFt2 1.6s ease-in-out;
 }
 .icon-wordpress .wp-logo {
-  animation: twinkle2 4s ease-in-out infinite;
+  animation: twinkle2 4s ease-in-out;
 }
 .icon-wordpress .keyboard [class*='key'] {
-  animation: typing 2.75s linear infinite;
+  animation: typing 2.75s linear;
 }
 .icon-wordpress .keyboard .key-1 {
   animation-delay: 0.2291666667s;
@@ -1192,7 +1192,7 @@ a:hover {
   }
 }
 .icon-wordpress .code-line {
-  animation: shrink 1s ease-in-out infinite;
+  animation: shrink 1s ease-in-out;
 }
 .icon-wordpress .code-line1 {
   animation-delay: 0.3s;
@@ -1221,10 +1221,10 @@ a:hover {
   animation-play-state: running;
 }
 .icon-webApps .ruler {
-  animation: bounceBF 1.8s ease-in-out infinite;
+  animation: bounceBF 1.8s ease-in-out;
 }
 .icon-webApps .panel {
-  animation: twinkle3 3s ease-in-out infinite;
+  animation: twinkle3 3s ease-in-out;
 }
 .icon-webApps .panel2 {
   animation-delay: 0.5s;
@@ -1240,12 +1240,12 @@ a:hover {
 }
 .icon-webApps .line-1 {
   transform-origin: 162px;
-  animation: shrink 2s ease-in-out infinite;
+  animation: shrink 2s ease-in-out;
 }
 .icon-webApps .line-2,
 .icon-webApps .line-3 {
   transform-origin: 144.3px 0;
-  animation: shrink 2s ease-in-out infinite;
+  animation: shrink 2s ease-in-out;
 }
 .icon-webApps .line-2 {
   animation-delay: -0.4s;
@@ -1253,7 +1253,7 @@ a:hover {
 .icon-webApps .blink1,
 .icon-webApps .blink2,
 .icon-webApps .blink3 {
-  animation: 6s linear infinite;
+  animation: 6s linear;
 }
 .icon-webApps .blink1 {
   animation-name: bubble-b;
@@ -1283,7 +1283,7 @@ a:hover {
   animation-play-state: running;
 }
 .star {
-  animation: twinkle 4s ease-in-out infinite;
+  animation: twinkle 4s ease-in-out;
 }
 .star-2 {
   animation-delay: 1s;

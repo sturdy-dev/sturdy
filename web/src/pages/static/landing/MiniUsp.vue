@@ -17,7 +17,10 @@
       class="text-sm grow text-amber-500/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
     >
       <router-link :to="{ hash: '#' + title.toLowerCase() }" hash="expressive">
-        Go to ⤵️
+        <span class="inline-flex items-center">
+          Go to
+          <ChevronDownIcon class="h-4 w-4 ml-1" />
+        </span>
       </router-link>
     </div>
   </div>
@@ -25,7 +28,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { ChevronDownIcon } from '@heroicons/vue/outline'
+import UspVideo from './UspVideo.vue'
 export default defineComponent({
+  components: {
+    ChevronDownIcon,
+  },
   props: {
     title: {
       type: String,
@@ -35,4 +43,8 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.fix-icon {
+  transform: scale(-1, 1) rotate(-90deg);
+}
+</style>
