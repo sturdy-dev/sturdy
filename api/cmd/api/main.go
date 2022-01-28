@@ -52,11 +52,9 @@ import (
 	module_review "getsturdy.com/api/pkg/review/module"
 	module_servicetokens "getsturdy.com/api/pkg/servicetokens/module"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
-	db_statuses "getsturdy.com/api/pkg/statuses/db"
 	module_statuses "getsturdy.com/api/pkg/statuses/module"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	module_suggestions "getsturdy.com/api/pkg/suggestions/module"
-	service_sync "getsturdy.com/api/pkg/sync/service"
+	module_sync "getsturdy.com/api/pkg/sync/module"
 	module_user "getsturdy.com/api/pkg/user/module"
 	module_view "getsturdy.com/api/pkg/view/module"
 	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
@@ -169,9 +167,6 @@ func main() {
 			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
 		executor.NewProvider,
-		service_statuses.New,
-		db_statuses.New,
-		service_sync.New,
 	}
 
 	mainModule := func(c *di.Container) {
@@ -215,6 +210,7 @@ func main() {
 		c.Import(module_snapshots.Module)
 		c.Import(module_statuses.Module)
 		c.Import(module_suggestions.Module)
+		c.Import(module_sync.Module)
 		c.Import(module_user.Module)
 		c.Import(module_view.Module)
 		c.Import(module_waitinglist.Module)
