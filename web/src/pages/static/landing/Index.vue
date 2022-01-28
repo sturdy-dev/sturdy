@@ -75,15 +75,39 @@
       </div>
     </div>
 
+    <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
+      <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+        <div
+          class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300/70 inline-flex space-x-4 items-center"
+        >
+          <div>Backed by</div>
+          <div class="flex space-x-10 items-center">
+            <a href="https://www.ycombinator.com/companies/sturdy">
+              <img
+                src="../../../assets/Landing/ycombinator-logo.png"
+                alt="Y Combinator logo"
+                class="object-contain h-6 grayscale"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <section id="features">
       <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
         <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
-          <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
+          <h1
+            class="text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
+          >
             A new home for your code
           </h1>
-          <div class="pt-8 px-4 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
+          <div class="pt-10 px-4 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
             <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
               <MiniUsp class="md:w-1/2" title="Expressive">
+                <template #icon>
+                  <IconDevelop />
+                </template>
                 <p>
                   Ship the code to production &mdash; <br />
                   instead of the usual dance of creating a branch, staging and committing files,
@@ -92,6 +116,9 @@
               </MiniUsp>
 
               <MiniUsp class="md:w-1/2" title="Collaborative">
+                <template #icon>
+                  <IconGears />
+                </template>
                 <div>
                   Try each others code and give actionable feedback &mdash; <br />
                   instead of guessing what a pull request does and LGTM-ing anyway.
@@ -101,6 +128,9 @@
 
             <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
               <MiniUsp class="md:w-1/2" title="Compatible">
+                <template #icon>
+                  <IconMobile />
+                </template>
                 <div>
                   Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or
                   with others on your team. Run your own instance &mdash; or use Sturdy in the
@@ -109,6 +139,9 @@
               </MiniUsp>
 
               <MiniUsp class="md:w-1/2" title="Streamlined">
+                <template #icon>
+                  <IconDesktop />
+                </template>
                 <div>
                   Ship small, incremental changes as the default &mdash;<br />
                   instead of reminding yourself to "push often" and "keep the PR small".
@@ -126,6 +159,9 @@
         subtitle="Don't hand-hold your version control."
         link="v2DocsHowToEditCode"
       >
+        <template #icon>
+          <IconDevelop class="" />
+        </template>
         <template #left>
           <p>
             Sturdy maps developer
@@ -149,6 +185,9 @@
         subtitle="Collaborative everything."
         link="v2DocsHowToCollaborateWithOthers"
       >
+        <template #icon>
+          <IconGears></IconGears>
+        </template>
         <template #left>
           <p>
             When it comes to working together on code, we believe that
@@ -191,6 +230,9 @@
         subtitle="Worried about compatibility? Don't be."
         link="v2DocsHowSturdyAugmentsGit"
       >
+        <template #icon>
+          <IconMobile></IconMobile>
+        </template>
         <template #left>
           <p>
             Sturdy utilizes low-level Git data structures, which means your code is stored in a
@@ -233,6 +275,9 @@
         subtitle="For the workflow that you're already using."
         link="v2DocsHotToShipSoftwareToProduction"
       >
+        <template #icon>
+          <IconDesktop></IconDesktop>
+        </template>
         <template #left>
           <p>
             We believe that, for most software, shipping small and often is more effective than
@@ -250,6 +295,9 @@
         </template>
       </Usp>
       <Usp title="Open-source" subtitle="For engineers, by engineers." link="v2DocsRoot">
+        <template #icon>
+          <IconLaptop></IconLaptop>
+        </template>
         <template #left>
           <p>
             We believe that, for most software, shipping small and often is more effective than
@@ -303,6 +351,11 @@ import Usp from './Usp.vue'
 import MiniUsp from './MiniUsp.vue'
 import UspDetailsPair from './UspDetailsPair.vue'
 import ThingsYouAreNotDoing from './ThingsYouAreNotDoing.vue'
+import IconDevelop from './IconDevelop.vue'
+import IconGears from './IconGears.vue'
+import IconDesktop from './IconDesktop.vue'
+import IconLaptop from './IconLaptop.vue'
+import IconMobile from './IconMobile.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
 import { DownloadIcon, ChevronRightIcon, PlayIcon, LightBulbIcon } from '@heroicons/vue/outline'
@@ -314,6 +367,11 @@ export default defineComponent({
     MiniUsp,
     ThingsYouAreNotDoing,
     UspDetailsPair,
+    IconDevelop,
+    IconGears,
+    IconDesktop,
+    IconLaptop,
+    IconMobile,
     DownloadIcon,
     ChevronRightIcon,
     PlayIcon,
