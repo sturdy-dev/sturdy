@@ -1,9 +1,9 @@
-package graphql
+package service
 
 import (
 	"getsturdy.com/api/pkg/di"
 )
 
 func Module(c *di.Container) {
-	c.Register(NewRootResolver)
+	c.Register(New)
 }

@@ -60,12 +60,9 @@ import (
 	"getsturdy.com/api/pkg/view/events"
 	module_view "getsturdy.com/api/pkg/view/module"
 	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
-	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
-	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
-	service_activity "getsturdy.com/api/pkg/workspace/activity/service"
+	module_workspace_activity "getsturdy.com/api/pkg/workspace/activity/module"
 	module_workspace "getsturdy.com/api/pkg/workspace/module"
-	db_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
+	module_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/module"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 
@@ -177,14 +174,8 @@ func main() {
 		events.NewInMemory,
 		executor.NewProvider,
 		events.NewSender,
-		service_activity.New,
-		activity_sender.NewActivitySender,
 		service_statuses.New,
-		service_workspace_watchers.New,
-		db_activity.NewActivityRepo,
-		db_activity.NewActivityReadsRepo,
 		db_statuses.New,
-		db_workspace_watchers.NewDB,
 		service_sync.New,
 	}
 
@@ -232,6 +223,8 @@ func main() {
 		c.Import(module_view.Module)
 		c.Import(module_waitinglist.Module)
 		c.Import(module_workspace.Module)
+		c.Import(module_workspace_activity.Module)
+		c.Import(module_workspace_watchers.Module)
 	}
 
 	var apiServer api.Starter
