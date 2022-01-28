@@ -1,6 +1,3 @@
-//go:build enterprise || !cloud
-// +build enterprise !cloud
-
 package service
 
 import (
@@ -9,49 +6,29 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/analytics"
-	"getsturdy.com/api/pkg/emails/transactional"
-	service_jwt "getsturdy.com/api/pkg/jwt/service"
-	service_onetime "getsturdy.com/api/pkg/onetime/service"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/user"
-	db_user "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/user/service"
 )
 
 type Service struct {
-	*commonService
-
+	*service.UserSerice
 	organizationService *service_organization.Service
 }
 
 func New(
-	logger *zap.Logger,
-	userRepo db_user.Repository,
-	jwtService *service_jwt.Service,
-	onetimeService *service_onetime.Service,
-	transactionalEmailSender transactional.EmailSender,
-	analyticsClient analytics.Client,
-
+	userService *service.UserSerice,
 	organizationService *service_organization.Service,
 ) *Service {
 	return &Service{
-		commonService: &commonService{
-			logger:                   logger,
-			userRepo:                 userRepo,
-			jwtService:               jwtService,
-			onetimeService:           onetimeService,
-			transactionalEmailSender: transactionalEmailSender,
-			analyticsClient:          analyticsClient,
-		},
-
+		UserSerice:          userService,
 		organizationService: organizationService,
 	}
 }
 
 func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error) {
-	usr, err := s.commonService.CreateWithPassword(ctx, name, password, email)
+	usr, err := s.UserSerice.CreateWithPassword(ctx, name, password, email)
 	if err != nil {
 		return nil, err
 	}

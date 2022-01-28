@@ -23,7 +23,7 @@ type userRootResolver struct {
 	userRepo                 db_user.Repository
 	notificationSettingsRepo db_newsletter.NotificationSettingsRepository
 
-	userService *service_user.Service
+	userService service_user.Service
 
 	viewRootResolver          resolvers.ViewRootResolver
 	notificationRootResolver  resolvers.NotificationRootResolver
@@ -34,7 +34,7 @@ func NewResolver(
 	userRepo db_user.Repository,
 	notificationSettingsRepo db_newsletter.NotificationSettingsRepository,
 
-	userService *service_user.Service,
+	userService service_user.Service,
 
 	viewRootResolver resolvers.ViewRootResolver,
 	notificationRootResolver resolvers.NotificationRootResolver,

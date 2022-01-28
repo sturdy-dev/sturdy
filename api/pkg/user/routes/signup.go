@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Signup(logger *zap.Logger, userService *service_user.Service, jwtService *service_jwt.Service, analyticsClient analytics.Client) func(c *gin.Context) {
+func Signup(logger *zap.Logger, userService service_user.Service, jwtService *service_jwt.Service, analyticsClient analytics.Client) func(c *gin.Context) {
 	type request struct {
 		Name     string `json:"name" binding:"required"`
 		Email    string `json:"email" binding:"required"`

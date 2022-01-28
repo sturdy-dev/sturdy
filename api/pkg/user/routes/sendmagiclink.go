@@ -1,15 +1,16 @@
 package routes
 
 import (
-	service_user "getsturdy.com/api/pkg/user/service"
 	"net/http"
 	"strings"
+
+	service_user "getsturdy.com/api/pkg/user/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func SendMagicLink(logger *zap.Logger, userService *service_user.Service) gin.HandlerFunc {
+func SendMagicLink(logger *zap.Logger, userService service_user.Service) gin.HandlerFunc {
 	type request struct {
 		Name  string `json:"name"`
 		Email string `json:"email" binding:"required"`

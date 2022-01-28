@@ -29,6 +29,7 @@ import (
 	graphql_comments "getsturdy.com/api/pkg/comments/graphql"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/config"
 	"getsturdy.com/api/pkg/github/enterprise/client"
@@ -55,7 +56,6 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	service_user "getsturdy.com/api/pkg/user/service"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
@@ -124,7 +124,7 @@ func TestPRHighLevel(t *testing.T) {
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient, nil)
+	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
 	importer := service_github.ImporterQueue(workers_github.NopImporter())
