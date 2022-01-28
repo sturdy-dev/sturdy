@@ -5,12 +5,15 @@ package graphql
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/statuses/db"
+	"getsturdy.com/api/pkg/statuses/enterprise"
 	"getsturdy.com/api/pkg/statuses/graphql"
-	"getsturdy.com/api/pkg/statuses/graphql/enterprise"
+	"getsturdy.com/api/pkg/statuses/service"
 )
 
 func Module(c *di.Container) {
 	c.Register(graphql.New)
-	c.Register(enterprise.New, new(resolvers.StatusesRootResolver))
+	c.Import(db.Module)
+	c.Import(service.Module)
+	c.Import(enterprise.Module)
 }

@@ -1,4 +1,4 @@
-package enterprise
+package graphql
 
 import (
 	"context"
@@ -8,12 +8,12 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/statuses/graphql"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
-	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )
