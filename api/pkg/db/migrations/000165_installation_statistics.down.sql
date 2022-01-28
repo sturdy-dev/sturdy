@@ -1,0 +1,2 @@
+DROP TABLE installation_statistics;
+DROP INDEX installation_statistics_license_key_idx;

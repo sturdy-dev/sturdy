@@ -34,6 +34,7 @@ import (
 	"getsturdy.com/api/pkg/http"
 	module_http "getsturdy.com/api/pkg/http/module"
 	module_installations "getsturdy.com/api/pkg/installations/module"
+	module_installations_statistics "getsturdy.com/api/pkg/installations/statistics/module"
 	module_integrations "getsturdy.com/api/pkg/integrations/module"
 	module_jwt "getsturdy.com/api/pkg/jwt/module"
 	module_license "getsturdy.com/api/pkg/licenses/module"
@@ -228,6 +229,7 @@ func main() {
 		c.Import(module_graphql.Module)
 		c.Import(module_http.Module)
 		c.Import(module_installations.Module)
+		c.Import(module_installations_statistics.Module)
 		c.Import(module_integrations.Module)
 		c.Import(module_jwt.Module)
 		c.Import(module_license.Module)
