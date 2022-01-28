@@ -1,12 +1,13 @@
 package db
 
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -17,17 +18,20 @@ import (
 var migrations embed.FS
 
 func Setup(dbSourceURL string) (*sqlx.DB, error) {
-	if err := doMigrateUp(dbSourceURL); err != nil {
+	db, err := setup(dbSourceURL)
+	if err != nil {
+		return nil, err
+	}
+	if err := doMigrateUp(db.DB); err != nil {
 		return nil, fmt.Errorf("error applying migrations: %w", err)
 	}
+	return db, nil
+}
 
+func setup(dbSourceURL string) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", dbSourceURL)
 	if err != nil {
 		return nil, fmt.Errorf("error opening db: %w", err)
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("error pinging db: %w", err)
 	}
 
 	db.SetMaxOpenConns(25)
@@ -44,10 +48,13 @@ func TrySetup(logger *zap.Logger, dbSourceURL string, timeout time.Duration) (*s
 	for {
 		select {
 		case <-ticker.C:
-			db, err := Setup(dbSourceURL)
+			db, err := setup(dbSourceURL)
 			if err != nil {
 				logger.Error("error connecting to db, will try again", zap.Error(err))
 				continue
+			}
+			if err := doMigrateUp(db.DB); err != nil {
+				return nil, fmt.Errorf("error applying migrations: %w", err)
 			}
 
 			return db, nil
@@ -57,13 +64,18 @@ func TrySetup(logger *zap.Logger, dbSourceURL string, timeout time.Duration) (*s
 	}
 }
 
-func doMigrateUp(dbSourceURL string) error {
+func doMigrateUp(db *sql.DB) error {
 	migrations, err := iofs.New(migrations, "migrations")
 	if err != nil {
 		return fmt.Errorf("error opening migrations: %w", err)
 	}
 
-	m, err := migrate.NewWithSourceInstance("iofs", migrations, dbSourceURL)
+	database, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("error creating database: %w", err)
+	}
+
+	m, err := migrate.NewWithInstance("iofs", migrations, "postgres", database)
 	if err != nil {
 		return fmt.Errorf("error connecting to db to migrate: %w", err)
 	}
