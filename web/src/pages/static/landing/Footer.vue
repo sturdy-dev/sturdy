@@ -2,12 +2,7 @@
   <div class="max-w-7xl mx-auto divide-y px-4 sm:px-6 md:px-8 divide-slate-700">
     <div class="flex flex-col md:flex-row space-y-10 md:space-y-0">
       <div class="w-1/3 space-y-8">
-        <img
-          src="./logotype.svg"
-          alt="Sturdy logotype"
-          class="rounded-xl object-contain"
-          width="130"
-        />
+        <img src="./logotype.svg" alt="Sturdy logotype" class="h-7" />
         <div class="mt-4 flex items-center space-x-6">
           <a class="text-slate-300 hover:text-slate-100" href="https://twitter.com/getsturdy">
             <span class="sr-only">Twitter</span>
