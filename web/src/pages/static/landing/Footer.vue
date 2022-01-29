@@ -1,9 +1,15 @@
 <template>
-  <div class="max-w-7xl mx-auto divide-y px-4 sm:px-6 md:px-8 divide-slate-700">
-    <div class="flex flex-col md:flex-row space-y-10 md:space-y-0">
-      <div class="w-1/3 space-y-8">
-        <img src="./logotype.svg" alt="Sturdy logotype" class="h-7" />
-        <div class="mt-4 flex items-center space-x-6">
+  <div
+    class="bg-slate-800 border-t border-slate-700 pb-4 pt-10 px-4 sm:px-6 md:px-8 divide-y divide-slate-700/50"
+  >
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row space-y-10 md:space-y-0">
+      <div
+        class="flex items-center justify-between md:items-start md:flex-col md:justify-start md:w-1/3 md:space-y-8"
+      >
+        <div class="w-1/2">
+          <img src="./logotype.svg" alt="Sturdy logotype" class="h-7" />
+        </div>
+        <div class="flex items-center space-x-6 w-1/2">
           <a class="text-slate-300 hover:text-slate-100" href="https://twitter.com/getsturdy">
             <span class="sr-only">Twitter</span>
             <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -119,8 +125,8 @@
         </div>
       </div>
     </div>
-    <div class="mt-24 border-t">
-      <p class="mt-4 text-slate-300/50">&copy; {{ year }} Sturdy Sweden AB</p>
+    <div class="max-w-7xl mx-auto mt-10">
+      <p class="pt-4 text-slate-300/50">&copy; {{ year }} Sturdy Sweden AB</p>
     </div>
   </div>
 </template>

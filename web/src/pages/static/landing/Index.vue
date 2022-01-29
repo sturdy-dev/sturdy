@@ -353,7 +353,7 @@
       </section>
     </div>
 
-    <div id="footer" class="pb-10 text-sm leading-6">
+    <div id="footer" class="text-sm leading-6">
       <Footer />
     </div>
   </div>

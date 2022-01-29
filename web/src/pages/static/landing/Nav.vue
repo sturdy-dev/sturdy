@@ -42,7 +42,7 @@
         <div class="-mr-2 flex sm:hidden">
           <!-- Mobile menu button -->
           <DisclosureButton
-            class="inline-flex items-center justify-center p-2 rounded text-gray-400 border border-transparent hover:border-slate-500 focus:outline-none focus:ring-0"
+            class="inline-flex items-center justify-center p-2 rounded text-gray-400 focus:outline-none focus:ring-0"
           >
             <span class="sr-only">Open main menu</span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <DisclosurePanel class="sm:hidden">
+    <DisclosurePanel class="sm:hidden mt-8">
       <div class="px-2 pt-2 pb-3 space-y-1 h-screen">
         <router-link
           :to="{ name: 'download' }"
