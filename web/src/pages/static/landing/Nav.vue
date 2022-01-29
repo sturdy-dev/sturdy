@@ -4,8 +4,8 @@
     class="backdrop-blur-[5px] backdrop-brightness-[.80] backdrop-saturate-[.70] border-b border-slate-700/10 sticky top-0 z-50"
     v-slot="{ open }"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-10 sm:h-14">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex items-center justify-between h-14">
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <img src="./logotype.svg" alt="Sturdy logotype" class="h-7" />

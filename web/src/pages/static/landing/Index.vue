@@ -1,39 +1,40 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
     <Nav />
-    <div class="relative -mt-16">
-      <div class="px-4 sm:px-6 md:px-8">
-        <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
 
-        <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
-          <h1
-            class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+    <div class="px-6 relative -mt-16">
+      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
+
+      <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
+        <h1
+          class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+        >
+          Real-time code collaboration.
+        </h1>
+        <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
+          Sturdy is an
+          <code class="font-mono font-semibold text-amber-500"
+            >open-source version control platform</code
           >
-            Real-time code collaboration.
-          </h1>
-          <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
-            Sturdy is an
-            <code class="font-mono font-semibold text-amber-500"
-              >open-source version control platform</code
-            >
-            that allows you to interact with your code at a higher abstraction level.
-          </p>
-          <div class="mt-6 sm:mt-10 flex justify-center space-x-6 text-sm">
-            <router-link
-              :to="{ name: 'download' }"
-              class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-            >
-              <DownloadIcon class="h-6 w-6 mr-1" />
-              {{ mainDownloadText }}
-            </router-link>
-            <router-link
-              :to="{ name: 'v2DocsRoot' }"
-              class="text-slate-300 bg-slate-600 hover:text-slate-300 hover:bg-slate-900/10 border border-transparent hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center sm:w-auto highlight-white/20"
-            >
-              Read the Docs
-              <ChevronRightIcon class="h-6 w-6 ml-1" />
-            </router-link>
-          </div>
+          that allows you to interact with your code at a higher abstraction level.
+        </p>
+        <div
+          class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 <!-- justify-center--> text-sm"
+        >
+          <router-link
+            :to="{ name: 'download' }"
+            class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
+          >
+            <DownloadIcon class="h-6 w-6 mr-1" />
+            {{ mainDownloadText }}
+          </router-link>
+          <router-link
+            :to="{ name: 'v2DocsRoot' }"
+            class="text-amber-500/70 hover:text-amber-500 bg-slate-900/10 border border-transparent border-amber-500/70 hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
+          >
+            Read the Docs
+            <ChevronRightIcon class="h-6 w-6 ml-1" />
+          </router-link>
         </div>
       </div>
       <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
@@ -43,8 +44,8 @@
       </div>
     </div>
 
-    <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
-      <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+    <div class="px-6">
+      <div class="pt-16 max-w-6xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
         <div
           class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300/70 inline-flex space-x-4 items-center"
         >
@@ -64,13 +65,13 @@
 
     <section id="features">
       <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
-        <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+        <div class="pt-16 max-w-6xl px-6 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
           <h1
             class="text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
           >
             A new home for your code
           </h1>
-          <div class="pt-10 px-4 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
+          <div class="pt-10 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
             <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
               <MiniUsp class="md:w-1/2" title="Expressive">
                 <template #icon>
@@ -327,7 +328,7 @@
 
       <section id="featured">
         <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
-          <div class="pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+          <div class="pt-16 max-w-6xl px-6 mx-auto lg:gap-8 space-y-6">
             <h1 class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300">
               Featured at
             </h1>

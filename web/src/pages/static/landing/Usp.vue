@@ -5,7 +5,7 @@
         class="hidden dark:block absolute top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1120] top-0 xl:top-8"
       ></div>
       <div
-        class="relative pt-16 max-w-7xl px-4 sm:px-6 md:px-8 mx-auto flex flex-col items-center md:flex-row lg:gap-8 space-y-6"
+        class="relative pt-16 max-w-6xl px-6 sm:px-6 md:px-8 mx-auto flex flex-col items-center md:flex-row lg:gap-8 space-y-6"
       >
         <div class="md:w-1/2">
           <div class="w-24">

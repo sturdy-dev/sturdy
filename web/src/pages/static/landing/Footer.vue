@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="bg-slate-800 border-t border-slate-700 pb-4 pt-10 px-4 sm:px-6 md:px-8 divide-y divide-slate-700/50"
-  >
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row space-y-10 md:space-y-0">
+  <div class="bg-slate-800 border-t border-slate-700 pb-6 pt-9 divide-y divide-slate-700/30">
+    <div class="px-6 max-w-6xl mx-auto flex flex-col md:flex-row space-y-10 md:space-y-0">
       <div
         class="flex items-center justify-between md:items-start md:flex-col md:justify-start md:w-1/3 md:space-y-8"
       >
@@ -125,8 +123,8 @@
         </div>
       </div>
     </div>
-    <div class="max-w-7xl mx-auto mt-10">
-      <p class="pt-4 text-slate-300/50">&copy; {{ year }} Sturdy Sweden AB</p>
+    <div class="px-6 max-w-6xl mx-auto mt-10">
+      <p class="pt-6 text-slate-300/50">&copy; {{ year }} Sturdy Sweden AB</p>
     </div>
   </div>
 </template>
