@@ -1,11 +1,11 @@
 <template>
   <div class="antialiased text-slate-300 bg-slate-900">
     <Nav />
-    <div class="relative -mt-6 lg:-mt-20">
+    <div class="relative -mt-16">
       <div class="px-4 sm:px-6 md:px-8">
         <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
 
-        <div class="relative max-w-5xl mx-auto pt-20 sm:pt-24 lg:pt-32">
+        <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
           <h1
             class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
           >
