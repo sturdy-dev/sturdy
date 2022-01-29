@@ -2,13 +2,16 @@
   <div ref="target" class="text-center my-8 mx-auto overflow-hidden text-2xl text-slate-100">
     <div>Have an idea</div>
     <div>
-      <span :class="[targetIsVisible ? 'strike' : '', 'text-gray-500 truncate font-mono']">
+      <span :class="[targetIsVisible ? 'strike' : '', 'text-slate-500 truncate font-mono']">
         git pull
       </span>
     </div>
     <div>
       <span
-        :class="[targetIsVisible ? 'strikedelay-1 strike' : '', 'text-gray-500 truncate font-mono']"
+        :class="[
+          targetIsVisible ? 'strikedelay-1 strike' : '',
+          'text-slate-500 truncate font-mono',
+        ]"
       >
         git checkout -b feature
       </span>
@@ -18,14 +21,20 @@
 
     <div>
       <span
-        :class="[targetIsVisible ? 'strikedelay-2 strike' : '', 'text-gray-500 truncate font-mono']"
+        :class="[
+          targetIsVisible ? 'strikedelay-2 strike' : '',
+          'text-slate-500 truncate font-mono',
+        ]"
       >
         git add .
       </span>
     </div>
     <div>
       <span
-        :class="[targetIsVisible ? 'strikedelay-3 strike' : '', 'text-gray-500 truncate font-mono']"
+        :class="[
+          targetIsVisible ? 'strikedelay-3 strike' : '',
+          'text-slate-500 truncate font-mono',
+        ]"
       >
         git commit -m "My change"
       </span>
@@ -35,7 +44,7 @@
       <span
         :class="[
           targetIsVisible ? 'strikedelay-4 strike' : '',
-          'text-gray-500 truncate font-mono hidden lg:inline-block',
+          'text-slate-500 truncate font-mono hidden lg:inline-block',
         ]"
       >
         git push --set-upstream origin feature
@@ -43,7 +52,7 @@
       <span
         :class="[
           targetIsVisible ? 'strikedelay-4 strike' : '',
-          'text-gray-500 truncate font-mono lg:hidden',
+          'text-slate-500 truncate font-mono lg:hidden',
         ]"
       >
         git push -u origin feature
@@ -52,7 +61,10 @@
 
     <div>
       <span
-        :class="[targetIsVisible ? 'strikedelay-5 strike' : '', 'text-gray-500 truncate font-mono']"
+        :class="[
+          targetIsVisible ? 'strikedelay-5 strike' : '',
+          'text-slate-500 truncate font-mono',
+        ]"
       >
         Create Pull Request
       </span>
@@ -115,7 +127,7 @@ export default defineComponent({
   top: 50%;
   left: 0;
   height: 3px;
-  background: gray;
+  background: #64748b;
   animation-name: strike;
   animation-duration: 0.5s;
   animation-timing-function: linear;

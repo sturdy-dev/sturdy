@@ -445,7 +445,10 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style>
+body {
+  background-color: #0f172a;
+}
 .gradient {
   background-image: #0b1120;
   background-image: radial-gradient(at 23% 84%, hsla(223, 49%, 9%, 1) 0, transparent 56%),
