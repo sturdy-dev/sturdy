@@ -1,17 +1,17 @@
 <template>
   <svg class="icon-mobApps" viewBox="0 0 420 443.7">
-    <linearGradient
-      id="XMLID_4_c"
-      gradientUnits="userSpaceOnUse"
-      x1="221.8951"
-      y1="415.5637"
-      x2="201.895"
-      y2="143.5643"
-      gradientTransform="matrix(1 0 0 -1 0 446)"
-    >
-      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />
-      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />
-    </linearGradient>
+    <!--    <linearGradient-->
+    <!--      id="XMLID_4_c"-->
+    <!--      gradientUnits="userSpaceOnUse"-->
+    <!--      x1="221.8951"-->
+    <!--      y1="415.5637"-->
+    <!--      x2="201.895"-->
+    <!--      y2="143.5643"-->
+    <!--      gradientTransform="matrix(1 0 0 -1 0 446)"-->
+    <!--    >-->
+    <!--      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />-->
+    <!--      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />-->
+    <!--    </linearGradient>-->
     <path
       id="XMLID_179_"
       style="fill: url(#XMLID_4_c)"
@@ -38,7 +38,7 @@
     <g class="gear origin-center">
       <path
         id="XMLID_172_"
-        style="fill: #582768"
+        style="fill: #78350f"
         d="M166,216.1l-1-5.2c-0.1-0.4-0.4-0.6-0.8-0.5l-4.2,0.8c-0.9-3.8-2.2-7.5-3.9-10.9
 		l3.8-2.2c0.3-0.2,0.4-0.6,0.2-0.9l-2.7-4.6c-0.2-0.3-0.6-0.4-0.9-0.2l-3.7,2.2c-2.1-3.2-4.6-6.2-7.4-8.9l2.8-3.4
 		c0.2-0.3,0.2-0.7-0.1-0.9L144,178c-0.3-0.2-0.7-0.2-0.9,0.1l-2.8,3.3c-3.1-2.3-6.4-4.3-10-5.9l1.5-4.1c0.1-0.3-0.1-0.7-0.4-0.8
@@ -71,7 +71,7 @@
       <g id="XMLID_164_">
         <path
           id="XMLID_165_"
-          style="fill: #7d2360"
+          style="fill: #92400e"
           d="M109.1,258.9c-16.6,0-30.9-11.3-34.7-27.4c-2.2-9.3-0.7-18.9,4.3-27
 			s12.9-13.8,22.1-16c2.7-0.6,5.5-1,8.3-1c16.6,0,30.9,11.3,34.7,27.4c4.6,19.2-7.3,38.4-26.5,43
 			C114.7,258.5,111.9,258.9,109.1,258.9L109.1,258.9z M109.2,190.8c-2.5,0-5.1,0.3-7.5,0.9c-8.4,2-15.5,7.2-20.1,14.5
@@ -81,7 +81,7 @@
       </g>
       <path
         id="XMLID_163_"
-        style="fill: #5e2667"
+        style="fill: #78350f"
         d="M111.2,231.9c-4.8,1.1-9.7-1.8-10.8-6.6c-1.1-4.8,1.8-9.7,6.6-10.8
 		c4.8-1.2,9.7,1.8,10.8,6.6C119,225.9,116.1,230.7,111.2,231.9z"
       />
@@ -90,7 +90,7 @@
       <g id="XMLID_161_">
         <path
           id="XMLID_162_"
-          style="fill: #9e2159"
+          style="fill: #b45309"
           d="M230.2,334.9c0.1,8-6.3,14.6-14.3,14.7l-86.6,1.3c-8,0.1-14.6-6.3-14.7-14.3
 			l-3.1-205.2c-0.1-8,6.3-14.6,14.3-14.7l86.6-1.3c8-0.1,14.6,6.3,14.7,14.3L230.2,334.9z"
         />
@@ -98,7 +98,7 @@
       <g id="XMLID_159_">
         <path
           id="XMLID_160_"
-          style="fill: #9e2159"
+          style="fill: #b45309"
           d="M131.5,348.7c-8,0.1-14.6-6.3-14.7-14.3l-3-200.8c-0.1-8,6.3-14.6,14.3-14.7
 			l82.2-1.2c8-0.1,14.6,6.3,14.7,14.3l3,200.8c0.1,8-6.3,14.6-14.3,14.7L131.5,348.7z"
         />
@@ -149,13 +149,13 @@
       />
       <polygon
         id="XMLID_152_"
-        style="opacity: 0.1; fill: #9e2159; enable-background: new"
+        style="opacity: 0.1; fill: #b45309; enable-background: new"
         points="119.5,201.3 120.4,259.5
 		190.1,142.3 154.3,142.9 	"
       />
       <polygon
         id="XMLID_151_"
-        style="opacity: 0.1; fill: #9e2159; enable-background: new"
+        style="opacity: 0.1; fill: #b45309; enable-background: new"
         points="120.9,291.7 209.9,142 196.3,142.2
 		120.5,269.6 	"
       />
@@ -164,7 +164,7 @@
       <polygon id="XMLID_148_" style="fill: #fdeff5" points="140.4,89.9 115.1,82.2 140.4,74.5 	" />
       <path
         id="XMLID_137_"
-        style="fill: #97215b"
+        style="fill: #b45309"
         d="M356.1,76.7c-0.9-0.9-1.9-1.5-3-1.8c0.3,0.8,0.4,1.6,0.4,2.4c0,2-0.8,3.9-2.3,5.4
 		s-3.5,2.3-5.4,2.3H341v4.8h9.6c2,0,3.9-0.8,5.4-2.3s2.3-3.5,2.3-5.4C358.4,80.2,357.6,78.2,356.1,76.7z"
       />
@@ -178,9 +178,9 @@
         y2="363.8"
         gradientTransform="matrix(1 0 0 -1 0 446)"
       >
-        <stop offset="9.016399e-02" style="stop-color: #a62257" />
-        <stop offset="0.4541" style="stop-color: #86245e" />
-        <stop offset="1" style="stop-color: #582768" />
+        <stop offset="9.016399e-02" style="stop-color: #d97706" />
+        <stop offset="0.4541" style="stop-color: #92400e" />
+        <stop offset="1" style="stop-color: #b45309" />
       </linearGradient>
       <rect
         id="XMLID_146_"
@@ -191,7 +191,7 @@
         height="15.4"
       />
       <polygon id="XMLID_147_" style="fill: #fdeff5" points="115.1,82.2 140.4,89.9 140.4,85 	" />
-      <polygon id="XMLID_143_" style="fill: #742462" points="125,85.2 115.1,82.2 125,83.3 	" />
+      <polygon id="XMLID_143_" style="fill: #78350f" points="125,85.2 115.1,82.2 125,83.3 	" />
       <rect id="XMLID_141_" x="332.2" y="85" style="fill: #fdeff5" width="8.9" height="4.8" />
 
       <linearGradient
@@ -203,9 +203,9 @@
         y2="358.6"
         gradientTransform="matrix(1 0 0 -1 0 446)"
       >
-        <stop offset="9.016399e-02" style="stop-color: #a62257" />
-        <stop offset="0.4541" style="stop-color: #86245e" />
-        <stop offset="1" style="stop-color: #582768" />
+        <stop offset="9.016399e-02" style="stop-color: #d97706" />
+        <stop offset="0.4541" style="stop-color: #92400e" />
+        <stop offset="1" style="stop-color: #78350f" />
       </linearGradient>
       <rect
         id="XMLID_145_"
@@ -215,11 +215,11 @@
         width="191.8"
         height="4.8"
       />
-      <polygon id="XMLID_144_" style="fill: #742462" points="125,85.2 115.1,82.2 125,79.2 	" />
+      <polygon id="XMLID_144_" style="fill: #78350f" points="125,85.2 115.1,82.2 125,79.2 	" />
       <rect id="XMLID_142_" x="332.2" y="74.5" style="fill: #fdeff5" width="8.9" height="15.4" />
       <path
         id="XMLID_138_"
-        style="fill: #a62257"
+        style="fill: #d97706"
         d="M350.7,89.9c2,0,3.9-0.8,5.4-2.3s2.3-3.5,2.3-5.4l0,0c0-2-0.8-3.9-2.3-5.4
 		s-3.5-2.3-5.4-2.3h-9.6v15.4C341.1,89.9,350.7,89.9,350.7,89.9z"
       />
@@ -234,9 +234,9 @@
         y2="255.35"
         gradientTransform="matrix(1 0 0 -1 0 446)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #f59e0b" />
+        <stop offset="8.596202e-02" style="stop-color: #fbbf24" />
+        <stop offset="1" style="stop-color: #fde68a" />
       </linearGradient>
       <rect
         id="XMLID_136_"
@@ -289,9 +289,9 @@
       y2="260.7496"
       gradientTransform="matrix(1 0 0 -1 0 446)"
     >
-      <stop offset="9.016399e-02" style="stop-color: #a62257" />
-      <stop offset="0.4541" style="stop-color: #86245e" />
-      <stop offset="1" style="stop-color: #582768" />
+      <stop offset="9.016399e-02" style="stop-color: #d97706" />
+      <stop offset="0.4541" style="stop-color: #92400e" />
+      <stop offset="1" style="stop-color: #78350f" />
     </linearGradient>
     <rect
       id="XMLID_103_"
@@ -301,7 +301,7 @@
       width="121"
       height="156.2"
     />
-    <rect id="XMLID_90_" x="240.4" y="160.1" style="fill: #9e2159" width="121" height="14.8" />
+    <rect id="XMLID_90_" x="240.4" y="160.1" style="fill: #78350f" width="121" height="14.8" />
     <g class="login">
       <linearGradient
         id="XMLID_12_c"
@@ -312,9 +312,9 @@
         y2="182.0505"
         gradientTransform="matrix(1 0 0 -1 0 446)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #f59e0b" />
+        <stop offset="8.596202e-02" style="stop-color: #fbbf24" />
+        <stop offset="1" style="stop-color: #fde68a" />
       </linearGradient>
       <rect
         id="XMLID_89_"
@@ -324,13 +324,13 @@
         width="77.8"
         height="51"
       />
-      <rect id="XMLID_86_" x="184.2" y="273.1" style="fill: #582768" width="77.8" height="8.7" />
+      <rect id="XMLID_86_" x="184.2" y="273.1" style="fill: #78350f" width="77.8" height="8.7" />
       <rect id="XMLID_85_" x="216.4" y="319.5" style="fill: #ffffff" width="13.4" height="2.2" />
       <rect
         id="XMLID_84_"
         x="238.9"
         y="289.7"
-        style="fill-rule: evenodd; clip-rule: evenodd; fill: #a62257"
+        style="fill-rule: evenodd; clip-rule: evenodd; fill: #d97706"
         width="8.7"
         height="8.7"
       />
@@ -356,12 +356,12 @@
         width="40.3"
         height="8.7"
       />
-      <rect id="XMLID_79_" x="206.5" y="292.9" style="fill: #582768" width="24.5" height="2.2" />
+      <rect id="XMLID_79_" x="206.5" y="292.9" style="fill: #78350f" width="24.5" height="2.2" />
       <rect
         id="XMLID_78_"
         x="238.9"
         y="301.4"
-        style="fill-rule: evenodd; clip-rule: evenodd; fill: #a62257"
+        style="fill-rule: evenodd; clip-rule: evenodd; fill: #d97706"
         width="8.7"
         height="8.7"
       />
@@ -383,37 +383,37 @@
         <g id="XMLID_56_">
           <path
             id="XMLID_62_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M207.6,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				C208.7,305.2,208.2,304.7,207.6,304.7z"
           />
           <path
             id="XMLID_61_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M212,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				S212.7,304.7,212,304.7z"
           />
           <path
             id="XMLID_60_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M216.5,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				S217.1,304.7,216.5,304.7z"
           />
           <path
             id="XMLID_59_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M221,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				S221.6,304.7,221,304.7z"
           />
           <path
             id="XMLID_58_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M225.4,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				S226,304.7,225.4,304.7z"
           />
           <path
             id="XMLID_57_"
-            style="fill: #582768"
+            style="fill: #78350f"
             d="M229.9,304.7c-0.6,0-1.1,0.5-1.1,1.1s0.5,1.1,1.1,1.1s1.1-0.5,1.1-1.1
 				S230.5,304.7,229.9,304.7z"
           />
@@ -434,7 +434,7 @@
         x="116.4"
         y="116.4"
         transform="matrix(0.9921 -0.1252 0.1252 0.9921 -14.5259 21.257)"
-        style="fill: #f1939b"
+        style="fill: #fde68a"
         width="90.9"
         height="19.6"
       />
@@ -454,7 +454,7 @@
         x="123.5"
         y="128.3"
         transform="matrix(0.9922 -0.125 0.125 0.9922 -15.1271 18.0227)"
-        style="fill: #f1939b"
+        style="fill: #fde68a"
         width="25.1"
         height="2.5"
       />
@@ -464,7 +464,7 @@
         x="206.9"
         y="109.4"
         transform="matrix(0.9921 -0.1251 0.1251 0.9921 -13.2057 28.1075)"
-        style="fill: #f1939b"
+        style="fill: #fde68a"
         width="20.6"
         height="19.6"
       />
@@ -479,27 +479,27 @@
       />
       <path
         id="XMLID_38_"
-        style="fill: #f2949c"
+        style="fill: #fde68a"
         d="M172.1,91.3c-7.2,0-13-5.8-13-13c0-1,0.8-1.9,1.9-1.9c1,0,1.8,0.8,1.8,1.9
 		c0,5.1,4.2,9.3,9.3,9.3s9.3-4.2,9.3-9.3s-4.2-9.3-9.3-9.3c-1,0-1.9-0.8-1.9-1.9V62c0-1,0.8-1.9,1.9-1.9c1,0,1.9,0.8,1.9,1.9v3.5
 		c6.3,0.9,11.1,6.3,11.1,12.8C185.1,85.5,179.2,91.3,172.1,91.3z"
       />
       <path
         id="XMLID_33_"
-        style="fill: #95235b"
+        style="fill: #92400e"
         d="M172.1,87.6c-0.6,0.1-1.2,0.3-1.7,0.7l-2.8,2.2c-0.7-0.3-1.4-0.6-2.1-1l3.2-2.5
 		C169.8,87.4,170.9,87.6,172.1,87.6z"
       />
       <path
         id="XMLID_35_"
-        style="fill: #82245e"
+        style="fill: #92400e"
         d="M172.1,63.9c-2.8,0-5-2.3-5-5c0-2.8,2.3-5,5-5c2.8,0,5,2.3,5,5
 		C177.1,61.6,174.9,63.9,172.1,63.9z M172.1,57.5c-0.7,0-1.3,0.6-1.3,1.3s0.6,1.3,1.3,1.3s1.3-0.6,1.3-1.3
 		C173.4,58.1,172.8,57.5,172.1,57.5z"
       />
       <path
         id="XMLID_34_"
-        style="fill: #f2949c"
+        style="fill: #fde68a"
         d="M172.1,59.9c-0.6,0-1-0.2-1-0.5v-26c2,0,0,0,2,0v26
 		C173.1,59.6,172.7,59.9,172.1,59.9z"
       />
@@ -527,7 +527,7 @@
     <g class="play-btn hover">
       <path
         id="XMLID_29_"
-        style="fill: #582768"
+        style="fill: #78350f"
         d="M329.5,318.5c-6.1,0-11-5-11-11c0-6.1,5-11,11-11c6.1,0,11,5,11,11
 		S335.5,318.5,329.5,318.5z M329.5,297.1c-5.7,0-10.3,4.6-10.3,10.3s4.6,10.3,10.3,10.3c5.7,0,10.3-4.6,10.3-10.3
 		S335.2,297.1,329.5,297.1z"
@@ -535,19 +535,19 @@
       <polygon
         id="XMLID_28_"
         class="origin-center hover"
-        style="fill: #582768"
+        style="fill: #78350f"
         points="327.4,303.9 333.6,307.4 327.4,311 	"
       />
     </g>
-    <rect id="XMLID_23_" x="291.5" y="331.1" style="fill: #582768" width="75.8" height="14.2" />
+    <rect id="XMLID_23_" x="291.5" y="331.1" style="fill: #78350f" width="75.8" height="14.2" />
     <g class="play-bar">
       <polygon
         id="XMLID_19_"
-        style="fill: #f1939b"
+        style="fill: #fde68a"
         points="223,187.1 208.2,187.1 208.2,201.9 223,201.9 292,201.9 292,187.1 	"
       />
       <rect id="XMLID_17_" x="229.1" y="193.7" style="fill: #ffffff" width="56.8" height="1.5" />
-      <rect id="XMLID_18_" x="292" y="187.1" style="fill: #e0748b" width="14.8" height="14.8" />
+      <rect id="XMLID_18_" x="292" y="187.1" style="fill: #fde68a" width="14.8" height="14.8" />
       <polygon
         class="play-bar--play"
         style="fill: #ffffff"
@@ -567,14 +567,14 @@
           />
         </g>
       </g>
-      <circle id="XMLID_8_" style="fill: #9e2159" cx="243.6" cy="194.5" r="3" />
+      <circle id="XMLID_8_" style="fill: #f59e0b" cx="243.6" cy="194.5" r="3" />
     </g>
     <g id="lines">
       <rect
         class="line-b hover origin-left"
         x="261.1"
         y="242.3"
-        style="fill: #f6a0a2"
+        style="fill: #fde68a"
         width="39.6"
         height="3.4"
       />
@@ -582,7 +582,7 @@
         class="line-m hover origin-left"
         x="261.1"
         y="231.6"
-        style="fill: #f6a0a2"
+        style="fill: #fde68a"
         width="74.7"
         height="3.4"
       />
@@ -590,7 +590,7 @@
         class="line-t hover origin-left"
         x="261.1"
         y="220.7"
-        style="fill: #f6a0a2"
+        style="fill: #fde68a"
         width="74.7"
         height="3.4"
       />
@@ -646,7 +646,7 @@ a,
 h3 {
   font-family: sans-serif;
   font-size: 16px;
-  color: #db6b86;
+  color: #f59e0b;
 }
 h3 {
   width: 410px;
@@ -663,13 +663,13 @@ h3 {
 a {
   padding: 12px 20px;
   border-radius: 50px;
-  border: 2px solid #db6b86;
+  border: 2px solid #f59e0b;
   text-decoration: none;
   transition: all 0.4s ease-in-out;
   background-color: #efdfed;
 }
 a:hover {
-  background-color: #db6b86;
+  background-color: #f59e0b;
   color: #fff;
 }
 .icon-wrap {

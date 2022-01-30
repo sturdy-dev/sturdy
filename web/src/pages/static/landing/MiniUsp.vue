@@ -14,7 +14,7 @@
       <slot></slot>
     </div>
     <div
-      class="mt-3 text-sm grow text-slate-500/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
+      class="mt-3 text-sm grow text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
     >
       <router-link :to="{ hash: '#' + title.toLowerCase() }" hash="expressive">
         <span class="inline-flex items-center">

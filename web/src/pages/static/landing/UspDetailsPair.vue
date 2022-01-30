@@ -1,16 +1,19 @@
 <template>
   <div class="flex flex-row justify-center space-x-16">
     <div class="w-1/2">
-      <slot name="leftIcon"></slot>
-      <h1
-        class="-ml-4 pl-4 border-l-2 border-amber-500/60 text-slate-50 font-semibold tracking-tight highlight"
-      >
-        {{ leftTitle }}
-      </h1>
+      <div class="flex flex-row space-x-4 items-center">
+        <div class="w-8 h-8">
+          <slot name="leftIcon"></slot>
+        </div>
+        <h1 class="text-slate-50 font-semibold tracking-tight highlight">
+          {{ leftTitle }}
+        </h1>
+      </div>
+
       <div class="mt-2">
         <p>{{ leftBody }}</p>
         <div
-          class="cursor-pointer text-amber-500 hover:text-slate-50 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+          class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
         >
           <slot name="leftLink"></slot>
           <ChevronRightIcon class="h-4 w-4 ml-1" />
@@ -19,17 +22,19 @@
     </div>
 
     <div class="w-1/2">
-      <slot name="rightIcon"></slot>
-      <h1
-        class="-ml-4 pl-4 border-l-2 border-amber-500/60 text-slate-50 font-semibold tracking-tight highlight"
-      >
-        {{ rightTitle }}
-      </h1>
+      <div class="flex flex-row space-x-4 items-center">
+        <div class="w-8 h-8">
+          <slot name="rightIcon"></slot>
+        </div>
+        <h1 class="text-slate-50 font-semibold tracking-tight highlight">
+          {{ rightTitle }}
+        </h1>
+      </div>
       <div class="mt-2">
         <p>{{ rightBody }}</p>
 
         <div
-          class="cursor-pointer text-amber-500 hover:text-slate-50 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+          class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
         >
           <slot name="rightLink"></slot>
           <ChevronRightIcon class="h-4 w-4 ml-1" />

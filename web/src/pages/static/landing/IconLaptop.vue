@@ -1,17 +1,17 @@
 <template>
   <svg class="icon-wordpress" viewBox="0 0 413.3 382.2">
-    <linearGradient
-      id="background_1_z"
-      gradientUnits="userSpaceOnUse"
-      x1="207.5188"
-      y1="396.9613"
-      x2="207.5188"
-      y2="129.9598"
-      gradientTransform="matrix(1 0 0 -1 0 384)"
-    >
-      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />
-      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />
-    </linearGradient>
+    <!--    <linearGradient-->
+    <!--      id="background_1_z"-->
+    <!--      gradientUnits="userSpaceOnUse"-->
+    <!--      x1="207.5188"-->
+    <!--      y1="396.9613"-->
+    <!--      x2="207.5188"-->
+    <!--      y2="129.9598"-->
+    <!--      gradientTransform="matrix(1 0 0 -1 0 384)"-->
+    <!--    >-->
+    <!--      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />-->
+    <!--      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />-->
+    <!--    </linearGradient>-->
     <path
       id="background"
       style="fill: url(#background_1_z)"
@@ -50,7 +50,7 @@
             x="311.5"
             y="108.3"
             transform="matrix(0.4124 -0.911 0.911 0.4124 85.7071 350.8997)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -60,7 +60,7 @@
             x="321.2"
             y="122.4"
             transform="matrix(0.4119 -0.9112 0.9112 0.4119 73.6161 368.0766)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="1.6"
             height="9.3"
           />
@@ -70,7 +70,7 @@
             x="325.8"
             y="144.2"
             transform="matrix(0.4123 -0.911 0.911 0.4123 61.3995 385.0619)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -80,7 +80,7 @@
             x="300.4"
             y="132.8"
             transform="matrix(0.4115 -0.9114 0.9114 0.4115 57.0848 355.4563)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -90,7 +90,7 @@
             x="277.4"
             y="92.9"
             transform="matrix(0.4121 -0.9111 0.9111 0.4121 79.7722 310.8366)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -100,7 +100,7 @@
             x="266.3"
             y="73"
             transform="matrix(0.4113 -0.9115 0.9115 0.4113 91.4917 289.1801)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -110,7 +110,7 @@
             x="269.1"
             y="111.2"
             transform="matrix(0.4116 -0.9114 0.9114 0.4116 58.2186 314.1616)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="6.7"
             height="1.5"
           />
@@ -120,7 +120,7 @@
             x="253.6"
             y="114.1"
             transform="matrix(0.4107 -0.9118 0.9118 0.4107 41.698 301.7926)"
-            style="fill: #f6a1a3"
+            style="fill: #e9d5ff"
             width="1.5"
             height="9"
           />
@@ -132,7 +132,7 @@
         x="297.3"
         y="48.8"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 90.0528 329.9779)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="6.7"
         height="92.9"
       />
@@ -152,7 +152,7 @@
         x="314.3"
         y="93.6"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 93.0986 349.969)"
-        style="fill: #a62257"
+        style="fill: #9333ea"
         width="6.7"
         height="18.6"
       />
@@ -202,7 +202,7 @@
         x="299.3"
         y="111.9"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 71.4553 353.1837)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="20.2"
         height="18.6"
       />
@@ -212,7 +212,7 @@
         x="269.8"
         y="93.5"
         transform="matrix(0.4118 -0.9113 0.9113 0.4118 68.9978 312.4995)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="13.5"
         height="18.6"
       />
@@ -222,7 +222,7 @@
         x="238.4"
         y="103.6"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 39.249 286.6585)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="6.7"
         height="18.6"
       />
@@ -232,7 +232,7 @@
         x="318.3"
         y="144.9"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 50.6249 386.8267)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="13.5"
         height="18.6"
       />
@@ -242,7 +242,7 @@
         x="324.6"
         y="123.5"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 75.8324 383.0611)"
-        style="fill: #a62257"
+        style="fill: #9333ea"
         width="20.2"
         height="18.6"
       />
@@ -252,7 +252,7 @@
         x="297.6"
         y="130.4"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 49.7324 356.418)"
-        style="fill: #f6a1a3"
+        style="fill: #e9d5ff"
         width="6.7"
         height="18.6"
       />
@@ -262,7 +262,7 @@
         x="269.1"
         y="58.3"
         transform="matrix(0.4118 -0.9113 0.9113 0.4118 98.628 288.0096)"
-        style="fill: #a62257"
+        style="fill: #9333ea"
         width="6.7"
         height="18.6"
       />
@@ -272,7 +272,7 @@
         x="256.8"
         y="114.9"
         transform="matrix(0.4119 -0.9112 0.9112 0.4119 43.7887 316.2596)"
-        style="fill: #a62257"
+        style="fill: #9333ea"
         width="20.2"
         height="18.6"
       />
@@ -502,9 +502,9 @@
         y2="196.4352"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="9.016399e-02" style="stop-color: #a62257" />
-        <stop offset="0.4541" style="stop-color: #86245e" />
-        <stop offset="1" style="stop-color: #582768" />
+        <stop offset="9.016399e-02" style="stop-color: #9333ea" />
+        <stop offset="0.4541" style="stop-color: #6b21a8" />
+        <stop offset="1" style="stop-color: #581c87" />
       </linearGradient>
       <path
         id="XMLID_181_"
@@ -522,9 +522,9 @@
         y2="90.9716"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_180_"
@@ -542,9 +542,9 @@
         y2="140.9877"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="9.016399e-02" style="stop-color: #a62257" />
-        <stop offset="0.4541" style="stop-color: #86245e" />
-        <stop offset="1" style="stop-color: #582768" />
+        <stop offset="9.016399e-02" style="stop-color: #9333ea" />
+        <stop offset="0.4541" style="stop-color: #6b21a8" />
+        <stop offset="1" style="stop-color: #581c87" />
       </linearGradient>
       <path
         id="XMLID_112_"
@@ -562,9 +562,9 @@
         y2="287.45"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_111_"
@@ -588,9 +588,9 @@
         y2="170.5"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <rect
         id="XMLID_109_"
@@ -600,7 +600,7 @@
         width="13.7"
         height="8.8"
       />
-      <rect id="XMLID_108_" x="295.9" y="213.5" style="fill: #7f245f" width="13.7" height="4.4" />
+      <rect id="XMLID_108_" x="295.9" y="213.5" style="fill: #581c87" width="13.7" height="4.4" />
 
       <linearGradient
         id="XMLID_10_z"
@@ -611,9 +611,9 @@
         y2="170.5"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <rect
         id="XMLID_107_"
@@ -623,7 +623,7 @@
         width="13.7"
         height="8.8"
       />
-      <rect id="XMLID_106_" x="112" y="213.5" style="fill: #7f245f" width="13.7" height="4.4" />
+      <rect id="XMLID_106_" x="112" y="213.5" style="fill: #581c87" width="13.7" height="4.4" />
 
       <linearGradient
         id="XMLID_12_z"
@@ -1089,9 +1089,9 @@
         y2="147.7"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_90_"
@@ -1101,7 +1101,7 @@
       />
       <path
         id="XMLID_89_"
-        style="fill: #ce5c59"
+        style="fill: #a855f7"
         d="M330.7,242.5c0-12.1,9.8-21.8,21.8-21.8c4.4,0,8.6,1.3,12,3.6
 		c-3.9-5.9-10.6-9.8-18.2-9.8c-12.1,0-21.8,9.8-21.8,21.8c0,7.6,3.9,14.3,9.8,18.2C332,251.1,330.7,247,330.7,242.5z"
       />
@@ -1116,9 +1116,9 @@
         y2="78.5"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_87_"
@@ -1128,14 +1128,14 @@
       />
       <path
         id="XMLID_86_"
-        style="fill: #ce5c59"
+        style="fill: #a855f7"
         d="M119.9,271.8c0.1,0.8,0.2,1.7,0.2,2.6v32.2c0,6.4-2.4,12.8-7.3,17.7
 		c-4.9,4.9-11.3,7.4-17.7,7.4h-0.5c-2.9,0-5.7-0.9-8-2.4c1.2,6.9,7.3,12.3,14.6,12.3H112c8.2,0,14.8-6.7,14.8-14.8v-42.4
 		C126.7,279.1,123.9,274.5,119.9,271.8z"
       />
       <path
         id="XMLID_85_"
-        style="fill: #582768"
+        style="fill: #581c87"
         d="M109.8,285c0,1.9-1.5,3.4-3.4,3.4s-3.4-1.5-3.4-3.4s1.5-3.4,3.4-3.4
 		S109.8,283.1,109.8,285z"
       />
@@ -1150,9 +1150,9 @@
         y2="226.4009"
         gradientTransform="matrix(1 0 0 -1 0 384)"
       >
-        <stop offset="9.016399e-02" style="stop-color: #a62257" />
-        <stop offset="0.4541" style="stop-color: #86245e" />
-        <stop offset="1" style="stop-color: #582768" />
+        <stop offset="9.016399e-02" style="stop-color: #9333ea" />
+        <stop offset="0.4541" style="stop-color: #6b21a8" />
+        <stop offset="1" style="stop-color: #581c87" />
       </linearGradient>
       <circle id="XMLID_104_" style="fill: url(#XMLID_21_z)" cx="129.5" cy="114.1" r="43.5" />
       <g class="circle-bg">
@@ -1172,9 +1172,9 @@
           y2="204.546"
           gradientTransform="matrix(1 0 0 -1 0 384)"
         >
-          <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-          <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-          <stop offset="1" style="stop-color: #f7a6a5" />
+          <stop offset="6.016400e-02" style="stop-color: #a855f7" />
+          <stop offset="8.596202e-02" style="stop-color: #c084fc" />
+          <stop offset="1" style="stop-color: #e9d5ff" />
         </linearGradient>
         <circle
           id="XMLID_74_"
@@ -1195,7 +1195,7 @@
           id="XMLID_71_"
           x="96"
           y="77.4"
-          style="clip-path: url(#SVGID_4_); fill: #f58360"
+          style="clip-path: url(#SVGID_4_); fill: #a855f7"
           width="5.7"
           height="2.3"
         />
@@ -1211,7 +1211,7 @@
           id="XMLID_70_"
           x="96"
           y="93.5"
-          style="clip-path: url(#SVGID_6_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_6_); fill: #e9d5ff"
           width="5.7"
           height="2.3"
         />
@@ -1227,7 +1227,7 @@
           id="XMLID_67_"
           x="103.3"
           y="77.4"
-          style="clip-path: url(#SVGID_8_); fill: #582768"
+          style="clip-path: url(#SVGID_8_); fill: #581c87"
           width="27"
           height="2.3"
         />
@@ -1243,7 +1243,7 @@
           id="XMLID_66_"
           x="103.3"
           y="93.5"
-          style="clip-path: url(#SVGID_10_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_10_); fill: #e9d5ff"
           width="20.7"
           height="2.3"
         />
@@ -1308,7 +1308,7 @@
           id="XMLID_54_"
           x="106.9"
           y="124"
-          style="clip-path: url(#SVGID_18_); fill: #582768"
+          style="clip-path: url(#SVGID_18_); fill: #581c87"
           width="7.5"
           height="2.3"
         />
@@ -1324,7 +1324,7 @@
           id="XMLID_53_"
           x="118.4"
           y="148.6"
-          style="clip-path: url(#SVGID_20_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_20_); fill: #e9d5ff"
           width="13.2"
           height="2.3"
         />
@@ -1340,7 +1340,7 @@
           id="XMLID_52_"
           x="159.1"
           y="136.3"
-          style="clip-path: url(#SVGID_22_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_22_); fill: #e9d5ff"
           width="9.8"
           height="2.3"
         />
@@ -1356,7 +1356,7 @@
           id="XMLID_51_"
           x="139.5"
           y="111.9"
-          style="clip-path: url(#SVGID_24_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_24_); fill: #e9d5ff"
           width="17.1"
           height="2.3"
         />
@@ -1472,7 +1472,7 @@
           id="XMLID_31_"
           x="133.8"
           y="148.6"
-          style="clip-path: url(#SVGID_38_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_38_); fill: #e9d5ff"
           width="21"
           height="2.3"
         />
@@ -1488,7 +1488,7 @@
           id="XMLID_22_"
           x="96"
           y="124"
-          style="clip-path: url(#SVGID_40_); fill: #582768"
+          style="clip-path: url(#SVGID_40_); fill: #581c87"
           width="7.8"
           height="2.3"
         />
@@ -1520,7 +1520,7 @@
           id="XMLID_18_"
           x="111.5"
           y="142.4"
-          style="clip-path: url(#SVGID_44_); fill: #f6a1a3"
+          style="clip-path: url(#SVGID_44_); fill: #e9d5ff"
           width="13.8"
           height="2.3"
         />
@@ -1570,7 +1570,7 @@
           id="XMLID_11_"
           x="162.7"
           y="105.8"
-          style="clip-path: url(#SVGID_50_); fill: #582768"
+          style="clip-path: url(#SVGID_50_); fill: #581c87"
           width="11.3"
           height="2.3"
         />
@@ -1676,7 +1676,7 @@ a,
 h3 {
   font-family: sans-serif;
   font-size: 16px;
-  color: #db6b86;
+  color: #a855f7;
 }
 h3 {
   width: 410px;
@@ -1693,13 +1693,13 @@ h3 {
 a {
   padding: 12px 20px;
   border-radius: 50px;
-  border: 2px solid #db6b86;
+  border: 2px solid #a855f7;
   text-decoration: none;
   transition: all 0.4s ease-in-out;
   background-color: #efdfed;
 }
 a:hover {
-  background-color: #db6b86;
+  background-color: #a855f7;
   color: #fff;
 }
 .icon-wrap {
