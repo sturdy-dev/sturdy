@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <h2 class="text-slate-50 font-semibold highlight tracking-tight">
-      <div class="flex flex-col space-y-2">
-        <div class="w-16 h-16">
+    <h2 :class="[accent, 'font-semibold', 'highlight', 'tracking-tight']">
+      <div class="flex flex-row space-x-4 text-lg items-center">
+        <div class="w-8 h-8">
           <slot name="icon"></slot>
         </div>
         <div>
@@ -10,11 +10,11 @@
         </div>
       </div>
     </h2>
-    <div class="my-4 text-sm">
+    <div class="mt-5 text-sm">
       <slot></slot>
     </div>
     <div
-      class="text-sm grow text-amber-500/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
+      class="mt-3 text-sm grow text-slate-500/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center"
     >
       <router-link :to="{ hash: '#' + title.toLowerCase() }" hash="expressive">
         <span class="inline-flex items-center">
@@ -36,6 +36,10 @@ export default defineComponent({
   },
   props: {
     title: {
+      type: String,
+      required: true,
+    },
+    accent: {
       type: String,
       required: true,
     },

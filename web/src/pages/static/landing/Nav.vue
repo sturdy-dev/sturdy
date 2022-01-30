@@ -1,7 +1,7 @@
 <template>
   <Disclosure
     as="nav"
-    class="backdrop-blur-[5px] backdrop-brightness-[.80] backdrop-saturate-[.70] border-b border-slate-700/10 sticky top-0 z-50"
+    class="bg-slate-900 sm:bg-transparent sm:backdrop-blur-[5px] sm:backdrop-brightness-[.80] sm:backdrop-saturate-[.70] border-b border-slate-700/20 sticky top-0 z-50"
     v-slot="{ open }"
   >
     <div class="max-w-6xl mx-auto px-6">
@@ -52,30 +52,30 @@
       </div>
     </div>
 
-    <DisclosurePanel class="sm:hidden mt-8">
-      <div class="px-2 pt-2 pb-3 space-y-1 h-screen">
+    <DisclosurePanel class="sm:hidden mt-10">
+      <div class="px-2 pt-2 pb-3 h-screen">
         <router-link
           :to="{ name: 'download' }"
-          class="block mx-3 py-2 text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+          class="block mb-4 mx-3 py-4 text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
         >
           Get started
         </router-link>
 
         <router-link
           :to="{ name: 'v2DocsRoot' }"
-          class="text-gray-300 block mx-3 py-2 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
+          class="text-gray-300 block mx-3 py-4 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
         >
           Docs
         </router-link>
         <router-link
           :to="{ name: 'pricing' }"
-          class="text-gray-300 block mx-3 py-2 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
+          class="text-gray-300 block mx-3 py-4 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
         >
           Pricing
         </router-link>
         <router-link
           :to="{ name: 'blog' }"
-          class="text-gray-300 block mx-3 py-2 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
+          class="text-gray-300 block mx-3 py-4 text-base font-medium border-b border-slate-700 hover:bg-slate-800/50 hover:text-white"
         >
           Blog
         </router-link>

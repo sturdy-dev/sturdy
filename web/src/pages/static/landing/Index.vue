@@ -7,7 +7,7 @@
 
       <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
         <h1
-          class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-white"
+          class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-slate-50"
         >
           Real-time code collaboration.
         </h1>
@@ -19,7 +19,7 @@
           that allows you to interact with your code at a higher abstraction level.
         </p>
         <div
-          class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 <!-- justify-center--> text-sm"
+          class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 text-sm"
         >
           <router-link
             :to="{ name: 'download' }"
@@ -36,7 +36,21 @@
             <ChevronRightIcon class="h-6 w-6 ml-1" />
           </router-link>
         </div>
+
+        <div class="flex flex-row space-x-6 justify-center mt-10 mx-6 text-sm">
+          <div class="text-lg font-bold tracking-tight text-slate-400/50">backed by</div>
+          <div class="flex space-x-10 items-center">
+            <a href="https://www.ycombinator.com/companies/sturdy">
+              <img
+                src="../../../assets/Landing/ycombinator-logo.png"
+                alt="Y Combinator logo"
+                class="object-contain h-6 grayscale opacity-50"
+              />
+            </a>
+          </div>
+        </div>
       </div>
+
       <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
         <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
           <UspVideo />
@@ -44,79 +58,44 @@
       </div>
     </div>
 
-    <div class="px-6">
-      <div class="pt-16 max-w-6xl px-4 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
-        <div
-          class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300/70 inline-flex space-x-4 items-center"
-        >
-          <div>Backed by</div>
-          <div class="flex space-x-10 items-center">
-            <a href="https://www.ycombinator.com/companies/sturdy">
-              <img
-                src="../../../assets/Landing/ycombinator-logo.png"
-                alt="Y Combinator logo"
-                class="object-contain h-6 grayscale"
-              />
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <section id="features">
-      <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
-        <div class="pt-16 max-w-6xl px-6 sm:px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+      <div class="bg-slate-800/50 border-y border-slate-700 mt-20">
+        <div class="my-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
           <h1
-            class="text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
+            class="mb-12 sm:text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
           >
             A new home for your code
           </h1>
-          <div class="pt-10 flex flex-col sm:flex-row sm:space-x-20 space-y-10 md:space-y-0">
-            <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
-              <MiniUsp class="md:w-1/2" title="Expressive">
-                <template #icon>
-                  <IconDevelop />
-                </template>
-                <p>
-                  Ship the code to production &mdash; <br />
-                  instead of the usual dance of creating a branch, staging and committing files,
-                  pushing, and merging.
-                </p>
-              </MiniUsp>
+          <div class="flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
+            <MiniUsp class="md:w-1/3" title="Expressive" accent="text-amber-500">
+              <template #icon>
+                <FireIcon />
+              </template>
+              <span>
+                Ship your code to production &mdash; <br />
+                instead of creating a branches, staging and committing files, pushing, and merging.
+              </span>
+            </MiniUsp>
 
-              <MiniUsp class="md:w-1/2" title="Collaborative">
-                <template #icon>
-                  <IconGears />
-                </template>
-                <div>
-                  Try each others code and give actionable feedback &mdash; <br />
-                  instead of guessing what a pull request does and LGTM-ing anyway.
-                </div>
-              </MiniUsp>
-            </div>
+            <MiniUsp class="md:w-1/3" title="Collaborative" accent="text-purple-400">
+              <template #icon>
+                <CogIcon />
+              </template>
+              <span>
+                Try each others code &mdash; <br />
+                instead of guessing what a pull request does and LGTM-ing anyway.
+              </span>
+            </MiniUsp>
 
-            <div class="md:w-1/2 flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
-              <MiniUsp class="md:w-1/2" title="Compatible">
-                <template #icon>
-                  <IconMobile />
-                </template>
-                <div>
-                  Use Sturdy together with GitHub &mdash; or on it's own. By yourself &mdash; or
-                  with others on your team. Run your own instance &mdash; or use Sturdy in the
-                  cloud.
-                </div>
-              </MiniUsp>
-
-              <MiniUsp class="md:w-1/2" title="Streamlined">
-                <template #icon>
-                  <IconDesktop />
-                </template>
-                <div>
-                  Ship small, incremental changes as the default &mdash;<br />
-                  instead of reminding yourself to "push often" and "keep the PR small".
-                </div>
-              </MiniUsp>
-            </div>
+            <MiniUsp class="md:w-1/3" title="Streamlined" accent="text-green-500">
+              <template #icon>
+                <RefreshIcon />
+              </template>
+              <span>
+                Ship small, incremental changes &mdash;<br />
+                instead of reminding yourself to "push often" and "keep the PR small".
+              </span>
+            </MiniUsp>
           </div>
         </div>
       </div>
@@ -126,6 +105,7 @@
         title="Expressive"
         subtitle="Don't hand-hold your version control."
         link="v2DocsHowToEditCode"
+        accent="text-amber-500"
       >
         <template #icon>
           <IconDevelop class="" />
@@ -152,6 +132,7 @@
         title="Collaborative"
         subtitle="Collaborative everything."
         link="v2DocsHowToCollaborateWithOthers"
+        accent="text-purple-400"
       >
         <template #icon>
           <IconGears></IconGears>
@@ -159,7 +140,7 @@
         <template #left>
           <p>
             When it comes to working together on code, we believe that
-            <span class="text-amber-500">continuous feedback</span>
+            <span class="text-purple-400">continuous feedback</span>
             is better than formal code "reviews".
           </p>
           <p>
@@ -187,6 +168,32 @@
               <span>See it in action</span>
             </template>
           </UspDetailsPair>
+        </template>
+        <template #right>
+          <UspVideo />
+        </template>
+      </Usp>
+
+      <Usp
+        title="Streamlined"
+        subtitle="For the workflow that you're already using."
+        link="v2DocsHotToShipSoftwareToProduction"
+        accent="text-green-500"
+      >
+        <template #icon>
+          <IconDesktop></IconDesktop>
+        </template>
+        <template #left>
+          <p>
+            We believe that, for most software, shipping small and often is more effective than
+            developing in long-lived feature branches.
+          </p>
+          <p>
+            We are building Sturdy specifically around
+            <span class="text-green-500">trunk-based development</span> and
+            <span class="text-green-500">continuous delivery</span>. It optimizes for integration
+            frequency and makes shipping of small incremental changes the intuitive default.
+          </p>
         </template>
         <template #right>
           <UspVideo />
@@ -238,30 +245,6 @@
         </template>
       </Usp>
 
-      <Usp
-        title="Streamlined"
-        subtitle="For the workflow that you're already using."
-        link="v2DocsHotToShipSoftwareToProduction"
-      >
-        <template #icon>
-          <IconDesktop></IconDesktop>
-        </template>
-        <template #left>
-          <p>
-            We believe that, for most software, shipping small and often is more effective than
-            developing in long-lived feature branches.
-          </p>
-          <p>
-            We are building Sturdy specifically around
-            <span class="text-amber-500">trunk-based development</span> and
-            <span class="text-amber-500">continuous delivery</span>. It optimizes for integration
-            frequency and makes shipping of small incremental changes the intuitive default.
-          </p>
-        </template>
-        <template #right>
-          <UspVideo />
-        </template>
-      </Usp>
       <Usp title="Open-source" subtitle="For engineers, by engineers." link="v2DocsRoot">
         <template #icon>
           <IconLaptop></IconLaptop>
@@ -332,22 +315,30 @@
             <h1 class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300">
               Featured at
             </h1>
-            <div class="flex space-x-10 items-center">
+            <div
+              class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-10 sm:items-center"
+            >
               <a href="https://websummit.com/schedule/ws21/timeslot/breakout-startups-1104-0927">
                 <img
                   src="./web-summit.png"
                   alt="Web Summit logotype"
-                  class="rounded-xl object-contain h-6"
+                  class="rounded-xl object-contain h-4"
                 />
               </a>
               <a href="https://devsecops.fm/episodes/36-sturdy/">
                 <img
                   src="./devsecops.png"
                   alt="DevSecOps logotype"
-                  class="rounded-xl object-contain h-8"
+                  class="rounded-xl object-contain h-6"
                 />
               </a>
-              <img src="./devcon.png" alt="Devcon logotype" class="rounded-xl object-contain h-8" />
+              <a href="">
+                <img
+                  src="./devcon.png"
+                  alt="Devcon logotype"
+                  class="rounded-xl object-contain h-6"
+                />
+              </a>
             </div>
           </div>
         </div>
@@ -382,6 +373,9 @@ import {
   LightBulbIcon,
   DuplicateIcon,
   ExternalLinkIcon,
+  FireIcon,
+  CogIcon,
+  RefreshIcon,
 } from '@heroicons/vue/outline'
 
 export default defineComponent({
@@ -403,6 +397,9 @@ export default defineComponent({
     PlayIcon,
     LightBulbIcon,
     DuplicateIcon,
+    FireIcon,
+    CogIcon,
+    RefreshIcon,
   },
   setup() {
     // TODO: Remove when we're launching!
