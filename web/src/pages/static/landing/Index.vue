@@ -105,10 +105,10 @@
         title="Expressive"
         subtitle="Don't hand-hold your version control."
         link="v2DocsHowToEditCode"
-        accent="text-amber-500"
+        accent="amber-500"
       >
         <template #icon>
-          <IconDevelop class="" />
+          <IconDevelop class="border-amber-500/80 border-2 rounded-full w-20 h-20" />
         </template>
         <template #left>
           <p>
@@ -132,10 +132,10 @@
         title="Collaborative"
         subtitle="Collaborative everything."
         link="v2DocsHowToCollaborateWithOthers"
-        accent="text-purple-400"
+        accent="purple-400"
       >
         <template #icon>
-          <IconGears></IconGears>
+          <IconGears class="border-purple-400/80 border-2 rounded-full w-20 h-20"></IconGears>
         </template>
         <template #left>
           <p>
@@ -156,13 +156,13 @@
             right-body="Give code suggestions by simpy typing in your IDE."
           >
             <template #leftIcon>
-              <PlayIcon class="h-10 w-10 mb-4 text-purple-500" />
+              <PlayIcon class="text-purple-400" />
             </template>
             <template #leftLink>
               <span>See it in action</span>
             </template>
             <template #rightIcon>
-              <LightBulbIcon class="h-10 w-10 mb-4 text-purple-500" />
+              <LightBulbIcon class="text-purple-400" />
             </template>
             <template #rightLink>
               <span>See it in action</span>
@@ -178,10 +178,10 @@
         title="Streamlined"
         subtitle="For the workflow that you're already using."
         link="v2DocsHotToShipSoftwareToProduction"
-        accent="text-green-500"
+        accent="green-500"
       >
         <template #icon>
-          <IconDesktop></IconDesktop>
+          <IconDesktop class="border-green-500/80 border-2 rounded-full w-20 h-20"></IconDesktop>
         </template>
         <template #left>
           <p>
@@ -204,9 +204,10 @@
         title="Compatible"
         subtitle="Worried about compatibility? Don't be."
         link="v2DocsHowSturdyAugmentsGit"
+        accent="amber-500"
       >
         <template #icon>
-          <IconMobile></IconMobile>
+          <IconMobile class="border-amber-500/80 border-2 rounded-full w-20 h-20"></IconMobile>
         </template>
         <template #left>
           <p>
@@ -227,13 +228,13 @@
             right-body="Submit and merge pull requests without leaving Sturdy."
           >
             <template #leftIcon>
-              <PlayIcon class="h-10 w-10 mb-4 text-purple-500" />
+              <PlayIcon class="text-amber-500" />
             </template>
             <template #leftLink>
               <span>See it in action</span>
             </template>
             <template #rightIcon>
-              <LightBulbIcon class="h-10 w-10 mb-4 text-purple-500" />
+              <LightBulbIcon class="text-amber-500" />
             </template>
             <template #rightLink>
               <span>See it in action</span>
@@ -245,9 +246,14 @@
         </template>
       </Usp>
 
-      <Usp title="Open-source" subtitle="For engineers, by engineers." link="v2DocsRoot">
+      <Usp
+        title="Open-source"
+        subtitle="For engineers, by engineers."
+        link="v2DocsRoot"
+        accent="purple-400"
+      >
         <template #icon>
-          <IconLaptop></IconLaptop>
+          <IconLaptop class="border-purple-400/80 border-2 rounded-full w-20 h-20"></IconLaptop>
         </template>
         <template #left>
           <p>
@@ -256,8 +262,8 @@
           </p>
           <p>
             We are building Sturdy specifically around
-            <span class="text-amber-500">trunk-based development</span>, and
-            <span class="text-amber-500">continuous delivery</span>. It optimizes for integration
+            <span class="text-purple-400">trunk-based development</span>, and
+            <span class="text-purple-400">continuous delivery</span>. It optimizes for integration
             frequency and makes shipping of small incremental changes the intuitive default.
           </p>
         </template>

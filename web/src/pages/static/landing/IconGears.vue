@@ -1,18 +1,18 @@
 <template>
   <svg class="icon-support" viewBox="0 0 297.8 338.3">
     <g id="XMLID_2_">
-      <linearGradient
-        id="XMLID_152_ccc"
-        gradientUnits="userSpaceOnUse"
-        x1="306.8558"
-        y1="121.1685"
-        x2="473.9469"
-        y2="288.2596"
-        gradientTransform="matrix(1.2556 -8.690000e-002 -8.690000e-002 1.3971 -298.7608 -66.8389)"
-      >
-        <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />
-        <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />
-      </linearGradient>
+      <!--      <linearGradient-->
+      <!--        id="XMLID_152_ccc"-->
+      <!--        gradientUnits="userSpaceOnUse"-->
+      <!--        x1="306.8558"-->
+      <!--        y1="121.1685"-->
+      <!--        x2="473.9469"-->
+      <!--        y2="288.2596"-->
+      <!--        gradientTransform="matrix(1.2556 -8.690000e-002 -8.690000e-002 1.3971 -298.7608 -66.8389)"-->
+      <!--      >-->
+      <!--        <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />-->
+      <!--        <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />-->
+      <!--      </linearGradient>-->
       <path
         id="XMLID_103_"
         fill="url(#XMLID_152_ccc)"
@@ -28,9 +28,9 @@
         x2="168.7503"
         y2="126.9058"
       >
-        <stop offset="6.016400e-002" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-002" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-002" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-002" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_100_"
@@ -102,9 +102,9 @@
           x2="185.4546"
           y2="179.1774"
         >
-          <stop offset="9.016400e-002" style="stop-color: #a62257" />
-          <stop offset="0.4541" style="stop-color: #86245e" />
-          <stop offset="1" style="stop-color: #582768" />
+          <stop offset="9.016400e-002" style="stop-color: #9333ea" />
+          <stop offset="0.4541" style="stop-color: #6b21a8" />
+          <stop offset="1" style="stop-color: #581c87" />
         </linearGradient>
         <path
           id="XMLID_18_"
@@ -127,7 +127,7 @@
       <g id="XMLID_78_">
         <path
           id="XMLID_79_"
-          fill="#A52257"
+          fill="#a78bfa"
           d="M72.2,192.8l-1.8,0.4c-0.4,0.1-0.9-0.1-1.2-0.5l-0.5-0.7c-0.3-0.3-0.3-0.9-0.1-1.3l1-1.6
 				c0.2-0.4,0.1-0.8-0.2-1.1l-2.4-1.5c-0.4-0.2-0.9-0.1-1.1,0.3l-1,1.6c-0.2,0.4-0.7,0.6-1.2,0.5l-0.9-0.1c-0.4,0-0.9-0.4-1-0.8
 				l-0.4-1.8c-0.1-0.4-0.5-0.7-0.9-0.6l-2.8,0.7c-0.4,0.1-0.7,0.5-0.6,0.9l0.4,1.8c0.1,0.4-0.1,0.9-0.5,1.2l-0.7,0.5
@@ -236,9 +236,9 @@
         x2="254.0015"
         y2="132.6568"
       >
-        <stop offset="6.016400e-002" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-002" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-002" style="stop-color: #a855f7" />
+        <stop offset="8.596202e-002" style="stop-color: #c084fc" />
+        <stop offset="1" style="stop-color: #e9d5ff" />
       </linearGradient>
       <path
         id="XMLID_55_"

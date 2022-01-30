@@ -1,17 +1,17 @@
 <template>
   <svg class="icon-webApps" viewBox="0 0 364 389.9">
-    <linearGradient
-      id="XMLID_17_k"
-      gradientUnits="userSpaceOnUse"
-      x1="66.8229"
-      y1="440.292"
-      x2="201.8227"
-      y2="103.2921"
-      gradientTransform="matrix(1 0 0 -1 0 392)"
-    >
-      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />
-      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />
-    </linearGradient>
+    <!--    <linearGradient-->
+    <!--      id="XMLID_17_k"-->
+    <!--      gradientUnits="userSpaceOnUse"-->
+    <!--      x1="66.8229"-->
+    <!--      y1="440.292"-->
+    <!--      x2="201.8227"-->
+    <!--      y2="103.2921"-->
+    <!--      gradientTransform="matrix(1 0 0 -1 0 392)"-->
+    <!--    >-->
+    <!--      <stop offset="0.1902" style="stop-color: rgba(239, 223, 237, 0.2)" />-->
+    <!--      <stop offset="1" style="stop-color: rgba(253, 240, 246, 0.05)" />-->
+    <!--    </linearGradient>-->
     <path
       id="XMLID_258_"
       style="fill: url(#XMLID_17_k)"
@@ -35,7 +35,7 @@
     />
     <path
       id="XMLID_254_"
-      style="fill: #9e2159"
+      style="fill: #14532d"
       d="M315.6,304.7c0,1.5-0.6,3-1.7,4.2c-1.2,1.2-2.7,1.7-4.2,1.7h-256
 	c-1.5,0-3-0.6-4.2-1.7c-1.2-1.2-1.7-2.7-1.7-4.2v-17.9h267.9L315.6,304.7L315.6,304.7z"
     />
@@ -48,9 +48,9 @@
       y2="276.4447"
       gradientTransform="matrix(1 0 0 -1 0 392)"
     >
-      <stop offset="9.016399e-02" style="stop-color: #a62257" />
-      <stop offset="0.4541" style="stop-color: #86245e" />
-      <stop offset="1" style="stop-color: #582768" />
+      <stop offset="9.016399e-02" style="stop-color: #16a34a" />
+      <stop offset="0.4541" style="stop-color: #166534" />
+      <stop offset="1" style="stop-color: #14532d" />
     </linearGradient>
     <path
       id="XMLID_253_"
@@ -80,7 +80,7 @@
     />
     <polygon
       id="XMLID_119_"
-      style="opacity: 0.1; fill: #9e2159; enable-background: new"
+      style="opacity: 0.1; fill: #14532d; enable-background: new"
       points="280.9,109.3 82.3,109.3 100.5,273.4
 	262.7,273.4 "
     />
@@ -94,9 +94,9 @@
         y2="169.1"
         gradientTransform="matrix(1 0 0 -1 0 392)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #22c55e" />
+        <stop offset="8.596202e-02" style="stop-color: #4ade80" />
+        <stop offset="1" style="stop-color: #bbf7d0" />
       </linearGradient>
       <path
         id="XMLID_249_"
@@ -524,7 +524,7 @@
         </g>
       </g>
     </g>
-    <rect id="XMLID_118_" x="100.5" y="58.5" style="fill: #582768" width="162.2" height="214.9" />
+    <rect id="XMLID_118_" x="100.5" y="58.5" style="fill: #14532d" width="162.2" height="214.9" />
     <rect id="XMLID_117_" x="108.5" y="68.7" style="fill: #ffffff" width="146.2" height="204.7" />
     <linearGradient
       id="XMLID_21_k"
@@ -535,9 +535,9 @@
       y2="207.2943"
       gradientTransform="matrix(1 0 0 -1 0 392)"
     >
-      <stop offset="9.016399e-02" style="stop-color: #a62257" />
-      <stop offset="0.4541" style="stop-color: #86245e" />
-      <stop offset="1" style="stop-color: #582768" />
+      <stop offset="9.016399e-02" style="stop-color: #16a34a" />
+      <stop offset="0.4541" style="stop-color: #166534" />
+      <stop offset="1" style="stop-color: #14532d" />
     </linearGradient>
     <rect
       id="XMLID_116_"
@@ -557,9 +557,9 @@
         y2="162.3994"
         gradientTransform="matrix(1 0 0 -1 0 392)"
       >
-        <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-        <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-        <stop offset="1" style="stop-color: #f7a6a5" />
+        <stop offset="6.016400e-02" style="stop-color: #22c55e" />
+        <stop offset="8.596202e-02" style="stop-color: #4ade80" />
+        <stop offset="1" style="stop-color: #bbf7d0" />
       </linearGradient>
       <rect
         id="XMLID_115_"
@@ -569,62 +569,62 @@
         width="37.4"
         height="23.4"
       />
-      <rect id="XMLID_114_" x="162.9" y="259.4" style="fill: #9e2159" width="37.4" height="4.3" />
+      <rect id="XMLID_114_" x="162.9" y="259.4" style="fill: #14532d" width="37.4" height="4.3" />
     </g>
     <polygon class="play-btn" style="fill: #ffffff" points="179.1,244.8 184.2,247.7 179.1,250.6 " />
     <g id="XMLID_98_">
       <g id="XMLID_68_">
-        <rect id="XMLID_74_" x="210.1" y="236" style="fill: #ee8c97" width="18.7" height="2.4" />
-        <rect id="XMLID_73_" x="210.1" y="240.6" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_72_" x="210.1" y="243.8" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_71_" x="210.1" y="247" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_70_" x="210.1" y="250.1" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_69_" x="219.5" y="253.3" style="fill: #ee8c97" width="18.7" height="1" />
+        <rect id="XMLID_74_" x="210.1" y="236" style="fill: #bbf7d0" width="18.7" height="2.4" />
+        <rect id="XMLID_73_" x="210.1" y="240.6" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_72_" x="210.1" y="243.8" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_71_" x="210.1" y="247" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_70_" x="210.1" y="250.1" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_69_" x="219.5" y="253.3" style="fill: #bbf7d0" width="18.7" height="1" />
       </g>
     </g>
     <g id="XMLID_95_">
-      <rect id="XMLID_97_" x="210.1" y="259.4" style="fill: #9e2159" width="28.1" height="4.3" />
-      <rect id="XMLID_96_" x="238.2" y="259.4" style="fill: #9e2159" width="9.3" height="4.3" />
+      <rect id="XMLID_97_" x="210.1" y="259.4" style="fill: #14532d" width="28.1" height="4.3" />
+      <rect id="XMLID_96_" x="238.2" y="259.4" style="fill: #14532d" width="9.3" height="4.3" />
     </g>
     <g id="XMLID_84_">
       <g id="XMLID_48_">
-        <rect id="XMLID_52_" x="115.7" y="253.1" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_51_" x="115.7" y="256.3" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_50_" x="115.7" y="259.5" style="fill: #ee8c97" width="37.4" height="1" />
-        <rect id="XMLID_49_" x="115.7" y="262.6" style="fill: #ee8c97" width="23.8" height="1" />
+        <rect id="XMLID_52_" x="115.7" y="253.1" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_51_" x="115.7" y="256.3" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_50_" x="115.7" y="259.5" style="fill: #bbf7d0" width="37.4" height="1" />
+        <rect id="XMLID_49_" x="115.7" y="262.6" style="fill: #bbf7d0" width="23.8" height="1" />
       </g>
     </g>
     <g id="XMLID_75_">
       <g id="XMLID_36_">
-        <rect id="XMLID_39_" x="134.2" y="236" style="fill: #ee8c97" width="18.9" height="2.4" />
-        <rect id="XMLID_38_" x="134.2" y="240.6" style="fill: #ee8c97" width="18.9" height="1" />
-        <rect id="XMLID_37_" x="134.2" y="243.8" style="fill: #ee8c97" width="11.5" height="1" />
+        <rect id="XMLID_39_" x="134.2" y="236" style="fill: #bbf7d0" width="18.9" height="2.4" />
+        <rect id="XMLID_38_" x="134.2" y="240.6" style="fill: #bbf7d0" width="18.9" height="1" />
+        <rect id="XMLID_37_" x="134.2" y="243.8" style="fill: #bbf7d0" width="11.5" height="1" />
       </g>
     </g>
     <rect
       class="panel hover panel4 origin-center"
       x="115.7"
       y="236"
-      style="fill: #a42258"
+      style="fill: #14532d"
       width="14.8"
       height="14"
     />
-    <rect id="XMLID_64_" x="115.7" y="212.3" style="fill: #9e2159" width="37.4" height="3.1" />
-    <rect id="XMLID_63_" x="115.7" y="218.5" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_62_" x="115.7" y="221.9" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_61_" x="126.1" y="225.3" style="fill: #ee8c97" width="16.7" height="1" />
+    <rect id="XMLID_64_" x="115.7" y="212.3" style="fill: #14532d" width="37.4" height="3.1" />
+    <rect id="XMLID_63_" x="115.7" y="218.5" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_62_" x="115.7" y="221.9" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_61_" x="126.1" y="225.3" style="fill: #bbf7d0" width="16.7" height="1" />
     <rect
       class="panel hover panel3 origin-center"
       x="115.7"
       y="183.5"
-      style="fill: #9e2159"
+      style="fill: #14532d"
       width="37.4"
       height="22.8"
     />
-    <rect id="XMLID_58_" x="162.9" y="212.3" style="fill: #9e2159" width="37.4" height="3.1" />
-    <rect id="XMLID_57_" x="162.9" y="218.5" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_56_" x="162.9" y="221.9" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_55_" x="173.3" y="225.3" style="fill: #ee8c97" width="16.7" height="1" />
+    <rect id="XMLID_58_" x="162.9" y="212.3" style="fill: #14532d" width="37.4" height="3.1" />
+    <rect id="XMLID_57_" x="162.9" y="218.5" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_56_" x="162.9" y="221.9" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_55_" x="173.3" y="225.3" style="fill: #bbf7d0" width="16.7" height="1" />
     <path
       class="pause-btn"
       style="fill: #ffffff"
@@ -634,19 +634,19 @@
       class="panel hover panel2 origin-center"
       x="162.9"
       y="183.5"
-      style="fill: #9e2159"
+      style="fill: #14532d"
       width="37.4"
       height="22.8"
     />
-    <rect id="XMLID_53_" x="210.1" y="212.3" style="fill: #9e2159" width="37.4" height="3.1" />
-    <rect id="XMLID_47_" x="210.1" y="218.5" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_46_" x="210.1" y="221.9" style="fill: #ee8c97" width="37.4" height="1" />
-    <rect id="XMLID_45_" x="220.5" y="225.3" style="fill: #ee8c97" width="16.7" height="1" />
+    <rect id="XMLID_53_" x="210.1" y="212.3" style="fill: #14532d" width="37.4" height="3.1" />
+    <rect id="XMLID_47_" x="210.1" y="218.5" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_46_" x="210.1" y="221.9" style="fill: #bbf7d0" width="37.4" height="1" />
+    <rect id="XMLID_45_" x="220.5" y="225.3" style="fill: #bbf7d0" width="16.7" height="1" />
     <rect
       class="panel hover panel1 origin-center"
       x="210.1"
       y="183.5"
-      style="fill: #582768"
+      style="fill: #14532d"
       width="37.4"
       height="22.8"
     />
@@ -659,9 +659,9 @@
       y2="298.15"
       gradientTransform="matrix(1 0 0 -1 0 392)"
     >
-      <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-      <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-      <stop offset="1" style="stop-color: #f7a6a5" />
+      <stop offset="6.016400e-02" style="stop-color: #22c55e" />
+      <stop offset="8.596202e-02" style="stop-color: #4ade80" />
+      <stop offset="1" style="stop-color: #bbf7d0" />
     </linearGradient>
     <rect
       id="XMLID_43_"
@@ -672,7 +672,7 @@
       height="10.1"
     />
     <rect id="XMLID_41_" x="191.7" y="91.5" style="fill: #ffffff" width="37.2" height="4.7" />
-    <rect id="XMLID_40_" x="231.6" y="88.8" style="fill: #582768" width="15.9" height="10.1" />
+    <rect id="XMLID_40_" x="231.6" y="88.8" style="fill: #14532d" width="15.9" height="10.1" />
     <g class="blink">
       <rect id="XMLID_35_" x="119" y="93.3" style="fill: #ffffff" width="10.3" height="1.2" />
       <rect
@@ -703,7 +703,7 @@
         height="1.2"
       />
     </g>
-    <rect id="XMLID_24_" x="100.5" y="58.5" style="fill: #582768" width="162.2" height="10.1" />
+    <rect id="XMLID_24_" x="100.5" y="58.5" style="fill: #14532d" width="162.2" height="10.1" />
     <g id="XMLID_15_">
       <g id="XMLID_31_">
         <rect id="XMLID_34_" x="108.5" y="62.9" style="fill: #ffffff" width="34.9" height="1.4" />
@@ -736,16 +736,16 @@
       y2="57.6"
       gradientTransform="matrix(1 0 0 -1 0 392)"
     >
-      <stop offset="6.016400e-02" style="stop-color: #db6b86" />
-      <stop offset="8.596202e-02" style="stop-color: #dc6d87" />
-      <stop offset="1" style="stop-color: #f7a6a5" />
+      <stop offset="6.016400e-02" style="stop-color: #22c55e" />
+      <stop offset="8.596202e-02" style="stop-color: #4ade80" />
+      <stop offset="1" style="stop-color: #bbf7d0" />
     </linearGradient>
     <polygon
       id="XMLID_7_"
       style="fill: url(#XMLID_25_k)"
       points="217.4,337.3 141.2,337.3 145.7,331.5 212.9,331.5 "
     />
-    <rect id="XMLID_6_" x="140.8" y="337.3" style="fill: #582768" width="76.2" height="1.5" />
+    <rect id="XMLID_6_" x="140.8" y="337.3" style="fill: #14532d" width="76.2" height="1.5" />
     <g>
       <rect
         class="line hover line-1"
@@ -826,7 +826,7 @@ a,
 h3 {
   font-family: sans-serif;
   font-size: 16px;
-  color: #db6b86;
+  color: #22c55e;
 }
 h3 {
   width: 410px;
@@ -843,13 +843,13 @@ h3 {
 a {
   padding: 12px 20px;
   border-radius: 50px;
-  border: 2px solid #db6b86;
+  border: 2px solid #22c55e;
   text-decoration: none;
   transition: all 0.4s ease-in-out;
   background-color: #efdfed;
 }
 a:hover {
-  background-color: #db6b86;
+  background-color: #22c55e;
   color: #fff;
 }
 .icon-wrap {
