@@ -1,8 +1,8 @@
 <template>
   <section :id="title.toLowerCase()">
-    <div class="relative pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
+    <div class="relative space-y-20 sm:space-y-28">
       <div
-        class="hidden dark:block absolute top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1120] top-0 xl:top-8"
+        class="hidden block absolute top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1120] top-0 xl:top-8"
       ></div>
       <div
         class="relative pt-16 max-w-6xl px-6 sm:px-6 md:px-8 mx-auto flex flex-col items-center md:flex-row lg:gap-8 space-y-6"
@@ -11,7 +11,7 @@
           <div class="w-24">
             <slot name="icon"></slot>
           </div>
-          <h2 class="mt-4 font-semibold text-amber-500">{{ title }}</h2>
+          <h2 :class="['mt-4', 'font-semibold', accent]">{{ title }}</h2>
           <p class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50">
             {{ subtitle }}
           </p>
@@ -53,6 +53,10 @@ export default defineComponent({
       required: true,
     },
     link: {
+      type: String,
+      required: true,
+    },
+    accent: {
       type: String,
       required: true,
     },
