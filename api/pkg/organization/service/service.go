@@ -31,7 +31,7 @@ func New(
 func (svc *Service) ListByUserID(ctx context.Context, userID string) ([]*organization.Organization, error) {
 	members, err := svc.organizationMemberRepository.ListByUserID(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not list organizations by user id: %w", err)
 	}
 
 	var res []*organization.Organization
@@ -39,7 +39,7 @@ func (svc *Service) ListByUserID(ctx context.Context, userID string) ([]*organiz
 	for _, m := range members {
 		org, err := svc.organizationRepository.Get(ctx, m.OrganizationID)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("could not get organization by membership: %w", err)
 		}
 		res = append(res, org)
 	}
@@ -50,7 +50,7 @@ func (svc *Service) ListByUserID(ctx context.Context, userID string) ([]*organiz
 func (svc *Service) Members(ctx context.Context, organizationID string) ([]*organization.Member, error) {
 	members, err := svc.organizationMemberRepository.ListByOrganizationID(ctx, organizationID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get members: %w", err)
 	}
 	return members, nil
 }
@@ -58,7 +58,7 @@ func (svc *Service) Members(ctx context.Context, organizationID string) ([]*orga
 func (svc *Service) GetMember(ctx context.Context, organizationID, userID string) (*organization.Member, error) {
 	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get member: %w", err)
 	}
 	return member, nil
 }
