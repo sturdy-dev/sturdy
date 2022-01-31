@@ -61,7 +61,8 @@ import (
 	module_workspace_activity "getsturdy.com/api/pkg/workspace/activity/module"
 	module_workspace "getsturdy.com/api/pkg/workspace/module"
 	module_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/module"
-	module_vcs "getsturdy.com/api/vcs/module"
+	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -70,6 +71,7 @@ import (
 )
 
 func main() {
+	reposBasePath := flag.String("repos-base-path", "tmp/repos", "path on the filesystem to where all repos can be found")
 	httpListenAddr := flag.String("http-listen-addr", "127.0.0.1:3000", "")
 	httpPprofListenAddr := flag.String("http-pprof-listen-addr", "127.0.0.1:6060", "")
 	gitListenAddr := flag.String("git-listen-addr", "127.0.0.1:3002", "")
@@ -81,6 +83,7 @@ func main() {
 	gitHubAppClientID := flag.String("github-app-client-id", "", "")
 	gitHubAppSecret := flag.String("github-app-secret", "", "")
 	gitHubAppPrivateKeyPath := flag.String("github-app-private-key-path", "", "")
+	gitLfsHostname := flag.String("git-lfs-hostname", "localhost:8888", "")
 	enableTransactionalEmails := flag.Bool("enable-transactional-emails", false, "")
 	exportBucketName := flag.String("export-bucket-name", "", "the S3 bucket to be used for change exports")
 	developmentAllowExtraCorsOrigin := flag.String("development-allow-extra-cors-origin", "", "Additional CORS origin to be allowed")
@@ -119,6 +122,9 @@ func main() {
 			return ctx
 		},
 		func() *zap.Logger { return logger },
+		func() provider.RepoProvider {
+			return provider.New(*reposBasePath, *gitLfsHostname)
+		},
 		func() (*sqlx.DB, error) {
 			return db.TrySetup(logger, *dbSourceAddr, 5*time.Second)
 		},
@@ -160,6 +166,7 @@ func main() {
 		func() http.DevelopmentAllowExtraCorsOrigin {
 			return http.DevelopmentAllowExtraCorsOrigin(*developmentAllowExtraCorsOrigin)
 		},
+		executor.NewProvider,
 	}
 
 	mainModule := func(c *di.Container) {
@@ -210,7 +217,6 @@ func main() {
 		c.Import(module_workspace.Module)
 		c.Import(module_workspace_activity.Module)
 		c.Import(module_workspace_watchers.Module)
-		c.Import(module_vcs.Module)
 	}
 
 	var apiServer api.Starter
