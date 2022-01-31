@@ -424,26 +424,30 @@ func (r *CodebaseResolver) Workspaces(ctx context.Context) ([]resolvers.Workspac
 	return res, nil
 }
 
-func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.AuthorResolver, err error) {
-	codebaseUsers, err := r.root.codebaseUserRepo.GetByCodebase(r.c.ID)
-	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
-	}
-
+func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseMembersArgs) (resolvers []resolvers.AuthorResolver, err error) {
 	userIDs := make(map[string]struct{})
 
-	for _, cu := range codebaseUsers {
-		userIDs[cu.UserID] = struct{}{}
+	// Get direct members (members of the codebase)
+	if args.FilterDirectAccess == nil || *args.FilterDirectAccess == true {
+		codebaseUsers, err := r.root.codebaseUserRepo.GetByCodebase(r.c.ID)
+		if err != nil {
+			return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
+		}
+		for _, cu := range codebaseUsers {
+			userIDs[cu.UserID] = struct{}{}
+		}
 	}
 
-	// also list members of the organization
-	if r.c.OrganizationID != nil {
-		members, err := r.root.organizationService.Members(ctx, *r.c.OrganizationID)
-		if err != nil {
-			return nil, gqlerrors.Error(fmt.Errorf("failed to get organization members: %w", err))
-		}
-		for _, member := range members {
-			userIDs[member.UserID] = struct{}{}
+	// Get indirect members (members of the organization)
+	if args.FilterDirectAccess == nil || *args.FilterDirectAccess == false {
+		if r.c.OrganizationID != nil {
+			members, err := r.root.organizationService.Members(ctx, *r.c.OrganizationID)
+			if err != nil {
+				return nil, gqlerrors.Error(fmt.Errorf("failed to get organization members: %w", err))
+			}
+			for _, member := range members {
+				userIDs[member.UserID] = struct{}{}
+			}
 		}
 	}
 

@@ -39,9 +39,20 @@
 
     <p>{{ inviteMemberStatus }}</p>
 
-    <div class="border-b border-gray-200">
+    <div class="mt-2">
+      <p
+        v-if="
+          data.codebase.organization &&
+          data.codebase.indirectMembers &&
+          data.codebase.indirectMembers.length > 0
+        "
+        class="my-1 text-sm text-gray-500"
+      >
+        The following users are direct members of this codebase
+      </p>
+
       <ul class="divide-y divide-gray-200">
-        <li v-for="member in data.codebase.members" :key="member.id" class="py-4 flex">
+        <li v-for="member in data.codebase.directMembers" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
           <div class="ml-3 flex flex-col">
             <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
@@ -50,31 +61,76 @@
         </li>
       </ul>
     </div>
+
+    <template
+      v-if="
+        data.codebase.organization &&
+        data.codebase.indirectMembers &&
+        data.codebase.indirectMembers.length > 0
+      "
+    >
+      <div class="mt-2">
+        <p class="my-1 text-sm text-gray-500">
+          The following users are members of {{ data.codebase.organization.name }}, and also have
+          access to this codebase:
+        </p>
+
+        <ul class="divide-y divide-gray-200">
+          <li v-for="member in data.codebase.indirectMembers" :key="member.id" class="py-4 flex">
+            <Avatar :author="member" size="10" />
+            <div class="ml-3 flex flex-col">
+              <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
+              <span class="text-sm text-gray-500">{{ member.email }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </template>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import http from '../../http'
 import { PlusIcon } from '@heroicons/vue/solid'
 import Avatar from '../shared/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
+import { defineComponent } from 'vue'
+import {
+  CodebaseInviteMembersQuery,
+  CodebaseInviteMembersQueryVariables,
+} from './__generated__/CodebaseInviteMembers'
 
-export default {
-  name: 'CodebaseSettings',
+export default defineComponent({
   components: { PlusIcon, Avatar },
   props: ['codebaseID', 'showHeader'],
   setup(props) {
-    let { data, executeQuery } = useQuery({
+    let { data, executeQuery } = useQuery<
+      CodebaseInviteMembersQuery,
+      CodebaseInviteMembersQueryVariables
+    >({
       query: gql`
         query CodebaseInviteMembers($id: ID, $shortID: ID) {
           codebase(id: $id, shortID: $shortID) {
             id
             name
-            members {
+
+            directMembers: members(filterDirectAccess: true) {
               id
               email
               name
               avatarUrl
+            }
+
+            indirectMembers: members(filterDirectAccess: false) {
+              id
+              email
+              name
+              avatarUrl
+            }
+
+            organization {
+              id
+              name
             }
           }
         }
@@ -126,5 +182,5 @@ export default {
         })
     },
   },
-}
+})
 </script>
