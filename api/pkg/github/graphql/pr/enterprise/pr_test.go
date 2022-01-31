@@ -172,7 +172,7 @@ func TestPRHighLevel(t *testing.T) {
 		buildQueue,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, logger, executorProvider, postHogClient, eventsSender)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, postHogClient, eventsSender)
 
 	suggestionsService := service_suggestion.New(
 		logger,

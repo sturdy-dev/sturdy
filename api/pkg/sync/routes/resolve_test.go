@@ -23,6 +23,7 @@ import (
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	"getsturdy.com/api/pkg/queue"
@@ -39,7 +40,6 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
@@ -408,7 +408,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		buildQueue,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, logger, executorProvider, nil, eventsSender)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, eventsSender)
 	authService := service_auth.New(codebaseService, nil, workspaceService, nil, nil)
 
 	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)

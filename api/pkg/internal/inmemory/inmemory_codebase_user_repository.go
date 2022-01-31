@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"context"
 	"database/sql"
 
 	"getsturdy.com/api/pkg/codebase"
@@ -47,4 +48,16 @@ func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID, codebaseID
 		}
 	}
 	return nil, sql.ErrNoRows
+}
+
+func (r *inMemoryCodebaseUserRepository) DeleteByID(_ context.Context, id string) error {
+	for i, u := range r.users {
+		if u.ID == id {
+			// Remove the element at index i from a.
+			r.users[i] = r.users[len(r.users)-1]              // Copy last element to index i.
+			r.users[len(r.users)-1] = codebase.CodebaseUser{} // Erase last element (write zero value).
+			r.users = r.users[:len(r.users)-1]                // Truncate slice.
+		}
+	}
+	return nil
 }

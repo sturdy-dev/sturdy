@@ -16,7 +16,6 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/events"
-	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/shortid"
 	service_user "getsturdy.com/api/pkg/users/service"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -28,9 +27,8 @@ type Service struct {
 	repo             db_codebase.CodebaseRepository
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 
-	workspaceService    service_workspace.Service
-	userService         service_user.Service
-	organizationService *service_organization.Service
+	workspaceService service_workspace.Service
+	userService      service_user.Service
 
 	logger           *zap.Logger
 	executorProvider executor.Provider
@@ -44,7 +42,6 @@ func New(
 
 	workspaceService service_workspace.Service,
 	userService service_user.Service,
-	organizationService *service_organization.Service,
 
 	logger *zap.Logger,
 	executorProvider executor.Provider,
@@ -55,9 +52,8 @@ func New(
 		repo:             repo,
 		codebaseUserRepo: codebaseUserRepo,
 
-		workspaceService:    workspaceService,
-		userService:         userService,
-		organizationService: organizationService,
+		workspaceService: workspaceService,
+		userService:      userService,
 
 		logger:           logger,
 		executorProvider: executorProvider,
@@ -80,28 +76,10 @@ func (svc *Service) CanAccess(ctx context.Context, userID string, codebaseID str
 	case err == nil:
 		return true, nil
 	case errors.Is(err, sql.ErrNoRows):
-		// fallthrough, check if user is member of organization
+		return false, nil
 	default:
 		return false, fmt.Errorf("failed to check user %s access to codebase %s: %w", userID, codebaseID, err)
 	}
-
-	// Get this codebases organization, and check if the user has access to the organization
-	cb, err := svc.GetByID(ctx, codebaseID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get codebase: %w", err)
-	}
-	if cb.OrganizationID != nil {
-		canAccessOrg, err := svc.organizationService.CanAccess(ctx, userID, *cb.OrganizationID)
-		if err != nil {
-			return false, fmt.Errorf("failed to check if the user can access the org: %w", err)
-		}
-		if canAccessOrg {
-			return true, nil
-		}
-	}
-
-	// User does not have access
-	return false, nil
 }
 
 func (svc *Service) ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error) {
