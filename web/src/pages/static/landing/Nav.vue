@@ -1,8 +1,8 @@
 <template>
   <Disclosure
+    v-slot="{ open }"
     as="nav"
     class="bg-slate-900 sm:bg-transparent sm:backdrop-blur-[5px] sm:backdrop-brightness-[.80] sm:backdrop-saturate-[.70] border-b border-slate-700/20 sticky top-0 z-50"
-    v-slot="{ open }"
   >
     <div class="max-w-6xl mx-auto px-6">
       <div class="flex items-center justify-between h-14">

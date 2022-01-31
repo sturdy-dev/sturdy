@@ -56,10 +56,21 @@
       <ul role="list" class="divide-y divide-gray-200">
         <li v-for="member in organization.members" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
-          <div class="ml-3 flex flex-col">
+          <div class="ml-3 flex flex-col flex-1">
             <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
             <span class="text-sm text-gray-500">{{ member.email }}</span>
           </div>
+
+          <template v-if="organization.writeable">
+            <Button v-if="member.id === user.id" @click="removeUser(member)">
+              <UserRemoveIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              <span>Leave</span>
+            </Button>
+            <Button v-else @click="removeUser(member)">
+              <UserRemoveIcon class="mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              <span>Remove</span>
+            </Button>
+          </template>
         </li>
       </ul>
     </div>
@@ -68,17 +79,18 @@
 
 <script lang="ts">
 import { defineComponent, inject, PropType, ref, Ref } from 'vue'
-import { gql, useMutation } from '@urql/vue'
+import { gql } from '@urql/vue'
 import {
-  InviteUserToOrganizationMutation,
-  InviteUserToOrganizationMutationVariables,
   OrganizationMembersOrganizationFragment,
+  OrganizationMembersUserFragment,
 } from './__generated__/OrganizationMembers'
-import { PlusIcon } from '@heroicons/vue/solid'
+import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import Avatar from '../../components/shared/Avatar.vue'
 import Button from '../../components/shared/Button.vue'
 import { Banner } from '../../atoms'
 import { Feature } from '../../__generated__/types'
+import { useAddUserToOrganization } from '../../mutations/useAddUserToOrganization'
+import { useRemoveUserFromOrganization } from '../../mutations/useRemoveUserFromOrganization'
 
 export const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationMembersOrganization on Organization {
@@ -94,11 +106,21 @@ export const ORGANIZATION_FRAGMENT = gql`
   }
 `
 
+export const USER_FRAGMENT = gql`
+  fragment OrganizationMembersUser on User {
+    id
+  }
+`
+
 export default defineComponent({
-  components: { PlusIcon, Avatar, Button, Banner },
+  components: { PlusIcon, Avatar, Button, Banner, UserRemoveIcon },
   props: {
     organization: {
       type: Object as PropType<OrganizationMembersOrganizationFragment>,
+      required: true,
+    },
+    user: {
+      type: Object as PropType<OrganizationMembersUserFragment>,
       required: true,
     },
   },
@@ -106,31 +128,14 @@ export default defineComponent({
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
 
-    let { executeMutation: execInviteUserToOrganization } = useMutation<
-      InviteUserToOrganizationMutation,
-      InviteUserToOrganizationMutationVariables
-    >(gql`
-      mutation InviteUserToOrganization($email: String!, $organizationID: ID!) {
-        addUserToOrganization(input: { email: $email, organizationID: $organizationID }) {
-          id
-          members {
-            id
-          }
-        }
-      }
-    `)
+    let addUserToOrganization = useAddUserToOrganization()
+    let removeUserFromOrganization = useRemoveUserFromOrganization()
 
     return {
       isMultiTenancyEnabled,
 
-      async inviteUserToOrganization(email: string, organizationID: string) {
-        const variables = { email, organizationID }
-        return execInviteUserToOrganization(variables).then((result) => {
-          if (result.error) {
-            throw new Error(result.error)
-          }
-        })
-      },
+      addUserToOrganization,
+      removeUserFromOrganization,
     }
   },
   data() {
@@ -145,7 +150,9 @@ export default defineComponent({
       this.showInvitedBanner = false
       this.showFailedBanner = false
 
-      this.inviteUserToOrganization(this.addUserEmail, this.organization.id)
+      const variables = { email: this.addUserEmail, organizationID: this.organization.id }
+
+      this.addUserToOrganization(variables)
         .then(() => {
           this.showInvitedBanner = true
           this.showFailedBanner = false
@@ -155,6 +162,15 @@ export default defineComponent({
           this.showInvitedBanner = false
           this.showFailedBanner = true
         })
+    },
+    removeUser(member) {
+      const variables = { userID: member.id, organizationID: this.organization.id }
+      this.removeUserFromOrganization(variables).then(() => {
+        this.emitter.emit('notification', {
+          title: 'Removed ' + member.name,
+          message: member.name + ' was removed from ' + this.organization.name,
+        })
+      })
     },
   },
 })

@@ -1,16 +1,3 @@
 # cloud.graphql contains the API only available on Sturdy Cloud.
 # Self Hosted instances of Sturdy will use this API to validate licenses, etc.
 
-extend type Mutation {
-    createOrganization(input: CreateOrganizationInput!): Organization!
-    addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
-}
-
-input CreateOrganizationInput {
-    name: String!
-}
-
-input AddUserToOrganizationInput {
-    organizationID: ID!
-    email: String!
-}

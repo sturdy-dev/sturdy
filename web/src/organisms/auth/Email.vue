@@ -121,6 +121,7 @@ export default {
       default: false,
     },
   },
+  emits: ['success'],
   data() {
     return {
       name: '',
@@ -157,7 +158,6 @@ export default {
       return true
     },
   },
-  emits: ['success'],
   methods: {
     verifyOTP(value: string) {
       if (value.length !== this.otpLength) return
