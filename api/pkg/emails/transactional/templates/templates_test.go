@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/jwt"
 	"getsturdy.com/api/pkg/review"
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspace"
 
 	"github.com/stretchr/testify/assert"

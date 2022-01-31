@@ -15,7 +15,7 @@ import (
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/suggestions"
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"

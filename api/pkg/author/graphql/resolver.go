@@ -4,8 +4,8 @@ import (
 	"context"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/user"
-	db_user "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/users"
+	db_user "getsturdy.com/api/pkg/users/db"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"

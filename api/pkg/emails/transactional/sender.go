@@ -24,8 +24,8 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestion "getsturdy.com/api/pkg/suggestions/db"
-	"getsturdy.com/api/pkg/user"
-	db_users "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/users"
+	db_users "getsturdy.com/api/pkg/users/db"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 
 	"go.uber.org/zap"

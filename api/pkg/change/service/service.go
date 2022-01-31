@@ -10,7 +10,7 @@ import (
 	db_change "getsturdy.com/api/pkg/change/db"
 	acl_provider "getsturdy.com/api/pkg/codebase/acl/provider"
 	"getsturdy.com/api/pkg/unidiff"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"

@@ -17,7 +17,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 )
 
 type organizationRootResolver struct {

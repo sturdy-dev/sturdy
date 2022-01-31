@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/notification"
 	db_notification "getsturdy.com/api/pkg/notification/db"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/events"
 
 	"github.com/google/uuid"

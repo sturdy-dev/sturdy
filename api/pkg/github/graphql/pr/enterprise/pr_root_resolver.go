@@ -15,7 +15,7 @@ import (
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"

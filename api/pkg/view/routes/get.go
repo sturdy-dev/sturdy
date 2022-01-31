@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/jsontime"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"

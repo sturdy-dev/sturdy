@@ -8,7 +8,7 @@ import (
 	service_codebases "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/installations"
 	"getsturdy.com/api/pkg/installations/statistics"
-	service_users "getsturdy.com/api/pkg/user/service"
+	service_users "getsturdy.com/api/pkg/users/service"
 )
 
 type Service struct {

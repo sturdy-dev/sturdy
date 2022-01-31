@@ -8,7 +8,7 @@ import (
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/tailscale/hujson"

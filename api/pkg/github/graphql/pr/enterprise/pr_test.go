@@ -54,7 +54,7 @@ import (
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/unidiff"
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	db_activity "getsturdy.com/api/pkg/workspace/activity/db"

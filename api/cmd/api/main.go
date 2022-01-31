@@ -55,7 +55,7 @@ import (
 	module_statuses "getsturdy.com/api/pkg/statuses/module"
 	module_suggestions "getsturdy.com/api/pkg/suggestions/module"
 	module_sync "getsturdy.com/api/pkg/sync/module"
-	module_user "getsturdy.com/api/pkg/user/module"
+	module_user "getsturdy.com/api/pkg/users/module"
 	module_view "getsturdy.com/api/pkg/view/module"
 	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
 	module_workspace_activity "getsturdy.com/api/pkg/workspace/activity/module"

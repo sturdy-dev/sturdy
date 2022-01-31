@@ -5,7 +5,7 @@ import (
 	"log"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/jwt"
-	"getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/users/db"
 	"net/http"
 	"time"
 

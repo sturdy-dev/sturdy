@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"getsturdy.com/api/pkg/comments/decorate"
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/stretchr/testify/assert"
 )

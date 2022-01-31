@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

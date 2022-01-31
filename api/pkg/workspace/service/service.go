@@ -21,7 +21,7 @@ import (
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
-	user_db "getsturdy.com/api/pkg/user/db"
+	user_db "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/events"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"

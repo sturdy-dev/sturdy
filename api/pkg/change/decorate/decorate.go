@@ -9,7 +9,7 @@ import (
 	db_change "getsturdy.com/api/pkg/change/db"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/jsontime"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/vcs"
 	"strings"
 

@@ -9,7 +9,7 @@ import (
 
 	"getsturdy.com/api/pkg/onetime"
 	db_onetime "getsturdy.com/api/pkg/onetime/db"
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 )
 
 type Service struct {
