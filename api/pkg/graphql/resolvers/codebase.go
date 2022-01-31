@@ -59,7 +59,7 @@ type CodebaseResolver interface {
 	ArchivedAt() *int32
 	LastUpdatedAt() *int32
 	Workspaces(ctx context.Context) ([]WorkspaceResolver, error)
-	Members(context.Context) ([]AuthorResolver, error)
+	Members(ctx context.Context, args CodebaseMembersArgs) ([]AuthorResolver, error)
 	Views(ctx context.Context, args CodebaseViewsArgs) ([]ViewResolver, error)
 	LastUsedView(ctx context.Context) (ViewResolver, error)
 	GitHubIntegration(context.Context) (CodebaseGitHubIntegrationResolver, error)
@@ -89,4 +89,8 @@ type CodebaseFileArgs struct {
 
 type IntegrationsArgs struct {
 	ID *graphql.ID
+}
+
+type CodebaseMembersArgs struct {
+	FilterDirectAccess *bool
 }

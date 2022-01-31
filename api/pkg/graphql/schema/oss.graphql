@@ -286,7 +286,18 @@ type Codebase implements Writeable {
     archivedAt: Int
     lastUpdatedAt: Int
     workspaces: [Workspace!]!
-    members: [Author!]!
+
+    # members lists all users are members of this codebase.
+    #
+    # A user can be a direct member of the codebase, or a member of the
+    # organization of the organization that the codebase is in.
+    #
+    # By default both direct and indirect members will be included.
+    #
+    # Set filterDirectAccess to true only return direct members.
+    # Set filterDirectAccess to false to only return indirect members.
+    members(filterDirectAccess: Boolean): [Author!]!
+
     acl: ACL
     isPublic: Boolean!
 
