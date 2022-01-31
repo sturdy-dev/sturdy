@@ -1,5 +1,5 @@
 <template>
-  <div v-if="data" class="flex flex-col">
+  <div v-if="data && data.codebase" class="flex flex-col">
     <div>
       <template v-if="showHeader">
         <label for="add_team_members" class="block text-sm font-medium text-gray-700">
@@ -54,10 +54,21 @@
       <ul class="divide-y divide-gray-200">
         <li v-for="member in data.codebase.directMembers" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
-          <div class="ml-3 flex flex-col">
+          <div class="ml-3 flex flex-col flex-1">
             <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
             <span class="text-sm text-gray-500">{{ member.email }}</span>
           </div>
+
+          <template v-if="data.codebase.writeable">
+            <Button v-if="member.id === data.user.id" @click="removeMember(member)">
+              <UserRemoveIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              <span>Leave</span>
+            </Button>
+            <Button v-else @click="removeMember(member)">
+              <UserRemoveIcon class="mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+              <span>Remove</span>
+            </Button>
+          </template>
         </li>
       </ul>
     </div>
@@ -90,8 +101,7 @@
 </template>
 
 <script lang="ts">
-import http from '../../http'
-import { PlusIcon } from '@heroicons/vue/solid'
+import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import Avatar from '../shared/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent } from 'vue'
@@ -99,9 +109,12 @@ import {
   CodebaseInviteMembersQuery,
   CodebaseInviteMembersQueryVariables,
 } from './__generated__/CodebaseInviteMembers'
+import { useAddUserToCodebase } from '../../mutations/useAddUserToCodebase'
+import { useRemoveUserFromCodebase } from '../../mutations/useRemoveUserFromCodebase'
+import Button from '../shared/Button.vue'
 
 export default defineComponent({
-  components: { PlusIcon, Avatar },
+  components: { PlusIcon, Avatar, UserRemoveIcon, Button },
   props: ['codebaseID', 'showHeader'],
   setup(props) {
     let { data, executeQuery } = useQuery<
@@ -128,10 +141,16 @@ export default defineComponent({
               avatarUrl
             }
 
+            writeable
+
             organization {
               id
               name
             }
+          }
+
+          user {
+            id
           }
         }
       `,
@@ -141,9 +160,16 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
     })
 
+    let addUserToCodebase = useAddUserToCodebase()
+    let removeUserFromCodebase = useRemoveUserFromCodebase()
+
     return {
       data,
-      refresh: () => {
+
+      addUserToCodebase,
+      removeUserFromCodebase,
+
+      refresh() {
         executeQuery({
           requestPolicy: 'network-only',
         })
@@ -158,28 +184,30 @@ export default defineComponent({
   },
   methods: {
     inviteMember() {
-      fetch(http.url('v3/codebases/' + this.codebaseID + '/invite'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_email: this.inviteUserEmail,
-        }),
-        credentials: 'include',
-      })
-        .then(http.checkStatus)
-        .then((response) => response.json())
+      const variables = { codebaseID: this.codebaseID, email: this.inviteUserEmail }
+
+      this.addUserToCodebase(variables)
         .then(() => {
           this.inviteMemberStatus = 'The user was added!'
           this.inviteUserEmail = ''
-          this.refresh()
         })
-        .catch((err) => {
-          if (err.response.status === 400) {
-            this.inviteMemberStatus = 'The user is not yet on Sturdy'
-          } else {
-            this.inviteMemberStatus = 'Something went wrong.'
-          }
+        .catch(() => {
+          this.inviteMemberStatus =
+            'The user could not be added. Check that you entered the right email, and try again.'
         })
+        .finally(this.refresh)
+    },
+
+    removeMember(member: any) {
+      const variables = { codebaseID: this.codebaseID, userID: member.id }
+      this.removeUserFromCodebase(variables)
+        .then(() => {
+          this.emitter.emit('notification', {
+            title: 'Removed ' + member.name,
+            message: member.name + ' was removed from ' + this.data.codebase.name,
+          })
+        })
+        .finally(this.refresh)
     },
   },
 })

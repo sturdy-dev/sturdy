@@ -21,6 +21,8 @@ type CodebaseRootResolver interface {
 	// Mutations
 	CreateCodebase(ctx context.Context, args CreateCodebaseArgs) (CodebaseResolver, error)
 	UpdateCodebase(ctx context.Context, args UpdateCodebaseArgs) (CodebaseResolver, error)
+	AddUserToCodebase(ctx context.Context, args AddUserToCodebaseArgs) (CodebaseResolver, error)
+	RemoveUserFromCodebase(ctx context.Context, args RemoveUserFromCodebaseArgs) (CodebaseResolver, error)
 }
 
 type CodebaseViewsArgs struct {
@@ -93,4 +95,22 @@ type IntegrationsArgs struct {
 
 type CodebaseMembersArgs struct {
 	FilterDirectAccess *bool
+}
+
+type AddUserToCodebaseArgs struct {
+	Input AddUserToCodebaseInput
+}
+
+type AddUserToCodebaseInput struct {
+	CodebaseID graphql.ID
+	Email      string
+}
+
+type RemoveUserFromCodebaseArgs struct {
+	Input RemoveUserFromCodebaseInput
+}
+
+type RemoveUserFromCodebaseInput struct {
+	CodebaseID graphql.ID
+	UserID     graphql.ID
 }

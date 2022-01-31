@@ -310,6 +310,41 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 
 	return &CodebaseResolver{c: cb, root: r}, nil
 }
+func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resolvers.AddUserToCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	// Auth
+	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if _, err := r.codebaseService.AddUserByEmail(ctx, string(args.Input.CodebaseID), args.Input.Email); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &CodebaseResolver{c: cb, root: r}, nil
+}
+
+func (r *CodebaseRootResolver) RemoveUserFromCodebase(ctx context.Context, args resolvers.RemoveUserFromCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	// Auth
+	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.codebaseService.RemoveUser(ctx, string(args.Input.CodebaseID), string(args.Input.UserID)); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &CodebaseResolver{c: cb, root: r}, nil
+}
 
 type CodebaseResolver struct {
 	c    *codebase.Codebase

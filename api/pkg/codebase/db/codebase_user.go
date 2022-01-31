@@ -1,7 +1,9 @@
 package db
 
 import (
+	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/codebase"
 
 	"github.com/jmoiron/sqlx"
@@ -12,6 +14,7 @@ type CodebaseUserRepository interface {
 	GetByUser(userID string) ([]*codebase.CodebaseUser, error)
 	GetByCodebase(codebaseID string) ([]*codebase.CodebaseUser, error)
 	GetByUserAndCodebase(userID, codebaseID string) (*codebase.CodebaseUser, error)
+	DeleteByID(ctx context.Context, id string) error
 }
 
 type codebaseUserRepo struct {
@@ -56,4 +59,12 @@ func (r *codebaseUserRepo) GetByUserAndCodebase(userID, codebaseID string) (*cod
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return &cb, nil
+}
+
+func (r *codebaseUserRepo) DeleteByID(ctx context.Context, id string) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM codebase_users WHERE id = $1`, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete codebase_users by id: %w", err)
+	}
+	return nil
 }
