@@ -166,6 +166,28 @@ func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, ar
 	return &organizationResolver{root: r, org: org}, nil
 }
 
+func (r *organizationRootResolver) RemoveUserFromOrganization(ctx context.Context, args resolvers.RemoveUserFromOrganizationArgs) (resolvers.OrganizationResolver, error) {
+	org, err := r.service.GetByID(ctx, string(args.Input.OrganizationID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanWrite(ctx, org); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	removedByUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.service.RemoveMember(ctx, org.ID, string(args.Input.UserID), removedByUserID); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &organizationResolver{root: r, org: org}, nil
+}
+
 type organizationResolver struct {
 	root *organizationRootResolver
 	org  *organization.Organization

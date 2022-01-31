@@ -135,6 +135,11 @@ type Mutation {
 
     # patches
     removePatches(input: RemovePatchesInput!): Workspace!
+
+    # Organizations
+    createOrganization(input: CreateOrganizationInput!): Organization!
+    addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
+    removeUserFromOrganization(input: RemoveUserFromOrganizationInput!): Organization!
 }
 
 input RemovePatchesInput {
@@ -905,4 +910,18 @@ type Installation {
 # Writeable returns the result of canI Write for the resource itself
 interface Writeable {
     writeable: Boolean!
+}
+
+input CreateOrganizationInput {
+    name: String!
+}
+
+input AddUserToOrganizationInput {
+    organizationID: ID!
+    email: String!
+}
+
+input RemoveUserFromOrganizationInput {
+    organizationID: ID!
+    userID: ID!
 }

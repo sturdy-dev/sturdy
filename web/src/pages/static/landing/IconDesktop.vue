@@ -676,8 +676,8 @@
     <g class="blink">
       <rect id="XMLID_35_" x="119" y="93.3" style="fill: #ffffff" width="10.3" height="1.2" />
       <rect
-        class="blink1"
         id="XMLID_30_"
+        class="blink1"
         x="132.6"
         y="93.3"
         style="fill: #ffffff"
@@ -685,8 +685,8 @@
         height="1.2"
       />
       <rect
-        class="blink2"
         id="XMLID_29_"
+        class="blink2"
         x="146.2"
         y="93.3"
         style="fill: #ffffff"
@@ -694,8 +694,8 @@
         height="1.2"
       />
       <rect
-        class="blink3"
         id="XMLID_28_"
+        class="blink3"
         x="159.7"
         y="93.3"
         style="fill: #ffffff"
@@ -748,8 +748,8 @@
     <rect id="XMLID_6_" x="140.8" y="337.3" style="fill: #14532d" width="76.2" height="1.5" />
     <g>
       <rect
-        class="line hover line-1"
         id="XMLID_5_"
+        class="line hover line-1"
         x="161.8"
         y="156.6"
         style="fill: #ffffff"
@@ -757,8 +757,8 @@
         height="3.4"
       />
       <rect
-        class="line hover line-2"
         id="XMLID_4_"
+        class="line hover line-2"
         x="144.3"
         y="145.9"
         style="fill: #ffffff"
@@ -766,8 +766,8 @@
         height="3.4"
       />
       <rect
-        class="line hover line-3"
         id="XMLID_3_"
+        class="line hover line-3"
         x="144.3"
         y="135"
         style="fill: #ffffff"

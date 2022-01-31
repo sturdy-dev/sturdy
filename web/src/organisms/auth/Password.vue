@@ -1,6 +1,6 @@
 <template>
   <form class="mt-8 space-y-6">
-    <Banner v-if="error" :message="error" status="error" :showIcon="false" />
+    <Banner v-if="error" :message="error" status="error" :show-icon="false" />
 
     <div class="isolate flex flex-col">
       <template v-if="signUp">
@@ -118,6 +118,7 @@ export default {
       default: false,
     },
   },
+  emits: ['success'],
   data() {
     return {
       email: '',
@@ -135,7 +136,6 @@ export default {
       error: undefined as string | undefined,
     }
   },
-  emits: ['success'],
   computed: {
     buttonText() {
       return this.signUp ? 'Sign up' : 'Sign in'
@@ -158,6 +158,24 @@ export default {
       const name = this.nameActivated && !this.isNameWarning
       const passwordRepeat = this.passwordRepeatActivated && !this.isPasswordRepeatWarning
       return this.signUp ? email && password && name && passwordRepeat : email && password
+    },
+  },
+  watch: {
+    name: function () {
+      this.nameActivated = true
+      this.error = undefined
+    },
+    email: function () {
+      this.emailActivated = true
+      this.error = undefined
+    },
+    password: function () {
+      this.passwordActivated = true
+      this.error = undefined
+    },
+    passwordRepeat: function () {
+      this.passwordRepeatActivated = true
+      this.error = undefined
     },
   },
   methods: {
@@ -208,24 +226,6 @@ export default {
       } else {
         this.error = 'Sorry, something went wrong on our side.'
       }
-    },
-  },
-  watch: {
-    name: function () {
-      this.nameActivated = true
-      this.error = undefined
-    },
-    email: function () {
-      this.emailActivated = true
-      this.error = undefined
-    },
-    password: function () {
-      this.passwordActivated = true
-      this.error = undefined
-    },
-    passwordRepeat: function () {
-      this.passwordRepeatActivated = true
-      this.error = undefined
     },
   },
 }

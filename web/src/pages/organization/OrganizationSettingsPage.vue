@@ -14,7 +14,7 @@
           <span>Settings</span>
         </Header>
 
-        <OrganizationMembers :organization="data.organization" />
+        <OrganizationMembers :organization="data.organization" :user="data.user" />
       </div>
     </template>
   </PaddedAppLeftSidebar>
@@ -58,6 +58,10 @@ export default defineComponent({
               avatarUrl
             }
             writeable
+          }
+
+          user {
+            id
           }
         }
       `,

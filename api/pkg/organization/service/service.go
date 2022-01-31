@@ -105,6 +105,23 @@ func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID 
 	return &member, nil
 }
 
+func (svc *Service) RemoveMember(ctx context.Context, orgID, userID, deletedByUserID string) error {
+	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, orgID)
+	if err != nil {
+		return fmt.Errorf("could not get member: %w", err)
+	}
+
+	t := time.Now()
+	member.DeletedAt = &t
+	member.DeletedBy = &deletedByUserID
+
+	if err := svc.organizationMemberRepository.Update(ctx, member); err != nil {
+		return fmt.Errorf("could not update member: %w", err)
+	}
+
+	return nil
+}
+
 func (svc *Service) GetByID(ctx context.Context, organizationID string) (*organization.Organization, error) {
 	member, err := svc.organizationRepository.Get(ctx, organizationID)
 	if err != nil {
