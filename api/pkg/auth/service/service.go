@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
@@ -464,12 +463,12 @@ func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, 
 	if at == accessTypeRead {
 		ok, err := s.codebaseService.UserIsMemberOfCodebaseInOrganization(ctx, userID, org.ID)
 		if err != nil {
-			return err
+			return fmt.Errorf("user does not have access to organization: %w", auth.ErrForbidden)
 		}
 		if ok {
 			return nil
 		}
 	}
 
-	return errors.New("user does not have access to organization")
+	return fmt.Errorf("user does not have access to organization: %w", auth.ErrForbidden)
 }

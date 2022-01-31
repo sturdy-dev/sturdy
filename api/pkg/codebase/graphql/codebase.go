@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -19,13 +20,13 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	db_user "getsturdy.com/api/pkg/user/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -446,7 +447,14 @@ func (r *CodebaseResolver) Members(ctx context.Context) (resolvers []resolvers.A
 		}
 	}
 
+	// stable order
+	ids := make([]string, 0, len(userIDs))
 	for userID := range userIDs {
+		ids = append(ids, userID)
+	}
+	sort.Strings(ids)
+
+	for _, userID := range ids {
 		author, err := r.root.authorResolver.Author(ctx, graphql.ID(userID))
 		switch {
 		case err == nil:
