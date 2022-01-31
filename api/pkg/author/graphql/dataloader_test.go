@@ -1,13 +1,14 @@
 package graphql
 
-//go:generate mockgen -destination internal/mock_db/user_repository_mock.go mash/pkg/user/db Repository
+//go:generate mockgen -destination internal/mock_db/user_repository_mock.go getsturdy.com/api/pkg/user/db Repository
 
 import (
 	"context"
+	"testing"
+
 	"getsturdy.com/api/pkg/author/graphql/internal/mock_db"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	"getsturdy.com/api/pkg/user"
-	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/graph-gophers/graphql-go"

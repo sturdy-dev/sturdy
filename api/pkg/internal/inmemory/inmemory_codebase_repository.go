@@ -76,3 +76,7 @@ func (r *inMemoryCodebaseRepository) ListByOrganization(_ context.Context, id st
 	}
 	return res, nil
 }
+
+func (r *inMemoryCodebaseRepository) Count(_ context.Context) (uint64, error) {
+	return uint64(len(r.codebases)), nil
+}

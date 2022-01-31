@@ -44,6 +44,6 @@ func (f *inMemoryUserRepo) UpdatePassword(u *user.User) error {
 	panic("not implemented")
 }
 
-func (f *inMemoryUserRepo) Count(_ context.Context) (int, error) {
-	return len(f.users), nil
+func (f *inMemoryUserRepo) Count(_ context.Context) (uint64, error) {
+	return uint64(len(f.users)), nil
 }
