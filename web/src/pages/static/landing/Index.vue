@@ -73,7 +73,7 @@
               </template>
               <span>
                 Ship your code to production &mdash; <br />
-                instead of creating a branches, staging and committing files, pushing, and merging.
+                instead of creating branches, staging and committing files, pushing, and merging.
               </span>
             </MiniUsp>
 
@@ -189,7 +189,7 @@
             developing in long-lived feature branches.
           </p>
           <p>
-            We are building Sturdy specifically around
+            We built Sturdy specifically around
             <span class="text-green-500">trunk-based development</span> and
             <span class="text-green-500">continuous delivery</span>. It optimizes for integration
             frequency and makes shipping of small incremental changes the intuitive default.
@@ -246,12 +246,7 @@
         </template>
       </Usp>
 
-      <Usp
-        title="Open-source"
-        subtitle="For engineers, by engineers."
-        link="v2DocsRoot"
-        accent="purple-400"
-      >
+      <Usp title="Open-source" subtitle="Join the community." link="v2DocsRoot" accent="purple-400">
         <template #icon>
           <IconLaptop class="border-purple-400/80 border-2 rounded-full w-20 h-20"></IconLaptop>
         </template>
@@ -267,52 +262,7 @@
             frequency and makes shipping of small incremental changes the intuitive default.
           </p>
         </template>
-        <template #right>
-          <div
-            class="border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl max-h-[60vh] sm:max-h-[none] h-72 lg:h-80 xl:h-96"
-          >
-            <div class="relative w-full flex flex-col">
-              <div class="flex-none border-b border-slate-300/30">
-                <div class="flex items-center h-8 space-x-1.5 px-3">
-                  <div class="w-2.5 h-2.5 bg-red-700 rounded-full"></div>
-                  <div class="w-2.5 h-2.5 bg-yellow-600 rounded-full"></div>
-                  <div class="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                </div>
-
-                <div
-                  class="-mt-6 mb-1 text-sm font-semibold text-slate-400 text-center select-none"
-                >
-                  Bash
-                </div>
-              </div>
-
-              <div class="relative min-h-0 flex-auto flex flex-col">
-                <div class="w-full flex-auto flex min-h-0">
-                  <div class="w-full flex-auto flex min-h-0 overflow-auto">
-                    <div class="w-full relative flex-auto">
-                      <div class="flex flex-col min-h-full text-sm leading-6">
-                        <code
-                          class="inline-flex flex-auto relative block text-slate-50 overflow-auto p-4"
-                        >
-                          <span class="text-slate-400 mr-4 select-none">$</span>
-                          <pre id="oneliner"
-                            >{{ dockerOneliner }}
-                          </pre>
-                        </code>
-                        <div class="flex flex-row-reverse">
-                          <DuplicateIcon
-                            class="cursor-pointer m-4 w-8 h-8 hover:text-slate-50"
-                            @click="copyDockerOneliner"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
+        <template #right> </template>
       </Usp>
 
       <section id="featured">
@@ -345,6 +295,128 @@
                   class="rounded-xl object-contain h-6"
                 />
               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="get-started">
+        <div class="px-6 pt-16 max-w-6xl mx-auto items-center text-center">
+          <h1 class="text-slate-50 uppercase text-sm font-bold tracking-widest">
+            Begin you Sturdy journey
+          </h1>
+
+          <div class="mt-8 flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col md:w-1/2 border rounded border-slate-800 bg-slate-800/50">
+              <h2 class="mx-10 mt-4 flex mt-6 text-2xl font-semibold text-amber-500 tracking-tight">
+                Sturdy in the Cloud
+              </h2>
+              <p
+                class="h-10 my-4 flex mx-10 tracking-tight text-slate-400/80 font-semibold text-sm"
+              >
+                The easiest way of trying Sturdy. Connect a repository from GitHub.
+              </p>
+              <div
+                class="flex flex-col max-h-60 grow shadow-xl border border-slate-300/30 bg-slate-700/50 rounded-xl mx-10 mx-auto"
+              >
+                <div class="my-10">
+                  <p class="tracking-tight mx-10">
+                    Try Sturdy with <span class="text-amber-500">zero setup</span> using the free
+                    forever tier.
+                  </p>
+                  <div
+                    class="bg-gradient-to-t from-amber-500 to-amber-300/0 text-sm w-px h-16 text-slate-900 font-bold mx-auto flex flex-col justify-center items-center"
+                  ></div>
+                  <div class="w-2/3 mx-auto">
+                    <router-link
+                      :to="{ name: 'download' }"
+                      class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
+                    >
+                      <DownloadIcon class="h-6 w-6 mr-1" />
+                      {{ mainDownloadText }}
+                    </router-link>
+                  </div>
+                </div>
+              </div>
+
+              <router-link
+                :to="{ name: 'v2DocsRoot' }"
+                class="mx-10 mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
+              >
+                Read the docs
+                <ChevronRightIcon class="h-5 w-5" />
+              </router-link>
+            </div>
+            <div class="md:w-1/2 border rounded border-slate-800 bg-slate-800/50">
+              <div class="">
+                <h2
+                  class="mx-10 mt-4 flex mt-6 text-2xl font-semibold text-purple-400 tracking-tight"
+                >
+                  Run your own instance
+                </h2>
+                <p
+                  class="h-10 my-4 flex mx-10 tracking-tight text-slate-400/80 font-semibold text-sm"
+                >
+                  Alternatively, run your own Sturdy instance.
+                </p>
+
+                <div class="px-10">
+                  <div
+                    class="border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl"
+                  >
+                    <div class="relative w-full flex flex-col">
+                      <div class="flex-none border-b border-slate-300/30">
+                        <div class="flex items-center h-8 space-x-1.5 px-3">
+                          <div class="w-2.5 h-2.5 bg-red-700 rounded-full"></div>
+                          <div class="w-2.5 h-2.5 bg-yellow-600 rounded-full"></div>
+                          <div class="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
+                        </div>
+
+                        <div
+                          class="-mt-6 mb-1 text-sm font-semibold text-slate-400 text-center select-none"
+                        >
+                          Bash
+                        </div>
+                      </div>
+
+                      <div class="relative min-h-0 flex-auto flex flex-col">
+                        <div class="w-full flex-auto flex min-h-0">
+                          <div class="w-full flex-auto flex min-h-0 overflow-auto">
+                            <div class="w-full relative flex-auto">
+                              <div
+                                class="flex flex-col min-h-full text-sm tracking-tight leading-2"
+                              >
+                                <code
+                                  class="text-left flex relative block text-slate-50 overflow-auto p-4"
+                                >
+                                  <span class="text-slate-400 select-none mr-3">$</span>
+                                  <span style="white-space: pre-line">
+                                    {{ dockerOneliner }}
+                                  </span>
+                                </code>
+                                <div class="flex flex-row-reverse">
+                                  <DuplicateIcon
+                                    class="cursor-pointer m-4 w-8 h-8 hover:text-purple-400"
+                                    @click="copyDockerOneliner"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <router-link
+                :to="{ name: 'v2DocsRoot' }"
+                class="mx-10 mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
+              >
+                Read the docs
+                <ChevronRightIcon class="h-5 w-5" />
+              </router-link>
             </div>
           </div>
         </div>
@@ -434,9 +506,9 @@ export default defineComponent({
       mainDownloadText,
       year: new Date().getFullYear(),
       dockerOneliner: `docker run --interactive --tty \\
-             --publish 30080:80 --publish 30022:22 \\
-             --volume "$(pwd)/sturdydata:/var/data" \\
-             getsturdy/server`,
+                 --publish 30080:80 --publish 30022:22 \\
+                 --volume "$(pwd)/sturdydata:/var/data" \\
+                 getsturdy/server`,
     }
   },
 
