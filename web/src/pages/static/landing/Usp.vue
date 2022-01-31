@@ -2,7 +2,7 @@
   <section :id="title.toLowerCase()">
     <div class="relative space-y-20 sm:space-y-28">
       <div
-        class="block absolute top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
+        class="border-t border-slate-700/30 block absolute top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
       ></div>
       <div
         class="relative pt-16 max-w-6xl px-6 sm:px-6 md:px-8 mx-auto flex flex-col items-center md:flex-row md:space-x-4 md:space-y-0 lg:gap-8 space-y-6"
