@@ -37,6 +37,9 @@ func Signup(logger *zap.Logger, userService service_user.Service, jwtService *se
 		if errors.Is(err, service_user.ErrExists) {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "User already exists"})
 			return
+		} else if errors.Is(err, service_user.ErrExceeded) {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "Maximum number of users exceeded"})
+			return
 		} else if err != nil {
 			logger.Error("failed to create user", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
