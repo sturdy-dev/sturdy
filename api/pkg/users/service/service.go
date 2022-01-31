@@ -21,6 +21,10 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrExceeded = fmt.Errorf("maximum number of users exceeded")
+)
+
 type UserSerice struct {
 	logger                   *zap.Logger
 	userRepo                 db_user.Repository

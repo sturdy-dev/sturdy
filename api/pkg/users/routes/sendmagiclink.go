@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -31,7 +32,10 @@ func SendMagicLink(logger *zap.Logger, userService service_user.Service) gin.Han
 		req.Name = strings.TrimSpace(req.Name)
 
 		newUser, err := userService.Create(c.Request.Context(), req.Name, req.Email)
-		if err != nil {
+		if errors.Is(err, service_user.ErrExceeded) {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Maximum number of users exceeded"})
+			return
+		} else if err != nil {
 			logger.Warn("failed to create user", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to create user"})
 			return
