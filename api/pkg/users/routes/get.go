@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
-	"getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/users/db"
 
 	"github.com/gin-gonic/gin"
 )

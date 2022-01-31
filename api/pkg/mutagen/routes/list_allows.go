@@ -11,7 +11,7 @@ import (
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase/acl"
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 
 	"github.com/gin-gonic/gin"

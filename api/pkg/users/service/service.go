@@ -14,8 +14,8 @@ import (
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	service_onetime "getsturdy.com/api/pkg/onetime/service"
-	"getsturdy.com/api/pkg/user"
-	db_user "getsturdy.com/api/pkg/user/db"
+	"getsturdy.com/api/pkg/users"
+	db_user "getsturdy.com/api/pkg/users/db"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

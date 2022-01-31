@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 )
 
 // mentionRegexp returns a regexp that matches a @mention.

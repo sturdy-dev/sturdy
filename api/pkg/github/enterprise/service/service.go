@@ -16,7 +16,7 @@ import (
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"

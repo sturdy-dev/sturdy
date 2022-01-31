@@ -5,9 +5,9 @@ package module
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/user/db"
-	"getsturdy.com/api/pkg/user/graphql"
-	"getsturdy.com/api/pkg/user/service"
+	"getsturdy.com/api/pkg/users/db"
+	"getsturdy.com/api/pkg/users/graphql"
+	"getsturdy.com/api/pkg/users/service"
 )
 
 func Module(c *di.Container) {

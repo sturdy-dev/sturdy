@@ -5,7 +5,7 @@ import (
 	"errors"
 	"getsturdy.com/api/pkg/newsletter"
 	db_newsletter "getsturdy.com/api/pkg/newsletter/db"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

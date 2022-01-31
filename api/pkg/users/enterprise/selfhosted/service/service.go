@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 
 	service_organization "getsturdy.com/api/pkg/organization/service"
-	"getsturdy.com/api/pkg/user"
-	"getsturdy.com/api/pkg/user/service"
+	"getsturdy.com/api/pkg/users"
+	"getsturdy.com/api/pkg/users/service"
 )
 
 type Service struct {

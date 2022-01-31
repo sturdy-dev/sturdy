@@ -24,7 +24,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_organization "getsturdy.com/api/pkg/organization/service"
-	db_user "getsturdy.com/api/pkg/user/db"
+	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"

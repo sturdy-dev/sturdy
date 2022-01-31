@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/emails/transactional/templates"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/notification"
-	"getsturdy.com/api/pkg/user"
+	"getsturdy.com/api/pkg/users"
 )
 
 type Sender struct {

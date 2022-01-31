@@ -8,7 +8,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
-	service_user "getsturdy.com/api/pkg/user/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -10,9 +10,9 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/newsletter"
 	db_newsletter "getsturdy.com/api/pkg/newsletter/db"
-	"getsturdy.com/api/pkg/user"
-	db_user "getsturdy.com/api/pkg/user/db"
-	service_user "getsturdy.com/api/pkg/user/service"
+	"getsturdy.com/api/pkg/users"
+	db_user "getsturdy.com/api/pkg/users/db"
+	service_user "getsturdy.com/api/pkg/users/service"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
