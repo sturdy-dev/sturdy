@@ -57,7 +57,7 @@
 import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
 import Avatar from '../shared/Avatar.vue'
 import TextareaAutosize from '../shared/TextareaAutosize.vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 import { useCreateComment } from '../../mutations/useCreateComment'
 import { ConvertEmojiToColons } from '../emoji/emoji'
 

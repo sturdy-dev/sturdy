@@ -193,7 +193,7 @@
 
 <script lang="ts">
 import http from '../http'
-import Banner from '../components/shared/Banner.vue'
+import { Banner } from '../atoms'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import Button from '../components/shared/Button.vue'
 import { ref, watch, defineComponent, inject, computed, Ref } from 'vue'

@@ -25,7 +25,7 @@
 
 <script>
 import Differ from './Differ.vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 
 export default {
   name: 'Change',

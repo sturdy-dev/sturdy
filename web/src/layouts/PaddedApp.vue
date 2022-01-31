@@ -1,9 +1,5 @@
 <template>
   <div class="p-4 sm:p-8">
-    <div v-if="displaySelfHostedBanner" class="bg-green-500 m-4 p-2">
-      <strong>Debug: This is a self-hosted instance of Sturdy.</strong>
-    </div>
-
     <FirstTimeUserNoNameTakeover v-if="data && data.user && !data.user.name" :user="data.user" />
     <slot v-else></slot>
   </div>
@@ -20,10 +16,11 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
+    const isLicenseEnabled = computed(() => features?.value?.includes(Feature.License))
 
     const { data, error } = useQuery({
       query: gql`
-        query PaddedApp($isMultiTenancyEnabled: Boolean!) {
+        query PaddedApp($isMultiTenancyEnabled: Boolean!, $isLicenseEnabled: Boolean!) {
           user {
             id
             name
@@ -34,17 +31,8 @@ export default defineComponent({
             needsFirstTimeSetup
             version
 
-            license {
+            license @include(if: $isLicenseEnabled) {
               id
-              key
-              createdAt
-              expiresAt
-              status
-              messages {
-                level
-                text
-                type
-              }
             }
           }
         }
@@ -52,6 +40,7 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
       variables: {
         isMultiTenancyEnabled,
+        isLicenseEnabled,
       },
     })
 

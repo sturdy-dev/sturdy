@@ -77,7 +77,7 @@ import {
 import { PlusIcon } from '@heroicons/vue/solid'
 import Avatar from '../../components/shared/Avatar.vue'
 import Button from '../../components/shared/Button.vue'
-import Banner from '../../components/shared/Banner.vue'
+import { Banner } from '../../atoms'
 import { Feature } from '../../__generated__/types'
 
 export const ORGANIZATION_FRAGMENT = gql`

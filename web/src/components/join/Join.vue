@@ -57,7 +57,7 @@
 <script>
 import http from '../../http'
 import LoginRegister from '../../pages/LoginRegister.vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 import { Slug } from '../../slug'
 
 export default {
