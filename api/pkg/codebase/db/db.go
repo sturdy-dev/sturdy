@@ -105,3 +105,13 @@ func (r *Repo) ListByOrganization(ctx context.Context, organizationID string) ([
 	}
 	return res, nil
 }
+
+func (r *Repo) Count(ctx context.Context) (uint64, error) {
+	var res struct {
+		Count uint64
+	}
+	if err := r.db.GetContext(ctx, &res, "SELECT count(1) as Count FROM codebases"); err != nil {
+		return 0, fmt.Errorf("failed to select: %w", err)
+	}
+	return res.Count, nil
+}

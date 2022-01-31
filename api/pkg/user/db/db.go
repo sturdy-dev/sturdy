@@ -17,7 +17,7 @@ type Repository interface {
 	GetByEmail(email string) (*user.User, error)
 	Update(*user.User) error
 	UpdatePassword(u *user.User) error
-	Count(context.Context) (int, error)
+	Count(context.Context) (uint64, error)
 }
 
 type repo struct {
@@ -106,12 +106,12 @@ func (r *repo) UpdatePassword(u *user.User) error {
 	return nil
 }
 
-func (r *repo) Count(ctx context.Context) (int, error) {
+func (r *repo) Count(ctx context.Context) (uint64, error) {
 	var res struct {
-		Count int
+		Count uint64
 	}
-	if err := r.db.GetContext(ctx, &res, "SELECT count(*) as Count FROM users"); err != nil {
-		return 0, fmt.Errorf("failed to get user count: %w", err)
+	if err := r.db.GetContext(ctx, &res, "SELECT count(1) as Count FROM users"); err != nil {
+		return 0, fmt.Errorf("failed to select: %w", err)
 	}
 	return res.Count, nil
 }

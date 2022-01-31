@@ -14,4 +14,5 @@ type CodebaseRepository interface {
 	GetByShortID(shortID string) (*codebase.Codebase, error)
 	Update(entity *codebase.Codebase) error
 	ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error)
+	Count(context.Context) (uint64, error)
 }

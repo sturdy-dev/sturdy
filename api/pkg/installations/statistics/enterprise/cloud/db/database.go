@@ -24,14 +24,18 @@ func (d *database) Create(ctx context.Context, statistics *statistics.Statistic)
 			version,
 			ip,
 			recorded_at,
-			received_at
+			received_at,
+			users_count,
+			codebases_count
 		) VALUES (
 			:installation_id,
 			:license_key,
 			:version,
 			:ip,
 			:recorded_at,
-			:received_at
+			:received_at,
+			:users_count,
+			:codebases_count
 		)
 	`, statistics); err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
