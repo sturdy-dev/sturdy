@@ -92,7 +92,7 @@
 <script>
 import { gql, useMutation } from '@urql/vue'
 import { toRef, ref, watch } from 'vue'
-import Banner from '../../shared/Banner.vue'
+import { Banner } from '../../../atoms'
 import HorizontalDivider from '../../shared/HorizontalDivider.vue'
 import {
   RadioGroup,

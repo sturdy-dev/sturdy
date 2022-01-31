@@ -106,7 +106,7 @@
 
 <script lang="ts">
 import http from '../../http'
-import Banner from '../../components/shared/Banner.vue'
+import { Banner } from '../../atoms'
 
 export default {
   components: {

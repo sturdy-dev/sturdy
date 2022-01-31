@@ -104,15 +104,9 @@
 <script lang="ts">
 import { computed, defineComponent, onUnmounted, ref, toRef } from 'vue'
 import Button from '../shared/Button.vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 import Avatar from '../shared/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
-
-interface Data {
-  showImportCommand: boolean
-  lastRepoChange: any
-  pollInterval: any
-}
 
 export default defineComponent({
   components: { Button, Banner, Avatar },

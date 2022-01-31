@@ -33,7 +33,7 @@
 import { defineComponent, onMounted, ref } from 'vue'
 import http from '../http'
 import { useRoute, useRouter } from 'vue-router'
-import Banner from '../components/shared/Banner.vue'
+import { Banner } from '../atoms'
 import Spinner from '../components/shared/Spinner.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
 

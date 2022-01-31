@@ -105,7 +105,7 @@
 </template>
 
 <script lang="ts">
-import Banner from '../components/shared/Banner.vue'
+import { Banner } from '../atoms'
 import { defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'

@@ -73,7 +73,7 @@ import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import Button from '../../components/shared/Button.vue'
 import { computed, ref, watch } from 'vue'
-import Banner from '../../components/shared/Banner.vue'
+import { Banner } from '../../atoms'
 import PaddedApp from '../../layouts/PaddedApp.vue'
 
 export default {

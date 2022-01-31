@@ -35,7 +35,7 @@
 </template>
 <script>
 import http from '../../../http'
-import Banner from '../../../components/shared/Banner.vue'
+import { Banner } from '../../../atoms'
 import Spinner from '../../../components/shared/Spinner.vue'
 
 export default {

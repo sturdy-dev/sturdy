@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 import http from '../../http'
 import { useRoute } from 'vue-router'
 

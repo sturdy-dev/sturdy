@@ -43,7 +43,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import Button from '../shared/Button.vue'
-import Banner from '../shared/Banner.vue'
+import { Banner } from '../../atoms'
 import TextareaAutosize from '../shared/TextareaAutosize.vue'
 import { useCreateComment } from '../../mutations/useCreateComment'
 import { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
