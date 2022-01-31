@@ -90,8 +90,11 @@ type Mutation {
     updateUser(input: UpdateUserInput!): User
     verifyEmail(input: VerifyEmailInput!): User!
 
+    # Codebases
     createCodebase(input: CreateCodebaseInput!): Codebase!
     updateCodebase(input: UpdateCodebaseInput!): Codebase!
+    addUserToCodebase(input: AddUserToCodebaseInput!): Codebase!
+    removeUserFromCodebase(input: RemoveUserFromCodebaseInput!): Codebase!
 
     archiveNotifications(input: ArchiveNotificationsInput!): [Notification!]!
 
@@ -934,5 +937,15 @@ input AddUserToOrganizationInput {
 
 input RemoveUserFromOrganizationInput {
     organizationID: ID!
+    userID: ID!
+}
+
+input AddUserToCodebaseInput {
+    codebaseID: ID!
+    email: String!
+}
+
+input RemoveUserFromCodebaseInput {
+    codebaseID: ID!
     userID: ID!
 }

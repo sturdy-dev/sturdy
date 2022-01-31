@@ -16,7 +16,9 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/events"
+	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/shortid"
+	service_user "getsturdy.com/api/pkg/users/service"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -26,7 +28,9 @@ type Service struct {
 	repo             db_codebase.CodebaseRepository
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 
-	workspaceService service_workspace.Service
+	workspaceService    service_workspace.Service
+	userService         service_user.Service
+	organizationService *service_organization.Service
 
 	logger           *zap.Logger
 	executorProvider executor.Provider
@@ -39,6 +43,8 @@ func New(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 
 	workspaceService service_workspace.Service,
+	userService service_user.Service,
+	organizationService *service_organization.Service,
 
 	logger *zap.Logger,
 	executorProvider executor.Provider,
@@ -49,7 +55,9 @@ func New(
 		repo:             repo,
 		codebaseUserRepo: codebaseUserRepo,
 
-		workspaceService: workspaceService,
+		workspaceService:    workspaceService,
+		userService:         userService,
+		organizationService: organizationService,
 
 		logger:           logger,
 		executorProvider: executorProvider,
@@ -58,36 +66,54 @@ func New(
 	}
 }
 
-func (s *Service) GetByID(_ context.Context, id string) (*codebase.Codebase, error) {
-	return s.repo.Get(id)
+func (svc *Service) GetByID(_ context.Context, id string) (*codebase.Codebase, error) {
+	return svc.repo.Get(id)
 }
 
-func (s *Service) GetByShortID(_ context.Context, shortID string) (*codebase.Codebase, error) {
-	return s.repo.GetByShortID(shortID)
+func (svc *Service) GetByShortID(_ context.Context, shortID string) (*codebase.Codebase, error) {
+	return svc.repo.GetByShortID(shortID)
 }
 
-func (s *Service) CanAccess(_ context.Context, userID string, codebaseID string) (bool, error) {
-	_, err := s.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
+func (svc *Service) CanAccess(ctx context.Context, userID string, codebaseID string) (bool, error) {
+	_, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case err == nil:
 		return true, nil
 	case errors.Is(err, sql.ErrNoRows):
-		return false, nil
+		// fallthrough, check if user is member of organization
 	default:
 		return false, fmt.Errorf("failed to check user %s access to codebase %s: %w", userID, codebaseID, err)
 	}
+
+	// Get this codebases organization, and check if the user has access to the organization
+	cb, err := svc.GetByID(ctx, codebaseID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get codebase: %w", err)
+	}
+	if cb.OrganizationID != nil {
+		canAccessOrg, err := svc.organizationService.CanAccess(ctx, userID, *cb.OrganizationID)
+		if err != nil {
+			return false, fmt.Errorf("failed to check if the user can access the org: %w", err)
+		}
+		if canAccessOrg {
+			return true, nil
+		}
+	}
+
+	// User does not have access
+	return false, nil
 }
 
-func (s *Service) ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error) {
-	res, err := s.repo.ListByOrganization(ctx, organizationID)
+func (svc *Service) ListByOrganization(ctx context.Context, organizationID string) ([]*codebase.Codebase, error) {
+	res, err := svc.repo.ListByOrganization(ctx, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
 	}
 	return res, nil
 }
 
-func (s *Service) ListByOrganizationAndUser(ctx context.Context, organizationID, userID string) ([]*codebase.Codebase, error) {
-	codebases, err := s.repo.ListByOrganization(ctx, organizationID)
+func (svc *Service) ListByOrganizationAndUser(ctx context.Context, organizationID, userID string) ([]*codebase.Codebase, error) {
+	codebases, err := svc.repo.ListByOrganization(ctx, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
 	}
@@ -95,7 +121,7 @@ func (s *Service) ListByOrganizationAndUser(ctx context.Context, organizationID,
 	var res []*codebase.Codebase
 
 	for _, cb := range codebases {
-		_, err := s.codebaseUserRepo.GetByUserAndCodebase(userID, cb.ID)
+		_, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, cb.ID)
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			continue
@@ -228,6 +254,60 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 	return &cb, nil
 }
 
-func (s *Service) CodebaseCount(ctx context.Context) (uint64, error) {
-	return s.repo.Count(ctx)
+func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
+	return svc.repo.Count(ctx)
+}
+
+func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string) (*codebase.CodebaseUser, error) {
+	inviteUser, err := svc.userService.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("could not get user: %w", err)
+	}
+
+	// Check that the user isn't already a member
+	_, err = svc.codebaseUserRepo.GetByUserAndCodebase(inviteUser.ID, codebaseID)
+	if err == nil {
+		return nil, fmt.Errorf("already a member")
+	}
+
+	t := time.Now()
+	member := codebase.CodebaseUser{
+		ID:         uuid.New().String(),
+		UserID:     inviteUser.ID,
+		CodebaseID: codebaseID,
+		CreatedAt:  &t,
+	}
+
+	err = svc.codebaseUserRepo.Create(member)
+	if err != nil {
+		return nil, fmt.Errorf("could not add user: %w", err)
+	}
+
+	// Send events
+	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
+		svc.logger.Error("failed to send events", zap.Error(err))
+	}
+
+	return &member, nil
+}
+
+func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) error {
+	member, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return errors.New("user is not a member")
+	case err != nil:
+		return fmt.Errorf("failed to remove user: %w", err)
+	}
+
+	if err := svc.codebaseUserRepo.DeleteByID(ctx, member.ID); err != nil {
+		return fmt.Errorf("failed to delete: %w", err)
+	}
+
+	// Send events
+	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
+		svc.logger.Error("failed to send events", zap.Error(err))
+	}
+
+	return nil
 }

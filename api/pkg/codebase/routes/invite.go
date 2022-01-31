@@ -4,25 +4,18 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"time"
-
-	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase"
-	"getsturdy.com/api/pkg/codebase/db"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
-	userDB "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/events"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"go.uber.org/zap"
+
+	service_auth "getsturdy.com/api/pkg/auth/service"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
 )
 
 type InviteUserRequest struct {
 	UserEmail string `json:"user_email" binding:"required"`
 }
 
-func Invite(userRepo userDB.Repository, codeBaseUserRepo db.CodebaseUserRepository, codebaseService *service_codebase.Service, authService *service_auth.Service, eventsSender events.EventSender, logger *zap.Logger) func(c *gin.Context) {
+func Invite(codebaseService *service_codebase.Service, authService *service_auth.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		codebaseID := c.Param("id")
 
@@ -35,7 +28,9 @@ func Invite(userRepo userDB.Repository, codeBaseUserRepo db.CodebaseUserReposito
 			return
 		}
 
-		if err := authService.CanWrite(c.Request.Context(), cb); err != nil {
+		ctx := c.Request.Context()
+
+		if err := authService.CanWrite(ctx, cb); err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -46,38 +41,12 @@ func Invite(userRepo userDB.Repository, codeBaseUserRepo db.CodebaseUserReposito
 			return
 		}
 
-		inviteUser, err := userRepo.GetByEmail(request.UserEmail)
+		member, err := codebaseService.AddUserByEmail(ctx, cb.ID, request.UserEmail)
 		if err != nil {
-			logger.Error("failed to invite user", zap.Error(err))
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 
-		// Check that the user isn't already a member
-		_, err = codeBaseUserRepo.GetByUserAndCodebase(inviteUser.ID, codebaseID)
-		if err == nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid request - user is already a member"})
-			return
-		}
-
-		t := time.Now()
-		err = codeBaseUserRepo.Create(codebase.CodebaseUser{
-			ID:         uuid.New().String(),
-			UserID:     inviteUser.ID,
-			CodebaseID: codebaseID,
-			CreatedAt:  &t,
-		})
-		if err != nil {
-			logger.Error("failed to invite user", zap.Error(err))
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
-
-		// Send events
-		if err := eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
-			logger.Error("failed to send events", zap.Error(err))
-		}
-
-		c.JSON(http.StatusOK, inviteUser)
+		c.JSON(http.StatusOK, member)
 	}
 }

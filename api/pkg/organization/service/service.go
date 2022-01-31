@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -53,6 +55,18 @@ func (svc *Service) Members(ctx context.Context, organizationID string) ([]*orga
 		return nil, fmt.Errorf("could not get members: %w", err)
 	}
 	return members, nil
+}
+
+func (svc *Service) CanAccess(ctx context.Context, userID, organizationID string) (bool, error) {
+	_, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return false, nil
+	case err == nil:
+		return true, nil
+	default:
+		return false, fmt.Errorf("could not get member: %w", err)
+	}
 }
 
 func (svc *Service) GetMember(ctx context.Context, organizationID, userID string) (*organization.Member, error) {
