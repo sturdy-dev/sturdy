@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics/disabled"
+	events "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/config"
 	"getsturdy.com/api/pkg/github/enterprise/client"
@@ -17,7 +18,6 @@ import (
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification"
-	events "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/vcs/testutil/executor"
 	"getsturdy.com/api/vcs/testutil/history"
 
@@ -28,8 +28,8 @@ import (
 	"go.uber.org/zap"
 )
 
-//go:generate mockgen -destination internal/mock_client/repositories_client_mock.go mash/pkg/github/client RepositoriesClient
-//go:generate mockgen -destination internal/mock_sender/notification_sender_mock.go mash/pkg/notification/sender NotificationSender
+//go:generate mockgen -destination internal/mock_client/repositories_client_mock.go getsturdy.com/api/pkg/github/enterprise/client RepositoriesClient
+//go:generate mockgen -destination internal/mock_sender/notification_sender_mock.go getsturdy.com/api/pkg/notification/sender NotificationSender
 
 func TestCloneSendsNotifications(t *testing.T) {
 	logger, _ := zap.NewDevelopment()

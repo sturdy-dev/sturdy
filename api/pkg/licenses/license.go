@@ -9,6 +9,7 @@ type ID string
 type Status string
 
 const (
+	StatusUnknown Status = "unknown"
 	StatusValid   Status = "valid"
 	StatusInvalid Status = "invalid"
 )
@@ -41,6 +42,7 @@ type License struct {
 	Key            string    `db:"key" json:"key"`
 	CreatedAt      time.Time `db:"created_at" json:"createdAt"`
 	ExpiresAt      time.Time `db:"expires_at" json:"expiresAt"`
+	Seats          uint64    `db:"seats" json:"seats"`
 
 	Status   Status     `db:"-" json:"status"`
 	Messages []*Message `db:"-" json:"messages"`

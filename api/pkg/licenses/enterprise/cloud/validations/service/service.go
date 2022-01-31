@@ -38,3 +38,7 @@ func (svc *Service) Create(ctx context.Context, licenseID licenses.ID, status li
 
 	return validation, nil
 }
+
+func (svc *Service) ListLatest(ctx context.Context, licenseID licenses.ID) ([]*validations.Validation, error) {
+	return svc.repo.ListLatest(ctx, licenseID)
+}

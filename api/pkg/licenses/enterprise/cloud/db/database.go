@@ -28,12 +28,14 @@ func (d *database) Create(ctx context.Context, license *licenses.License) error 
 			key,
 			created_at,
 			expires_at,
+			seats
 		) VALUES (
 			:id,
 			:organization_id,
 			:key,
 			:created_at,
 			:expires_at,
+			:seats
 		)
 	`, license); err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
@@ -49,7 +51,8 @@ func (d *database) Get(ctx context.Context, id licenses.ID) (*licenses.License, 
 			organization_id,
 			key,
 			created_at,
-			expires_at
+			expires_at,
+			seats
 		FROM licenses
 		WHERE id = $1
 	`, id); errors.Is(err, sql.ErrNoRows) {
@@ -68,7 +71,8 @@ func (d *database) GetByKey(ctx context.Context, key string) (*licenses.License,
 			organization_id,
 			key,
 			created_at,
-			expires_at
+			expires_at,
+			seats
 		FROM licenses
 		WHERE key = $1
 	`, key); errors.Is(err, sql.ErrNoRows) {
@@ -87,7 +91,8 @@ func (d *database) ListByOrganizationID(ctx context.Context, oranizationID strin
 			organization_id,
 			key,
 			created_at,
-			expires_at
+			expires_at,
+			seats
 		FROM licenses
 		WHERE organization_id = $1
 	`, oranizationID); err != nil {
