@@ -145,10 +145,13 @@ func (svc *Service) orgsByUser(ctx context.Context, userID string) (map[string]s
 
 	for _, cu := range codebaseUsers {
 		cb, err := svc.repo.Get(cu.CodebaseID)
-		if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			// ignore
+			continue
+		case err != nil:
 			return nil, fmt.Errorf("could not get codebase: %w", err)
-		}
-		if cb.OrganizationID != nil {
+		case cb.OrganizationID != nil:
 			orgIDs[*cb.OrganizationID] = struct{}{}
 		}
 	}
