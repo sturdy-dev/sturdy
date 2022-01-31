@@ -32,10 +32,10 @@ import (
 )
 
 type EmailSender interface {
-	SendWelcome(context.Context, *user.User) error
-	SendNotification(context.Context, *user.User, *notification.Notification) error
-	SendConfirmEmail(context.Context, *user.User) error
-	SendMagicLink(context.Context, *user.User, string) error
+	SendWelcome(context.Context, *users.User) error
+	SendNotification(context.Context, *users.User, *notification.Notification) error
+	SendConfirmEmail(context.Context, *users.User) error
+	SendMagicLink(context.Context, *users.User, string) error
 }
 
 var ErrNotSupported = errors.New("notification type not supported")
@@ -101,7 +101,7 @@ func New(
 	}
 }
 
-func (e *Sender) SendMagicLink(ctx context.Context, user *user.User, code string) error {
+func (e *Sender) SendMagicLink(ctx context.Context, user *users.User, code string) error {
 	title := fmt.Sprintf("[Sturdy] Confirmation code: %s", code)
 	return e.Send(ctx, user, title, templates.MagicLinkTemplate, &templates.MagicLinkTemplateData{
 		User: user,
@@ -109,7 +109,7 @@ func (e *Sender) SendMagicLink(ctx context.Context, user *user.User, code string
 	})
 }
 
-func (e *Sender) SendConfirmEmail(ctx context.Context, usr *user.User) error {
+func (e *Sender) SendConfirmEmail(ctx context.Context, usr *users.User) error {
 	token, err := e.jwtService.IssueToken(ctx, usr.ID, time.Hour, jwt.TokenTypeVerifyEmail)
 	if err != nil {
 		return fmt.Errorf("failed to issue jwt token: %w", err)
@@ -122,7 +122,7 @@ func (e *Sender) SendConfirmEmail(ctx context.Context, usr *user.User) error {
 	})
 }
 
-func (e *Sender) shouldSendNotification(ctx context.Context, usr *user.User, notificationType notification.NotificationType) (bool, error) {
+func (e *Sender) shouldSendNotification(ctx context.Context, usr *users.User, notificationType notification.NotificationType) (bool, error) {
 	shouldSendEmail, err := shouldSendEmail(e.notificationSettingsRepository, usr)
 	if err != nil {
 		return false, err
@@ -150,7 +150,7 @@ func (e *Sender) shouldSendNotification(ctx context.Context, usr *user.User, not
 	return false, fmt.Errorf("notification preference for %s not found", notificationType)
 }
 
-func (e *Sender) SendNotification(ctx context.Context, usr *user.User, notif *notification.Notification) error {
+func (e *Sender) SendNotification(ctx context.Context, usr *users.User, notif *notification.Notification) error {
 	shouldSendNotification, err := e.shouldSendNotification(ctx, usr, notif.NotificationType)
 	if err != nil {
 		return err
@@ -186,7 +186,7 @@ func (e *Sender) SendNotification(ctx context.Context, usr *user.User, notif *no
 	}
 }
 
-func (e *Sender) sendReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
+func (e *Sender) sendReviewNotification(ctx context.Context, usr *users.User, reviewID string) error {
 	r, err := e.reviewRepo.Get(ctx, reviewID)
 	if err != nil {
 		return fmt.Errorf("failed to find review: %w", err)
@@ -219,7 +219,7 @@ func (e *Sender) sendReviewNotification(ctx context.Context, usr *user.User, rev
 	return e.Send(ctx, usr, title, templates.NotificationReviewTemplate, data)
 }
 
-func (e *Sender) sendRequestedReviewNotification(ctx context.Context, usr *user.User, reviewID string) error {
+func (e *Sender) sendRequestedReviewNotification(ctx context.Context, usr *users.User, reviewID string) error {
 	r, err := e.reviewRepo.Get(ctx, reviewID)
 	if err != nil {
 		return fmt.Errorf("failed to find review: %w", err)
@@ -251,7 +251,7 @@ func (e *Sender) sendRequestedReviewNotification(ctx context.Context, usr *user.
 	return e.Send(ctx, usr, title, templates.NotificationRequestedReviewTemplate, data)
 }
 
-func (e *Sender) sendNewSuggestionNotification(ctx context.Context, usr *user.User, suggestionID suggestions.ID) error {
+func (e *Sender) sendNewSuggestionNotification(ctx context.Context, usr *users.User, suggestionID suggestions.ID) error {
 	s, err := e.suggestionRepo.GetByID(ctx, suggestionID)
 	if err != nil {
 		return fmt.Errorf("failed to find suggestion: %w", err)
@@ -282,7 +282,7 @@ func (e *Sender) sendNewSuggestionNotification(ctx context.Context, usr *user.Us
 	return e.Send(ctx, usr, title, templates.NotificationNewSuggestionTemplate, data)
 }
 
-func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*user.User, error) {
+func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*users.User, error) {
 	codebaseUsers, err := e.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)
@@ -300,7 +300,7 @@ func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([
 	return users, nil
 }
 
-func (e *Sender) sendCommentNotification(ctx context.Context, usr *user.User, commentID comments.ID) error {
+func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, commentID comments.ID) error {
 	comment, err := e.commentsRepo.Get(commentID)
 	if err != nil {
 		return fmt.Errorf("failed to find comment: %w", err)
@@ -399,7 +399,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *user.User, co
 	}
 }
 
-func (e *Sender) SendWelcome(ctx context.Context, u *user.User) error {
+func (e *Sender) SendWelcome(ctx context.Context, u *users.User) error {
 	return e.Send(
 		ctx,
 		u,
@@ -412,7 +412,7 @@ func (e *Sender) SendWelcome(ctx context.Context, u *user.User) error {
 
 func (e *Sender) Send(
 	ctx context.Context,
-	u *user.User,
+	u *users.User,
 	subject string,
 	template templates.Template,
 	data interface{},
@@ -451,7 +451,7 @@ func (e *Sender) Send(
 	return nil
 }
 
-func shouldSendEmail(notificationSettingsRepository db_newsletter.NotificationSettingsRepository, u *user.User) (bool, error) {
+func shouldSendEmail(notificationSettingsRepository db_newsletter.NotificationSettingsRepository, u *users.User) (bool, error) {
 	if !u.EmailVerified {
 		return false, nil
 	}

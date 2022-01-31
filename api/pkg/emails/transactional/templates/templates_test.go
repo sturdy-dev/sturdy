@@ -18,7 +18,7 @@ import (
 
 func TestRenderWelcome(t *testing.T) {
 	output, err := Render(WelcomeTemplate, WelcomeTemplateData{
-		User: &user.User{
+		User: &users.User{
 			Email: "test@email.com",
 		},
 	})
@@ -39,7 +39,7 @@ func TestRenderGitHubRepositoryImported(t *testing.T) {
 			Name:            "imported-codebase",
 			ShortCodebaseID: "123456",
 		},
-		User: &user.User{
+		User: &users.User{
 			Name:  "Nikita",
 			Email: "test@email.com",
 		},
@@ -54,13 +54,13 @@ func TestRenderGitHubRepositoryImported(t *testing.T) {
 
 func TestRenderNotificationComment_commented(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			Name: "User One",
 		},
 		Codebase: &codebase.Codebase{
@@ -78,7 +78,7 @@ func TestRenderNotificationComment_commented(t *testing.T) {
 
 func TestRenderNotificationComment_commented_on_change(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
@@ -88,7 +88,7 @@ func TestRenderNotificationComment_commented_on_change(t *testing.T) {
 			ID:    "change-id",
 			Title: strPointer("make tests pass"),
 		},
-		Author: &user.User{
+		Author: &users.User{
 			Name: "User One",
 		},
 		Codebase: &codebase.Codebase{
@@ -106,7 +106,7 @@ func TestRenderNotificationComment_commented_on_change(t *testing.T) {
 
 func TestRenderNotificationComment_commented_on_workspace(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
@@ -116,7 +116,7 @@ func TestRenderNotificationComment_commented_on_workspace(t *testing.T) {
 			ID:   "workspace-id",
 			Name: strPointer("workspace"),
 		},
-		Author: &user.User{
+		Author: &users.User{
 			Name: "User One",
 		},
 		Codebase: &codebase.Codebase{
@@ -133,7 +133,7 @@ func TestRenderNotificationComment_commented_on_workspace(t *testing.T) {
 }
 
 func TestRenderNotificationComment_replied_your(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		ID:    "id",
 		Name:  "User one",
 		Email: "test@email.com",
@@ -144,7 +144,7 @@ func TestRenderNotificationComment_replied_your(t *testing.T) {
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			Name: "another user",
 		},
 		Codebase: &codebase.Codebase{
@@ -165,14 +165,14 @@ func TestRenderNotificationComment_replied_your(t *testing.T) {
 
 func TestRenderNotificationComment_replied(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			ID:    "0",
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -181,7 +181,7 @@ func TestRenderNotificationComment_replied(t *testing.T) {
 			Name:            "codebase",
 		},
 		Parent: &NotificationCommentTemplateData{
-			Author: &user.User{
+			Author: &users.User{
 				ID:   "2",
 				Name: "User two",
 			},
@@ -197,14 +197,14 @@ func TestRenderNotificationComment_replied(t *testing.T) {
 
 func TestRenderNotificationComment_replied_on_workspace(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			ID:    "0",
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -213,7 +213,7 @@ func TestRenderNotificationComment_replied_on_workspace(t *testing.T) {
 			Name:            "codebase",
 		},
 		Parent: &NotificationCommentTemplateData{
-			Author: &user.User{
+			Author: &users.User{
 				ID:   "2",
 				Name: "User two",
 			},
@@ -232,7 +232,7 @@ func TestRenderNotificationComment_replied_on_workspace(t *testing.T) {
 }
 
 func TestRenderNotificationComment_replied_your_on_workspace(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		ID:    "1",
 		Name:  "user one",
 		Email: "user@one.com",
@@ -242,7 +242,7 @@ func TestRenderNotificationComment_replied_your_on_workspace(t *testing.T) {
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "2",
 			Name: "User Two",
 		},
@@ -268,14 +268,14 @@ func TestRenderNotificationComment_replied_your_on_workspace(t *testing.T) {
 
 func TestRenderNotificationComment_replied_on_change(t *testing.T) {
 	output, err := Render(NotificationCommentTemplate, NotificationCommentTemplateData{
-		User: &user.User{
+		User: &users.User{
 			ID:    "0",
 			Email: "test@email.com",
 		},
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -284,7 +284,7 @@ func TestRenderNotificationComment_replied_on_change(t *testing.T) {
 			Name:            "codebase",
 		},
 		Parent: &NotificationCommentTemplateData{
-			Author: &user.User{
+			Author: &users.User{
 				ID:   "2",
 				Name: "User two",
 			},
@@ -303,7 +303,7 @@ func TestRenderNotificationComment_replied_on_change(t *testing.T) {
 }
 
 func TestRenderNotificationComment_replied_your_on_change(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",
@@ -313,7 +313,7 @@ func TestRenderNotificationComment_replied_your_on_change(t *testing.T) {
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -338,7 +338,7 @@ func TestRenderNotificationComment_replied_your_on_change(t *testing.T) {
 }
 
 func TestRenderNotificationNewSuggestion(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",
@@ -346,7 +346,7 @@ func TestRenderNotificationNewSuggestion(t *testing.T) {
 
 	output, err := Render(NotificationNewSuggestionTemplate, NotificationNewSuggestionTemplateData{
 		User: usr,
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -368,7 +368,7 @@ func TestRenderNotificationNewSuggestion(t *testing.T) {
 }
 
 func TestRenderNotificationRequestedReview(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",
@@ -376,7 +376,7 @@ func TestRenderNotificationRequestedReview(t *testing.T) {
 
 	output, err := Render(NotificationRequestedReviewTemplate, NotificationRequestedReviewTemplateData{
 		User: usr,
-		RequestedBy: &user.User{
+		RequestedBy: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -398,7 +398,7 @@ func TestRenderNotificationRequestedReview(t *testing.T) {
 }
 
 func TestRenderNotificationReview_approved(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",
@@ -406,7 +406,7 @@ func TestRenderNotificationReview_approved(t *testing.T) {
 
 	output, err := Render(NotificationReviewTemplate, NotificationReviewTemplateData{
 		User: usr,
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -431,7 +431,7 @@ func TestRenderNotificationReview_approved(t *testing.T) {
 }
 
 func TestRenderNotificationReview_rejected(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",
@@ -439,7 +439,7 @@ func TestRenderNotificationReview_rejected(t *testing.T) {
 
 	output, err := Render(NotificationReviewTemplate, NotificationReviewTemplateData{
 		User: usr,
-		Author: &user.User{
+		Author: &users.User{
 			ID:   "1",
 			Name: "User One",
 		},
@@ -464,7 +464,7 @@ func TestRenderNotificationReview_rejected(t *testing.T) {
 }
 
 func TestRenderVerifyEmail(t *testing.T) {
-	usr := &user.User{
+	usr := &users.User{
 		Name:  "me",
 		ID:    "0",
 		Email: "me@test.com",

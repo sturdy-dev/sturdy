@@ -3,11 +3,11 @@ package enterprise
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/graph-gophers/graphql-go"
-	"github.com/pkg/errors"
 
 	"getsturdy.com/api/pkg/auth"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"

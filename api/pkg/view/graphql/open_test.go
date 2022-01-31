@@ -94,7 +94,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	authService := service_auth.New(codebaseService, nil, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	userID := uuid.New()
-	err = userRepo.Create(&user.User{ID: userID.String(), Email: userID.String() + "@test.com"})
+	err = userRepo.Create(&users.User{ID: userID.String(), Email: userID.String() + "@test.com"})
 	assert.NoError(t, err)
 
 	viewResolver := NewResolver(

@@ -40,7 +40,6 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/libgit2/git2go/v33 v33.0.0
 	github.com/microcosm-cc/bluemonday v1.0.16
-	github.com/pkg/errors v0.9.1
 	github.com/posthog/posthog-go v0.0.0-20210521164710-e0ee8499d623
 	github.com/prometheus/client_golang v1.11.0
 	github.com/psanford/memfs v0.0.0-20210214183328-a001468d78ef

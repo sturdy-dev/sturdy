@@ -317,7 +317,7 @@ func TestCreate(t *testing.T) {
 		logger,
 	)
 
-	createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
 	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID}))
@@ -805,7 +805,7 @@ func TestLargeFiles(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+			createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 			assert.NoError(t, userRepo.Create(&createUser))
 
 			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})

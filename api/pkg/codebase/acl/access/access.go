@@ -9,7 +9,7 @@ import (
 )
 
 type userRepository interface {
-	Get(string) (*user.User, error)
+	Get(string) (*users.User, error)
 }
 
 type aclProvider interface {

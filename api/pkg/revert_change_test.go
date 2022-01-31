@@ -272,7 +272,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		viewEvents,
 	)
 
-	createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
 	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})
@@ -628,7 +628,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		viewEvents,
 	)
 
-	createUser := user.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
 	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})

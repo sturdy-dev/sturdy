@@ -135,7 +135,7 @@ func TestStream(t *testing.T) {
 
 			userID := uuid.NewString()
 
-			err = userRepo.Create(&user.User{ID: userID, Email: userID + "@test.getsturdy.com"})
+			err = userRepo.Create(&users.User{ID: userID, Email: userID + "@test.getsturdy.com"})
 			assert.NoError(t, err)
 
 			err = codebaseRepo.Create(codebase.Codebase{

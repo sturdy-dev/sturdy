@@ -3,9 +3,8 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
@@ -27,7 +26,7 @@ func New(
 	}
 }
 
-func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*user.User, error) {
+func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
 	usr, err := s.UserSerice.CreateWithPassword(ctx, name, password, email)
 	if err != nil {
 		return nil, err

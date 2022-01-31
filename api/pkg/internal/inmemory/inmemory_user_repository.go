@@ -9,38 +9,38 @@ import (
 
 // inMemoryUserRepo implements user.Repository
 type inMemoryUserRepo struct {
-	users []*user.User
+	users []*users.User
 }
 
 func NewInMemoryUserRepo() db_user.Repository {
 	return &inMemoryUserRepo{}
 }
 
-func (f *inMemoryUserRepo) Create(newUser *user.User) error {
+func (f *inMemoryUserRepo) Create(newUser *users.User) error {
 	panic("not implemented")
 }
 
-func (f *inMemoryUserRepo) Get(id string) (*user.User, error) {
-	return &user.User{
+func (f *inMemoryUserRepo) Get(id string) (*users.User, error) {
+	return &users.User{
 		ID:    id,
 		Name:  "Test Testsson",
 		Email: "email@pls.com",
 	}, nil
 }
 
-func (f *inMemoryUserRepo) GetByIDs(_ context.Context, ids ...string) ([]*user.User, error) {
+func (f *inMemoryUserRepo) GetByIDs(_ context.Context, ids ...string) ([]*users.User, error) {
 	return nil, nil
 }
 
-func (f *inMemoryUserRepo) GetByEmail(email string) (*user.User, error) {
+func (f *inMemoryUserRepo) GetByEmail(email string) (*users.User, error) {
 	panic("not implemented")
 }
 
-func (f *inMemoryUserRepo) Update(u *user.User) error {
+func (f *inMemoryUserRepo) Update(u *users.User) error {
 	panic("not implemented")
 }
 
-func (f *inMemoryUserRepo) UpdatePassword(u *user.User) error {
+func (f *inMemoryUserRepo) UpdatePassword(u *users.User) error {
 	panic("not implemented")
 }
 

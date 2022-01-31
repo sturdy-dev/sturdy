@@ -35,7 +35,7 @@ func (r *AuthorRootResolver) InternalAuthorFromNameAndEmail(_ context.Context, n
 }
 
 type AuthorResolver struct {
-	user *user.User
+	user *users.User
 }
 
 func (r *AuthorResolver) ID() graphql.ID {
