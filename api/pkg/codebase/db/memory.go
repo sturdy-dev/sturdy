@@ -77,3 +77,7 @@ func (r *memory) ListByOrganization(_ context.Context, id string) ([]*codebase.C
 	}
 	return res, nil
 }
+
+func (r *memory) Count(context.Context) (uint64, error) {
+	return uint64(len(r.byID)), nil
+}

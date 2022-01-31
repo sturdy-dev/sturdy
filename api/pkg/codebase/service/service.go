@@ -15,8 +15,8 @@ import (
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
-	"getsturdy.com/api/pkg/shortid"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/shortid"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -223,4 +223,8 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 	}
 
 	return &cb, nil
+}
+
+func (s *Service) CodebaseCount(ctx context.Context) (uint64, error) {
+	return s.repo.Count(ctx)
 }

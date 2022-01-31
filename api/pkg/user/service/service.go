@@ -40,6 +40,7 @@ type Service interface {
 	SendEmailVerification(ctx context.Context, userID string) error
 	VerifyEmail(ctx context.Context, userID string, rawToken string) (*user.User, error)
 	VerifyMagicLink(ctx context.Context, user *user.User, code string) error
+	UsersCount(context.Context) (uint64, error)
 }
 
 func New(
@@ -279,10 +280,6 @@ func (s *UserSerice) setEmailVerified(ctx context.Context, user *user.User) erro
 	return nil
 }
 
-func (s *UserSerice) UserCount(ctx context.Context) (int, error) {
-	count, err := s.userRepo.Count(ctx)
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
+func (s *UserSerice) UsersCount(ctx context.Context) (uint64, error) {
+	return s.userRepo.Count(ctx)
 }
