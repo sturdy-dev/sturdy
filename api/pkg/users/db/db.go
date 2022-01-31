@@ -11,12 +11,12 @@ import (
 )
 
 type Repository interface {
-	Create(newUser *user.User) error
-	Get(id string) (*user.User, error)
-	GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error)
-	GetByEmail(email string) (*user.User, error)
-	Update(*user.User) error
-	UpdatePassword(u *user.User) error
+	Create(newUser *users.User) error
+	Get(id string) (*users.User, error)
+	GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error)
+	GetByEmail(email string) (*users.User, error)
+	Update(*users.User) error
+	UpdatePassword(u *users.User) error
 	Count(context.Context) (uint64, error)
 }
 
@@ -29,7 +29,7 @@ func NewRepo(db *sqlx.DB) Repository {
 }
 
 // The ID value is set inside this method
-func (r *repo) Create(newUser *user.User) error {
+func (r *repo) Create(newUser *users.User) error {
 	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at)
 		VALUES (:id, :name, :email, :email_verified, :password, :created_at)`, &newUser)
 	if err != nil {
@@ -38,7 +38,7 @@ func (r *repo) Create(newUser *user.User) error {
 	return nil
 }
 
-func (r *repo) GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error) {
+func (r *repo) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT 
 		id,
 		name,
@@ -53,20 +53,20 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...string) ([]*user.User, error
 		return nil, err
 	}
 
-	var users []*user.User
+	var uu []*users.User
 	for rows.Next() {
-		u := new(user.User)
+		u := new(users.User)
 		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.EmailVerified, &u.PasswordHash, &u.CreatedAt, &u.AvatarURL); err != nil {
 			return nil, err
 		}
-		users = append(users, u)
+		uu = append(uu, u)
 	}
 
-	return users, nil
+	return uu, nil
 }
 
-func (r *repo) Get(id string) (*user.User, error) {
-	var res user.User
+func (r *repo) Get(id string) (*users.User, error) {
+	var res users.User
 	err := r.db.Get(&res, `SELECT * FROM users WHERE id=$1`, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed tow query table: %w", err)
@@ -74,8 +74,8 @@ func (r *repo) Get(id string) (*user.User, error) {
 	return &res, nil
 }
 
-func (r *repo) GetByEmail(email string) (*user.User, error) {
-	var res user.User
+func (r *repo) GetByEmail(email string) (*users.User, error) {
+	var res users.User
 	err := r.db.Get(&res, `SELECT * FROM users WHERE email=$1`, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed tow query table: %w", err)
@@ -83,7 +83,7 @@ func (r *repo) GetByEmail(email string) (*user.User, error) {
 	return &res, nil
 }
 
-func (r *repo) Update(u *user.User) error {
+func (r *repo) Update(u *users.User) error {
 	_, err := r.db.NamedExec(`UPDATE users
 		SET name = :name,
 		    email = :email,
@@ -96,7 +96,7 @@ func (r *repo) Update(u *user.User) error {
 	return nil
 }
 
-func (r *repo) UpdatePassword(u *user.User) error {
+func (r *repo) UpdatePassword(u *users.User) error {
 	_, err := r.db.NamedExec(`UPDATE users
 		SET password = :password
 		WHERE id = :id`, u)

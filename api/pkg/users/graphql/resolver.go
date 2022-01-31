@@ -145,7 +145,7 @@ func (r *userRootResolver) VerifyEmail(ctx context.Context, args resolvers.Verif
 
 type userResolver struct {
 	root *userRootResolver
-	u    *user.User
+	u    *users.User
 }
 
 func (r *userResolver) ID() graphql.ID {

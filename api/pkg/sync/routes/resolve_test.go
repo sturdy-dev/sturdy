@@ -510,7 +510,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			userID := uuid.NewString()
-			err = userRepo.Create(&user.User{ID: userID, Name: "Test Test", Email: userID + "@test.com"})
+			err = userRepo.Create(&users.User{ID: userID, Name: "Test Test", Email: userID + "@test.com"})
 			assert.NoError(t, err)
 
 			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})

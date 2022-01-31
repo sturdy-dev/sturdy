@@ -16,9 +16,9 @@ func mentionRegexp(mention string) *regexp.Regexp {
 }
 
 // ExtractEmailMentions returns a map of user id mentions to user in the comment message.
-func ExtractIDMentions(msg string, users []*user.User) map[string]*user.User {
-	mentions := make(map[string]*user.User)
-	for _, user := range users {
+func ExtractIDMentions(msg string, uu []*users.User) map[string]*users.User {
+	mentions := make(map[string]*users.User)
+	for _, user := range uu {
 		re := mentionRegexp(user.ID)
 		match := re.FindString(msg)
 		if match == "" {
@@ -31,9 +31,9 @@ func ExtractIDMentions(msg string, users []*user.User) map[string]*user.User {
 }
 
 // ExtractNameMentions returns a map of user name mentions to user in the comment message.
-func ExtractNameMentions(msg string, users []*user.User) map[string]*user.User {
-	mentions := make(map[string]*user.User)
-	for _, user := range users {
+func ExtractNameMentions(msg string, uu []*users.User) map[string]*users.User {
+	mentions := make(map[string]*users.User)
+	for _, user := range uu {
 		re := mentionRegexp(user.Name)
 		match := re.FindString(msg)
 		if match == "" {

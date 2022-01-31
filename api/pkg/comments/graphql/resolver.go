@@ -323,7 +323,7 @@ func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.
 	return &CommentResolver{root: r, comment: comm}, nil
 }
 
-func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*user.User, error) {
+func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*users.User, error) {
 	codebaseUsers, err := r.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)

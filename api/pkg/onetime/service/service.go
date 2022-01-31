@@ -35,7 +35,7 @@ var (
 	ErrInvalid = fmt.Errorf("token invalid")
 )
 
-func (s *Service) Resolve(ctx context.Context, user *user.User, key string) (*onetime.Token, error) {
+func (s *Service) Resolve(ctx context.Context, user *users.User, key string) (*onetime.Token, error) {
 	key = strings.ToUpper(key)
 
 	token, err := s.repo.Get(ctx, user.ID, key)

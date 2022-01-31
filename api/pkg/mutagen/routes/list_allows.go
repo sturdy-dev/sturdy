@@ -27,7 +27,7 @@ type viewRepository interface {
 }
 
 type userRpository interface {
-	Get(id string) (*user.User, error)
+	Get(id string) (*users.User, error)
 }
 
 func ListAllows(

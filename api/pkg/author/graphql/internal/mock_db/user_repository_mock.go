@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	user "getsturdy.com/api/pkg/users"
+	users "getsturdy.com/api/pkg/users"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -51,7 +51,7 @@ func (mr *MockRepositoryMockRecorder) Count(arg0 interface{}) *gomock.Call {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(arg0 *user.User) error {
+func (m *MockRepository) Create(arg0 *users.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0)
 	ret0, _ := ret[0].(error)
@@ -65,10 +65,10 @@ func (mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *MockRepository) Get(arg0 string) (*user.User, error) {
+func (m *MockRepository) Get(arg0 string) (*users.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*users.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +80,10 @@ func (mr *MockRepositoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
 }
 
 // GetByEmail mocks base method.
-func (m *MockRepository) GetByEmail(arg0 string) (*user.User, error) {
+func (m *MockRepository) GetByEmail(arg0 string) (*users.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByEmail", arg0)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(*users.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,14 +95,14 @@ func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 interface{}) *gomock.Call 
 }
 
 // GetByIDs mocks base method.
-func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...string) ([]*user.User, error) {
+func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...string) ([]*users.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "GetByIDs", varargs...)
-	ret0, _ := ret[0].([]*user.User)
+	ret0, _ := ret[0].([]*users.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -115,7 +115,7 @@ func (mr *MockRepositoryMockRecorder) GetByIDs(arg0 interface{}, arg1 ...interfa
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(arg0 *user.User) error {
+func (m *MockRepository) Update(arg0 *users.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0)
 	ret0, _ := ret[0].(error)
@@ -129,7 +129,7 @@ func (mr *MockRepositoryMockRecorder) Update(arg0 interface{}) *gomock.Call {
 }
 
 // UpdatePassword mocks base method.
-func (m *MockRepository) UpdatePassword(arg0 *user.User) error {
+func (m *MockRepository) UpdatePassword(arg0 *users.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePassword", arg0)
 	ret0, _ := ret[0].(error)

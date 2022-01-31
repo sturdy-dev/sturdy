@@ -32,7 +32,7 @@ func New(
 	}
 }
 
-func (e *Sender) SendNotification(ctx context.Context, usr *user.User, notif *notification.Notification) error {
+func (e *Sender) SendNotification(ctx context.Context, usr *users.User, notif *notification.Notification) error {
 	err := e.Sender.SendNotification(ctx, usr, notif)
 	switch {
 	case err == nil:
@@ -53,7 +53,7 @@ func (e *Sender) SendNotification(ctx context.Context, usr *user.User, notif *no
 	}
 }
 
-func (e *Sender) sendGitHubRepositoryImportedNotification(ctx context.Context, u *user.User, gitHubRepoID string) error {
+func (e *Sender) sendGitHubRepositoryImportedNotification(ctx context.Context, u *users.User, gitHubRepoID string) error {
 	repo, err := e.githubRepositoryRepo.GetByID(gitHubRepoID)
 	if err != nil {
 		return fmt.Errorf("failed to get github reposotory: %w", err)

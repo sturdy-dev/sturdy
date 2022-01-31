@@ -20,8 +20,8 @@ func TestDataloader(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock_db.NewMockRepository(ctrl)
 
-	db.EXPECT().Get(gomock.Eq("user-id")).Return(&user.User{ID: "user-id", Name: "foo"}, nil).Times(1)
-	db.EXPECT().Get(gomock.Eq("user-id2")).Return(&user.User{ID: "user-id2", Name: "foo"}, nil).Times(0)
+	db.EXPECT().Get(gomock.Eq("user-id")).Return(&users.User{ID: "user-id", Name: "foo"}, nil).Times(1)
+	db.EXPECT().Get(gomock.Eq("user-id2")).Return(&users.User{ID: "user-id2", Name: "foo"}, nil).Times(0)
 
 	root := NewResolver(db, zap.NewNop())
 	ctx := gqldataloader.NewContext(context.Background())
@@ -40,7 +40,7 @@ func TestDataloaderRequestedOncePerCtx(t *testing.T) {
 
 	db.EXPECT().Get(gomock.Eq("user-id")).Do(func(userID string) {
 		t.Log("CALLED", userID)
-	}).Return(&user.User{ID: "user-id", Name: "foo"}, nil).Times(5)
+	}).Return(&users.User{ID: "user-id", Name: "foo"}, nil).Times(5)
 
 	root := NewResolver(db, zap.NewNop())
 

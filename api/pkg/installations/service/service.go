@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -13,7 +14,6 @@ import (
 	"getsturdy.com/api/pkg/version"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 )
 
 type Service struct {

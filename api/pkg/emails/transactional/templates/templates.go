@@ -53,20 +53,20 @@ const (
 )
 
 type WelcomeTemplateData struct {
-	User *user.User
+	User *users.User
 }
 
 type NotificationGitHubRepositoryImportedTemplateData struct {
 	GitHubRepo *github.GitHubRepository
 	Codebase   *codebase.Codebase
-	User       *user.User
+	User       *users.User
 }
 
 type NotificationCommentTemplateData struct {
-	User *user.User
+	User *users.User
 
 	Comment   *comments.Comment
-	Author    *user.User
+	Author    *users.User
 	Codebase  *codebase.Codebase
 	Workspace *workspace.Workspace
 	Change    *change.Change
@@ -75,37 +75,37 @@ type NotificationCommentTemplateData struct {
 }
 
 type NotificationNewSuggestionTemplateData struct {
-	User *user.User
+	User *users.User
 
-	Author    *user.User
+	Author    *users.User
 	Workspace *workspace.Workspace
 	Codebase  *codebase.Codebase
 }
 
 type NotificationRequestedReviewTemplateData struct {
-	User *user.User
+	User *users.User
 
-	RequestedBy *user.User
+	RequestedBy *users.User
 	Workspace   *workspace.Workspace
 	Codebase    *codebase.Codebase
 }
 
 type NotificationReviewTemplateData struct {
-	User *user.User
+	User *users.User
 
-	Author    *user.User
+	Author    *users.User
 	Review    *review.Review
 	Workspace *workspace.Workspace
 	Codebase  *codebase.Codebase
 }
 
 type MagicLinkTemplateData struct {
-	User *user.User
+	User *users.User
 	Code string
 }
 
 type VerifyEmailTemplateData struct {
-	User *user.User
+	User *users.User
 
 	Token *jwt.Token
 }
