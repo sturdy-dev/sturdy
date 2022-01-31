@@ -51,20 +51,22 @@
         </div>
       </div>
 
-      <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-20 sm:mt-24 lg:mt32">
-        <div class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6">
+      <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-16">
+        <div class="relative">
           <UspVideo />
         </div>
       </div>
     </div>
 
     <section id="features">
-      <div class="bg-slate-800/50 border-y border-slate-700 mt-20">
-        <div class="my-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+      <div
+        class="-mt-10 border-t border-slate-700/30 block top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
+      >
+        <div class="mt-32 mb-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
           <h1
             class="mb-12 sm:text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
           >
-            A new home for your code
+            Ship faster and focus on your code
           </h1>
           <div class="flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
             <MiniUsp class="md:w-1/3" title="Expressive" accent="text-amber-500">
@@ -72,7 +74,7 @@
                 <FireIcon />
               </template>
               <span>
-                Ship your code to production &mdash; <br />
+                <span class="text-amber-500">Ship your code to production &mdash;</span> <br />
                 instead of creating branches, staging and committing files, pushing, and merging.
               </span>
             </MiniUsp>
@@ -82,7 +84,7 @@
                 <CogIcon />
               </template>
               <span>
-                Try each others code &mdash; <br />
+                <span class="text-purple-400">Try each others code &mdash;</span> <br />
                 instead of guessing what a pull request does and LGTM-ing anyway.
               </span>
             </MiniUsp>
@@ -92,7 +94,7 @@
                 <RefreshIcon />
               </template>
               <span>
-                Ship small, incremental changes &mdash;<br />
+                <span class="text-green-500">Ship small, incremental changes &mdash;</span><br />
                 instead of reminding yourself to "push often" and "keep the PR small".
               </span>
             </MiniUsp>
@@ -266,33 +268,36 @@
       </Usp>
 
       <section id="featured">
-        <div class="pt-10 xl:pt-0 mt-10 xl:mt-2 space-y-32 sm:space-y-40 md:space-y-60">
-          <div class="pt-16 max-w-6xl px-6 mx-auto lg:gap-8 space-y-6">
-            <h1 class="mt-4 text-lg sm:text-xl font-extrabold tracking-tight text-slate-300">
+        <div class="relative">
+          <div
+            class="absolute border-t border-slate-700/30 block top-0 inset-x-0 h-[37.5rem] bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
+          ></div>
+          <div class="relative pt-16 max-w-6xl px-6 mx-auto lg:gap-8 space-y-6">
+            <h1 class="pb-6 text-center text-slate-50 uppercase text-sm font-bold tracking-widest">
               Featured at
             </h1>
             <div
-              class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-10 sm:items-center"
+              class="sm:px-20 flex flex-col items-center space-y-6 sm:flex-row sm:justify-between sm:space-y-0 sm:space-x-10 sm:items-center"
             >
               <a href="https://websummit.com/schedule/ws21/timeslot/breakout-startups-1104-0927">
                 <img
                   src="./web-summit.png"
                   alt="Web Summit logotype"
-                  class="rounded-xl object-contain h-4"
+                  class="rounded-xl object-contain h-6"
                 />
               </a>
               <a href="https://devsecops.fm/episodes/36-sturdy/">
                 <img
                   src="./devsecops.png"
                   alt="DevSecOps logotype"
-                  class="rounded-xl object-contain h-6"
+                  class="rounded-xl object-contain h-8"
                 />
               </a>
               <a href="">
                 <img
                   src="./devcon.png"
                   alt="Devcon logotype"
-                  class="rounded-xl object-contain h-6"
+                  class="rounded-xl object-contain h-8"
                 />
               </a>
             </div>
@@ -300,7 +305,7 @@
         </div>
       </section>
 
-      <section id="get-started">
+      <section id="get-started" class="relative">
         <div class="px-6 pt-16 max-w-6xl mx-auto items-center text-center">
           <h1 class="text-slate-50 uppercase text-sm font-bold tracking-widest">
             Begin you Sturdy journey
@@ -308,21 +313,21 @@
 
           <div class="mt-8 flex flex-col md:flex-row gap-6">
             <div class="flex flex-col md:w-1/2 border rounded border-slate-800 bg-slate-800/50">
-              <h2 class="mx-10 mt-4 flex mt-6 text-2xl font-semibold text-amber-500 tracking-tight">
+              <h2 class="mx-6 mt-4 flex mt-6 text-2xl font-semibold text-amber-500 tracking-tight">
                 Sturdy in the Cloud
               </h2>
               <p
-                class="h-10 my-4 flex mx-10 tracking-tight text-slate-400/80 font-semibold text-sm"
+                class="h-10 my-4 mx-6 flex text-center tracking-tight text-slate-400/80 font-semibold text-sm"
               >
                 The easiest way of trying Sturdy. Connect a repository from GitHub.
               </p>
               <div
-                class="flex flex-col max-h-60 grow shadow-xl border border-slate-300/30 bg-slate-700/50 rounded-xl mx-10 mx-auto"
+                class="flex flex-col h-60 grow shadow-xl border border-slate-300/30 bg-slate-700/50 rounded-xl mx-6 mx-auto"
               >
                 <div class="my-10">
                   <p class="tracking-tight mx-10">
-                    Try Sturdy with <span class="text-amber-500">zero setup</span> using the free
-                    forever tier.
+                    Try Sturdy with <span class="text-amber-500">zero setup</span> using our
+                    free-forever tier.
                   </p>
                   <div
                     class="bg-gradient-to-t from-amber-500 to-amber-300/0 text-sm w-px h-16 text-slate-900 font-bold mx-auto flex flex-col justify-center items-center"
@@ -341,7 +346,7 @@
 
               <router-link
                 :to="{ name: 'v2DocsRoot' }"
-                class="mx-10 mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
+                class="mx-6 my-4 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
               >
                 Read the docs
                 <ChevronRightIcon class="h-5 w-5" />
@@ -350,19 +355,19 @@
             <div class="md:w-1/2 border rounded border-slate-800 bg-slate-800/50">
               <div class="">
                 <h2
-                  class="mx-10 mt-4 flex mt-6 text-2xl font-semibold text-purple-400 tracking-tight"
+                  class="mx-6 mt-4 flex mt-6 text-2xl font-semibold text-purple-400 tracking-tight"
                 >
                   Run your own instance
                 </h2>
                 <p
-                  class="h-10 my-4 flex mx-10 tracking-tight text-slate-400/80 font-semibold text-sm"
+                  class="h-10 my-4 flex mx-6 tracking-tight text-slate-400/80 font-semibold text-sm"
                 >
                   Alternatively, run your own Sturdy instance.
                 </p>
 
-                <div class="px-10">
+                <div class="mx-6">
                   <div
-                    class="border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl"
+                    class="h-60 border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl"
                   >
                     <div class="relative w-full flex flex-col">
                       <div class="flex-none border-b border-slate-300/30">
@@ -412,7 +417,7 @@
 
               <router-link
                 :to="{ name: 'v2DocsRoot' }"
-                class="mx-10 mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
+                class="mx-6 my-4 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
               >
                 Read the docs
                 <ChevronRightIcon class="h-5 w-5" />
