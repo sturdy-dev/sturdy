@@ -254,8 +254,13 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 }
 
 func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolvers.UpdateCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.ID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	// Auth
-	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.ID)}); err != nil {
+	if err := r.authService.CanWrite(ctx, cb); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -263,12 +268,7 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	if !ok {
 		return nil, gqlerrors.Error(fmt.Errorf("could not get auth"))
 	}
-
-	cb, err := r.codebaseRepo.Get(string(args.Input.ID))
-	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase by id: %w", err))
-	}
-
+	
 	if args.Input.Name != nil && len(*args.Input.Name) > 0 {
 		cb.Name = *args.Input.Name
 	}
@@ -311,8 +311,13 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	return &CodebaseResolver{c: cb, root: r}, nil
 }
 func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resolvers.AddUserToCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	// Auth
-	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+	if err := r.authService.CanWrite(ctx, cb); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -320,26 +325,21 @@ func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	return &CodebaseResolver{c: cb, root: r}, nil
 }
 
 func (r *CodebaseRootResolver) RemoveUserFromCodebase(ctx context.Context, args resolvers.RemoveUserFromCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	// Auth
-	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+	if err := r.authService.CanWrite(ctx, cb); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
 	if err := r.codebaseService.RemoveUser(ctx, string(args.Input.CodebaseID), string(args.Input.UserID)); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
-	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

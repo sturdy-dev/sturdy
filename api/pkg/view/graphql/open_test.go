@@ -13,6 +13,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -21,7 +22,6 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -90,7 +90,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		nil,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil)
 	authService := service_auth.New(codebaseService, nil, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
 
 	userID := uuid.New()
