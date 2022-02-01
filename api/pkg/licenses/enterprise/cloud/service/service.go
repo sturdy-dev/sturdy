@@ -10,6 +10,8 @@ import (
 	"getsturdy.com/api/pkg/licenses"
 	"getsturdy.com/api/pkg/licenses/enterprise/cloud/db"
 	service_license_validations "getsturdy.com/api/pkg/licenses/enterprise/cloud/validations/service"
+
+	"github.com/mergestat/timediff"
 )
 
 type Service struct {
@@ -91,9 +93,9 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 	if license.ExpiresAt.Before(time.Now()) {
 		return licenses.StatusInvalid, []*licenses.Message{
 			{
-				Type:  licenses.TypeBanner,
+				Type:  licenses.TypeFullscreen,
 				Level: licenses.LevelError,
-				Text:  "License has expired",
+				Text:  fmt.Sprintf("Your license has expired %s", timediff.TimeDiff(license.ExpiresAt)),
 			},
 		}, nil
 	}
@@ -104,7 +106,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 		messages = append(messages, &licenses.Message{
 			Type:  licenses.TypeBanner,
 			Level: licenses.LevelWarning,
-			Text:  "License expires in less than three days",
+			Text:  fmt.Sprintf("Your license will expire  %s", timediff.TimeDiff(license.ExpiresAt)),
 		})
 	}
 
@@ -115,12 +117,23 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 
 	statistics, err := s.statisticsService.GetByLicenseKey(ctx, license.Key)
 	if errors.Is(err, service_installation_statistics.ErrNotFound) {
-		if len(validations) >= 1 {
-			return licenses.StatusInvalid, append(messages, &licenses.Message{
-				Type:  licenses.TypeBanner,
-				Level: licenses.LevelWarning,
-				Text:  "We didn't receive any statistics for this license yet. License is considered invalid, until we receive statistics.",
-			}), nil
+		if len(validations) == 0 {
+			return licenses.StatusValid, []*licenses.Message{
+				{
+					Type:  licenses.TypeBanner,
+					Level: licenses.LevelWarning,
+					Text:  "We didn't receive any statistics for this license yet. Please make sure that your installation sends statistics, otherwise, your license will be considered invalid.",
+				},
+			}, nil
+		} else if len(validations) > 3 {
+			return licenses.StatusInvalid, []*licenses.Message{
+				{
+					Type:  licenses.TypeBanner,
+					Level: licenses.LevelWarning,
+					Text:  "We didn't receive any statistics for this license.",
+				},
+			}, nil
+
 		} else {
 			return licenses.StatusValid, messages, nil
 		}
@@ -132,13 +145,13 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 		messages = append(messages, &licenses.Message{
 			Type:  licenses.TypeBanner,
 			Level: licenses.LevelWarning,
-			Text:  "We didn't receive any statistics for this license in the last 3 hours.",
+			Text:  "We didn't receive any statistics for this license in the last 3 hours. Please make sure that your installation sends statistics, otherwise, your license will be considered invalid.",
 		})
 	}
 
 	if statistics.RecordedAt.Add(statisticsDeadline).Before(time.Now()) {
 		return licenses.StatusInvalid, append(messages, &licenses.Message{
-			Type:  licenses.TypeBanner,
+			Type:  licenses.TypeFullscreen,
 			Level: licenses.LevelError,
 			Text:  "We didn't receive any statistics for this license in the last 24 hours.",
 		}), nil
@@ -149,7 +162,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 			{
 				Type:  licenses.TypeBanner,
 				Level: licenses.LevelError,
-				Text:  "Maximum number of users exceeded",
+				Text:  fmt.Sprintf("Maximum number of users exceeded. %d users are allowed, but %d users are currently using this license.", license.Seats, statistics.UsersCount),
 			},
 		}, nil
 	}

@@ -39,6 +39,7 @@ require (
 	github.com/jxskiss/base62 v0.0.0-20191017122030-4f11678b909b
 	github.com/lib/pq v1.10.4
 	github.com/libgit2/git2go/v33 v33.0.0
+	github.com/mergestat/timediff v0.0.2
 	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/posthog/posthog-go v0.0.0-20210521164710-e0ee8499d623
 	github.com/prometheus/client_golang v1.11.0
