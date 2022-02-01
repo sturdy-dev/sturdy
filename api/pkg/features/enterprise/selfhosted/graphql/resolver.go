@@ -12,7 +12,7 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 	return []resolvers.Feature{
 		resolvers.FeatureBuildkite,
 		resolvers.FeatureGitHub,
-		resolvers.FeatureLicense,
+		resolvers.SelfHostedLicense,
 		resolvers.FeaturePasswordAuth,
 	}
 }

@@ -52,6 +52,10 @@ func (r *licenseResolver) ExpiresAt() (int32, error) {
 	return int32(r.license.ExpiresAt.Unix()), nil
 }
 
+func (r *licenseResolver) Seats() int32 {
+	return int32(r.license.Seats)
+}
+
 type messageResolver struct {
 	msg *licenses.Message
 }

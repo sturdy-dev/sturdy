@@ -15,38 +15,43 @@ export default defineComponent({
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
-    const isLicenseEnabled = computed(() => features?.value?.includes(Feature.License))
+    const isOrganizationSubscriptionsEnabled = computed(() =>
+      features?.value?.includes(Feature.OrganizationSubscriptions)
+    )
 
-    const navigation = [
-      {
-        name: 'Codebases',
-        linkName: 'organizationListCodebases',
-        current:
-          route.name === 'organizationListCodebases' || route.name === 'organizationCreateCodebase',
-      },
+    const navigation = computed(() =>
+      [
+        {
+          name: 'Codebases',
+          linkName: 'organizationListCodebases',
+          current:
+            route.name === 'organizationListCodebases' ||
+            route.name === 'organizationCreateCodebase',
+        },
 
-      {
-        name: 'Settings',
-        linkName: 'organizationSettings',
-        current: route.name === 'organizationSettings',
-      },
+        {
+          name: 'Settings',
+          linkName: 'organizationSettings',
+          current: route.name === 'organizationSettings',
+        },
 
-      isGitHubEnabled.value
-        ? {
-            name: 'GitHub',
-            linkName: 'organizationSettingsGitHub',
-            current: route.name === 'organizationSettingsGitHub',
-          }
-        : null,
+        isGitHubEnabled.value
+          ? {
+              name: 'GitHub',
+              linkName: 'organizationSettingsGitHub',
+              current: route.name === 'organizationSettingsGitHub',
+            }
+          : null,
 
-      isLicenseEnabled.value
-        ? {
-            name: 'Subscriptions',
-            linkName: 'organizationCreateSubscription',
-            current: route.name === 'organizationCreateSubscription',
-          }
-        : null,
-    ].filter((nav) => nav)
+        isOrganizationSubscriptionsEnabled.value
+          ? {
+              name: 'Subscriptions',
+              linkName: 'organizationListSubscription',
+              current: route.name === 'organizationListSubscription',
+            }
+          : null,
+      ].filter((nav) => nav)
+    )
 
     return {
       navigation,

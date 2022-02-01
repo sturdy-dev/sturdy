@@ -17,6 +17,7 @@ type LicenseResolver interface {
 	Key() string
 	ExpiresAt() (int32, error)
 	CreatedAt() (int32, error)
+	Seats() int32
 
 	Status(context.Context) (LicenseStatus, error)
 	Messages(context.Context) ([]LicenseMessageResolver, error)
