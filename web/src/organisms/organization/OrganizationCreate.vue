@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
 import { gql } from '@urql/vue'
 import Button from '../../components/shared/Button.vue'
@@ -87,20 +87,18 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    isMultiTennant: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup() {
     let executeCreateOrganization = useCreateOrganization()
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isLicenseEnabled = features.value.includes(Feature.License)
+    const isLicenseEnabled = computed(() => features.value.includes(Feature.License))
+    const isMultiTennant = computed(() => features.value.includes(Feature.MultiTenancy))
 
     let router = useRouter()
     return {
       isLicenseEnabled,
+      isMultiTennant,
 
       async createMutation(name: string) {
         const variables = { name }
