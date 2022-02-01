@@ -10,7 +10,10 @@ const (
 	FeatureBuildkite    Feature = "Buildkite"
 	FeatureGitHub       Feature = "GitHub"
 	FeatureMultiTenancy Feature = "MultiTenancy"
-	FeatureLicense      Feature = "License"
+
+	OrganizationSubscriptions Feature = "OrganizationSubscriptions"
+	SelfHostedLicense         Feature = "SelfHostedLicense"
+
 	FeaturePasswordAuth Feature = "PasswordAuth"
 	FeatureEmailAuth    Feature = "EmailAuth"
 )

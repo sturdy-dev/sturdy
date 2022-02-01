@@ -200,6 +200,7 @@ type License {
     key: String!
     createdAt: Int!
     expiresAt: Int!
+    seats: Int!
 
     status: LicenseStatus!
     messages: [LicenseMessage!]!

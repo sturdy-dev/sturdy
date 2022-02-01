@@ -51,17 +51,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import Header from '../../molecules/Header.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import { CurrencyDollarIcon, UserGroupIcon } from '@heroicons/vue/solid'
-import { gql, useQuery } from '@urql/vue'
-import { useRoute } from 'vue-router'
-import {
-  ListOrganizationSubscriptionsQuery,
-  ListOrganizationSubscriptionsQueryVariables,
-} from './__generated__/CreateSubscriptionPage'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 
 export default defineComponent({
@@ -72,37 +66,6 @@ export default defineComponent({
     OrganizationSettingsHeader,
     UserGroupIcon,
     CurrencyDollarIcon,
-  },
-  setup() {
-    let route = useRoute()
-
-    let { data } = useQuery<
-      ListOrganizationSubscriptionsQuery,
-      ListOrganizationSubscriptionsQueryVariables
-    >({
-      query: gql`
-        query ListOrganizationSubscriptions($shortID: ID!) {
-          organization(shortID: $shortID) {
-            id
-            name
-            licenses {
-              id
-              key
-              createdAt
-              expiresAt
-            }
-          }
-        }
-      `,
-      requestPolicy: 'cache-and-network',
-      variables: {
-        shortID: computed(() => route.params.organizationSlug as string),
-      },
-    })
-
-    return {
-      data,
-    }
   },
   data() {
     return {

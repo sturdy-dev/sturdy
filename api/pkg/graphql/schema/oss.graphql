@@ -900,7 +900,11 @@ enum Feature {
     GitHub
     Buildkite
     MultiTenancy
-    License
+    
+    OrganizationSubscriptions # In the cloud, manage and view subscriptions
+    License @deprecated(reason: "use SelfHostedLicense instead")
+    SelfHostedLicense # Self hosted, enter, and consume a license
+
     EmailAuth
     PasswordAuth
 }
