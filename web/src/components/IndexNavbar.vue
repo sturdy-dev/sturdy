@@ -268,11 +268,11 @@
           <div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
             <router-link
               v-if="user"
-              :to="{ name: 'codebaseOverview' }"
+              :to="{ name: 'home' }"
               type="button"
               class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
             >
-              <span>Go to codebases</span>
+              <span>Open Sturdy</span>
               <ArrowCircleRightIcon class="-mr-1 ml-2 h-5 w-5 text-green-700" />
             </router-link>
             <template v-else>
@@ -368,11 +368,11 @@
               </div>
               <div v-if="user" class="w-full">
                 <router-link
-                  :to="{ name: 'codebaseOverview' }"
+                  :to="{ name: 'home' }"
                   type="button"
                   class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md block w-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
                 >
-                  <span>Go to codebases</span>
+                  <span>Open Sturdy</span>
                   <ArrowCircleRightIcon class="-mr-1 ml-2 h-5 w-5 text-green-700" />
                 </router-link>
               </div>

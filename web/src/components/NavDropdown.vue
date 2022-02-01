@@ -31,7 +31,7 @@
         <div class="py-1">
           <MenuItem v-if="authenticated" v-slot="{ active }">
             <router-link
-              :to="{ name: 'codebaseOverview' }"
+              :to="{ name: 'home' }"
               :class="[
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                 'group flex items-center px-4 py-2 text-sm',

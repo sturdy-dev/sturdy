@@ -1,6 +1,6 @@
 <template>
   <LinkButton v-if="!gitHubAccount" :href="github_oauth_url" :color="color">
-    Connect to GitHub
+    {{ notConnectedText }}
   </LinkButton>
   <div v-else class="space-x-2">
     <slot></slot>
@@ -14,7 +14,7 @@
 import { defineComponent, PropType } from 'vue'
 import { gql } from '@urql/vue'
 import LinkButton from '../components/shared/LinkButton.vue'
-import { GitHubAppFragment, GitHubAccountFragment } from './__generated__/GitHubConnectButton'
+import { GitHubAccountFragment, GitHubAppFragment } from './__generated__/GitHubConnectButton'
 
 export const GITHUB_APP_FRAGMENT = gql`
   fragment GitHubApp on GitHubApp {
@@ -47,22 +47,30 @@ export default defineComponent({
       required: false,
       default: 'Manage installation',
     },
+    notConnectedText: {
+      type: String,
+      required: false,
+      default: 'Connect to GitHub',
+    },
     color: {
       type: String,
       required: false,
       default: 'white',
     },
-    gitHubRedirectState: {
+    stateSamePage: {
+      type: Boolean,
+      required: false,
+    },
+    statePath: {
       type: String,
       required: false,
-      default: 'user-settings',
     },
   },
   computed: {
     github_oauth_url() {
       const url = new URL('https://github.com/login/oauth/authorize')
       url.searchParams.set('client_id', this.gitHubApp.clientID)
-      url.searchParams.set('state', this.gitHubRedirectState)
+      url.searchParams.set('state', this.state)
 
       if (typeof ipc !== 'undefined') {
         const callbackURL = new URL('sturdy:///setup-github')
@@ -74,17 +82,33 @@ export default defineComponent({
 
       return url.href
     },
+
     github_manage_installation_url() {
       const url = new URL('https://github.com/apps/' + this.gitHubApp.name + '/installations/new')
+      url.searchParams.set('state', this.state)
+      return url.href
+    },
 
-      let state = 'install'
-      if (typeof ipc !== 'undefined') {
-        state = 'install-app'
+    statePrefix() {
+      if (typeof ipc !== 'undefined' && import.meta.env.DEV) {
+        return 'app-dev'
+      } else if (typeof ipc !== 'undefined') {
+        return 'app'
+      }
+      return 'web'
+    },
+
+    state() {
+      let prefix = this.statePrefix
+
+      let path
+      if (this.statePath) {
+        path = this.statePath
+      } else {
+        path = this.$route.fullPath
       }
 
-      url.searchParams.set('state', state)
-
-      return url.href
+      return `${prefix}-${path}`
     },
   },
 })

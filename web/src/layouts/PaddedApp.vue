@@ -2,8 +2,14 @@
   <div class="p-4 sm:p-8">
     <Banner :messages="bannerMessages" />
     <Fullscreen v-if="fullscreenMessages.length > 0" :messages="fullscreenMessages" />
-    <FirstTimeUserNoNameTakeover
-      v-else-if="data && data.user && !data.user.name"
+
+    <FirstTimeUserNoNameTakeover v-if="data && data.user && !data.user.name" />
+    <FirstTimeSetupSelfHosted
+      v-else-if="data && data?.serverStatus?.needsFirstTimeSetup && data.user"
+      :user="data.user"
+    />
+    <FirstTimeCreateOrganizationTakeover
+      v-else-if="data && data.organizations.length === 0"
       :user="data.user"
     />
     <slot v-else></slot>
@@ -18,9 +24,18 @@ import { Feature, LicenseMessageType } from '../__generated__/types'
 import Banner, { BANNER_MESSAGE_FRAGMENT } from '../organisms/licenses/Banner.vue'
 import Fullscreen, { FULLSCREEN_MESSAGE_FRAGMENT } from '../organisms/licenses/Fullscreen.vue'
 import { PaddedAppQuery, PaddedAppQueryVariables } from './__generated__/PaddedApp'
+import FirstTimeSetupSelfHosted from '../organisms/serverstatus/FirstTimeSetupSelfHosted.vue'
+import FirstTimeCreateOrganizationTakeover from '../components/user/FirstTimeCreateOrganizationTakeover.vue'
 
 export default defineComponent({
-  components: { FirstTimeUserNoNameTakeover, Fullscreen, Banner },
+  components: {
+    FirstTimeUserNoNameTakeover,
+    FirstTimeSetupSelfHosted,
+    FirstTimeCreateOrganizationTakeover,
+    Banner,
+    Fullscreen,
+  },
+
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = features?.value?.includes(Feature.MultiTenancy)
@@ -47,6 +62,10 @@ export default defineComponent({
                 ...FullscreenLicenseMessage
               }
             }
+          }
+
+          organizations {
+            id
           }
         }
         ${BANNER_MESSAGE_FRAGMENT}
