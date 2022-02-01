@@ -129,7 +129,7 @@ export default defineComponent({
             title: 'Archived codebase',
             message: this.codebase.name + ' has been archived',
           })
-          this.$router.push({ name: 'codebaseOverview' })
+          this.$router.push({ name: 'home' })
         })
         .catch(() => {
           this.updateStatus = 'Something went wrong.'

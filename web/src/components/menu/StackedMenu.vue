@@ -8,7 +8,15 @@
     </AppTitleBarSpacer>
 
     <div class="flex-shrink-0 border-b border-warmgray-300 h-16 z-20">
-      <NavDropdown :user="user" @logout="$emit('logout')" />
+      <NavigationOrganizationPickerMenu
+        v-if="data?.organizations"
+        :organizations="data.organizations"
+        :current-organization="currentOrDefaultOrganization"
+        :user="user"
+        @logout="$emit('logout')"
+      />
+
+      <NavDropdown v-if="false" :user="user" @logout="$emit('logout')" />
     </div>
 
     <template v-if="false">
@@ -23,6 +31,7 @@
     <div class="flex-1 mt-1 overflow-y-auto">
       <StackedMenuLoading v-if="isLoading" />
       <StackedMenuEmpty v-else-if="navigation.length === 0" class="mt-8" />
+
       <div v-for="(codebase, codebaseIdx) in navigation" v-else :key="codebase.id" class="relative">
         <OnboardingStep
           id="FindingYourCodebase"
@@ -248,7 +257,7 @@
 <script lang="ts">
 import { CogIcon, PlusSmIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
-import { defineComponent, onUnmounted, PropType, ref } from 'vue'
+import { computed, defineComponent, onUnmounted, PropType, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug, Slug } from '../../slug'
 import Avatar from '../shared/Avatar.vue'
@@ -265,13 +274,16 @@ import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Tooltip from '../shared/Tooltip.vue'
 import {
   CodebaseFragment,
+  OrganizationFragment,
   PresenceFragment as WorkspacePresence,
   StackedMenu_ViewFragment as View,
   StackedMenu_WorkspaceActivityFragment as WorkspaceActivity,
   StackedMenu_WorkspaceReviewFragment as WorkspaceReview,
+  StackedMenuQuery,
+  StackedMenuQueryVariables,
   WorkspaceFragment,
 } from './__generated__/StackedMenu'
-import { ReviewGrade, User, WorkspacePresenceState, Feature } from '../../__generated__/types'
+import { Feature, ReviewGrade, User, WorkspacePresenceState } from '../../__generated__/types'
 import { useUpdatedReviews } from '../../subscriptions/useUpdatedReviews'
 import {
   NavigationCodebase,
@@ -283,6 +295,8 @@ import {
 import AppTitleBarSpacer from '../AppTitleBarSpacer.vue'
 import AppHistoryNavigationButtons from '../AppHistoryNavigationButtons.vue'
 import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
+import NavigationOrganizationPicker from '../../molecules/NavigationOrganizationPicker.vue'
+import NavigationOrganizationPickerMenu from '../../molecules/NavigationOrganizationPickerMenu.vue'
 
 const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   fragment StackedMenu_WorkspaceActivity on WorkspaceActivity {
@@ -410,12 +424,30 @@ const CODEBASE_FRAGMENT = gql`
     members {
       ...StackedMenu_Member
     }
+
+    organization {
+      id
+    }
   }
 
   ${VIEW_STATUS_INDICATOR}
   ${WORKSPACE_FRAGMENT}
   ${VIEW_FRAGMENT}
   ${MEMBER_FRAGMENT}
+`
+
+const ORGANIZATION_FRAGMENT = gql`
+ fragment Organization on Organization {
+    id
+    shortID
+    name
+
+    codebases {
+      ...Codebase
+    }
+
+    ${CODEBASE_FRAGMENT}
+ }
 `
 
 const nonArchived = (codebase: CodebaseFragment) => !codebase.archivedAt
@@ -502,6 +534,7 @@ const hasMention = function (userId: string): (activity: WorkspaceActivity) => b
 
 export default defineComponent({
   components: {
+    NavigationOrganizationPickerMenu,
     Tooltip,
     OnboardingStep,
     ViewStatusIndicator,
@@ -520,32 +553,29 @@ export default defineComponent({
     user: {
       type: Object as PropType<User>,
     },
-    features: {
-      type: Array as PropType<Feature[]>,
-      required: true,
-    },
   },
 
   emits: ['logout'],
 
   setup() {
     const route = useRoute()
-    const shortCodebaseID = ref(
+    const shortCodebaseID = computed(() =>
       route.params.codebaseSlug ? IdFromSlug(route.params.codebaseSlug as string) : ''
     )
 
-    const { data, executeQuery, fetching } = useQuery({
+    const { data, executeQuery, fetching } = useQuery<StackedMenuQuery, StackedMenuQueryVariables>({
       query: gql`
         query StackedMenu($shortCodebaseId: ID!) {
           codebase(shortID: $shortCodebaseId) {
             ...Codebase
           }
 
-          codebases {
-            ...Codebase
+          organizations {
+            ...Organization
           }
         }
         ${CODEBASE_FRAGMENT}
+        ${ORGANIZATION_FRAGMENT}
       `,
 
       variables: {
@@ -586,7 +616,6 @@ export default defineComponent({
       },
     }
   },
-
   computed: {
     isLoading(): boolean {
       if (this.data) return false
@@ -596,13 +625,16 @@ export default defineComponent({
       return !!this.user
     },
     codebases(): CodebaseFragment[] {
-      if (!this.data) return []
+      if (!this.currentOrDefaultOrganization) return []
+
       const codebases = this.data.codebase
         ? [
-            ...this.data.codebases.filter((cb: CodebaseFragment) => cb.id != this.data.codebase.id),
+            ...this.currentOrDefaultOrganization.codebases.filter(
+              (cb: CodebaseFragment) => cb.id != this.data.codebase.id
+            ),
             this.data.codebase,
           ]
-        : this.data.codebases
+        : this.currentOrDefaultOrganization.codebases
       return codebases
         .filter(nonArchived)
         .filter(onlyReady)
@@ -685,6 +717,44 @@ export default defineComponent({
           views: views,
         }
       })
+    },
+    currentOrDefaultOrganization() {
+      // From codebase page URL
+      if (
+        this.$route.params?.codebaseSlug &&
+        this.data?.organizations &&
+        this.data?.organizations.length > 0
+      ) {
+        let shortID = IdFromSlug(this.$route.params?.codebaseSlug as string)
+        let org = this.data?.organizations.find((org) =>
+          org.codebases.find((c) => c.shortID === shortID)
+        )
+        if (org) {
+          return org
+        }
+      }
+
+      // From organization page URL
+      if (
+        this.$route.params?.organizationSlug &&
+        this.data?.organizations &&
+        this.data?.organizations.length > 0
+      ) {
+        let org = this.data?.organizations.find(
+          (org) => org.shortID === this.$route.params?.organizationSlug
+        )
+        if (org) {
+          return org
+        }
+      }
+
+      // Fallback to first organization
+      if (this.data?.organizations && this.data?.organizations.length > 0) {
+        return this.data?.organizations[0]
+      }
+
+      // User has no organizations
+      return null
     },
   },
 

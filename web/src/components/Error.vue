@@ -79,7 +79,7 @@ export default {
   },
   methods: {
     async goBack() {
-      await this.$router.push({ name: 'codebaseOverview' })
+      await this.$router.push({ name: 'home' })
       this.$emit('reset-error')
     },
   },

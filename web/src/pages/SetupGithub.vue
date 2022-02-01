@@ -7,9 +7,9 @@
         <h1 class="text-3xl font-bold">Opening App...</h1>
 
         <p class="max-w-md text-center">
-          We're trying to open this link up in your Sturdy app!<br />Hang tight, or
-          <router-link class="text-yellow-600 underline" :to="{ name: 'codebaseOverview' }">
-            continue in browser
+          We're trying to open this link up in your Sturdy app!<br />Please hang tight!
+          <router-link class="text-yellow-600 underline" :to="{ name: 'home' }">
+            Continue to Sturdy
           </router-link>
           .
         </p>
@@ -37,6 +37,29 @@ import { Banner } from '../atoms'
 import Spinner from '../components/shared/Spinner.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
 
+const openInAppUrl = (): string | undefined => {
+  let searchParams = new URLSearchParams(location.search)
+  let state = searchParams.get('state')
+
+  if (!state) {
+    return undefined
+  }
+
+  let path
+  let proto
+  if (state.startsWith('app-dev-')) {
+    path = state.substring(8)
+    proto = 'sturdy-dev'
+  } else if (state.startsWith('app-')) {
+    path = state.substring(4)
+    proto = 'sturdy'
+  }
+
+  searchParams.set('state', 'web-' + path)
+  let search = searchParams.toString()
+  return `${proto}://${location.pathname}?${search}`
+}
+
 export default defineComponent({
   components: { PaddedApp, Banner, Spinner },
   setup() {
@@ -47,6 +70,20 @@ export default defineComponent({
     let show_redirected_to_app = ref(false)
 
     onMounted(async () => {
+      // Open this page in the app
+      if (typeof ipc === 'undefined' && route.query.state) {
+        let state = route.query.state as string
+        if (state.startsWith('app-') || state.startsWith('app-dev-')) {
+          let url = openInAppUrl()
+          if (url) {
+            location.assign(url)
+            show_redirected_to_app.value = true
+            return
+          }
+        }
+      }
+
+      // TODO(gustav): remove the following paths
       // If this request is rendered on the web, open in the app.
       if (typeof ipc === 'undefined' && route.query.state === 'install-app') {
         if (import.meta.env.DEV) {
@@ -55,15 +92,6 @@ export default defineComponent({
           location.assign(`sturdy://${location.pathname}${location.search}`)
         }
         show_redirected_to_app.value = true
-        return
-      }
-
-      if (
-        route.query.state === 'install' ||
-        route.query.state === 'install-app' ||
-        route.query.setup_action === 'update'
-      ) {
-        await router.push({ name: 'codebaseOverview' })
         return
       }
 
@@ -83,6 +111,13 @@ export default defineComponent({
             router.push({ name: 'codebaseOverview' })
           } else if (route.query.state.startsWith('web-')) {
             router.push(route.query.state.substring(4))
+          } else if (route.query.state.startsWith('app-dev-')) {
+            router.push(route.query.state.substring(8))
+          } else if (route.query.state.startsWith('app-')) {
+            router.push(route.query.state.substring(4))
+          } else {
+            // fallback
+            router.push({ name: 'codebaseOverview' })
           }
         })
         .catch(() => {
