@@ -15,6 +15,7 @@ import (
 	"getsturdy.com/api/pkg/analytics/disabled"
 	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
+	graphql_comments "getsturdy.com/api/pkg/comments/graphql"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	graphql_user "getsturdy.com/api/pkg/users/graphql"
 
@@ -196,19 +197,41 @@ func TestCreate(t *testing.T) {
 	statusesServcie := service_statuses.New(logger, statusesRepo, eventsSender)
 	statusesRootResolver := new(resolvers.StatusesRootResolver)
 
+	commentsRootResolver := graphql_comments.NewResolver(
+		userRepo,
+		commentRepo,
+		snapshotRepo,
+		workspaceRepo,
+		viewRepo,
+		codebaseUserRepo,
+		changeRepo,
+		workspaceWatchersService,
+		authService,
+		eventsSender,
+		nil,
+		nil,
+		activitySender,
+		nil,
+		nil,
+		nil,
+		logger,
+		postHogClient,
+		executorProvider,
+	)
+
 	workspaceRootResolver := graphql_workspace.NewResolver(
 		workspaceRepo,
 		codebaseRepo,
 		viewRepo,
-		nil, // commentRepo
-		nil, // snapshotRepo
-		nil, // codebaseResolver
-		nil, // authorResolver
-		nil, // viewResolver
-		nil, // commentResolver
-		nil, // prResolver
-		nil, // changeResolver
-		nil, // workspaceActivityResolver
+		nil,                  // commentRepo
+		nil,                  // snapshotRepo
+		nil,                  // codebaseResolver
+		nil,                  // authorResolver
+		nil,                  // viewResolver
+		commentsRootResolver, // commentResolver
+		nil,                  // prResolver
+		nil,                  // changeResolver
+		nil,                  // workspaceActivityResolver
 		reviewRootResolver,
 		nil, // presenseRootResolver
 		nil, // suggestitonsRootResolver
@@ -599,6 +622,76 @@ func TestCreate(t *testing.T) {
 	allUserViews, err := userResolver.Views()
 	assert.NoError(t, err)
 	assert.Len(t, allUserViews, 1)
+
+	// Make a comment on live changes in a workspace
+	err = ioutil.WriteFile(path.Join(viewPath, "file-a.txt"), []byte("Hello World\n"), 0o666)
+	assert.NoError(t, err)
+
+	createdCommentResolver, err := commentsRootResolver.CreateComment(authenticatedUserContext, resolvers.CreateCommentArgs{Input: resolvers.CreateCommentInput{
+		Message:     "Comment!",
+		InReplyTo:   nil,
+		Path:        str("file-a.txt"),
+		LineStart:   i(1),
+		LineEnd:     i(1),
+		LineIsNew:   b(true),
+		ChangeID:    nil,
+		WorkspaceID: gid(graphql.ID(workspaceRes.ID)),
+		ViewID:      gid(graphql.ID(viewRes.ID)),
+	}})
+	assert.NoError(t, err)
+	assert.Equal(t, "Comment!", createdCommentResolver.Message())
+
+	// Get comment from workspace
+	{
+		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceRes.ID)})
+		assert.NoError(t, err)
+		topComments, err := getWorkspaceResolver.Comments()
+		assert.NoError(t, err)
+		if assert.Len(t, topComments, 1) {
+			assert.Equal(t, "Comment!", topComments[0].Message())
+			codeContext := topComments[0].CodeContext()
+			assert.Equal(t, int32(1), codeContext.LineStart())
+			assert.Equal(t, int32(1), codeContext.LineEnd())
+			assert.Equal(t, true, codeContext.LineIsNew())
+			assert.Equal(t, "file-a.txt", codeContext.Path())
+		}
+	}
+
+	// Move the file with the comment in it
+	err = os.Rename(
+		path.Join(viewPath, "file-a.txt"),
+		path.Join(viewPath, "file-a-renamed.txt"),
+	)
+	assert.NoError(t, err)
+
+	// Get comments again
+	{
+		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceRes.ID)})
+		assert.NoError(t, err)
+		topComments, err := getWorkspaceResolver.Comments()
+		assert.NoError(t, err)
+		if assert.Len(t, topComments, 1) {
+			assert.Equal(t, "Comment!", topComments[0].Message())
+			codeContext := topComments[0].CodeContext()
+			assert.Equal(t, int32(-1), codeContext.LineStart())
+			assert.Equal(t, int32(-1), codeContext.LineEnd())
+			assert.Equal(t, true, codeContext.LineIsNew())
+			// TODO: it would be cool to support detecting that the file has been renamed to "file-a-renamed.txt"
+			assert.Equal(t, "file-a.txt", codeContext.Path())
+		}
+	}
+}
+
+func i(n int32) *int32 {
+	return &n
+}
+
+func b(n bool) *bool {
+	return &n
+}
+
+func gid(in graphql.ID) *graphql.ID {
+	return &in
 }
 
 func TestLargeFiles(t *testing.T) {

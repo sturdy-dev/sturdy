@@ -22,7 +22,7 @@ func WorkspaceFS(
 	executorProvider executor.Provider,
 	snapshotsRepo db_snapshots.Repository,
 	ws *workspace.Workspace,
-// newLines directly links to comment.LineIsNew
+	// newLines directly links to comment.LineIsNew
 	newLines bool,
 ) (fs.FS, error) {
 	if ws.ViewID != nil {
@@ -31,7 +31,7 @@ func WorkspaceFS(
 	if ws.LatestSnapshotID != nil {
 		snapshot, err := snapshotsRepo.Get(*ws.LatestSnapshotID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get snapshot: %v", err)
+			return nil, fmt.Errorf("failed to get snapshot: %w", err)
 		}
 		return snapshotFS(executorProvider, snapshot, newLines), nil
 	}
@@ -68,7 +68,7 @@ func (snapshotsFS *SnapshotsFS) Open(path string) (fs.File, error) {
 
 		parents, err := repo.GetCommitParents(snapshotsFS.snapshot.CommitID)
 		if err != nil {
-			return fmt.Errorf("failed to get commit parents: %v", err)
+			return fmt.Errorf("failed to get commit parents: %w", err)
 		}
 		if len(parents) != 1 {
 			return fmt.Errorf("expected 1 parent, got %d", len(parents))
@@ -106,7 +106,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 		return file, viewFS.executorProvider.New().Read(func(repo vcs.RepoReader) error {
 			osFile, err := os.Open(filepath.Join(repo.Path(), path))
 			if err != nil {
-				return fmt.Errorf("failed to open file: %v", err)
+				return fmt.Errorf("failed to open file: %w", err)
 			}
 			file = osFile
 			return nil
@@ -117,7 +117,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 	return file, viewFS.executorProvider.New().Git(func(repo vcs.Repo) error {
 		headCommit, err := repo.HeadCommit()
 		if err != nil {
-			return fmt.Errorf("failed to get head commit: %v", err)
+			return fmt.Errorf("failed to get head commit: %w", err)
 		}
 		defer headCommit.Free()
 
@@ -135,7 +135,7 @@ func fileFromCommit(repo vcs.Repo, commitSHA string, path string) (fs.File, erro
 	case errors.Is(err, vcs.ErrFileNotFound):
 		return nil, fs.ErrNotExist
 	default:
-		return nil, fmt.Errorf("failed to get file contents: %v", err)
+		return nil, fmt.Errorf("failed to get file contents: %w", err)
 	}
 }
 
