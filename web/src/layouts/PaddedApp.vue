@@ -1,24 +1,32 @@
 <template>
   <div class="p-4 sm:p-8">
-    <FirstTimeUserNoNameTakeover v-if="data && data.user && !data.user.name" :user="data.user" />
+    <Banner :messages="bannerMessages" />
+    <Fullscreen v-if="fullscreenMessages.length > 0" :messages="fullscreenMessages" />
+    <FirstTimeUserNoNameTakeover
+      v-else-if="data && data.user && !data.user.name"
+      :user="data.user"
+    />
     <slot v-else></slot>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import FirstTimeUserNoNameTakeover from '../components/user/FirstTimeUserNoNameTakeover.vue'
-import { Feature } from '../__generated__/types'
+import { Feature, LicenseMessageType } from '../__generated__/types'
+import Banner, { BANNER_MESSAGE_FRAGMENT } from '../organisms/licenses/Banner.vue'
+import Fullscreen, { FULLSCREEN_MESSAGE_FRAGMENT } from '../organisms/licenses/Fullscreen.vue'
+import { PaddedAppQuery, PaddedAppQueryVariables } from './__generated__/PaddedApp'
 
 export default defineComponent({
-  components: { FirstTimeUserNoNameTakeover },
+  components: { FirstTimeUserNoNameTakeover, Fullscreen, Banner },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
-    const isLicenseEnabled = computed(() => features?.value?.includes(Feature.License))
+    const isMultiTenancyEnabled = features?.value?.includes(Feature.MultiTenancy)
+    const isLicenseEnabled = features?.value?.includes(Feature.License)
 
-    const { data, error } = useQuery({
+    const { data, error } = useQuery<PaddedAppQuery, PaddedAppQueryVariables>({
       query: gql`
         query PaddedApp($isMultiTenancyEnabled: Boolean!, $isLicenseEnabled: Boolean!) {
           user {
@@ -33,9 +41,16 @@ export default defineComponent({
 
             license @include(if: $isLicenseEnabled) {
               id
+              messages {
+                type
+                ...BannerLicenseMessage
+                ...FullscreenLicenseMessage
+              }
             }
           }
         }
+        ${BANNER_MESSAGE_FRAGMENT}
+        ${FULLSCREEN_MESSAGE_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
       variables: {
@@ -45,11 +60,28 @@ export default defineComponent({
     })
 
     return {
-      displaySelfHostedBanner: !isMultiTenancyEnabled.value,
+      displaySelfHostedBanner: !isMultiTenancyEnabled,
       data,
       error,
       features,
     }
+  },
+
+  computed: {
+    fullscreenMessages() {
+      return (
+        this.data?.installation?.license?.messages?.filter(
+          (message) => message.type === LicenseMessageType.Fullscreen
+        ) || []
+      )
+    },
+    bannerMessages() {
+      return (
+        this.data?.installation?.license?.messages?.filter(
+          (message) => message.type === LicenseMessageType.Banner
+        ) || []
+      )
+    },
   },
 })
 </script>
