@@ -148,9 +148,5 @@ func handleInstalledRepository(
 		return nil
 	}
 
-	if _, err := gitHubService.CreateNonReadyCodebaseAndClone(ctx, ghRepo, installationID, sender, nil, nil); err != nil {
-		return fmt.Errorf("failed to create non-ready codebase: %w", err)
-	}
-
 	return nil
 }
