@@ -28,24 +28,28 @@ func (c *client) Enqueue(event analytics.Message) error {
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type.String())
+		e.Properties.Set("version", c.installation.Version)
 	case analytics.Capture:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type.String())
+		e.Properties.Set("version", c.installation.Version)
 	case analytics.Identify:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type.String())
+		e.Properties.Set("version", c.installation.Version)
 	case *analytics.Identify:
 		if e.Properties == nil {
 			e.Properties = make(map[string]interface{})
 		}
 		e.Properties.Set("installation_id", c.installation.ID)
 		e.Properties.Set("installation_type", c.installation.Type.String())
+		e.Properties.Set("version", c.installation.Version)
 	}
 
 	return c.Client.Enqueue(event)

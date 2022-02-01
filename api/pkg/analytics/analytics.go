@@ -1,10 +1,11 @@
 package analytics
 
-import "github.com/posthog/posthog-go"
+import (
+	"github.com/posthog/posthog-go"
+)
 
 type Client interface {
 	posthog.Client
-
 	// this is to prevevnt the posthog.Client from being used as a Client
 	_incompatible()
 }

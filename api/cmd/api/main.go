@@ -39,7 +39,7 @@ import (
 	module_integrations "getsturdy.com/api/pkg/integrations/module"
 	module_jwt "getsturdy.com/api/pkg/jwt/module"
 	module_license "getsturdy.com/api/pkg/licenses/module"
-	"getsturdy.com/api/pkg/metrics/zapprometheus"
+	module_logger "getsturdy.com/api/pkg/logger/module"
 	module_mutagen "getsturdy.com/api/pkg/mutagen/module"
 	module_newsletter "getsturdy.com/api/pkg/newsletter/module"
 	module_notification "getsturdy.com/api/pkg/notification/module"
@@ -77,7 +77,6 @@ func main() {
 	gitListenAddr := flag.String("git-listen-addr", "127.0.0.1:3002", "")
 	metricsListenAddr := flag.String("metrics-listen-addr", "127.0.0.1:2112", "")
 	dbSourceAddr := flag.String("db", "postgres://mash:mash@127.0.0.1:5432/mash?sslmode=disable", "")
-	productionLogger := flag.Bool("production-logger", false, "")
 	gitHubAppID := flag.Int64("github-app-id", 122610, "")
 	gitHubAppName := flag.String("github-app-name", "sturdy-gustav-localhost", "")
 	gitHubAppClientID := flag.String("github-app-client-id", "", "")
@@ -110,23 +109,15 @@ func main() {
 
 	ctx := context.Background()
 
-	var logger *zap.Logger
-	if *productionLogger {
-		logger, _ = zap.NewProduction(zap.Hooks(zapprometheus.Hook))
-	} else {
-		logger, _ = zap.NewDevelopment(zap.Hooks(zapprometheus.Hook))
-	}
-
 	providers := []interface{}{
 		func() context.Context {
 			return ctx
 		},
-		func() *zap.Logger { return logger },
 		func() provider.RepoProvider {
 			return provider.New(*reposBasePath, *gitLfsHostname)
 		},
 		func() (*sqlx.DB, error) {
-			return db.TrySetup(logger, *dbSourceAddr, 5*time.Second)
+			return db.TrySetup(*dbSourceAddr, 5*time.Second)
 		},
 		func() config.GitHubAppConfig {
 			return config.GitHubAppConfig{
@@ -144,14 +135,14 @@ func main() {
 				})
 			return awsSession, err
 		},
-		func(awsSession *session.Session) (queue.Queue, error) {
+		func(awsSession *session.Session, logger *zap.Logger) (queue.Queue, error) {
 			if *localQueue {
 				return queue.NewInMemory(logger), nil
 			} else {
 				return queue.NewSQS(logger, awsSession, *hostname, *queuePrefix)
 			}
 		},
-		func(awsSession *session.Session) emails.Sender {
+		func(awsSession *session.Session, logger *zap.Logger) emails.Sender {
 			if *enableTransactionalEmails {
 				return emails.NewSES(awsSession)
 			}
@@ -196,6 +187,7 @@ func main() {
 		c.Import(module_installations_statistics.Module)
 		c.Import(module_integrations.Module)
 		c.Import(module_jwt.Module)
+		c.Import(module_logger.Module)
 		c.Import(module_license.Module)
 		c.Import(module_mutagen.Module)
 		c.Import(module_newsletter.Module)
@@ -230,6 +222,6 @@ func main() {
 		MetricsListenAddr:   *metricsListenAddr,
 		HTTPAddr:            *httpListenAddr,
 	}); err != nil {
-		logger.Fatal("failed to start api server", zap.Error(err))
+		log.Fatalf("faild to start server: %s", err)
 	}
 }
