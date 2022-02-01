@@ -11,7 +11,6 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"go.uber.org/zap"
 )
 
 //go:embed migrations/*.sql
@@ -41,7 +40,7 @@ func setup(dbSourceURL string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func TrySetup(logger *zap.Logger, dbSourceURL string, timeout time.Duration) (*sqlx.DB, error) {
+func TrySetup(dbSourceURL string, timeout time.Duration) (*sqlx.DB, error) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
@@ -50,7 +49,6 @@ func TrySetup(logger *zap.Logger, dbSourceURL string, timeout time.Duration) (*s
 		case <-ticker.C:
 			db, err := setup(dbSourceURL)
 			if err != nil {
-				logger.Error("error connecting to db, will try again", zap.Error(err))
 				continue
 			}
 			if err := doMigrateUp(db.DB); err != nil {
