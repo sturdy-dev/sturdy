@@ -251,28 +251,9 @@
           </p>
         </template>
         <template #bottomLeft>
-          <UspDetailsPair
-            left-title="Connect GitHub"
-            left-body="Setup a bridge between Sturdy and GitHub for one or multiple repositories."
-            right-title="Create pull requests"
-            right-body="Submit and merge pull requests without leaving Sturdy."
-          >
-            <template #leftIcon>
-              <PlayIcon class="text-amber-500" />
-            </template>
-            <template #leftLink>
-              <span>See it in action</span>
-            </template>
-            <template #rightIcon>
-              <LightBulbIcon class="text-amber-500" />
-            </template>
-            <template #rightLink>
-              <span>See it in action</span>
-            </template>
-          </UspDetailsPair>
         </template>
         <template #right>
-          <UspVideo />
+          <Video id="creating-pr"></Video>
         </template>
       </Usp>
 
@@ -439,7 +420,6 @@ import UspVideo from './UspVideo.vue'
 import Video from './video/Video.vue'
 import Usp from './Usp.vue'
 import MiniUsp from './MiniUsp.vue'
-import UspDetailsPair from './UspDetailsPair.vue'
 import ThingsYouAreNotDoing from './ThingsYouAreNotDoing.vue'
 import IconDevelop from './IconDevelop.vue'
 import IconGears from './IconGears.vue'
@@ -472,7 +452,6 @@ export default defineComponent({
     Usp,
     MiniUsp,
     ThingsYouAreNotDoing,
-    UspDetailsPair,
     IconDevelop,
     IconGears,
     IconDesktop,
