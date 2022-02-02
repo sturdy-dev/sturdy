@@ -61,6 +61,11 @@ export const routes: RouteRecordRaw[] = [
     name: 'organizationListSubscription',
   },
   {
+    path: '/org/:organizationSlug/installation',
+    component: () => import('./pages/organization/ManageInstallationPage.vue'),
+    name: 'organizationManageInstallation',
+  },
+  {
     path: '/setup-github',
     component: () => import('./pages/SetupGithub.vue'),
     name: 'setupGithub',

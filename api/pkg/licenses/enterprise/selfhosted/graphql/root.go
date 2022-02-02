@@ -12,12 +12,12 @@ import (
 
 type licenseRootResovler struct {
 	validator    *validator.Validator
-	installation *installations.Installation
+	installation installations.GetInstallationFunc
 }
 
 func New(
 	validator *validator.Validator,
-	installation *installations.Installation,
+	installation installations.GetInstallationFunc,
 ) resolvers.LicenseRootResolver {
 	return &licenseRootResovler{
 		validator:    validator,
@@ -26,7 +26,16 @@ func New(
 }
 
 func (r *licenseRootResovler) InternalByKey(ctx context.Context, key string) (resolvers.LicenseResolver, error) {
-	license, err := r.validator.Validate(ctx, *r.installation.LicenseKey)
+	ins, err := r.installation()
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if ins.LicenseKey == nil {
+		return nil, gqlerrors.ErrNotFound
+	}
+
+	license, err := r.validator.Validate(ctx, *ins.LicenseKey)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to validate license: %w", err))
 	}
@@ -37,10 +46,16 @@ func (r *licenseRootResovler) InternalByKey(ctx context.Context, key string) (re
 }
 
 func (r *licenseRootResovler) InternalListForOrganizationID(ctx context.Context, organizationID string) ([]resolvers.LicenseResolver, error) {
-	if r.installation.LicenseKey == nil {
+	ins, err := r.installation()
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if ins.LicenseKey == nil {
 		return nil, nil
 	}
-	l, err := r.InternalByKey(ctx, *r.installation.LicenseKey)
+
+	l, err := r.InternalByKey(ctx, *ins.LicenseKey)
 	if err != nil {
 		return nil, err
 	}

@@ -8,15 +8,21 @@ import (
 	"github.com/getsentry/raven-go"
 )
 
-func NewClient(installation *installations.Installation) (*raven.Client, error) {
+func NewClient(installation installations.GetInstallationFunc) (*raven.Client, error) {
 	client, err := raven.New("https://na@api.getsturdy.com/will/be/rewritten/123")
 	if err != nil {
 		return nil, err
 	}
+
+	ins, err := installation()
+	if err != nil {
+		return nil, fmt.Errorf("could not get current installation: %w", err)
+	}
+
 	// rewrite url
 	client.Transport = &proxyTransport{
 		Transport:    client.Transport,
-		installation: installation,
+		installation: ins,
 	}
 	return client, nil
 }

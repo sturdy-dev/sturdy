@@ -8,6 +8,8 @@ import (
 
 type InstallationsRootResolver interface {
 	Installation(context.Context) (InstallationsResolver, error)
+
+	UpdateInstallation(context.Context, UpdateInstallationArgs) (InstallationsResolver, error)
 }
 
 type InstallationsResolver interface {
@@ -15,4 +17,12 @@ type InstallationsResolver interface {
 	NeedsFirstTimeSetup(context.Context) (bool, error)
 	Version() string
 	License(context.Context) (LicenseResolver, error)
+}
+
+type UpdateInstallationArgs struct {
+	Input UpdateInstallationInput
+}
+
+type UpdateInstallationInput struct {
+	LicenseKey *string
 }
