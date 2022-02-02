@@ -19,13 +19,10 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true },
   },
   {
-    path: '/codebases',
-    redirect: { name: 'home' },
-  },
-  {
     path: '/home',
     component: () => import('./pages/HomePage.vue'),
     name: 'home',
+    alias: '/codebases',
   },
   {
     path: '/org/:organizationSlug',
