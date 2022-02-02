@@ -38,7 +38,7 @@
         organization.
       </p>
 
-      <p v-if="isLicenseEnabled" class="text-gray-700 text-sm">
+      <p v-if="isSelfHostedLicenseEnabled" class="text-gray-700 text-sm">
         Create a organization to manage your codebases, members, and billing.
       </p>
       <p v-else class="text-gray-700 text-sm">
@@ -92,12 +92,14 @@ export default defineComponent({
     let executeCreateOrganization = useCreateOrganization()
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isLicenseEnabled = computed(() => features.value.includes(Feature.License))
+    const isSelfHostedLicenseEnabled = computed(() =>
+      features.value.includes(Feature.SelfHostedLicense)
+    )
     const isMultiTennant = computed(() => features.value.includes(Feature.MultiTenancy))
 
     let router = useRouter()
     return {
-      isLicenseEnabled,
+      isSelfHostedLicenseEnabled,
       isMultiTennant,
 
       async createMutation(name: string) {

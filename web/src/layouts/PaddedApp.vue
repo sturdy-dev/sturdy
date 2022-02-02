@@ -39,11 +39,11 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = features?.value?.includes(Feature.MultiTenancy)
-    const isLicenseEnabled = features?.value?.includes(Feature.License)
+    const isSelfHostedLicenseEnabled = features?.value?.includes(Feature.SelfHostedLicense)
 
     const { data, error } = useQuery<PaddedAppQuery, PaddedAppQueryVariables>({
       query: gql`
-        query PaddedApp($isMultiTenancyEnabled: Boolean!, $isLicenseEnabled: Boolean!) {
+        query PaddedApp($isMultiTenancyEnabled: Boolean!, $isSelfHostedLicenseEnabled: Boolean!) {
           user {
             id
             name
@@ -54,7 +54,7 @@ export default defineComponent({
             needsFirstTimeSetup
             version
 
-            license @include(if: $isLicenseEnabled) {
+            license @include(if: $isSelfHostedLicenseEnabled) {
               id
               messages {
                 type
@@ -74,7 +74,7 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
       variables: {
         isMultiTenancyEnabled,
-        isLicenseEnabled,
+        isSelfHostedLicenseEnabled,
       },
     })
 

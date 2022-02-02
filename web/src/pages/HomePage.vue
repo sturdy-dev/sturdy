@@ -13,7 +13,7 @@
 
       <div v-if="data.organizations.length === 0">
         <h2>You don't have any organizations:</h2>
-        <RouterLinkButton :to="{ name: 'organizationCreate' }">Create first org</RouterLinkButton>
+        <RouterLinkButton :to="{ name: 'organizationCreate' }">Get started now 🚀</RouterLinkButton>
       </div>
 
       <ul v-if="data.organizations.length > 0" role="list" class="divide-y divide-gray-200">
@@ -43,26 +43,14 @@
         </li>
       </ul>
     </div>
-
-    <NoCodebasesGitHubAuth
-      v-if="isGitHubEnabled && data && !data.user.gitHubAccount"
-      class="mt-4"
-      :git-hub-account="data.user.gitHubAccount"
-      :git-hub-app="data.gitHubApp"
-      :show-start-from-scratch="true"
-    />
   </PaddedApp>
 </template>
 
 <script lang="ts">
-import time from '../time'
-import { Slug } from '../slug'
 import AvatarGroup from '../components/shared/AvatarGroup.vue'
 import { gql, useQuery } from '@urql/vue'
-import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
-import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { computed, defineComponent, inject, ref, Ref, toRefs } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 import { Feature } from '../__generated__/types'
 import { ChevronRightIcon } from '@heroicons/vue/solid'
 import { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
@@ -71,7 +59,6 @@ import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 export default defineComponent({
   components: {
     PaddedApp,
-    NoCodebasesGitHubAuth,
     AvatarGroup,
     ChevronRightIcon,
     RouterLinkButton,

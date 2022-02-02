@@ -20,8 +20,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/codebases',
-    component: () => import('./pages/CodebaseOverview.vue'),
-    name: 'codebaseOverview',
+    redirect: { name: 'home' },
   },
   {
     path: '/home',
