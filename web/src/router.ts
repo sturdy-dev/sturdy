@@ -249,19 +249,11 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/quickstart', // TODO: Move to /docs/quickstart
-    component: () => import('./pages/static/Quickstart.vue'),
-    name: 'quickstart',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'Get up and running with Sturdy',
-        group: 'Quickstart',
-      },
-    },
+    path: '/syncing',
+    redirect: '/docs/syncing',
   },
   {
-    path: '/syncing', // TODO: Move to /docs/syncing
+    path: '/docs/syncing',
     component: () => import('./pages/static/SharingAndSyncing.vue'),
     name: 'syncing',
     meta: {
