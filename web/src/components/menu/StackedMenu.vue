@@ -30,7 +30,11 @@
 
     <div class="flex-1 mt-1 overflow-y-auto">
       <StackedMenuLoading v-if="isLoading" />
-      <StackedMenuEmpty v-else-if="navigation.length === 0" class="mt-8" />
+      <StackedMenuEmpty
+        v-else-if="navigation.length === 0 && currentOrDefaultOrganization"
+        :organization-short-id="currentOrDefaultOrganization.shortID"
+        class="mt-8"
+      />
 
       <div v-for="(codebase, codebaseIdx) in navigation" v-else :key="codebase.id" class="relative">
         <OnboardingStep
