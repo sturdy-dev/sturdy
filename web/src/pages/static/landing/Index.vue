@@ -474,6 +474,17 @@ export default defineComponent({
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
+        },
+        {
+          name: 'keywords',
+          content: 'study code collaboration git vcs',
+        },
+        { property: 'og:title', content: 'Real-time code collaboration.' },
+        { property: 'og:description', content: 'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.' },
+        // { property: 'og:image', content: '' },
       ],
     })
 
