@@ -1,5 +1,8 @@
 <template>
-  <div ref="target" class="text-center my-8 mx-auto overflow-hidden text-2xl text-slate-100">
+  <div
+    ref="target"
+    class="relative text-center my-8 mx-auto overflow-hidden tracking-tight text-2xl text-slate-100"
+  >
     <div>Have an idea</div>
     <div>
       <span :class="[targetIsVisible ? 'strike' : '', 'text-slate-500 truncate font-mono']">

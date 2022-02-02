@@ -18,6 +18,7 @@
           <div class="mt-4 max-w-3xl space-y-8">
             <slot name="left"></slot>
             <router-link
+              v-if="link"
               class="hover:text-slate-300 hover:border-slate-300 hover:bg-slate-900/10 bg-slate-600/80 text-slate-200 border-transparent border focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2 group inline-flex items-center h-9 rounded text-sm font-semibold whitespace-nowrap px-3"
               :to="{ name: link }"
             >
@@ -54,7 +55,7 @@ export default defineComponent({
     },
     link: {
       type: String,
-      required: true,
+      required: false,
     },
     accent: {
       type: String,
