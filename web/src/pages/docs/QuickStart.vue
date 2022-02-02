@@ -82,14 +82,25 @@ import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content:
+            'Sturdy is an open-source version control platform focused on expresiveness and real-time feedback',
+        },
+        {
+          name: 'keywords',
+          content:
+            'study learn documentation open-source version control platform expressiveness real-time feedback why',
+        },
       ],
+      title: 'Quick Start | Sturdy',
     })
   },
 })

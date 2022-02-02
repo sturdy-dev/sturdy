@@ -243,14 +243,23 @@ import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Learn how to collaborate in real-time with Sturdy',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation collaboration team-work team work others',
+        },
       ],
+      title: 'How to collaborate with others | Sturdy',
     })
   },
 })

@@ -182,14 +182,23 @@ import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Learn how to quickly jump between tasks in Sturdy',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation switch change task workspace coding branches',
+        },
       ],
+      title: 'How to switch between tasks | Sturdy',
     })
   },
 })
