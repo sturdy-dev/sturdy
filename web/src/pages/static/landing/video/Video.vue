@@ -12,6 +12,7 @@
       <source v-if="id === 'trying-code'" src="./try-code.webm" type="video/webm" />
       <source v-if="id === 'suggesting-code'" src="./give-suggestion.webm" type="video/webm" />
       <source v-if="id === 'taking-code'" src="./accept-suggestion.webm" type="video/webm" />
+      <source v-if="id === 'creating-pr'" src="./create-pr.webm" type="video/webm" />
     </video>
   </div>
 </template>
