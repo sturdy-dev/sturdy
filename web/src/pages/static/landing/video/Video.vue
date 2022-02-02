@@ -9,10 +9,10 @@
       alt="Sturdy demo"
       class="border border-slate-700/70 rounded-lg object-cover object-center"
     >
-      <source v-if="id === 'trying-code'" src="./try-code.webm" type="video/webm" />
-      <source v-if="id === 'suggesting-code'" src="./give-suggestion.webm" type="video/webm" />
-      <source v-if="id === 'taking-code'" src="./accept-suggestion.webm" type="video/webm" />
-      <source v-if="id === 'creating-pr'" src="./create-pr.webm" type="video/webm" />
+      <source v-if="id === 'trying-code'" src="./try-code.mp4" type="video/mp4" />
+      <source v-if="id === 'suggesting-code'" src="./give-suggestion.mp4" type="video/mp4" />
+      <source v-if="id === 'taking-code'" src="./accept-suggestion.mp4" type="video/mp4" />
+      <source v-if="id === 'creating-pr'" src="./create-pr.mp4" type="video/mp4" />
     </video>
   </div>
 </template>
