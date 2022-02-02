@@ -80,14 +80,23 @@ import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Learn how to edit code with Sturdy',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation coding code editing',
+        },
       ],
+      title: 'How to edit code | Sturdy',
     })
   },
 })

@@ -193,14 +193,23 @@ import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'How Sturdy is augmenting and building on top of git.',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation augmenting git github',
+        },
       ],
+      title: 'How Sturdy Augments Git | Sturdy',
     })
   },
 })

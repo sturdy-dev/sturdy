@@ -116,19 +116,29 @@ import { defineComponent } from 'vue'
 import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
-import CommandLineCopy from '../../molecules/CommandLineCopy.vue'
 
 export default defineComponent({
   components: { PublicLeftSidebar, DocsSidebar },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content:
+            'Learn what Sturdy is, and how you can use Sturdy in the Cloud or self-host Sturdy on your own premises.',
+        },
+        {
+          name: 'keywords',
+          content:
+            'study learn documentation cloud self host self-host docker oneliner on prem on-prem premises',
+        },
       ],
+      title: 'Documentation | Sturdy',
     })
 
     return {

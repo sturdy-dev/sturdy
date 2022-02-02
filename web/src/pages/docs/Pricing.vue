@@ -46,14 +46,23 @@ import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Pricing for Sturdy open source, enterprise, and in the cloud.',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation pricing seats licenses enterprise in the cloud',
+        },
       ],
+      title: 'Pricing | Sturdy',
     })
   },
 })

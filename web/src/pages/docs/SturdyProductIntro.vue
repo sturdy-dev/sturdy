@@ -126,14 +126,23 @@ import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 export default defineComponent({
   components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       meta: [
+        // TODO: Remove when we're launching!
         {
           name: 'robots',
           content: 'noindex',
         },
+        {
+          name: 'description',
+          content: 'Learn how to start using Sturdy!',
+        },
+        {
+          name: 'keywords',
+          content: 'study learn documentation get started tutorial setup quickstart',
+        },
       ],
+      title: 'Product Intro | Sturdy',
     })
   },
 })
