@@ -29,15 +29,14 @@
             Download and install
             <router-link :to="{ name: 'download' }">Sturdy</router-link>
           </li>
-          <li>After opening Sturdy, press the "Sign up now" button</li>
+          <li>After opening Sturdy, click "Sign up now"</li>
           <li>Enter your name and email address</li>
           <li>Paste the code that you received in your email</li>
         </ol>
 
-        <DocsInfoBox>Sturdy in the cloud uses a passwordless login</DocsInfoBox>
-
-        <p>Next steps: Using Sturdy end-to-end tutorial</p>
-        <!-- TODO: Add link -->
+        <p>
+          Next steps: <router-link :to="{ name: 'v2DocsUsingSturdy' }">Using Sturdy</router-link>
+        </p>
 
         <h2 id="self-hosted-sturdy">Self-hosted Sturdy instance</h2>
 
@@ -46,27 +45,32 @@
         <ol>
           <li>
             In your terminal run the following docker command:
-            <pre>
-docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
-           --volume "$(pwd)/sturdydata:/var/data" \
-           getsturdy/server</pre
-            >
+            <pre>{{ dockerOneliner }}</pre>
           </li>
-          <!-- TODO: update -->
-          <li>In your browser, go <a href="http://localhost:9001">http://localhost:9001</a></li>
-          <li>Follow the instructions to setup your organization</li>
           <li>
-            Download and install
+            Download and install the Sturdy App
             <router-link :to="{ name: 'download' }">Sturdy</router-link>
           </li>
-          <li>After opening Sturdy, press the "Configure with self-hosted instance" button</li>
-          <li>In the Sturdy host field enter "localhost" and press "Save"</li>
-          <li>Press the "Sign up now" button</li>
-          <li>Enter your name, email address and choose a password</li>
+
+          <li>
+            <p>
+              From the Sturdy tray-icon, connect to the self hosted instance: Sturdy > Server >
+              Self-hosted.
+
+              <img src="./images/ServerPicker.png" height="424" width="720" class="rounded-md" />
+
+              <br />
+              <span class="test-sm text-gray-700"
+                ><em>Don't see your server?</em> Restart the Sturdy app and try again.</span
+              >
+            </p>
+          </li>
+          <li>Follow the instructions in the app to register an account and setup Study</li>
         </ol>
 
-        <p>Next steps: Using Sturdy end-to-end tutorial</p>
-        <!-- TODO: Add link -->
+        <p>
+          Next steps: <router-link :to="{ name: 'v2DocsUsingSturdy' }">Using Sturdy</router-link>
+        </p>
       </div>
     </template>
   </PublicLeftSidebar>
@@ -77,10 +81,9 @@ import { defineComponent } from 'vue'
 import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
-import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, PublicLeftSidebar, DocsInfoBox },
+  components: { DocsSidebar, PublicLeftSidebar },
   setup() {
     useHead({
       meta: [
@@ -102,6 +105,13 @@ export default defineComponent({
       ],
       title: 'Quick Start | Sturdy',
     })
+
+    return {
+      dockerOneliner: `docker run --interactive --tty \\
+    --publish 30080:80 --publish 30022:22 \\
+    --volume "$HOME/.sturdydata:/var/data" \\
+    getsturdy/server`,
+    }
   },
 })
 </script>
