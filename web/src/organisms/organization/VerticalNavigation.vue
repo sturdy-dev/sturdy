@@ -18,6 +18,9 @@ export default defineComponent({
     const isOrganizationSubscriptionsEnabled = computed(() =>
       features?.value?.includes(Feature.OrganizationSubscriptions)
     )
+    const isSelfHostedLicenseEnabled = computed(() =>
+      features?.value?.includes(Feature.SelfHostedLicense)
+    )
 
     const navigation = computed(() =>
       [
@@ -48,6 +51,14 @@ export default defineComponent({
               name: 'Subscriptions',
               linkName: 'organizationListSubscription',
               current: route.name === 'organizationListSubscription',
+            }
+          : null,
+
+        isSelfHostedLicenseEnabled.value
+          ? {
+              name: 'Manage Server',
+              linkName: 'organizationManageInstallation',
+              current: route.name === 'organizationManageInstallation',
             }
           : null,
       ].filter((nav) => nav)

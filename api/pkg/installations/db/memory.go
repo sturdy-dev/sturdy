@@ -22,3 +22,12 @@ func (m *Memory) Create(_ context.Context, installation *installations.Installat
 func (m *Memory) ListAll(_ context.Context) ([]*installations.Installation, error) {
 	return m.list, nil
 }
+
+func (m *Memory) Update(_ context.Context, installation *installations.Installation) error {
+	for _, v := range m.list {
+		if v.ID == installation.ID {
+			v.LicenseKey = installation.LicenseKey
+		}
+	}
+	return nil
+}

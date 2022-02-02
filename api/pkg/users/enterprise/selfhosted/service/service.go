@@ -18,13 +18,13 @@ type Service struct {
 	*service.UserSerice
 
 	organizationService *service_organization.Service
-	installation        *installations.Installation
+	installation        installations.GetInstallationFunc
 }
 
 func New(
 	userService *service.UserSerice,
 	organizationService *service_organization.Service,
-	installation *installations.Installation,
+	installation installations.GetInstallationFunc,
 ) *Service {
 	return &Service{
 		UserSerice:          userService,
@@ -34,7 +34,11 @@ func New(
 }
 
 func (s *Service) validate(ctx context.Context) error {
-	if s.installation.License != nil {
+	ins, err := s.installation()
+	if err != nil {
+		return fmt.Errorf("failed to get current installation: %w", err)
+	}
+	if ins.License != nil {
 		return nil
 	}
 	usersCount, err := s.UsersCount(ctx)

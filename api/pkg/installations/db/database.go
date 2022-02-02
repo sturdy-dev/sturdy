@@ -35,3 +35,13 @@ func (d *Database) ListAll(ctx context.Context) ([]*installations.Installation, 
 	}
 	return list, nil
 }
+
+func (d *Database) Update(ctx context.Context, installation *installations.Installation) error {
+	_, err := d.db.NamedExecContext(ctx, `UPDATE installations
+		SET license_key = :license_key
+		WHERE id = :id`, installation)
+	if err != nil {
+		return fmt.Errorf("failed to update installation: %w", err)
+	}
+	return nil
+}

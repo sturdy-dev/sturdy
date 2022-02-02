@@ -11,10 +11,12 @@ import (
 func New(
 	ctx context.Context,
 	service *service_installations.Service,
-) (*installations.Installation, error) {
-	installation, err := service.Get(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get installation: %w", err)
+) installations.GetInstallationFunc {
+	return func() (*installations.Installation, error) {
+		installation, err := service.Get(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get installation: %w", err)
+		}
+		return installation, nil
 	}
-	return installation, nil
 }

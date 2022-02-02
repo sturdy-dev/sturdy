@@ -16,3 +16,7 @@ func New() resolvers.InstallationsRootResolver {
 func (r *rootResolver) Installation(context.Context) (resolvers.InstallationsResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
+
+func (r *rootResolver) UpdateInstallation(_ context.Context, _ resolvers.UpdateInstallationArgs) (resolvers.InstallationsResolver, error) {
+	return nil, gqlerrors.ErrNotImplemented
+}

@@ -33,3 +33,7 @@ func (r *rootResolver) Installation(ctx context.Context) (resolvers.Installation
 		installation: installation,
 	}, nil
 }
+
+func (r *rootResolver) UpdateInstallation(_ context.Context, _ resolvers.UpdateInstallationArgs) (resolvers.InstallationsResolver, error) {
+	return nil, gqlerrors.ErrNotImplemented
+}

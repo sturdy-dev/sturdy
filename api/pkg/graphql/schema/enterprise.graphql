@@ -26,6 +26,9 @@ extend type Mutation {
 
     # Third party integrations
     deleteIntegration(input: DeleteIntegrationInput!): Integration!
+
+    # Installation
+    updateInstallation(input: UpdateInstallationInput!): Installation!
 }
 
 extend type Subscription {
@@ -244,4 +247,8 @@ type GitHubRepository {
     gitHubName: String!
 
     codebase: Codebase
+}
+
+input UpdateInstallationInput {
+    licenseKey: String
 }

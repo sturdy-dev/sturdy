@@ -12,14 +12,14 @@ import (
 )
 
 type Service struct {
-	installation *installations.Installation
+	installation installations.GetInstallationFunc
 
 	codebasesService *service_codebases.Service
 	usersService     service_users.Service
 }
 
 func New(
-	installation *installations.Installation,
+	installation installations.GetInstallationFunc,
 
 	codebasesService *service_codebases.Service,
 	usersService service_users.Service,
@@ -42,10 +42,15 @@ func (s *Service) Get(ctx context.Context) (*statistics.Statistic, error) {
 		return nil, fmt.Errorf("failed to get codebases count: %w", err)
 	}
 
+	ins, err := s.installation()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the current installation: %w", err)
+	}
+
 	return &statistics.Statistic{
-		InstallationID: s.installation.ID,
-		LicenseKey:     s.installation.LicenseKey,
-		Version:        s.installation.Version,
+		InstallationID: ins.ID,
+		LicenseKey:     ins.LicenseKey,
+		Version:        ins.Version,
 		RecordedAt:     time.Now(),
 		UsersCount:     usersCount,
 		CodebasesCount: codebasesCount,
