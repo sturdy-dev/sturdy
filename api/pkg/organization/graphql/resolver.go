@@ -55,7 +55,11 @@ func New(
 
 func (r *organizationRootResolver) Organizations(ctx context.Context) ([]resolvers.OrganizationResolver, error) {
 	userID, err := auth.UserID(ctx)
-	if err != nil {
+	switch {
+	case err == nil:
+	case errors.Is(err, auth.ErrUnauthenticated):
+		return nil, nil
+	default:
 		return nil, gqlerrors.Error(err)
 	}
 
