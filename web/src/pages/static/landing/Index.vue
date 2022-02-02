@@ -30,9 +30,7 @@
           </router-link>
           <router-link
             :to="{ name: 'v2DocsRoot' }"
-            class="
-            text-amber-500/80 hover:text-amber-500 bg-slate-900/10 border border-transparent
-            border-amber-500/80 hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
+            class="text-amber-500/80 hover:text-amber-500 bg-slate-900/10 border border-transparent border-amber-500/80 hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
           >
             Read the Docs
             <ChevronRightIcon class="h-6 w-6 ml-1" />
@@ -385,52 +383,7 @@
                 </p>
 
                 <div class="mx-6">
-                  <div
-                    class="h-60 border border-slate-300/30 relative overflow-hidden shadow-xl flex bg-slate-700/50 rounded-xl"
-                  >
-                    <div class="relative w-full flex flex-col">
-                      <div class="flex-none border-b border-slate-300/30">
-                        <div class="flex items-center h-8 space-x-1.5 px-3">
-                          <div class="w-2.5 h-2.5 bg-red-700 rounded-full"></div>
-                          <div class="w-2.5 h-2.5 bg-yellow-600 rounded-full"></div>
-                          <div class="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                        </div>
-
-                        <div
-                          class="-mt-6 mb-1 text-sm font-semibold text-slate-400 text-center select-none"
-                        >
-                          Bash
-                        </div>
-                      </div>
-
-                      <div class="relative min-h-0 flex-auto flex flex-col">
-                        <div class="w-full flex-auto flex min-h-0">
-                          <div class="w-full flex-auto flex min-h-0 overflow-auto">
-                            <div class="w-full relative flex-auto">
-                              <div
-                                class="flex flex-col min-h-full text-sm tracking-tight leading-2"
-                              >
-                                <code
-                                  class="text-left flex relative block text-slate-50 overflow-auto p-4"
-                                >
-                                  <span class="text-slate-400 select-none mr-3">$</span>
-                                  <span style="white-space: pre-line">
-                                    {{ dockerOneliner }}
-                                  </span>
-                                </code>
-                                <div class="flex flex-row-reverse">
-                                  <DuplicateIcon
-                                    class="cursor-pointer m-4 w-8 h-8 hover:text-purple-400"
-                                    @click="copyDockerOneliner"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CommandLineCopy :content="dockerOneliner" />
                 </div>
               </div>
 
@@ -479,6 +432,7 @@ import {
   CogIcon,
   RefreshIcon,
 } from '@heroicons/vue/outline'
+import CommandLineCopy from '../../../molecules/CommandLineCopy.vue'
 
 export default defineComponent({
   components: {
@@ -498,10 +452,10 @@ export default defineComponent({
     ChevronRightIcon,
     PlayIcon,
     LightBulbIcon,
-    DuplicateIcon,
     FireIcon,
     CogIcon,
     RefreshIcon,
+    CommandLineCopy,
   },
   setup() {
     // TODO: Remove when we're launching!
@@ -530,16 +484,10 @@ export default defineComponent({
       mainDownloadText,
       year: new Date().getFullYear(),
       dockerOneliner: `docker run --interactive --tty \\
-                 --publish 30080:80 --publish 30022:22 \\
-                 --volume "$(pwd)/sturdydata:/var/data" \\
-                 getsturdy/server`,
+    --publish 30080:80 --publish 30022:22 \\
+    --volume "$HOME/.sturdydata:/var/data" \\
+    getsturdy/server`,
     }
-  },
-
-  methods: {
-    copyDockerOneliner() {
-      navigator.clipboard.writeText(this.dockerOneliner)
-    },
   },
 })
 </script>

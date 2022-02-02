@@ -53,11 +53,7 @@
           Get started on <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a
           >, or run in Docker:
 
-          <pre>
-docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
-           --volume "$(pwd)/sturdydata:/var/data" \
-           getsturdy/server</pre
-          >
+          <pre>{{ dockerOneliner }}</pre>
         </div>
       </div>
 
@@ -120,6 +116,7 @@ import { defineComponent } from 'vue'
 import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
+import CommandLineCopy from '../../molecules/CommandLineCopy.vue'
 
 export default defineComponent({
   components: { PublicLeftSidebar, DocsSidebar },
@@ -133,6 +130,13 @@ export default defineComponent({
         },
       ],
     })
+
+    return {
+      dockerOneliner: `docker run --interactive --tty \\
+    --publish 30080:80 --publish 30022:22 \\
+    --volume "$HOME/.sturdydata:/var/data" \\
+    getsturdy/server`,
+    }
   },
 })
 </script>
