@@ -35,7 +35,6 @@
         :organization-short-id="currentOrDefaultOrganization.shortID"
         class="mt-8"
       />
-
       <div v-for="(codebase, codebaseIdx) in navigation" v-else :key="codebase.id" class="relative">
         <OnboardingStep
           id="FindingYourCodebase"
@@ -629,17 +628,19 @@ export default defineComponent({
       return !!this.user
     },
     codebases(): CodebaseFragment[] {
-      if (!this.currentOrDefaultOrganization) return []
+      let res: CodebaseFragment[] = []
+      if (this.currentOrDefaultOrganization) {
+        res = this.currentOrDefaultOrganization.codebases
+      }
 
-      const codebases = this.data.codebase
-        ? [
-            ...this.currentOrDefaultOrganization.codebases.filter(
-              (cb: CodebaseFragment) => cb.id != this.data.codebase.id
-            ),
-            this.data.codebase,
-          ]
-        : this.currentOrDefaultOrganization.codebases
-      return codebases
+      // Codebase by URL, might not be in the current organization
+      if (this.data?.codebase) {
+        if (!res.some((c) => c.id === this.data?.codebase?.id)) {
+          res.push(this.data.codebase)
+        }
+      }
+
+      return res
         .filter(nonArchived)
         .filter(onlyReady)
         .sort(codebaseByLastUpdated)
