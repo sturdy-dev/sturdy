@@ -56,6 +56,29 @@ const groups = [
     name: 'Enterprise',
     links: [{ route: 'v2DocsPricing', title: 'Pricing' }],
   },
+
+  {
+    name: 'Features',
+    links: [
+      { route: 'featuresWorkspaceNavigation', title: 'Workspace Navigation' },
+      { route: 'featuresIntegrations', title: 'Integrations' },
+      { route: 'featuresLiveFeedback', title: 'Live Feedback' },
+      { route: 'featuresWorkflow', title: 'Workflow' },
+      { route: 'featuresConflicts', title: 'Conflicts' },
+      { route: 'featuresLargeFiles', title: 'Large Files' },
+      { route: 'docsAccessControl', title: 'Access Control' },
+      { route: 'docsSuggestions', title: 'Suggestions' },
+      { route: 'docsCICD', title: 'CI / CD' },
+    ],
+  },
+
+  {
+    name: 'Learn',
+    links: [
+      { route: 'docsSturdyForGitUsers', title: 'Sturdy for Git users' },
+      { route: 'resourcesMigrateFromGitHub', title: 'Migrate from GitHub' },
+    ],
+  },
 ]
 
 export default defineComponent({
