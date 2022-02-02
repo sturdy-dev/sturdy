@@ -250,8 +250,7 @@
             and benefit from a leveraged workflow.
           </p>
         </template>
-        <template #bottomLeft>
-        </template>
+        <template #bottomLeft> </template>
         <template #right>
           <Video id="creating-pr"></Video>
         </template>
@@ -435,8 +434,7 @@ import {
   ChevronRightIcon,
   PlayIcon,
   LightBulbIcon,
-  DuplicateIcon,
-  ExternalLinkIcon,
+  CheckCircleIcon,
   FireIcon,
   CogIcon,
   RefreshIcon,
@@ -459,6 +457,7 @@ export default defineComponent({
     IconMobile,
     DownloadIcon,
     ChevronRightIcon,
+    CheckCircleIcon,
     PlayIcon,
     LightBulbIcon,
     FireIcon,
@@ -476,14 +475,19 @@ export default defineComponent({
         },
         {
           name: 'description',
-          content: 'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
+          content:
+            'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
         },
         {
           name: 'keywords',
           content: 'study code collaboration git vcs',
         },
         { property: 'og:title', content: 'Real-time code collaboration.' },
-        { property: 'og:description', content: 'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.' },
+        {
+          property: 'og:description',
+          content:
+            'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
+        },
         // { property: 'og:image', content: '' },
       ],
     })
