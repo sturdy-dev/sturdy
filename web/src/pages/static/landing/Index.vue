@@ -150,29 +150,57 @@
             suggestions by just editing the code in your IDE.
           </p>
         </template>
-        <template #bottomLeft>
-          <UspDetailsPair
-            left-title="Trying code"
-            left-body="Get your your teammates' code with a single click."
-            right-title="Suggesting code"
-            right-body="Give code suggestions by simpy typing in your IDE."
-          >
-            <template #leftIcon>
-              <PlayIcon class="text-purple-400" />
-            </template>
-            <template #leftLink>
-              <span>See it in action</span>
-            </template>
-            <template #rightIcon>
-              <LightBulbIcon class="text-purple-400" />
-            </template>
-            <template #rightLink>
-              <span>See it in action</span>
-            </template>
-          </UspDetailsPair>
-        </template>
         <template #right>
-          <UspVideo />
+          <Video :id="collabSelection" />
+        </template>
+        <template #bottom>
+          <div class="mt-8 flex flex-col sm:flex-row gap-10 tracking-tight">
+            <div class="flex flex-col">
+              <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
+                <PlayIcon class="w-8 h-8 mr-2" />
+                Trying code
+              </h1>
+              <p class="mt-2">Get your your teammates' code with a single click.</p>
+
+              <div
+                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                @click="collabSelection = 'trying-code'"
+              >
+                See it in action
+                <ChevronRightIcon class="h-4 w-4 ml-1" />
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
+                <LightBulbIcon class="w-8 h-8 mr-2" />
+                Suggesting code
+              </h1>
+              <p class="mt-2">Give code suggestions by simpy typing in your IDE.</p>
+
+              <div
+                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                @click="collabSelection = 'suggesting-code'"
+              >
+                See it in action
+                <ChevronRightIcon class="h-4 w-4 ml-1" />
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
+                <CheckCircleIcon class="w-8 h-8 mr-2" />
+                Taking code
+              </h1>
+              <p class="mt-2">Accepted suggestions show up in your IDE immediately.</p>
+
+              <div
+                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                @click="collabSelection = 'taking-code'"
+              >
+                See it in action
+                <ChevronRightIcon class="h-4 w-4 ml-1" />
+              </div>
+            </div>
+          </div>
         </template>
       </Usp>
 
@@ -408,6 +436,7 @@
 
 <script lang="ts">
 import UspVideo from './UspVideo.vue'
+import Video from './video/Video.vue'
 import Usp from './Usp.vue'
 import MiniUsp from './MiniUsp.vue'
 import UspDetailsPair from './UspDetailsPair.vue'
@@ -439,6 +468,7 @@ export default defineComponent({
     Footer,
     Nav,
     UspVideo,
+    Video,
     Usp,
     MiniUsp,
     ThingsYouAreNotDoing,
@@ -487,6 +517,12 @@ export default defineComponent({
     --publish 30080:80 --publish 30022:22 \\
     --volume "$HOME/.sturdydata:/var/data" \\
     getsturdy/server`,
+    }
+  },
+
+  data: function () {
+    return {
+      collabSelection: 'trying-code',
     }
   },
 })
