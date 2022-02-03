@@ -3,7 +3,7 @@
     <Nav />
 
     <div class="px-6 relative -mt-16">
-      <div class="absolute inset-0 bottom-10 bg-bottom bg-no-repeat gradient"></div>
+      <div class="absolute inset-0 bottom-20 bg-bottom bg-no-repeat gradient"></div>
 
       <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
         <h1
@@ -38,31 +38,31 @@
         </div>
 
         <div class="flex flex-row space-x-6 justify-center mt-10 mx-6 text-sm">
-          <div class="text-lg font-bold tracking-tight text-slate-400/50">backed by</div>
+          <div class="text-lg font-bold tracking-tight text-slate-400/70">backed by</div>
           <div class="flex space-x-10 items-center">
             <a href="https://www.ycombinator.com/companies/sturdy">
               <img
                 src="../../../assets/Landing/ycombinator-logo.png"
                 alt="Y Combinator logo"
-                class="object-contain h-6 grayscale opacity-50"
+                class="object-contain h-6 grayscale opacity-70"
               />
             </a>
           </div>
         </div>
       </div>
 
-      <div class="max-w-3xl px-4 sm:px-6 md:px-8 mx-auto items-center mt-16">
-        <div class="relative">
-          <UspVideo />
+      <div class="max-w-4xl mx-auto items-center mt-16">
+        <div class="relative" style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.18))">
+          <Video id="workflow" />
         </div>
       </div>
     </div>
 
     <section id="features">
       <div
-        class="-mt-10 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
+        class="-mt-20 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
       >
-        <div class="mt-32 mb-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
+        <div class="mt-48 mb-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
           <h1
             class="mb-12 sm:text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
           >
@@ -135,6 +135,7 @@
         subtitle="Collaborative everything."
         link="v2DocsHowToCollaborateWithOthers"
         accent="purple-400"
+        :bigger-right-side="true"
       >
         <template #icon>
           <IconGears class="border-purple-400/80 border-2 rounded-full w-20 h-20"></IconGears>
@@ -225,9 +226,7 @@
             frequency and makes shipping of small incremental changes the intuitive default.
           </p>
         </template>
-        <template #right>
-          <UspVideo />
-        </template>
+        <template #right> </template>
       </Usp>
 
       <Usp
@@ -235,6 +234,7 @@
         subtitle="Worried about compatibility? Don't be."
         link="v2DocsHowSturdyAugmentsGit"
         accent="amber-500"
+        :bigger-right-side="true"
       >
         <template #icon>
           <IconMobile class="border-amber-500/80 border-2 rounded-full w-20 h-20"></IconMobile>
@@ -415,7 +415,6 @@
 </template>
 
 <script lang="ts">
-import UspVideo from './UspVideo.vue'
 import Video from './video/Video.vue'
 import Usp from './Usp.vue'
 import MiniUsp from './MiniUsp.vue'
@@ -445,7 +444,6 @@ export default defineComponent({
   components: {
     Footer,
     Nav,
-    UspVideo,
     Video,
     Usp,
     MiniUsp,

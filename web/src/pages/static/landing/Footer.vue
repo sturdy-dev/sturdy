@@ -46,9 +46,6 @@
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: '' }" class="hover:text-slate-100"> Values </router-link>
-              </li>
-              <li>
                 <router-link :to="{ name: 'careers' }" class="hover:text-slate-100">
                   Careers
                 </router-link>

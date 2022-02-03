@@ -8,7 +8,7 @@
         <div
           class="flex flex-col items-center md:flex-row md:space-x-4 md:space-y-0 lg:gap-8 space-y-6"
         >
-          <div class="md:w-1/3">
+          <div :class="biggerRightSide ? 'md:w-1/3' : 'md:w-1/2'">
             <div class="w-24">
               <slot name="icon"></slot>
             </div>
@@ -31,7 +31,7 @@
               <slot name="bottomLeft"></slot>
             </div>
           </div>
-          <div class="md:w-2/3">
+          <div :class="biggerRightSide ? 'md:w-2/3' : 'md:w-1/2'">
             <slot name="right"></slot>
           </div>
         </div>
@@ -65,6 +65,10 @@ export default defineComponent({
     accent: {
       type: String,
       required: true,
+    },
+    biggerRightSide: {
+      type: Boolean,
+      required: false,
     },
   },
 })
