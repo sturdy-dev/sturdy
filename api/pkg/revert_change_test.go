@@ -16,6 +16,8 @@ import (
 	service_change "getsturdy.com/api/pkg/change/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebase"
+	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
+	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	graphql_codebase "getsturdy.com/api/pkg/codebase/graphql"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
@@ -190,7 +192,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		logger,
 	)
 
-	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider)
+	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider, nil)
 
 	workspaceRootResolver := graphql_workspace.NewResolver(
 		workspaceRepo,
@@ -444,6 +446,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
 	commentsService := service_comments.New(commentRepo)
+	aclRepo := db_acl.NewACLRepository(d)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -486,7 +489,9 @@ func TestRevertChangeFromView(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
+	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
+
+	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider, nil /*organizationService*/)
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
@@ -527,7 +532,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		logger,
 	)
 
-	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider)
+	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider, authService)
 
 	workspaceRootResolver := graphql_workspace.NewResolver(
 		workspaceRepo,
