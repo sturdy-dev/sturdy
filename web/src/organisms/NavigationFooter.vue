@@ -9,7 +9,7 @@
       >
         <div class="w-1/2">
           <router-link :to="{ name: 'v2Index' }">
-            <img src="../pages/static/landing/logotype.svg" alt="Sturdy logotype" class="h-7" />
+            <img src="../pages/landing/assets/logotype.svg" alt="Sturdy logotype" class="h-7" />
           </router-link>
         </div>
         <SocialLinks :light="light" />

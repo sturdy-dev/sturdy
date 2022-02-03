@@ -40,7 +40,7 @@
           <div class="flex space-x-10 items-center">
             <a href="https://www.ycombinator.com/companies/sturdy">
               <img
-                src="../../../assets/Landing/ycombinator-logo.png"
+                src="../../assets/Landing/ycombinator-logo.png"
                 alt="Y Combinator logo"
                 class="object-contain h-6 grayscale opacity-70"
               />
@@ -51,7 +51,7 @@
 
       <div class="max-w-4xl mx-auto items-center mt-16">
         <div class="relative" style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.18))">
-          <Video id="workflow" />
+          <Video :src="videoWorkflow" />
         </div>
       </div>
     </div>
@@ -150,7 +150,7 @@
           </p>
         </template>
         <template #right>
-          <Video :id="collabSelection" />
+          <Video :src="collabVideo" />
         </template>
         <template #bottom>
           <div class="mt-8 flex flex-col sm:flex-row gap-10 tracking-tight">
@@ -250,7 +250,7 @@
         </template>
         <template #bottomLeft> </template>
         <template #right>
-          <Video id="creating-pr"></Video>
+          <Video :src="videoCreatePr"></Video>
         </template>
       </Usp>
 
@@ -304,21 +304,21 @@
             >
               <a href="https://websummit.com/schedule/ws21/timeslot/breakout-startups-1104-0927">
                 <img
-                  src="./web-summit.png"
+                  src="./assets/web-summit.png"
                   alt="Web Summit logotype"
                   class="rounded-xl object-contain h-6"
                 />
               </a>
               <a href="https://devsecops.fm/episodes/36-sturdy/">
                 <img
-                  src="./devsecops.png"
+                  src="./assets/devsecops.png"
                   alt="DevSecOps logotype"
                   class="rounded-xl object-contain h-8"
                 />
               </a>
               <a href="">
                 <img
-                  src="./devcon.png"
+                  src="./assets/devcon.png"
                   alt="Devcon logotype"
                   class="rounded-xl object-contain h-8"
                 />
@@ -409,15 +409,15 @@
 </template>
 
 <script lang="ts">
-import Video from './video/Video.vue'
-import Usp from './Usp.vue'
-import MiniUsp from './MiniUsp.vue'
-import ThingsYouAreNotDoing from './ThingsYouAreNotDoing.vue'
-import IconDevelop from './IconDevelop.vue'
-import IconGears from './IconGears.vue'
-import IconDesktop from './IconDesktop.vue'
-import IconLaptop from './IconLaptop.vue'
-import IconMobile from './IconMobile.vue'
+import Video from '../../molecules/landing/Video.vue'
+import Usp from '../../organisms/landing/Usp.vue'
+import MiniUsp from '../../organisms/landing/MiniUsp.vue'
+import ThingsYouAreNotDoing from '../../organisms/landing/ThingsYouAreNotDoing.vue'
+import IconDevelop from '../../molecules/landing/IconDevelop.vue'
+import IconGears from '../../molecules/landing/IconGears.vue'
+import IconDesktop from '../../molecules/landing/IconDesktop.vue'
+import IconLaptop from '../../molecules/landing/IconLaptop.vue'
+import IconMobile from '../../molecules/landing/IconMobile.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
 import {
@@ -430,8 +430,14 @@ import {
   CogIcon,
   RefreshIcon,
 } from '@heroicons/vue/outline'
-import CommandLineCopy from '../../../molecules/CommandLineCopy.vue'
-import DocumentationStickyHeader from '../../../layouts/DocumentationStickyHeader.vue'
+import CommandLineCopy from '../../molecules/CommandLineCopy.vue'
+import DocumentationStickyHeader from '../../layouts/DocumentationStickyHeader.vue'
+
+import videoWorkflow from './assets/workflow.mp4'
+import videoCreatePr from './assets/create-pr.mp4'
+import videoAcceptSuggestion from './assets/accept-suggestion.mp4'
+import videoGiveSuggestion from './assets/give-suggestion.mp4'
+import videoTryCode from './assets/try-code.mp4'
 
 export default defineComponent({
   components: {
@@ -509,6 +515,9 @@ export default defineComponent({
     --publish 30080:80 --publish 30022:22 \\
     --volume "$HOME/.sturdydata:/var/data" \\
     getsturdy/server`,
+
+      videoWorkflow,
+      videoCreatePr,
     }
   },
 
@@ -516,6 +525,21 @@ export default defineComponent({
     return {
       collabSelection: 'trying-code',
     }
+  },
+
+  computed: {
+    collabVideo() {
+      switch (this.collabSelection) {
+        case 'trying-code':
+          return videoTryCode
+        case 'suggesting-code':
+          return videoGiveSuggestion
+        case 'taking-code':
+          return videoAcceptSuggestion
+        default:
+          return videoAcceptSuggestion
+      }
+    },
   },
 })
 </script>
