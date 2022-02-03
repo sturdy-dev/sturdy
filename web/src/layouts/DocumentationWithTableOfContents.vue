@@ -29,7 +29,7 @@
               </li>
             </ol>
 
-            <div class="leading-8 text-gray-600 font-medium mt-4">
+            <div class="leading-8 text-gray-600 font-medium mt-4 hidden md:block">
               <router-link :to="{ name: 'v2DocsIndex' }">
                 <span class="font-mono text-red-800">GOTO</span>: Sturdy Documentation Overview
               </router-link>
