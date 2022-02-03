@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"flag"
-
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
 
 	"github.com/getsentry/raven-go"
@@ -10,11 +8,11 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var (
-	productionLogger = flag.Bool("production-logger", false, "")
-)
+type Configuration struct {
+	Production bool `long:"production" description:"Production mode"`
+}
 
-func New(sentryClient *raven.Client) (*zap.Logger, error) {
+func New(cfg *Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
 	options := []zap.Option{
 		zap.Hooks(
 			zapprometheus.Hook,
@@ -27,7 +25,7 @@ func New(sentryClient *raven.Client) (*zap.Logger, error) {
 		}),
 	}
 
-	if *productionLogger {
+	if cfg.Production {
 		return zap.NewProduction(options...)
 	}
 	return zap.NewDevelopment(options...)

@@ -15,13 +15,13 @@ import (
 	"getsturdy.com/api/pkg/change/message"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	service_comments "getsturdy.com/api/pkg/comments/service"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	vcs_github "getsturdy.com/api/pkg/github/enterprise/vcs"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
@@ -49,7 +49,7 @@ func HandlePushEvent(
 	changeRepo db_change.Repository,
 	changeCommitRepo db_change.CommitRepository,
 	executorProvider executor.Provider,
-	gitHubAppConfig config.GitHubAppConfig,
+	gitHubAppConfig *config.GitHubAppConfig,
 	githubClientProvider client.ClientProvider,
 	eventsSender events.EventSender,
 	analyticsClient analytics.Client,

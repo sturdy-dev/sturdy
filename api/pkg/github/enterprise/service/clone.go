@@ -10,10 +10,10 @@ import (
 
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	ghappclient "getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/shortid"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/vcs/provider"
 
 	gh "github.com/google/go-github/v39/github"

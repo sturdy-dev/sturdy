@@ -14,6 +14,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/events"
 	worker_gc "getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/ginzap"
@@ -55,12 +56,16 @@ import (
 	"go.uber.org/zap"
 )
 
-type DevelopmentAllowExtraCorsOrigin string
+type Configuration struct {
+	Addr             flags.Addr `long:"addr" description:"Address to listen on" default:"localhost:3000"`
+	AllowCORSOrigins []string   `long:"allow-cors-origin" description:"Additional origin that is allowed to make CORS requests (can be provided multiple times)"`
+}
 
 type Engine gin.Engine
 
 func ProvideHandler(
 	logger *zap.Logger,
+	config *Configuration,
 	userRepo db_user.Repository,
 	analyticsClient analytics.Client,
 	waitingListRepo waitinglist.WaitingListRepo,
@@ -91,7 +96,6 @@ func ProvideHandler(
 	jwtService *service_jwt.Service,
 	codebaseService *service_codebase.Service,
 	authService *service_auth.Service,
-	developmentAllowExtraCorsOrigin DevelopmentAllowExtraCorsOrigin,
 	grapqhlResolver *sturdygrapql.RootResolver,
 ) *Engine {
 	logger = logger.With(zap.String("component", "http"))
@@ -108,10 +112,7 @@ func ProvideHandler(
 		"https://gustav-staging.driva.dev",
 		"https://gustav-staging.getsturdy.com",
 	}
-	if developmentAllowExtraCorsOrigin != "" {
-		logger.Info("adding CORS origin", zap.String("origin", string(developmentAllowExtraCorsOrigin)))
-		allowOrigins = append(allowOrigins, string(developmentAllowExtraCorsOrigin))
-	}
+	allowOrigins = append(allowOrigins, config.AllowCORSOrigins...)
 	cors := ginCors.New(ginCors.Config{
 		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"POST, OPTIONS, GET, PUT, DELETE"},

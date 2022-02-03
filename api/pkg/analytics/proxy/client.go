@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"flag"
 	"fmt"
 
 	"getsturdy.com/api/pkg/analytics"
@@ -11,9 +10,9 @@ import (
 	"github.com/posthog/posthog-go"
 )
 
-var (
-	analyticsEnabled = flag.Bool("analytics.enabled", true, "Enable analytics")
-)
+type Configuration struct {
+	Disable bool `long:"disable" description:"Disable analytics"`
+}
 
 type client struct {
 	posthog.Client
@@ -61,8 +60,8 @@ func (c *client) Enqueue(event analytics.Message) error {
 	return c.Client.Enqueue(event)
 }
 
-func NewClient(installation installations.GetInstallationFunc) (analytics.Client, error) {
-	if !*analyticsEnabled {
+func NewClient(cfg *Configuration, installation installations.GetInstallationFunc) (analytics.Client, error) {
+	if cfg.Disable {
 		return disabled.NewClient(), nil
 	}
 

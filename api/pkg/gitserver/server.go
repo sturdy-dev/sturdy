@@ -2,7 +2,6 @@ package gitserver
 
 import (
 	"bytes"
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/gitserver/pack"
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -26,8 +26,13 @@ import (
 	"go.uber.org/zap"
 )
 
+type Configuration struct {
+	Addr flags.Addr `long:"addr" description:"listen address" default:"127.0.0.1:3002"`
+}
+
 type Server struct {
 	logger *zap.Logger
+	cfg    *Configuration
 
 	serviceTokensService *service_servicetokens.Service
 	jwtTokensService     *service_jwt.Service
@@ -39,6 +44,7 @@ type Server struct {
 
 func New(
 	logger *zap.Logger,
+	cfg *Configuration,
 	serviceTokensService *service_servicetokens.Service,
 	jwtTokensService *service_jwt.Service,
 	codebaeService *service_codebase.Service,
@@ -46,6 +52,7 @@ func New(
 ) *Server {
 	return &Server{
 		logger: logger,
+		cfg:    cfg,
 
 		serviceTokensService: serviceTokensService,
 		jwtTokensService:     jwtTokensService,
@@ -56,7 +63,7 @@ func New(
 	}
 }
 
-func (h *Server) Start(ctx context.Context, addr string) error {
+func (h *Server) Start() error {
 	h.router.Use(ginzap.Ginzap(h.logger, time.RFC3339, true))
 	h.router.Use(ginzap.RecoveryWithZap(h.logger, true))
 
@@ -68,9 +75,9 @@ func (h *Server) Start(ctx context.Context, addr string) error {
 	importGroup.GET("/info/refs", h.handleInfoRefs)
 	importGroup.POST("/git-receive-pack", h.handleGitReceivePack)
 
-	h.logger.Info("start gitserver", zap.String("addr", addr))
+	h.logger.Info("starting gitserver", zap.Stringer("addr", h.cfg.Addr))
 
-	if err := h.router.Run(addr); err != http.ErrServerClosed {
+	if err := h.router.Run(h.cfg.Addr.String()); err != http.ErrServerClosed {
 		return fmt.Errorf("failed to run the server: %w", err)
 	}
 

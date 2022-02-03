@@ -4,14 +4,14 @@ import (
 	"context"
 	"net/http"
 
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 
 	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/google/go-github/v39/github"
 	"golang.org/x/oauth2"
 )
 
-type ClientProvider func(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error)
+type ClientProvider func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error)
 type PersonalClientProvider func(personalOauthToken string) (personalClient *GitHubClients, err error)
 
 type GitHubClients struct {
@@ -38,8 +38,8 @@ type PullRequestsClient interface {
 	Edit(ctx context.Context, owner string, repo string, number int, pull *github.PullRequest) (*github.PullRequest, *github.Response, error)
 }
 
-func NewClient(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error) {
-	jwtTransport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, gitHubAppConfig.GitHubAppID, gitHubAppConfig.GitHubAppPrivateKeyPath)
+func NewClient(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error) {
+	jwtTransport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, gitHubAppConfig.ID, gitHubAppConfig.PrivateKeyPath)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -31,8 +31,8 @@ import (
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/config"
 	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
@@ -135,7 +135,7 @@ func TestPRHighLevel(t *testing.T) {
 		gitHubInstallationRepo,
 		gitHubUserRepo,
 		gitHubPRRepo,
-		config.GitHubAppConfig{},
+		&config.GitHubAppConfig{},
 		clientProvider,
 		personalClientProvider,
 		&importer,
@@ -195,7 +195,7 @@ func TestPRHighLevel(t *testing.T) {
 
 	webhookRoute := routes.Webhook(
 		logger,
-		config.GitHubAppConfig{},
+		&config.GitHubAppConfig{},
 		disabled.NewClient(),
 		gitHubInstallationRepo,
 		gitHubRepositoryRepo,
@@ -230,7 +230,7 @@ func TestPRHighLevel(t *testing.T) {
 		codebaseRepo,
 		workspaceRepo,
 		viewRepo,
-		config.GitHubAppConfig{},
+		&config.GitHubAppConfig{},
 		gitHubUserRepo,
 		gitHubPRRepo,
 		gitHubInstallationRepo,
@@ -746,7 +746,7 @@ func prWebhookEvent(t *testing.T, state string, merged bool, userID string, pull
 	requestWithParams(t, userID, webhookRoute, webhookPREvent, nil, "pull_request", []gin.Param{})
 }
 
-func clientProvider(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
+func clientProvider(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
 	return &client.GitHubClients{
 			Repositories: nil,
 			PullRequests: &fakeGitHubPullRequestClient{},

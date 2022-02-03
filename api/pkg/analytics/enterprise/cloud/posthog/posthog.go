@@ -1,26 +1,25 @@
 package posthog
 
 import (
-	"flag"
-	"fmt"
-
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/analytics/proxy"
 
 	"github.com/posthog/posthog-go"
 )
 
-var (
-	analyticsEnabled = flag.Bool("analytics.enabled", true, "Enable analytics")
-	posthogAPIToken  = flag.String("analytics.posthog.api-token", "", "Posthog API token")
-)
+type Configuration struct {
+	proxy.Configuration
+	Posthog *postHogConfiguration `flags-group:"posthog" namespace:"posthog" required:"true"`
+}
 
-func NewClient() (analytics.Client, error) {
-	if !*analyticsEnabled {
+type postHogConfiguration struct {
+	ApiToken string `long:"api-token" description:"PostHog API token"`
+}
+
+func NewClient(cfg *Configuration) (analytics.Client, error) {
+	if cfg.Disable {
 		return disabled.NewClient(), nil
 	}
-	if *posthogAPIToken == "" {
-		return nil, fmt.Errorf("--analytics.posthog.api-token is required")
-	}
-	return analytics.New(posthog.New(*posthogAPIToken)), nil
+	return analytics.New(posthog.New(cfg.Posthog.ApiToken)), nil
 }

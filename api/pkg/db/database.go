@@ -40,7 +40,7 @@ func setup(dbSourceURL string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-func TrySetup(dbSourceURL string, timeout time.Duration) (*sqlx.DB, error) {
+func SetupWithTimeout(dbSourceURL string, timeout time.Duration) (*sqlx.DB, error) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
