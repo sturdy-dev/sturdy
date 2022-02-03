@@ -17,7 +17,8 @@ func NewInMemoryUserRepo() db_user.Repository {
 }
 
 func (f *inMemoryUserRepo) Create(newUser *users.User) error {
-	panic("not implemented")
+	f.users = append(f.users, newUser)
+	return nil
 }
 
 func (f *inMemoryUserRepo) Get(id string) (*users.User, error) {
