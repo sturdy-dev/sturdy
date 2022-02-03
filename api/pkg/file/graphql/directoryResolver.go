@@ -3,20 +3,24 @@ package graphql
 import (
 	"context"
 	"errors"
-	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
-	"getsturdy.com/api/pkg/graphql/resolvers"
-	"github.com/graph-gophers/graphql-go"
 	"log"
 	"path"
 	"sort"
 	"strings"
+
+	"github.com/graph-gophers/graphql-go"
+
+	"getsturdy.com/api/pkg/codebase"
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type directoryResolver struct {
-	codebaseID   string
-	path         string
-	children     []string
-	rootResolver resolvers.FileRootResolver
+	codebaseID string
+	path       string
+	children   []string
+
+	rootResolver *fileRootResolver
 }
 
 func (r *directoryResolver) ToFile() (resolvers.FileResolver, bool) {
@@ -35,10 +39,19 @@ func (r *directoryResolver) Path() string {
 	return r.path
 }
 
-func (r *directoryResolver) Children(ctx context.Context) []resolvers.FileOrDirectoryResolver {
+func (r *directoryResolver) Children(ctx context.Context) ([]resolvers.FileOrDirectoryResolver, error) {
 	var children []resolvers.FileOrDirectoryResolver
 
+	allower, err := r.rootResolver.authService.GetAllower(ctx, &codebase.Codebase{ID: r.codebaseID})
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	for _, child := range r.children {
+		if !allower.IsAllowed(child, false) {
+			continue
+		}
+
 		file, err := r.rootResolver.InternalFile(ctx, r.codebaseID, child)
 		if err != nil {
 			log.Println("failed to open child", err)
@@ -65,7 +78,7 @@ func (r *directoryResolver) Children(ctx context.Context) []resolvers.FileOrDire
 		}
 	})
 
-	return children
+	return children, nil
 }
 
 func (r *directoryResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
