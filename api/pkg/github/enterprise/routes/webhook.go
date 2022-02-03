@@ -9,8 +9,9 @@ import (
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/github/enterprise/routes/installation"
 	"getsturdy.com/api/pkg/github/enterprise/routes/pr"
@@ -22,7 +23,6 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/events"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -35,7 +35,7 @@ import (
 
 func Webhook(
 	logger *zap.Logger,
-	config config.GitHubAppConfig,
+	config *config.GitHubAppConfig,
 	analyticsClient analytics.Client,
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,

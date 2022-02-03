@@ -9,8 +9,8 @@ import (
 	"getsturdy.com/api/pkg/analytics/disabled"
 	events "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/config"
 	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/routes/installation"
 	"getsturdy.com/api/pkg/github/enterprise/routes/internal/mock_client"
 	"getsturdy.com/api/pkg/github/enterprise/routes/internal/mock_sender"
@@ -122,7 +122,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 		gitHubInstallationRepo,
 		gitHubUserRepo,
 		nil,
-		config.GitHubAppConfig{},
+		&config.GitHubAppConfig{},
 		clientProvider(appGitHubRepositoriesClient),
 		personalClientProvider(personalGitHubRepositoriesClient),
 		&importer,
@@ -153,8 +153,8 @@ func TestCloneSendsNotifications(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func clientProvider(repoClient client.RepositoriesClient) func(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
-	return func(gitHubAppConfig config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
+func clientProvider(repoClient client.RepositoriesClient) func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
+	return func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
 		return &client.GitHubClients{
 				Repositories: repoClient,
 				PullRequests: &fakeGitHubPullRequestClient{},

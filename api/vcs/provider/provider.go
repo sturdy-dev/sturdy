@@ -1,8 +1,9 @@
 package provider
 
 import (
-	"getsturdy.com/api/vcs"
 	"path"
+
+	"getsturdy.com/api/vcs"
 )
 
 // RepoProvider

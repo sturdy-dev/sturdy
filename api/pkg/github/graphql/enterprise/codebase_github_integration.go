@@ -6,8 +6,8 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/config"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -27,7 +27,7 @@ type codebaseGitHubIntegrationRootResolver struct {
 	codebaseService        *service_codebase.Service
 	gitExecutorProvider    executor.Provider
 	logger                 *zap.Logger
-	gitHubAppConfig        config.GitHubAppConfig
+	gitHubAppConfig        *config.GitHubAppConfig
 	gitHubClientProvider   github_client.ClientProvider
 	workspaceReader        db_workspace.WorkspaceReader
 	workspaceWriter        db_workspace.WorkspaceWriter
@@ -46,7 +46,7 @@ func NewCodebaseGitHubIntegrationRootResolver(
 	gitHubInstallationRepo db_github.GitHubInstallationRepo,
 	gitExecutorProvider executor.Provider,
 	logger *zap.Logger,
-	gitHubAppConfig config.GitHubAppConfig,
+	gitHubAppConfig *config.GitHubAppConfig,
 	gitHubClientProvider github_client.ClientProvider,
 	workspaceReader db_workspace.WorkspaceReader,
 	workspaceWriter db_workspace.WorkspaceWriter,

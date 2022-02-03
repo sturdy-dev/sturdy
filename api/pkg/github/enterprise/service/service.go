@@ -10,8 +10,8 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
-	config_github "getsturdy.com/api/pkg/github/config"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
+	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/notification/sender"
@@ -43,7 +43,7 @@ type Service struct {
 	gitHubPullRequestImporterQueue *ImporterQueue
 	gitHubCloneQueue               *ClonerQueue
 
-	gitHubAppConfig              config_github.GitHubAppConfig
+	gitHubAppConfig              *config_github.GitHubAppConfig
 	gitHubClientProvider         github_client.ClientProvider
 	gitHubPersonalClientProvider github_client.PersonalClientProvider
 
@@ -69,7 +69,7 @@ func New(
 	gitHubInstallationRepo db_github.GitHubInstallationRepo,
 	gitHubUserRepo db_github.GitHubUserRepo,
 	gitHubPullRequestRepo db_github.GitHubPRRepo,
-	gitHubAppConfig config_github.GitHubAppConfig,
+	gitHubAppConfig *config_github.GitHubAppConfig,
 	gitHubClientProvider github_client.ClientProvider,
 	gitHubPersonalClientProvider github_client.PersonalClientProvider,
 

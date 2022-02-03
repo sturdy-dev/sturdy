@@ -30,11 +30,11 @@ func ProvideAPI(
 	}
 }
 
-func (a *API) Start(ctx context.Context, cfg *api.Config) error {
+func (a *API) Start(ctx context.Context) error {
 	wg, ctx := errgroup.WithContext(ctx)
 
 	wg.Go(func() error {
-		return a.ossAPI.Start(ctx, cfg)
+		return a.ossAPI.Start(ctx)
 	})
 
 	wg.Go(func() error {

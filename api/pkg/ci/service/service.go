@@ -48,7 +48,9 @@ type Service struct {
 	jwtService        *service_jwt.Service
 }
 
-type PublicAPIHostname string
+type Configuration struct {
+	PublicAPIHostname string `long:"public-api-hostname" description:"Public API hostname. Used to fetch codebases from CI"`
+}
 
 func New(
 	logger *zap.Logger,
@@ -59,7 +61,7 @@ func New(
 	changeRepo db_change.Repository,
 	changeCommitRepo db_change.CommitRepository,
 
-	publicApiHostname PublicAPIHostname,
+	cfg *Configuration,
 	statusService *svc_statuses.Service,
 	jwtService *service_jwt.Service,
 ) *Service {
@@ -72,7 +74,7 @@ func New(
 		changeRepo:       changeRepo,
 		changeCommitRepo: changeCommitRepo,
 
-		publicApiHostname: string(publicApiHostname),
+		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,
 		jwtService:        jwtService,
 	}

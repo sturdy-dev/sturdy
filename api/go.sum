@@ -965,6 +965,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/sturdy-dev/go-flags v1.5.1-0.20220203104421-967e8bff1baf h1:0gUdlbg2BwpJBmuJk7tXlLy7oZ8MeKN3kia4G5oE3FU=
+github.com/sturdy-dev/go-flags v1.5.1-0.20220203104421-967e8bff1baf/go.mod h1:Fw0T6WPc1dYxT4mKEZRfG5kJhaTDP9pj1c2EWnYs/m4=
 github.com/sturdy-dev/graphql-transport-ws v0.0.0-20211122094650-15c742155db6 h1:BVxYYtL0gDY9eHq2zunyo6ZOmF7IdWwqdpSfrrIcuok=
 github.com/sturdy-dev/graphql-transport-ws v0.0.0-20211122094650-15c742155db6/go.mod h1:5BVKvFzOd2BalVIBFfnfmHjpJi/MZ5rOj8G55mXvZ8g=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=

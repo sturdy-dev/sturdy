@@ -9,15 +9,15 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 
 	"github.com/graph-gophers/graphql-go"
@@ -42,7 +42,7 @@ type prRootResolver struct {
 	userRepo     db_user.Repository
 	codebaseRepo db_codebase.CodebaseRepository
 
-	gitHubAppConfig config.GitHubAppConfig
+	gitHubAppConfig *config.GitHubAppConfig
 
 	gitHubUserRepo         db.GitHubUserRepo
 	workspaceReader        db_workspace.WorkspaceReader
@@ -72,7 +72,7 @@ func NewResolver(
 	workspaceReader db_workspace.WorkspaceReader,
 	viewRepo db_view.Repository,
 
-	gitHubAppConfig config.GitHubAppConfig,
+	gitHubAppConfig *config.GitHubAppConfig,
 
 	gitHubUserRepo db.GitHubUserRepo,
 	gitHubPRRepo db.GitHubPRRepo,

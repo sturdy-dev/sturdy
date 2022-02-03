@@ -3,9 +3,12 @@ package di
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"go.uber.org/dig"
 )
+
+type Out = dig.Out
 
 type Module func(*Container)
 
@@ -56,6 +59,9 @@ func (c *Container) Register(provider interface{}, as ...interface{}) {
 		if outType.Kind() == reflect.Ptr {
 			continue
 		}
+		if dig.IsOut(outType) {
+			continue
+		}
 		cycleForTypes = append(cycleForTypes, outType)
 	}
 
@@ -95,6 +101,10 @@ func (c *Container) Import(module Module) {
 	module(c)
 }
 
+func isDigError(err error) bool {
+	return strings.HasPrefix(fmt.Sprintf("%T", dig.RootCause(err)), "dig.")
+}
+
 // Init retrieves an instance of the dest from the container.
 func Init(dest interface{}, module Module) error {
 	c := &Container{
@@ -105,7 +115,10 @@ func Init(dest interface{}, module Module) error {
 
 	for _, invoke := range c.invokes {
 		if err := c.container.Invoke(invoke); err != nil {
-			return err
+			if isDigError(err) {
+				return err
+			}
+			return dig.RootCause(err)
 		}
 	}
 

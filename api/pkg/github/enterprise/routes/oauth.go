@@ -11,7 +11,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -29,7 +29,7 @@ type GitHubAuthReq struct {
 
 func Oauth(
 	logger *zap.Logger,
-	config config.GitHubAppConfig,
+	config *config.GitHubAppConfig,
 	userRepo db_user.Repository,
 	gitHubUserRepo db.GitHubUserRepo,
 	gitHubService *service_github.Service,
@@ -130,15 +130,15 @@ type OAuthAccessResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-func getAccessToken(logger *zap.Logger, config config.GitHubAppConfig, code string) (token string, err error) {
+func getAccessToken(logger *zap.Logger, config *config.GitHubAppConfig, code string) (token string, err error) {
 	httpClient := http.Client{}
 
 	// Next, lets for the HTTP request to call the github oauth endpoint
 	// to get our access token
 	reqURL := fmt.Sprintf("%s?client_id=%s&client_secret=%s&code=%s",
 		"https://github.com/login/oauth/access_token/",
-		config.GitHubAppClientID,
-		config.GitHubAppSecret,
+		config.ClientID,
+		config.Secret,
 		code)
 
 	req, err := http.NewRequest(http.MethodPost, reqURL, nil)

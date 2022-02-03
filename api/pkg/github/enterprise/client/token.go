@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 
 	gh "github.com/google/go-github/v39/github"
@@ -24,7 +24,7 @@ func permissionsForInstallation(installation *github.GitHubInstallation) *gh.Ins
 	}
 }
 
-func GetFirstAccessToken(ctx context.Context, gitHubAppConfig config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, githubClientProvider ClientProvider) (*gh.InstallationToken, error) {
+func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, githubClientProvider ClientProvider) (*gh.InstallationToken, error) {
 	// Get a new token
 
 	_, githubJwtClient, err := githubClientProvider(
@@ -49,7 +49,7 @@ func GetFirstAccessToken(ctx context.Context, gitHubAppConfig config.GitHubAppCo
 	return installToken, nil
 }
 
-func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider ClientProvider) (string, error) {
+func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider ClientProvider) (string, error) {
 	// Check if we already have a valid token in the database
 	ghr, err := repo.GetByInstallationAndGitHubRepoID(installation.InstallationID, gitHubRepositoryID)
 	if err != nil {

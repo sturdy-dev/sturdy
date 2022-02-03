@@ -8,8 +8,9 @@ import (
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/events"
 	ghappclient "getsturdy.com/api/pkg/github/enterprise/client"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	routes_v3_ghapp "getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
@@ -23,7 +24,6 @@ import (
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/events"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -50,7 +50,7 @@ func ProvideHandler(
 	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
 	gitHubUserRepo db_github.GitHubUserRepo,
 	gitHubPRRepo db_github.GitHubPRRepo,
-	gitHubAppConfig config.GitHubAppConfig,
+	gitHubAppConfig *config.GitHubAppConfig,
 	gitHubClientProvider ghappclient.ClientProvider,
 	gitHubClonerPublisher *workers_github.ClonerQueue,
 	workspaceWriter db_workspace.WorkspaceWriter,

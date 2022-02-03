@@ -1,17 +1,17 @@
 package enterprise
 
 import (
-	"getsturdy.com/api/pkg/github/config"
+	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type gitHubAppRootResolver struct {
-	conf config.GitHubAppConfig
+	conf *config.GitHubAppConfig
 }
 
-func NewGitHubAppRootResolver(conf config.GitHubAppConfig) resolvers.GitHubAppRootResolver {
+func NewGitHubAppRootResolver(conf *config.GitHubAppConfig) resolvers.GitHubAppRootResolver {
 	return &gitHubAppRootResolver{
 		conf: conf,
 	}
@@ -30,9 +30,9 @@ func (r *gitHubAppResolver) ID() graphql.ID {
 }
 
 func (r *gitHubAppResolver) Name() string {
-	return r.root.conf.GitHubAppName
+	return r.root.conf.Name
 }
 
 func (r *gitHubAppResolver) ClientID() string {
-	return r.root.conf.GitHubAppClientID
+	return r.root.conf.ClientID
 }

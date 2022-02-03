@@ -13,6 +13,9 @@ replace github.com/sourcegraph/go-diff => github.com/zegl/go-diff v0.6.2-0.20211
 // https://github.com/sturdy-dev/graphql-transport-ws/commits/sturdy
 replace github.com/graph-gophers/graphql-transport-ws => github.com/sturdy-dev/graphql-transport-ws v0.0.0-20211122094650-15c742155db6
 
+// Custom fork of go-flags to avoid tags name conflict
+replace github.com/jessevdk/go-flags => github.com/sturdy-dev/go-flags v1.5.1-0.20220203104421-967e8bff1baf
+
 require (
 	github.com/aws/aws-sdk-go v1.38.47
 	github.com/bmatcuk/doublestar/v4 v4.0.2
@@ -36,6 +39,7 @@ require (
 	github.com/graph-gophers/graphql-go v1.2.1-0.20211027203416-c32bb4221b77
 	github.com/graph-gophers/graphql-transport-ws v0.0.1
 	github.com/hashicorp/golang-lru v0.5.4
+	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/jxskiss/base62 v0.0.0-20191017122030-4f11678b909b
 	github.com/lib/pq v1.10.4

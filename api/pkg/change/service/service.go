@@ -34,7 +34,9 @@ type Service struct {
 	maybeBucketName  *string
 }
 
-type ExportBucketName *string
+type Configuration struct {
+	ExportBucketName string `long:"export-bucket-name" description:"The name of the S3 bucket to export change archives to"`
+}
 
 func New(
 	executorProvider executor.Provider,
@@ -43,8 +45,11 @@ func New(
 	userRepo db_user.Repository,
 	changeRepo db_change.Repository,
 	commitChangeRepo db_change.CommitRepository,
-	maybeBucketName ExportBucketName,
+	cfg *Configuration,
 ) *Service {
+	if cfg == nil {
+		cfg = &Configuration{}
+	}
 	return &Service{
 		executorProvider: executorProvider,
 		awsSession:       awsSession,
@@ -52,7 +57,7 @@ func New(
 		userRepo:         userRepo,
 		changeRepo:       changeRepo,
 		commitChangeRepo: commitChangeRepo,
-		maybeBucketName:  maybeBucketName,
+		maybeBucketName:  &cfg.ExportBucketName,
 	}
 }
 
