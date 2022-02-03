@@ -37,6 +37,54 @@ WORKDIR /go/src/api
 COPY ./api/go.mod ./go.mod
 COPY ./api/go.sum ./go.sum
 RUN go mod download -x
+
+# cache dependencies
+RUN go build -v github.com/aws/aws-sdk-go/aws \
+    github.com/aws/aws-sdk-go/aws/awserr \
+    github.com/aws/aws-sdk-go/aws/session \
+    github.com/aws/aws-sdk-go/service/kms \
+    github.com/aws/aws-sdk-go/service/s3 \
+    github.com/aws/aws-sdk-go/service/s3/s3manager \
+    github.com/aws/aws-sdk-go/service/ses \
+    github.com/aws/aws-sdk-go/service/sns \
+    github.com/aws/aws-sdk-go/service/sqs \
+    github.com/aws/aws-sdk-go/service/sts \
+    github.com/bmizerany/assert \
+    github.com/bradleyfalzon/ghinstallation \
+    github.com/disintegration/imaging \
+    github.com/getsentry/raven-go \
+    github.com/gin-contrib/gzip \
+    github.com/gin-gonic/gin \
+    github.com/golang-migrate/migrate/v4 \
+    github.com/golang-migrate/migrate/v4/database/postgres \
+    github.com/golang-migrate/migrate/v4/source/iofs \
+    github.com/golang/mock/gomock \
+    github.com/google/go-github/v39/github \
+    github.com/google/uuid \
+    github.com/gosimple/slug \
+    github.com/graph-gophers/dataloader/v6 \
+    github.com/graph-gophers/graphql-go \
+    github.com/graph-gophers/graphql-go/errors \
+    github.com/graph-gophers/graphql-go/introspection \
+    github.com/graph-gophers/graphql-go/relay \
+    github.com/graph-gophers/graphql-go/trace \
+    github.com/graph-gophers/graphql-transport-ws/graphqlws \
+    github.com/jessevdk/go-flags \
+    github.com/jmoiron/sqlx \
+    github.com/jxskiss/base62 \
+    github.com/lib/pq \
+    github.com/mergestat/timediff \
+    github.com/microcosm-cc/bluemonday \
+    github.com/posthog/posthog-go \
+    github.com/prometheus/client_golang/prometheus \
+    github.com/prometheus/client_golang/prometheus/promauto \
+    github.com/prometheus/client_golang/prometheus/promhttp \
+    github.com/psanford/memfs \
+    github.com/sourcegraph/go-diff/diff \
+    github.com/tailscale/hujson \
+    github.com/tidwall/match \
+    github.com/yuin/goldmark
+
 # build api
 ARG API_BUILD
 COPY ./api ./
