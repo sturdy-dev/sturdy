@@ -13,6 +13,7 @@
       <source v-if="id === 'suggesting-code'" src="./give-suggestion.mp4" type="video/mp4" />
       <source v-if="id === 'taking-code'" src="./accept-suggestion.mp4" type="video/mp4" />
       <source v-if="id === 'creating-pr'" src="./create-pr.mp4" type="video/mp4" />
+      <source v-if="id === 'workflow'" src="./workflow.mp4" type="video/mp4" />
     </video>
   </div>
 </template>
