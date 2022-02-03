@@ -1,5 +1,5 @@
 <template>
-  <PublicLeftSidebar>
+  <DocumentationWithTableOfContents>
     <template #sidebar>
       <DocsSidebar />
     </template>
@@ -181,17 +181,17 @@
         </p>
       </div>
     </template>
-  </PublicLeftSidebar>
+  </DocumentationWithTableOfContents>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import PublicLeftSidebar from '../../layouts/PublicLeftSidebar.vue'
+import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, PublicLeftSidebar },
+  components: { DocsSidebar, DocumentationWithTableOfContents },
   setup() {
     useHead({
       meta: [
