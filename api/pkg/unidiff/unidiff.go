@@ -830,9 +830,9 @@ func isHidden(allower *Allower, fd *diff.FileDiff) bool {
 		return false
 	}
 	if fd.NewName == "/dev/null" {
-		return !allower.IsAllowed(fd.OrigName, false)
+		return !allower.IsAllowed(cleanName(fd.OrigName), false)
 	}
-	return !allower.IsAllowed(fd.NewName, false)
+	return !allower.IsAllowed(cleanName(fd.NewName), false)
 }
 
 func hasBinaryFiles(fd *diff.FileDiff) bool {
