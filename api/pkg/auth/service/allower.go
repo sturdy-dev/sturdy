@@ -33,7 +33,13 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 	switch subject.Type {
 	case auth.SubjectMutagen:
 		// TODO: mutagen request should be authenticated
-		return allAllowed, nil
+		switch object := obj.(type) {
+		case *codebase.Codebase:
+			return s.getUserCodebaseAllower(ctx, subject.ID, object)
+		case codebase.Codebase:
+			return s.getUserCodebaseAllower(ctx, subject.ID, &object)
+		}
+
 	case auth.SubjectUser:
 		switch object := obj.(type) {
 		case *codebase.Codebase:
@@ -53,6 +59,7 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 		case *suggestions.Suggestion:
 			return s.getUserSuggestionAllower(ctx, subject.ID, object)
 		}
+
 	case auth.SubjectCI:
 		switch object := obj.(type) {
 		case *change.Change:
@@ -60,6 +67,7 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 		case change.Change:
 			return s.getCIAllower(ctx, subject.ID, &object)
 		}
+		
 	case auth.SubjectAnonymous:
 		switch object := obj.(type) {
 		case *change.Change:
