@@ -98,6 +98,44 @@
             </MiniUsp>
           </div>
         </div>
+        <div class="mt-48">
+          <div class="flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
+            <Testimonial name="Kevin Simons" title="CTO, Kitemaker">
+              <template #logo><img src="./assets/kitemaker.svg" alt="Kitemaker logo" /></template>
+              <template #quote>
+                Sturdy makes it extremely easy for us to explore and try each other’s ideas during
+                development. I can thoroughly recommend it for fast moving teams.
+              </template>
+              <template #face
+                ><img
+                  src="./assets/kevin_simons.jpeg"
+                  alt="Kevin Simons"
+                  class="h-10 w-10 border-2 border-purple-400/50 rounded-full"
+              /></template>
+            </Testimonial>
+            <Testimonial name="&mdash; Will Stensvold">
+              <template #quote>
+                I am just starting out on the adventure of being a freelance programmer and was
+                looking for a tool with the functionality of Git but without the overhead of having
+                to learn cryptic commands that obfuscate what I wanted to do with my code.
+                <br /><br />
+                Sturdy is that tool, once you install Sturdy and initialize your Codebase your
+                changes are available on the web to share and get suggestions from colleagues, you
+                can create a new workspace from old revisions, and sync changes from collaborators;
+                all with the click of a button.
+              </template>
+            </Testimonial>
+            <Testimonial name="&mdash; Slamet Hendry">
+              <template #quote>
+                We expect our docs and pictures to sync to the cloud automatically to Dropbox or
+                iCloud or whatever service we use.
+                <br />
+                Similarly, Sturdy automatically sync our code to the repo and lets us focus on
+                coding and collaboration.
+              </template>
+            </Testimonial>
+          </div>
+        </div>
       </div>
     </section>
     <div class="mb-20 space-y-20 overflow-hidden sm:mb-32 sm:space-y-32 md:mb-40 md:space-y-40">
@@ -424,6 +462,7 @@
 import Video from '../../molecules/landing/Video.vue'
 import Usp from '../../organisms/landing/Usp.vue'
 import MiniUsp from '../../organisms/landing/MiniUsp.vue'
+import Testimonial from '../../organisms/landing/Testimonial.vue'
 import ThingsYouAreNotDoing from '../../organisms/landing/ThingsYouAreNotDoing.vue'
 import IconDevelop from '../../molecules/landing/IconDevelop.vue'
 import IconGears from '../../molecules/landing/IconGears.vue'
@@ -458,6 +497,7 @@ export default defineComponent({
     Video,
     Usp,
     MiniUsp,
+    Testimonial,
     ThingsYouAreNotDoing,
     IconDevelop,
     IconGears,
@@ -573,5 +613,8 @@ body {
     radial-gradient(at 0% 5%, hsla(223, 49%, 9%, 1) 0, transparent 49%),
     radial-gradient(at 74% 76%, hsla(44, 97%, 57%, 1) 0, transparent 50%),
     radial-gradient(at 45% 37%, hsla(38, 93%, 51%, 1) 0, transparent 50%);
+}
+.fade {
+  mask-image: linear-gradient(90deg, #000 80%, transparent);
 }
 </style>

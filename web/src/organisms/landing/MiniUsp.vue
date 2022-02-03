@@ -29,7 +29,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { ChevronDownIcon } from '@heroicons/vue/outline'
-import UspVideo from './UspVideo.vue'
 export default defineComponent({
   components: {
     ChevronDownIcon,
