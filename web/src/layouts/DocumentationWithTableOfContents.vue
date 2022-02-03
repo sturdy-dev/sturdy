@@ -1,8 +1,8 @@
 <template>
-  <PublicOpenSource>
+  <Documentation>
     <div class="flex mt-8 px-4 flex-col md:flex-row">
       <div class="w-full flex-1 md:min-w-[240px]">
-        <div class="md:sticky md:top-4">
+        <div class="hidden md:block md:sticky md:top-4">
           <slot name="sidebar"></slot>
         </div>
       </div>
@@ -11,9 +11,36 @@
         ref="content"
         class="w-full 2xl:max-w-[800px] xl:max-w-[650px] max-w-full pb-14 relative md:pl-16 xl:px-16 2xl:px-32 box-content overflow-auto"
       >
+        <!-- Small screen table of contents -->
+        <div class="w-full flex-1 pl-4 self-stretch block xl:hidden">
+          <div class="top-4">
+            <!-- Small Screen Link all documentation pages -->
+            <span class="leading-8 text-gray-500 font-medium">On this page</span>
+            <ol class="leading-loose mt-4">
+              <li v-for="(toc, idx) in tableOfContents" :key="idx" class="group">
+                <a
+                  :href="'#' + toc.id"
+                  class="text-gray-600 group-hover:text-gray-800 font-medium space-x-2"
+                  :class="toc.classes"
+                >
+                  <span>{{ toc.title }}</span>
+                  <span class="text-gray-400 group-hover:text-gray-800">⤵️</span>
+                </a>
+              </li>
+            </ol>
+
+            <div class="leading-8 text-gray-600 font-medium mt-4">
+              <router-link :to="{ name: 'v2DocsIndex' }">
+                <span class="font-mono text-red-800">GOTO</span>: Sturdy Documentation Overview
+              </router-link>
+            </div>
+          </div>
+        </div>
+
         <slot name="default"></slot>
       </div>
 
+      <!-- Large screen table of contents -->
       <div class="w-full flex-1 pl-4 self-stretch hidden xl:block">
         <div class="sticky top-4">
           <span class="leading-8 text-gray-500 font-medium">On this page</span>
@@ -31,16 +58,16 @@
         </div>
       </div>
     </div>
-  </PublicOpenSource>
+  </Documentation>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import PublicOpenSource from './PublicOpenSource.vue'
+import Documentation from './Documentation.vue'
 
 export default defineComponent({
   components: {
-    PublicOpenSource,
+    Documentation,
   },
   setup() {
     return {
