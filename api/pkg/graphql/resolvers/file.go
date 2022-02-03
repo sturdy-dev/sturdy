@@ -26,6 +26,6 @@ type FileResolver interface {
 type DirectoryResolver interface {
 	ID() graphql.ID
 	Path() string
-	Children(ctx context.Context) []FileOrDirectoryResolver
+	Children(ctx context.Context) ([]FileOrDirectoryResolver, error)
 	Readme(ctx context.Context) (FileResolver, error)
 }
