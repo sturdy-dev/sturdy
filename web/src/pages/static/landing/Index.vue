@@ -1,7 +1,5 @@
 <template>
-  <div class="antialiased text-slate-300 bg-slate-900">
-    <Nav />
-
+  <DocumentationStickyHeader class="antialiased text-slate-300 bg-slate-900">
     <div class="px-6 relative -mt-16">
       <div class="absolute inset-0 bottom-20 bg-bottom bg-no-repeat gradient"></div>
 
@@ -407,11 +405,7 @@
         </div>
       </section>
     </div>
-
-    <div id="footer" class="text-sm leading-6">
-      <Footer />
-    </div>
-  </div>
+  </DocumentationStickyHeader>
 </template>
 
 <script lang="ts">
@@ -424,8 +418,6 @@ import IconGears from './IconGears.vue'
 import IconDesktop from './IconDesktop.vue'
 import IconLaptop from './IconLaptop.vue'
 import IconMobile from './IconMobile.vue'
-import Footer from './Footer.vue'
-import Nav from './Nav.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
 import {
@@ -439,11 +431,11 @@ import {
   RefreshIcon,
 } from '@heroicons/vue/outline'
 import CommandLineCopy from '../../../molecules/CommandLineCopy.vue'
+import DocumentationStickyHeader from '../../../layouts/DocumentationStickyHeader.vue'
 
 export default defineComponent({
   components: {
-    Footer,
-    Nav,
+    DocumentationStickyHeader,
     Video,
     Usp,
     MiniUsp,
@@ -463,6 +455,14 @@ export default defineComponent({
     RefreshIcon,
     CommandLineCopy,
   },
+
+  props: {
+    light: {
+      type: Boolean,
+      required: true,
+    },
+  },
+
   setup() {
     // TODO: Remove when we're launching!
     useHead({
