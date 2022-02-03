@@ -3,6 +3,7 @@ package graphql
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 	"testing"
@@ -66,11 +67,17 @@ func TestFileResolver(t *testing.T) {
 
 	aclID := uuid.NewString()
 	userID := uuid.NewString()
-	singleFileOnlyUserID := uuid.NewString()
+	restrictedUserReadmeUserID := uuid.NewString()
+	restrictedUserDirUserID := uuid.NewString()
+	restrictedUserDirNoTrailingSlashUserID := uuid.NewString()
+	restrictedUserDirFooUserID := uuid.NewString()
 
 	rawPolicy := strings.NewReplacer(
 		"__USER_ID__", userID,
-		"__SINGLE_FILE_ONLY_USER_ID__", singleFileOnlyUserID,
+		"__RESTRICTED_USER_README_USER_ID__", restrictedUserReadmeUserID,
+		"__RESTRICTED_USER_DIR_USER_ID__", restrictedUserDirUserID,
+		"__RESTRICTED_USER_DIR_NO_TRAILING_SLASH_USER_ID__", restrictedUserDirNoTrailingSlashUserID,
+		"__RESTRICTED_USER_DIR_FOO_USER_ID__", restrictedUserDirFooUserID,
 		"__CODEBASE_ID__", codebaseID,
 	).Replace(`{
   "groups": [
@@ -95,16 +102,34 @@ func TestFileResolver(t *testing.T) {
       "resources": ["acls::__CODEBASE_ID__"],
     },
     {
-      "id": "user can access all but one file",
+      "id": "user __USER_ID__",
       "principals": ["users::__USER_ID__"],
       "action": "write",
       "resources": [ "files::*", "files::!not_allowed.txt" ],
     },
     {
-      "id": "user can access only readme",
-      "principals": ["users::__SINGLE_FILE_ONLY_USER_ID__"],
+      "id": "user __RESTRICTED_USER_README_USER_ID__",
+      "principals": ["users::__RESTRICTED_USER_README_USER_ID__"],
       "action": "write",
-      "resources": [ "files::README.md" ],
+      "resources": [ "files::README.md"],
+    },
+    {
+      "id": "user __RESTRICTED_USER_DIR_USER_ID__",
+      "principals": ["users::__RESTRICTED_USER_DIR_USER_ID__"],
+      "action": "write",
+      "resources": [ "files::/pkg/**/*", "files::/pkg/", "files::/dir/**/*", "files::/dir/" ],
+    },
+    {
+      "id": "user __RESTRICTED_USER_DIR_NO_TRAILING_SLASH_USER_ID__",
+      "principals": ["users::__RESTRICTED_USER_DIR_NO_TRAILING_SLASH_USER_ID__"],
+      "action": "write",
+      "resources": [ "files::/pkg/**/*", "files::/pkg/", "files::/dir/**/*", "files::/dir" ],
+    },
+    {
+      "id": "user __RESTRICTED_USER_DIR_USER_ID__",
+      "principals": ["users::__RESTRICTED_USER_DIR_USER_ID__"],
+      "action": "write",
+      "resources": [ "files::/pkg/**/*", "files::/pkg/", "files::/dir/foo/**/*", "files::/dir/foo/" ],
     }
   ],
 }`)
@@ -126,11 +151,11 @@ func TestFileResolver(t *testing.T) {
 	assert.Error(t, err, gqlerrors.ErrNotFound)
 	assert.Nil(t, fileResolver)
 
-	t.Log(trunkPath)
-
-	fileNames := []string{"readme.markdown", "README.md", "not_allowed.txt"}
+	fileNames := []string{"readme.markdown", "README.md", "not_allowed.txt", "dir/foo/bar/a.txt", "dir/foo/bar/b.txt"}
 	for _, fileName := range fileNames {
 		// Create and push files
+		err = os.MkdirAll(path.Dir(path.Join(viewPath, fileName)), 0o777)
+		assert.NoError(t, err)
 		err = ioutil.WriteFile(path.Join(viewPath, fileName), []byte("# hey from "+fileName), 0o644)
 		assert.NoError(t, err)
 		_, err = viewGitRepo.AddAndCommit(fileName)
@@ -139,7 +164,7 @@ func TestFileResolver(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	{
+	t.Run("get readme", func(t *testing.T) {
 		fileResolver, err = root.InternalFile(ctx, codebaseID, "README.md", "README.markdown")
 		assert.NoError(t, err)
 		if assert.NotNil(t, fileResolver) {
@@ -148,16 +173,15 @@ func TestFileResolver(t *testing.T) {
 			assert.Equal(t, "README.md", fileResolver.Path())
 			assert.Equal(t, "# hey from README.md", fileResolver.Contents())
 		}
-	}
 
-	{
+	})
+
+	t.Run("list root not see not_allowed.txt", func(t *testing.T) {
 		fileResolver, err = root.InternalFile(ctx, codebaseID, "/")
 		assert.NoError(t, err)
 		if assert.NotNil(t, fileResolver) {
 			dir, ok := fileResolver.ToDirectory()
 			if assert.True(t, ok) {
-				t.Log(dir.Path())
-
 				var names []string
 				children, err := dir.Children(ctx)
 				assert.NoError(t, err)
@@ -167,38 +191,122 @@ func TestFileResolver(t *testing.T) {
 				}
 
 				// note how not_allowed.txt is missing
-				assert.Equal(t, []string{"readme.markdown", "README.md"}, names)
+				assert.Equal(t, []string{"dir", "readme.markdown", "README.md"}, names)
 			}
 		}
-	}
+	})
 
-	{
+	t.Run("list not_allowed.txt not allowed", func(t *testing.T) {
 		fileResolver, err = root.InternalFile(ctx, codebaseID, "not_allowed.txt")
 		assert.Error(t, err, gqlerrors.ErrNotFound)
-	}
+	})
 
-	{
-		singleFileUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: singleFileOnlyUserID, Type: auth.SubjectUser})
+	t.Run("as restrictedUserDirUserID", func(t *testing.T) {
+		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirUserID, Type: auth.SubjectUser})
 
-		fileResolver, err = root.InternalFile(singleFileUserCtx, codebaseID, "/")
-		assert.NoError(t, err)
-		if assert.NotNil(t, fileResolver) {
-			dir, ok := fileResolver.ToDirectory()
-			if assert.True(t, ok) {
-				t.Log(dir.Path())
+		{
+			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			assert.NoError(t, err)
+			if assert.NotNil(t, fileResolver) {
+				dir, ok := fileResolver.ToDirectory()
+				if assert.True(t, ok) {
+					var names []string
+					children, err := dir.Children(restrictedUserCtx)
+					assert.NoError(t, err)
 
-				var names []string
-				children, err := dir.Children(singleFileUserCtx)
-				assert.NoError(t, err)
+					for _, ch := range children {
+						names = append(names, ch.Path())
+					}
 
-				for _, ch := range children {
-					names = append(names, ch.Path())
+					// TODO: To match the mutagen implementation, this user should see dir
+					// assert.Equal(t, []string{"dir"}, names)
+					assert.Nil(t, names)
 				}
-
-				// only get README.md
-				assert.Equal(t, []string{"README.md"}, names)
 			}
 		}
 
-	}
+		{
+			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/dir")
+			assert.NoError(t, err)
+			if assert.NotNil(t, fileResolver) {
+				dir, ok := fileResolver.ToDirectory()
+				if assert.True(t, ok) {
+					var names []string
+					children, err := dir.Children(restrictedUserCtx)
+					assert.NoError(t, err)
+					for _, ch := range children {
+						names = append(names, ch.Path())
+					}
+					assert.Equal(t, []string{"dir/foo"}, names)
+				}
+			}
+		}
+	})
+
+	t.Run("as restrictedUserReadmeUserID", func(t *testing.T) {
+		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserReadmeUserID, Type: auth.SubjectUser})
+		{
+			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			assert.NoError(t, err)
+			if assert.NotNil(t, fileResolver) {
+				dir, ok := fileResolver.ToDirectory()
+				if assert.True(t, ok) {
+					var names []string
+					children, err := dir.Children(restrictedUserCtx)
+					assert.NoError(t, err)
+					for _, ch := range children {
+						names = append(names, ch.Path())
+					}
+					assert.Equal(t, []string{"README.md"}, names)
+				}
+			}
+		}
+	})
+
+	t.Run("as restrictedUserDirNoTrailingSlashCtx", func(t *testing.T) {
+		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirNoTrailingSlashUserID, Type: auth.SubjectUser})
+		{
+			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			assert.NoError(t, err)
+			if assert.NotNil(t, fileResolver) {
+				dir, ok := fileResolver.ToDirectory()
+				if assert.True(t, ok) {
+					var names []string
+					children, err := dir.Children(restrictedUserCtx)
+					assert.NoError(t, err)
+
+					for _, ch := range children {
+						names = append(names, ch.Path())
+					}
+
+					// only get dir
+					assert.Equal(t, []string{"dir"}, names)
+				}
+			}
+		}
+	})
+
+	t.Run("as restrictedUserDirFooCtx", func(t *testing.T) {
+		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirFooUserID, Type: auth.SubjectUser})
+		{
+			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			assert.NoError(t, err)
+			if assert.NotNil(t, fileResolver) {
+				dir, ok := fileResolver.ToDirectory()
+				if assert.True(t, ok) {
+					var names []string
+					children, err := dir.Children(restrictedUserCtx)
+					assert.NoError(t, err)
+
+					for _, ch := range children {
+						names = append(names, ch.Path())
+					}
+
+					// TODO: To match the mutagen implementation, this user should see dir
+					// assert.Equal(t, []string{"dir"}, names)
+					assert.Nil(t, names)
+				}
+			}
+		}
+	})
 }
