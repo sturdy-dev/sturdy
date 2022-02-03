@@ -110,13 +110,16 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
 	commentsService := service_comments.New(commentRepo)
+	aclRepo := db_acl.NewACLRepository(d)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
 
+	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
+
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	changeService := service_change.New(executorProvider, nil, aclProvider, userRepo, changeRepo, changeCommitRepo, nil)
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -151,7 +154,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		eventsSender,
 	)
 
-	authService := service_auth.New(codebaseService, userService, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
+	authService := service_auth.New(codebaseService, userService, workspaceService, aclProvider, nil /*organizationService*/)
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
@@ -192,7 +195,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		logger,
 	)
 
-	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider, nil)
+	fileRootResolver := graphql_file.NewFileRootResolver(executorProvider, authService)
 
 	workspaceRootResolver := graphql_workspace.NewResolver(
 		workspaceRepo,
