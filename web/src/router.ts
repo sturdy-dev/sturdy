@@ -516,7 +516,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/v2',
-    component: () => import('./pages/static/landing/Index.vue'),
+    component: () => import('./pages/landing/Index.vue'),
     name: 'v2Index',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
