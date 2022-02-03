@@ -73,7 +73,6 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, 
 					}
 					return nil
 				}
-
 			}
 		}
 

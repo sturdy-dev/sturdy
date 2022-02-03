@@ -134,7 +134,7 @@ func deduplicate(ss []string) []string {
 	return noDuplicates
 }
 
-// NewAllower creates a new allowr given a list of user-provided allow
+// NewAllower creates a new allower given a list of user-provided allow
 // patterns.
 func NewAllower(patterns ...string) (*Allower, error) {
 	patterns = deduplicate(patterns)
@@ -156,13 +156,13 @@ func NewAllower(patterns ...string) (*Allower, error) {
 	}, nil
 }
 
-// IsAllowed determines whether or not the specified path should be allowd based
+// IsAllowed determines whether or not the specified path should be allowed based
 // on all provided allow patterns and their order.
 func (i *Allower) IsAllowed(path string, directory bool) bool {
 	// Nothing is initially allowed.
 	allowed := false
 
-	// Run through patterns, keeping track of the allowd state as we reach more
+	// Run through patterns, keeping track of the allowed state as we reach more
 	// specific rules.
 	for _, p := range i.patterns {
 		if match, negated := p.matches(path, directory); !match {
