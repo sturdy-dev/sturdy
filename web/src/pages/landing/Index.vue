@@ -50,8 +50,8 @@
       </div>
 
       <div class="max-w-4xl mx-auto items-center mt-16">
-        <div class="relative" style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.18))">
-          <Video :src="videoWorkflow" />
+        <div class="relative" style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.14))">
+          <Video :src="videoCollaborate" />
         </div>
       </div>
     </div>
@@ -150,7 +150,10 @@
           </p>
         </template>
         <template #right>
-          <Video :src="collabVideo" />
+          <Video
+            :src="collabVideo"
+            style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.14))"
+          />
         </template>
         <template #bottom>
           <div class="mt-8 flex flex-col sm:flex-row gap-10 tracking-tight">
@@ -208,6 +211,7 @@
         subtitle="For the workflow that you're already using."
         link="v2DocsHotToShipSoftwareToProduction"
         accent="green-500"
+        :bigger-right-side="true"
       >
         <template #icon>
           <IconDesktop class="border-green-500/80 border-2 rounded-full w-20 h-20"></IconDesktop>
@@ -224,7 +228,12 @@
             frequency and makes shipping of small incremental changes the intuitive default.
           </p>
         </template>
-        <template #right> </template>
+        <template #right>
+          <Video
+            :src="videoWorkflow"
+            style="filter: drop-shadow(0 0 1.5rem rgba(34, 197, 94, 0.14))"
+          ></Video>
+        </template>
       </Usp>
 
       <Usp
@@ -250,7 +259,10 @@
         </template>
         <template #bottomLeft> </template>
         <template #right>
-          <Video :src="videoCreatePr"></Video>
+          <Video
+            :src="videoCreatePr"
+            style="filter: drop-shadow(0 0 1.5rem rgba(245, 158, 11, 0.14))"
+          ></Video>
         </template>
       </Usp>
 
@@ -438,6 +450,7 @@ import videoCreatePr from './assets/create-pr.mp4'
 import videoAcceptSuggestion from './assets/accept-suggestion.mp4'
 import videoGiveSuggestion from './assets/give-suggestion.mp4'
 import videoTryCode from './assets/try-code.mp4'
+import videoCollaborate from './assets/collaborate.mp4'
 
 export default defineComponent({
   components: {
@@ -518,6 +531,7 @@ export default defineComponent({
 
       videoWorkflow,
       videoCreatePr,
+      videoCollaborate,
     }
   },
 
