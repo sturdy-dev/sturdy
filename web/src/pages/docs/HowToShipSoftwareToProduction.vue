@@ -13,40 +13,58 @@
           &mdash; describe changes &mdash; ship" loop as tight as possible.
         </p>
 
-        <p><a href="#on-github">Jump to: Sturdy with GitHub bridge ⤵️</a></p>
+        <p><a href="#on-github">Jump to: Sturdy for GitHub ⤵️</a></p>
 
         <h2 id="on-sturdy">Sturdy</h2>
+
+        <DocsInfoBox>
+          These instructions are for codebases on Sturdy that are
+          <strong>not connected to GitHub</strong>, or where
+          <strong>Sturdy is the source of truth</strong>. Go to
+          <a href="#on-github">Sturdy for GitHub</a> for instructions when using Sturdy on GitHub
+          with GitHub as the source of truth.
+        </DocsInfoBox>
+
         <p>
           With Sturdy setup and
           <router-link :to="{ name: 'v2DocsHowToEditCode' }">connected to a directory</router-link>
           on your computer:
         </p>
 
-        <!-- TODO: Add a link to setup directory instructions -->
-
         <ol>
           <li>Create a new workspace, and give it a good name</li>
           <li>
-            Open the directory with the code in any text editor (tip: use the “Open in Visual Studio
-            Code”-button)
+            Open the directory with the code in any text editor
+            <SubtleText>(tip: use the “Open in Visual Studio Code”-button)</SubtleText>
           </li>
           <li>Make the changes to your code</li>
           <li>Go back to Sturdy, and navigate to the workspace from the sidebar</li>
-          <li><em>Optional:</em> Undo changes you would like to dismiss</li>
+          <li>
+            <SubtleText><em>Optional:</em> Undo changes you would like to dismiss</SubtleText>
+          </li>
           <li>
             On the top of the page, use the description box to describe the changes that you have
             made
           </li>
           <li>
-            <em>Optional:</em> Resolving conflicts [<a href="#optional-resolving-conflicts">go to</a
-            >]
+            <SubtleText
+              ><em>Optional:</em> Resolving conflicts [<a href="#optional-resolving-conflicts"
+                >go to</a
+              >]</SubtleText
+            >
           </li>
           <li>
-            <em>Optional:</em> Asking for feedback [<a href="#optional-asking-for-feedback">go to</a
-            >]
+            <SubtleText
+              ><em>Optional:</em> Asking for feedback [<a href="#optional-asking-for-feedback"
+                >go to</a
+              >]</SubtleText
+            >
           </li>
           <li>
-            <em>Optional:</em> Syncing on top of changelog [<a href="#optional-syncing">go to</a>]
+            <SubtleText
+              ><em>Optional:</em> Syncing on top of changelog [<a href="#optional-syncing">go to</a
+              >]</SubtleText
+            >
           </li>
           <li id="writing-a-description">
             After writing a description, the “Share” button will appear
@@ -61,10 +79,17 @@
           </li>
         </ol>
 
-        <h2 id="on-github">Sturdy with GitHub bridge</h2>
+        <h2 id="on-github">Sturdy for GitHub</h2>
+
+        <DocsInfoBox>
+          These instructions are for codebases on Sturdy that are
+          <strong>connected to GitHub</strong> and where GitHub is the
+          <strong>source of truth</strong>.
+        </DocsInfoBox>
+
         <p>
-          Using Sturdy on with the GitHub bridge is similar to Sturdy without the bridge (standalone
-          Sturdy), with some differences:
+          Using Sturdy on with the GitHub bridge is similar to Sturdy without the git-bridge
+          (standalone Sturdy), with some differences:
         </p>
 
         <ol>
@@ -81,10 +106,12 @@
             title/description of the pull request.
           </li>
           <li>
-            <em>Optional:</em> If the above fails, debug GitHub errors [<a
-              href="#debugging-github-errors"
-              >go to</a
-            >]
+            <SubtleText
+              ><em>Optional:</em> If the above fails, debug GitHub errors [<a
+                href="#debugging-github-errors"
+                >go to</a
+              >]</SubtleText
+            >
           </li>
           <li>
             New buttons will appear. “Go to pull request”, “Update pull request”, and “Merge”.
@@ -223,9 +250,10 @@ import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTab
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+import SubtleText from '../../molecules/docs/SubtleText.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
+  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
   setup() {
     useHead({
       meta: [

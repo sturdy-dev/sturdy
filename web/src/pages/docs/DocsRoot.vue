@@ -36,10 +36,12 @@
 
           <ul>
             <li>
-              <a href="https://getsturdy.com/"><strong>Sturdy Cloud</strong></a>
+              <a href="https://getsturdy.com/"><strong>Sturdy in the Cloud</strong></a> lets you
+              code and collaborate in real-time with your team.
             </li>
             <li>
-              <strong>Sturdy Enterprise</strong> let’s you run Sturdy in your own environment.
+              <strong>Sturdy Enterprise</strong> lets you run your own Sturdy instance in your own
+              environment.
             </li>
             <li>
               <strong>Sturdy OSS</strong> is an open-source version of Sturdy that gives you all of

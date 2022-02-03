@@ -7,10 +7,14 @@
       <div class="prose p-4 max-w-[800px]">
         <h1 id="how-sturdy-augments-git">How to collaborate with others</h1>
         <p>
-          Nowadays it is so easy to work together on text documents (think Google Docs) or on design
-          (think Figma). We think exchanging code ideas should be just as easy, if not easier. Code
-          is, of course, different from "regular text". When we talk about collaborative coding we
-          don't mean editing the same copy concurrently, but rather making the action of trying
+          Nowadays it is so easy to work together on text documents
+          <SubtleText>(think Google Docs)</SubtleText> or on design
+          <SubtleText>(think Figma)</SubtleText>. We think exchanging code ideas should be
+          <strong>just as easy</strong>, if not easier!
+        </p>
+        <p>
+          Code is, of course, different from "regular text". When we talk about collaborative coding
+          we don't mean editing the same copy concurrently, but rather making the action of trying
           someone else's code and giving suggestions on it extremely fast and easy.
         </p>
 
@@ -27,21 +31,22 @@
         <ol>
           <li>Create a new workspace and give it a good name</li>
           <li>
-            Open the directory with the code in any text editor (tip: use the “Open in Visual Studio
-            Code”-button)
+            Open the directory with the code in any text editor
+            <SubtleText>(tip: use the “Open in Visual Studio Code”-button)</SubtleText>
           </li>
           <li>Make the changes to your code</li>
           <li>Go back to Sturdy, and navigate to the workspace from the sidebar</li>
           <li>
-            Use the "Ask for feedback" dropdown menu to select a team member to ask for feedback.
+            Use the <strong>"Ask for feedback"</strong> dropdown menu to the right to select a team
+            member to ask for feedback
           </li>
           <ol>
             <li>
-              You can request feedback only from team members who are members of the codebase. Here
-              is how you invite somebody to a codebase
+              You can request feedback only from team members who are members of the organization or
+              codebase
             </li>
           </ol>
-          <!-- TODO: Add a link to inviting somebody to your codebase -->
+          <!-- TODO: Add a link to inviting somebody to your organization or codebase -->
           <li>The user that you tagged will receive a notification that you asked for feedback</li>
           <ol>
             <li>
@@ -49,12 +54,18 @@
               the top right corner
             </li>
           </ol>
-          <li><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</li>
           <li>
-            <em>Optional:</em> Taking / Dismissing code suggestions [<a
-              href="#taking-dismissing-suggestions"
-              >go to</a
-            >]
+            <SubtleText
+              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</SubtleText
+            >
+          </li>
+          <li>
+            <SubtleText
+              ><em>Optional:</em> Taking / Dismissing code suggestions [<a
+                href="#taking-dismissing-suggestions"
+                >go to</a
+              >]</SubtleText
+            >
           </li>
         </ol>
 
@@ -62,22 +73,33 @@
         <p>You can write comments on specific piece of code within the workspace</p>
         <ol>
           <li>
-            Hover over the specific line that you wish to comment on - a plus icon will appear right
-            next to the line number
+            Point the mouse over the specific line that you wish to comment on &mdash; a plus icon
+            will appear to the right next to the line number
           </li>
-          <li>Click on the plus button</li>
+          <li>Click on the plus button <PlusIcon class="h-4 w-4 inline" /></li>
           <li>Write your message</li>
           <ol>
-            <li>You can tag a team member by using @ and typing their name</li>
+            <li>
+              <SubtleText>
+                Tip: You can tag a team member by typing <code>@</code> followed by their name
+              </SubtleText>
+            </li>
+            <li>
+              <SubtleText>
+                Tip: Write an emoji by typing <code>:</code> followed by the emoji name!
+              </SubtleText>
+            </li>
           </ol>
           <li>
-            Click the blue "Comment" button or press Command + Return on Mac to create the comment.
+            Click the blue "Comment" button or press <code>⌘ + enter</code> or
+            <code>ctrl + enter</code> to send the comment.
           </li>
         </ol>
-        <p>
-          Comments on Sturdy are not attached to line numbers. This means that if a piece of code
-          with a comment is moved to another place in the file, the comments will persist.
-        </p>
+
+        <DocsInfoBox>
+          Comments on Sturdy are not attached to line numbers. A comment is attached to the piece of
+          code that the comment was made on, if the code moves, so will the comment!
+        </DocsInfoBox>
 
         <h3 id="taking-dismissing-suggestions" title="Taking / Dismissing code suggestions">
           Optional: Taking / Dismissing code suggestions
@@ -89,9 +111,12 @@
         </p>
         <ol>
           <li>
-            When you have new suggestions you will get a notification - you can see your
-            notifications via the bell icon at the bottom left. If configured, you will also receive
-            a notification via email.
+            When you have new suggestions you will get a notification &mdash; you can see your
+            notifications via the bell icon <BellIcon class="h-4 w-4 inline" /> at the bottom left
+            of Sturdy. If configured, you will also receive a notification via email
+            <SubtleText>
+              (email notifications are only available for Sturdy in the Cloud) </SubtleText
+            >.
           </li>
           <li>
             To see the suggestions, click the "Show suggestions" button. This will display the code
@@ -134,14 +159,25 @@
             the top right corner.
           </li>
           <li>
-            If the author of the workspace makes code changes, you will see them in real time, the
+            If the author of the workspace makes code changes, you will see them in real-time, the
             same way you would see changes in your own workspaces.
           </li>
-          <li><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</li>
           <li>
-            <em>Optional:</em> Quickly indicating feedback [<a href="#quick-feedback">go to</a>]
+            <SubtleText
+              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</SubtleText
+            >
           </li>
-          <li><em>Optional:</em> Trying the code [<a href="#trying-code">go to</a>]</li>
+          <li>
+            <SubtleText
+              ><em>Optional:</em> Quickly indicating feedback [<a href="#quick-feedback">go to</a
+              >]</SubtleText
+            >
+          </li>
+          <li>
+            <SubtleText
+              ><em>Optional:</em> Trying the code [<a href="#trying-code">go to</a>]</SubtleText
+            >
+          </li>
         </ol>
 
         <h3 id="quick-feedback" title="Quickly indicating feedback">
@@ -180,7 +216,12 @@
           <li>
             Explore or run the code as you normally would using your IDE / text editor / terminal
           </li>
-          <li><em>Optional:</em> Give code suggestions [<a href="#give-suggestions">go to</a>]</li>
+          <li>
+            <SubtleText
+              ><em>Optional:</em> Give code suggestions [<a href="#give-suggestions">go to</a
+              >]</SubtleText
+            >
+          </li>
           <li>
             When you are done you can navigate back to your own workspace and press the "Connect
             <em>folder</em> for editing" button to continue where you left off.
@@ -239,9 +280,19 @@ import { defineComponent } from 'vue'
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
+import SubtleText from '../../molecules/docs/SubtleText.vue'
+import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+import { BellIcon, PlusIcon } from '@heroicons/vue/solid'
 
 export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents },
+  components: {
+    DocsInfoBox,
+    SubtleText,
+    DocsSidebar,
+    DocumentationWithTableOfContents,
+    BellIcon,
+    PlusIcon,
+  },
   setup() {
     useHead({
       meta: [

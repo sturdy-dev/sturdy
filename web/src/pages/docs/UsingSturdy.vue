@@ -94,10 +94,12 @@
           <ol>
             <li>The directory connected to this workspace is indicated at the top</li>
             <li>
-              <em>Optional:</em> Open the codebase in Visual Studio Code with the "Open in" button
+              <SubtleText>
+                <em>Optional:</em> Open the codebase in Visual Studio Code with the "Open in" button
+              </SubtleText>
             </li>
           </ol>
-          <li>Using your IDE / text editor, make changes to any file in the codebase</li>
+          <li>Using your editor, open a file in the codebase and make some changes to it</li>
           <li>
             Within Sturdy &mdash; observe that changes you make are displayed as diffs in the "My
             first change" workspace
@@ -127,8 +129,8 @@
             without leaving Sturdy
           </li>
           <li>
-            After a few seconds the PR will be merged, and the workspace will be rebased to the
-            latest version of the codebase automatically
+            After a few seconds the PR will be merged, and the workspace will be synced (rebased) to
+            the latest version of the codebase automatically
           </li>
         </ol>
         <DocsInfoBox>
@@ -181,9 +183,10 @@ import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTab
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+import SubtleText from '../../molecules/docs/SubtleText.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
+  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
   setup() {
     useHead({
       meta: [

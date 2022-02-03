@@ -29,8 +29,10 @@
             <li><em>A current limitation</em> - once setup, the folder cannot be moved</li>
           </ol>
           <li>
-            You can use the folder for accessing and editing code with any IDE or text editor (tip:
-            Use the "Open in Visual Studio Code"-button for quick access)
+            You can use the folder for accessing and editing code with any IDE or text editor
+            <SubtleText
+              >(tip: Use the "Open in Visual Studio Code"-button for quick access)</SubtleText
+            >
           </li>
           <li>Observe that a new workspace named "Your Name's Workspace" was created</li>
         </ol>
@@ -76,9 +78,10 @@ import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTab
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+import SubtleText from '../../molecules/docs/SubtleText.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
+  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
   setup() {
     useHead({
       meta: [
