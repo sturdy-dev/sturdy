@@ -9,7 +9,7 @@
         <p>
           This tutorial takes you from setting up Sturdy with a repository from GitHub to merging a
           pull request from Sturdy. Make sure you have completed the Sturdy
-          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start setup</router-link> before
+          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start</router-link> before
           continuing.
         </p>
 
@@ -35,16 +35,13 @@
 
         <h2 id="import-a-repository">Setup Sturdy on a GitHub repository</h2>
         <ol>
-          <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
-          <li>
-            On the codebase creation screen click the "Import repositories" button in the "Coming
-            from GitHub?" panel
-          </li>
-          <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
+          <li>Click on the three dots icon in the top left corner and select "Settings"</li>
+          <li>Go to the GitHub-tab</li>
+          <li>Authenticate yourself with GitHub</li>
           <li>Follow the GitHub prompt for authentication</li>
-          <li>Select the repository that you wish to setup</li>
+          <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
           <li>You will be redirected back to Sturdy</li>
-          <li>The codebase will be ready to use within a few seconds</li>
+          <li>On Sturdy, click "Setup" on the repositories that you want to use from Sturdy</li>
         </ol>
 
         <h2 id="exploring-the-codebase">Exploring the codebase</h2>
