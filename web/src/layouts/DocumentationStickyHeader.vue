@@ -1,12 +1,14 @@
 <template>
-  <div class="">
+  <div>
     <ClientOnly>
-      <NavigationHeader :user="user" :light="true" />
+      <StickyTop>
+        <NavigationHeader :user="user" :light="false" />
+      </StickyTop>
     </ClientOnly>
 
     <slot></slot>
 
-    <NavigationFooter :light="true" />
+    <NavigationFooter :light="false" />
   </div>
 </template>
 
@@ -15,9 +17,11 @@ import { defineComponent } from 'vue'
 import { ClientOnly } from 'vite-ssr/vue'
 import NavigationFooter from '../organisms/NavigationFooter.vue'
 import NavigationHeader from '../organisms/NavigationHeader.vue'
+import StickyTop from '../molecules/StickyTop.vue'
 
 export default defineComponent({
   components: {
+    StickyTop,
     NavigationFooter,
     NavigationHeader,
     ClientOnly,
