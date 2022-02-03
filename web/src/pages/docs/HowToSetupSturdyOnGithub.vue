@@ -10,20 +10,26 @@
         <p>
           It's easy to add existing GitHub repositories to Sturdy. With a few clicks, you can
           install Sturdy on as many repositories as you want. <strong>Sturdy for GitHub</strong> is
-          a fully-featured version of Sturdy that runs on top of your existing repository.
+          a fully-featured version of Sturdy that runs on top of your existing git repository.
         </p>
 
         <ol>
-          <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
+          <li>Click on the three dots icon in the top left corner and select "Settings"</li>
+          <li>Go to the GitHub-tab</li>
           <li>
-            On the codebase creation screen click the "Import repositories" button within the
-            "Coming from GitHub?" panel in the bottom.
+            Follow the instructions to authenticate with GitHub, and install the Sturdy
+            GitHub-application on the repositories that you want to use Sturdy with.
           </li>
-          <li>On GitHub, select the organization which contains the codebase you want to setpu</li>
-          <li>Follow the GitHub prompt for authentication</li>
-          <li>Select one or multiple repositories you wish to work with</li>
           <li>You will be redirected back to Sturdy</li>
-          <li>The repositories will be setup as codebases in Sturdy within a few seconds</li>
+          <li>
+            On Sturdy, under the GitHub-tab, you'll now see the list of repositories that you can
+            install Sturdy on
+          </li>
+          <li>Find the repository that you want to use, and click "Setup"</li>
+          <li>
+            After a few seconds, the codebase will be ready. Click "Open" to open the codebase in
+            Sturdy
+          </li>
           <li>
             To edit your code, follow the
             <router-link :to="{ name: 'v2DocsHowToEditCode' }"

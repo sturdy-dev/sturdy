@@ -7,7 +7,7 @@
         <router-link
           :to="{ name: link.route }"
           class="hover:text-gray-800 font-medium"
-          :class="[isCurrent(link) ? 'text-gray-800' : 'text-gray-500']"
+          :class="[isCurrent(link) ? 'text-gray-800 font-bold' : 'text-gray-500']"
         >
           {{ link.title }}
         </router-link>

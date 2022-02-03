@@ -1,8 +1,5 @@
 <template>
-  <div class="bg-blue-100 p-4 rounded-md text-blue-900">
-    <span class="p-1">ℹ️</span>
-    <slot></slot>
-  </div>
+  <span class="text-gray-500"><slot></slot></span>
 </template>
 
 <script lang="ts">

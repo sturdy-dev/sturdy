@@ -139,8 +139,10 @@
           </li>
           <ol>
             <li>
-              <em>Optional</em>: Use the "Select All" checkbox at the top in order to quickly select
-              all diffs
+              <SubtleText>
+                <em>Optional</em>: Use the "Select All" checkbox at the top in order to quickly
+                select all diffs</SubtleText
+              >
             </li>
           </ol>
           <li>
@@ -178,9 +180,10 @@ import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTab
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
+import SubtleText from '../../molecules/docs/SubtleText.vue'
 
 export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
+  components: { SubtleText, DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
   setup() {
     useHead({
       meta: [

@@ -91,25 +91,31 @@
           else on your team using it.
         </DocsInfoBox>
 
-        <h2>Can I use it together with Git?</h2>
+        <h2>Can I use Sturdy together with Git?</h2>
         <p>
-          <strong>Yes.</strong> Sturdy is built around
-          <a href="https://libgit2.org/">libgit2</a> and has a
+          <strong>Yes.</strong> Sturdy is built using the same low-level components as git (via
+          <a href="https://libgit2.org/">libgit2</a>) and has a
           <router-link :to="{ name: 'v2DocsHowSturdyAugmentsGit' }">bridge integration</router-link>
-          with GitHub. This means that work you do on Sturdy is compatible with your existing setup
-          and you can interact with any of your existing projects.
+          with GitHub. This means that you can use Sturdy <strong>on top</strong> of your existing
+          GitHub setup, compatible with your existing branch protection and CI/CD and other
+          integrations.
+        </p>
+        <p>
+          Sturdy can also import your existing git history, as well as export the history back out
+          to git.
         </p>
 
         <h2 id="how-do-i-get-started">How do I get started?</h2>
         <p>
-          You can try out
+          Try out
           <router-link :to="{ name: 'v2DocsQuickStart', hash: '#sturdy-cloud' }"
             >Sturdy in the Cloud</router-link
           >
-          with zero setup. If you would like to run a self-hosted instance, there is a
+          with zero setup (for free, no credit card required). Or run a
           <router-link :to="{ name: 'v2DocsQuickStart', hash: '#self-hosted-sturdy' }"
-            >Docker one-liner</router-link
-          >.
+            >self-hosted instance</router-link
+          >
+          of Sturdy anywhere.
         </p>
       </div>
     </template>
