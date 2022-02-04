@@ -91,3 +91,18 @@ func (l *locker) key(codebaseID string, viewID *string) string {
 	}
 	return fmt.Sprintf("%s/%s", codebaseID, *viewID)
 }
+
+func (l *locker) GetInMemory(codebaseID string, viewID *string) lock {
+	key := l.key(codebaseID, viewID) + "-inmemory"
+
+	l.locksGuard.Lock()
+	defer l.locksGuard.Unlock()
+
+	if m, ok := l.locks[key]; ok {
+		return m
+	}
+
+	mutex := &mutexLock{&sync.RWMutex{}}
+	l.locks[key] = mutex
+	return mutex
+}

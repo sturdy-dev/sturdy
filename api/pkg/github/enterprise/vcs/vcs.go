@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.Repo) error {
-	return func(repo vcs.Repo) error {
+func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) error {
+	return func(repo vcs.RepoGitWriter) error {
 		refspec := fmt.Sprintf("+%s:refs/heads/sturdytrunk", ref)
 		if err := repo.RemoteFetchWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
@@ -26,8 +26,8 @@ func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.Repo) error {
 	}
 }
 
-func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.Repo) error {
-	return func(repo vcs.Repo) error {
+func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter) error {
+	return func(repo vcs.RepoGitWriter) error {
 		if err := repo.RemoteFetchWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
@@ -35,7 +35,7 @@ func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.Repo) error {
 	}
 }
 
-func PushTrackedToGitHub(logger *zap.Logger, repo vcs.Repo, accessToken, trackedBranchName string) (userError string, err error) {
+func PushTrackedToGitHub(logger *zap.Logger, repo vcs.RepoGitWriter, accessToken, trackedBranchName string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/sturdytrunk:refs/heads/%s", trackedBranchName)
 	userError, err = repo.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
 	if err != nil {
@@ -47,7 +47,7 @@ func PushTrackedToGitHub(logger *zap.Logger, repo vcs.Repo, accessToken, tracked
 func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.Provider, codebaseID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
-	err = executorProvider.New().Git(func(r vcs.Repo) error {
+	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
 		userError, err = r.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
@@ -63,7 +63,7 @@ func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.P
 func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Provider, codebaseID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
-	err = executorProvider.New().Git(func(r vcs.Repo) error {
+	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
 		userError, err = r.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
@@ -77,7 +77,7 @@ func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Prov
 }
 
 func HaveTrackedBranch(executorProvider executor.Provider, codebaseID, remoteBranchName string) error {
-	err := executorProvider.New().Git(func(r vcs.Repo) error {
+	err := executorProvider.New().GitRead(func(r vcs.RepoGitReader) error {
 		_, err := r.RemoteBranchCommit("origin", remoteBranchName)
 		if err != nil {
 			return fmt.Errorf("could not get remote branch: %w", err)
@@ -97,7 +97,7 @@ func newCredentialsCallback(token string) git.CredentialsCallback {
 	}
 }
 
-func ListImportedChanges(repo vcs.Repo) ([]*vcs.LogEntry, error) {
+func ListImportedChanges(repo vcs.RepoGitReader) ([]*vcs.LogEntry, error) {
 	entries, err := repo.LogBranch("sturdytrunk", 50)
 	if err != nil {
 		return nil, err

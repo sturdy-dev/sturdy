@@ -5,10 +5,10 @@ import (
 
 	"getsturdy.com/api/pkg/analytics/disabled"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -66,7 +66,7 @@ func setup(t *testing.T) *testCollaborators {
 	}
 }
 
-func (c *testCollaborators) createCodebase(t *testing.T, id string) vcs.Repo {
+func (c *testCollaborators) createCodebase(t *testing.T, id string) vcs.RepoGitWriter {
 	repoPath := c.repoProvider.TrunkPath(id)
 	repo, err := vcs.CreateBareRepoWithRootCommit(repoPath)
 	assert.NoError(t, err)

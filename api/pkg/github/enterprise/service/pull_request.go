@@ -13,11 +13,11 @@ import (
 	"getsturdy.com/api/pkg/change/message"
 	vcs_change "getsturdy.com/api/pkg/change/vcs"
 	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	vcsvcs "getsturdy.com/api/vcs"
 
@@ -370,7 +370,7 @@ func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws 
 
 	var resSha string
 
-	exec := svc.executorProvider.New().Read(func(r vcsvcs.RepoReader) error {
+	exec := svc.executorProvider.New().FileReadGitWrite(func(r vcsvcs.RepoReaderGitWriter) error {
 		treeID, err := vcs_change.CreateChangesTreeFromPatches(svc.logger, r, ws.CodebaseID, patchIDs)
 		if err != nil {
 			return err
@@ -419,7 +419,7 @@ func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context,
 
 	var resSha string
 
-	exec := svc.executorProvider.New().Git(func(r vcsvcs.Repo) error {
+	exec := svc.executorProvider.New().GitWrite(func(r vcsvcs.RepoGitWriter) error {
 		sha, err := r.CreateNewCommitBasedOnCommit(prBranchName, snapshot.CommitID, signature, commitMessage)
 		if err != nil {
 			return err

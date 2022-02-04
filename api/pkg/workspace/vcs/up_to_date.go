@@ -4,7 +4,7 @@ import (
 	"getsturdy.com/api/vcs"
 )
 
-func UpToDateWithTrunk(repo vcs.Repo, workspaceID string) (bool, error) {
+func UpToDateWithTrunk(repo vcs.RepoGitReader, workspaceID string) (bool, error) {
 	trunkHEAD, err := repo.BranchCommitID("sturdytrunk")
 	if err != nil {
 		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), treat it as up to date

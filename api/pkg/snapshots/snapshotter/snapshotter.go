@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
@@ -37,7 +37,7 @@ type SnapshotOptions struct {
 	revertCommitID          *string
 	onTrunk                 bool
 	onView                  *string
-	onRepo                  vcs.RepoReader
+	onRepo                  vcs.RepoReaderGitWriter
 	onExistingCommit        *string
 	markAsLatestInWorkspace bool
 }
@@ -77,7 +77,7 @@ func WithOnView(viewID string) SnapshotOption {
 	}
 }
 
-func WithOnRepo(repo vcs.RepoReader) SnapshotOption {
+func WithOnRepo(repo vcs.RepoReaderGitWriter) SnapshotOption {
 	return func(opts *SnapshotOptions) {
 		opts.onRepo = repo
 	}
@@ -218,7 +218,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		}
 		var err error
 		if options.onTrunk {
-			err = exec.Git(func(repo vcs.Repo) error {
+			err = exec.GitWrite(func(repo vcs.RepoGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnTrunk(repo, workspaceID, snapshotID, snapshotOptions...)
 				if err != nil {
 					return err
@@ -227,7 +227,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 				return nil
 			}).ExecTrunk(codebaseID, "snapshot")
 		} else {
-			err = exec.Read(func(repo vcs.RepoReader) error {
+			err = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, snapshotOptions...)
 				if err != nil {
 					return err
@@ -385,7 +385,7 @@ func (s *snap) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ...Di
 	options := getDiffOptions(oo...)
 
 	var diffs []unidiff.FileDiff
-	if err := s.executorProvider.New().Git(func(repo vcs.Repo) error {
+	if err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		snapParent, err := repo.GetCommitParents(snapshot.CommitID)
 		if err != nil {
 			return fmt.Errorf("failed to get commit parents: %w", err)

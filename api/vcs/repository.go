@@ -5,8 +5,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Repo only need access to .git on the filesystem.
-type Repo interface {
+// RepoGitReader only need access to read .git on the filesystem.
+type RepoGitReader interface {
 	CodebaseID() string
 	IsTrunk() bool
 	ViewID() *string
@@ -15,10 +15,38 @@ type Repo interface {
 	CurrentDiffNoIndex() (*git.Diff, error)
 	DiffCommits(firstCommitID, secondCommitID string) (*git.Diff, error)
 
+	RemoteBranchCommit(remoteName, branchName string) (*git.Commit, error)
+
+	GetDefaultBranch() (string, error)
+
+	HeadBranch() (string, error)
+	HeadCommit() (*git.Commit, error)
+
+	BranchCommitID(branchName string) (string, error)
+	BranchFirstNonMergeCommit(branchName string) (string, error)
+
+	GetCommitParents(commitID string) ([]string, error)
+	CommitMessage(id string) (author *git.Signature, message string, err error)
+	ShowCommit(id string) (diffs []string, entry *LogEntry, err error)
+	BranchHasCommit(branchName, commitID string) (bool, error)
+
+	FileContentsAtCommit(commitID, filePath string) ([]byte, error)
+	FileBlobAtCommit(commitID, filePath string) (*git.Blob, error)
+	DirectoryChildrenAtCommit(commitID, directoryPath string) ([]string, error)
+
+	LogHead(limit int) ([]*LogEntry, error)
+	LogBranch(branchName string, limit int) ([]*LogEntry, error)
+
+	OpenRebase() (*SturdyRebase, error)
+}
+
+// RepoGitWriter can read and write to .git
+type RepoGitWriter interface {
+	RepoGitReader
+
 	CreateRootCommit() error
 	CommitIndexTree(treeID *git.Oid, message string, signature git.Signature) (string, error)
 	CommitIndexTreeWithReference(treeID *git.Oid, message string, signature git.Signature, ref string) (string, error)
-	RemoteBranchCommit(remoteName, branchName string) (*git.Commit, error)
 
 	CreateBranchTrackingUpstream(branchName string) error
 	DeleteBranch(name string) error
@@ -36,33 +64,14 @@ type Repo interface {
 	FetchBranch(branches ...string) error
 
 	SetDefaultBranch(targetBranch string) error
-	GetDefaultBranch() (string, error)
 	CreateAndSetDefaultBranch(headBranchName string) error
-
-	HeadBranch() (string, error)
-	HeadCommit() (*git.Commit, error)
-
-	BranchCommitID(branchName string) (string, error)
-	BranchFirstNonMergeCommit(branchName string) (string, error)
-
-	GetCommitParents(commitID string) ([]string, error)
-	CommitMessage(id string) (author *git.Signature, message string, err error)
-	ShowCommit(id string) (diffs []string, entry *LogEntry, err error)
-	BranchHasCommit(branchName, commitID string) (bool, error)
 
 	CreateCommitWithFiles(files []FileContents, newBranchName string) (string, error)
 
-	FileContentsAtCommit(commitID, filePath string) ([]byte, error)
-	FileBlobAtCommit(commitID, filePath string) (*git.Blob, error)
-	DirectoryChildrenAtCommit(commitID, directoryPath string) ([]string, error)
+	ResetMixed(commitID string) error
 
 	GitGC() error
 	GitReflogExpire() error
-
-	ResetMixed(commitID string) error
-
-	LogHead(limit int) ([]*LogEntry, error)
-	LogBranch(branchName string, limit int) ([]*LogEntry, error)
 
 	MergeBranches(ourBranchName, theirBranchName string) (*git.Index, error)
 	MergeBranchInto(branchName, mergeIntoBranchName string) error
@@ -70,13 +79,16 @@ type Repo interface {
 	ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error)
 
 	RevertOnBranch(revertCommitID, branchName string) (string, error)
+}
 
-	OpenRebase() (*SturdyRebase, error)
+type RepoReaderGitWriter interface {
+	RepoReader
+	RepoGitWriter
 }
 
 // RepoReader needs to read repository files on the filesystem.
 type RepoReader interface {
-	Repo
+	RepoGitReader
 
 	Path() string
 
@@ -94,6 +106,7 @@ type RepoReader interface {
 // RepoWriter might modify files on the filesystem.
 type RepoWriter interface {
 	RepoReader
+	RepoGitWriter
 
 	CheckoutFile(fileName string) error
 	DeleteFile(fileName string) error

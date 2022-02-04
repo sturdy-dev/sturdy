@@ -59,7 +59,7 @@ func snapshotFS(
 
 func (snapshotsFS *SnapshotsFS) Open(path string) (fs.File, error) {
 	var file fs.File
-	return file, snapshotsFS.executorProvider.New().Git(func(repo vcs.Repo) error {
+	return file, snapshotsFS.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		if snapshotsFS.newLines {
 			var err error
 			file, err = fileFromCommit(repo, snapshotsFS.snapshot.CommitID, path)
@@ -114,7 +114,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 	}
 
 	var file fs.File
-	return file, viewFS.executorProvider.New().Git(func(repo vcs.Repo) error {
+	return file, viewFS.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		headCommit, err := repo.HeadCommit()
 		if err != nil {
 			return fmt.Errorf("failed to get head commit: %w", err)
@@ -126,7 +126,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 	}).ExecView(viewFS.codebaseID, viewFS.viewID, fmt.Sprintf("open %s", path))
 }
 
-func fileFromCommit(repo vcs.Repo, commitSHA string, path string) (fs.File, error) {
+func fileFromCommit(repo vcs.RepoGitReader, commitSHA string, path string) (fs.File, error) {
 	blob, err := repo.FileBlobAtCommit(commitSHA, path)
 	switch {
 	case err == nil:

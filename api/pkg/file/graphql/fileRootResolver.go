@@ -37,7 +37,7 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, 
 		return nil, gqlerrors.Error(err)
 	}
 
-	err = r.executorProvider.New().Git(func(repo vcs.Repo) error {
+	err = r.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		headCommit, err := repo.HeadCommit()
 		if err != nil {
 			return multierr.Combine(gqlerrors.ErrNotFound, err)

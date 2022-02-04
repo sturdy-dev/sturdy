@@ -11,13 +11,13 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -372,7 +372,7 @@ func (r *WorkspaceResolver) updateIsUpToDateWithTrunk() error {
 	}
 
 	var upToDate bool
-	err := r.root.executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+	err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 		// Recalculate
 		var err error
 		upToDate, err = vcs.UpToDateWithTrunk(repo, r.w.ID)
@@ -422,7 +422,7 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 		var newHeadCommitShow bool
 		var newHeadCommitID *string
 
-		err := r.root.executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+		err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 			headCommitID, err := repo.BranchFirstNonMergeCommit(r.w.ID)
 			if errors.Is(err, vcsvcs.ErrCommitNotFound) {
 				// This codebase has no commits, and that's OK

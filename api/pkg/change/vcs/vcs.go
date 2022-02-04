@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+
 	vcs_sync "getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
-	"io/ioutil"
-	"os"
-	"path"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -20,7 +21,7 @@ import (
 	git "github.com/libgit2/git2go/v33"
 )
 
-func GetDiffs(r vcs.Repo, commitID string) ([]string, error) {
+func GetDiffs(r vcs.RepoGitReader, commitID string) ([]string, error) {
 	diffs, _, err := r.ShowCommit(commitID)
 	if err != nil {
 		return nil, fmt.Errorf("failed find commit %s: %w", commitID, err)
@@ -29,7 +30,7 @@ func GetDiffs(r vcs.Repo, commitID string) ([]string, error) {
 	return diffs, nil
 }
 
-func CreateAndLandFromView(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID, viewID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.Repo) error, error) {
+func CreateAndLandFromView(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID, viewID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.RepoGitWriter) error, error) {
 	return createAndLand(viewRepo, logger, codebaseID, workspaceID, patchIDs, message, signature, diffOpts...)
 }
 
@@ -61,7 +62,7 @@ func CreateAndLandFromSnapshot(repoProvider provider.RepoProvider, logger *zap.L
 	}, err
 }
 
-func createAndLand(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.Repo) error, error) {
+func createAndLand(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.RepoGitWriter) error, error) {
 	preCreateBranchHead, err := viewRepo.BranchCommitID(workspaceID)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to get branch head: %w", err)
@@ -130,7 +131,7 @@ func createAndLand(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, work
 	}
 
 	// will be executed once the new state has been recorded in the databases
-	pushFunc := func(viewRepo vcs.Repo) error {
+	pushFunc := func(viewRepo vcs.RepoGitWriter) error {
 		if err := viewRepo.Push(logger, "sturdytrunk"); err != nil {
 			return fmt.Errorf("push failed: %w", err)
 		}
@@ -145,7 +146,7 @@ func createAndLand(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, work
 	return newBranchCommit, pushFunc, nil
 }
 
-func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReader, codebaseID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
+func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
 	treeID, err := CreateChangesTreeFromPatches(logger, r, codebaseID, patchIDs, diffOpts...)
 	if err != nil {
 		return "", err
@@ -166,7 +167,7 @@ func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReader, codebas
 
 // CreateChangesTreeFromPatches creates a git-tree based on the inputs.
 // If patchIDs is non-nil, the slice will be passed as a filter to unidiff.WithHunksFilter
-func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReader, codebaseID string, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
+func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID string, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
 	err := r.CleanStaged()
 	if err != nil {
 		return nil, fmt.Errorf("failed to clean staged codebase=%s %w", codebaseID, err)

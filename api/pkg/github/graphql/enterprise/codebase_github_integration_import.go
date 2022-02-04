@@ -52,7 +52,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/import-branch-%s", args.Input.BranchName, args.Input.BranchName)
 	if err := r.gitExecutorProvider.New().
-		Git(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
+		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
 		ExecTrunk(codebaseID, "fetchGithubBranch"); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
