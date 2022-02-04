@@ -133,11 +133,6 @@ func gcSnapshots(
 	suggestionService *service_suggestion.Service,
 	executorProvider executor.Provider,
 ) error {
-	// Activate only for the Sturdy codebase
-	if m.CodebaseID != "31596772-e9d6-445e-8144-856a3022744b" {
-		return nil
-	}
-
 	// GC unused snapshots
 	snapshots, err := snapshotsRepo.ListUndeletedInCodebase(m.CodebaseID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
