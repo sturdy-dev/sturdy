@@ -1,5 +1,5 @@
 import { createApp } from './main'
-import { renderToString } from '@vue/server-renderer'
+import { renderToString } from 'vue/server-renderer'
 import { routes } from './router'
 
 export const routerRoutes = routes

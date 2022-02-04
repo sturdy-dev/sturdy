@@ -133,6 +133,9 @@ func gcSnapshots(
 	suggestionService *service_suggestion.Service,
 	executorProvider executor.Provider,
 ) error {
+	// Disabled for now
+	return nil
+
 	// GC unused snapshots
 	snapshots, err := snapshotsRepo.ListUndeletedInCodebase(m.CodebaseID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
