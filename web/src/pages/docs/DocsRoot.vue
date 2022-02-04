@@ -118,6 +118,7 @@ import { defineComponent } from 'vue'
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
+import { DOCKER_ONELINER } from '../../docker'
 
 export default defineComponent({
   components: { DocumentationWithTableOfContents, DocsSidebar },
@@ -144,10 +145,7 @@ export default defineComponent({
     })
 
     return {
-      dockerOneliner: `docker run --interactive --tty \\
-    --publish 30080:80 --publish 30022:22 \\
-    --volume "$HOME/.sturdydata:/var/data" \\
-    getsturdy/server`,
+      dockerOneliner: DOCKER_ONELINER,
     }
   },
 })

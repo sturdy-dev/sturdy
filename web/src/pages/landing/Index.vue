@@ -295,7 +295,7 @@
             and benefit from a leveraged workflow.
           </p>
         </template>
-        <template #bottomLeft> </template>
+        <template #bottomLeft></template>
         <template #right>
           <Video
             :src="videoCreatePr"
@@ -337,7 +337,7 @@
             <span class="ml-2">Discord server</span>
           </a>
         </template>
-        <template #right> </template>
+        <template #right></template>
       </Usp>
 
       <section id="featured">
@@ -472,13 +472,13 @@ import IconMobile from '../../molecules/landing/IconMobile.vue'
 import { defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
 import {
-  DownloadIcon,
-  ChevronRightIcon,
-  PlayIcon,
-  LightBulbIcon,
   CheckCircleIcon,
-  FireIcon,
+  ChevronRightIcon,
   CogIcon,
+  DownloadIcon,
+  FireIcon,
+  LightBulbIcon,
+  PlayIcon,
   RefreshIcon,
 } from '@heroicons/vue/outline'
 import CommandLineCopy from '../../molecules/CommandLineCopy.vue'
@@ -490,6 +490,7 @@ import videoAcceptSuggestion from './assets/accept-suggestion.mp4'
 import videoGiveSuggestion from './assets/give-suggestion.mp4'
 import videoTryCode from './assets/try-code.mp4'
 import videoCollaborate from './assets/collaborate.mp4'
+import { DOCKER_ONELINER } from '../../docker'
 
 export default defineComponent({
   components: {
@@ -564,10 +565,7 @@ export default defineComponent({
     return {
       mainDownloadText,
       year: new Date().getFullYear(),
-      dockerOneliner: `docker run --interactive --tty \\
-    --publish 30080:80 --publish 30022:22 \\
-    --volume "$HOME/.sturdydata:/var/data" \\
-    getsturdy/server`,
+      dockerOneliner: DOCKER_ONELINER,
 
       videoWorkflow,
       videoCreatePr,
@@ -602,6 +600,7 @@ export default defineComponent({
 body {
   background-color: #0f172a;
 }
+
 .gradient {
   background-image: #0b1120;
   background-image: radial-gradient(at 23% 84%, hsla(223, 49%, 9%, 1) 0, transparent 56%),
@@ -614,6 +613,7 @@ body {
     radial-gradient(at 74% 76%, hsla(44, 97%, 57%, 1) 0, transparent 50%),
     radial-gradient(at 45% 37%, hsla(38, 93%, 51%, 1) 0, transparent 50%);
 }
+
 .fade {
   mask-image: linear-gradient(90deg, #000 80%, transparent);
 }
