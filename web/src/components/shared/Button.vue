@@ -107,6 +107,9 @@ export default {
       if (this.color === 'red') {
         return 'text-red-800 bg-red-100 hover:bg-red-200 border-red-200'
       }
+      if (this.color === 'slate') {
+        return 'bg-slate-800 border-slate-200 font-semibold hover:bg-gray-900'
+      }
       return ''
     },
     margins() {
