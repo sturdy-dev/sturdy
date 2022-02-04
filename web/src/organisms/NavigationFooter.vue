@@ -149,7 +149,7 @@ const navigation = [
     title: 'Product',
     links: [
       { name: 'Get Started', route: 'v2DocsRoot' },
-      { name: 'Download', route: 'download' },
+      { name: 'Download', route: 'v2download' },
       { name: 'Status', href: 'https://sturdy.statuspage.io/', external: true },
       { name: 'Pricing', route: 'pricing' },
     ],

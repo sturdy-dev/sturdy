@@ -20,7 +20,7 @@
           class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 text-sm"
         >
           <router-link
-            :to="{ name: 'download' }"
+            :to="{ name: 'v2download' }"
             class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
           >
             <DownloadIcon class="h-6 w-6 mr-1" />
@@ -315,7 +315,7 @@
             exploring what is possible.
           </p>
           <p>
-            Join our community. Request features. Ask questions. Get help. Hang out on discord with
+            Join our community. Request features. Ask questions. Get help. Hang out on Discord with
             our devs. Contribute code. Or even
 
             <router-link :to="{ name: 'careers' }" class="text-purple-400 hover:text-purple-300">
@@ -407,7 +407,7 @@
                   ></div>
                   <div class="w-2/3 mx-auto">
                     <router-link
-                      :to="{ name: 'download' }"
+                      :to="{ name: 'v2download' }"
                       class="text-slate-900 bg-amber-500 hover:text-amber-500 hover:bg-slate-900/10 border border-transparent hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 font-semibold h-12 px-6 rounded w-full flex items-center justify-center sm:w-auto highlight-white/20"
                     >
                       <DownloadIcon class="h-6 w-6 mr-1" />
@@ -444,7 +444,7 @@
               </div>
 
               <router-link
-                :to="{ name: 'v2DocsRoot' }"
+                :to="{ name: 'v2DocsSelfHosted' }"
                 class="mx-6 my-4 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight group items-center h-9 flex"
               >
                 Read the docs
@@ -598,7 +598,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 body {
   background-color: #0f172a;
 }

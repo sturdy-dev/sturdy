@@ -145,6 +145,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true },
   },
   {
+    path: '/v2/download',
+    component: () => import('./pages/download/DownloadV2Page.vue'),
+    name: 'v2download',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
     path: '/get-started/yc',
     component: () => import('./pages/LoginRegister.vue'),
     name: 'getStartedYC',
@@ -204,6 +210,12 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('./pages/static/Pricing.vue'),
     name: 'pricing',
     meta: { nonApp: true },
+  },
+  {
+    path: '/v2/pricing',
+    component: () => import('./pages/Pricingv2.vue'),
+    name: 'v2pricing',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/security',
@@ -596,6 +608,12 @@ export const routes: RouteRecordRaw[] = [
     path: '/v2/docs/index',
     component: () => import('./pages/docs/Index.vue'),
     name: 'v2DocsIndex',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/v2/docs/self-hosted',
+    component: () => import('./pages/docs/SelfHosted.vue'),
+    name: 'v2DocsSelfHosted',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
