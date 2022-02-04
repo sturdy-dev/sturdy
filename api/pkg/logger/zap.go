@@ -17,15 +17,15 @@ func New(cfg *Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
 		zap.Hooks(
 			zapprometheus.Hook,
 		),
-		zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+	}
+
+	if cfg.Production {
+		options = append(options, zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 			return zapcore.NewTee(core, &sentryCore{
 				LevelEnabler: zapcore.ErrorLevel,
 				sentryClient: sentryClient,
 			})
-		}),
-	}
-
-	if cfg.Production {
+		}))
 		return zap.NewProduction(options...)
 	}
 	return zap.NewDevelopment(options...)
