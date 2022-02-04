@@ -72,6 +72,7 @@
         Create Pull Request
       </span>
     </div>
+    <div>Repeat</div>
   </div>
 </template>
 
