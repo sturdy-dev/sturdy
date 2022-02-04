@@ -1,4 +1,4 @@
-package graphql
+package service
 
 import "getsturdy.com/api/pkg/di"
 

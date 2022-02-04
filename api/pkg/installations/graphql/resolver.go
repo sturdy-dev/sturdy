@@ -11,7 +11,7 @@ import (
 )
 
 type resolver struct {
-	root         *rootResolver
+	root         *RootResolver
 	installation *installations.Installation
 }
 
