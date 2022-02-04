@@ -3,7 +3,9 @@
     v-slot="{ open }"
     as="nav"
     :class="[
-      light ? '' : 'bg-slate-900 border-slate-800/10 sm:bg-transparent sm:backdrop-blur-[5px]',
+      light
+        ? ''
+        : 'bg-slate-900 border-slate-800/10 sm:bg-transparent sm:backdrop-blur-[5px] sm:bg-slate-900/50',
       ' border-b',
     ]"
   >
