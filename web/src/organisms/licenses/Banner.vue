@@ -1,6 +1,6 @@
 <template>
   <template v-for="message in messages" :key="message.text">
-    <Banner :status="bannerLevel(message.level)" :message="message.text" />
+    <Banner :status="bannerLevel(message.level)" :message="message.text" class="mb-2" />
   </template>
 </template>
 
