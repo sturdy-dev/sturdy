@@ -412,7 +412,7 @@
             Begin you Sturdy journey
           </h1>
 
-          <div class="mt-8 flex flex-col md:flex-row gap-6">
+          <div class="mt-12 flex flex-col md:flex-row gap-20">
             <div class="flex flex-col md:w-1/2 border rounded border-slate-800 bg-slate-800/50">
               <h2 class="mx-6 mt-4 flex mt-6 text-2xl font-semibold text-amber-500 tracking-tight">
                 Sturdy in the Cloud
@@ -423,7 +423,7 @@
                 The easiest way of trying Sturdy.
               </p>
               <div
-                class="flex flex-col h-60 grow shadow-xl border border-slate-300/30 bg-slate-700/50 rounded-xl mx-6 mx-auto"
+                class="shadow-[0_0px_0.5rem_2px_rgba(245,158,11,0.24)] flex flex-col h-60 grow shadow-xl border border-slate-300/30 bg-slate-700/50 rounded-xl mx-6 mx-auto"
               >
                 <div class="my-10">
                   <p class="tracking-tight mx-10">
@@ -466,7 +466,7 @@
                   Alternatively, run your own Sturdy instance.
                 </p>
 
-                <div class="mx-6">
+                <div class="mx-6 rounded-xl shadow-[0_0px_0.5rem_2px_rgba(192,132,252,0.24)]">
                   <CommandLineCopy :content="dockerOneliner" />
                 </div>
               </div>
