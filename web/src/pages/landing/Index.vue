@@ -100,11 +100,11 @@
         </div>
         <div class="mt-48">
           <h1
-            class="pb-6 text-center text-slate-200/70 uppercase text-sm font-bold tracking-widest"
+            class="pb-6 text-center text-slate-200/80 uppercase text-sm font-bold tracking-widest"
           >
             What developers are saying
           </h1>
-          <div class="flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
+          <div class="mt-6 flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
             <Testimonial name="Kevin Simons" title="CTO, Kitemaker">
               <template #logo><img src="./assets/kitemaker.svg" alt="Kitemaker logo" /></template>
               <template #quote>
@@ -195,7 +195,12 @@
         </template>
         <template #bottom>
           <div class="mt-8 flex flex-col sm:flex-row gap-10 tracking-tight">
-            <div class="flex flex-col">
+            <div
+              :class="[
+                collabSelection === 'trying-code' ? 'border-purple-400/30' : 'border-transparent',
+                'flex flex-col p-2 border rounded',
+              ]"
+            >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <PlayIcon class="w-8 h-8 mr-2" />
                 Trying code
@@ -203,14 +208,24 @@
               <p class="mt-2">Get your your teammates' code with a single click.</p>
 
               <div
-                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                :class="[
+                  collabSelection !== 'trying-code' ? 'cursor-pointer hover:text-slate-50/80' : '',
+                  'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
+                ]"
                 @click="collabSelection = 'trying-code'"
               >
                 See it in action
                 <ChevronRightIcon class="h-4 w-4 ml-1" />
               </div>
             </div>
-            <div class="flex flex-col">
+            <div
+              :class="[
+                collabSelection === 'suggesting-code'
+                  ? 'border-purple-400/30'
+                  : 'border-transparent',
+                'flex flex-col p-2 border rounded',
+              ]"
+            >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <LightBulbIcon class="w-8 h-8 mr-2" />
                 Suggesting code
@@ -218,14 +233,24 @@
               <p class="mt-2">Give code suggestions by simpy typing in your IDE.</p>
 
               <div
-                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                :class="[
+                  collabSelection !== 'suggesting-code'
+                    ? 'cursor-pointer hover:text-slate-50/80'
+                    : '',
+                  'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
+                ]"
                 @click="collabSelection = 'suggesting-code'"
               >
                 See it in action
                 <ChevronRightIcon class="h-4 w-4 ml-1" />
               </div>
             </div>
-            <div class="flex flex-col">
+            <div
+              :class="[
+                collabSelection === 'taking-code' ? 'border-purple-400/30' : 'border-transparent',
+                'flex flex-col p-2 border rounded',
+              ]"
+            >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <CheckCircleIcon class="w-8 h-8 mr-2" />
                 Taking code
@@ -233,7 +258,10 @@
               <p class="mt-2">Accepted suggestions show up in your IDE immediately.</p>
 
               <div
-                class="mt-2 text-sm cursor-pointer text-slate-400/80 hover:text-slate-50/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9"
+                :class="[
+                  collabSelection !== 'taking-code' ? 'cursor-pointer hover:text-slate-50/80' : '',
+                  'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
+                ]"
                 @click="collabSelection = 'taking-code'"
               >
                 See it in action
