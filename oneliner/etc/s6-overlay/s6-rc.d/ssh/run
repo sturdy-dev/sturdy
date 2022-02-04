@@ -1,5 +1,7 @@
 #!/command/with-contenv sh
 
+# this doesn't really need with-contenv. we only use it for $HOME now, because mutagen needs it
+
 set -euo pipefail
 
 exec 2>&1
