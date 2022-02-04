@@ -161,16 +161,16 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 # s6-overlay
-ARG S6_OVERLAY_VERSION="3.0.0.0-1" \
-    S6_OVERLAY_NOARCH_SHA256_SUM="3ef9053812141e7f6d5ea024732e767f8196ce7854cb7b5babac11d27d992587" \
-    S6_OVERLAY_SYMLINKS_ARCH_SHA256_SUM="19963d826a753561e24926c2be9cff08041b5cec11a4ffb08f7278637bba91e8" \
-    S6_OVERLAY_SYMLINKS_NOARCH_SHA256_SUM="743068b5297c3387ec8be8cb6fa6334e0da0f01d8a96a03b7cc4e24e60b0bcd0"
+ARG S6_OVERLAY_VERSION="3.0.0.2" \
+    S6_OVERLAY_NOARCH_SHA256_SUM="17880e4bfaf6499cd1804ac3a6e245fd62bc2234deadf8ff4262f4e01e3ee521" \
+    S6_OVERLAY_SYMLINKS_ARCH_SHA256_SUM="6ee2b8580b23c0993b1e8c66b58777f32f6ff031ba0192cccd53a31e62942c70" \
+    S6_OVERLAY_SYMLINKS_NOARCH_SHA256_SUM="d67c9b436ef59ffefd4f083f07b2869662af40b2ea79a069b147dd0c926db2d3"
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN ARCH="$(uname -m)" \
     && if [[ "$ARCH" == 'x86_64' ]]; then \
-        S6_OVERLAY_ARCH_SHA256_SUM="0a343cfbdaf8656db6ac9aae8ca61b750c400fc05e02df3ac7818bfc703989c5"; \
+        S6_OVERLAY_ARCH_SHA256_SUM="a4c039d1515812ac266c24fe3fe3c00c48e3401563f7f11d09ac8e8b4c2d0b0c"; \
     elif [[ "$ARCH" == 'aarch64' ]]; then \
-        S6_OVERLAY_ARCH_SHA256_SUM="01f1542a0df429ac160e083c9249b53ccd5f57b71771aaa74f6fa87748919daa"; \
+        S6_OVERLAY_ARCH_SHA256_SUM="e6c15e22dde00af4912d1f237392ac43a1777633b9639e003ba3b78f2d30eb33"; \
     fi \
     && wget --quiet --output-document "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
     && sha256sum "/tmp/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
@@ -198,7 +198,12 @@ RUN ARCH="$(uname -m)" \
 COPY oneliner/etc /etc
 ENV S6_KILL_GRACETIME=0 \
     S6_SERVICES_GRACETIME=0 \
-    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000 \
+    STURDY_GITHUB_APP_ID= \
+    STURDY_GITHUB_APP_NAME= \
+    STURDY_GITHUB_APP_CLIENT_ID= \
+    STURDY_GITHUB_APP_SECRET= \
+    STURDY_GITHUB_APP_PRIVATE_KEY_PATH=
 # 80 is a port for web + api
 # 22 is a port for ssh
 EXPOSE 80 22

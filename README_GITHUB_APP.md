@@ -37,10 +37,10 @@ lt --port 3000
 11. Start the Sturdy backend with the following flags set (replace values to fit your app)
 
 ```
---github-app-id 97700
---github-app-client-id Iv1.814e400000000
---github-app-secret eecc220debbbxxxxxxxxxxxxxxxxxxxxx
---github-app-private-key-path ~/Downloads/sturdy-localhost.2021-07-06.private-key.pem
+--github-app.id 97700
+--github-app.client-id Iv1.814e400000000
+--github-app.secret eecc220debbbxxxxxxxxxxxxxxxxxxxxx
+--github-app.private-key-path ~/Downloads/sturdy-localhost.2021-07-06.private-key.pem
 ```
 
 Aaaaand that's it! Happy hacking!

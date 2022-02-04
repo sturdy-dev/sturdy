@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/command/with-contenv sh
 
 set -euo pipefail
 
@@ -7,7 +7,7 @@ DB_ADDR="postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable"
 exec 2>&1
 exec api \
   --vcs.repos-path="/var/data/repos" \
-  --http.addr"127.0.0.1:3000"] \
+  --http.addr="127.0.0.1:3000" \
   --git.addr="127.0.0.1:3001" \
   --vcs.lfs.addr="127.0.0.1:8888" \
   --db.url="${DB_ADDR}" \
