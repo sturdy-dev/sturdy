@@ -52,13 +52,6 @@
           </li>
         </ol>
 
-        <h2>License</h2>
-
-        <p>
-          The published Docker image <code>getsturdy/server</code> contains Sturdy Enterprise, and
-          is licensed under the Sturdy Enterprise License.
-        </p>
-
         <h2 id="setup-github-integration">Optional: Setup GitHub Integration</h2>
 
         <h3 id="setup-proxy">Setup tunnel to localhost</h3>
@@ -187,6 +180,13 @@ docker run --interactive --tty \
             >How to setup Sturdy on GitHub</router-link
           >
         </DocsInfoBox>
+
+        <h2 id="license">License</h2>
+
+        <p>
+          The published Docker image <code>getsturdy/server</code> contains Sturdy Enterprise, and
+          is licensed under the Sturdy Enterprise License.
+        </p>
       </div>
     </template>
   </DocumentationWithTableOfContents>
