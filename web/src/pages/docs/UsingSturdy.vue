@@ -14,6 +14,8 @@
         </p>
 
         <h2 id="ui-overview">UI Overview</h2>
+
+        <img src="./images/UI_overview.png" width="780" alt="Sturdy UI overview" />
         <ol>
           <li>
             The left sidebar lists <strong>codebases</strong> and <strong>workspaces</strong> from
@@ -40,8 +42,18 @@
           <li>Authenticate yourself with GitHub</li>
           <li>Follow the GitHub prompt for authentication</li>
           <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
+          <img
+            src="./images/GitHub_select_repository.png"
+            width="700"
+            alt="Selecting repository access on GitHub"
+          />
           <li>You will be redirected back to Sturdy</li>
           <li>On Sturdy, click "Setup" on the repositories that you want to use from Sturdy</li>
+          <img
+            src="./images/Setup_repository.png"
+            width="700"
+            alt="Creating a Sturdy codebase connected to a GitHub repository"
+          />
         </ol>
 
         <h2 id="exploring-the-codebase">Exploring the codebase</h2>
@@ -64,6 +76,11 @@
             Connect a directory where you want to have the code by clicking the "Connect directory"
             button
           </li>
+          <img
+            src="./images/Connect_directory.png"
+            width="700"
+            alt="Connecting a local directory to a Sturdy workspace"
+          />
           <li>
             Select a directory where you want to have the code. It is a good idea to create a new
             folder
@@ -99,6 +116,11 @@
               </SubtleText>
             </li>
           </ol>
+          <img
+            src="./images/Creating_first_change.png"
+            width="700"
+            alt="Creating your first change on Sturdy"
+          />
           <li>Using your editor, open a file in the codebase and make some changes to it</li>
           <li>
             Within Sturdy &mdash; observe that changes you make are displayed as diffs in the "My
@@ -123,11 +145,21 @@
         <p>With the workspace "My first change" selected and a description provided:</p>
         <ol>
           <li>Click the "Create pull request" button at the top</li>
+          <img
+            src="./images/Before_creating_PR.png"
+            width="500"
+            alt="Change description in Sturdy workspaces"
+          />
           <li>Two new buttons will appear ("Update pull request" and "Merge")</li>
           <li>
             Click the "Merge" button. This is the same action as hitting "Merge" on GitHub, but
             without leaving Sturdy
           </li>
+          <img
+            src="./images/After_creating_PR.png"
+            width="500"
+            alt="Managing a GitHub Pull Request from Sturdy"
+          />
           <li>
             After a few seconds the PR will be merged, and the workspace will be synced (rebased) to
             the latest version of the codebase automatically
@@ -147,6 +179,7 @@
           <li>The panel with recent changes now contains the change that you just created</li>
           <li>Click on the latest change</li>
           <li>You can see the diffs and description of the change as you created it</li>
+          <img src="./images/Previous_changes.png" width="700" alt="Exploring previous changes" />
           <li>
             Observe that on the right side you have a list of older changes &mdash; click on any of
             them to show you the details of that change
