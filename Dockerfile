@@ -86,9 +86,13 @@ RUN go build -v github.com/aws/aws-sdk-go/aws \
     github.com/yuin/goldmark
 
 # build api
-ARG API_BUILD
+ARG API_BUILD_TAGS
+ARG VERSION
 COPY ./api ./
-RUN go build -tags "${API_BUILD},static,system_libgit2" -v -o /usr/bin/api getsturdy.com/api/cmd/api
+RUN go build \
+    -tags "${API_BUILD_TAGS},static,system_libgit2" \
+    -ldflags "-X getsturdy.com/api/pkg/version.Version=${VERSION}" \
+    -v -o /usr/bin/api getsturdy.com/api/cmd/api
 
 FROM alpine:3.15 as api
 RUN apk update \

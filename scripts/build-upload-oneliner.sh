@@ -10,7 +10,8 @@ IMAGE="getsturdy/server"
 docker buildx build \
   --platform linux/arm64,linux/amd64 \
   --target oneliner \
-  --build-arg API_BUILD=enterprise \
+  --build-arg API_BUILD_TAGS=enterprise \
+  --build-arg VERSION="${VERSION}" \
   --tag "${IMAGE}:latest" \
   --tag "${IMAGE}:${VERSION}" \
   --push \
