@@ -99,6 +99,11 @@
           </div>
         </div>
         <div class="mt-48">
+          <h1
+            class="pb-6 text-center text-slate-200/70 uppercase text-sm font-bold tracking-widest"
+          >
+            What developers are saying
+          </h1>
           <div class="flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
             <Testimonial name="Kevin Simons" title="CTO, Kitemaker">
               <template #logo><img src="./assets/kitemaker.svg" alt="Kitemaker logo" /></template>
@@ -110,7 +115,7 @@
                 ><img
                   src="./assets/kevin_simons.jpeg"
                   alt="Kevin Simons"
-                  class="h-10 w-10 border-2 border-purple-400/50 rounded-full"
+                  class="h-10 w-10 border-2 border-amber-500/50 rounded-full"
               /></template>
             </Testimonial>
             <Testimonial name="&mdash; Will Stensvold">
@@ -118,11 +123,6 @@
                 I am just starting out on the adventure of being a freelance programmer and was
                 looking for a tool with the functionality of Git but without the overhead of having
                 to learn cryptic commands that obfuscate what I wanted to do with my code.
-                <br /><br />
-                Sturdy is that tool, once you install Sturdy and initialize your Codebase your
-                changes are available on the web to share and get suggestions from colleagues, you
-                can create a new workspace from old revisions, and sync changes from collaborators;
-                all with the click of a button.
               </template>
             </Testimonial>
             <Testimonial name="&mdash; Slamet Hendry">
@@ -597,10 +597,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-body {
-  background-color: #0f172a;
-}
-
 .gradient {
   background-image: #0b1120;
   background-image: radial-gradient(at 23% 84%, hsla(223, 49%, 9%, 1) 0, transparent 56%),

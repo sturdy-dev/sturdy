@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { onMounted, onUnmounted, defineComponent } from 'vue'
 import { ClientOnly } from 'vite-ssr/vue'
 import NavigationFooter from '../organisms/NavigationFooter.vue'
 import NavigationHeader from '../organisms/NavigationHeader.vue'
@@ -27,6 +27,12 @@ export default defineComponent({
     ClientOnly,
   },
   setup() {
+    onMounted(() => {
+      document.body.classList.add('bg-slate-900')
+    })
+    onUnmounted(() => {
+      document.body.classList.remove('bg-slate-900')
+    })
     return {
       user: null,
     }
