@@ -28,7 +28,9 @@
         </div>
       </div>
       <div class="mt-12 border-t border-gray-200 pt-8">
-        <p class="text-base text-gray-400 text-center">&copy; {{ year }} Sturdy Sweden AB</p>
+        <p class="text-base text-gray-400 text-center text-sm">
+          &copy; {{ year }} Sturdy Sweden AB
+        </p>
       </div>
     </div>
   </footer>
