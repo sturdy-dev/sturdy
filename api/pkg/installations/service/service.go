@@ -6,12 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	"getsturdy.com/api/pkg/installations"
 	"getsturdy.com/api/pkg/installations/db"
 	"getsturdy.com/api/pkg/licenses"
-	validator_license "getsturdy.com/api/pkg/licenses/enterprise/selfhosted/validator"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/version"
 
@@ -23,7 +21,6 @@ var ErrInvalidLicense = errors.New("invalid license")
 type Service struct {
 	repo                db.Repository
 	organizationService *service_organization.Service
-	validator           *validator_license.Validator
 
 	licenseGuard *sync.RWMutex
 	// license is the latest license that was retrieved from the licensing server.
@@ -33,12 +30,10 @@ type Service struct {
 func New(
 	repo db.Repository,
 	organizationService *service_organization.Service,
-	validator *validator_license.Validator,
 ) *Service {
 	return &Service{
 		repo:                repo,
 		organizationService: organizationService,
-		validator:           validator,
 
 		licenseGuard: &sync.RWMutex{},
 	}
@@ -94,36 +89,4 @@ func (svc *Service) Get(ctx context.Context) (*installations.Installation, error
 	default:
 		return nil, fmt.Errorf("more than one installation found")
 	}
-}
-
-func (svc *Service) UpdateLicenseKey(ctx context.Context, key string) error {
-	ins, err := svc.Get(ctx)
-	if err != nil {
-		return fmt.Errorf("could not get installation: %w", err)
-	}
-
-	ins.LicenseKey = &key
-
-	// re-load the key immediately
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	license, err := svc.validator.Validate(ctx, *ins.LicenseKey)
-	if err != nil {
-		return fmt.Errorf("failed to validate license: %w", err)
-	}
-	// if license.Status != licenses.StatusValid {
-	// 	return ErrInvalidLicense
-	// }
-
-	if err := svc.UpdateLicense(ctx, license); err != nil {
-		return fmt.Errorf("failed to update license: %w", err)
-	}
-
-	// save the license in the db
-	if err := svc.repo.Update(ctx, ins); err != nil {
-		return fmt.Errorf("could not update license key: %w", err)
-	}
-
-	return nil
 }

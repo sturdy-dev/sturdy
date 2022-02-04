@@ -8,7 +8,7 @@ import (
 	service_installations "getsturdy.com/api/pkg/installations/service"
 )
 
-type rootResolver struct {
+type RootResolver struct {
 	service         *service_installations.Service
 	licenseResolver resolvers.LicenseRootResolver
 }
@@ -16,14 +16,14 @@ type rootResolver struct {
 func New(
 	service *service_installations.Service,
 	licenseResolver resolvers.LicenseRootResolver,
-) resolvers.InstallationsRootResolver {
-	return &rootResolver{
+) *RootResolver {
+	return &RootResolver{
 		service:         service,
 		licenseResolver: licenseResolver,
 	}
 }
 
-func (r *rootResolver) Installation(ctx context.Context) (resolvers.InstallationsResolver, error) {
+func (r *RootResolver) Installation(ctx context.Context) (resolvers.InstallationsResolver, error) {
 	installation, err := r.service.Get(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -34,6 +34,6 @@ func (r *rootResolver) Installation(ctx context.Context) (resolvers.Installation
 	}, nil
 }
 
-func (r *rootResolver) UpdateInstallation(_ context.Context, _ resolvers.UpdateInstallationArgs) (resolvers.InstallationsResolver, error) {
+func (r *RootResolver) UpdateInstallation(context.Context, resolvers.UpdateInstallationArgs) (resolvers.InstallationsResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
