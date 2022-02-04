@@ -1,14 +1,14 @@
 <template>
   <div>
     <div
-      class="flex flex-col w-[29rem] h-72 text-slate-300/80 bg-[#0c1322] border border-slate-700/30 px-6 py-4 mb-2"
+      class="flex flex-col w-[29rem] h-56 text-slate-300/80 bg-[#0c1322] border border-slate-700/30 px-8 py-4 mb-2"
     >
-      <div class="w-32 brightness-75">
+      <div class="w-28 h-6 brightness-75">
         <slot name="logo"> </slot>
       </div>
       <div class="grow relative tracking-tight text-sm mt-5">
         <svg
-          class="absolute text-amber-500/50 top-0 left-0 transform -translate-x-5 -translate-y-3 h-8 w-8 text-indigo-600"
+          class="absolute text-amber-500/50 top-0 left-0 transform -translate-x-7 -translate-y-4 h-7 w-7 text-indigo-600"
           fill="currentColor"
           viewBox="0 0 32 32"
           aria-hidden="true"
