@@ -6,11 +6,10 @@ DB_ADDR="postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable"
 
 exec 2>&1
 exec api \
-  --repos-base-path="/var/data/repos" \
-  --http-listen-addr="127.0.0.1:3000" \
-  --http-pprof-listen-addr="127.0.0.1:6060" \
-  --git-listen-addr="127.0.0.1:3001" \
-  --git-lfs-hostname="127.0.0.1:8888" \
-  --db="${DB_ADDR}" \
-  --production-logger \
-  --use-local-queues
+  --vcs.repos-path="/var/data/repos" \
+  --http.addr"127.0.0.1:3000"] \
+  --git.addr="127.0.0.1:3001" \
+  --vcs.lfs.addr="127.0.0.1:8888" \
+  --db.url="${DB_ADDR}" \
+  --logger.production \
+  --queue.local
