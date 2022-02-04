@@ -15,6 +15,26 @@
       </div>
     </div>
 
+    <div class="flex space-around">
+      <div class="bg-red-200 p-8">
+        <h1>Free</h1>
+        <ul>
+          <li>All collaboration features</li>
+          <li>Self-hosted, or in the cloud</li>
+          <li>Up to 10 users</li>
+          <li>Powerful integrations</li>
+        </ul>
+      </div>
+      <div class="bg-red-200 p-8">
+        <h1>Pro</h1>
+        <ul>
+          <li>Unlimited users</li>
+          <li>SSO/SAML</li>
+          <li>Advanced security</li>
+        </ul>
+      </div>
+    </div>
+
     <div
       class="-mt-20 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
     >
@@ -267,7 +287,7 @@ const allTiers = [
     name: 'Enterprise',
     getStartedRoute: 'v2download',
     href: '#',
-    priceMonthly: 10,
+    priceMonthly: 30,
     description: 'Advanced features, run anywhere.',
     show: showTrue,
   },
@@ -275,8 +295,8 @@ const allTiers = [
     name: 'Cloud',
     getStartedRoute: 'v2download',
     href: '#',
-    priceMonthly: 10,
-    description: 'Get started now, with Sturdy in the cloud.',
+    priceMonthly: 30,
+    description: 'Get started for free, with Sturdy in the cloud. No credit card required.',
     show: showTrue,
   },
 ]
@@ -319,8 +339,8 @@ const allSections: Section[] = [
         tiers: {
           'Open Source': 'Free',
           Free: 'Free',
-          Enterprise: '$10/user (minimum 20 users).',
-          Cloud: 'Free (up to 10 users), $10/user (no minimum).',
+          Enterprise: '$30/user (minimum 20 users).',
+          Cloud: 'Free (up to 10 users), $30/user (no minimum).',
         },
         show: showTrue,
       },
@@ -613,7 +633,7 @@ const allSections: Section[] = [
           'Open Source': false,
           Free: false,
           Enterprise: 'Included',
-          Cloud: 'Included on paid tiers',
+          Cloud: '$1k/month spend or above',
         },
         show: showTrue,
       },
@@ -623,7 +643,7 @@ const allSections: Section[] = [
         tiers: {
           'Open Source': false,
           Free: false,
-          Enterprise: 'Included on paid tiers',
+          Enterprise: 'Included',
           Cloud: 'Included on paid tiers',
         },
         show: showTrue,
@@ -634,8 +654,8 @@ const allSections: Section[] = [
         tiers: {
           'Open Source': false,
           Free: false,
-          Enterprise: 'Included on paid tiers',
-          Cloud: 'Included on paid tiers',
+          Enterprise: '$1k/month spend or above',
+          Cloud: '$1k/month spend or above',
         },
         show: showTrue,
       },
@@ -683,9 +703,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-body {
-  background-color: #0f172a;
-}
 .gradient {
   background-image: #0b1120;
   background-image: radial-gradient(at 23% 84%, hsla(223, 49%, 9%, 1) 0, transparent 56%),
