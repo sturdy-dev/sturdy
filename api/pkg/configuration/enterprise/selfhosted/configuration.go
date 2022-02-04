@@ -11,7 +11,7 @@ import (
 type Configuration struct {
 	configuration.Base
 
-	GitHub    *config.GitHubAppConfig `flags-group:"github-app" namespace:"github-app"`
+	GitHub    *config.GitHubAppConfig `flags-group:"github-app" namespace:"github-app" env-namespace:"STURDY_GITHUB_APP"`
 	Analytics *proxy.Configuration    `flags-group:"analytics" namespace:"analytics"`
 }
 

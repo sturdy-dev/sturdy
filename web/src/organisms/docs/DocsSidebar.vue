@@ -54,7 +54,10 @@ const groups = [
 
   {
     name: 'Enterprise',
-    links: [{ route: 'v2DocsPricing', title: 'Pricing' }],
+    links: [
+      { route: 'v2DocsPricing', title: 'Pricing' },
+      { route: 'v2DocsSelfHosted', title: 'Self-hosted' },
+    ],
   },
 
   {
