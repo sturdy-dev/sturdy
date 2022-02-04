@@ -131,7 +131,7 @@
         </template>
       </div>
     </div>
-    <div class="px-6 max-w-6xl mx-auto mt-10">
+    <div class="px-6 max-w-6xl mx-auto mt-10 text-sm">
       <p class="pt-6" :class="[light ? 'text-gray-400' : 'text-slate-300/50']">
         &copy; {{ year }} Sturdy Sweden AB
       </p>
@@ -150,7 +150,6 @@ const navigation = [
     links: [
       { name: 'Get Started', route: 'v2DocsRoot' },
       { name: 'Download', route: 'download' },
-      { name: 'Open Source', href: '#' },
       { name: 'Status', href: 'https://sturdy.statuspage.io/', external: true },
       { name: 'Pricing', route: 'pricing' },
     ],
