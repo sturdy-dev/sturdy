@@ -268,7 +268,7 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	if !ok {
 		return nil, gqlerrors.Error(fmt.Errorf("could not get auth"))
 	}
-	
+
 	if args.Input.Name != nil && len(*args.Input.Name) > 0 {
 		cb.Name = *args.Input.Name
 	}
@@ -396,7 +396,7 @@ func (r *CodebaseResolver) calculateLastUpdatedAt() *int32 {
 	var largestTime int32
 
 	var gitTime time.Time
-	if err := r.root.executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+	if err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 		changes, err := vcs.ListChanges(repo, 1)
 		if err != nil || len(changes) == 0 {
 			return fmt.Errorf("failed to list changes: %w", err)
@@ -581,7 +581,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 	// This is not ideal. If we could make sure that the database is already is up to date with the Git state,
 	// we would not have to read from disk here.
 	var log []*vcsvcs.LogEntry
-	if err := r.root.executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+	if err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 		var err error
 		log, err = vcs.ListChanges(repo, limit)
 		if err != nil {

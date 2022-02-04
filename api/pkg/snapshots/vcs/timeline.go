@@ -44,14 +44,14 @@ func snapshotOptions(opts ...SnapshotOption) *SnapshotOptions {
 	return options
 }
 
-func snapshotPatchIDs(logger *zap.Logger, repo vcs.Repo, options *SnapshotOptions) ([]string, error) {
+func snapshotPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader, options *SnapshotOptions) ([]string, error) {
 	if options.patchIDsFilter != nil {
 		return *options.patchIDsFilter, nil
 	}
 	return allPatchIDs(logger, repo)
 }
 
-func allPatchIDs(logger *zap.Logger, repo vcs.Repo) ([]string, error) {
+func allPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader) ([]string, error) {
 	diffs, err := repo.CurrentDiffNoIndex()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current diff: %w", err)
@@ -74,7 +74,7 @@ func allPatchIDs(logger *zap.Logger, repo vcs.Repo) ([]string, error) {
 	return patchIDs, nil
 }
 
-func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReader, codebaseID, snapshotID string, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID, snapshotID string, opts ...SnapshotOption) (string, error) {
 	start := time.Now()
 
 	options := snapshotOptions(opts...)
@@ -128,7 +128,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReader, codebaseID, sna
 	return snapshotCommitID, nil
 }
 
-func SnapshotOnTrunk(repo vcs.Repo, workspaceID, snapshotID string, opts ...SnapshotOption) (string, error) {
+func SnapshotOnTrunk(repo vcs.RepoGitWriter, workspaceID, snapshotID string, opts ...SnapshotOption) (string, error) {
 	if snapshotID == "" {
 		return "", errors.New("snapshotID is not set")
 	}
@@ -156,7 +156,7 @@ func SnapshotOnTrunk(repo vcs.Repo, workspaceID, snapshotID string, opts ...Snap
 	return newCommitID, nil
 }
 
-func SnapshotOnExistingCommit(repo vcs.Repo, snapshotID, existingCommitID string) (string, error) {
+func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID, existingCommitID string) (string, error) {
 	if snapshotID == "" {
 		return "", errors.New("snapshotID is not set")
 	}

@@ -31,7 +31,7 @@ func Import(trunkProvider provider.TrunkProvider, codebaseID, gitURL string) err
 }
 
 // If no limit is set, a default of 100 is used
-func ListChanges(repo vcs.Repo, limit int) ([]*vcs.LogEntry, error) {
+func ListChanges(repo vcs.RepoGitReader, limit int) ([]*vcs.LogEntry, error) {
 	if limit < 1 {
 		limit = 100
 	}

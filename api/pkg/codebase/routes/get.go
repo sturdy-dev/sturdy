@@ -30,7 +30,7 @@ func Get(
 ) gin.HandlerFunc {
 	lastUpdatedAt := func(codebaseID string) time.Time {
 		var gitTime time.Time
-		if err := executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+		if err := executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 			changes, err := vcs.ListChanges(repo, 1)
 			if err != nil || len(changes) == 0 {
 				return fmt.Errorf("failed to list changes: %w", err)

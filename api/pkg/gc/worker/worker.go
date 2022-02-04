@@ -248,7 +248,7 @@ func gcSnapshot(
 	logger.Info("deleting snapshot")
 
 	// Delete branch on trunk
-	if err := executorProvider.New().Git(func(trunkRepo vcs.Repo) error {
+	if err := executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
 		if err := trunkRepo.DeleteBranch(snapshotBranchName); err != nil {
 			return fmt.Errorf("failed to delete snapshot branch on trunk: %w", err)
 		}
@@ -266,7 +266,7 @@ func gcSnapshot(
 	if snapshot.ViewID != "" {
 		if err := executorProvider.New().
 			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
-			Git(func(viewGitRepo vcs.Repo) error {
+			GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
 				if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
 					return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
 				}
@@ -333,7 +333,7 @@ func work(
 		// do not fail
 	}
 
-	if err := executorProvider.New().Git(func(trunkRepo vcs.Repo) error {
+	if err := executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
 		if err := trunkRepo.GitReflogExpire(); err != nil {
 			logger.Error("failed to run git-reflog expire on trunk", zap.Error(err))
 			// don't exit
@@ -361,7 +361,7 @@ func work(
 	for _, view := range views {
 		logger := logger.With(zap.String("view_id", view.ID))
 
-		if err := executorProvider.New().Git(func(viewGitRepo vcs.Repo) error {
+		if err := executorProvider.New().GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
 			if err := viewGitRepo.GitReflogExpire(); err != nil {
 				logger.Error("failed to run git-reflog expire on trunk", zap.Error(err))
 				// don't exit

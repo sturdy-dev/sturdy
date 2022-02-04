@@ -18,11 +18,15 @@ import (
 // This executor replaces earlier direct access to provider.RepoProvider, which when using the executor will be injected instead.
 type Executor interface {
 	// Read schedules a function that can read files from the filesystem.
-	Read(ReadFunc) Executor
+	Read(FileReadFunc) Executor
 	// Write schedules a function that can write files to the filesystem.
-	Write(WriteFunc) Executor
-	// Git schedules a function that can access git repository, but not the files on the filesystem.
-	Git(GitFunc) Executor
+	Write(FileWriteFunc) Executor
+	// GitRead schedules a function that can read .git repository, but not the files on the filesystem.
+	GitRead(fn GitReadFunc) Executor
+	// GitWrite schedules a function that can read and write .git repository, but not the files on the filesystem.
+	GitWrite(fn GitWriteFunc) Executor
+	// FileReadGitWrite schedules a function that can read files from the filesystem, as well as read/write files in .git
+	FileReadGitWrite(fn FileReadGitWriteFunc) Executor
 
 	// Schedule schedules a function that can access repo provider. It is deprecated, prefer to use
 	// Read, Write or Git functions instead to get more granular locking.
@@ -42,11 +46,13 @@ type Executor interface {
 type executeFunc struct {
 	fun ExecuteFunc
 
-	repoFun GitFunc
+	repoReaderFun GitReadFunc  // read .git
+	repoWriterFun GitWriteFunc // write .git
 
-	writeFun WriteFunc
+	fileReadFun  FileReadFunc  // read fs
+	fileWriteFun FileWriteFunc // write fs
 
-	readFun ReadFunc
+	fileReadGitWriteFun FileReadGitWriteFunc // read fs and write .git
 }
 
 func (e *executeFunc) Exec(repo *onceRepo) error {
@@ -59,34 +65,47 @@ func (e *executeFunc) Exec(repo *onceRepo) error {
 		return err
 	}
 
-	if e.repoFun != nil {
-		return e.repoFun(r)
+	if e.repoReaderFun != nil {
+		return e.repoReaderFun(r)
 	}
 
-	if e.writeFun != nil {
-		return e.writeFun(r)
+	if e.repoWriterFun != nil {
+		return e.repoWriterFun(r)
 	}
 
-	if e.readFun != nil {
-		return e.readFun(r)
+	if e.fileReadGitWriteFun != nil {
+		return e.fileReadGitWriteFun(r)
+	}
+
+	if e.fileWriteFun != nil {
+		return e.fileWriteFun(r)
+	}
+
+	if e.fileReadFun != nil {
+		return e.fileReadFun(r)
 	}
 
 	return nil
 }
 
 func (e *executeFunc) Write() bool {
-	return e.fun != nil && e.writeFun != nil
+	return e.fun != nil && e.fileWriteFun != nil
 }
 
 func (e *executeFunc) Read() bool {
-	return !e.Write() && e.readFun != nil
+	return !e.Write() && e.fileReadFun != nil
 }
 
 type executor struct {
 	funs []*executeFunc
 
+	// file system locks
 	writeLock bool
 	readLock  bool
+
+	// in memory locks
+	inMemoryReadLock  bool
+	inMemoryWriteLock bool
 
 	allowRebasing bool
 
@@ -115,37 +134,58 @@ func (e *executor) Schedule(fn ExecuteFunc) Executor {
 	return e
 }
 
-type WriteFunc func(vcs.RepoWriter) error
+type FileWriteFunc func(vcs.RepoWriter) error
 
-func (e *executor) Write(fn WriteFunc) Executor {
+func (e *executor) Write(fn FileWriteFunc) Executor {
 	e.writeLock = true
 	e.funs = append(e.funs, &executeFunc{
-		writeFun: fn,
+		fileWriteFun: fn,
 	})
 	return e
 }
 
-type ReadFunc func(vcs.RepoReader) error
+type FileReadFunc func(vcs.RepoReader) error
 
-func (e *executor) Read(fn ReadFunc) Executor {
+func (e *executor) Read(fn FileReadFunc) Executor {
 	e.readLock = true
 	e.funs = append(e.funs, &executeFunc{
-		readFun: fn,
+		fileReadFun: fn,
 	})
 	return e
 }
 
-type GitFunc func(repo vcs.Repo) error
+type GitReadFunc func(repo vcs.RepoGitReader) error
+type GitWriteFunc func(repo vcs.RepoGitWriter) error
+type FileReadGitWriteFunc func(repo vcs.RepoReaderGitWriter) error
 
-func (e *executor) Git(fn GitFunc) Executor {
+func (e *executor) GitRead(fn GitReadFunc) Executor {
+	e.inMemoryReadLock = true
 	e.funs = append(e.funs, &executeFunc{
-		repoFun: fn,
+		repoReaderFun: fn,
 	})
 	return e
 }
 
-func (e *executor) gitFirst(fn GitFunc) Executor {
-	e.funs = append([]*executeFunc{{repoFun: fn}}, e.funs...)
+func (e *executor) GitWrite(fn GitWriteFunc) Executor {
+	e.inMemoryWriteLock = true
+	e.funs = append(e.funs, &executeFunc{
+		repoWriterFun: fn,
+	})
+	return e
+}
+
+func (e *executor) FileReadGitWrite(fn FileReadGitWriteFunc) Executor {
+	e.inMemoryWriteLock = true
+	e.readLock = true
+
+	e.funs = append(e.funs, &executeFunc{
+		fileReadGitWriteFun: fn,
+	})
+	return e
+}
+
+func (e *executor) gitFirst(fn GitReadFunc) Executor {
+	e.funs = append([]*executeFunc{{repoReaderFun: fn}}, e.funs...)
 	return e
 }
 
@@ -155,7 +195,7 @@ func (e *executor) AllowRebasingState() Executor {
 }
 
 func (e *executor) AssertBranchName(name string) Executor {
-	return e.Git(func(repo vcs.Repo) error {
+	return e.GitRead(func(repo vcs.RepoGitReader) error {
 		if repo.IsRebasing() {
 			return nil
 		}
@@ -203,7 +243,7 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	defer logger.Info("git executor completed", zap.Duration("duration", time.Since(t0)))
 
 	if !e.allowRebasing {
-		e.gitFirst(func(repo vcs.Repo) error {
+		e.gitFirst(func(repo vcs.RepoGitReader) error {
 			if repo.IsRebasing() {
 				return ErrIsRebasing
 			}
@@ -216,8 +256,8 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 		return nil
 	}
 
-	lock := e.locks.Get(codebaseID, viewID)
 	if e.writeLock {
+		lock := e.locks.Get(codebaseID, viewID)
 		if err := lock.Lock(); err != nil {
 			return fmt.Errorf("failed to acquire write lock: %w", err)
 		}
@@ -227,12 +267,35 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 			}
 		}()
 	} else if e.readLock {
+		lock := e.locks.Get(codebaseID, viewID)
 		if err := lock.RLock(); err != nil {
 			return fmt.Errorf("failed to acquire read lock: %w", err)
 		}
 		defer func() {
 			if unlockErr := lock.RUnlock(); unlockErr != nil {
 				err = fmt.Errorf("failed to release read lock: %w", unlockErr)
+			}
+		}()
+	}
+
+	if e.inMemoryWriteLock {
+		lock := e.locks.GetInMemory(codebaseID, viewID)
+		if err := lock.Lock(); err != nil {
+			return fmt.Errorf("failed to acquire in-memory write lock: %w", err)
+		}
+		defer func() {
+			if unlockErr := lock.Unlock(); unlockErr != nil {
+				err = fmt.Errorf("failed to release in-memory write lock: %w", unlockErr)
+			}
+		}()
+	} else if e.inMemoryReadLock {
+		lock := e.locks.GetInMemory(codebaseID, viewID)
+		if err := lock.RLock(); err != nil {
+			return fmt.Errorf("failed to acquire in-memory read lock: %w", err)
+		}
+		defer func() {
+			if unlockErr := lock.RUnlock(); unlockErr != nil {
+				err = fmt.Errorf("failed to release in-memory read lock: %w", unlockErr)
 			}
 		}()
 	}

@@ -15,6 +15,7 @@ import (
 	change_vcs "getsturdy.com/api/pkg/change/vcs"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	service_comments "getsturdy.com/api/pkg/comments/service"
+	"getsturdy.com/api/pkg/events"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -22,7 +23,6 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	user_db "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/events"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"
@@ -314,7 +314,7 @@ func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Worksp
 		}
 	}
 
-	if err := s.executorProvider.New().Git(func(repo vcs.Repo) error {
+	if err := s.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
 		// Ensure codebase status
 		if err := EnsureCodebaseStatus(repo); err != nil {
 			return err
@@ -399,7 +399,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 
 	var createdCommitID string
 
-	var fromViewPushFunc func(vcs.Repo) error
+	var fromViewPushFunc func(vcs.RepoGitWriter) error
 	var fromSnapshotPushFunc func() error
 
 	if ws.ViewID != nil {
@@ -456,7 +456,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	}
 
 	if ws.ViewID != nil {
-		executor := s.executorProvider.New().Git(func(viewRepo vcs.Repo) error {
+		executor := s.executorProvider.New().GitWrite(func(viewRepo vcs.RepoGitWriter) error {
 			if err := fromViewPushFunc(viewRepo); err != nil {
 				return fmt.Errorf("failed to push the landed result: %w", err)
 			}
@@ -466,7 +466,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			return nil, fmt.Errorf("failed to push the landed result from view: %w", err)
 		}
 	} else {
-		executor := s.executorProvider.New().Git(func(repo vcs.Repo) error {
+		executor := s.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
 			if err := fromSnapshotPushFunc(); err != nil {
 				return fmt.Errorf("failed to push the landed result: %w", err)
 			}
@@ -561,7 +561,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	return change, nil
 }
 
-func EnsureCodebaseStatus(repo vcs.Repo) error {
+func EnsureCodebaseStatus(repo vcs.RepoGitWriter) error {
 	// Make sure that a root commit exists
 	// This is the first time a root commit is _needed_ (so that we can create a branch),
 	// and we don't want to do it earlier (such as on clone from GitHub).
@@ -613,7 +613,7 @@ func (svc *WorkspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebase
 		return fmt.Errorf("failed to create workspace: %w", err)
 	}
 
-	cb := func(repo vcs.RepoReader) error {
+	cb := func(repo vcs.RepoReaderGitWriter) error {
 		branchName := "welcome-" + uuid.NewString()
 
 		commitID, err := repo.CreateCommitWithFiles([]vcs.FileContents{
@@ -637,7 +637,7 @@ func (svc *WorkspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebase
 		return nil
 	}
 
-	if err := svc.executorProvider.New().Read(cb).ExecTrunk(codebaseID, "createWelcomeMessage"); err != nil {
+	if err := svc.executorProvider.New().FileReadGitWrite(cb).ExecTrunk(codebaseID, "createWelcomeMessage"); err != nil {
 		return fmt.Errorf("failed to create welcome snapshot: %w", err)
 	}
 
@@ -699,7 +699,7 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 	}
 
 	var hasConflicts bool
-	hasConflictsFunc := func(repo vcs.Repo) error {
+	hasConflictsFunc := func(repo vcs.RepoGitWriter) error {
 		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), it's not conflicting
 		if _, err := repo.BranchCommitID("sturdytrunk"); err != nil {
 			return nil
@@ -735,7 +735,7 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 			return hasConflictsFunc(repo)
 		}).ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflicts")
 	} else {
-		err = s.executorProvider.New().Git(hasConflictsFunc).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflicts")
+		err = s.executorProvider.New().GitWrite(hasConflictsFunc).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflicts")
 	}
 
 	if err != nil {

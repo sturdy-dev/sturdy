@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/notification"
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots"
@@ -15,7 +16,6 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
-	"getsturdy.com/api/pkg/events"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -485,7 +485,7 @@ func (s *Service) diffs(
 	}
 
 	var diffs []unidiff.FileDiff
-	if err := s.executorProvider.New().Git(func(repo vcs.Repo) error {
+	if err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		gitDiffs, err := repo.DiffCommits(baseSnapshot.CommitID, suggestingSnapshot.CommitID)
 		if err != nil {
 			return fmt.Errorf("failed to get diffs: %w", err)

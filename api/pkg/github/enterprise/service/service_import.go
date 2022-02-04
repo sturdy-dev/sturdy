@@ -107,8 +107,8 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 
 	// Fetch to trunk
 	fetchTrunkExec := svc.executorProvider.New().
-		Git(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
-		Git(func(repo vcs.Repo) error {
+		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
+		GitWrite(func(repo vcs.RepoGitWriter) error {
 			// Create the workspace branch
 			if err := repo.CreateNewBranchOnHEAD(workspaceID); err != nil {
 				return fmt.Errorf("failed to create workspace branch")
@@ -184,7 +184,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 	}
 
 	// Create a snapshot
-	makeSnapshotExec := svc.executorProvider.New().Read(func(repo vcs.RepoReader) error {
+	makeSnapshotExec := svc.executorProvider.New().FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 		wsHead, err := repo.BranchCommitID(importedTemporaryBranchName)
 		if err != nil {
 			return fmt.Errorf("failed to get head of imported branch: %w", err)

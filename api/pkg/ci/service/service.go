@@ -90,7 +90,7 @@ var downloadBash string
 
 func (svc *Service) loadSeedFiles(commit *change.ChangeCommit, seedFiles []string) (map[string][]byte, error) {
 	seedFilesContents := make(map[string][]byte)
-	if err := svc.executorProvider.New().Git(func(repo vcs.Repo) error {
+	if err := svc.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		for _, sf := range seedFiles {
 			contents, err := repo.FileContentsAtCommit(commit.CommitID, sf)
 			switch {

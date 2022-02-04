@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	vcsvcs "getsturdy.com/api/vcs"
 	"sync"
+
+	vcsvcs "getsturdy.com/api/vcs"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
@@ -201,7 +202,7 @@ func (r *ChangeResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolve
 	}
 
 	var diffs []string
-	err := r.root.executorProvider.New().Git(func(repo vcsvcs.Repo) error {
+	err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 		var err error
 		diffs, err = vcs.GetDiffs(repo, r.changeOnTrunk.CommitID)
 		if err != nil {

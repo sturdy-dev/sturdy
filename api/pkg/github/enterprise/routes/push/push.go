@@ -98,8 +98,8 @@ func HandlePushEvent(
 
 	var maybeImportedChanges []*vcs.LogEntry
 	if err := executorProvider.New().
-		Git(vcs_github.FetchTrackedToSturdytrunk(accessToken, event.GetRef())).
-		Git(func(repo vcs.Repo) error {
+		GitWrite(vcs_github.FetchTrackedToSturdytrunk(accessToken, event.GetRef())).
+		GitWrite(func(repo vcs.RepoGitWriter) error {
 			logger.Info("listing imported changes")
 
 			// ListImportedChanges lists the latest 50 commits
