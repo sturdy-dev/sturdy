@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"strings"
 
+	"getsturdy.com/api/pkg/users/enterprise/cloud/service"
 	service_user "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func SendMagicLink(logger *zap.Logger, userService service_user.Service) gin.HandlerFunc {
+func SendMagicLink(logger *zap.Logger, userService *service.Service) gin.HandlerFunc {
 	type request struct {
 		Name  string `json:"name"`
 		Email string `json:"email" binding:"required"`

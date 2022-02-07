@@ -3,6 +3,7 @@ package cloud
 import (
 	"getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog"
 	"getsturdy.com/api/pkg/configuration"
+	"getsturdy.com/api/pkg/emails/enterprise/cloud"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 
 	"github.com/jessevdk/go-flags"
@@ -13,6 +14,7 @@ type Configuration struct {
 
 	GitHub    *config.GitHubAppConfig `flags-group:"github-app" namespace:"github-app"`
 	Analytics *posthog.Configuration  `flags-group:"analytics" namespace:"analytics"`
+	Emails    *cloud.Configuration    `flags-group:"emails" namespace:"emails"`
 }
 
 func New() (Configuration, error) {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/auth"
-	service_user "getsturdy.com/api/pkg/users/service"
+	service_users "getsturdy.com/api/pkg/users/enterprise/cloud/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -12,7 +12,7 @@ import (
 
 func SendEmailVerification(
 	logger *zap.Logger,
-	userService service_user.Service,
+	userService *service_users.Service,
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())

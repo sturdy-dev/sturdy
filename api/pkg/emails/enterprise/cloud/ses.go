@@ -1,15 +1,17 @@
-package emails
+package cloud
 
 import (
 	"context"
 	"fmt"
+
+	"getsturdy.com/api/pkg/emails"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 )
 
-var _ Sender = &sesClient{}
+var _ emails.Sender = &sesClient{}
 
 type sesClient struct {
 	sesClient *ses.SES
@@ -21,7 +23,7 @@ func NewSES(s *session.Session) *sesClient {
 	}
 }
 
-func (s *sesClient) Send(ctx context.Context, msg *Email) error {
+func (s *sesClient) Send(ctx context.Context, msg *emails.Email) error {
 	if _, err := s.sesClient.SendEmailWithContext(ctx, &ses.SendEmailInput{
 		Destination: &ses.Destination{ToAddresses: []*string{aws.String(msg.To)}},
 		Source:      aws.String("Sturdy <no-reply@getsturdy.com>"),
@@ -40,6 +42,5 @@ func (s *sesClient) Send(ctx context.Context, msg *Email) error {
 	}); err != nil {
 		return fmt.Errorf("failed to send email to ses: %w", err)
 	}
-
 	return nil
 }

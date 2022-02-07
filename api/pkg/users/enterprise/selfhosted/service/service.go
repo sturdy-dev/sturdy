@@ -33,7 +33,7 @@ func New(
 	}
 }
 
-func (s *Service) validate(ctx context.Context) error {
+func (s *Service) ValidateUserCount(ctx context.Context) error {
 	ins, err := s.installation()
 	if err != nil {
 		return fmt.Errorf("failed to get current installation: %w", err)
@@ -51,15 +51,8 @@ func (s *Service) validate(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Create(ctx context.Context, name, email string) (*users.User, error) {
-	if err := s.validate(ctx); err != nil {
-		return nil, err
-	}
-	return s.UserSerice.Create(ctx, name, email)
-}
-
 func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
-	if err := s.validate(ctx); err != nil {
+	if err := s.ValidateUserCount(ctx); err != nil {
 		return nil, err
 	}
 

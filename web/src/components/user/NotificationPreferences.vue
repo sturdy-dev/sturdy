@@ -5,7 +5,7 @@
       <div class="w-16 justify-around flex items-center h-5">
         <p class="font-medium text-gray-700">Web</p>
       </div>
-      <div class="w-16 flex justify-around items-center h-5">
+      <div v-if="isEmailsEnabled" class="w-16 flex justify-around items-center h-5">
         <p class="font-medium text-gray-700">Email</p>
       </div>
     </div>
@@ -25,7 +25,7 @@
           @click="preference.toggleWeb"
         />
       </div>
-      <div class="w-16 flex items-center h-5 justify-around">
+      <div v-if="isEmailsEnabled" class="w-16 flex items-center h-5 justify-around">
         <input
           v-model="preference.emailEnabled"
           :disabled="!emailVerified"
@@ -73,10 +73,12 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isEmailsEnabled = computed(() => features?.value?.includes(Feature.Emails))
 
     const updateNotificationPreferenceResult = useUpdateNotificationPreference()
     return {
       isGitHubEnabled,
+      isEmailsEnabled,
 
       async updateNotificationPreference(
         type: NotificationType,

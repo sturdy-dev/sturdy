@@ -12,13 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type userDataloader struct {
+type UserDataloader struct {
 	resolver *userRootResolver
 	loader   *dataloader.Loader
 }
 
-func NewDataloader(resolver *userRootResolver, logger *zap.Logger) resolvers.UserRootResolver {
-	return &userDataloader{
+func NewDataloader(resolver *userRootResolver, logger *zap.Logger) *UserDataloader {
+	return &UserDataloader{
 		resolver: resolver,
 		loader: dataloader.NewBatchedLoader(
 			batchFunction(resolver),
@@ -27,7 +27,7 @@ func NewDataloader(resolver *userRootResolver, logger *zap.Logger) resolvers.Use
 	}
 }
 
-func (dl *userDataloader) User(ctx context.Context) (resolvers.UserResolver, error) {
+func (dl *UserDataloader) User(ctx context.Context) (resolvers.UserResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -35,21 +35,21 @@ func (dl *userDataloader) User(ctx context.Context) (resolvers.UserResolver, err
 	return dl.InternalUser(ctx, userID)
 }
 
-func (dl *userDataloader) UpdateUser(ctx context.Context, args resolvers.UpdateUserArgs) (resolvers.UserResolver, error) {
+func (dl *UserDataloader) UpdateUser(ctx context.Context, args resolvers.UpdateUserArgs) (resolvers.UserResolver, error) {
 	r, err := dl.resolver.UpdateUser(ctx, args)
 	key := dataloader.StringKey(r.ID())
 	dl.loader.Clear(ctx, key).Prime(ctx, key, r)
 	return r, err
 }
 
-func (dl *userDataloader) VerifyEmail(ctx context.Context, args resolvers.VerifyEmailArgs) (resolvers.UserResolver, error) {
+func (dl *UserDataloader) VerifyEmail(ctx context.Context, args resolvers.VerifyEmailArgs) (resolvers.UserResolver, error) {
 	r, err := dl.resolver.VerifyEmail(ctx, args)
 	key := dataloader.StringKey(r.ID())
 	dl.loader.Clear(ctx, key).Prime(ctx, key, r)
 	return r, err
 }
 
-func (dl *userDataloader) InternalUser(ctx context.Context, userID string) (resolvers.UserResolver, error) {
+func (dl *UserDataloader) InternalUser(ctx context.Context, userID string) (resolvers.UserResolver, error) {
 	thunk := dl.loader.Load(ctx, dataloader.StringKey(userID))
 	u, err := thunk()
 	if err != nil {
@@ -65,7 +65,7 @@ func batchFunction(resolver *userRootResolver) dataloader.BatchFunc {
 		)
 
 		for _, key := range keys {
-			user, err := resolver.InternalUser(key.String())
+			user, err := resolver.InternalUser(ctx, key.String())
 			if err != nil {
 				results = append(results, &dataloader.Result{Error: err})
 			} else {
