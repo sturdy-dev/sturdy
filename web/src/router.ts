@@ -575,9 +575,9 @@ export const routes: RouteRecordRaw[] = [
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
-    path: '/v2/docs/how-to-setup-sturdy-on-github',
-    component: () => import('./pages/docs/HowToSetupSturdyOnGithub.vue'),
-    name: 'v2DocsHowToSetupSturdyOnGitHub',
+    path: '/v2/docs/how-to-setup-sturdy-with-github',
+    component: () => import('./pages/docs/HowToSetupSturdyWithGithub.vue'),
+    name: 'v2DocsHowToSetupSturdyWithGitHub',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {

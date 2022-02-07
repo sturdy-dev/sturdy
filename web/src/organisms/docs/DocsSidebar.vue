@@ -46,7 +46,7 @@ const groups = [
     links: [
       { route: 'v2DocsHotToShipSoftwareToProduction', title: 'Ship to production' },
       { route: 'v2DocsHowToCollaborateWithOthers', title: 'Collaborate with others' },
-      { route: 'v2DocsHowToSetupSturdyOnGitHub', title: 'Setup Sturdy on GitHub' },
+      { route: 'v2DocsHowToSetupSturdyWithGitHub', title: 'Setup Sturdy with GitHub' },
       { route: 'v2DocsHowToEditCode', title: 'Edit code' },
       { route: 'v2DocsHowToSwitchBetweenTasks', title: 'Switch between tasks' },
     ],

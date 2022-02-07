@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How to setup Sturdy on GitHub</h1>
+        <h1 id="how-sturdy-augments-git">How to setup Sturdy with GitHub</h1>
 
         <p>
           It's easy to add existing GitHub repositories to Sturdy. With a few clicks, you can
