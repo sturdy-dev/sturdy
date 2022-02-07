@@ -24,10 +24,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from './shared/Button.vue'
+import { gql, useQuery } from '@urql/vue'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
   name: 'ErrorPage',
   components: { Button },
   props: {
@@ -35,7 +37,18 @@ export default {
   },
   emits: ['reset-error'],
   setup() {
+    let { data } = useQuery({
+      query: gql`
+        query ErrorPage {
+          user {
+            id
+          }
+        }
+      `,
+    })
+
     return {
+      data,
       isApp: !!window.ipc,
     }
   },
@@ -79,9 +92,13 @@ export default {
   },
   methods: {
     async goBack() {
-      await this.$router.push({ name: 'home' })
+      if (this.data?.user?.id) {
+        await this.$router.push({ name: 'home' })
+      } else {
+        await this.$router.push({ name: 'login' })
+      }
       this.$emit('reset-error')
     },
   },
-}
+})
 </script>
