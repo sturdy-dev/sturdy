@@ -32,7 +32,7 @@ func (r *gitHubAppResolver) ID() graphql.ID {
 }
 
 func (r *gitHubAppResolver) Name() string {
-	return r.root.meta.Name
+	return r.root.meta.Slug
 }
 
 func (r *gitHubAppResolver) ClientID() string {
