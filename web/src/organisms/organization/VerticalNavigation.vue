@@ -15,6 +15,10 @@ export default defineComponent({
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isGitHubEnabledNotConfigured = computed(() =>
+      features?.value?.includes(Feature.GitHubNotConfigured)
+    )
+
     const isOrganizationSubscriptionsEnabled = computed(() =>
       features?.value?.includes(Feature.OrganizationSubscriptions)
     )
@@ -38,7 +42,7 @@ export default defineComponent({
           current: route.name === 'organizationSettings',
         },
 
-        isGitHubEnabled.value
+        isGitHubEnabled.value || isGitHubEnabledNotConfigured.value
           ? {
               name: 'GitHub',
               linkName: 'organizationSettingsGitHub',

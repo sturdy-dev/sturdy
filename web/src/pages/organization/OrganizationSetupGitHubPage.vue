@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import {
   OrganizationSetupGitHubPageQuery,
@@ -37,6 +37,7 @@ import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSetupGitHub from '../../organisms/organization/OrganizationSetupGitHub.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
+import { Feature } from '../../__generated__/types'
 
 export default defineComponent({
   components: {
@@ -49,18 +50,21 @@ export default defineComponent({
   setup() {
     let route = useRoute()
 
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     let { data } = useQuery<
       OrganizationSetupGitHubPageQuery,
       OrganizationSetupGitHubPageQueryVariables
     >({
       query: gql`
-        query OrganizationSetupGitHubPage($shortID: ID!) {
+        query OrganizationSetupGitHubPage($shortID: ID!, $isGitHubEnabled: Boolean!) {
           organization(shortID: $shortID) {
             id
             name
           }
 
-          gitHubApp {
+          gitHubApp @include(if: $isGitHubEnabled) {
             _id
             clientID
             name
@@ -68,7 +72,7 @@ export default defineComponent({
 
           user {
             id
-            gitHubAccount {
+            gitHubAccount @include(if: $isGitHubEnabled) {
               id
               login
             }
@@ -77,6 +81,7 @@ export default defineComponent({
       `,
       requestPolicy: 'cache-and-network',
       variables: {
+        isGitHubEnabled,
         shortID: route.params.organizationSlug,
       },
     })

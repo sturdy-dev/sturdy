@@ -35,12 +35,20 @@
     </div>
 
     <GitHubConnectButton
+      v-if="isGitHubEnabled"
       already-installed-text="Update GitHub-app installation"
       not-connected-text="Login with GitHub"
       color="blue"
       :git-hub-app="gitHubApp"
       :git-hub-account="gitHubAccount"
     />
+    <LinkButton
+      v-else
+      href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+      target="_blank"
+    >
+      Read the docs
+    </LinkButton>
 
     <template v-if="data && data.gitHubRepositories.length > 0">
       <div class="text-sm p-4">
@@ -110,7 +118,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 
 import {
@@ -129,6 +137,8 @@ import {
 } from '../../molecules/__generated__/GitHubConnectButton'
 import { useSetupGitHubRepository } from '../../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
+import { Feature } from '../../__generated__/types'
+import LinkButton from '../../components/shared/LinkButton.vue'
 
 export const GITHUB_APP_FRAGMENT = gql`
   fragment GitHubApp on GitHubApp {
@@ -153,7 +163,7 @@ export const ORGANIZATION_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { GitHubConnectButton, Spinner, Button, RouterLinkButton, CheckIcon },
+  components: { GitHubConnectButton, Spinner, Button, RouterLinkButton, CheckIcon, LinkButton },
   props: {
     organization: {
       type: Object as PropType<OrganizationSetupGitHubOrganizationFragment>,
@@ -161,14 +171,19 @@ export default defineComponent({
     },
     gitHubApp: {
       type: Object as PropType<GitHubAppFragment>,
-      required: true,
+      default: null,
+      required: false,
     },
     gitHubAccount: {
       type: Object as PropType<GitHubAccountFragment>,
       default: null,
+      required: false,
     },
   },
   setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     let { data, fetching } = useQuery<
       OrganizationSetupGitHubQuery,
       OrganizationSetupGitHubQueryVariables
@@ -201,6 +216,8 @@ export default defineComponent({
     return {
       data,
       fetching,
+
+      isGitHubEnabled,
 
       async setupGitHubRepository(
         organizationID: string,
