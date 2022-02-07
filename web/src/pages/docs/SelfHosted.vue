@@ -216,10 +216,10 @@ export default defineComponent({
       dockerOnelinerWithGithub: DOCKER_ONELINER.replace(
         'getsturdy/server',
         `--env STURDY_GITHUB_APP_ID=&lt;id> \\
-    --env STURDY_GITHUB_APP_NAME=&lt;name> \\
-    --env STURDY_GITHUB_APP_CLIENT_ID=&lt;client_id> \\
-    --env STURDY_GITHUB_APP_SECRET=&lt;secret> \\
-    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/&lt;filename> \\
+    --env STURDY_GITHUB_APP_NAME=<name> \\
+    --env STURDY_GITHUB_APP_CLIENT_ID=<client_id> \\
+    --env STURDY_GITHUB_APP_SECRET=<secret> \\
+    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/<filename> \\
         getsturdy/server`
       ),
     }
