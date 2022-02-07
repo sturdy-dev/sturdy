@@ -1,4 +1,4 @@
-package queue
+package cloud
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/broadcast"
 	"getsturdy.com/api/pkg/queue/names"
 
@@ -18,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ Queue = &sqsQueue{}
+var _ queue.Queue = &sqsQueue{}
 
 type sqsQueue struct {
 	logger *zap.Logger
@@ -83,10 +84,10 @@ func (q *sqsQueue) Publish(_ context.Context, name names.IncompleteQueueName, v 
 	return nil
 }
 
-func (q *sqsQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- Message) error {
+func (q *sqsQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- queue.Message) error {
 	q.logger.Info("new subscription", zap.String("queue", string(name)))
 
-	sqsMessages := make(chan Message)
+	sqsMessages := make(chan queue.Message)
 	if err := Sub(q.session, q.logger, names.BuildQueueName(q.queuePrefix, q.hostname, name), sqsMessages); err != nil {
 		return fmt.Errorf("failed to subscribe to queue: %w", err)
 	}
@@ -129,16 +130,16 @@ func (m *message) Ack() error {
 	return nil
 }
 
-func SubToBroadcast(awsSession *session.Session, logger *zap.Logger, queueName names.BroadcastQueueSubscriberName, snsTopicArn string, output chan Message) error {
+func SubToBroadcast(awsSession *session.Session, logger *zap.Logger, queueName names.BroadcastQueueSubscriberName, snsTopicArn string, output chan queue.Message) error {
 	return sub(awsSession, logger, string(queueName), snsTopicArn, output)
 }
 
-func Sub(awsSession *session.Session, logger *zap.Logger, queueName names.QueueName, output chan Message) error {
+func Sub(awsSession *session.Session, logger *zap.Logger, queueName names.QueueName, output chan queue.Message) error {
 	// Subscribe without setting up a SNS subscription
 	return sub(awsSession, logger, string(queueName), "", output)
 }
 
-func sub(awsSession *session.Session, logger *zap.Logger, queueName string, snsTopicArn string, output chan Message) error {
+func sub(awsSession *session.Session, logger *zap.Logger, queueName string, snsTopicArn string, output chan queue.Message) error {
 	q := sqs.New(awsSession)
 	stsClient := sts.New(awsSession)
 
