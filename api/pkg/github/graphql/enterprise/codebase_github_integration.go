@@ -28,7 +28,7 @@ type codebaseGitHubIntegrationRootResolver struct {
 	gitExecutorProvider    executor.Provider
 	logger                 *zap.Logger
 	gitHubAppConfig        *config.GitHubAppConfig
-	gitHubClientProvider   github_client.ClientProvider
+	gitHubClientProvider   github_client.InstallationClientProvider
 	workspaceReader        db_workspace.WorkspaceReader
 	workspaceWriter        db_workspace.WorkspaceWriter
 	snapshotter            snapshotter.Snapshotter
@@ -47,7 +47,7 @@ func NewCodebaseGitHubIntegrationRootResolver(
 	gitExecutorProvider executor.Provider,
 	logger *zap.Logger,
 	gitHubAppConfig *config.GitHubAppConfig,
-	gitHubClientProvider github_client.ClientProvider,
+	gitHubClientProvider github_client.InstallationClientProvider,
 	workspaceReader db_workspace.WorkspaceReader,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	snapshotter snapshotter.Snapshotter,

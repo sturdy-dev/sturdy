@@ -24,10 +24,10 @@ func permissionsForInstallation(installation *github.GitHubInstallation) *gh.Ins
 	}
 }
 
-func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, githubClientProvider ClientProvider) (*gh.InstallationToken, error) {
+func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, githubClientProvider InstallationClientProvider) (*gh.InstallationToken, error) {
 	// Get a new token
 
-	_, githubJwtClient, err := githubClientProvider(
+	_, appsClient, err := githubClientProvider(
 		gitHubAppConfig,
 		installation.InstallationID,
 	)
@@ -35,7 +35,7 @@ func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppC
 		return nil, err
 	}
 
-	installToken, _, err := githubJwtClient.Apps.CreateInstallationToken(ctx,
+	installToken, _, err := appsClient.CreateInstallationToken(ctx,
 		installation.InstallationID,
 		&gh.InstallationTokenOptions{
 			RepositoryIDs: []int64{gitHubRepositoryID},
@@ -49,7 +49,7 @@ func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppC
 	return installToken, nil
 }
 
-func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider ClientProvider) (string, error) {
+func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider InstallationClientProvider) (string, error) {
 	// Check if we already have a valid token in the database
 	ghr, err := repo.GetByInstallationAndGitHubRepoID(installation.InstallationID, gitHubRepositoryID)
 	if err != nil {
@@ -70,7 +70,7 @@ func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *co
 	}
 
 	// Get a new token
-	_, githubJwtClient, err := githubClientProvider(
+	_, appsClient, err := githubClientProvider(
 		gitHubAppConfig,
 		installation.InstallationID,
 	)
@@ -78,7 +78,7 @@ func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *co
 		return "", err
 	}
 
-	installToken, _, err := githubJwtClient.Apps.CreateInstallationToken(ctx,
+	installToken, _, err := appsClient.CreateInstallationToken(ctx,
 		installation.InstallationID,
 		&gh.InstallationTokenOptions{
 			RepositoryIDs: []int64{gitHubRepositoryID},

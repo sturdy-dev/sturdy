@@ -11,13 +11,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type ClientProvider func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error)
+type InstallationClientProvider func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, appsClient AppsClient, err error)
+
 type PersonalClientProvider func(personalOauthToken string) (personalClient *GitHubClients, err error)
+
+type AppClientProvider func(gitHubAppConfig *config.GitHubAppConfig) (appsClient AppsClient, err error)
 
 type GitHubClients struct {
 	Repositories RepositoriesClient
 	PullRequests PullRequestsClient
-	Apps         AppsClient
 }
 
 type RepositoriesClient interface {
@@ -29,6 +31,7 @@ type RepositoriesClient interface {
 type AppsClient interface {
 	CreateInstallationToken(ctx context.Context, id int64, opts *github.InstallationTokenOptions) (*github.InstallationToken, *github.Response, error)
 	GetInstallation(ctx context.Context, id int64) (*github.Installation, *github.Response, error)
+	Get(ctx context.Context, appSlug string) (*github.App, *github.Response, error)
 }
 
 type PullRequestsClient interface {
@@ -38,7 +41,8 @@ type PullRequestsClient interface {
 	Edit(ctx context.Context, owner string, repo string, number int, pull *github.PullRequest) (*github.PullRequest, *github.Response, error)
 }
 
-func NewClient(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, jwtClient *GitHubClients, err error) {
+// NewInstallationClient creates a client for installationID that's acting on behalf of the app
+func NewInstallationClient(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, appsClient AppsClient, err error) {
 	jwtTransport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, gitHubAppConfig.ID, gitHubAppConfig.PrivateKeyPath)
 	if err != nil {
 		return nil, nil, err
@@ -53,9 +57,7 @@ func NewClient(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (t
 			Repositories: ghClient.Repositories,
 			PullRequests: ghClient.PullRequests,
 		},
-		&GitHubClients{
-			Apps: appsGhClient.Apps,
-		}, nil
+		appsGhClient.Apps, nil
 }
 
 // NewPersonalClient returns a client that users the users GitHub OAuth token to act on their behalf
@@ -72,4 +74,16 @@ func NewPersonalClient(personalOauthToken string) (personalClient *GitHubClients
 		Repositories: client.Repositories,
 		PullRequests: client.PullRequests,
 	}, nil
+}
+
+// NewAppClient creates a client for the app (not authenticated towards any installation)
+func NewAppClient(gitHubAppConfig *config.GitHubAppConfig) (appsClient AppsClient, err error) {
+	jwtTransport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, gitHubAppConfig.ID, gitHubAppConfig.PrivateKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	appsGhClient := github.NewClient(&http.Client{Transport: jwtTransport})
+
+	return appsGhClient.Apps, nil
 }

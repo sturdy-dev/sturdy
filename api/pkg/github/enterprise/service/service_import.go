@@ -34,7 +34,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 		return fmt.Errorf("failed to get github installation: %w", err)
 	}
 
-	gitHubClient, _, err := svc.gitHubClientProvider(svc.gitHubAppConfig, installation.InstallationID)
+	gitHubClient, _, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, installation.InstallationID)
 	if err != nil {
 		return fmt.Errorf("failed to get github api client: %w", err)
 	}
@@ -44,7 +44,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 		return fmt.Errorf("failed to get github user: %w", err)
 	}
 
-	accessToken, err := github_client.GetAccessToken(ctx, svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubClientProvider)
+	accessToken, err := github_client.GetAccessToken(ctx, svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
 	if err != nil {
 		return fmt.Errorf("failed to get github access token: %w", err)
 	}

@@ -41,7 +41,7 @@ func Webhook(
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
 	codebaseRepo db_codebase.CodebaseRepository,
 	executorProvider executor.Provider,
-	githubClientProvider client.ClientProvider,
+	githubClientProvider client.InstallationClientProvider,
 	gitHubUserRepo db.GitHubUserRepo,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	gitHubClonerPublisher *workers_github.ClonerQueue,

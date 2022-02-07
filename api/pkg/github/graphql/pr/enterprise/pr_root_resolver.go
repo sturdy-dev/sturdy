@@ -51,7 +51,7 @@ type prRootResolver struct {
 	gitHubInstallationRepo db.GitHubInstallationRepo
 	gitHubRepositoryRepo   db.GitHubRepositoryRepo
 
-	gitHubClientProvider         client.ClientProvider
+	gitHubClientProvider         client.InstallationClientProvider
 	gitHubPersonalClientProvider client.PersonalClientProvider
 	events                       events.EventReadWriter
 	analyticsClient              analytics.Client
@@ -79,7 +79,7 @@ func NewResolver(
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
 
-	gitHubClientProvider client.ClientProvider,
+	gitHubClientProvider client.InstallationClientProvider,
 	gitHubPersonalClientProvider client.PersonalClientProvider,
 	events events.EventReadWriter,
 	analyticsClient analytics.Client,

@@ -909,10 +909,10 @@ type OnboardingStep {
 }
 
 enum Feature {
-  GitHub
+  GitHub # If GitHub is available, and ready to use
+  GitHubNotConfigured # If GitHub is available, but has not been configured yet
   Buildkite
   MultiTenancy
-
   OrganizationSubscriptions # In the cloud, manage and view subscriptions
   License @deprecated(reason: "use SelfHostedLicense instead")
   SelfHostedLicense # Self hosted, enter, and consume a license

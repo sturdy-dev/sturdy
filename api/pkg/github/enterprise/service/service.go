@@ -43,9 +43,10 @@ type Service struct {
 	gitHubPullRequestImporterQueue *ImporterQueue
 	gitHubCloneQueue               *ClonerQueue
 
-	gitHubAppConfig              *config_github.GitHubAppConfig
-	gitHubClientProvider         github_client.ClientProvider
-	gitHubPersonalClientProvider github_client.PersonalClientProvider
+	gitHubAppConfig                  *config_github.GitHubAppConfig
+	gitHubInstallationClientProvider github_client.InstallationClientProvider
+	gitHubPersonalClientProvider     github_client.PersonalClientProvider
+	gitHubAppClientProvider          github_client.AppClientProvider
 
 	workspaceWriter  db_workspace.WorkspaceWriter
 	workspaceReader  db_workspace.WorkspaceReader
@@ -70,8 +71,9 @@ func New(
 	gitHubUserRepo db_github.GitHubUserRepo,
 	gitHubPullRequestRepo db_github.GitHubPRRepo,
 	gitHubAppConfig *config_github.GitHubAppConfig,
-	gitHubClientProvider github_client.ClientProvider,
+	gitHubInstallationClientProvider github_client.InstallationClientProvider,
 	gitHubPersonalClientProvider github_client.PersonalClientProvider,
+	gitHubAppClientProvider github_client.AppClientProvider,
 
 	gitHubPullRequestImporterQueue *ImporterQueue,
 	gitHubCloneQueue *ClonerQueue,
@@ -92,13 +94,14 @@ func New(
 	return &Service{
 		logger: logger,
 
-		gitHubRepositoryRepo:         gitHubRepositoryRepo,
-		gitHubInstallationRepo:       gitHubInstallationRepo,
-		gitHubUserRepo:               gitHubUserRepo,
-		gitHubPullRequestRepo:        gitHubPullRequestRepo,
-		gitHubAppConfig:              gitHubAppConfig,
-		gitHubClientProvider:         gitHubClientProvider,
-		gitHubPersonalClientProvider: gitHubPersonalClientProvider,
+		gitHubRepositoryRepo:             gitHubRepositoryRepo,
+		gitHubInstallationRepo:           gitHubInstallationRepo,
+		gitHubUserRepo:                   gitHubUserRepo,
+		gitHubPullRequestRepo:            gitHubPullRequestRepo,
+		gitHubAppConfig:                  gitHubAppConfig,
+		gitHubInstallationClientProvider: gitHubInstallationClientProvider,
+		gitHubPersonalClientProvider:     gitHubPersonalClientProvider,
+		gitHubAppClientProvider:          gitHubAppClientProvider,
 
 		gitHubPullRequestImporterQueue: gitHubPullRequestImporterQueue,
 		gitHubCloneQueue:               gitHubCloneQueue,
@@ -144,7 +147,7 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 		installation,
 		gitHubRepository.GitHubRepositoryID,
 		s.gitHubRepositoryRepo,
-		s.gitHubClientProvider,
+		s.gitHubInstallationClientProvider,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to get github access token: %w", err)

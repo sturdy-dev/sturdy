@@ -18,7 +18,6 @@ func NewFeaturesRootResolver(githubConfig *config.GitHubAppConfig) resolvers.Fea
 func (r *FeaturesRootResolver) isGitHubEnabled() bool {
 	return r.githubConfig.ID != 0 &&
 		r.githubConfig.ClientID != "" &&
-		r.githubConfig.Name != "" &&
 		r.githubConfig.Secret != "" &&
 		r.githubConfig.PrivateKeyPath != ""
 }
@@ -30,6 +29,8 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 	}
 	if r.isGitHubEnabled() {
 		ff = append(ff, resolvers.FeatureGitHub)
+	} else {
+		ff = append(ff, resolvers.FeatureGitHubNotConfigured)
 	}
 	return ff
 }
