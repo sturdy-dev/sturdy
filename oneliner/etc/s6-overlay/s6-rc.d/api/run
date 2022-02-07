@@ -11,5 +11,4 @@ exec api \
   --git.addr="127.0.0.1:3001" \
   --vcs.lfs.addr="127.0.0.1:8888" \
   --db.url="${DB_ADDR}" \
-  --logger.production \
-  --queue.local
+  --logger.production
