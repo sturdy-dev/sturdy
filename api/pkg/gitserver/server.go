@@ -18,6 +18,7 @@ import (
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/servicetokens"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
+	"getsturdy.com/api/pkg/version"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -42,6 +43,13 @@ type Server struct {
 	router *gin.Engine
 }
 
+func ginMode() string {
+	if version.IsDevelopment() {
+		return gin.DebugMode
+	}
+	return gin.ReleaseMode
+}
+
 func New(
 	logger *zap.Logger,
 	cfg *Configuration,
@@ -50,6 +58,9 @@ func New(
 	codebaeService *service_codebase.Service,
 	executorProvider executor.Provider,
 ) *Server {
+	gin.SetMode(ginMode())
+	ginRouter := gin.New()
+	ginRouter.SetTrustedProxies(nil)
 	return &Server{
 		logger: logger,
 		cfg:    cfg,
@@ -59,7 +70,7 @@ func New(
 		codebaseService:      codebaeService,
 		executorProvider:     executorProvider,
 
-		router: gin.New(),
+		router: ginRouter,
 	}
 }
 

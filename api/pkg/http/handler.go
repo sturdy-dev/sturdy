@@ -38,6 +38,7 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	routes_v3_user "getsturdy.com/api/pkg/users/routes"
 	service_user "getsturdy.com/api/pkg/users/service"
+	"getsturdy.com/api/pkg/version"
 	view_auth "getsturdy.com/api/pkg/view/auth"
 	db_view "getsturdy.com/api/pkg/view/db"
 	meta_view "getsturdy.com/api/pkg/view/meta"
@@ -59,6 +60,13 @@ import (
 type Configuration struct {
 	Addr             flags.Addr `long:"addr" description:"Address to listen on" default:"localhost:3000"`
 	AllowCORSOrigins []string   `long:"allow-cors-origin" description:"Additional origin that is allowed to make CORS requests (can be provided multiple times)"`
+}
+
+func ginMode() string {
+	if version.IsDevelopment() {
+		return gin.DebugMode
+	}
+	return gin.ReleaseMode
 }
 
 type Engine gin.Engine
@@ -121,7 +129,9 @@ func ProvideHandler(
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	})
+	gin.SetMode(ginMode())
 	r := gin.New()
+	_ = r.SetTrustedProxies(nil)
 	r.Use(accessLogger(logger, time.RFC3339, true))
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(ginzap.RecoveryWithZap(logger, true))
