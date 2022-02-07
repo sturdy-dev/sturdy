@@ -32,7 +32,7 @@
                   Docs
                 </router-link>
                 <router-link
-                  :to="{ name: 'pricing' }"
+                  :to="{ name: 'v2pricing' }"
                   :class="[light ? 'hover:text-gray-500' : 'hover:text-amber-500']"
                 >
                   Pricing
@@ -99,7 +99,7 @@
           Docs
         </router-link>
         <router-link
-          :to="{ name: 'pricing' }"
+          :to="{ name: 'v2pricing' }"
           :class="[
             light
               ? 'text-gray-800 hover:text-gray-500'

@@ -1,6 +1,6 @@
 <template>
-  <DocumentationStickyHeader class="antialiased text-slate-300 bg-slate-900">
-    <div class="px-6 relative -mt-16 h-[30rem]">
+  <DocumentationStickyHeader class="antialiased text-slate-300 bg-[#0c1322]">
+    <div class="px-6 relative">
       <div class="absolute inset-0 bottom-20 bg-bottom bg-no-repeat gradient"></div>
 
       <div class="relative max-w-5xl mx-auto pt-24 sm:pt-28 lg:pt-32">
@@ -9,36 +9,41 @@
         >
           Pricing
         </h1>
+
         <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
           Find the version of Sturdy that's best for you.
         </p>
+
+        <div class="mx-auto pt-20">
+          <div
+            class="flex justify-around text-slate-200 my-12 flex-col lg:flex-row space-y-8 lg:space-y-0 p-4 lg:p-0 lg:space-x-8"
+          >
+            <PricingTierSummary name="Free">
+              <PricingTierSummaryItem>Unlimited codebases and workspaces</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Self-hosted, or in the cloud</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Up to 10 users</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Sturdy for GitHub</PricingTierSummaryItem>
+              <PricingTierSummaryItem>CI/CD</PricingTierSummaryItem>
+            </PricingTierSummary>
+
+            <PricingTierSummary name="Pro" price="30">
+              <PricingTierSummaryItemArrow>Everything from Free</PricingTierSummaryItemArrow>
+              <PricingTierSummaryItem>Self-hosted, or in the cloud</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Unlimited users</PricingTierSummaryItem>
+              <PricingTierSummaryItem>SSO/SAML</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Shared support Slack</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Onboarding and training</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Advanced audit & security</PricingTierSummaryItem>
+            </PricingTierSummary>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="flex space-around">
-      <div class="bg-red-200 p-8">
-        <h1>Free</h1>
-        <ul>
-          <li>All collaboration features</li>
-          <li>Self-hosted, or in the cloud</li>
-          <li>Up to 10 users</li>
-          <li>Powerful integrations</li>
-        </ul>
-      </div>
-      <div class="bg-red-200 p-8">
-        <h1>Pro</h1>
-        <ul>
-          <li>Unlimited users</li>
-          <li>SSO/SAML</li>
-          <li>Advanced security</li>
-        </ul>
-      </div>
-    </div>
-
-    <div
-      class="-mt-20 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
-    >
+    <div class="block top-0 inset-x-0 mt-12 bg-[#0c1322]">
       <div class="mx-auto py-16 sm:py-24 sm:px-6 lg:px-8 max-w-[100rem]">
+        <p class="text-center mb-6 uppercase font-bold">Full comparison</p>
+
         <!-- xs to lg -->
         <div class="mx-auto space-y-16 lg:hidden">
           <section v-for="(tier, tierIdx) in tiers" :key="tier.name">
@@ -53,12 +58,9 @@
                 <span class="text-base font-medium text-slate-400">/mo</span>
               </p>
               <p class="mt-4 text-sm text-slate-400">{{ tier.description }}</p>
-              <router-link
-                :to="{ name: tier.getStartedRoute }"
-                class="flex-grow block w-full bg-slate-800 border border-slate-200 rounded-md my-4 py-2 text-sm font-semibold text-white text-center hover:bg-gray-900"
-              >
+              <PricingButton :to="{ name: tier.getStartedRoute }">
                 Get started with {{ tier.name }}
-              </router-link>
+              </PricingButton>
             </div>
 
             <table v-for="section in sections" :key="section.name" class="w-full">
@@ -113,12 +115,9 @@
                 'border-t border-gray-200 px-4',
               ]"
             >
-              <a
-                :href="tier.href"
-                class="flex-grow block w-full bg-slate-800 border border-slate-200 rounded-md my-4 py-2 text-sm font-semibold text-white text-center hover:bg-gray-900"
-              >
+              <PricingButton :to="{ name: tier.getStartedRoute }">
                 Get started with {{ tier.name }}
-              </a>
+              </PricingButton>
             </div>
           </section>
         </div>
@@ -134,19 +133,15 @@
                 <th></th>
                 <th
                   :colspan="tiers.length === 4 ? 3 : 2"
-                  class="pb-4 px-6 text-md leading-6 font-medium text-slate-400 border-1 border-r border-l"
+                  class="py-4 px-6 text-md font-light text-slate-400 bg-slate-800/60"
                 >
                   Self-hosted options
                 </th>
-                <th
-                  class="pb-4 px-6 text-md leading-6 font-medium text-slate-400 border-1 border-r"
-                >
-                  Hosted solution
-                </th>
+                <th class="py-4 px-6 text-md font-light text-slate-400">Hosted solution</th>
               </tr>
               <tr>
                 <th
-                  class="pb-4 px-6 text-sm font-medium text-slate-200 text-left border-1 border-r"
+                  class="py-4 px-6 text-sm font-medium text-slate-200 text-left border-1 border-r border-slate-600"
                   scope="col"
                 >
                   <span class="sr-only">Feature by</span>
@@ -155,7 +150,7 @@
                 <th
                   v-for="tier in tiers"
                   :key="tier.name"
-                  class="w-1/4 pb-4 px-6 text-lg leading-6 font-medium text-slate-200 text-left border-1 border-r"
+                  class="w-1/4 py-4 px-6 text-lg leading-6 font-medium text-slate-200 text-left border-1 border-r border-slate-600"
                   scope="col"
                 >
                   {{ tier.name }}
@@ -180,13 +175,10 @@
                       {{ ' ' }}
                       <span class="text-base font-medium text-slate-400">/user/mo</span>
                     </p>
-                    <p class="mt-4 mb-16 text-sm text-slate-300">{{ tier.description }}</p>
-                    <a
-                      :href="tier.href"
-                      class="absolute bottom-0 flex-grow block w-full bg-slate-800 border border-slate-200 rounded-md 5 py-2 text-sm font-semibold text-white text-center hover:bg-gray-900"
-                    >
-                      Get started with {{ tier.name }}</a
-                    >
+                    <p class="mt-4 mb-24 text-sm text-slate-300">{{ tier.description }}</p>
+                    <PricingButton :to="{ name: tier.getStartedRoute }" class="absolute bottom-0">
+                      Get started with <span class="whitespace-nowrap">{{ tier.name }}</span>
+                    </PricingButton>
                   </div>
                 </td>
               </tr>
@@ -231,12 +223,9 @@
               <tr class="border-t border-gray-200">
                 <th class="sr-only" scope="row">Choose your plan</th>
                 <td v-for="tier in tiers" :key="tier.name" class="pt-5 px-6">
-                  <a
-                    :href="tier.href"
-                    class="block flex-grow block w-full bg-slate-800 border border-slate-200 rounded-md 5 py-2 text-sm font-semibold text-white text-center hover:bg-gray-900"
-                  >
-                    Get started with {{ tier.name }}
-                  </a>
+                  <PricingButton :to="{ name: tier.getStartedRoute }" class="inline-block">
+                    Get started with <span class="whitespace-nowrap">{{ tier.name }}</span>
+                  </PricingButton>
                 </td>
               </tr>
             </tfoot>
@@ -262,6 +251,10 @@ import { CheckIcon, MinusIcon } from '@heroicons/vue/solid'
 import { defineComponent, Ref, ref } from 'vue'
 import DocumentationStickyHeader from '../layouts/DocumentationStickyHeader.vue'
 import Button from '../components/shared/Button.vue'
+import PricingTierSummary from '../molecules/pricing/PricingTierSummary.vue'
+import PricingTierSummaryItem from '../molecules/pricing/PricingTierSummaryItem.vue'
+import PricingTierSummaryItemArrow from '../molecules/pricing/PricingTierSummaryItemArrow.vue'
+import PricingButton from '../molecules/pricing/PricingButton.vue'
 
 let showOpenSource = ref(false)
 let showTrue = ref(true)
@@ -270,15 +263,13 @@ const allTiers = [
   {
     name: 'Open Source',
     getStartedRoute: 'v2DocsSelfHosted',
-    href: '#',
     priceMonthly: 0,
     description: 'Free and open-source.',
     show: showOpenSource,
   },
   {
     name: 'Free',
-    getStartedRoute: 'v2DocsSelfHosted',
-    href: '#',
+    getStartedRoute: 'v2download',
     priceMonthly: 0,
     description: 'Run Sturdy yourself, free forever.',
     show: showTrue,
@@ -286,7 +277,6 @@ const allTiers = [
   {
     name: 'Enterprise',
     getStartedRoute: 'v2download',
-    href: '#',
     priceMonthly: 30,
     description: 'Advanced features, run anywhere.',
     show: showTrue,
@@ -294,7 +284,6 @@ const allTiers = [
   {
     name: 'Cloud',
     getStartedRoute: 'v2download',
-    href: '#',
     priceMonthly: 30,
     description: 'Get started for free, with Sturdy in the cloud. No credit card required.',
     show: showTrue,
@@ -326,7 +315,7 @@ const allSections: Section[] = [
       {
         name: 'Benefits',
         tiers: {
-          'Open Source': 'Great for small teams',
+          'Open Source': 'Free software, enjoy the core of Sturdy!',
           Free: 'Great for small teams',
           Enterprise: 'Easy migration and incremental migration to Sturdy.',
           Cloud: 'Scales as needed, easy pricing.',
@@ -676,6 +665,10 @@ const allSections: Section[] = [
 
 export default defineComponent({
   components: {
+    PricingButton,
+    PricingTierSummaryItem,
+    PricingTierSummaryItemArrow,
+    PricingTierSummary,
     DocumentationStickyHeader,
     CheckIcon,
     MinusIcon,
