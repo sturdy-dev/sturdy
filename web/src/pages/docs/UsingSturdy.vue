@@ -35,7 +35,43 @@
           </li>
         </ol>
 
-        <h2 id="import-a-repository">Setup Sturdy on a GitHub repository</h2>
+        <h2 id="first-codebase">Your first codebase</h2>
+        <p>In Sturdy you can create a codebase in two ways:</p>
+        <ul>
+          <li>Create new codebases [<a href="#create-a-codebase">go to</a>]</li>
+          <li>
+            Connect one or multiple existing repositories from GitHub [<a
+              href="#import-a-repository"
+              >go to</a
+            >]
+          </li>
+        </ul>
+
+        <DocsInfoBox>
+          If you are running a self-hosted Sturdy instance and would like to connect a GitHub
+          repository, you will need to first perform additional setup.
+          <br />
+          Follow
+          <router-link :to="{ name: 'v2DocsSelfHosted', hash: '#setup-github-integration' }"
+            >this guide</router-link
+          >
+          before continuing.
+        </DocsInfoBox>
+
+        <h3 id="create-a-codebase">Create a Sturdy standalone codebase</h3>
+        <ol>
+          <li>Click on the three dots icon in the top left corner and select "New codebase"</li>
+          <li>Type in a codebase name and press "Create"</li>
+        </ol>
+
+        <h3 id="import-a-repository">Setup Sturdy on a GitHub repository</h3>
+        <p>
+          Repositories imported from GitHub will remain up-to-date with changes made outside of
+          Sturdy (<router-link
+            :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub', hash: '#source-of-truth' }"
+            >Read more</router-link
+          >).
+        </p>
         <ol>
           <li>Click on the three dots icon in the top left corner and select "Settings"</li>
           <li>Go to the GitHub-tab</li>
