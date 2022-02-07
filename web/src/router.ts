@@ -213,7 +213,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/v2/pricing',
-    component: () => import('./pages/Pricingv2.vue'),
+    component: () => import('./pages/Pricing.vue'),
     name: 'v2pricing',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
