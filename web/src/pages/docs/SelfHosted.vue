@@ -195,6 +195,11 @@
           The published Docker image <code>getsturdy/server</code> contains Sturdy Enterprise, and
           is licensed under the Sturdy Enterprise License.
         </p>
+
+        <h2 id="next-steps">Next steps</h2>
+        For a getting started guide, refer to the
+        <router-link :to="{ name: 'v2DocsUsingSturdy' }">Using Sturdy</router-link>
+        page.
       </div>
     </template>
   </DocumentationWithTableOfContents>
