@@ -82,7 +82,7 @@
                 <CogIcon />
               </template>
               <span>
-                <span class="text-purple-400">Try each others code &mdash;</span> <br />
+                <span class="text-purple-400">Try each other's code &mdash;</span> <br />
                 instead of guessing what a pull request does and LGTM-ing anyway.
               </span>
             </MiniUsp>
