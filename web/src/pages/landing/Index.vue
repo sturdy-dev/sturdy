@@ -197,9 +197,12 @@
           <div class="mt-8 flex flex-col sm:flex-row gap-10 tracking-tight">
             <div
               :class="[
-                collabSelection === 'trying-code' ? 'border-purple-400/30' : 'border-transparent',
+                collabSelection === 'trying-code'
+                  ? 'border-purple-400/30'
+                  : 'border-transparent cursor-pointer hover:bg-purple-400/5',
                 'flex flex-col p-2 border rounded',
               ]"
+              @click="collabSelection = 'trying-code'"
             >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <PlayIcon class="w-8 h-8 mr-2" />
@@ -209,10 +212,8 @@
 
               <div
                 :class="[
-                  collabSelection !== 'trying-code' ? 'cursor-pointer hover:text-slate-50/80' : '',
                   'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
                 ]"
-                @click="collabSelection = 'trying-code'"
               >
                 See it in action
                 <ChevronRightIcon class="h-4 w-4 ml-1" />
@@ -222,9 +223,10 @@
               :class="[
                 collabSelection === 'suggesting-code'
                   ? 'border-purple-400/30'
-                  : 'border-transparent',
+                  : 'border-transparent cursor-pointer hover:bg-purple-400/5',
                 'flex flex-col p-2 border rounded',
               ]"
+              @click="collabSelection = 'suggesting-code'"
             >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <LightBulbIcon class="w-8 h-8 mr-2" />
@@ -234,12 +236,8 @@
 
               <div
                 :class="[
-                  collabSelection !== 'suggesting-code'
-                    ? 'cursor-pointer hover:text-slate-50/80'
-                    : '',
                   'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
                 ]"
-                @click="collabSelection = 'suggesting-code'"
               >
                 See it in action
                 <ChevronRightIcon class="h-4 w-4 ml-1" />
@@ -247,9 +245,12 @@
             </div>
             <div
               :class="[
-                collabSelection === 'taking-code' ? 'border-purple-400/30' : 'border-transparent',
+                collabSelection === 'taking-code'
+                  ? 'border-purple-400/30'
+                  : 'border-transparent cursor-pointer hover:bg-purple-400/5',
                 'flex flex-col p-2 border rounded',
               ]"
+              @click="collabSelection = 'taking-code'"
             >
               <h1 class="flex items-center text-purple-400 font-semibold tracking-tight highlight">
                 <CheckCircleIcon class="w-8 h-8 mr-2" />
@@ -259,10 +260,8 @@
 
               <div
                 :class="[
-                  collabSelection !== 'taking-code' ? 'cursor-pointer hover:text-slate-50/80' : '',
                   'mt-2 text-sm text-slate-400/80 font-semibold tracking-tight inline-flex group inline-flex items-center h-9',
                 ]"
-                @click="collabSelection = 'taking-code'"
               >
                 See it in action
                 <ChevronRightIcon class="h-4 w-4 ml-1" />
@@ -409,7 +408,7 @@
       <section id="get-started" class="relative">
         <div class="px-6 pt-16 max-w-6xl mx-auto items-center text-center">
           <h1 class="text-slate-50 uppercase text-sm font-bold tracking-widest">
-            Begin you Sturdy journey
+            Begin your Sturdy journey
           </h1>
 
           <div class="mt-12 flex flex-col md:flex-row gap-20">
