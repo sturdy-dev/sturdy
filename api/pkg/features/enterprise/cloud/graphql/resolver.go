@@ -13,7 +13,7 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 		resolvers.FeatureBuildkite,
 		resolvers.FeatureGitHub,
 		resolvers.FeatureMultiTenancy,
-		resolvers.FeatureEmailAuth,
-		resolvers.OrganizationSubscriptions,
+		resolvers.FeatureEmails,
+		resolvers.FeatureOrganizationSubscriptions,
 	}
 }

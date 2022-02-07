@@ -41,7 +41,7 @@ export default {
   },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isEmailAuthEnabled = computed(() => features?.value?.includes(Feature.EmailAuth))
+    const isEmailAuthEnabled = computed(() => features?.value?.includes(Feature.Emails))
     return {
       isEmailAuthEnabled,
     }

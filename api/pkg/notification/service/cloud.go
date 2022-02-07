@@ -1,5 +1,5 @@
-//go:build enterprise
-// +build enterprise
+//go:build cloud
+// +build cloud
 
 package service
 
@@ -14,6 +14,7 @@ var (
 		notification.GitHubRepositoryImported:        true,
 	}
 	supportedChannels = map[notification.Channel]bool{
-		notification.ChannelWeb: true,
+		notification.ChannelEmail: true,
+		notification.ChannelWeb:   true,
 	}
 )

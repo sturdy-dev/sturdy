@@ -20,13 +20,6 @@ func NewPreferences(
 	}
 }
 
-var (
-	supportedChannels = map[notification.Channel]bool{
-		notification.ChannelEmail: true,
-		notification.ChannelWeb:   true,
-	}
-)
-
 // Update updates or creates a preference.
 func (s *Preferences) Update(
 	ctx context.Context,

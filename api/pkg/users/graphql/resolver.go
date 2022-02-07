@@ -41,7 +41,7 @@ func NewResolver(
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver,
 
 	logger *zap.Logger,
-) resolvers.UserRootResolver {
+) *UserDataloader {
 	return NewDataloader(&userRootResolver{
 		userRepo:                 userRepo,
 		notificationSettingsRepo: notificationSettingsRepo,
@@ -54,7 +54,7 @@ func NewResolver(
 	}, logger)
 }
 
-func (r *userRootResolver) InternalUser(id string) (resolvers.UserResolver, error) {
+func (r *userRootResolver) InternalUser(ctx context.Context, id string) (resolvers.UserResolver, error) {
 	user, err := r.userRepo.Get(id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -132,15 +132,7 @@ func (r *userRootResolver) UpdateUser(ctx context.Context, args resolvers.Update
 }
 
 func (r *userRootResolver) VerifyEmail(ctx context.Context, args resolvers.VerifyEmailArgs) (resolvers.UserResolver, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	usr, err := r.userService.VerifyEmail(ctx, userID, args.Input.Token)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	return &userResolver{root: r, u: usr}, nil
+	return nil, gqlerrors.Error(gqlerrors.ErrNotImplemented)
 }
 
 type userResolver struct {

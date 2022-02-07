@@ -11,9 +11,8 @@ const (
 	FeatureGitHub       Feature = "GitHub"
 	FeatureMultiTenancy Feature = "MultiTenancy"
 
-	OrganizationSubscriptions Feature = "OrganizationSubscriptions"
-	SelfHostedLicense         Feature = "SelfHostedLicense"
+	FeatureOrganizationSubscriptions Feature = "OrganizationSubscriptions"
+	SelfHostedLicense                Feature = "SelfHostedLicense"
 
-	FeaturePasswordAuth Feature = "PasswordAuth"
-	FeatureEmailAuth    Feature = "EmailAuth"
+	FeatureEmails Feature = "Emails"
 )

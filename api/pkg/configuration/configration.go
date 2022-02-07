@@ -7,7 +7,6 @@ import (
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/emails"
 	"getsturdy.com/api/pkg/gitserver"
 	"getsturdy.com/api/pkg/http"
 	"getsturdy.com/api/pkg/logger"
@@ -30,7 +29,6 @@ type Base struct {
 	HTTP     *http.Configuration           `flags-group:"http" namespace:"http"`
 	Git      *gitserver.Configuration      `flags-group:"git" namespace:"git"`
 	Pprof    *pprof.Configuration          `flags-group:"pprof" namespace:"pprof"`
-	Emails   *emails.Configuration         `flags-group:"emails" namespace:"emails"`
 	Queue    *queue.Configuration          `flags-group:"queue" namespace:"queue"`
 	Metrics  *metrics.Configuration        `flags-group:"metrics" namespace:"metrics"`
 	Logger   *logger.Configuration         `flags-group:"logger" namespace:"logger"`

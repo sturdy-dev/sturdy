@@ -196,7 +196,10 @@ RUN ARCH="$(uname -m)" \
     && tar -C / -Jxpf "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" \
     && rm "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz"
 COPY oneliner/etc /etc
-ENV S6_KILL_GRACETIME=0 \
+ENV LANG="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8" \
+    LC_ALL="C" \
+    S6_KILL_GRACETIME=0 \
     S6_SERVICES_GRACETIME=0 \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000 \
     STURDY_GITHUB_APP_ID=0 \

@@ -20,7 +20,7 @@ import (
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/emails"
+	module_emails "getsturdy.com/api/pkg/emails/module"
 	module_email_transactional "getsturdy.com/api/pkg/emails/transactional/module"
 	module_events "getsturdy.com/api/pkg/events"
 	module_features "getsturdy.com/api/pkg/features/module"
@@ -71,7 +71,6 @@ func main() {
 
 		c.Import(aws.Module)
 		c.Import(db.Module)
-		c.Import(emails.Module)
 		c.Import(metrics.Module)
 		c.Import(pprof.Module)
 		c.Import(queue.Module)
@@ -86,6 +85,7 @@ func main() {
 		c.Import(module_codebase_acl.Module)
 		c.Import(module_comments.Module)
 		c.Import(module_configuration.Module)
+		c.Import(module_emails.Module)
 		c.Import(module_email_transactional.Module)
 		c.Import(module_events.Module)
 		c.Import(module_features.Module)

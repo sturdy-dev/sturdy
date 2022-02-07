@@ -27,7 +27,6 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 	ff := []resolvers.Feature{
 		resolvers.FeatureBuildkite,
 		resolvers.SelfHostedLicense,
-		resolvers.FeaturePasswordAuth,
 	}
 	if r.isGitHubEnabled() {
 		ff = append(ff, resolvers.FeatureGitHub)

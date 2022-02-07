@@ -146,11 +146,14 @@
 
           <div>
             <div>
-              <h2 class="text-lg leading-6 font-medium text-gray-900">Notifications and emails</h2>
+              <h2 v-if="isEmailsEnabled" class="text-lg leading-6 font-medium text-gray-900">
+                Notifications and emails
+              </h2>
+              <h2 v-else class="text-lg leading-6 font-medium text-gray-900">Notifications</h2>
               <p class="mt-1 text-sm text-gray-500">If you want Sturdy to contact you</p>
             </div>
 
-            <VerifyEmail :email-verified="data.user.emailVerified" />
+            <VerifyEmail v-if="isEmailsEnabled" :email-verified="data.user.emailVerified" />
 
             <NotificationPreferences
               :preferences="data.user.notificationPreferences"
@@ -218,7 +221,8 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
-    const isPasswordAuthEnabled = computed(() => features?.value?.includes(Feature.PasswordAuth))
+    const isPasswordAuthEnabled = computed(() => features?.value?.includes(Feature.Emails))
+    const isEmailsEnabled = computed(() => features?.value?.includes(Feature.Emails))
 
     let { data, fetching, error, executeQuery } = useQuery({
       query: gql`
@@ -289,6 +293,7 @@ export default defineComponent({
     return {
       isGitHubEnabled,
       isPasswordAuthEnabled,
+      isEmailsEnabled,
 
       data,
       fetching,

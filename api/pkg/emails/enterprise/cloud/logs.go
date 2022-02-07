@@ -1,12 +1,13 @@
-package emails
+package cloud
 
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/emails"
 	"go.uber.org/zap"
 )
 
-var _ Sender = &logsClient{}
+var _ emails.Sender = &logsClient{}
 
 type logsClient struct {
 	logger *zap.Logger
@@ -18,7 +19,7 @@ func NewLogs(logger *zap.Logger) *logsClient {
 	}
 }
 
-func (s *logsClient) Send(ctx context.Context, msg *Email) error {
+func (s *logsClient) Send(ctx context.Context, msg *emails.Email) error {
 	s.logger.Info(
 		"would have sent an email",
 		zap.Any("message", msg),

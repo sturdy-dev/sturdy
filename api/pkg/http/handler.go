@@ -154,11 +154,8 @@ func ProvideHandler(
 	publ.POST("/v3/auth", routes_v3_user.Login(logger, userRepo, analyticsClient, jwtService))
 	publ.POST("/v3/users", routes_v3_user.Signup(logger, userService, jwtService, analyticsClient))
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
-	publ.POST("/v3/auth/magic-link/send", routes_v3_user.SendMagicLink(logger, userService))
-	publ.POST("/v3/auth/magic-link/verify", routes_v3_user.VerifyMagicLink(logger, userService, jwtService))
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))
 	auth.POST("/v3/auth/renew-token", routes_v3_user.RenewToken(logger, userRepo, jwtService))
-	auth.POST("/v3/users/verify-email", routes_v3_user.SendEmailVerification(logger, userService))                                                                                                    // Used by the web (2021-11-14)
 	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(userRepo))                                                                                                                        // Used by the web (2021-10-04)
 	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                // Used by the command line client
 	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                    // Used by the web (2021-10-04)
