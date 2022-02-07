@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/users/service"
 )
 
-const maxUsersWithoutLicense = 20
+const maxUsersWithoutLicense = 10
 
 type Service struct {
 	*service.UserSerice

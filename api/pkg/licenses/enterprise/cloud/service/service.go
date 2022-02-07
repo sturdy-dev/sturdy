@@ -95,7 +95,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 			{
 				Type:  licenses.TypeFullscreen,
 				Level: licenses.LevelError,
-				Text:  fmt.Sprintf("Your license has expired %s", timediff.TimeDiff(license.ExpiresAt)),
+				Text:  fmt.Sprintf("The license expired %s", timediff.TimeDiff(license.ExpiresAt)),
 			},
 		}, nil
 	}
@@ -106,7 +106,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 		messages = append(messages, &licenses.Message{
 			Type:  licenses.TypeBanner,
 			Level: licenses.LevelWarning,
-			Text:  fmt.Sprintf("Your license will expire  %s", timediff.TimeDiff(license.ExpiresAt)),
+			Text:  fmt.Sprintf("The license will expire in %s", timediff.TimeDiff(license.ExpiresAt)),
 		})
 	}
 
@@ -122,7 +122,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 				{
 					Type:  licenses.TypeBanner,
 					Level: licenses.LevelWarning,
-					Text:  "We didn't receive any statistics for this license yet. Please make sure that your installation sends statistics, otherwise, your license will be considered invalid.",
+					Text:  "Sturdy hasn't heard from this installation yet. Please make sure that the installation can connect to the cloud, otherwise, this license will be considered invalid.",
 				},
 			}, nil
 		} else if len(validations) > 3 {
@@ -130,7 +130,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 				{
 					Type:  licenses.TypeBanner,
 					Level: licenses.LevelWarning,
-					Text:  "We didn't receive any statistics for this license.",
+					Text:  "Sturdy has not heard from this license yet.",
 				},
 			}, nil
 
@@ -145,7 +145,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 		messages = append(messages, &licenses.Message{
 			Type:  licenses.TypeBanner,
 			Level: licenses.LevelWarning,
-			Text:  "We didn't receive any statistics for this license in the last 3 hours. Please make sure that your installation sends statistics, otherwise, your license will be considered invalid.",
+			Text:  "Sturdy has not heard from this installation in the last 3 hours. Please make sure that the installation sends statistics, otherwise, this license will be considered invalid.",
 		})
 	}
 
@@ -153,7 +153,7 @@ func (s *Service) validate(ctx context.Context, license *licenses.License) (lice
 		return licenses.StatusInvalid, append(messages, &licenses.Message{
 			Type:  licenses.TypeFullscreen,
 			Level: licenses.LevelError,
-			Text:  "We didn't receive any statistics for this license in the last 24 hours.",
+			Text:  "Sturdy has not heard from this installation in the last 24 hours.",
 		}), nil
 	}
 
