@@ -29,7 +29,7 @@
           </li>
           <li>
             <router-link :to="{ name: 'v2download' }">
-              Download and install the Sturdy app for macOS and Windows
+              Download and install the Sturdy app for macOS or Windows
             </router-link>
           </li>
           <li>Start the app</li>
