@@ -11,7 +11,7 @@ import (
 	module_api "getsturdy.com/api/pkg/api/module"
 	module_auth "getsturdy.com/api/pkg/auth/module"
 	module_author "getsturdy.com/api/pkg/author/module"
-	"getsturdy.com/api/pkg/aws"
+	module_aws "getsturdy.com/api/pkg/aws/module"
 	module_change "getsturdy.com/api/pkg/change/module"
 	module_ci "getsturdy.com/api/pkg/ci/module"
 	module_codebase_acl "getsturdy.com/api/pkg/codebase/acl/module"
@@ -46,7 +46,7 @@ import (
 	module_pki "getsturdy.com/api/pkg/pki/module"
 	"getsturdy.com/api/pkg/pprof"
 	module_presence "getsturdy.com/api/pkg/presence/module"
-	"getsturdy.com/api/pkg/queue"
+	module_queue "getsturdy.com/api/pkg/queue/module"
 	module_review "getsturdy.com/api/pkg/review/module"
 	module_servicetokens "getsturdy.com/api/pkg/servicetokens/module"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
@@ -69,12 +69,11 @@ func main() {
 			return ctx
 		})
 
-		c.Import(aws.Module)
 		c.Import(db.Module)
 		c.Import(metrics.Module)
 		c.Import(pprof.Module)
-		c.Import(queue.Module)
 
+		c.Import(module_aws.Module)
 		c.Import(module_analytics.Module)
 		c.Import(module_api.Module)
 		c.Import(module_auth.Module)
@@ -109,6 +108,7 @@ func main() {
 		c.Import(module_organization.Module)
 		c.Import(module_pki.Module)
 		c.Import(module_presence.Module)
+		c.Import(module_queue.Module)
 		c.Import(module_review.Module)
 		c.Import(module_servicetokens.Module)
 		c.Import(module_snapshots.Module)

@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"getsturdy.com/api/pkg/analytics/proxy"
-	"getsturdy.com/api/pkg/aws"
 	service_change "getsturdy.com/api/pkg/change/service"
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/db"
@@ -12,7 +11,6 @@ import (
 	"getsturdy.com/api/pkg/logger"
 	"getsturdy.com/api/pkg/metrics"
 	"getsturdy.com/api/pkg/pprof"
-	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/vcs/provider"
 
 	"github.com/jessevdk/go-flags"
@@ -21,7 +19,6 @@ import (
 type Base struct {
 	di.Out
 
-	AWS      *aws.Configuration            `flags-group:"aws" namespace:"aws"`
 	Provider *provider.Configuration       `flags-group:"vcs" namespace:"vcs"`
 	DB       *db.Configuration             `flags-group:"db" namespace:"db"`
 	CI       *service_ci.Configuration     `flags-group:"ci" namespace:"ci"`
@@ -29,7 +26,6 @@ type Base struct {
 	HTTP     *http.Configuration           `flags-group:"http" namespace:"http"`
 	Git      *gitserver.Configuration      `flags-group:"git" namespace:"git"`
 	Pprof    *pprof.Configuration          `flags-group:"pprof" namespace:"pprof"`
-	Queue    *queue.Configuration          `flags-group:"queue" namespace:"queue"`
 	Metrics  *metrics.Configuration        `flags-group:"metrics" namespace:"metrics"`
 	Logger   *logger.Configuration         `flags-group:"logger" namespace:"logger"`
 }
