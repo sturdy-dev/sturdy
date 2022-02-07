@@ -240,12 +240,7 @@
       </router-link>
 
       <div class="flex space-x-2">
-        <NotificationIcon
-          v-if="user"
-          :features="features"
-          :user="user"
-          class="justify-center inline-flex"
-        />
+        <NotificationIcon v-if="user" :user="user" class="justify-center inline-flex" />
         <router-link
           :to="{ name: 'user' }"
           class="p-2 hover:bg-warmgray-300 text-gray-400 hover:text-gray-700 transition rounded-md"
