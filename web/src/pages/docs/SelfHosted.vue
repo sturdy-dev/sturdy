@@ -132,6 +132,8 @@
               <li>Pull Request</li>
               <li>Pull request review</li>
               <li>Push</li>
+              <li>Status</li>
+              <li>Workflow job</li>
             </ul>
           </li>
 
@@ -156,18 +158,35 @@
 
         <pre>{{ dockerOnelinerWithGithub }}</pre>
 
-        <p>
-          Note that your github private key must be inside the
-          <em>$HOME/.sturdydata</em> directory.
-        </p>
+        <h3>Options</h3>
+
+        <ul>
+          <li>
+            <code>STURDY_GITHUB_APP_ID</code> &mdash; The "App ID" from GitHub (example: "170000")
+          </li>
+          <li>
+            <code>STURDY_GITHUB_APP_CLIENT_ID</code> &mdash; The "Client ID" from GitHub (example:
+            "Iv1.36afeeee456ff123")
+          </li>
+          <li>
+            <code>STURDY_GITHUB_APP_SECRET</code> &mdash; Generate a new client secret from GitHub
+            (example: "aaa655ad971xxxxxxxxxxxxxxxxxxxxxxxx88e4b")
+          </li>
+          <li>
+            <code>STURDY_GITHUB_APP_PRIVATE_KEY_PATH</code> &mdash; The path to the GitHub App
+            private key. Note that this is the path from <em>inside</em> the container. Copy the
+            file to <code>$HOME/.sturdydata/github-private.key</code> on the host (outside of
+            Docker) and access the file as <code>/var/data/github-private.key</code>.
+          </li>
+        </ul>
 
         <p>Congratulations! You are now ready to use Sturdy with GitHub integration.</p>
 
         <DocsInfoBox
           >To learn more about how to use GitHub integration, see
           <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }"
-            >How to setup Sturdy on GitHub</router-link
-          >
+            >How to setup Sturdy on GitHub
+          </router-link>
         </DocsInfoBox>
 
         <h2 id="license">License</h2>
@@ -215,8 +234,7 @@ export default defineComponent({
       dockerOneliner: DOCKER_ONELINER,
       dockerOnelinerWithGithub: DOCKER_ONELINER.replace(
         'getsturdy/server',
-        `--env STURDY_GITHUB_APP_ID=&lt;id> \\
-    --env STURDY_GITHUB_APP_NAME=<name> \\
+        `--env STURDY_GITHUB_APP_ID=<id> \\
     --env STURDY_GITHUB_APP_CLIENT_ID=<client_id> \\
     --env STURDY_GITHUB_APP_SECRET=<secret> \\
     --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/<filename> \\

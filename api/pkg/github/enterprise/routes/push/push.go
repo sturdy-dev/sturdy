@@ -50,7 +50,7 @@ func HandlePushEvent(
 	changeCommitRepo db_change.CommitRepository,
 	executorProvider executor.Provider,
 	gitHubAppConfig *config.GitHubAppConfig,
-	githubClientProvider client.ClientProvider,
+	githubClientProvider client.InstallationClientProvider,
 	eventsSender events.EventSender,
 	analyticsClient analytics.Client,
 	reviewRepo db_review.ReviewRepository,

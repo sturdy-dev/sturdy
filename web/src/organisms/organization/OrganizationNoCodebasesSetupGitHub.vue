@@ -75,6 +75,7 @@
         <div>
           <div class="mt-5 space-x-2 flex">
             <GitHubConnectButton
+              v-if="gitHubApp"
               :git-hub-account="gitHubAccount"
               :git-hub-app="gitHubApp"
               already-installed-text="Update installation"
@@ -82,6 +83,13 @@
               color="blue"
               :state-path="gitHubRedirect"
             />
+            <LinkButton
+              v-else
+              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+              target="_blank"
+            >
+              Read the docs
+            </LinkButton>
           </div>
         </div>
       </div>
@@ -94,9 +102,10 @@ import { CheckIcon } from '@heroicons/vue/solid/esm'
 import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
 import { defineComponent } from 'vue'
 import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
+import LinkButton from '../../components/shared/LinkButton.vue'
 
 export default defineComponent({
-  components: { GitHubConnectButton, CheckIcon, RouterLinkButton },
+  components: { GitHubConnectButton, CheckIcon, RouterLinkButton, LinkButton },
   props: {
     showStartFromScratch: {
       type: Boolean,
@@ -104,11 +113,13 @@ export default defineComponent({
     },
     gitHubApp: {
       type: Object,
-      required: true,
+      required: false,
+      default: null,
     },
     gitHubAccount: {
       type: Object,
       default: null,
+      required: false,
     },
   },
   computed: {

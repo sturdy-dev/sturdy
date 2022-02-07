@@ -9,9 +9,9 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/notification"
-	"getsturdy.com/api/pkg/events"
 
 	"github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
@@ -144,7 +144,7 @@ func (svc *Service) authAsUserOrFallbackAsApp(userID *string, installationID int
 	}
 
 	// Fallback to authenticating as the app, note tough that this is a worse option. As requests from the app might not see all users.
-	tokenClient, _, err := svc.gitHubClientProvider(
+	tokenClient, _, err := svc.gitHubInstallationClientProvider(
 		svc.gitHubAppConfig,
 		installationID,
 	)

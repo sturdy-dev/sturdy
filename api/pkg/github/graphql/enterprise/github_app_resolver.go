@@ -9,11 +9,13 @@ import (
 
 type gitHubAppRootResolver struct {
 	conf *config.GitHubAppConfig
+	meta *config.GitHubAppMetadata
 }
 
-func NewGitHubAppRootResolver(conf *config.GitHubAppConfig) resolvers.GitHubAppRootResolver {
+func NewGitHubAppRootResolver(conf *config.GitHubAppConfig, meta *config.GitHubAppMetadata) resolvers.GitHubAppRootResolver {
 	return &gitHubAppRootResolver{
 		conf: conf,
+		meta: meta,
 	}
 }
 
@@ -30,7 +32,7 @@ func (r *gitHubAppResolver) ID() graphql.ID {
 }
 
 func (r *gitHubAppResolver) Name() string {
-	return r.root.conf.Name
+	return r.root.meta.Name
 }
 
 func (r *gitHubAppResolver) ClientID() string {

@@ -51,7 +51,7 @@ func ProvideHandler(
 	gitHubUserRepo db_github.GitHubUserRepo,
 	gitHubPRRepo db_github.GitHubPRRepo,
 	gitHubAppConfig *config.GitHubAppConfig,
-	gitHubClientProvider ghappclient.ClientProvider,
+	gitHubClientProvider ghappclient.InstallationClientProvider,
 	gitHubClonerPublisher *workers_github.ClonerQueue,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	executorProvider executor.Provider,

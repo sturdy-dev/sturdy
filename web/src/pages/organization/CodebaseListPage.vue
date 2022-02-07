@@ -119,20 +119,13 @@
         </div>
 
         <OrganizationNoCodebasesSetupGitHub
-          v-if="
-            isGitHubEnabled &&
-            data &&
-            (data.organization.codebases.length === 0 || !data.user.gitHubAccount)
-          "
+          v-if="showGitHubSetupBanner"
           :git-hub-account="data.user.gitHubAccount"
           :git-hub-app="data.gitHubApp"
           :show-start-from-scratch="true"
         />
 
-        <div
-          v-if="!isGitHubEnabled && data && data.organization.codebases.length === 0"
-          class="bg-gray-100 sm:rounded-lg"
-        >
+        <div v-if="showStandaloneSetupBanner" class="bg-gray-100 sm:rounded-lg">
           <div class="flex justify-between px-4 py-5 sm:p-6">
             <div>
               <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -176,6 +169,7 @@ import VerticalNavigation from '../../organisms/organization/VerticalNavigation.
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import OrganizationNoCodebasesSetupGitHub from '../../organisms/organization/OrganizationNoCodebasesSetupGitHub.vue'
 import CurvedRightIcon from '../../molecules/icons/CurvedRightIcon.vue'
+import LinkButton from '../../components/shared/LinkButton.vue'
 
 export default defineComponent({
   components: {
@@ -195,6 +189,9 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isGitHubNotConfigured = computed(() =>
+      features?.value?.includes(Feature.GitHubNotConfigured)
+    )
 
     let route = useRoute()
 
@@ -270,10 +267,23 @@ export default defineComponent({
       error: result.error,
 
       isGitHubEnabled,
+      isGitHubNotConfigured,
     }
   },
-  data() {
-    return {}
+  computed: {
+    serverCanGitHub() {
+      return this.isGitHubEnabled || this.isGitHubNotConfigured
+    },
+    showGitHubSetupBanner() {
+      return (
+        this.serverCanGitHub &&
+        this.data &&
+        (this.data.organization.codebases.length === 0 || !this.data.user.gitHubAccount)
+      )
+    },
+    showStandaloneSetupBanner() {
+      return !this.serverCanGitHub && this.data && this.data.organization.codebases.length === 0
+    },
   },
   watch: {
     error: function (err) {

@@ -45,7 +45,7 @@ func (svc *Service) Clone(
 
 	ctx := context.Background()
 
-	accessToken, err := ghappclient.GetFirstAccessToken(ctx, svc.gitHubAppConfig, installation, gitHubRepositoryID, svc.gitHubClientProvider)
+	accessToken, err := ghappclient.GetFirstAccessToken(ctx, svc.gitHubAppConfig, installation, gitHubRepositoryID, svc.gitHubInstallationClientProvider)
 	if err != nil {
 		logger.Error("temporary log: could not get github access token", zap.Error(err))
 
@@ -57,7 +57,7 @@ func (svc *Service) Clone(
 		return fmt.Errorf("could not get github access token: %w", err)
 	}
 
-	tokenClient, _, err := svc.gitHubClientProvider(svc.gitHubAppConfig, installationID)
+	tokenClient, _, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, installationID)
 	if err != nil {
 		return fmt.Errorf("could not get github client token: %w", err)
 	}
@@ -226,7 +226,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(ctx context.Context,
 }
 
 func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID, organizationID string) (*codebase.Codebase, error) {
-	client, _, err := ghappclient.NewClient(svc.gitHubAppConfig, installationID)
+	client, _, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get github client: %w", err)
 	}
@@ -246,11 +246,11 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 	_, existingInstallationErr := svc.gitHubInstallationRepo.GetByInstallationID(installationID)
 	switch {
 	case errors.Is(existingInstallationErr, sql.ErrNoRows):
-		_, jwtClient, err := ghappclient.NewClient(svc.gitHubAppConfig, installationID)
+		_, appsClient, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
 		if err != nil {
 			return nil, fmt.Errorf("could not get github client: %w", err)
 		}
-		installation, _, err := jwtClient.Apps.GetInstallation(ctx, installationID)
+		installation, _, err := appsClient.GetInstallation(ctx, installationID)
 		if err != nil {
 			return nil, fmt.Errorf("could not get installation metadata from github: %w", err)
 		}

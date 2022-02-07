@@ -204,7 +204,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		return nil, err
 	}
 
-	accessToken, err := client.GetAccessToken(ctx, logger, svc.gitHubAppConfig, ghInstallation, ghRepo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubClientProvider)
+	accessToken, err := client.GetAccessToken(ctx, logger, svc.gitHubAppConfig, ghInstallation, ghRepo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	}
 
 	// GitHub client to be used on behalf of the app
-	tokenClient, _, err := svc.gitHubClientProvider(
+	tokenClient, _, err := svc.gitHubInstallationClientProvider(
 		svc.gitHubAppConfig,
 		ghRepo.InstallationID,
 	)
