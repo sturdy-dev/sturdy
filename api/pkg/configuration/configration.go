@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"getsturdy.com/api/pkg/analytics/proxy"
+	"getsturdy.com/api/pkg/aws"
 	service_change "getsturdy.com/api/pkg/change/service"
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/db"
@@ -19,6 +20,7 @@ import (
 type Base struct {
 	di.Out
 
+	AWS      *aws.Configuration            `flags-group:"aws" namespace:"aws"`
 	Provider *provider.Configuration       `flags-group:"vcs" namespace:"vcs"`
 	DB       *db.Configuration             `flags-group:"db" namespace:"db"`
 	CI       *service_ci.Configuration     `flags-group:"ci" namespace:"ci"`
