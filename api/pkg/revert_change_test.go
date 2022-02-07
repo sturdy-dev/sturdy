@@ -114,7 +114,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
+	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
 	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
 
@@ -453,7 +453,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	userService := service_user.New(zap.NewNop(), userRepo, nil /*jwtService*/, nil /*onetime*/, nil /*emailsender*/, postHogClient)
+	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
