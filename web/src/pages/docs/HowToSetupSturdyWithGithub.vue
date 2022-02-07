@@ -60,6 +60,32 @@
           workspaces so that you can get the code with one click. This will work even if others on
           the team are not using Sturdy.
         </p>
+
+        <h1 id="source-of-truth">Source of truth</h1>
+        <p>
+          When GitHub repositories are connected to Sturdy, this is <strong>more</strong> than just
+          an import at a point in time. Connected repositories can be configured in multiple ways:
+        </p>
+        <ol>
+          <li>
+            <strong>GitHub</strong> as the source of truth &mdash; In this mode, Sturdy will follow
+            changes happening on GitHub. Changes made in Sturdy are merged through GitHub Pull
+            Requests. When Pull Requests are merged on GitHub, they will automatically be synced to
+            Sturdy. This works even when changes are made outside of Sturdy. In this mode, some team
+            members can develop through Sturdy without affecting others who use GitHub directly.
+          </li>
+          <li>
+            <strong>Sturdy</strong> as the source of truth &mdash; In this mode, the state on GitHub
+            follows Sturdy. After a change is shared on Sturdy, it will be pushed to the HEAD branch
+            on GitHub. Changes made directly on GitHub will not be synced to Sturdy. In this mode
+            all development happens through Sturdy.
+          </li>
+          <li>
+            <strong>Disabled</strong> &mdash; The connection can be disabled, in which case the copy
+            of the code on Sturdy and GitHub will diverge.
+          </li>
+        </ol>
+        <p>By default, connected repositories use GitHub as the source of truth.</p>
       </div>
     </template>
   </DocumentationWithTableOfContents>
