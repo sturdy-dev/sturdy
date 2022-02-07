@@ -46,9 +46,6 @@ func TestFileResolver(t *testing.T) {
 		zap.NewNop(),
 		userRepo,
 		nil,
-		nil,
-		nil,
-		nil,
 	)
 
 	aclProvider := provider_acl.New(
