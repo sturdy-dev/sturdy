@@ -149,6 +149,9 @@ export default defineComponent({
             throw err
           }
         })
+        .then(() => {
+          this.licenseKeyInput = null
+        })
         .finally(() => {
           this.reload()
         })
