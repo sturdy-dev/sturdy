@@ -9,6 +9,10 @@ var (
 	BootedAt time.Time = time.Now()
 )
 
+func IsDevelopment() bool {
+	return Version == "development"
+}
+
 type DistributionType uint
 
 const (
