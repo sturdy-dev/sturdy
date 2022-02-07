@@ -22,13 +22,13 @@
         <p>Sturdy-the-product, hosted by Sturdy-the-company.</p>
         <ul>
           <li>10 users per organization is free</li>
-          <li>$10 / user / month (billed monthly)</li>
+          <li>$30 / user / month (billed monthly)</li>
         </ul>
 
         <h2 id="self-hosted-sturdy-enterprise">Self-hosted Sturdy Enterprise</h2>
         <ul>
           <li>Up to 10 users for free</li>
-          <li>$10 / user / month (billed annually, minimum 20 seats)</li>
+          <li>$30 / user / month (billed annually, minimum 20 seats)</li>
           <li>
             Extra used seats (outside of seats included in the license) are pro-rated (billed
             monthly)

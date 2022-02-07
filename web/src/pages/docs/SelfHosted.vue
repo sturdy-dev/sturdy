@@ -165,7 +165,7 @@
 
         <DocsInfoBox
           >To learn more about how to use GitHub integration, see
-          <router-link :to="{ name: 'v2DocsHowToSetupSturdyOnGitHub' }"
+          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }"
             >How to setup Sturdy on GitHub</router-link
           >
         </DocsInfoBox>
