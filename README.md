@@ -6,8 +6,11 @@
 
 ## Features
 
+* Interact with version control at a higher abstraction level (e.g. no need for pushing, pulling, stashing etc.)
+* Discover work-in-progress code within your team in real-time
+* Try your teammate's code locally with a single click
+* Suggest code changes / ideas to a colleague by simply typing in your IDE
 * Cloud or self-hosted!
-* Fast and easy code collaboration, through easy to use workspaces
 * Enhance your existing GitHub setup, or _break free_ and use standalone Sturdy
 
 ## Versions
