@@ -154,18 +154,7 @@
           the app we've just created:
         </p>
 
-        <pre>
-docker run --interactive --tty \
-    --pull always \
-    --publish 30080:80 --publish 30022:22 \
-    --volume "$HOME/.sturdydata:/var/data" \
-    --env STURDY_GITHUB_APP_ID=&lt;id> \
-    --env STURDY_GITHUB_APP_NAME=&lt;name> \
-    --env STURDY_GITHUB_APP_CLIENT_ID=&lt;client_id> \
-    --env STURDY_GITHUB_APP_SECRET=&lt;secret> \
-    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/&lt;filename> \
-        getsturdy/server</pre
-        >
+        <pre>{{ dockerOnelinerWithGithub }}</pre>
 
         <p>
           Note that your github private key must be inside the
@@ -224,6 +213,15 @@ export default defineComponent({
 
     return {
       dockerOneliner: DOCKER_ONELINER,
+      dockerOnelinerWithGithub: DOCKER_ONELINER.replace(
+        'getsturdy/server',
+        `--env STURDY_GITHUB_APP_ID=&lt;id> \\
+    --env STURDY_GITHUB_APP_NAME=&lt;name> \\
+    --env STURDY_GITHUB_APP_CLIENT_ID=&lt;client_id> \\
+    --env STURDY_GITHUB_APP_SECRET=&lt;secret> \\
+    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/&lt;filename> \\
+        getsturdy/server`
+      ),
     }
   },
 })
