@@ -40,7 +40,7 @@
         placeholder="Email address"
       />
 
-      <label for="passowrd" class="sr-only">Password</label>
+      <label for="password" class="sr-only">Password</label>
       <input
         id="password"
         v-model="password"
@@ -59,7 +59,7 @@
       />
 
       <template v-if="signUp">
-        <label for="repeat-passowrd" class="sr-only">Repeat passowrd</label>
+        <label for="repeat-password" class="sr-only">Repeat passowrd</label>
         <input
           id="repeat-password"
           v-model="passwordRepeat"

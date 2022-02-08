@@ -17,7 +17,7 @@
               <div class="flex items-center">
                 <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
                 <CreateViewAndWorkspace
-                  v-if="!showSetupNewView"
+                  v-if="showAppConnectDirectory"
                   :codebase-id="data.codebase.id"
                   :codebase-slug="codebaseSlug"
                 />
@@ -28,7 +28,7 @@
                 <div class="relative">
                   <span class="relative z-0 inline-flex space-x-4">
                     <Button
-                      v-if="currentUserHasAView && !ipc"
+                      v-if="showCliSetupToggleButton"
                       size="wider"
                       color="lightblue"
                       class="hidden lg:inline-flex"
@@ -47,37 +47,25 @@
                       <span>Setup</span>
                     </Button>
 
-                    <Button
-                      size="wider"
-                      @click="
-                        $router.push({
-                          name: 'codebaseChangelog',
-                          params: { codebaseSlug: codebaseSlug },
-                        })
-                      "
-                    >
+                    <RouterLinkButton :to="{ name: 'codebaseChangelog' }" size="wider">
                       <ViewListIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                       <span>Changelog</span>
-                    </Button>
+                    </RouterLinkButton>
 
-                    <Button
+                    <RouterLinkButton
                       v-if="isAuthorized"
+                      :to="{ name: 'codebaseSettings' }"
                       size="wider"
-                      @click="
-                        $router.push({
-                          name: 'codebaseSettings',
-                          params: { codebaseSlug: codebaseSlug },
-                        })
-                      "
                     >
                       <CogIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
                       <span>Settings</span>
-                    </Button>
+                    </RouterLinkButton>
                   </span>
                 </div>
               </div>
             </div>
 
+            <!-- setup new view instructions for both CLI and app -->
             <SetupNewView
               v-if="showSetupNewView"
               :codebase="data.codebase"
@@ -85,6 +73,7 @@
               :codebase-slug="codebaseSlug"
             />
 
+            <!-- TODO(gustav): remove or fix -->
             <ImportFromGit
               v-if="data.codebase.changes?.length === 0 && data.codebase.workspaces.length === 0"
               :codebase-id="data.codebase.id"
@@ -128,12 +117,12 @@
   </PaddedApp>
 </template>
 
-<script>
+<script lang="ts">
 import ArchiveWorkspaceModal from '../components/codebase/ArchiveWorkspaceModal.vue'
 import time from '../time'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 'vue'
 import SetupNewView from '../components/codebase/SetupNewView.vue'
 import Button from '../components/shared/Button.vue'
 import { useHead } from '@vueuse/head'
@@ -150,8 +139,14 @@ import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
 import CreateViewAndWorkspace from '../components/codebase/CreateViewAndWorkspace.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
+import {
+  CodebaseHomeCodebaseQuery,
+  CodebaseHomeCodebaseQueryVariables,
+} from './__generated__/CodebaseHome'
+import { Feature } from '../__generated__/types'
+import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 
-export default {
+export default defineComponent({
   name: 'CodebaseHome',
   components: {
     PaddedApp,
@@ -170,6 +165,7 @@ export default {
     NoFilesCodebase,
     CreateViewAndWorkspace,
     WorkspaceList,
+    RouterLinkButton,
   },
   props: ['user'],
   setup() {
@@ -182,7 +178,10 @@ export default {
       }
     )
 
-    let { data, fetching, error, executeQuery } = useQuery({
+    let { data, fetching, error, executeQuery } = useQuery<
+      CodebaseHomeCodebaseQuery,
+      CodebaseHomeCodebaseQueryVariables
+    >({
       query: gql`
         query CodebaseHomeCodebase($shortCodebaseID: ID!) {
           codebase(shortID: $shortCodebaseID) {
@@ -269,6 +268,9 @@ export default {
       clearInterval(nowInterval)
     })
 
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
+
     return {
       fetching: fetching,
       data: data,
@@ -281,6 +283,8 @@ export default {
       now,
       codebaseSlug,
       ipc: window.ipc,
+
+      isMultiTenancyEnabled,
     }
   },
   data() {
@@ -290,6 +294,13 @@ export default {
     thisIsApp() {
       return !!this.ipc
     },
+
+    showCliSetupToggleButton() {
+      if (!this.isMultiTenancyEnabled) return false
+      if (!this.isAuthorized) return false
+      return false
+    },
+
     showSetupNewView() {
       if (!this.isAuthorized) return false
       return (
@@ -298,6 +309,17 @@ export default {
         this.showSetupInstructions
       )
     },
+
+    showDownloadApp() {
+      if (this.thisIsApp) return false
+      if (this.showSetupNewViewCLI) return false
+      return true
+    },
+
+    showAppConnectDirectory() {
+      return this.isAuthorized && this.thisIsApp
+    },
+
     currentUserHasAView() {
       if (this.data) {
         return this.data.codebase.views.filter((vw) => vw.author.id === this.user?.id).length > 0
@@ -307,6 +329,7 @@ export default {
     isAuthenticated() {
       return !!this.user
     },
+
     isAuthorized() {
       if (this.data) {
         const isMember = this.data.codebase.members.some(({ id }) => id === this.user?.id)
@@ -356,5 +379,5 @@ export default {
       return time.getRelativeTime(new Date(ts * 1000), this.now)
     },
   },
-}
+})
 </script>

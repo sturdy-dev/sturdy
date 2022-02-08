@@ -434,7 +434,6 @@
                 <LiveDetails
                   v-else
                   :view="displayView"
-                  :features="features"
                   :workspace="data.workspace"
                   :mutable="!!mutableView"
                   :is-suggesting="isSuggesting"
@@ -1422,19 +1421,23 @@ export default defineComponent({
     showArchiveModal() {
       this.archiveWorkspaceActive = true
     },
+
     hideArchiveModal() {
       this.archiveWorkspaceActive = false
     },
+
     onWorkspaceArchived() {
       this.$router.push({
         name: 'codebaseHome',
         params: { codebaseSlug: this.$route.params.codebaseSlug },
       })
     },
+
     async preCreateChange() {
       // Save the description right away
       await this.saveDraftDescription()
     },
+
     async createViewInDirectory() {
       if (this.data?.workspace?.id == null) {
         return

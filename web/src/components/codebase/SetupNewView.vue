@@ -7,6 +7,12 @@
           Setup {{ codebase.name }} on your computer
         </p>
       </div>
+      <div v-if="canShowCliInstructions">
+        <Button v-if="!showCliInstructions" @click="showCliInstructions = true">
+          Show server and Linux setup
+        </Button>
+        <Button v-else @click="showCliInstructions = false">Show Sturdy App instructions</Button>
+      </div>
     </div>
     <div class="border-t border-gray-200 px-4 py-5 sm:px-6 text-sm">
       <nav aria-label="Progress">
@@ -118,17 +124,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from '../shared/Button.vue'
 import { CheckIcon, DownloadIcon } from '@heroicons/vue/solid'
-import SetupSturdyInitStep from './SetupSturdyInitStep.vue'
-import SetupSturdyInstallStep from './SetupSturdyInstallStep.vue'
+import SetupSturdyInitStep from '../../molecules/setup/SetupSturdyInitStep.vue'
+import SetupSturdyInstallCliStep from '../../molecules/setup/SetupSturdyInstallCliStep.vue'
+import SetupSturdyInstallAppStep from '../../molecules/setup/SetupSturdyInstallAppStep.vue'
 import { gql, useQuery } from '@urql/vue'
-import SetupSturdyGoToWorkspaceStep, { SETUP_USER_VIEWS } from './SetupSturdyGoToWorkspaceStep.vue'
+import SetupSturdyGoToWorkspaceStep, {
+  SETUP_USER_VIEWS,
+} from '../../molecules/setup/SetupSturdyGoToWorkspaceStep.vue'
 import CreateViewAndWorkspace from './CreateViewAndWorkspace.vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { Feature } from '../../__generated__/types'
 
-export default {
-  name: 'SetupNewView',
+export default defineComponent({
   components: { Button, DownloadIcon, CheckIcon },
   props: {
     codebase: {
@@ -160,30 +170,43 @@ export default {
       `,
       requestPolicy: 'cache-and-network',
     })
+
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
+
     return {
       data,
+
+      isMultiTenancyEnabled,
+    }
+  },
+  data() {
+    return {
+      showCliInstructions: false,
     }
   },
   computed: {
     isApp() {
       return !!window.ipc
     },
+
+    canShowCliInstructions() {
+      return this.isMultiTenancyEnabled
+    },
+
+    showDownloadAppInstructions() {
+      return !this.showCliInstructions && !this.isApp
+    },
+
     haveAnyViewsAnyCodebase() {
       return this.data?.user?.views.length > 0
     },
+
     currentStep() {
       const codebaseHasChanges = this.codebase.changes.length > 0
-      if (this.isApp) {
-        // app steps
-        if (this.currentUserHasAView && codebaseHasChanges) {
-          return 2
-        } else if (this.currentUserHasAView) {
-          return 1
-        }
-        return 0
-      } else {
-        // web steps
-        const codebaseHasChanges = this.codebase.changes.length > 0
+
+      // cli steps
+      if (this.showCliInstructions) {
         const visitedInstallationPage = localStorage.getItem('visitedInstallClient')
         if (this.currentUserHasAView && codebaseHasChanges) {
           return 3
@@ -194,50 +217,83 @@ export default {
         }
         return 0
       }
+
+      // app steps (outside of app)
+      if (this.showDownloadAppInstructions) {
+        return 0
+      }
+
+      // app steps (in-app)
+      if (this.currentUserHasAView && codebaseHasChanges) {
+        return 2
+      } else if (this.currentUserHasAView) {
+        return 1
+      }
+      return 0
     },
     steps() {
-      if (this.isApp) {
+      if (this.showCliInstructions) {
         return [
           {
-            name: 'Setup directory',
-            description: 'Connect Sturdy app to a local directory',
+            name: 'Install Sturdy',
+            description: 'Install the Sturdy CLI',
             status:
-              this.currentStep === 0 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
-            component: CreateViewAndWorkspace,
+              this.currentStep === 0 ? 'current' : this.currentStep > 0 ? 'complete' : 'upcoming',
+            component: SetupSturdyInstallCliStep,
+          },
+          {
+            name: 'Setup directory',
+            description: 'Run this command to connect this codebase to a directory',
+            status:
+              this.currentStep === 1 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
+            component: SetupSturdyInitStep,
           },
           {
             name: 'Start coding',
             description: 'Make your first change to the codebase',
             status:
-              this.currentStep === 1 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
+              this.currentStep === 2 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
             component: SetupSturdyGoToWorkspaceStep,
           },
         ]
       }
+
+      if (this.showDownloadAppInstructions) {
+        return [
+          {
+            name: 'Install Sturdy',
+            description: 'Install the Sturdy App',
+            status:
+              this.currentStep === 0 ? 'current' : this.currentStep > 0 ? 'complete' : 'upcoming',
+            component: SetupSturdyInstallAppStep,
+          },
+          {
+            name: 'Setup directory',
+            description: 'Connect Sturdy app to a local directory',
+            status:
+              this.currentStep === 1 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
+            component: CreateViewAndWorkspace,
+          },
+        ]
+      }
+
       return [
         {
-          name: 'Install Sturdy',
-          description: 'Install the Sturdy app on your computer',
-          status:
-            this.currentStep === 0 ? 'current' : this.currentStep > 0 ? 'complete' : 'upcoming',
-          component: SetupSturdyInstallStep,
-        },
-        {
           name: 'Setup directory',
-          description: 'Run this command to connect this codebase to a directory',
+          description: 'Connect Sturdy app to a local directory',
           status:
-            this.currentStep === 1 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
-          component: SetupSturdyInitStep,
+            this.currentStep === 0 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
+          component: CreateViewAndWorkspace,
         },
         {
           name: 'Start coding',
           description: 'Make your first change to the codebase',
           status:
-            this.currentStep === 2 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
+            this.currentStep === 1 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
           component: SetupSturdyGoToWorkspaceStep,
         },
       ]
     },
   },
-}
+})
 </script>

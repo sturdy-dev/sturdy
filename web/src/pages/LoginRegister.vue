@@ -26,10 +26,9 @@
 <script lang="ts">
 import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
-import { computed, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 
-export default {
-  name: 'LoginRegister',
+export default defineComponent({
   components: {
     EmailAuth,
     PasswordAuth,
@@ -77,5 +76,5 @@ export default {
       await this.$router.push(to)
     },
   },
-}
+})
 </script>

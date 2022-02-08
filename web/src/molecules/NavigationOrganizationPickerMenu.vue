@@ -142,7 +142,7 @@
             </router-link>
           </MenuItem>
 
-          <MenuItem v-if="!ipc && authenticated" v-slot="{ active }">
+          <MenuItem v-if="showInstallCLI" v-slot="{ active }">
             <router-link
               :to="{ name: 'installClient' }"
               :class="[
@@ -158,7 +158,7 @@
             </router-link>
           </MenuItem>
 
-          <MenuItem v-if="!ipc && !authenticated" v-slot="{ active }">
+          <MenuItem v-if="showInstallDownloadApp" v-slot="{ active }">
             <router-link
               :to="{ name: 'download' }"
               :class="[
@@ -249,17 +249,17 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { useRoute } from 'vue-router'
 import {
+  CogIcon,
   DotsVerticalIcon,
   DownloadIcon,
   ExternalLinkIcon,
   HomeIcon,
-  LogoutIcon,
   LoginIcon,
-  SwitchHorizontalIcon,
+  LogoutIcon,
   PlusIcon,
-  CogIcon,
-  UserGroupIcon,
   SupportIcon,
+  SwitchHorizontalIcon,
+  UserGroupIcon,
 } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
 import { defineComponent, inject, PropType, ref, Ref } from 'vue'
@@ -325,6 +325,12 @@ export default defineComponent({
     },
     nonCurrentOrganizations() {
       return this.organizations.filter((org) => org.id !== this.currentOrganization.id)
+    },
+    showInstallCLI() {
+      return !this.ipc && this.authenticated && this.isMultiTenancyEnabled
+    },
+    showInstallDownloadApp() {
+      return !this.ipc && !this.authenticated
     },
   },
   methods: {

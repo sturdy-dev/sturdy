@@ -1,28 +1,25 @@
 <template>
   <div class="flex rounded-md mb-1 mr-1">
-    <Button
-      @click="
-        $router.push({
-          name: 'installClient',
-          params: { codebaseSlug: codebaseSlug },
-        })
-      "
+    <RouterLinkButton
+      :to="{
+        name: 'download',
+      }"
     >
       <DownloadIcon class="w-4 h-4 mr-2" />
-      Install
-    </Button>
+      Download and install Sturdy
+    </RouterLinkButton>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { DownloadIcon } from '@heroicons/vue/solid'
-import Button from '../shared/Button.vue'
+import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
 import { Slug } from '../../slug'
+import { defineComponent } from 'vue'
 
-export default {
-  name: 'SetupSturdyInstallStep',
+export default defineComponent({
   components: {
     DownloadIcon,
-    Button,
+    RouterLinkButton,
   },
   props: ['codebase'],
   computed: {
@@ -30,5 +27,5 @@ export default {
       return Slug(this.codebase.name, this.codebase.shortID)
     },
   },
-}
+})
 </script>
