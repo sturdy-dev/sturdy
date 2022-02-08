@@ -51,7 +51,7 @@ This repository contains both OSS-licensed and non-OSS-licensed files.
 
 All files under any directory named `enterprise` fall under [LICENSE.enterprise](LICENSE.enterprise).
 
-The remaining files fall under [TODO]. 
+The remaining files are licensed under [Apache License, Version 2.0](LICENSE).
 
 <!-- Test: 13 -->
 <!-- 2021-11-23 - Hello from Electron/Windows! -->
