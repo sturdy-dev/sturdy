@@ -11,7 +11,7 @@ import { RoutesApps, RoutesSelfHosted } from './router-apps'
 const buildDocs =
   import.meta.env.VITE_WEB_BUILD_DOCS && import.meta.env.VITE_WEB_BUILD_DOCS === 'true'
 
-const routes = (buildDocs ? RoutesDocs : RoutesSelfHosted).concat(RoutesApps)
+export const routes = (buildDocs ? RoutesDocs : RoutesSelfHosted).concat(RoutesApps)
 
 const routerOpts: Partial<RouterOptions> = {
   routes,
