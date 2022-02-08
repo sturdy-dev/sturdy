@@ -42,10 +42,6 @@ func Error(err error, kv ...string) ResolverError {
 		data[kv[i]] = kv[i+1]
 	}
 
-	// Stack trace
-	// data["trace"] = string(debug.Stack())
-	// data["error"] = err.Error()
-
 	switch {
 	case err == nil:
 		return nil
