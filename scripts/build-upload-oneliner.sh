@@ -30,8 +30,6 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-VERSION="1.0.0"
-
 docker buildx build \
   --platform linux/arm64,linux/amd64 \
   --target oneliner \
