@@ -175,8 +175,8 @@
           </MenuItem>
 
           <MenuItem v-slot="{ active }">
-            <router-link
-              :to="{ name: 'resourcesDocs' }"
+            <a
+              href="https://getsturdy.com/docs"
               :class="[
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                 'group flex items-center px-4 py-2 text-sm',
@@ -188,7 +188,7 @@
                 aria-hidden="true"
               />
               Help
-            </router-link>
+            </a>
           </MenuItem>
 
           <MenuItem v-slot="{ active }">
