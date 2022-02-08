@@ -238,8 +238,8 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{ name: 'v2DocsHowSturdyAugmentsGit' }">
-              How Sturdy augments Git
+            <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }">
+              How Sturdy interacts with Git
             </router-link>
           </li>
           <li>

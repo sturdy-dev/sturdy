@@ -47,9 +47,7 @@
             <code>30080</code> and
             <code>30022</code>
           </li>
-          <DocsInfoBox>
-            Don't see your server? Restart the Sturdy app and try again.
-          </DocsInfoBox>
+          <DocsInfoBox> Don't see your server? Restart the Sturdy app and try again. </DocsInfoBox>
           <li>
             Follow the instructions in the app to setup your account and configure your server!
           </li>

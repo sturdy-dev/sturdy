@@ -59,9 +59,9 @@
           <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }"
             >ship them to production</router-link
           >
-          &mdash; all of this is just a click away. You can read more about how Sturdy augments Git
-          on
-          <router-link :to="{ name: 'v2DocsHowSturdyAugmentsGit' }">this page</router-link>.
+          &mdash; all of this is just a click away. You can read more about how Sturdy interacts
+          with Git on
+          <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }">this page</router-link>.
         </p>
         <p>
           <em>Coming soon:</em> It will be possible to toggle an auto-sync option for a workspace.

@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How to collaborate with others</h1>
+        <h1 id="how-to-collaborate">How to collaborate with others</h1>
         <p>
           Nowadays it is so easy to work together on text documents
           <SubtleText>(think Google Docs)</SubtleText> or on design

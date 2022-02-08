@@ -304,7 +304,7 @@
       <Usp
         title="Compatible"
         subtitle="Worried about compatibility? Don't be."
-        link="v2DocsHowSturdyAugmentsGit"
+        link="v2DocsHowSturdyInteractsWithGit"
         accent="amber-500"
         :bigger-right-side="true"
       >
