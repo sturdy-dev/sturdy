@@ -551,14 +551,9 @@ export default defineComponent({
   },
 
   setup() {
-    // TODO: Remove when we're launching!
     useHead({
       title: 'Sturdy - Real-time code collaboration',
       meta: [
-        {
-          name: 'robots',
-          content: 'noindex',
-        },
         {
           name: 'description',
           content:

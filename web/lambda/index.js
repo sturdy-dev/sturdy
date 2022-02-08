@@ -5,21 +5,16 @@
 
 exports.handler = (event, context, callback) => {
   const prerendered = [
-    '/',
     '/download',
     '/about',
     '/contact',
-    '/privacy',
-    '/terms-of-service',
     '/pricing',
     '/security',
-    '/docs',
     '/kth',
     '/aoc',
     '/features/access-control',
     '/features/instant-integration',
-    '/quickstart',
-    '/syncing',
+    '/docs/syncing',
     '/features/instant-switching',
     '/features/integrations',
     '/features/live',
@@ -51,9 +46,23 @@ exports.handler = (event, context, callback) => {
     '/careers',
     '/careers/founding-backend-engineer',
     '/careers/founding-frontend-engineer',
-    '/v2/docs',
-    '/v2/docs/how-sturdy-interacts-with-git',
-    '/v2/docs/working-in-the-open'
+    '/',
+    '/docs',
+    '/docs/product-intro',
+    '/docs/how-sturdy-interacts-with-git',
+    '/docs/working-in-the-open',
+    '/docs/how-to-ship-software-to-production',
+    '/docs/how-to-collaborate-with-others',
+    '/docs/how-to-edit-code',
+    '/docs/how-to-setup-sturdy-with-github',
+    '/docs/how-to-switch-between-tasks',
+    '/docs/quickstart',
+    '/docs/using-sturdy',
+    '/docs/pricing',
+    '/docs/index',
+    '/docs/self-hosted',
+    '/privacy',
+    '/terms-of-service'
   ]
 
   const request = event.Records[0].cf.request

@@ -187,11 +187,6 @@ export default defineComponent({
   setup() {
     useHead({
       meta: [
-        // TODO: Remove when we're launching!
-        {
-          name: 'robots',
-          content: 'noindex',
-        },
         {
           name: 'description',
           content: 'Learn how to quickly jump between tasks in Sturdy',
