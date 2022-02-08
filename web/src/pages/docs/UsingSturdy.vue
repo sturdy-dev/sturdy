@@ -76,7 +76,14 @@
           <li>Click on the three dots icon in the top left corner and select "Settings"</li>
           <li>Go to the GitHub-tab</li>
           <li>Authenticate yourself with GitHub</li>
-          <li>Follow the GitHub prompt for authentication</li>
+          <li>
+            Update the GitHub installation, selecting one or multiple repositories
+            <img
+              src="./images/Add_repository_on_GitHub.png"
+              width="700"
+              alt="Updating the selected repositories on GitHub"
+            />
+          </li>
           <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
           <img
             src="./images/GitHub_select_repository.png"

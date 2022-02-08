@@ -47,6 +47,9 @@
             <code>30080</code> and
             <code>30022</code>
           </li>
+          <DocsInfoBox>
+            Don't see your server? Restart the Sturdy app and try again.
+          </DocsInfoBox>
           <li>
             Follow the instructions in the app to setup your account and configure your server!
           </li>
@@ -83,7 +86,7 @@
 
         <p>
           Now your local port 30080 is exposed to the Internet, and in console, you will see a URL
-          to access it. It would look something line this:
+          to access it. It would look something like this:
         </p>
         <pre>https://09f9-213-114-130-156.ngrok.io</pre>
 
@@ -109,19 +112,23 @@
           <li>Make sure that webhooks are active</li>
           <li>
             Set the webhook URL to <em>${YOUR_LOCAL_TUNNEL_HOSTNAME}/api/v3/github/webhook</em>
+            <br />
+
+            It should look something like this:
+            <pre>https://09f9-213-114-130-156.ngrok.io/api/v3/github/webhook</pre>
 
             <DocsInfoBox>
-              If you use ngrok, keep in mind that every time it will generate a new URL. So don't
-              forget to update it later.
+              If you use ngrok, keep in mind that every time it is started, it will generate a new
+              URL. So don't forget to update it later, when ngrok is restarted.
             </DocsInfoBox>
           </li>
           <li>
             <u>Permissions</u>
             <ul>
-              <li>Checks - Read & Write</li>
               <li>Contents - Read & Write</li>
               <li>Metadata - Read only</li>
               <li>Pull Requests - Read & Write</li>
+              <li>Commit statuses - Read-only</li>
               <li>Workflows - Read & Write</li>
             </ul>
           </li>
@@ -137,13 +144,35 @@
             </ul>
           </li>
 
-          <li>Click <em>Create GitHub App</em></li>
-          <li>Click <em>Generate a new Client secret</em> and remember it</li>
-          <li>In the bottom of the page, click <em>Generate a private key</em> and download it</li>
+          <li>Click <em>Create GitHub App - a new app will be created</em></li>
+        </ol>
+
+        <h3 id="github-app-secret-and-key">Generate a client secret and a private key</h3>
+        <p>Within the "General" tab of the newly created app:</p>
+
+        <ol>
+          <li>Take note of your <em>App ID</em> &mdash; you will use it later</li>
+          <li>Take note of your <em>Client ID</em> &mdash; you will use it later</li>
+          <li>
+            Click <em>Generate a new Client secret</em> and take note of it &mdash; you will use it
+            later
+          </li>
+          <li>
+            At the bottom of the page, click <em>Generate a private key</em> which will also
+            download it &mdash; you will use it later
+          </li>
+          <li>
+            Move the private key file from your downloads folder to
+            <code>$HOME/.sturdydata/github-private.key</code>.
+            <pre>
+ mv ~/Downloads/sturdy-self-hosted.TODAY.private-key.pem ~/.sturdydata/github-private.key</pre
+            >
+            This will make the private key accessible from within the docker container.
+          </li>
         </ol>
 
         <p>
-          That's a lot of configuration! But now we are almost ready to start using Sturdy with
+          That's a lot of configuration! But now we are almost ready to start using Sturdy with a
           GitHub integration.
         </p>
 
@@ -242,7 +271,7 @@ export default defineComponent({
         `--env STURDY_GITHUB_APP_ID=<id> \\
     --env STURDY_GITHUB_APP_CLIENT_ID=<client_id> \\
     --env STURDY_GITHUB_APP_SECRET=<secret> \\
-    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/<filename> \\
+    --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/github-private.key \\
         getsturdy/server`
       ),
     }
