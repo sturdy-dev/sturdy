@@ -1,8 +1,7 @@
 package enterprise
 
 import (
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"errors"
 
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/github/enterprise/client"
@@ -10,6 +9,8 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/github/enterprise/service"
 	"getsturdy.com/api/pkg/github/enterprise/workers"
+
+	"go.uber.org/zap"
 )
 
 func Module(c *di.Container) {
