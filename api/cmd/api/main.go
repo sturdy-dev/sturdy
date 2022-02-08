@@ -11,7 +11,7 @@ import (
 	module_api "getsturdy.com/api/pkg/api/module"
 	module_auth "getsturdy.com/api/pkg/auth/module"
 	module_author "getsturdy.com/api/pkg/author/module"
-	module_aws "getsturdy.com/api/pkg/aws"
+	module_aws "getsturdy.com/api/pkg/aws/module"
 	module_change "getsturdy.com/api/pkg/change/module"
 	module_ci "getsturdy.com/api/pkg/ci/module"
 	module_codebase_acl "getsturdy.com/api/pkg/codebase/acl/module"

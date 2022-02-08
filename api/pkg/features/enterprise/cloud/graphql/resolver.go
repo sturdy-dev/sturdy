@@ -15,5 +15,6 @@ func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 		resolvers.FeatureMultiTenancy,
 		resolvers.FeatureEmails,
 		resolvers.FeatureOrganizationSubscriptions,
+		resolvers.FeatureDownloadChanges,
 	}
 }

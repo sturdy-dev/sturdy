@@ -4,10 +4,11 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
-	"getsturdy.com/api/pkg/unidiff"
 	"io"
 	"os"
 	"path/filepath"
+
+	"getsturdy.com/api/pkg/unidiff"
 )
 
 func (svc *Service) walkTarGz(writer *io.PipeWriter, viewPath string, allower *unidiff.Allower) func() error {

@@ -33,9 +33,10 @@ type ChangeRootResolver struct {
 
 	authService *service_auth.Service
 
-	commentResolver *resolvers.CommentRootResolver
-	authorResolver  resolvers.AuthorRootResolver
-	statusResovler  *resolvers.StatusesRootResolver
+	commentResolver   *resolvers.CommentRootResolver
+	authorResolver    resolvers.AuthorRootResolver
+	statusResovler    *resolvers.StatusesRootResolver
+	downloadsResovler resolvers.ContentsDownloadUrlRootResolver
 
 	executorProvider executor.Provider
 
@@ -54,6 +55,7 @@ func NewResolver(
 	commentResolver *resolvers.CommentRootResolver,
 	authorResolver resolvers.AuthorRootResolver,
 	statusResovler *resolvers.StatusesRootResolver,
+	downloadsResovler resolvers.ContentsDownloadUrlRootResolver,
 
 	executorProvider executor.Provider,
 
@@ -68,9 +70,10 @@ func NewResolver(
 
 		authService: authService,
 
-		commentResolver: commentResolver,
-		authorResolver:  authorResolver,
-		statusResovler:  statusResovler,
+		commentResolver:   commentResolver,
+		authorResolver:    authorResolver,
+		statusResovler:    statusResovler,
+		downloadsResovler: downloadsResovler,
 
 		executorProvider: executorProvider,
 
@@ -250,14 +253,6 @@ func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolv
 }
 
 func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.download(ctx, service.ArchiveFormatTarGz)
-}
-
-func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.download(ctx, service.ArchiveFormatZip)
-}
-
-func (r *ChangeResolver) download(ctx context.Context, format service.ArchiveFormat) (resolvers.ContentsDownloadUrlResolver, error) {
 	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
 	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
 		return nil, nil
@@ -265,32 +260,16 @@ func (r *ChangeResolver) download(ctx context.Context, format service.ArchiveFor
 	if r.changeOnTrunkErr != nil {
 		return nil, gqlerrors.Error(r.changeOnTrunkErr)
 	}
-
-	if err := r.root.authService.CanRead(ctx, r.ch); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	allower, err := r.root.authService.GetAllower(ctx, r.ch)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	url, err := r.root.svc.CreateArchive(ctx, allower, r.changeOnTrunk.CodebaseID, r.changeOnTrunk.CommitID, format)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	return &download{url: url}, nil
+	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, &r.changeOnTrunk)
 }
 
-type download struct {
-	url string
-}
-
-func (d *download) ID() graphql.ID {
-	return graphql.ID(d.url)
-}
-
-func (d *download) URL() string {
-	return d.url
+func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
+	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
+	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if r.changeOnTrunkErr != nil {
+		return nil, gqlerrors.Error(r.changeOnTrunkErr)
+	}
+	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, &r.changeOnTrunk)
 }

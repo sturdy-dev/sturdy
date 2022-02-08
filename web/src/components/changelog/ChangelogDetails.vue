@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <div v-if="changeData?.change">
+    <div v-if="changeData?.change && isDownloadAvailable">
       <div class="flex items-center space-x-2">
         <Button v-if="fetchingZipDownload" size="wider" disabled>
           <Spinner class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -96,8 +96,9 @@ import StatusDetails from '../statuses/StatusDetails.vue'
 import Spinner from '../shared/Spinner.vue'
 import DownloadIcon from '@heroicons/vue/outline/DownloadIcon'
 import Button from '../shared/Button.vue'
-import { ref, toRef, watch } from 'vue'
+import { ref, toRef, watch, inject } from 'vue'
 import { gql, useQuery } from '@urql/vue'
+import { Feature } from '../../__generated__/types'
 
 export default {
   name: 'CodebaseChangelogDetails',
@@ -116,6 +117,9 @@ export default {
     githubIntegration: {},
   },
   setup(props) {
+    const features = inject('features', ref([]))
+    const isDownloadAvailable = features.value.includes(Feature.DownloadChanges)
+
     let changeRef = toRef(props, 'changeData')
     let loadedChangeID = ref(changeRef.value?.change?.id)
 
@@ -160,6 +164,8 @@ export default {
       generateZipData,
       fetchingZipDownload,
       didTriggerDownload,
+
+      isDownloadAvailable,
 
       zipDownload() {
         console.log('change-id', changeRef.value?.change?.id, loadedChangeID)
