@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM golang:1.17.6-alpine3.15 as ssh-builder
 WORKDIR /go/src/ssh
 RUN apk update \
@@ -105,7 +106,9 @@ ENTRYPOINT [ "/usr/bin/api" ]
 
 FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder
 
-FROM node:17.3.1-alpine3.15 as web-builder
+FROM --platform=$BUILDPLATFORM node:17.3.1-alpine3.15 as web-builder
+# The website is the same for linux/amd64 and linux/arm64 (output is html), setting --platform to run all builds on the
+# native host platform. (Skips emulation!)
 WORKDIR /web
 RUN apk update \
     && apk add --no-cache \
