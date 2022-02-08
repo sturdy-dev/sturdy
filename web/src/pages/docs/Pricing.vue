@@ -55,14 +55,9 @@ export default defineComponent({
   setup() {
     useHead({
       meta: [
-        // TODO: Remove when we're launching!
-        {
-          name: 'robots',
-          content: 'noindex',
-        },
         {
           name: 'description',
-          content: 'Pricing for Sturdy open source, enterprise, and in the cloud.',
+          content: 'Pricing for Sturdy open source, enterprise, and Sturdy in the cloud.',
         },
         {
           name: 'keywords',

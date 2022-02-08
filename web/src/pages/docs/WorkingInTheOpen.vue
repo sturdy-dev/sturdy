@@ -149,11 +149,6 @@ export default defineComponent({
   setup() {
     useHead({
       meta: [
-        // TODO: Remove when we're launching!
-        {
-          name: 'robots',
-          content: 'noindex',
-        },
         {
           name: 'description',
           content: 'Working in the open (within your team)',
