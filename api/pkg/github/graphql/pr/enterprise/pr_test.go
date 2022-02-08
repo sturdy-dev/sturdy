@@ -138,6 +138,7 @@ func TestPRHighLevel(t *testing.T) {
 		&config.GitHubAppConfig{},
 		clientProvider,
 		personalClientProvider,
+		nil,
 		&importer,
 		&cloner,
 		workspaceRepo,
@@ -746,14 +747,12 @@ func prWebhookEvent(t *testing.T, state string, merged bool, userID string, pull
 	requestWithParams(t, userID, webhookRoute, webhookPREvent, nil, "pull_request", []gin.Param{})
 }
 
-func clientProvider(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
+func clientProvider(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, appsClient client.AppsClient, err error) {
 	return &client.GitHubClients{
 			Repositories: nil,
 			PullRequests: &fakeGitHubPullRequestClient{},
 		},
-		&client.GitHubClients{
-			Apps: &fakeGitHubAppsClient{},
-		}, nil
+		&fakeGitHubAppsClient{}, nil
 }
 
 func personalClientProvider(token string) (*client.GitHubClients, error) {
@@ -808,6 +807,10 @@ func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id i
 }
 
 func (f *fakeGitHubAppsClient) GetInstallation(ctx context.Context, id int64) (*gh.Installation, *gh.Response, error) {
+	panic("implement me")
+}
+
+func (f *fakeGitHubAppsClient) Get(ctx context.Context, appSlug string) (*gh.App, *gh.Response, error) {
 	panic("implement me")
 }
 
