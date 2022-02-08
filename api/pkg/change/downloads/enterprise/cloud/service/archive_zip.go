@@ -3,10 +3,11 @@ package service
 import (
 	"archive/zip"
 	"fmt"
-	"getsturdy.com/api/pkg/unidiff"
 	"io"
 	"os"
 	"path/filepath"
+
+	"getsturdy.com/api/pkg/unidiff"
 )
 
 func (svc *Service) walkZip(writer *io.PipeWriter, viewPath string, allower *unidiff.Allower) func() error {

@@ -917,6 +917,7 @@ enum Feature {
   License @deprecated(reason: "use SelfHostedLicense instead")
   SelfHostedLicense # Self hosted, enter, and consume a license
   Emails # email related features are supported
+  DownloadChanges # can download changes
 }
 
 type Organization implements Writeable {

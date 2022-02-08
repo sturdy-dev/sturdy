@@ -18,4 +18,6 @@ const (
 	SelfHostedLicense                Feature = "SelfHostedLicense"
 
 	FeatureEmails Feature = "Emails"
+
+	FeatureDownloadChanges Feature = "DownloadChanges"
 )

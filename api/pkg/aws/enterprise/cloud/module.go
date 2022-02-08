@@ -1,4 +1,4 @@
-package aws
+package cloud
 
 import (
 	"getsturdy.com/api/pkg/di"

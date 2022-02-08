@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+
+	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/unidiff"
 
 	"github.com/graph-gophers/graphql-go"
@@ -65,6 +67,12 @@ type HunkResolver interface {
 	IsOutdated() bool
 	IsApplied() bool
 	IsDismissed() bool
+}
+
+type ContentsDownloadUrlRootResolver interface {
+	// Internal
+	InternalContentsDownloadTarGzUrl(context.Context, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
+	InternalContentsDownloadZipUrl(context.Context, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
 }
 
 type ContentsDownloadUrlResolver interface {
