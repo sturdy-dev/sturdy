@@ -2,7 +2,9 @@
 
 # Welcome to Sturdy! 📣🐣
 
-**[Sturdy](https://getsturdy.com/) is the easiest way to collaborate on code.**
+**Real-time code collaboration.**
+
+[Sturdy](https://getsturdy.com/) is an open-source **version control platform** that allows you to interact with your code at a higher abstraction level.
 
 ## Features
 
@@ -14,23 +16,26 @@
 * Enhance your existing GitHub setup, or _break free_ and use standalone Sturdy
 
 ## Versions
+
 * [Sturdy Cloud](https://getsturdy.com/) - Let's you use all Sturdy features, fully managed by the team behind Sturdy. Ship code to your projects, review, and ship code. Using 100% Sturdy, or Sturdy on top of GitHub. Get started for **free**.
-* [Sturdy Enterprise](#) - Run Sturdy in your own environment.
-* [Sturdy OSS](#) - The fully Open Source version of Sturdy! Provides all the core functionality for free, and completely Open Source.
+* [Sturdy Enterprise](https://getsturdy.com/docs/self-hosted) - Run Sturdy in your own environment.
+* [Sturdy OSS](https://getsturdy.com/docs/self-hosted) - The fully Open Source version of Sturdy! Provides all the core functionality for free, and completely Open Source.
 
 ## Get Started
 
 Want to run Sturdy on your machine?
 
 ```bash
-docker run --interactive --tty --publish 30080:80 --publish 30022:22 \
+docker run --interactive \
+    --pull always \
+    --publish 30080:80 --publish 30022:22 \
     --volume "$HOME/.sturdydata:/var/data" \
     getsturdy/server
 ```
 
 ## Learn more
 
-See the [Sturdy Docs](https://getsturdy.com/v2/docs) to learn more about Sturdy and why it's cool!
+See the [Sturdy Docs](https://getsturdy.com/docs) to learn more about Sturdy and why it's cool!
 
 ## Development
 
