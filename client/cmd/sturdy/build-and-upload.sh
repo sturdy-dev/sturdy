@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-VERSION=""
+VERSION="v0.9.0"
 DO_UPLOAD=0
 LOCAL_INSTALL=0
 BUILD_DARWIN_ONLY=0
