@@ -43,4 +43,4 @@ ensure_mutagen
 build_agent "sturdy" "18fa4aac554f34841dc34bfaae5bbbde46ffad05" "v0.12.0-beta2"
 build_agent "sturdy-v0.12" "ff3b34ad09689b2af268ec69dcf17369d68f09b7" "v0.12.0-beta6"
 build_agent "sturdy-v0.12.0-beta7" "0a9d7522332600e273b32538244a77554b893b50" "v0.12.0-beta7" # Sturdy v0.7.0 and
-build_agent "sturdy-v0.13.0-beta2" "9698cd3c1f8f5dc8296d29678e41b89791fb4d7f" "v0.13.0-beta2"
+build_agent "sturdy-v0.13.0-beta2" "a6308dd7069acd0b3889ccd68b95810ce09cf462" "v0.13.0-beta2"
