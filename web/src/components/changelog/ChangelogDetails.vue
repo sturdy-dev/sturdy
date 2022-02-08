@@ -88,7 +88,7 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import Avatar from '../shared/Avatar.vue'
 import time from '../../time'
 import { CalendarIcon, ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
@@ -96,12 +96,11 @@ import StatusDetails from '../statuses/StatusDetails.vue'
 import Spinner from '../shared/Spinner.vue'
 import DownloadIcon from '@heroicons/vue/outline/DownloadIcon'
 import Button from '../shared/Button.vue'
-import { ref, toRef, watch, inject } from 'vue'
+import { ref, toRef, watch, inject, computed, Ref, defineComponent } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import { Feature } from '../../__generated__/types'
 
-export default {
-  name: 'CodebaseChangelogDetails',
+export default defineComponent({
   components: {
     Avatar,
     CalendarIcon,
@@ -117,8 +116,8 @@ export default {
     githubIntegration: {},
   },
   setup(props) {
-    const features = inject('features', ref([]))
-    const isDownloadAvailable = features.value.includes(Feature.DownloadChanges)
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isDownloadAvailable = computed(() => features?.value?.includes(Feature.DownloadChanges))
 
     let changeRef = toRef(props, 'changeData')
     let loadedChangeID = ref(changeRef.value?.change?.id)
@@ -193,5 +192,5 @@ export default {
       return time.getRelativeTime(new Date(ts * 1000))
     },
   },
-}
+})
 </script>

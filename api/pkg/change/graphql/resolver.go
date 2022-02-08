@@ -260,7 +260,7 @@ func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsD
 	if r.changeOnTrunkErr != nil {
 		return nil, gqlerrors.Error(r.changeOnTrunkErr)
 	}
-	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, &r.changeOnTrunk)
+	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, &r.ch, &r.changeOnTrunk)
 }
 
 func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
@@ -271,5 +271,5 @@ func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDow
 	if r.changeOnTrunkErr != nil {
 		return nil, gqlerrors.Error(r.changeOnTrunkErr)
 	}
-	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, &r.changeOnTrunk)
+	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, &r.ch, &r.changeOnTrunk)
 }

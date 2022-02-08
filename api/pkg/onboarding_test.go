@@ -126,7 +126,7 @@ func TestCreate(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -288,6 +288,7 @@ func TestCreate(t *testing.T) {
 		nil, // commentResolver
 		authorRootResolver,
 		statusesRootResolver,
+		nil,
 		executorProvider,
 		logger,
 	)
@@ -739,7 +740,7 @@ func TestLargeFiles(t *testing.T) {
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -817,6 +818,7 @@ func TestLargeFiles(t *testing.T) {
 		nil, // commentsResolver
 		nil, // authorRootResolver
 		statusesRootResolver,
+		nil,
 		executorProvider,
 		logger,
 	)
