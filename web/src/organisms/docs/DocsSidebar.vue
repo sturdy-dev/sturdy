@@ -1,17 +1,24 @@
 <template>
-  <ol class="space-y-2">
+  <ol class="space-y-2 text-sm">
     <template v-for="(group, idx) in groups" :key="idx">
-      <li class="font-medium text-gray-400">{{ group.name }}</li>
+      <li class="mt-2 font-medium tracking-tight font-semibold text-slate-800">{{ group.name }}</li>
 
-      <li v-for="(link, linkIdx) in group.links" :key="linkIdx" class="ml-4">
+      <br />
+      <li v-for="(link, linkIdx) in group.links" :key="linkIdx" class="">
         <router-link
           :to="{ name: link.route }"
-          class="hover:text-gray-800 font-medium"
-          :class="[isCurrent(link) ? 'text-gray-800 font-bold' : 'text-gray-500']"
+          class="border-l pl-4 py-2"
+          :class="[
+            isCurrent(link)
+              ? 'text-amber-600 border-amber-600 font-semibold'
+              : 'text-slate-700 hover:text-slate-900 hover:border-slate-400',
+          ]"
         >
           {{ link.title }}
         </router-link>
       </li>
+
+      <br />
     </template>
   </ol>
 </template>
