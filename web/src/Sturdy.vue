@@ -40,7 +40,10 @@
 
             <!-- Main area -->
             <main class="md:pl-64 flex flex-1 flex-col">
-              <IndexNavbar v-if="authenticationIsLoaded && !authenticated" :narrow="'true'" />
+              <IndexNavbar
+                v-if="!appEnvironment && authenticationIsLoaded && !authenticated"
+                :narrow="'true'"
+              />
 
               <AppTitleBarSpacer
                 fixed
