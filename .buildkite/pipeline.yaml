@@ -29,4 +29,10 @@ steps:
     commands:
       - "./download && cd ./tmp_output"
       - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
- 
+
+  - label: ":docker: :golang: :yarn: Build oneliner (no push)"
+    agents:
+      queue: "arm"
+    commands:
+    - "./download && cd ./tmp_output"
+    - "./scripts/build-upload-oneliner.sh"
