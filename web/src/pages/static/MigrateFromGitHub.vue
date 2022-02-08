@@ -50,7 +50,7 @@
             />
           </div>
           <figcaption class="mt-3 flex text-sm text-gray-500">
-            <span class="ml-2">Creating GitHub Pull Requests from Sturdy</span>
+            <span class="ml-2">Creating GitHub pull requests from Sturdy</span>
           </figcaption>
         </figure>
       </div>
@@ -68,7 +68,7 @@
       <p>
         To enable the full workflow on Sturdy, you have to make Sturdy the source of truth. In this
         mode you're sharing changes between each other only using Sturdy, and don't have to work
-        with GitHub Pull Requests anymore!
+        with GitHub pull requests anymore!
       </p>
       <ul>
         <li>Changes are shared directly on Sturdy</li>

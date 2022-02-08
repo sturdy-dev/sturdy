@@ -27,7 +27,7 @@
           <em>not doing those things in the first place!</em>
         </p>
 
-        <p>Here is a typical cycle of code contribution with git:</p>
+        <p>Here is a typical cycle of code contribution with Git:</p>
 
         <ol>
           <li>Pull main or master</li>
@@ -36,15 +36,15 @@
           <li>Add the changes</li>
           <li>Commit</li>
           <li>Push the branch</li>
-          <li>Create a Pull Request</li>
+          <li>Create a pull request</li>
           <li>Receive feedback</li>
-          <li>Got to 3.</li>
+          <li>GOTO 3.</li>
         </ol>
 
         <p>
           Regardless of whether you use the terminal or a Git GUI, these steps are part of the
           <em>protocol</em>. If we however distill the developer intent, it was to solve a business
-          problem, together with his or her team.
+          problem, together with a team.
         </p>
 
         <p>
@@ -99,24 +99,24 @@
 
         <p>
           The big, glaring difference between Sturdy and Git is that there is no distinction between
-          local and remote. Just like git, code is read and modified through a folder on a computer,
+          local and remote. Just like Git, code is read and modified through a folder on a computer,
           using an IDE or text editor. However, changes that are made with Sturdy are instantly
           discoverable by others on the team (through Sturdy Cloud or a self-hosted Sturdy).
         </p>
 
         <p>
-          The implication is that a coder no longer has to perform git commands to manage state in a
+          The implication is that a coder no longer has to run Git commands to manage state in a
           local directory. In Sturdy all the operations are at a high level (compared to using
           vanilla Git where several steps are needed to achieve the equivalent outcome).
         </p>
 
         <p>
-          All the Sturdy tricks are enabled by the real-time synchronization of files and state and
-          the fact that code management, review and feedback happen in the same place:
+          All the Sturdy tricks are enabled by the real-time synchronization of files and state, and
+          the fact that code management, review‚ and feedback happen in the same place:
         </p>
 
         <ol>
-          <li>Discover work in progress code within the team, get early feedback.</li>
+          <li>Discover work-in-progress code within the team, get early feedback.</li>
           <li>No manual synchronizing of local and remote.</li>
           <li>
             Getting the code from someone else’s workspace (roughly equivalent to a branch or pull

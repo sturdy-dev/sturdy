@@ -10,15 +10,18 @@
         <p>
           It's easy to add existing GitHub repositories to Sturdy. With a few clicks, you can
           install Sturdy on as many repositories as you want. <strong>Sturdy for GitHub</strong> is
-          a fully-featured version of Sturdy that runs on top of your existing git repository.
+          a fully-featured version of Sturdy that runs on top of your existing Git repository.
         </p>
 
         <ol>
-          <li>Click on the three dots icon in the top left corner and select "Settings"</li>
+          <li>
+            In the Sturdy App: Click on the three dots icon in the top left corner and select
+            "Settings"
+          </li>
           <li>Go to the GitHub-tab</li>
           <li>
             Follow the instructions to authenticate with GitHub, and install the Sturdy
-            GitHub-application on the repositories that you want to use Sturdy with.
+            GitHub-application on the repositories that you want to use Sturdy with
           </li>
           <li>You will be redirected back to Sturdy</li>
           <li>
@@ -68,14 +71,14 @@
         </p>
         <ol>
           <li>
-            <strong>GitHub</strong> as the source of truth &mdash; In this mode, Sturdy will follow
-            changes happening on GitHub. Changes made in Sturdy are merged through GitHub Pull
-            Requests. When Pull Requests are merged on GitHub, they will automatically be synced to
+            <strong>GitHub as the source of truth</strong> &mdash; In this mode, Sturdy will follow
+            changes happening on GitHub. Changes made in Sturdy are merged through GitHub pull
+            requests. When pull requests are merged on GitHub, they will automatically be synced to
             Sturdy. This works even when changes are made outside of Sturdy. In this mode, some team
             members can develop through Sturdy without affecting others who use GitHub directly.
           </li>
           <li>
-            <strong>Sturdy</strong> as the source of truth &mdash; In this mode, the state on GitHub
+            <strong>Sturdy as the source of truth</strong> &mdash; In this mode, the state on GitHub
             follows Sturdy. After a change is shared on Sturdy, it will be pushed to the HEAD branch
             on GitHub. Changes made directly on GitHub will not be synced to Sturdy. In this mode
             all development happens through Sturdy.
