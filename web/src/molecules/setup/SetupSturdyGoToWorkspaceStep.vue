@@ -3,27 +3,25 @@
     When the codebase is set up on your local machine, a workspace will be created for you.
   </div>
   <div v-else>
-    <Button
-      @click="
-        $router.push({
-          name: 'workspaceHome',
-          params: {
-            codebaseSlug: newWorkspace.codebase.shortID,
-            id: newWorkspace.id,
-          },
-        })
-      "
+    <RouterLinkButton
+      :to="{
+        name: 'workspaceHome',
+        params: {
+          codebaseSlug: newWorkspace.codebase.shortID,
+          id: newWorkspace.id,
+        },
+      }"
     >
       Go to {{ newWorkspace.name }}
-    </Button>
+    </RouterLinkButton>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { gql } from 'graphql-tag'
-import { SetupUserViewsFragment } from './__generated__/SetupSturdyGoToWorkspaceStep'
-import Button from '../shared/Button.vue'
+import { SetupUserViewsFragment } from '../../components/codebase/__generated__/SetupSturdyGoToWorkspaceStep'
+import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
 
 export const SETUP_USER_VIEWS = gql`
   fragment SetupUserViews on User {
@@ -42,8 +40,7 @@ export const SETUP_USER_VIEWS = gql`
 `
 
 export default defineComponent({
-  name: 'SetupSturdyGoToWorkspaceStep',
-  components: { Button },
+  components: { RouterLinkButton },
   props: {
     codebase: {
       required: true,

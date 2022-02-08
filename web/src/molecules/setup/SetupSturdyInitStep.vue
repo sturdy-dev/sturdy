@@ -32,9 +32,10 @@
     </button>
   </div>
 </template>
-<script>
-export default {
-  name: 'SetupSturdyInitStep',
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   props: ['codebase', 'userHaveViews'],
   computed: {
     sturdyInitCommand() {
@@ -79,5 +80,5 @@ export default {
       return str.replace(new RegExp('^[' + characters + ']+|[' + characters + ']+$', flags), '')
     },
   },
-}
+})
 </script>
