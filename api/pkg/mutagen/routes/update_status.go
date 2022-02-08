@@ -3,12 +3,13 @@ package routes
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"strings"
+
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/mutagen"
 	"getsturdy.com/api/pkg/mutagen/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
-	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -102,7 +103,7 @@ func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, vi
 			// do not fail
 		}
 
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, struct{}{})
 	}
 }
 

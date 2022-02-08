@@ -1,7 +1,7 @@
 $APPDATA=[Environment]::GetFolderPath('ApplicationData')
 New-Item -Path "$APPDATA" -Name "sturdy" -ItemType "directory" -Force | Out-Null
 
-$VERSION="v0.8.1-beta"
+$VERSION="v0.8.1-beta2"
 
 # Stop sturdy if running
 [bool] $STURDY_ALREADY_INSTALLED = 0
