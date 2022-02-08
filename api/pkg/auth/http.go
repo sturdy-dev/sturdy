@@ -89,7 +89,7 @@ func tokenFromHeaders(headers http.Header) (string, bool) {
 	if !strings.EqualFold(prefix, tokenPrefix) {
 		return "", false
 	}
-	return strings.TrimPrefix(authHeader, tokenPrefix), true
+	return authHeader[len(tokenPrefix):], true
 }
 
 const (
