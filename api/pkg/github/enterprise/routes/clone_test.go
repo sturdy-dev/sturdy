@@ -125,6 +125,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 		&config.GitHubAppConfig{},
 		clientProvider(appGitHubRepositoriesClient),
 		personalClientProvider(personalGitHubRepositoriesClient),
+		nil,
 		&importer,
 		&cloner,
 		nil,
@@ -153,15 +154,13 @@ func TestCloneSendsNotifications(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func clientProvider(repoClient client.RepositoriesClient) func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
-	return func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, jwtClient *client.GitHubClients, err error) {
+func clientProvider(repoClient client.RepositoriesClient) func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, appsClient client.AppsClient, err error) {
+	return func(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, appsClient client.AppsClient, err error) {
 		return &client.GitHubClients{
 				Repositories: repoClient,
 				PullRequests: &fakeGitHubPullRequestClient{},
 			},
-			&client.GitHubClients{
-				Apps: &fakeGitHubAppsClient{},
-			}, nil
+			&fakeGitHubAppsClient{}, nil
 	}
 }
 
@@ -206,6 +205,10 @@ func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id i
 }
 
 func (f *fakeGitHubAppsClient) GetInstallation(ctx context.Context, id int64) (*gh.Installation, *gh.Response, error) {
+	panic("implement me")
+}
+
+func (f *fakeGitHubAppsClient) Get(ctx context.Context, appSlug string) (*gh.App, *gh.Response, error) {
 	panic("implement me")
 }
 
