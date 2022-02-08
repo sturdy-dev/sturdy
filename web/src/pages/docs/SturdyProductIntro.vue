@@ -95,7 +95,9 @@
         <p>
           <strong>Yes.</strong> Sturdy is built using the same low-level components as git (via
           <a href="https://libgit2.org/">libgit2</a>) and has a
-          <router-link :to="{ name: 'v2DocsHowSturdyAugmentsGit' }">bridge integration</router-link>
+          <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }"
+            >bridge integration</router-link
+          >
           with GitHub. This means that you can use Sturdy <strong>on top</strong> of your existing
           GitHub setup, compatible with your existing branch protection and CI/CD and other
           integrations.

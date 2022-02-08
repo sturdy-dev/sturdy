@@ -33,7 +33,7 @@ const groups = [
 
   {
     name: 'Git',
-    links: [{ route: 'v2DocsHowSturdyAugmentsGit', title: 'Augmenting Git' }],
+    links: [{ route: 'v2DocsHowSturdyInteractsWithGit', title: 'Interacting with Git' }],
   },
 
   {

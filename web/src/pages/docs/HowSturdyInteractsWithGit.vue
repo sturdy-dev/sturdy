@@ -5,20 +5,29 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-augments-git">How Sturdy augments Git</h1>
+        <h1 id="how-sturdy-interacts-with-git">Interacting with Git</h1>
 
         <p>
-          Sturdy can run on top of Git and GitHub, but what does that mean? In a nutshell, it is all
-          about creating a more leveraged development environment &mdash; a productivity hack.
+          Sturdy utilizes low-level Git data structures, but what does that mean, and why? In a
+          nutshell, it is all about creating a more leveraged development environment &mdash; a
+          productivity hack.
+        </p>
+        <p>
+          Git is powerful as a <em>database</em>, but as a <em>protocol</em>, it places constraints
+          on the development workflow. We believe that these constraints don't fit modern product
+          development which is fast-paced and highly collaborative.
         </p>
 
         <h2 id="expressiveness">Expressiveness</h2>
         <p>
-          The command line is awesome because it is fast and efficient for getting things done, but
-          it’s not as fast as not to do anything!
+          The dictionary definition of the term "expressiveness" is "effectively conveying a
+          thought". In the context of software development, our goal is to map developer intent to
+          concrete actions in Sturdy. The command line is awesome because it is fast and efficient
+          for getting things done, but even faster is
+          <em>not doing those things in the first place!</em>
         </p>
 
-        <p>The typical cycle of code contribution with git is something like this:</p>
+        <p>Here is a typical cycle of code contribution with git:</p>
 
         <ol>
           <li>Pull main or master</li>
@@ -27,16 +36,23 @@
           <li>Add the changes</li>
           <li>Commit</li>
           <li>Push the branch</li>
-          <li>Collaborate and exchange feedback with the team (through a PR or MR)</li>
+          <li>Create a Pull Request</li>
+          <li>Receive feedback</li>
           <li>Got to 3.</li>
         </ol>
 
         <p>
-          This can be done with a Git GUI or the Git CLI, except for the feedback exchange, which
-          happens in the browser. Sturdy is built by <em>truly lazy</em> developers that thought
-          &mdash; “can’t we just do the coding and collaboration, and automate the rest of the
-          steps?”.
+          Regardless of whether you use the terminal or a Git GUI, these steps are part of the
+          <em>protocol</em>. If we however distill the developer intent, it was to solve a business
+          problem, together with his or her team.
         </p>
+
+        <p>
+          Sturdy is built by <em>truly lazy</em> developers who thought &mdash; “can’t we just do
+          the coding and collaboration, and automate the rest of the steps?”.
+        </p>
+
+        <h2 id="abstractions">Abstractions</h2>
 
         <p>
           Generally, computers are built on many layers of abstraction. Those abstractions exist
@@ -73,8 +89,8 @@
         <p>
           As to the big question &mdash; why? Increasing the expressiveness of the version control
           and collaboration means getting more stuff done, or just finishing quicker, depending on
-          teams priorities. Sturdys jam is Continuous Delivery &mdash; shipping small incremental
-          changes, frequently, which are easier to review and reason around.
+          teams priorities. Sturdy streamlines Continuous Delivery &mdash; shipping small
+          incremental changes, frequently, which are easier to review and reason around.
         </p>
 
         <h2 id="there-is-no-local-or-remote" title="There is no local or remote">
@@ -85,7 +101,7 @@
           The big, glaring difference between Sturdy and Git is that there is no distinction between
           local and remote. Just like git, code is read and modified through a folder on a computer,
           using an IDE or text editor. However, changes that are made with Sturdy are instantly
-          available for others to review (through Sturdy Cloud or a self-hosted Sturdy).
+          discoverable by others on the team (through Sturdy Cloud or a self-hosted Sturdy).
         </p>
 
         <p>
@@ -114,7 +130,7 @@
         <p>
           Having mentioned that Sturdy operates at a higher level, it is worth stressing that the
           output is fully compatible with Git. The underlying primitives are the same and a few
-          higher level concepts are introduced. Here is a TL:DR;
+          higher level concepts are introduced. Here is a TL;DR:
         </p>
 
         <table>
@@ -150,34 +166,10 @@
 
         <p>Pull and Push are not user facing operations in Sturdy.</p>
 
-        <h2 id="implementation">Implementation</h2>
-
+        <h2 id="further-reading">Further reading</h2>
         <p>
-          When Sturdy is configured with a git-bridge (such as "Sturdy for GitHub"), the codebase in
-          Sturdy runs on top of the existing git repository.
-        </p>
-
-        <p>
-          Sturdy will clone the repository to the Sturdy backend, and import all changes and the
-          full history. Webhooks from GitHub keep the trunk in Sturdy up-to-date with the HEAD
-          branch automatically, and continuously imports more changes to Sturdy.
-        </p>
-
-        <p>
-          Workspaces in Sturdy enables collaboration, suggestions, and giving and taking feedback.
-          When Sturdy runs on top of GitHub, to share code, a Pull Request will be opened towards
-          the repository. This PR is subject to the branch protection rules configured on GitHub,
-          and if everything is green, it can be merged.
-        </p>
-
-        <p>
-          Sturdy keeps track of PRs created from Workspaces, and the PR can be updated with more
-          changes, or merged directly from Sturdy.
-        </p>
-
-        <p>
-          <em>Known limitations</em>: git-submodules and LFS files can currently not be imported to
-          Sturdy (the metadata will be there, but not the "full" file).
+          You can learn more about how Sturdy interoperates with GitHub on
+          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }">this page </router-link>.
         </p>
       </div>
     </template>
@@ -202,14 +194,14 @@ export default defineComponent({
         },
         {
           name: 'description',
-          content: 'How Sturdy is augmenting and building on top of git.',
+          content: 'How Sturdy interacts with git.',
         },
         {
           name: 'keywords',
-          content: 'study learn documentation augmenting git github',
+          content: 'study learn documentation interacting git github',
         },
       ],
-      title: 'How Sturdy Augments Git | Sturdy',
+      title: 'Interacting with Git | Sturdy',
     })
   },
 })

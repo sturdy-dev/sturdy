@@ -52,7 +52,7 @@ exports.handler = (event, context, callback) => {
     '/careers/founding-backend-engineer',
     '/careers/founding-frontend-engineer',
     '/v2/docs',
-    '/v2/docs/how-sturdy-augments-git',
+    '/v2/docs/how-sturdy-interacts-with-git',
     '/v2/docs/working-in-the-open'
   ]
 
