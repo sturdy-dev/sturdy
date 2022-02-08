@@ -12,6 +12,7 @@ import (
 	module_auth "getsturdy.com/api/pkg/auth/module"
 	module_author "getsturdy.com/api/pkg/author/module"
 	module_aws "getsturdy.com/api/pkg/aws/module"
+	"getsturdy.com/api/pkg/banner"
 	module_change "getsturdy.com/api/pkg/change/module"
 	module_ci "getsturdy.com/api/pkg/ci/module"
 	module_codebase_acl "getsturdy.com/api/pkg/codebase/acl/module"
@@ -129,6 +130,8 @@ func main() {
 		fmt.Printf("%+v\n", err)
 		os.Exit(1)
 	}
+
+	banner.PrintBanner()
 
 	if err := apiServer.Start(ctx); err != nil {
 		log.Fatalf("faild to start server: %s", err)
