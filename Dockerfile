@@ -115,7 +115,9 @@ RUN apk update \
 # cache web dependencies
 COPY ./web/package.json ./package.json
 COPY ./web/yarn.lock ./yarn.lock
-RUN yarn install --frozen-lockfile
+# The --network-timeout is here to prevent network issues when building linux/amd64 images on linux/arm64 hosts
+RUN yarn install --frozen-lockfile \
+    --network-timeout 1000000000
 # build web
 COPY ./web .
 RUN yarn build:oneliner
