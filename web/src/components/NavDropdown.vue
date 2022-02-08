@@ -111,8 +111,8 @@
           </MenuItem>
 
           <MenuItem v-slot="{ active }">
-            <router-link
-              to="/"
+            <a
+              href="https://getsturdy.com/"
               :class="[
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                 'group flex items-center px-4 py-2 text-sm',
@@ -124,7 +124,7 @@
                 aria-hidden="true"
               />
               getsturdy.com
-            </router-link>
+            </a>
           </MenuItem>
         </div>
         <div class="py-1">
