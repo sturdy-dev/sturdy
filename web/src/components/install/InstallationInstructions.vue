@@ -197,7 +197,7 @@
 import { DownloadIcon, ExternalLinkIcon } from '@heroicons/vue/solid'
 import { ClipboardCopyIcon } from '@heroicons/vue/outline'
 
-const latestVersion = 'v0.8.1-beta'
+const latestVersion = 'v0.8.1-beta2'
 
 const downloadLinks = {
   'darwin-amd64': {
