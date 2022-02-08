@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	goerrors "errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -266,97 +267,64 @@ type metricTracer struct {
 }
 
 func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, operationName string, variables map[string]interface{}, varTypes map[string]*introspection.Type) (context.Context, trace.TraceQueryFinishFunc) {
-	fn := func(errors []*errors.QueryError) {
-		if len(errors) == 0 {
-			return
-		}
-
-		var highestLogLevel logLevel = logLevelNone
-		for _, err := range errors {
-			if l := logLevelForError(err); l > highestLogLevel {
-				highestLogLevel = l
-			}
-		}
-
-		logger := m.logger.With(
+	return ctx, func(errors []*errors.QueryError) {
+		fields := []zap.Field{
 			zap.String("queryString", queryString),
 			zap.String("operationName", operationName),
 			zap.Any("variables", variables),
 			zap.Any("varTypes", varTypes),
-		)
+		}
+
+		highestLogLevel := logLevelNone
+		for _, err := range errors {
+			if l := logLevelForError(err); l > highestLogLevel {
+				highestLogLevel = l
+			}
+
+			var gerr *gqlerrors.SturdyGraphqlError
+			if goerrors.As(err, &gerr) {
+				fields = append(fields, zap.NamedError(fmt.Sprint(err.Path...), gerr.OriginalError()))
+				for k, v := range gerr.Extensions() {
+					fields = append(fields, zap.Any(k, v))
+				}
+			} else {
+				fields = append(fields, zap.NamedError(fmt.Sprint(err.Path...), err))
+			}
+		}
 
 		if subject, ok := auth.FromContext(ctx); ok {
-			logger = logger.With(zap.Stringer("subject", subject.Type))
+			fields = append(fields, zap.Stringer("subject", subject.Type))
 			if subject.ID != "" {
-				logger = logger.With(zap.String("subjectId", subject.ID))
+				fields = append(fields, zap.String("subjectId", subject.ID))
 			}
 		}
 
 		switch highestLogLevel {
 		case logLevelWarn:
-			logger.Warn("query failed")
+			m.logger.With(fields...).Warn("query failed")
 		case logLevelErr:
-			logger.Error("query failed")
+			m.logger.With(fields...).Error("query failed")
 		}
 	}
-	return ctx, fn
 }
 
 func (m *metricTracer) TraceField(ctx context.Context, label, typeName, fieldName string, trivial bool, args map[string]interface{}) (context.Context, trace.TraceFieldFinishFunc) {
 	t0 := time.Now()
-	fn := func(err *errors.QueryError) {
-		if err != nil {
-			l := m.logger.With(
-				zap.String("label", label),
-				zap.String("typeName", typeName),
-				zap.String("fieldName", fieldName),
-				zap.Bool("trivial", trivial),
-				zap.Any("args", args),
-			)
-
-			if subject, ok := auth.FromContext(ctx); ok {
-				l = l.With(zap.Stringer("subject", subject.Type))
-				if subject.ID != "" {
-					l = l.With(zap.String("subjectId", subject.ID))
-				}
-			}
-
-			msg := "field errors"
-			var fields []zap.Field
-
-			if gerr, ok := err.Err.(*gqlerrors.SturdyGraphqlError); ok {
-				fields = []zap.Field{
-					zap.NamedError("sturdyError", gerr.OriginalError()),
-					zap.Any("sturdyErrorExtensions", gerr.Extensions()),
-					zap.Error(err),
-				}
-			} else {
-				fields = []zap.Field{zap.Error(err)}
-			}
-
-			switch logLevelForError(err) {
-			case logLevelWarn:
-				l.Warn(msg, fields...)
-			case logLevelErr:
-				l.Error(msg, fields...)
-			}
-		}
-
+	return ctx, func(err *errors.QueryError) {
 		hasError := "false"
 		if err != nil {
 			hasError = "true"
 		}
 		graphqlFieldsHistogramCounter.WithLabelValues(typeName, fieldName, hasError).Observe(float64(time.Since(t0).Milliseconds()))
 	}
-	return ctx, fn
 }
 
-type logLevel int
+type logLevel uint
 
 const (
-	logLevelNone logLevel = 0
-	logLevelWarn logLevel = 1
-	logLevelErr  logLevel = 2
+	logLevelNone logLevel = iota
+	logLevelWarn
+	logLevelErr
 )
 
 func logLevelForError(err error) logLevel {
