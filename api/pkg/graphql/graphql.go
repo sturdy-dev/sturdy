@@ -283,7 +283,7 @@ func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, opera
 
 			var gerr *gqlerrors.SturdyGraphqlError
 			if goerrors.As(err, &gerr) {
-				fields = append(fields, zap.NamedError(fmt.Sprint(err.Path...), gerr.OriginalError()))
+				fields = append(fields, zap.Any(fmt.Sprint(err.Path...), goerrors.Unwrap(gerr.OriginalError())))
 				for k, v := range gerr.Extensions() {
 					fields = append(fields, zap.Any(k, v))
 				}
