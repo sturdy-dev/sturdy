@@ -14,10 +14,10 @@ func New() resolvers.ContentsDownloadUrlRootResolver {
 	return &ContentsDownloadURLRootResolver{}
 }
 
-func (*ContentsDownloadURLRootResolver) InternalContentsDownloadTarGzUrl(context.Context, *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
+func (*ContentsDownloadURLRootResolver) InternalContentsDownloadTarGzUrl(context.Context, *change.Change, *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
 	return nil, errors.ErrNotImplemented
 }
 
-func (*ContentsDownloadURLRootResolver) InternalContentsDownloadZipUrl(context.Context, *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
+func (*ContentsDownloadURLRootResolver) InternalContentsDownloadZipUrl(context.Context, *change.Change, *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
 	return nil, errors.ErrNotImplemented
 }

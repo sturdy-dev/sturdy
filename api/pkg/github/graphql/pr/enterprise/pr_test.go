@@ -126,7 +126,7 @@ func TestPRHighLevel(t *testing.T) {
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
-	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
 	importer := service_github.ImporterQueue(workers_github.NopImporter())
 	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
@@ -337,6 +337,7 @@ func TestPRHighLevel(t *testing.T) {
 		&commentsResolver,
 		nil, // authorresolver
 		statusesRootResolver,
+		nil,
 		executorProvider,
 		logger,
 	)

@@ -386,7 +386,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 
-	changeService := service_change.New(executorProvider, nil, nil, userRepo, changeRepo, changeCommitRepo, nil)
+	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
 	workspaceService := service_workspace.New(
 		logger,
 		disabled.NewClient(),

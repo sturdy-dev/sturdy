@@ -71,8 +71,8 @@ type HunkResolver interface {
 
 type ContentsDownloadUrlRootResolver interface {
 	// Internal
-	InternalContentsDownloadTarGzUrl(context.Context, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
-	InternalContentsDownloadZipUrl(context.Context, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
+	InternalContentsDownloadTarGzUrl(context.Context, *change.Change, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
+	InternalContentsDownloadZipUrl(context.Context, *change.Change, *change.ChangeCommit) (ContentsDownloadUrlResolver, error)
 }
 
 type ContentsDownloadUrlResolver interface {

@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"time"
+
+	"go.uber.org/zap"
 
 	service_change "getsturdy.com/api/pkg/change/service"
 	"getsturdy.com/api/pkg/unidiff"
@@ -26,6 +29,7 @@ type Service struct {
 	maybeBucketName  *string
 	executorProvider executor.Provider
 	awsSession       *session.Session
+	logger           *zap.Logger
 }
 
 type Configuration struct {
@@ -37,6 +41,7 @@ func New(
 	cfg *Configuration,
 	executorProvider executor.Provider,
 	awsSession *session.Session,
+	logger *zap.Logger,
 ) *Service {
 	if cfg == nil {
 		cfg = &Configuration{}
@@ -46,6 +51,7 @@ func New(
 		executorProvider: executorProvider,
 		awsSession:       awsSession,
 		maybeBucketName:  &cfg.ExportBucketName,
+		logger:           logger,
 	}
 }
 
@@ -147,6 +153,12 @@ func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower,
 	presignedURL, err := req.Presign(time.Minute * 10)
 	if err != nil {
 		return "", fmt.Errorf("failed to get presigned URL: %w", err)
+	}
+
+	// Disk cleanup
+	if err := os.RemoveAll(viewPath); err != nil {
+		svc.logger.Error("failed to cleanup archive", zap.Error(err))
+		// don't fail
 	}
 
 	return presignedURL, nil
