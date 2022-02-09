@@ -13,6 +13,7 @@ import (
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
+	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -186,6 +187,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	snapshotID := uuid.New().String()
+
 	var snapshotCommitID string
 
 	var snapshotOptions []vcs_snapshots.SnapshotOption
@@ -479,18 +481,20 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 		Action:      snapshot.Action,
 	}
 
-	if err := s.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
-		if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
-			return fmt.Errorf("failed to apply patches to workdir: %w", err)
-		}
+	if err := s.executorProvider.New().
+		Write(vcs_view.CheckoutBranch(*snapshot.WorkspaceID)).
+		Write(func(repo vcs.RepoWriter) error {
+			if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
+				return fmt.Errorf("failed to apply patches to workdir: %w", err)
+			}
 
-		commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID)
-		if err != nil {
-			return fmt.Errorf("failed to snapshot on view repo: %w", err)
-		}
-		newSnapshot.CommitID = commitID
-		return nil
-	}).ExecTemporaryViewOnBranch(snapshot.CodebaseID, *snapshot.WorkspaceID, "copySnapshot"); err != nil {
+			commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID)
+			if err != nil {
+				return fmt.Errorf("failed to snapshot on view repo: %w", err)
+			}
+			newSnapshot.CommitID = commitID
+			return nil
+		}).ExecTemporaryView(snapshot.CodebaseID, "copySnapshot"); err != nil {
 		return nil, fmt.Errorf("failed to copy snapshot: %w", err)
 	}
 

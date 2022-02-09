@@ -22,7 +22,6 @@ import (
 	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -263,34 +262,31 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 	}
 
 	if originalWorkspace.ViewID == nil { // apply patches to the snapshot
-		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-			repo, cancel, err := vcs_view.TemporaryViewFromSnapshot(repoProvider, originalWorkspace.CodebaseID, originalWorkspace.ID, *originalWorkspace.LatestSnapshotID)
-			if err != nil {
-				return fmt.Errorf("failed to create temporary view: %w", err)
-			}
-			defer func() {
-				if err := cancel(); err != nil {
-					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
+		snapshot, err := s.snapshotter.GetByID(ctx, *originalWorkspace.LatestSnapshotID)
+		if err != nil {
+			return fmt.Errorf("failed to get snapshot: %w", err)
+		}
+
+		if err := s.executorProvider.New().
+			Write(vcs_view.CheckoutSnapshot(snapshot)).
+			Write(func(repo vcs.RepoWriter) error {
+				if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
+					return fmt.Errorf("failed to apply patches: %w", err)
 				}
-			}()
 
-			if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
-				return fmt.Errorf("failed to apply patches: %w", err)
-			}
+				if _, err := s.snapshotter.Snapshot(
+					originalWorkspace.CodebaseID,
+					originalWorkspace.ID,
+					snapshots.ActionSuggestionApply,
+					snapshotter.WithOnView(*repo.ViewID()),
+					snapshotter.WithOnRepo(repo),
+					snapshotter.WithMarkAsLatestInWorkspace(),
+				); err != nil {
+					return fmt.Errorf("failed to snapshot: %w", err)
+				}
 
-			if _, err := s.snapshotter.Snapshot(
-				originalWorkspace.CodebaseID,
-				originalWorkspace.ID,
-				snapshots.ActionSuggestionApply,
-				snapshotter.WithOnView(*repo.ViewID()),
-				snapshotter.WithOnRepo(repo),
-				snapshotter.WithMarkAsLatestInWorkspace(),
-			); err != nil {
-				return fmt.Errorf("failed to snapshot: %w", err)
-			}
-
-			return nil
-		}).ExecTrunk(originalWorkspace.CodebaseID, "applySuggestionDiffs"); err != nil {
+				return nil
+			}).ExecTemporaryView(originalWorkspace.CodebaseID, "applySuggestionDiffs"); err != nil {
 			return fmt.Errorf("failed to apply patches: %w", err)
 		}
 	} else { // apply to the view
@@ -415,33 +411,29 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 	}
 
 	if workspace.LatestSnapshotID != nil {
-		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-			repo, cancel, err := vcs_view.TemporaryViewFromSnapshot(repoProvider, workspace.CodebaseID, workspace.ID, *workspace.LatestSnapshotID)
-			if err != nil {
-				return fmt.Errorf("failed to create temporary view: %w", err)
-			}
-			defer func() {
-				if err := cancel(); err != nil {
-					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
+		snapshot, err := s.snapshotter.GetByID(ctx, *workspace.LatestSnapshotID)
+		if err != nil {
+			return fmt.Errorf("failed to get snapshot: %w", err)
+		}
+		if err := s.executorProvider.New().
+			Write(vcs_view.CheckoutSnapshot(snapshot)).
+			Write(func(repo vcs.RepoWriter) error {
+				if err := removePatches(repo); err != nil {
+					return err
 				}
-			}()
+				if _, err := s.snapshotter.Snapshot(
+					workspace.CodebaseID,
+					workspace.ID,
+					snapshots.ActionFileUndoPatch,
+					snapshotter.WithOnRepo(repo),
+					snapshotter.WithOnView(*workspace.ViewID),
+					snapshotter.WithMarkAsLatestInWorkspace(),
+				); err != nil {
+					return fmt.Errorf("failed to snapshot: %w", err)
+				}
 
-			if err := removePatches(repo); err != nil {
-				return err
-			}
-			if _, err := s.snapshotter.Snapshot(
-				workspace.CodebaseID,
-				workspace.ID,
-				snapshots.ActionFileUndoPatch,
-				snapshotter.WithOnRepo(repo),
-				snapshotter.WithOnView(*workspace.ViewID),
-				snapshotter.WithMarkAsLatestInWorkspace(),
-			); err != nil {
-				return fmt.Errorf("failed to snapshot: %w", err)
-			}
-
-			return nil
-		}).ExecTrunk(workspace.CodebaseID, "removeSuggestionPatches"); err != nil {
+				return nil
+			}).ExecTemporaryView(workspace.CodebaseID, "removeSuggestionPatches"); err != nil {
 			return fmt.Errorf("failed to apply patches: %w", err)
 		}
 		return nil

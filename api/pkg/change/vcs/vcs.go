@@ -10,10 +10,8 @@ import (
 
 	vcs_sync "getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
-	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -30,39 +28,16 @@ func GetDiffs(r vcs.RepoGitReader, commitID string) ([]string, error) {
 	return diffs, nil
 }
 
-func CreateAndLandFromView(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID, viewID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.RepoGitWriter) error, error) {
-	return createAndLand(viewRepo, logger, codebaseID, workspaceID, patchIDs, message, signature, diffOpts...)
-}
-
-func CreateAndLandFromSnapshot(repoProvider provider.RepoProvider, logger *zap.Logger, codebaseID, workspaceID, snapshotID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func() error, error) {
-	viewID := fmt.Sprintf("tmp-%s", uuid.New().String())
-	repo, cancel, err := vcs_view.TemporaryViewFromSnapshotWithID(repoProvider, viewID, codebaseID, workspaceID, snapshotID)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to create temporary view: %w", err)
-	}
-
-	commitID, pushFunc, err := createAndLand(repo, logger, codebaseID, workspaceID, patchIDs, message, signature, diffOpts...)
-	defer func() {
-		if err != nil {
-			// If something went wrong, delete temporary view
-			if err := cancel(); err != nil {
-				logger.Error("failed to remove tmp view repo: %w", zap.Error(err))
-			}
-		}
-	}()
-
-	return commitID, func() error {
-		defer func() {
-			// When commit is pushed, delete temporary view
-			if err := cancel(); err != nil {
-				logger.Error("failed to remove tmp view repo: %w", zap.Error(err))
-			}
-		}()
-		return pushFunc(repo)
-	}, err
-}
-
-func createAndLand(viewRepo vcs.RepoWriter, logger *zap.Logger, codebaseID, workspaceID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, func(vcs.RepoGitWriter) error, error) {
+func CreateAndLandFromView(
+	viewRepo vcs.RepoWriter,
+	logger *zap.Logger,
+	codebaseID,
+	workspaceID string,
+	patchIDs []string,
+	message string,
+	signature git.Signature,
+	diffOpts ...vcs.DiffOption,
+) (string, func(vcs.RepoGitWriter) error, error) {
 	preCreateBranchHead, err := viewRepo.BranchCommitID(workspaceID)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to get branch head: %w", err)

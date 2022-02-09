@@ -1,14 +1,17 @@
 package snapshots
 
 import (
-	"getsturdy.com/api/pkg/jsontime"
+	"fmt"
 	"time"
+
+	"getsturdy.com/api/pkg/jsontime"
 
 	"github.com/lib/pq"
 )
 
 type Snapshot struct {
-	ID                 string         `json:"id" db:"id"`
+	ID string `json:"id" db:"id"`
+	// CommitID with the snapshotted content. I.E. to get a view state without the snapshot, soft reset it to the commitID's parent.
 	CommitID           string         `json:"-" db:"commit_id"`
 	CodebaseID         string         `json:"codebase_id" db:"codebase_id"`
 	ViewID             string         `json:"view_id" db:"view_id"`           // ViewID is optional. TODO: Make it nullable?
@@ -20,6 +23,10 @@ type Snapshot struct {
 	PreviousSnapshotID *string        `json:"previous_snapshot_id" db:"previous_snapshot_id"`
 	Action             Action         `json:"action" db:"action"`         // The action that triggered the snapshot creations
 	DeletedAt          *time.Time     `json:"deleted_at" db:"deleted_at"` // If the snapshot has been garbage collected
+}
+
+func (s *Snapshot) BranchName() string {
+	return fmt.Sprintf("snapshot-%s", s.ID)
 }
 
 type SnapshotJSON struct {

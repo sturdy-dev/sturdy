@@ -3,6 +3,7 @@ package vcs
 import (
 	"fmt"
 
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 )
@@ -12,20 +13,7 @@ func Create(repoProvider provider.RepoProvider, codebaseID, checkoutBranchName, 
 	if err != nil {
 		return fmt.Errorf("failed to create a view of %s: %w", codebaseID, err)
 	}
-
-	if err := view.FetchBranch(checkoutBranchName); err != nil {
-		return fmt.Errorf("failed to fetch branch: %w", err)
-	}
-
-	if err := view.CreateBranchTrackingUpstream(checkoutBranchName); err != nil {
-		return fmt.Errorf("failed to create branch: %w", err)
-	}
-
-	if err := view.CheckoutBranchWithForce(checkoutBranchName); err != nil {
-		return fmt.Errorf("failed to checkout branch: %w", err)
-	}
-
-	return nil
+	return checkoutBranch(view, checkoutBranchName)
 }
 
 func SetWorkspace(viewProvider provider.ViewProvider, codebaseID, viewID, workspaceID string) error {
@@ -33,24 +21,61 @@ func SetWorkspace(viewProvider provider.ViewProvider, codebaseID, viewID, worksp
 	if err != nil {
 		return fmt.Errorf("failed find codebaseID %s: %w", codebaseID, err)
 	}
-	return SetWorkspaceRepo(repo, workspaceID)
+	return checkoutBranch(repo, workspaceID)
 }
 
-func SetWorkspaceRepo(repo vcs.RepoWriter, workspaceID string) error {
-	err := repo.FetchBranch(workspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to update view (step 1): %w", err)
+func CheckoutBranch(branchName string) func(vcs.RepoWriter) error {
+	return func(repo vcs.RepoWriter) error {
+		return checkoutBranch(repo, branchName)
 	}
+}
 
-	err = repo.CreateBranchTrackingUpstream(workspaceID)
+func checkoutBranch(repo vcs.RepoWriter, branchName string) error {
+	headBranch, err := repo.HeadBranch()
 	if err != nil {
-		return fmt.Errorf("failed to update view (step 2): %w", err)
+		return fmt.Errorf("failed to get head branch: %w", err)
 	}
-
-	err = repo.CheckoutBranchWithForce(workspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to update view (step 3): %w", err)
+	if headBranch == branchName {
+		return nil
 	}
-
+	if err := repo.FetchBranch(branchName); err != nil {
+		return fmt.Errorf("failed to fetch branch '%s': %w", branchName, err)
+	}
+	if err := repo.CreateBranchTrackingUpstream(branchName); err != nil {
+		return fmt.Errorf("failed to create branch '%s': %w", branchName, err)
+	}
+	if err := repo.CheckoutBranchWithForce(branchName); err != nil {
+		return fmt.Errorf("failed to checkout branch '%s': %w", branchName, err)
+	}
 	return nil
+}
+
+func CheckoutSnapshot(snapshot *snapshots.Snapshot) func(vcs.RepoWriter) error {
+	return func(repo vcs.RepoWriter) error {
+		copyBranchName := snapshot.BranchName()
+		copyParentCommitsIDs, err := repo.GetCommitParents(snapshot.CommitID)
+		if err != nil {
+			return fmt.Errorf("failed to get commit parents: %w", err)
+		}
+		if len(copyParentCommitsIDs) != 1 {
+			return fmt.Errorf("unexpected number of parents=%d", len(copyParentCommitsIDs))
+		}
+		preCommitID := copyParentCommitsIDs[0]
+		if err := repo.CreateBranchTrackingUpstream(copyBranchName); err != nil {
+			return fmt.Errorf("failed to create branch on target: %w", err)
+		}
+		if err := repo.CheckoutBranchWithForce(copyBranchName); err != nil {
+			return fmt.Errorf("failed to checkout branch on target: %w", err)
+		}
+		if err := repo.CreateBranchTrackingUpstream(*snapshot.WorkspaceID); err != nil {
+			return fmt.Errorf("failed to create workspace branch on target: %w", err)
+		}
+		if err := repo.ResetMixed(preCommitID); err != nil {
+			return fmt.Errorf("failed to restore to parent on target: %w", err)
+		}
+		if err := repo.CheckoutBranchSafely(*snapshot.WorkspaceID); err != nil {
+			return fmt.Errorf("failed to checkout workspace on target: %w", err)
+		}
+		return nil
+	}
 }

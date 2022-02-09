@@ -11,7 +11,6 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view/vcs"
-	vcsvcs "getsturdy.com/api/vcs"
 
 	"go.uber.org/zap"
 )
@@ -59,20 +58,9 @@ func (r *ViewRootResolver) CopyWorkspaceToView(ctx context.Context, args resolve
 	}
 
 	// TODO: Create a snapshot of the authorative view (or use latest snapshot)
-	if err := r.executorProvider.New().Write(func(repo vcsvcs.RepoWriter) error {
-		// For backwards compatability? Skip checkout if already checked out
-		headBranch, err := repo.HeadBranch()
-		if err != nil {
-			return fmt.Errorf("failed to open repo get branch")
-		}
-		if headBranch != ws.ID {
-			// Checkout
-			if err := vcs.SetWorkspaceRepo(repo, ws.ID); err != nil {
-				return fmt.Errorf("failed to checkout view: %w", err)
-			}
-		}
-		return nil
-	}).ExecView(ws.CodebaseID, view.ID, "copyWorkspaceToView"); err != nil {
+	if err := r.executorProvider.New().
+		Write(vcs.CheckoutBranch(ws.ID)).
+		ExecView(ws.CodebaseID, view.ID, "copyWorkspaceToView"); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

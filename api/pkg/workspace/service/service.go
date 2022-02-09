@@ -31,7 +31,6 @@ import (
 	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
@@ -397,85 +396,54 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		When:  time.Now(),
 	}
 
-	var createdCommitID string
+	cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
 
-	var fromViewPushFunc func(vcs.RepoGitWriter) error
-	var fromSnapshotPushFunc func() error
+	var change *change.Change
+	creteAndLand := func(viewRepo vcs.RepoWriter) error {
+		createdCommitID, fromViewPushFunc, err := change_vcs.CreateAndLandFromView(
+			viewRepo,
+			s.logger,
+			ws.CodebaseID,
+			ws.ID,
+			patchIDs,
+			gitCommitMessage,
+			signature,
+			diffOpts...,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to create and land from view: %w", err)
+		}
+
+		change, err = s.changeService.Create(ctx, ws, createdCommitID, cleanCommitMessageTitle)
+		if err != nil {
+			return fmt.Errorf("failed to create change: %w", err)
+		}
+		if err := fromViewPushFunc(viewRepo); err != nil {
+			return fmt.Errorf("failed to push the landed result: %w", err)
+		}
+		return nil
+	}
 
 	if ws.ViewID != nil {
-		if err := s.executorProvider.New().Write(func(viewRepo vcs.RepoWriter) error {
-			var err error
-			createdCommitID, fromViewPushFunc, err = change_vcs.CreateAndLandFromView(
-				viewRepo,
-				s.logger,
-				ws.CodebaseID,
-				ws.ID,
-				*ws.ViewID,
-				patchIDs,
-				gitCommitMessage,
-				signature,
-				diffOpts...,
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create and land from view: %w", err)
-			}
-			return nil
-		}).ExecView(ws.CodebaseID, *ws.ViewID, "landChangeCreateAndLandFromView"); err != nil {
+		if err := s.executorProvider.New().
+			Write(creteAndLand).
+			ExecView(ws.CodebaseID, *ws.ViewID, "landChangeCreateAndLandFromView"); err != nil {
 			return nil, fmt.Errorf("failed to share from view: %w", err)
 		}
 	} else {
 		if ws.LatestSnapshotID == nil {
 			return nil, fmt.Errorf("the workspace has no snapshot")
 		}
-		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-			var err error
-			createdCommitID, fromSnapshotPushFunc, err = change_vcs.CreateAndLandFromSnapshot(
-				repoProvider,
-				s.logger,
-				ws.CodebaseID,
-				ws.ID,
-				*ws.LatestSnapshotID,
-				patchIDs,
-				gitCommitMessage,
-				signature,
-				diffOpts...,
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create and land from snapshot: %w", err)
-			}
-			return nil
-		}).ExecTrunk(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
+		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get snapshot: %w", err)
+		}
+		if err := s.executorProvider.New().
+			Write(vcs_view.CheckoutSnapshot(snapshot)).
+			Write(creteAndLand).
+			ExecTemporaryView(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
 			return nil, fmt.Errorf("failed to create and land from snaphsot: %w", err)
 		}
-	}
-
-	cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
-	change, err := s.changeService.Create(ctx, ws, createdCommitID, cleanCommitMessageTitle)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create change: %w", err)
-	}
-
-	if ws.ViewID != nil {
-		executor := s.executorProvider.New().GitWrite(func(viewRepo vcs.RepoGitWriter) error {
-			if err := fromViewPushFunc(viewRepo); err != nil {
-				return fmt.Errorf("failed to push the landed result: %w", err)
-			}
-			return nil
-		})
-		if err := executor.ExecView(ws.CodebaseID, *ws.ViewID, "landChangePush"); err != nil {
-			return nil, fmt.Errorf("failed to push the landed result from view: %w", err)
-		}
-	} else {
-		executor := s.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
-			if err := fromSnapshotPushFunc(); err != nil {
-				return fmt.Errorf("failed to push the landed result: %w", err)
-			}
-			return nil
-		})
-		if err := executor.ExecTrunk(ws.CodebaseID, "landChangePush"); err != nil {
-			return nil, fmt.Errorf("failed to push the landed result from trunk: %w", err)
-		}
-		// The snapshot if merged and can't be merged again.
 		ws.LatestSnapshotID = nil
 	}
 
@@ -485,7 +453,6 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		Properties: analytics.NewProperties().
 			Set("codebase_id", ws.CodebaseID).
 			Set("workspace_id", ws.ID).
-			Set("commit_id", createdCommitID).
 			Set("change_id", change.ID),
 	}); err != nil {
 		s.logger.Error("analytics failed", zap.Error(err))
@@ -655,34 +622,30 @@ func (s *WorkspaceService) RemovePatches(ctx context.Context, allower *unidiff.A
 	}
 
 	if ws.LatestSnapshotID != nil {
-		if err := s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-			repo, cancel, err := vcs_view.TemporaryViewFromSnapshot(repoProvider, ws.CodebaseID, ws.ID, *ws.LatestSnapshotID)
-			if err != nil {
-				return fmt.Errorf("failed to create temporary view: %w", err)
-			}
-			defer func() {
-				if err := cancel(); err != nil {
-					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
+		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
+		if err != nil {
+			return fmt.Errorf("failed to get snapshot: %w", err)
+		}
+		if err := s.executorProvider.New().
+			Write(vcs_view.CheckoutSnapshot(snapshot)).
+			Write(func(repo vcs.RepoWriter) error {
+				if err := removePatches(repo); err != nil {
+					return fmt.Errorf("failed to remove patches: %w", err)
 				}
-			}()
 
-			if err := removePatches(repo); err != nil {
-				return fmt.Errorf("failed to remove patches: %w", err)
-			}
+				if _, err := s.snap.Snapshot(
+					ws.CodebaseID,
+					ws.ID,
+					snapshots.ActionFileUndoPatch,
+					snapshotter.WithOnView(*repo.ViewID()),
+					snapshotter.WithMarkAsLatestInWorkspace(),
+					snapshotter.WithOnRepo(repo),
+				); err != nil {
+					return fmt.Errorf("failed to snapshot: %w", err)
+				}
 
-			if _, err := s.snap.Snapshot(
-				ws.CodebaseID,
-				ws.ID,
-				snapshots.ActionFileUndoPatch,
-				snapshotter.WithOnView(*repo.ViewID()),
-				snapshotter.WithMarkAsLatestInWorkspace(),
-				snapshotter.WithOnRepo(repo),
-			); err != nil {
-				return fmt.Errorf("failed to snapshot: %w", err)
-			}
-
-			return nil
-		}).ExecTrunk(ws.CodebaseID, "removePatches"); err != nil {
+				return nil
+			}).ExecTemporaryView(ws.CodebaseID, "removePatches"); err != nil {
 			return fmt.Errorf("failed to remove patches: %w", err)
 		}
 
@@ -699,7 +662,7 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 	}
 
 	var hasConflicts bool
-	hasConflictsFunc := func(repo vcs.RepoGitWriter) error {
+	checkConflicts := func(repo vcs.RepoGitWriter) error {
 		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), it's not conflicting
 		if _, err := repo.BranchCommitID("sturdytrunk"); err != nil {
 			return nil
@@ -720,29 +683,25 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 		return nil
 	}
 
-	var err error
 	if ws.ViewID == nil {
-		err = s.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-			repo, cancel, err := vcs_view.TemporaryViewFromSnapshot(repoProvider, ws.CodebaseID, ws.ID, *ws.LatestSnapshotID)
-			if err != nil {
-				return fmt.Errorf("failed to create temporary view: %w", err)
-			}
-			defer func() {
-				if err := cancel(); err != nil {
-					s.logger.Error("failed to cleanup temporary view", zap.Error(err))
-				}
-			}()
-			return hasConflictsFunc(repo)
-		}).ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflicts")
-	} else {
-		err = s.executorProvider.New().GitWrite(hasConflictsFunc).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflicts")
-	}
-
-	if err != nil {
-		if errors.Is(err, executor.ErrIsRebasing) {
-			return false, nil
+		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
+		if err != nil {
+			return false, fmt.Errorf("failed to get snapshot: %w", err)
 		}
-		return false, err
+		if err := s.executorProvider.New().
+			Write(vcs_view.CheckoutSnapshot(snapshot)).
+			GitWrite(checkConflicts).
+			ExecTemporaryView(ws.CodebaseID, "workspaceCheckIfConflicts"); err != nil {
+			return false, fmt.Errorf("failed to check if conflicts: %w", err)
+		}
+		return hasConflicts, nil
+	} else {
+		if err := s.executorProvider.New().GitWrite(checkConflicts).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflicts"); err != nil {
+			if errors.Is(err, executor.ErrIsRebasing) {
+				return false, nil
+			}
+			return false, err
+		}
+		return hasConflicts, nil
 	}
-	return hasConflicts, nil
 }

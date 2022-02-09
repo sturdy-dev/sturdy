@@ -13,6 +13,7 @@ import (
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/vcs"
 
@@ -123,21 +124,23 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 		return fmt.Errorf("failed to fetch pull to trunk: %w", err)
 	}
 
-	if err := svc.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
-		if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
-			return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
-		}
-		if _, err := repo.AddAndCommit(fmt.Sprintf("Import from GitHub Pull Request %d", gitHubPR.GetNumber())); err != nil {
-			return fmt.Errorf("failed to commit for snapshot: %w", err)
-		}
-		if err := repo.CreateNewBranchOnHEAD(importedTemporaryBranchName); err != nil {
-			return fmt.Errorf("failed to create branch for snapshot: %w", err)
-		}
-		if err := repo.Push(svc.logger, importedTemporaryBranchName); err != nil {
-			return fmt.Errorf("failed to push branch for snapshot: %w", err)
-		}
-		return nil
-	}).ExecTemporaryViewOnBranch(codebaseID, importBranchName, "gitHubImportBranch"); err != nil {
+	if err := svc.executorProvider.New().
+		Write(vcs_view.CheckoutBranch(importBranchName)).
+		Write(func(repo vcs.RepoWriter) error {
+			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
+			}
+			if _, err := repo.AddAndCommit(fmt.Sprintf("Import from GitHub Pull Request %d", gitHubPR.GetNumber())); err != nil {
+				return fmt.Errorf("failed to commit for snapshot: %w", err)
+			}
+			if err := repo.CreateNewBranchOnHEAD(importedTemporaryBranchName); err != nil {
+				return fmt.Errorf("failed to create branch for snapshot: %w", err)
+			}
+			if err := repo.Push(svc.logger, importedTemporaryBranchName); err != nil {
+				return fmt.Errorf("failed to push branch for snapshot: %w", err)
+			}
+			return nil
+		}).ExecTemporaryView(codebaseID, "gitHubImportBranch"); err != nil {
 		return fmt.Errorf("failed to create workspace from pr: %w", err)
 	}
 
