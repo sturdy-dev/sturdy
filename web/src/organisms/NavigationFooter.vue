@@ -106,8 +106,8 @@
                 </li>
                 <li>
                   <router-link :to="{ name: '' }" class="hover:text-slate-100">
-                    Sources</router-link
-                  >
+                    Sources
+                  </router-link>
                 </li>
               </ul>
             </div>
@@ -159,7 +159,7 @@ const navigation = [
     links: [
       { name: 'Docs', route: 'v2DocsRoot' },
       { name: 'API', route: 'resourcesApi' },
-      { name: 'Source Code (soon)', href: '#' },
+      { name: 'Source Code', href: 'https://github.com/sturdy-dev/sturdy', external: true },
     ],
   },
   {
