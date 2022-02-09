@@ -137,7 +137,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 			return fmt.Errorf("failed to push branch for snapshot: %w", err)
 		}
 		return nil
-	}).TemporaryViewOnBranch(codebaseID, importBranchName, "gitHubImportBranch"); err != nil {
+	}).ExecTemporaryViewOnBranch(codebaseID, importBranchName, "gitHubImportBranch"); err != nil {
 		return fmt.Errorf("failed to create workspace from pr: %w", err)
 	}
 
