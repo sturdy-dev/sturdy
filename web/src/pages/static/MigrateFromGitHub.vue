@@ -99,7 +99,7 @@
 
 <script>
 import LinkButton from '../../components/shared/LinkButton.vue'
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import Permissions from '../../components/github/Permissions.vue'
 
 export default {

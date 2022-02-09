@@ -241,7 +241,7 @@
 </template>
 
 <script>
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import { CheckIcon, XIcon } from '@heroicons/vue/outline'
 import Pill from '../../components/shared/Pill.vue'
 

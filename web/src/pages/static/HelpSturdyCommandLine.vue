@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 export default {
   components: { StaticPage },
 }

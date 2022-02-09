@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import { useRouter } from 'vue-router'
 import LinkButton from '../../components/shared/LinkButton.vue'
 import { AtSymbolIcon } from '@heroicons/vue/solid'

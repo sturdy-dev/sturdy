@@ -1,18 +1,10 @@
 <template>
-  <Public>
+  <Documentation>
     <JobDescription title="Founding Backend Engineer" />
-  </Public>
+  </Documentation>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import Public from '../../layouts/Public.vue'
+<script lang="ts" setup>
 import JobDescription from '../../organisms/careers/JobDescription.vue'
-
-export default defineComponent({
-  components: {
-    Public,
-    JobDescription,
-  },
-})
+import Documentation from '../../layouts/Documentation.vue'
 </script>

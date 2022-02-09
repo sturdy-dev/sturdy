@@ -1,5 +1,5 @@
 <template>
-  <div class="relative py-16 bg-white">
+  <Documentation>
     <div class="hidden lg:right-0 lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
       <div class="relative h-full text-lg max-w-prose mx-auto" aria-hidden="true"></div>
     </div>
@@ -73,16 +73,18 @@
 
       <DiveIn v-if="diveInBanner" />
     </div>
-  </div>
+  </Documentation>
 </template>
 
-<script>
+<script lang="ts">
 import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import DiveIn from '../../components/index/DiveIn.vue'
+import { defineComponent } from 'vue'
+import Documentation from '../../layouts/Documentation.vue'
 
-export default {
-  components: { DiveIn },
+export default defineComponent({
+  components: { DiveIn, Documentation },
   props: {
     title: {
       type: String,
@@ -139,5 +141,5 @@ export default {
       recentPosts: routes.filter((r) => r.meta.blog),
     }
   },
-}
+})
 </script>

@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import LinkButton from '../../components/shared/LinkButton.vue'
 export default {
   components: { LinkButton, StaticPage },

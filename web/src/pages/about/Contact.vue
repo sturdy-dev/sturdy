@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100">
+  <Documentation>
     <div>
       <div class="mx-auto py-12 px-4 max-w-7xl sm:px-6 lg:px-8 lg:py-24 space-y-24">
         <div class="space-y-12">
@@ -44,23 +44,16 @@
         </div>
       </div>
     </div>
-  </div>
+  </Documentation>
 </template>
 
-<script>
+<script lang="ts" setup>
 import { useHead } from '@vueuse/head'
 import LinkButton from '../../components/shared/LinkButton.vue'
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/vue/solid'
+import Documentation from '../../layouts/Documentation.vue'
 
-export default {
-  name: 'Contact',
-  components: { LinkButton, AtSymbolIcon, PhoneIcon },
-  setup() {
-    useHead({
-      title: 'Contact Sturdy',
-    })
-  },
-}
+useHead({
+  title: 'Contact Sturdy',
+})
 </script>
-
-<style scoped></style>

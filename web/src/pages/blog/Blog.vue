@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import StaticPage from '../static/StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import { useRouter } from 'vue-router'
 
 export default {
