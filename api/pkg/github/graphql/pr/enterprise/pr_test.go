@@ -337,7 +337,7 @@ func TestPRHighLevel(t *testing.T) {
 		&commentsResolver,
 		nil, // authorresolver
 		statusesRootResolver,
-		nil,
+		nil, // downloadsResolver
 		executorProvider,
 		logger,
 	)

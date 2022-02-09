@@ -24,6 +24,7 @@ require (
 	github.com/buildkite/go-buildkite/v3 v3.0.0
 	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/disintegration/imaging v1.6.2
+	github.com/fatih/color v1.13.0
 	github.com/getsentry/raven-go v0.2.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.5
@@ -73,7 +74,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect

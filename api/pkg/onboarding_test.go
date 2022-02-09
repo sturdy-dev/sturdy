@@ -288,7 +288,7 @@ func TestCreate(t *testing.T) {
 		nil, // commentResolver
 		authorRootResolver,
 		statusesRootResolver,
-		nil,
+		nil, // downloadsResolver
 		executorProvider,
 		logger,
 	)
@@ -818,7 +818,7 @@ func TestLargeFiles(t *testing.T) {
 		nil, // commentsResolver
 		nil, // authorRootResolver
 		statusesRootResolver,
-		nil,
+		nil, // downloadsResolver
 		executorProvider,
 		logger,
 	)

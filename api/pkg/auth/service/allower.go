@@ -46,6 +46,10 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 			return s.getUserCodebaseAllower(ctx, subject.ID, object)
 		case codebase.Codebase:
 			return s.getUserCodebaseAllower(ctx, subject.ID, &object)
+		case change.ChangeCommit:
+			return s.getUserChangeCommitAllower(ctx, subject.ID, &object)
+		case *change.ChangeCommit:
+			return s.getUserChangeCommitAllower(ctx, subject.ID, object)
 		case change.Change:
 			return s.getUserChangeAllower(ctx, subject.ID, &object)
 		case *change.Change:
@@ -62,14 +66,22 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 
 	case auth.SubjectCI:
 		switch object := obj.(type) {
+		case *change.ChangeCommit:
+			return s.getCIChangeCommit(ctx, subject.ID, object)
+		case change.ChangeCommit:
+			return s.getCIChangeCommit(ctx, subject.ID, &object)
 		case *change.Change:
-			return s.getCIAllower(ctx, subject.ID, object)
+			return s.getCIChangeAllower(ctx, subject.ID, object)
 		case change.Change:
-			return s.getCIAllower(ctx, subject.ID, &object)
+			return s.getCIChangeAllower(ctx, subject.ID, &object)
 		}
-		
+
 	case auth.SubjectAnonymous:
 		switch object := obj.(type) {
+		case *change.ChangeCommit:
+			return s.getAnonymousChangeCommitAllower(ctx, object)
+		case change.ChangeCommit:
+			return s.getAnonymousChangeCommitAllower(ctx, &object)
 		case *change.Change:
 			return s.getAnonymousChangeAllower(ctx, object)
 		case change.Change:
@@ -82,6 +94,14 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 	}
 
 	return noneAllowed, nil
+}
+
+func (s *Service) getUserChangeCommitAllower(ctx context.Context, userID string, changeCommit *change.ChangeCommit) (*unidiff.Allower, error) {
+	cb, err := s.codebaseService.GetByID(ctx, changeCommit.CodebaseID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get codebase: %w", err)
+	}
+	return s.getUserCodebaseAllower(ctx, userID, cb)
 }
 
 func (s *Service) getUserChangeAllower(ctx context.Context, userID string, change *change.Change) (*unidiff.Allower, error) {
@@ -138,7 +158,14 @@ func (s *Service) getUserCodebaseAllower(ctx context.Context, userID string, cod
 	return unidiff.NewAllower(append(allowedByEmail, allowedByID...)...)
 }
 
-func (s *Service) getCIAllower(ctx context.Context, changeID string, change *change.Change) (*unidiff.Allower, error) {
+func (s *Service) getCIChangeCommit(ctx context.Context, changeID string, changeCommit *change.ChangeCommit) (*unidiff.Allower, error) {
+	if changeID != string(changeCommit.ChangeID) {
+		return noneAllowed, nil
+	}
+	return allAllowed, nil
+}
+
+func (s *Service) getCIChangeAllower(ctx context.Context, changeID string, change *change.Change) (*unidiff.Allower, error) {
 	if changeID != string(change.ID) {
 		return noneAllowed, nil
 	}
@@ -147,6 +174,14 @@ func (s *Service) getCIAllower(ctx context.Context, changeID string, change *cha
 
 func (s *Service) getAnonymousWorkspaceAllower(ctx context.Context, workspace *workspace.Workspace) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, workspace.CodebaseID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get codebase: %w", err)
+	}
+	return s.getAnonymousCodebaseAllower(ctx, cb)
+}
+
+func (s *Service) getAnonymousChangeCommitAllower(ctx context.Context, changeCommit *change.ChangeCommit) (*unidiff.Allower, error) {
+	cb, err := s.codebaseService.GetByID(ctx, changeCommit.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
 	}

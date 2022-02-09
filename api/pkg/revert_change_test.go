@@ -119,7 +119,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(aclProvider, userRepo, changeRepo, changeCommitRepo)
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -191,7 +191,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		nil, // commentResolver
 		nil, // authorResolver
 		statusesRootResolver,
-		nil,
+		nil, // downloadsResovler
 		executorProvider,
 		logger,
 	)
@@ -532,7 +532,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		nil, // commentResolver
 		nil, // authorResolver
 		statusesRootResolver,
-		nil,
+		nil, // downloadsResolver
 		executorProvider,
 		logger,
 	)
