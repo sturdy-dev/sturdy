@@ -47,7 +47,7 @@
             <code>30080</code> and
             <code>30022</code>
           </li>
-          <DocsInfoBox> Don't see your server? Restart the Sturdy app and try again. </DocsInfoBox>
+          <DocsInfoBox> Don't see your server? Restart the Sturdy app and try again.</DocsInfoBox>
           <li>
             Follow the instructions in the app to setup your account and configure your server!
           </li>
@@ -232,42 +232,33 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
-import { DOCKER_ONELINER } from '../../docker'
+import { DOCKER_ONELINER as dockerOneliner } from '../../docker'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to setup self-hosted Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation self-hosted github enterprise local',
-        },
-      ],
-      title: 'Self-hosted | Sturdy',
-    })
-
-    return {
-      dockerOneliner: DOCKER_ONELINER,
-      dockerOnelinerWithGithub: DOCKER_ONELINER.replace(
-        'getsturdy/server',
-        `--env STURDY_GITHUB_APP_ID=<id> \\
+const dockerOnelinerWithGithub = dockerOneliner.replace(
+  'getsturdy/server',
+  `--env STURDY_GITHUB_APP_ID=<id> \\
     --env STURDY_GITHUB_APP_CLIENT_ID=<client_id> \\
     --env STURDY_GITHUB_APP_SECRET=<secret> \\
     --env STURDY_GITHUB_APP_PRIVATE_KEY_PATH=/var/data/github-private.key \\
         getsturdy/server`
-      ),
-    }
-  },
+)
+
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to setup self-hosted Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation self-hosted github enterprise local',
+    },
+  ],
+  title: 'Self-hosted | Sturdy',
 })
 </script>

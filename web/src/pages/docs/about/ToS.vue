@@ -537,11 +537,6 @@
   </StaticPage>
 </template>
 
-<script>
-import StaticPage from '../../layouts/StaticPage.vue'
-export default {
-  name: 'ToS',
-  components: { StaticPage },
-  title: 'Sturdy Terms of Service',
-}
+<script lang="ts" setup>
+import StaticPage from '../../../layouts/StaticPage.vue'
 </script>

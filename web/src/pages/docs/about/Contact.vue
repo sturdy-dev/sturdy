@@ -19,7 +19,7 @@
                     target="_blank"
                     class="!no-underline !text-black !m-0"
                   >
-                    <img src="../static/docs/assets/discord.svg" class="h-8 w-8 mr-2" />
+                    <img src="../assets/discord.svg" class="h-8 w-8 mr-2" />
                     <span>Get help on our Discord</span>
                   </LinkButton>
                 </li>
@@ -49,9 +49,9 @@
 
 <script lang="ts" setup>
 import { useHead } from '@vueuse/head'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../../components/shared/LinkButton.vue'
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/vue/solid'
-import Documentation from '../../layouts/Documentation.vue'
+import Documentation from '../../../layouts/Documentation.vue'
 
 useHead({
   title: 'Contact Sturdy',

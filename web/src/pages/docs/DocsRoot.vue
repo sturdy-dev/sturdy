@@ -113,35 +113,25 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
-import { DOCKER_ONELINER } from '../../docker'
+import { DOCKER_ONELINER as dockerOneliner } from '../../docker'
 
-export default defineComponent({
-  components: { DocumentationWithTableOfContents, DocsSidebar },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content:
-            'Learn what Sturdy is, and how you can use Sturdy in the Cloud or self-host Sturdy on your own premises.',
-        },
-        {
-          name: 'keywords',
-          content:
-            'study learn documentation cloud self host self-host docker oneliner on prem on-prem premises',
-        },
-      ],
-      title: 'Documentation | Sturdy',
-    })
-
-    return {
-      dockerOneliner: DOCKER_ONELINER,
-    }
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content:
+        'Learn what Sturdy is, and how you can use Sturdy in the Cloud or self-host Sturdy on your own premises.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'study learn documentation cloud self host self-host docker oneliner on prem on-prem premises',
+    },
+  ],
+  title: 'Documentation | Sturdy',
 })
 </script>

@@ -8,7 +8,8 @@
         <h1 id="pricing">Pricing</h1>
         <p>
           Sturdy comes in a few variants, with different pricing.
-          <router-link :to="{ name: 'v2pricing' }">See full comparison</router-link>.
+          <router-link :to="{ name: 'v2pricing' }">See full comparison</router-link>
+          .
         </p>
 
         <h2 id="open-source-sturdy">Self-hosted Sturdy Open Source</h2>
@@ -44,28 +45,22 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Pricing for Sturdy open source, enterprise, and Sturdy in the cloud.',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation pricing seats licenses enterprise in the cloud',
-        },
-      ],
-      title: 'Pricing | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Pricing for Sturdy open source, enterprise, and Sturdy in the cloud.',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation pricing seats licenses enterprise in the cloud',
+    },
+  ],
+  title: 'Pricing | Sturdy',
 })
 </script>

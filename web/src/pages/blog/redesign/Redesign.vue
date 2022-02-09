@@ -79,7 +79,7 @@
       </p>
       <h2 class="items-center flex">🔐 Access Control <Pill class="ml-4">BETA</Pill></h2>
       <img
-        src="../../static/docs/access-control/access-control.png"
+        src="../../docs/access-control/access-control.png"
         width="1552"
         height="1024"
         alt="Screenshot of the Access Control List permission editor on Sturdy"

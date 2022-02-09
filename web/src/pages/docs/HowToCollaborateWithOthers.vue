@@ -8,8 +8,10 @@
         <h1 id="how-to-collaborate">How to collaborate with others</h1>
         <p>
           Nowadays it is so easy to work together on text documents
-          <SubtleText>(think Google Docs)</SubtleText> or on design
-          <SubtleText>(think Figma)</SubtleText>. We think exchanging code ideas should be
+          <SubtleText>(think Google Docs)</SubtleText>
+          or on design
+          <SubtleText>(think Figma)</SubtleText>
+          . We think exchanging code ideas should be
           <strong>just as easy</strong>, if not easier!
         </p>
         <p>
@@ -56,16 +58,16 @@
           </ol>
           <li>
             <SubtleText
-              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</SubtleText
-            >
+              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]
+            </SubtleText>
           </li>
           <li>
             <SubtleText
               ><em>Optional:</em> Taking / Dismissing code suggestions [<a
                 href="#taking-dismissing-suggestions"
                 >go to</a
-              >]</SubtleText
-            >
+              >]
+            </SubtleText>
           </li>
         </ol>
 
@@ -76,7 +78,10 @@
             Point the mouse over the specific line that you wish to comment on &mdash; a plus icon
             will appear to the right next to the line number
           </li>
-          <li>Click on the plus button <PlusIcon class="h-4 w-4 inline" /></li>
+          <li>
+            Click on the plus button
+            <PlusIcon class="h-4 w-4 inline" />
+          </li>
           <li>Write your message</li>
           <ol>
             <li>
@@ -112,11 +117,14 @@
         <ol>
           <li>
             When you have new suggestions you will get a notification &mdash; you can see your
-            notifications via the bell icon <BellIcon class="h-4 w-4 inline" /> at the bottom left
-            of Sturdy. If configured, you will also receive a notification via email
+            notifications via the bell icon
+            <BellIcon class="h-4 w-4 inline" />
+            at the bottom left of Sturdy. If configured, you will also receive a notification via
+            email
             <SubtleText>
-              (email notifications are only available for Sturdy in the Cloud) </SubtleText
-            >.
+              (email notifications are only available for Sturdy in the Cloud)
+            </SubtleText>
+            .
           </li>
           <li>
             To see the suggestions, click the "Show suggestions" button. This will display the code
@@ -164,19 +172,18 @@
           </li>
           <li>
             <SubtleText
-              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]</SubtleText
-            >
+              ><em>Optional:</em> Comment on code [<a href="#comment-on-code">go to</a>]
+            </SubtleText>
           </li>
           <li>
             <SubtleText
-              ><em>Optional:</em> Quickly indicating feedback [<a href="#quick-feedback">go to</a
-              >]</SubtleText
-            >
+              ><em>Optional:</em> Quickly indicating feedback [<a href="#quick-feedback">go to</a>]
+            </SubtleText>
           </li>
           <li>
             <SubtleText
-              ><em>Optional:</em> Trying the code [<a href="#trying-code">go to</a>]</SubtleText
-            >
+              ><em>Optional:</em> Trying the code [<a href="#trying-code">go to</a>]
+            </SubtleText>
           </li>
         </ol>
 
@@ -218,9 +225,8 @@
           </li>
           <li>
             <SubtleText
-              ><em>Optional:</em> Give code suggestions [<a href="#give-suggestions">go to</a
-              >]</SubtleText
-            >
+              ><em>Optional:</em> Give code suggestions [<a href="#give-suggestions">go to</a>]
+            </SubtleText>
           </li>
           <li>
             When you are done you can navigate back to your own workspace and press the "Connect
@@ -275,8 +281,7 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
@@ -284,29 +289,17 @@ import SubtleText from '../../molecules/docs/SubtleText.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import { BellIcon, PlusIcon } from '@heroicons/vue/solid'
 
-export default defineComponent({
-  components: {
-    DocsInfoBox,
-    SubtleText,
-    DocsSidebar,
-    DocumentationWithTableOfContents,
-    BellIcon,
-    PlusIcon,
-  },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to collaborate in real-time with Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation collaboration team-work team work others',
-        },
-      ],
-      title: 'How to collaborate with others | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to collaborate in real-time with Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation collaboration team-work team work others',
+    },
+  ],
+  title: 'How to collaborate with others | Sturdy',
 })
 </script>

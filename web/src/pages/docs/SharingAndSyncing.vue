@@ -23,7 +23,8 @@
         Let's say you are ready with your changes - you have gotten
         <router-link :to="{ name: 'featuresLiveFeedback' }">feedback and comments</router-link>
         from your team, perhaps even some
-        <router-link :to="{ name: 'blogHumaneCodeReview' }">code suggestions</router-link>.
+        <router-link :to="{ name: 'blogHumaneCodeReview' }">code suggestions</router-link>
+        .
       </p>
 
       <div class="relative text-base mx-auto max-w-prose lg:max-w-none">
@@ -96,20 +97,14 @@
         If there happen to be any conflicts between the code from the trunk and that in the
         workspace,
         <router-link :to="{ name: 'featuresConflicts' }"
-          >Sturdy allows you to resolve them</router-link
-        >
+          >Sturdy allows you to resolve them
+        </router-link>
         visually in the browser or manually in your text editor of choice.
       </p>
     </div>
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
-export default {
-  name: 'SharingAndSyncing',
-  components: { StaticPage },
-}
 </script>
-
-<style scoped></style>

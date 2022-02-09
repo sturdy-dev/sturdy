@@ -105,8 +105,8 @@
                       }}</span>
                     </template>
                     <Pill v-if="perk.tiers[mobilePlanIndex].comingSoon" color="green" class="ml-2"
-                      >Coming Soon</Pill
-                    >
+                      >Coming Soon
+                    </Pill>
                   </dd>
                 </div>
               </dl>
@@ -240,7 +240,7 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
 import { CheckIcon, XIcon } from '@heroicons/vue/outline'
 import Pill from '../../components/shared/Pill.vue'
@@ -302,14 +302,4 @@ const perks = [
     ],
   },
 ]
-
-export default {
-  components: { StaticPage, CheckIcon, XIcon, Pill },
-  setup() {
-    return {
-      plans,
-      perks,
-    }
-  },
-}
 </script>

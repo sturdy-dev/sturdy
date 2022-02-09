@@ -55,8 +55,8 @@
   </Documentation>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
 import { DownloadIcon } from '@heroicons/vue/solid'
 import DownloadLinux from '../../organisms/download/DownloadLinux.vue'
 import Documentation from '../../layouts/Documentation.vue'
@@ -127,35 +127,19 @@ const linux: OperatingSystem = {
 
 operatingSystems.push(linux)
 
-export default defineComponent({
-  components: {
-    Documentation,
-    DownloadIcon,
-  },
+const selectedOsId = ref<undefined | string>()
 
-  setup() {
-    const selectedOsId = ref<undefined | string>()
+if (!import.meta.env.SSR) {
+  if (navigator.userAgent.includes('Win')) {
+    selectedOsId.value = 'windows'
+  } else if (navigator.userAgent.includes('Mac')) {
+    selectedOsId.value = 'darwin'
+  } else if (navigator.userAgent.includes('Linux')) {
+    selectedOsId.value = 'linux'
+  }
+}
 
-    if (!import.meta.env.SSR) {
-      if (navigator.userAgent.includes('Win')) {
-        selectedOsId.value = 'windows'
-      } else if (navigator.userAgent.includes('Mac')) {
-        selectedOsId.value = 'darwin'
-      } else if (navigator.userAgent.includes('Linux')) {
-        selectedOsId.value = 'linux'
-      }
-    }
-
-    return {
-      operatingSystems,
-      selectedOsId,
-    }
-  },
-
-  computed: {
-    selectedOs() {
-      return this.selectedOsId && this.operatingSystems.find((os) => os.id === this.selectedOsId)
-    },
-  },
-})
+let selectedOs = computed(
+  () => selectedOsId.value && operatingSystems.find((os) => os.id === selectedOsId.value)
+)
 </script>

@@ -31,8 +31,8 @@
           <li>
             You can use the folder for accessing and editing code with any IDE or text editor
             <SubtleText
-              >(tip: Use the "Open in Visual Studio Code"-button for quick access)</SubtleText
-            >
+              >(tip: Use the "Open in Visual Studio Code"-button for quick access)
+            </SubtleText>
           </li>
           <li>Observe that a new workspace named "Your Name's Workspace" was created</li>
         </ol>
@@ -40,8 +40,8 @@
         <p>
           Next steps:
           <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }"
-            >How do I ship software to production</router-link
-          >
+            >How do I ship software to production
+          </router-link>
         </p>
 
         <DocsInfoBox>
@@ -53,15 +53,16 @@
         <p>
           As you write the code, you can see your changes in Sturdy, undo them,
           <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers' }"
-            >ask for feedback</router-link
-          >
+            >ask for feedback
+          </router-link>
           or
           <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }"
-            >ship them to production</router-link
-          >
+            >ship them to production
+          </router-link>
           &mdash; all of this is just a click away. You can read more about how Sturdy interacts
           with Git on
-          <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }">this page</router-link>.
+          <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }">this page</router-link>
+          .
         </p>
         <p>
           <em>Coming soon:</em> It will be possible to toggle an auto-sync option for a workspace.
@@ -72,30 +73,24 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import SubtleText from '../../molecules/docs/SubtleText.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to edit code with Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation coding code editing',
-        },
-      ],
-      title: 'How to edit code | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to edit code with Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation coding code editing',
+    },
+  ],
+  title: 'How to edit code | Sturdy',
 })
 </script>

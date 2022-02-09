@@ -12,28 +12,22 @@
   </Documentation>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import Documentation from '../../layouts/Documentation.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, Documentation },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Index of the Sturdy Documentation',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation index',
-        },
-      ],
-      title: 'Documentation Index | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Index of the Sturdy Documentation',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation index',
+    },
+  ],
+  title: 'Documentation Index | Sturdy',
 })
 </script>

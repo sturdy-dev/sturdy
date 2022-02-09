@@ -145,13 +145,13 @@ export const RoutesApps: RouteRecordRaw[] = [
 
   {
     path: '/privacy',
-    component: () => import('./pages/about/Privacy.vue'),
+    component: () => import('./pages/docs/about/Privacy.vue'),
     name: 'privacy',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/terms-of-service',
-    component: () => import('./pages/about/ToS.vue'),
+    component: () => import('./pages/docs/about/ToS.vue'),
     name: 'termsOfService',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },

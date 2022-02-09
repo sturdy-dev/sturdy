@@ -225,9 +225,6 @@
   </StaticPage>
 </template>
 
-<script>
-import StaticPage from '../../layouts/StaticPage.vue'
-export default {
-  components: { StaticPage },
-}
+<script lang="ts" setup>
+import StaticPage from '../../../layouts/StaticPage.vue'
 </script>
