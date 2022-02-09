@@ -125,30 +125,25 @@
     </template>
   </BlogPost>
 </template>
-<script>
+
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import { useHead } from '@vueuse/head'
 import avatar from '../gustav.jpeg'
 
-export default {
-  components: { BlogPost },
-  setup() {
-    useHead({
-      script: [
-        {
-          async: true,
-          src: 'https://platform.twitter.com/widgets.js',
-          charset: 'utf-8',
-        },
-      ],
-    })
+useHead({
+  script: [
+    {
+      async: true,
+      src: 'https://platform.twitter.com/widgets.js',
+      charset: 'utf-8',
+    },
+  ],
+})
 
-    const author = {
-      name: 'Gustav Westling',
-      avatar: avatar,
-      link: 'https://twitter.com/zegl',
-    }
-    return { author }
-  },
+const author = {
+  name: 'Gustav Westling',
+  avatar: avatar,
+  link: 'https://twitter.com/zegl',
 }
 </script>

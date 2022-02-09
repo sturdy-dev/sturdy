@@ -7,16 +7,19 @@
     <div class="prose prose-yellow">
       <p>
         <router-link :to="{ name: 'resourcesMigrateFromGitHub' }"
-          >Sturdy integrates with GitHub</router-link
-        >. Any Continuous Integration/Continuous Delivery providers you use that report to GitHub
+          >Sturdy integrates with GitHub
+        </router-link>
+        . Any Continuous Integration/Continuous Delivery providers you use that report to GitHub
         will also have its status be reported in the Sturdy UI.
       </p>
 
       <h2>Running CI/CD Pipelines</h2>
       <p>
         If you have your codebase
-        <router-link :to="{ name: 'resourcesMigrateFromGitHub' }">hooked up with GitHub</router-link
-        >, Sturdy will occasionally export changes to the corresponding repository on GitHub,
+        <router-link :to="{ name: 'resourcesMigrateFromGitHub' }"
+          >hooked up with GitHub
+        </router-link>
+        , Sturdy will occasionally export changes to the corresponding repository on GitHub,
         depending on the integration/migration phase you're using.
       </p>
 
@@ -25,8 +28,9 @@
           If you're using
           <router-link
             :to="{ name: 'resourcesMigrateFromGitHub', hash: '#github-as-source-of-truth' }"
-            >GitHub as the source of truth</router-link
-          >, changes you're making in Sturdy will be upstreamed to GitHub via pull requests. Every
+            >GitHub as the source of truth
+          </router-link>
+          , changes you're making in Sturdy will be upstreamed to GitHub via pull requests. Every
           time you create or update a PR via Sturdy, the checks that are configured on the GitHub
           side will be run.
         </li>
@@ -35,10 +39,11 @@
           If you're using
           <router-link
             :to="{ name: 'resourcesMigrateFromGitHub', hash: '#sturdy-as-source-of-truth' }"
-            >Sturdy as the source of truth</router-link
-          >, changes that are shared from a workspace and appended to the changelog will be
-          committed to the default branch on the GitHub repository. This, in turn, will run any
-          workflows configured in GitHub.
+            >Sturdy as the source of truth
+          </router-link>
+          , changes that are shared from a workspace and appended to the changelog will be committed
+          to the default branch on the GitHub repository. This, in turn, will run any workflows
+          configured in GitHub.
         </li>
       </ul>
 
@@ -65,10 +70,6 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../../layouts/StaticPage.vue'
-export default {
-  name: 'ContinuousIntegration',
-  components: { StaticPage },
-}
 </script>

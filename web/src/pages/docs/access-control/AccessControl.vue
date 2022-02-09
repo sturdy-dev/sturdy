@@ -359,7 +359,7 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import { PrismEditor } from 'vue-prism-editor'
 import 'vue-prism-editor/dist/prismeditor.min.css'
 
@@ -370,12 +370,7 @@ import 'prismjs/themes/prism-tomorrow.css'
 import StaticPage from '../../../layouts/StaticPage.vue'
 import { ClientOnly } from 'vite-ssr/vue'
 
-export default {
-  name: 'AccessControl',
-  components: { StaticPage, PrismEditor, ClientOnly },
-  setup() {
-    return {
-      defaultPolicy: `{
+const defaultPolicy = `{
   "rules": [
     {
       "id": "everyone can manage access control",
@@ -407,29 +402,28 @@ export default {
       "resource": "acls::bc3b62f8-8cdf-481f-8c04-815912fe668a",
     },
   ],
-}`,
-      aRule: `{
+}`
+
+const aRule = `{
   "id": "<identifier>",
   "principals": [ "<list-of-principals>" ],
   "action": "<action>",
   "resources": [ "<list-of-resources>" ],
-}`,
-      aGroup: `{
+}`
+
+const aGroup = `{
   "id": "<identifier>",
   "members": [ "<list-of-principals-or-resources"> ]
-}`,
-      aTest: `{
+}`
+
+const aTest = `{
   "id": "<identifier>",
   "principal": "<principal>",
   "action": "<action>",
   "resource": "<resource>",
-}`,
-    }
-  },
-  methods: {
-    highlighter(code) {
-      return highlight(code, languages.json)
-    },
-  },
+}`
+
+let highlighter = (code: string) => {
+  return highlight(code, languages.json)
 }
 </script>
