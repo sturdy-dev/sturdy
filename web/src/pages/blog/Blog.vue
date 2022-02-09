@@ -19,17 +19,10 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
 import { useRouter } from 'vue-router'
 
-export default {
-  components: { StaticPage },
-  setup() {
-    let routes = useRouter().getRoutes()
-    return {
-      links: routes.filter((r) => r.meta.blog),
-    }
-  },
-}
+let routes = useRouter().getRoutes()
+let links = routes.filter((r) => r.meta.blog)
 </script>

@@ -114,50 +114,43 @@ curl -v -H "Authorization: bearer {{ token }}" \
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
 import http from '../../http'
 import LinkButton from '../../components/shared/LinkButton.vue'
 import { ClientOnly } from 'vite-ssr/vue'
+import { onMounted, ref } from 'vue'
 
-export default {
-  components: { LinkButton, StaticPage, ClientOnly },
-  data() {
-    return {
-      token: 'LOGIN_TO_GET_YOUR_TOKEN',
-      fetchedToken: false,
-      message: null,
-    }
-  },
-  async mounted() {
-    await this.getToken()
-  },
-  methods: {
-    copyToClipboard() {
-      var copyText = document.getElementById('token')
-      copyText.select()
-      copyText.setSelectionRange(0, 99999)
-      document.execCommand('copy')
-      this.message = 'Copied!'
-    },
-    async getToken() {
-      try {
-        const response = await fetch(http.url('v3/auth/client-token'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-        })
+let token = ref('LOGIN_TO_GET_YOUR_TOKEN')
+let fetchedToken = ref(false)
+let message = ref(null)
 
-        http.checkStatus(response)
+onMounted(async () => {
+  try {
+    const response = await fetch(http.url('v3/auth/client-token'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
 
-        const data = await response.json()
+    http.checkStatus(response)
 
-        this.token = data.token
-        this.fetchedToken = true
-      } catch (e) {
-        console.error(e)
-      }
-    },
-  },
+    const data = await response.json()
+
+    token.value = data.token
+    fetchedToken.value = true
+  } catch (e) {
+    console.error(e)
+  }
+})
+
+let copyToClipboard = () => {
+  let copyText = document.getElementById('token')
+  if (copyText) {
+    copyText.select()
+    copyText.setSelectionRange(0, 99999)
+    document.execCommand('copy')
+    message.value = 'Copied!'
+  }
 }
 </script>

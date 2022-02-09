@@ -90,22 +90,10 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../../layouts/StaticPage.vue'
 
 import thomasStartImage from './thomas_start.png'
 import thomasSuggestingImage from './thomas_suggesting.png'
 import gustavTakeSuggestionImage from './gustav_take_suggestion.png'
-
-export default {
-  name: 'Suggestions',
-  components: { StaticPage },
-  setup() {
-    return {
-      thomasStartImage,
-      thomasSuggestingImage,
-      gustavTakeSuggestionImage,
-    }
-  },
-}
 </script>

@@ -77,7 +77,10 @@
         overview of what's going on. And the sidebar will intelligently inform you where your
         attention is needed and where there has been new activity.
       </p>
-      <h2 class="items-center flex">🔐 Access Control <Pill class="ml-4">BETA</Pill></h2>
+      <h2 class="items-center flex">
+        🔐 Access Control
+        <Pill class="ml-4">BETA</Pill>
+      </h2>
       <img
         src="../../docs/access-control/access-control.png"
         width="1552"
@@ -154,20 +157,14 @@
   </BlogPost>
 </template>
 
-<script>
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../gustav.jpeg'
 import Pill from '../../../components/shared/Pill.vue'
 
-export default {
-  components: { BlogPost, Pill },
-  setup() {
-    const author = {
-      name: 'Gustav Westling',
-      avatar: avatar,
-      link: 'https://twitter.com/zegl',
-    }
-    return { author }
-  },
+const author = {
+  name: 'Gustav Westling',
+  avatar: avatar,
+  link: 'https://twitter.com/zegl',
 }
 </script>

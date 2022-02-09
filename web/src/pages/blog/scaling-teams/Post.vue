@@ -399,84 +399,78 @@
   </BlogPost>
 </template>
 
-<script>
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../kiril.jpeg'
-import { Runtime, Inspector } from '@observablehq/runtime'
+import { Inspector, Runtime } from '@observablehq/runtime'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import ogImage from './system.png'
+import { computed, onMounted } from 'vue'
 
-export default {
-  components: { BlogPost },
-  setup() {
-    const author = {
-      name: 'Kiril Videlov',
-      avatar: avatar,
-      link: 'https://twitter.com/krlvi',
-    }
-    return { author, ogImage }
-  },
-  computed: {
-    ogImageFull() {
-      return new URL(ogImage, import.meta.env.VITE_WEB_HOST).href
-    },
-    amdahl() {
-      return katex.renderToString(String.raw`Speedup(n) = \frac{1}{(1-p) + \frac{p}{n}}`, {
-        displayMode: true,
-        throwOnError: false,
-      })
-    },
-    amdahlExample() {
-      return katex.renderToString(String.raw`\frac{1}{(1-0.75) + \frac{0.75}{16}}  = 3.367`, {
-        displayMode: true,
-        throwOnError: false,
-      })
-    },
-    rate() {
-      return katex.renderToString(String.raw`f'(n) = \frac{p}{((p-1)n-p)^2}`, {
-        displayMode: true,
-        throwOnError: false,
-      })
-    },
-    forp() {
-      return katex.renderToString(
-        String.raw`p = \frac{-(\sqrt{4dn^2 - 4dn +1} -2dn^2 + 2dn -1)}{2dn^2 - 4dn +2d}`,
-        {
-          displayMode: true,
-          throwOnError: false,
-        }
-      )
-    },
-  },
-  async mounted() {
-    let module = await import('https://api.observablehq.com/d/1c779005074f8668.js?v=3')
-    new Runtime().module(module.default, (name) => {
-      if (name === 'workload')
-        return new Inspector(document.querySelector('#observablehq-workload-b4d16c02'))
-      if (name === 'viewof paralleilizable')
-        return new Inspector(
-          document.querySelector('#observablehq-viewof-paralleilizable-b4d16c02')
-        )
-      if (name === 'best_possible_speedup')
-        return new Inspector(document.querySelector('#observablehq-best_possible_speedup-20ab6372'))
-      if (name === 'amhdahlPlot')
-        return new Inspector(document.querySelector('#observablehq-amhdahlPlot-59d50752'))
-      if (name === 'viewof p')
-        return new Inspector(document.querySelector('#observablehq-viewof-p-59d50752'))
-      if (name === 'rateOfChange')
-        return new Inspector(document.querySelector('#observablehq-rateOfChange-af23ee38'))
-      if (name === 'viewof p2')
-        return new Inspector(document.querySelector('#observablehq-viewof-p2-af23ee38'))
-      if (name === 'forp')
-        return new Inspector(document.querySelector('#observablehq-forp-54b848a7'))
-      if (name === 'viewof d')
-        return new Inspector(document.querySelector('#observablehq-viewof-d-54b848a7'))
-      if (name === 'serilHours')
-        return new Inspector(document.querySelector('#observablehq-serilHours-af307419'))
-      if (name === 'viewof d2')
-        return new Inspector(document.querySelector('#observablehq-viewof-d2-af307419'))
-    })
-  },
+const author = {
+  name: 'Kiril Videlov',
+  avatar: avatar,
+  link: 'https://twitter.com/krlvi',
 }
+
+let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
+
+let amdahl = computed(() =>
+  katex.renderToString(String.raw`Speedup(n) = \frac{1}{(1-p) + \frac{p}{n}}`, {
+    displayMode: true,
+    throwOnError: false,
+  })
+)
+
+let amdahlExample = computed(() =>
+  katex.renderToString(String.raw`\frac{1}{(1-0.75) + \frac{0.75}{16}}  = 3.367`, {
+    displayMode: true,
+    throwOnError: false,
+  })
+)
+
+let rate = computed(() =>
+  katex.renderToString(String.raw`f'(n) = \frac{p}{((p-1)n-p)^2}`, {
+    displayMode: true,
+    throwOnError: false,
+  })
+)
+
+let forp = computed(() =>
+  katex.renderToString(
+    String.raw`p = \frac{-(\sqrt{4dn^2 - 4dn +1} -2dn^2 + 2dn -1)}{2dn^2 - 4dn +2d}`,
+    {
+      displayMode: true,
+      throwOnError: false,
+    }
+  )
+)
+
+onMounted(async () => {
+  let module = await import('https://api.observablehq.com/d/1c779005074f8668.js?v=3')
+  new Runtime().module(module.default, (name) => {
+    if (name === 'workload')
+      return new Inspector(document.querySelector('#observablehq-workload-b4d16c02'))
+    if (name === 'viewof paralleilizable')
+      return new Inspector(document.querySelector('#observablehq-viewof-paralleilizable-b4d16c02'))
+    if (name === 'best_possible_speedup')
+      return new Inspector(document.querySelector('#observablehq-best_possible_speedup-20ab6372'))
+    if (name === 'amhdahlPlot')
+      return new Inspector(document.querySelector('#observablehq-amhdahlPlot-59d50752'))
+    if (name === 'viewof p')
+      return new Inspector(document.querySelector('#observablehq-viewof-p-59d50752'))
+    if (name === 'rateOfChange')
+      return new Inspector(document.querySelector('#observablehq-rateOfChange-af23ee38'))
+    if (name === 'viewof p2')
+      return new Inspector(document.querySelector('#observablehq-viewof-p2-af23ee38'))
+    if (name === 'forp') return new Inspector(document.querySelector('#observablehq-forp-54b848a7'))
+    if (name === 'viewof d')
+      return new Inspector(document.querySelector('#observablehq-viewof-d-54b848a7'))
+    if (name === 'serilHours')
+      return new Inspector(document.querySelector('#observablehq-serilHours-af307419'))
+    if (name === 'viewof d2')
+      return new Inspector(document.querySelector('#observablehq-viewof-d2-af307419'))
+  })
+})
 </script>

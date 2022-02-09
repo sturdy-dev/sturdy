@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { gql } from '@urql/vue'
 import {
   OrganizationMembersOrganizationFragment,
@@ -126,7 +126,7 @@ export default defineComponent({
   },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
+    const isMultiTenancyEnabled = computed(() => features.value.includes(Feature.MultiTenancy))
 
     let addUserToOrganization = useAddUserToOrganization()
     let removeUserFromOrganization = useRemoveUserFromOrganization()

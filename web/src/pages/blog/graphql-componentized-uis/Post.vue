@@ -354,7 +354,8 @@ export function useUserWasRenamed() {
     </div>
   </BlogPost>
 </template>
-<script>
+
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import hljs from 'highlight.js/lib/core'
 import ts from 'highlight.js/lib/languages/typescript'
@@ -362,28 +363,21 @@ import xml from 'highlight.js/lib/languages/xml'
 import diff from 'highlight.js/lib/languages/diff'
 import 'highlight.js/styles/atom-one-dark.css'
 import ogImage from './example.png'
-import avatar from '../kiril.jpeg'
+import { computed, onMounted, ref } from 'vue'
 
 hljs.registerLanguage('typescript', ts)
 hljs.registerLanguage('diff', diff)
 hljs.registerLanguage('xml', xml)
 
-export default {
-  components: { BlogPost },
-  setup() {
-    return { ogImage }
-  },
-  computed: {
-    ogImageFull() {
-      return new URL(ogImage, import.meta.env.VITE_WEB_HOST).href
-    },
-  },
-  mounted() {
-    const highlightBlocks = this.$refs.container?.querySelectorAll('[data-highlight]') ?? []
+let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
 
-    for (const block of highlightBlocks) {
-      hljs.highlightElement(block)
-    }
-  },
-}
+let container = ref(null)
+
+onMounted(() => {
+  const highlightBlocks = container.value?.querySelectorAll('[data-highlight]') ?? []
+
+  for (const block of highlightBlocks) {
+    hljs.highlightElement(block)
+  }
+})
 </script>

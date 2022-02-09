@@ -76,70 +76,49 @@
   </Documentation>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import DiveIn from '../../components/index/DiveIn.vue'
-import { defineComponent } from 'vue'
 import Documentation from '../../layouts/Documentation.vue'
+import { defineProps, withDefaults } from 'vue'
 
-export default defineComponent({
-  components: { DiveIn, Documentation },
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    surtitle: {
-      type: String,
-      required: false,
-    },
-    subtitle: {
-      type: String,
-      required: false,
-    },
-    date: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    author: {
-      type: Object,
-      required: false,
-    },
-    readingTime: {
-      type: String,
-      required: false,
-    },
-    diveInBanner: {
-      type: Boolean,
-      default: true,
-      required: false,
-    },
-    image: {
-      type: String,
-      default: null,
-      required: false,
-    },
-  },
-  setup(props) {
-    useHead({
-      title: props.title + ' | from the Sturdy Blog',
-      meta: [
-        { property: 'og:title', content: props.title + ' | from the Sturdy Blog' },
-        { property: 'description', content: props.description },
-        { property: 'og:description', content: props.description },
-        ...(props.image ? [{ property: 'og:image', content: props.image }] : []),
-      ],
-    })
+interface Author {
+  name: string
+  avatar: string
+  link: string
+}
 
-    let routes = useRouter().getRoutes()
-    return {
-      recentPosts: routes.filter((r) => r.meta.blog),
-    }
-  },
+interface Props {
+  title: string
+  surtitle?: string
+  subtitle?: string
+  date: string
+  description: string
+  author: Author
+  readingTime?: string
+  diveInBanner?: boolean
+  image?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  diveInBanner: true,
+  surtitle: undefined,
+  subtitle: undefined,
+  readingTime: undefined,
+  image: undefined,
 })
+
+useHead({
+  title: props.title + ' | from the Sturdy Blog',
+  meta: [
+    { property: 'og:title', content: props.title + ' | from the Sturdy Blog' },
+    { property: 'description', content: props.description },
+    { property: 'og:description', content: props.description },
+    ...(props.image ? [{ property: 'og:image', content: props.image }] : []),
+  ],
+})
+
+let routes = useRouter().getRoutes()
+let recentPosts = routes.filter((r) => r.meta.blog)
 </script>

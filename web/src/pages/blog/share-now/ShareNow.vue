@@ -147,19 +147,14 @@
     </template>
   </BlogPost>
 </template>
-<script>
+
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../gustav.jpeg'
 
-export default {
-  components: { BlogPost },
-  setup() {
-    const author = {
-      name: 'Gustav Westling',
-      avatar: avatar,
-      link: 'https://twitter.com/zegl',
-    }
-    return { author }
-  },
+const author = {
+  name: 'Gustav Westling',
+  avatar: avatar,
+  link: 'https://twitter.com/zegl',
 }
 </script>

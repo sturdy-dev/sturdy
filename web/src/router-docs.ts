@@ -223,7 +223,12 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/blog/2021-09-29-acls-and-a-fresh-hot-look',
     name: 'blogRedesign',
     component: () => import('./pages/blog/redesign/Redesign.vue'),
-    meta: { nonApp: true, blog: { title: '#009 - ACLs and a fresh hot look!' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#009 - ACLs and a fresh hot look!' },
+    },
   },
   {
     path: '/blog/2021-09-09-large-files',

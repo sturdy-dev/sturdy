@@ -19,8 +19,9 @@
 
       <p>
         Now that you can
-        <router-link :to="{ name: 'signup' }"> try out Sturdy for yourself</router-link>, I would
-        like to take this opportunity to also share some more on the vision we are working towards.
+        <router-link :to="{ name: 'signup' }"> try out Sturdy for yourself</router-link>
+        , I would like to take this opportunity to also share some more on the vision we are working
+        towards.
       </p>
 
       <h2>Okay, why make a new version control when everybody uses Git?</h2>
@@ -140,8 +141,8 @@
       <p>
         What is even more exciting is enabling developers to help each other,
         <router-link :to="{ name: 'blogHumaneCodeReview' }"
-          >discuss and try out each other's code</router-link
-        >
+          >discuss and try out each other's code
+        </router-link>
         with little to no effort. Consider for a moment teamwork with Google Docs compared to
         manually emailing and merging files. Sturdy enables this level of collaboration while still
         using your local text editor, and without forcing you to use multi-cursor collaboration.
@@ -168,8 +169,9 @@
       <p>
         If you have any questions, check out
         <router-link :to="{ name: 'resourcesDocs' }"
-          >our documentation &mdash; we are continuously adding new articles to it</router-link
-        >.
+          >our documentation &mdash; we are continuously adding new articles to it
+        </router-link>
+        .
       </p>
 
       <p>
@@ -181,19 +183,13 @@
   </BlogPost>
 </template>
 
-<script>
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../kiril.jpeg'
 
-export default {
-  components: { BlogPost },
-  setup() {
-    const author = {
-      name: 'Kiril Videlov',
-      avatar: avatar,
-      link: 'https://twitter.com/krlvi',
-    }
-    return { author }
-  },
+const author = {
+  name: 'Kiril Videlov',
+  avatar: avatar,
+  link: 'https://twitter.com/krlvi',
 }
 </script>

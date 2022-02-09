@@ -283,20 +283,14 @@
   </BlogPost>
 </template>
 
-<script>
+<script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../gustav.jpeg'
 import Waitinglist from '../../../components/Waitinglist.vue'
 
-export default {
-  components: { Waitinglist, BlogPost },
-  setup() {
-    const author = {
-      name: 'Gustav Westling',
-      avatar: avatar,
-      link: 'https://twitter.com/zegl',
-    }
-    return { author }
-  },
+const author = {
+  name: 'Gustav Westling',
+  avatar: avatar,
+  link: 'https://twitter.com/zegl',
 }
 </script>

@@ -262,7 +262,7 @@ import {
   UserGroupIcon,
 } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { NavigationOrganizationPickerMenuFragment } from './__generated__/NavigationOrganizationPickerMenu'
 import { Feature } from '../__generated__/types'
 
@@ -309,7 +309,7 @@ export default defineComponent({
   emits: ['logout'],
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isMultiTenancyEnabled = features.value.includes(Feature.MultiTenancy)
+    const isMultiTenancyEnabled = computed(() => features.value.includes(Feature.MultiTenancy))
 
     return {
       isMultiTenancyEnabled,
