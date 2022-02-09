@@ -18,7 +18,7 @@
         ></path>
       </svg>
     </SocialLink>
-    <SocialLink :light="light" href="https://github.com/sturdy-dev">
+    <SocialLink :light="light" href="https://github.com/sturdy-dev/sturdy">
       <span class="sr-only">GitHub</span>
       <svg class="h-6 h-6" fill="currentColor" viewBox="0 0 30 30" width="30px" height="30px">
         <path
