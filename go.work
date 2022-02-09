@@ -1,0 +1,6 @@
+go 1.17
+
+use (
+    ./api // getsturdy.com/api
+    ./ssh // getsturdy.com/ssh
+)
