@@ -97,16 +97,8 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import LinkButton from '../../components/shared/LinkButton.vue'
 import StaticPage from '../../layouts/StaticPage.vue'
 import Permissions from '../../components/github/Permissions.vue'
-
-export default {
-  components: {
-    Permissions,
-    StaticPage,
-    LinkButton,
-  },
-}
 </script>

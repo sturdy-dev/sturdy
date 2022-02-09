@@ -13,7 +13,7 @@
 import Press from './Press.vue'
 import Team from './Team.vue'
 import { useHead } from '@vueuse/head'
-import Documentation from '../../layouts/Documentation.vue'
+import Documentation from '../../../layouts/Documentation.vue'
 
 useHead({
   title: 'About Sturdy',

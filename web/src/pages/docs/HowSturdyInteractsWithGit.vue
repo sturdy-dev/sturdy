@@ -169,35 +169,30 @@
         <h2 id="further-reading">Further reading</h2>
         <p>
           You can learn more about how Sturdy interoperates with GitHub on
-          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }">this page </router-link>.
+          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }">this page</router-link>
+          .
         </p>
       </div>
     </template>
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'How Sturdy interacts with git.',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation interacting git github',
-        },
-      ],
-      title: 'Interacting with Git | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'How Sturdy interacts with git.',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation interacting git github',
+    },
+  ],
+  title: 'Interacting with Git | Sturdy',
 })
 </script>

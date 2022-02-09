@@ -60,8 +60,8 @@
   </div>
 </template>
 
-<script>
-import dagensIndustriLogo from '../../assets/dagens-industri.png'
+<script lang="ts" setup>
+import dagensIndustriLogo from '../../../assets/dagens-industri.png'
 
 const categoryNews = {
   name: 'News',
@@ -117,12 +117,4 @@ const posts = [
     readingTime: '5 min',
   },
 ]
-
-export default {
-  setup() {
-    return {
-      posts,
-    }
-  },
-}
 </script>

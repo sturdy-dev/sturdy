@@ -50,21 +50,21 @@
             <SubtleText
               ><em>Optional:</em> Resolving conflicts [<a href="#optional-resolving-conflicts"
                 >go to</a
-              >]</SubtleText
-            >
+              >]
+            </SubtleText>
           </li>
           <li>
             <SubtleText
               ><em>Optional:</em> Asking for feedback [<a href="#optional-asking-for-feedback"
                 >go to</a
-              >]</SubtleText
-            >
+              >]
+            </SubtleText>
           </li>
           <li>
             <SubtleText
               ><em>Optional:</em> Syncing on top of changelog [<a href="#optional-syncing">go to</a
-              >]</SubtleText
-            >
+              >]
+            </SubtleText>
           </li>
           <li id="writing-a-description">
             After writing a description, the “Share” button will appear
@@ -110,8 +110,8 @@
               ><em>Optional:</em> If the above fails, debug GitHub errors [<a
                 href="#debugging-github-errors"
                 >go to</a
-              >]</SubtleText
-            >
+              >]
+            </SubtleText>
           </li>
           <li>
             New buttons will appear. “Go to pull request”, “Update pull request”, and “Merge”.
@@ -192,8 +192,8 @@
         <DocsInfoBox
           >Sturdy makes it super easy to give feedback and suggest code to one another. It embraces
           working in the open within the team and favours early feedback over "reviewing" after the
-          fact.</DocsInfoBox
-        >
+          fact.
+        </DocsInfoBox>
 
         <p>
           It might be a good idea to ask for some feedback from a colleague before sharing the
@@ -244,30 +244,24 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import SubtleText from '../../molecules/docs/SubtleText.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to ship software to production with Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation ship deploy software code to prod production',
-        },
-      ],
-      title: 'How to ship software to production | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to ship software to production with Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation ship deploy software code to prod production',
+    },
+  ],
+  title: 'How to ship software to production | Sturdy',
 })
 </script>

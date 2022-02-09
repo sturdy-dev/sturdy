@@ -11,8 +11,9 @@
       <p>
         Because Sturdy
         <router-link :to="{ name: 'featuresLiveFeedback' }"
-          >manages the codebase folder on your workstation</router-link
-        >, jumping between different work efforts is really easy. It takes a single click to move
+          >manages the codebase folder on your workstation
+        </router-link>
+        , jumping between different work efforts is really easy. It takes a single click to move
         your development environment to another workspace, either yours or created by your team. All
         of this without losing any of your work in progress.
       </p>
@@ -53,19 +54,13 @@
       </p>
       <p>
         <router-link :to="{ name: 'featuresLiveFeedback' }"
-          >Read more: Instant feedback</router-link
-        >
+          >Read more: Instant feedback
+        </router-link>
       </p>
     </div>
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
-export default {
-  name: 'WorkspaceNavigation',
-  components: { StaticPage },
-}
 </script>
-
-<style scoped></style>

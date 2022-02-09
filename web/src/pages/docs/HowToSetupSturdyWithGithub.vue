@@ -94,29 +94,23 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to setup Sturdy for Github',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation setup sturdy on github git hub install',
-        },
-      ],
-      title: 'How to setup Sturdy on GitHub | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to setup Sturdy for Github',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation setup sturdy on github git hub install',
+    },
+  ],
+  title: 'How to setup Sturdy on GitHub | Sturdy',
 })
 </script>

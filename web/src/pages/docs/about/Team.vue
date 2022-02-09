@@ -90,7 +90,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 const employees = [
   {
     name: 'Kiril Videlov',
@@ -115,11 +115,4 @@ const employees = [
     linkedin: 'gustavwestling',
   },
 ]
-
-export default {
-  name: 'Team',
-  setup() {
-    return { employees }
-  },
-}
 </script>

@@ -24,19 +24,20 @@
         <p>Sturdy gives you a highly automated workflow. Here are a few examples:</p>
         <ul>
           <li>
-            Get straight to coding &mdash; no need for pushing or fetching changes [<router-link
-              :to="{ name: 'v2DocsHowToEditCode' }"
-              >docs</router-link
-            >]
+            Get straight to coding &mdash; no need for pushing or fetching changes [
+            <router-link :to="{ name: 'v2DocsHowToEditCode' }">docs </router-link>
+            ]
           </li>
           <li>
             Seamlessly switch between tasks &mdash; no need for stashing or creating temporary
-            commits [<router-link :to="{ name: 'v2DocsHowToSwitchBetweenTasks' }">docs</router-link
-            >]
+            commits [
+            <router-link :to="{ name: 'v2DocsHowToSwitchBetweenTasks' }">docs </router-link>
+            ]
           </li>
           <li>
-            Develop faster with an tighter "code &mdash; describe changes &mdash; ship" loop
-            [<router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }">docs</router-link>]
+            Develop faster with an tighter "code &mdash; describe changes &mdash; ship" loop [
+            <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }">docs</router-link>
+            ]
           </li>
         </ul>
 
@@ -50,22 +51,27 @@
         <ul>
           <li>
             See each other's code live, as it's being written, opening the opportunity for early
-            discussions and feedback [<router-link
+            discussions and feedback [
+            <router-link
               :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#receiving-feedback' }"
-              >docs</router-link
-            >]
+              >docs
+            </router-link>
+            ]
           </li>
           <li>
-            Try someone else's code on your computer with a single click [<router-link
-              :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#trying-code' }"
-              >docs</router-link
-            >]
+            Try someone else's code on your computer with a single click [
+            <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#trying-code' }"
+              >docs
+            </router-link>
+            ]
           </li>
           <li>
-            Suggest code changes/ideas to a colleague by simply typing in your IDE [<router-link
+            Suggest code changes/ideas to a colleague by simply typing in your IDE [
+            <router-link
               :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#give-suggestions' }"
-              >docs</router-link
-            >]
+              >docs
+            </router-link>
+            ]
           </li>
         </ul>
 
@@ -96,8 +102,8 @@
           <strong>Yes.</strong> Sturdy is built using the same low-level components as git (via
           <a href="https://libgit2.org/">libgit2</a>) and has a
           <router-link :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }"
-            >bridge integration</router-link
-          >
+            >bridge integration
+          </router-link>
           with GitHub. This means that you can use Sturdy <strong>on top</strong> of your existing
           GitHub setup, compatible with your existing branch protection and CI/CD and other
           integrations.
@@ -111,12 +117,12 @@
         <p>
           Try out
           <router-link :to="{ name: 'v2DocsQuickStart', hash: '#sturdy-cloud' }"
-            >Sturdy in the Cloud</router-link
-          >
+            >Sturdy in the Cloud
+          </router-link>
           with zero setup (for free, no credit card required). Or run a
           <router-link :to="{ name: 'v2DocsQuickStart', hash: '#self-hosted-sturdy' }"
-            >self-hosted instance</router-link
-          >
+            >self-hosted instance
+          </router-link>
           of Sturdy anywhere.
         </p>
       </div>
@@ -124,29 +130,23 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to start using Sturdy!',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation get started tutorial setup quickstart',
-        },
-      ],
-      title: 'Product Intro | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to start using Sturdy!',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation get started tutorial setup quickstart',
+    },
+  ],
+  title: 'Product Intro | Sturdy',
 })
 </script>

@@ -138,28 +138,22 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Working in the open (within your team)',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation working code in the open publicly public',
-        },
-      ],
-      title: 'Working in the open | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Working in the open (within your team)',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation working code in the open publicly public',
+    },
+  ],
+  title: 'Working in the open | Sturdy',
 })
 </script>

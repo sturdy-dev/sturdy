@@ -9,8 +9,8 @@
         <p>
           This tutorial takes you from setting up Sturdy with a repository from GitHub to merging a
           pull request from Sturdy. Make sure you have completed the Sturdy
-          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start</router-link> before
-          continuing.
+          <router-link :to="{ name: 'v2DocsQuickStart' }">quick start</router-link>
+          before continuing.
         </p>
 
         <h2 id="ui-overview">UI Overview</h2>
@@ -53,8 +53,8 @@
           <br />
           Follow
           <router-link :to="{ name: 'v2DocsSelfHosted', hash: '#setup-github-integration' }"
-            >this guide</router-link
-          >
+            >this guide
+          </router-link>
           before continuing.
         </DocsInfoBox>
 
@@ -67,10 +67,11 @@
         <h3 id="import-a-repository">Setup Sturdy on a GitHub repository</h3>
         <p>
           Repositories imported from GitHub will remain up-to-date with changes made outside of
-          Sturdy (<router-link
-            :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub', hash: '#source-of-truth' }"
-            >Read more</router-link
-          >).
+          Sturdy (
+          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub', hash: '#source-of-truth' }"
+            >Read more
+          </router-link>
+          ).
         </p>
         <ol>
           <li>Click on the three dots icon in the top left corner and select "Settings"</li>
@@ -253,30 +254,24 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import SubtleText from '../../molecules/docs/SubtleText.vue'
 
-export default defineComponent({
-  components: { DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox, SubtleText },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'How to navigate and use Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation tutorial',
-        },
-      ],
-      title: 'Using Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'How to navigate and use Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation tutorial',
+    },
+  ],
+  title: 'Using Sturdy',
 })
 </script>

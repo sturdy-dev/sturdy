@@ -100,15 +100,16 @@
 
         <DocsInfoBox
           >In Sturdy, there is no need to 'save' or 'stash' changes when switching between
-          workspaces.</DocsInfoBox
-        >
+          workspaces.
+        </DocsInfoBox>
 
         <DocsInfoBox class="mt-8"
           >You can connect the directory on your computer to workspaces created by others on your
           team. Learn more about
           <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers' }"
-            >collaborating with others</router-link
-          >.
+            >collaborating with others
+          </router-link>
+          .
         </DocsInfoBox>
 
         <h2 id="workspaces-based-on-other-workspaces">Workspaces bases on other workspaces</h2>
@@ -141,8 +142,8 @@
             <li>
               <SubtleText>
                 <em>Optional</em>: Use the "Select All" checkbox at the top in order to quickly
-                select all diffs</SubtleText
-              >
+                select all diffs
+              </SubtleText>
             </li>
           </ol>
           <li>
@@ -174,30 +175,24 @@
   </DocumentationWithTableOfContents>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
 import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import SubtleText from '../../molecules/docs/SubtleText.vue'
 
-export default defineComponent({
-  components: { SubtleText, DocsSidebar, DocumentationWithTableOfContents, DocsInfoBox },
-  setup() {
-    useHead({
-      meta: [
-        {
-          name: 'description',
-          content: 'Learn how to quickly jump between tasks in Sturdy',
-        },
-        {
-          name: 'keywords',
-          content: 'study learn documentation switch change task workspace coding branches',
-        },
-      ],
-      title: 'How to switch between tasks | Sturdy',
-    })
-  },
+useHead({
+  meta: [
+    {
+      name: 'description',
+      content: 'Learn how to quickly jump between tasks in Sturdy',
+    },
+    {
+      name: 'keywords',
+      content: 'study learn documentation switch change task workspace coding branches',
+    },
+  ],
+  title: 'How to switch between tasks | Sturdy',
 })
 </script>

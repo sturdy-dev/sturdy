@@ -72,9 +72,6 @@
   </StaticPage>
 </template>
 
-<script>
+<script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
-export default {
-  components: { StaticPage },
-}
 </script>
