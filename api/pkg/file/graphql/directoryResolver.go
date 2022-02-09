@@ -16,9 +16,9 @@ import (
 )
 
 type directoryResolver struct {
-	codebaseID string
-	path       string
-	children   []string
+	codebase *codebase.Codebase
+	path     string
+	children []string
 
 	rootResolver *fileRootResolver
 }
@@ -32,7 +32,7 @@ func (r *directoryResolver) ToDirectory() (resolvers.DirectoryResolver, bool) {
 }
 
 func (r *directoryResolver) ID() graphql.ID {
-	return graphql.ID(r.codebaseID + "-" + r.path)
+	return graphql.ID(r.codebase.ID + "-" + r.path)
 }
 
 func (r *directoryResolver) Path() string {
@@ -42,7 +42,7 @@ func (r *directoryResolver) Path() string {
 func (r *directoryResolver) Children(ctx context.Context) ([]resolvers.FileOrDirectoryResolver, error) {
 	var children []resolvers.FileOrDirectoryResolver
 
-	allower, err := r.rootResolver.authService.GetAllower(ctx, &codebase.Codebase{ID: r.codebaseID})
+	allower, err := r.rootResolver.authService.GetAllower(ctx, r.codebase)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -52,7 +52,7 @@ func (r *directoryResolver) Children(ctx context.Context) ([]resolvers.FileOrDir
 			continue
 		}
 
-		file, err := r.rootResolver.InternalFile(ctx, r.codebaseID, child)
+		file, err := r.rootResolver.InternalFile(ctx, r.codebase, child)
 		if err != nil {
 			log.Println("failed to open child", err)
 		} else {
@@ -86,7 +86,7 @@ func (r *directoryResolver) Readme(ctx context.Context) (resolvers.FileResolver,
 	// https://github.com/github/markup/blob/master/README.md
 	fileResolver, err := r.rootResolver.InternalFile(
 		ctx,
-		r.codebaseID,
+		r.codebase,
 		path.Join(r.path, "README.md"),
 		path.Join(r.path, "README.mkdn"),
 		path.Join(r.path, "README.mdown"),

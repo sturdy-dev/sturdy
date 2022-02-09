@@ -180,6 +180,10 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canAnonymousAccessSuggestion(ctx, at, &object)
 		case *suggestions.Suggestion:
 			return s.canAnonymousAccessSuggestion(ctx, at, object)
+		case organization.Organization:
+			return s.canAnonymousAccessOrganization(ctx, at, &object)
+		case *organization.Organization:
+			return s.canAnonymousAccessOrganization(ctx, at, object)
 		default:
 			return fmt.Errorf("unsupported object type '%T' for anonymous: %w", obj, auth.ErrForbidden)
 		}
@@ -452,7 +456,6 @@ func (s *Service) canAnonymousAccessReview(ctx context.Context, at accessType, r
 }
 
 func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, at accessType, org *organization.Organization) error {
-
 	// user can access a organization if they are a member of it
 	_, err := s.organizationService.GetMemberByUserIDAndOrganizationID(ctx, userID, org.ID)
 	if err == nil {
@@ -471,4 +474,8 @@ func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, 
 	}
 
 	return fmt.Errorf("user does not have access to organization: %w", auth.ErrForbidden)
+}
+
+func (s *Service) canAnonymousAccessOrganization(ctx context.Context, at accessType, org *organization.Organization) error {
+	return fmt.Errorf("anonymous users can't access organizations: %w", auth.ErrForbidden)
 }

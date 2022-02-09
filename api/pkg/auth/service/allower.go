@@ -90,6 +90,10 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 			return s.getAnonymousWorkspaceAllower(ctx, &object)
 		case *workspace.Workspace:
 			return s.getAnonymousWorkspaceAllower(ctx, object)
+		case *codebase.Codebase:
+			return s.getAnonymousCodebaseAllower(ctx, object)
+		case codebase.Codebase:
+			return s.getAnonymousCodebaseAllower(ctx, &object)
 		}
 	}
 
@@ -200,5 +204,6 @@ func (s *Service) getAnonymousCodebaseAllower(ctx context.Context, cb *codebase.
 	if cb.IsPublic {
 		return allAllowed, nil
 	}
+
 	return noneAllowed, nil
 }
