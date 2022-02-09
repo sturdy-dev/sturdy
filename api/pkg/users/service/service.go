@@ -33,6 +33,7 @@ type Service interface {
 	GetByID(_ context.Context, id string) (*users.User, error)
 	GetByEmail(_ context.Context, email string) (*users.User, error)
 	UsersCount(context.Context) (uint64, error)
+	GetFirstUser(ctx context.Context) (*users.User, error)
 }
 
 func New(
@@ -48,8 +49,20 @@ func New(
 }
 
 var (
-	ErrExists = fmt.Errorf("user already exists")
+	ErrExists   = fmt.Errorf("user already exists")
+	ErrNotFound = fmt.Errorf("user not found")
 )
+
+func (s *UserSerice) GetFirstUser(ctx context.Context) (*users.User, error) {
+	uu, err := s.userRepo.List(ctx, 1)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list users: %w", err)
+	}
+	if len(uu) == 0 {
+		return nil, ErrNotFound
+	}
+	return uu[0], nil
+}
 
 func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
 	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {

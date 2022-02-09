@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -52,14 +53,24 @@ func (s *Service) Get(ctx context.Context) (*statistics.Statistic, error) {
 		return nil, fmt.Errorf("failed to get the current installation: %w", err)
 	}
 
-	return &statistics.Statistic{
+	statistic := &statistics.Statistic{
 		InstallationID: ins.ID,
 		LicenseKey:     ins.LicenseKey,
 		Version:        ins.Version,
 		RecordedAt:     time.Now(),
 		UsersCount:     usersCount,
 		CodebasesCount: codebasesCount,
-	}, nil
+	}
+
+	if firstUser, err := s.usersService.GetFirstUser(ctx); errors.Is(err, service_users.ErrNotFound) {
+		// do nothing
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get first user: %w", err)
+	} else {
+		statistic.FirstUserEmail = &firstUser.Email
+	}
+
+	return statistic, nil
 }
 
 func (svc *Service) Publish(ctx context.Context) error {
