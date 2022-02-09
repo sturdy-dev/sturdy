@@ -45,32 +45,3 @@ func TemporaryViewFromSnapshot(repoProvider provider.RepoProvider, codebaseID, w
 	viewID := fmt.Sprintf("tmp-%s", uuid.New().String())
 	return TemporaryViewFromSnapshotWithID(repoProvider, viewID, codebaseID, workspaceID, snapshotID)
 }
-
-func TemporaryView(
-	repoProvider provider.RepoProvider,
-	codebaseID string,
-	checkoutBranchName string,
-) (vcs.RepoWriter, func() error, error) {
-	return TemporaryViewWithID(repoProvider, fmt.Sprintf("tmp-%s", uuid.New().String()), codebaseID, checkoutBranchName)
-}
-
-func TemporaryViewWithID(
-	repoProvider provider.RepoProvider,
-	viewID string,
-	codebaseID string,
-	checkoutBranchName string,
-) (vcs.RepoWriter, func() error, error) {
-	if err := Create(repoProvider, codebaseID, checkoutBranchName, viewID); err != nil {
-		return nil, nil, fmt.Errorf("failed to create tmp view: %w", err)
-	}
-
-	viewRepo, err := repoProvider.ViewRepo(codebaseID, viewID)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to open tmp view: %w", err)
-	}
-
-	return viewRepo, func() error {
-		return os.RemoveAll(repoProvider.ViewPath(codebaseID, viewID))
-	}, nil
-
-}

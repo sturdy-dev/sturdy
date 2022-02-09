@@ -2,12 +2,14 @@ package executor
 
 import (
 	"fmt"
+	"os"
 	"runtime/debug"
 	"sync"
 	"time"
 
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
+	"github.com/google/uuid"
 
 	"go.uber.org/zap"
 )
@@ -41,6 +43,11 @@ type Executor interface {
 	ExecView(codebaseID, viewID, actionName string) error
 	// ExecTrunk executes all of the scheduled functions for the given trunk repository.
 	ExecTrunk(codebaseID, actionName string) error
+	// ExecTemporaryView creates a view for the given codebase, cloning it from the trunk,
+	// executes all the scheduled functions, and then deletes the view.
+	ExecTemporaryView(codebaseID, actionName string) error
+	// ExecTemporaryViewOnBranch is the same as TemporaryView, but switches to the given branch.
+	ExecTemporaryViewOnBranch(codebaseID, branchName, actionName string) error
 }
 
 type executeFunc struct {
@@ -185,7 +192,11 @@ func (e *executor) FileReadGitWrite(fn FileReadGitWriteFunc) Executor {
 }
 
 func (e *executor) gitFirst(fn GitReadFunc) Executor {
-	e.funs = append([]*executeFunc{{repoReaderFun: fn}}, e.funs...)
+	return e.prepend(&executeFunc{repoReaderFun: fn})
+}
+
+func (e *executor) prepend(f *executeFunc) Executor {
+	e.funs = append([]*executeFunc{f}, e.funs...)
 	return e
 }
 
@@ -219,11 +230,43 @@ func (e *executor) AssertBranchName(name string) Executor {
 var ErrIsRebasing = fmt.Errorf("unexpected git executor state, is rebasing")
 var ErrUnexpectedBranch = fmt.Errorf("unexpected git executor state, on unexpected branch")
 
-func (e *executor) ExecView(codebaseID, viewID, actionName string) (err error) {
+func (e *executor) ExecTemporaryViewOnBranch(codebaseID, branchName, actionName string) error {
+	return e.Write(func(repo vcs.RepoWriter) error {
+		if err := repo.FetchBranch(branchName); err != nil {
+			return fmt.Errorf("failed to fetch branch '%s': %w", branchName, err)
+		}
+		if err := repo.CreateBranchTrackingUpstream(branchName); err != nil {
+			return fmt.Errorf("failed to create branch '%s': %w", branchName, err)
+		}
+		if err := repo.CheckoutBranchWithForce(branchName); err != nil {
+			return fmt.Errorf("failed to checkout branch '%s': %w", branchName, err)
+		}
+		return nil
+	}).AssertBranchName(branchName).ExecTemporaryView(codebaseID, actionName)
+}
+
+func (e *executor) ExecTemporaryView(codebaseID, actionName string) error {
+	viewID := fmt.Sprintf("tmp-%s", uuid.NewString())
+	e.allowRebasing = true
+	defer os.RemoveAll(e.repoProvider.ViewPath(codebaseID, viewID))
+	return e.prepend(&executeFunc{
+		fun: func(repoProvider provider.RepoProvider) error {
+			if _, err := vcs.CloneRepo(
+				repoProvider.TrunkPath(codebaseID),
+				repoProvider.ViewPath(codebaseID, viewID),
+			); err != nil {
+				return fmt.Errorf("failed to clone repo: %w", err)
+			}
+			return nil
+		},
+	}).ExecView(codebaseID, viewID, actionName)
+}
+
+func (e *executor) ExecView(codebaseID, viewID, actionName string) error {
 	return e.exec(codebaseID, &viewID, actionName)
 }
 
-func (e *executor) ExecTrunk(codebaseID, actionName string) (err error) {
+func (e *executor) ExecTrunk(codebaseID, actionName string) error {
 	return e.exec(codebaseID, nil, actionName)
 }
 
@@ -301,7 +344,6 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	}
 
 	onceRepo := openOnce(e.repoProvider, codebaseID, viewID)
-
 	for _, fn := range e.funs {
 		if err := fn.Exec(onceRepo); err != nil {
 			return err

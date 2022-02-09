@@ -13,10 +13,8 @@ import (
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	view_vcs "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/vcs"
-	"getsturdy.com/api/vcs/provider"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
@@ -100,13 +98,11 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 	importedTemporaryBranchName := fmt.Sprintf("imported-tmp-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
 	refspec := fmt.Sprintf("+refs/pull/%d/head:refs/heads/%s", gitHubPR.GetNumber(), importBranchName)
 
-	viewID := fmt.Sprintf("github-import-%s", uuid.NewString())
-
 	// this is done because the repository does not have a "sturdytrunk" yet
 	var trunkHeadCommitID string
 
 	// Fetch to trunk
-	fetchTrunkExec := svc.executorProvider.New().
+	if err := svc.executorProvider.New().
 		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
 		GitWrite(func(repo vcs.RepoGitWriter) error {
 			// Create the workspace branch
@@ -123,48 +119,25 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 			trunkHeadCommitID = headCommit.Id().String()
 
 			return nil
-		})
-	if err := fetchTrunkExec.ExecTrunk(codebaseID, "gitHubImportBranchFetch"); err != nil {
+		}).ExecTrunk(codebaseID, "gitHubImportBranchFetch"); err != nil {
 		return fmt.Errorf("failed to fetch pull to trunk: %w", err)
 	}
 
-	fetchTemporaryViewExec := svc.executorProvider.New().
-		AllowRebasingState(). // allowed because the view does not exist yet
-		Schedule(func(repoProvider provider.RepoProvider) error {
-			repo, cancelFunc, err := view_vcs.TemporaryViewWithID(
-				repoProvider,
-				viewID,
-				codebaseID,
-				importBranchName,
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create temporary view: %w", err)
-			}
-			defer func() {
-				if err := cancelFunc(); err != nil {
-					svc.logger.Error("failed to cleanup temporary view", zap.Error(err))
-				}
-			}()
-
-			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
-				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
-			}
-
-			if _, err := repo.AddAndCommit(fmt.Sprintf("Import from GitHub Pull Request %d", gitHubPR.GetNumber())); err != nil {
-				return fmt.Errorf("failed to commit for snapshot: %w", err)
-			}
-
-			if err := repo.CreateNewBranchOnHEAD(importedTemporaryBranchName); err != nil {
-				return fmt.Errorf("failed to create branch for snapshot: %w", err)
-			}
-
-			if err := repo.Push(svc.logger, importedTemporaryBranchName); err != nil {
-				return fmt.Errorf("failed to push branch for snapshot: %w", err)
-			}
-
-			return nil
-		})
-	if err := fetchTemporaryViewExec.ExecView(codebaseID, viewID, "gitHubImportBranch"); err != nil {
+	if err := svc.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
+		if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+			return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
+		}
+		if _, err := repo.AddAndCommit(fmt.Sprintf("Import from GitHub Pull Request %d", gitHubPR.GetNumber())); err != nil {
+			return fmt.Errorf("failed to commit for snapshot: %w", err)
+		}
+		if err := repo.CreateNewBranchOnHEAD(importedTemporaryBranchName); err != nil {
+			return fmt.Errorf("failed to create branch for snapshot: %w", err)
+		}
+		if err := repo.Push(svc.logger, importedTemporaryBranchName); err != nil {
+			return fmt.Errorf("failed to push branch for snapshot: %w", err)
+		}
+		return nil
+	}).TemporaryViewOnBranch(codebaseID, importBranchName, "gitHubImportBranch"); err != nil {
 		return fmt.Errorf("failed to create workspace from pr: %w", err)
 	}
 
