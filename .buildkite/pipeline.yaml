@@ -2,21 +2,21 @@ steps:
   - label: ":coverage: :golang: Make sure OSS doesn't link Enterprise features"
     commands:
       - "./download && cd ./tmp_output/api"
-      - | 
+      - |
         set -eou pipefail
         [[ -z $(go list -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep enterprise) ]] || exit 1
 
   - label: ":coverage: :golang: Make sure OSS doesn't link Cloud features"
     commands:
       - "./download && cd ./tmp_output/api"
-      - | 
+      - |
         set -eou pipefail
         [[ -z $(go list -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep cloud) ]] || exit 1
 
   - label: ":coverage: :golang: Make sure Enterprise doesn't link Cloud features"
     commands:
       - "./download && cd ./tmp_output/api"
-      - | 
+      - |
         set -eou pipefail
         [[ -z $(go list -tags enterprise -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep cloud) ]] || exit 1
 
@@ -30,9 +30,9 @@ steps:
       - "./download && cd ./tmp_output"
       - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
 
-  - label: ":docker: :golang: :yarn: Build oneliner (no push)"
-    agents:
-      queue: "arm"
-    commands:
-    - "./download && cd ./tmp_output"
-    - "./scripts/build-upload-oneliner.sh"
+  # - label: ":docker: :golang: :yarn: Build oneliner (no push)"
+  #   agents:
+  #     queue: "arm"
+  #   commands:
+  #   - "./download && cd ./tmp_output"
+  #   - "./scripts/build-upload-oneliner.sh"
