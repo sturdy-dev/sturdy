@@ -73,7 +73,7 @@ const groups = [
       { route: 'featuresWorkspaceNavigation', title: 'Workspace Navigation' },
       { route: 'featuresIntegrations', title: 'Integrations' },
       { route: 'featuresLiveFeedback', title: 'Live Feedback' },
-      { route: 'featuresWorkflow', title: 'Workflow' },
+      // { route: 'featuresWorkflow', title: 'Workflow' },
       { route: 'featuresConflicts', title: 'Conflicts' },
       { route: 'featuresLargeFiles', title: 'Large Files' },
       { route: 'docsAccessControl', title: 'Access Control' },
@@ -85,8 +85,9 @@ const groups = [
   {
     name: 'Learn',
     links: [
-      { route: 'docsSturdyForGitUsers', title: 'Sturdy for Git users' },
       { route: 'resourcesMigrateFromGitHub', title: 'Migrate from GitHub' },
+      { route: 'resourcesHelpSturdyCommandLine', title: 'Sturdy for Servers and Linux (CLI)' },
+      { route: 'resourcesApi', title: 'GraphQL API' },
     ],
   },
 ]

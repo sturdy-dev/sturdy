@@ -367,7 +367,7 @@ import { highlight, languages } from 'prismjs/components/prism-core'
 import 'prismjs/components/prism-json'
 import 'prismjs/themes/prism-tomorrow.css'
 
-import StaticPage from '../../StaticPage.vue'
+import StaticPage from '../../../../layouts/StaticPage.vue'
 import { ClientOnly } from 'vite-ssr/vue'
 
 export default {

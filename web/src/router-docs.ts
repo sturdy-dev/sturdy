@@ -37,13 +37,13 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/about',
     component: () => import('./pages/about/About.vue'),
     name: 'about',
-    meta: { nonApp: true },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/contact',
     component: () => import('./pages/about/Contact.vue'),
     name: 'contact',
-    meta: { nonApp: true },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/v1/pricing',
@@ -61,10 +61,7 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/security',
     component: () => import('./pages/static/Security.vue'),
     name: 'resourcesSecurity',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Security', group: 'Documentation' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/v1/docs',
@@ -107,130 +104,67 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/docs/syncing',
     component: () => import('./pages/static/SharingAndSyncing.vue'),
     name: 'syncing',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'Staying up to date with changes done by others',
-        group: 'Quickstart',
-      },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/instant-switching',
     component: () => import('./pages/static/WorkspaceNavigation.vue'),
     name: 'featuresWorkspaceNavigation',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'Instant Workspace switching',
-        group: 'Solutions',
-      },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/integrations',
     component: () => import('./pages/static/Integrations.vue'),
     name: 'featuresIntegrations',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'Integrate Sturdy with other tools',
-        group: 'Solutions',
-      },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/live',
     component: () => import('./pages/static/LiveFeedback.vue'),
     name: 'featuresLiveFeedback',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Live Feedback', group: 'Solutions' },
-    },
-  },
-  {
-    path: '/features/workflow',
-    component: () => import('./pages/static/Workflow.vue'),
-    name: 'featuresWorkflow',
-    meta: { nonApp: true },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/conflicts',
     component: () => import('./pages/static/Conflicts.vue'),
     name: 'featuresConflicts',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'Conflict Resolution on Sturdy',
-        group: 'Solutions',
-      },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/large-files',
     component: () => import('./pages/static/LargeFiles.vue'),
     name: 'featuresLargeFiles',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Large Files', group: 'Solutions' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/docs/cli',
     component: () => import('./pages/static/HelpSturdyCommandLine.vue'),
     name: 'resourcesHelpSturdyCommandLine',
-    meta: {
-      nonApp: true,
-      documentation: {
-        title: 'The Sturdy command line application',
-        group: 'Help',
-      },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/api',
     component: () => import('./pages/static/API.vue'),
     name: 'resourcesApi',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'GraphQL API', group: 'Documentation' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/docs/access-control',
     component: () => import('./pages/static/docs/access-control/AccessControl.vue'),
     name: 'docsAccessControl',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Access Control', group: 'Documentation' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/docs/suggestions',
     component: () => import('./pages/static/docs/suggestions/Suggestions.vue'),
     name: 'docsSuggestions',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Suggestions', group: 'Documentation' },
-    },
-  },
-  {
-    path: '/docs/sturdy-for-git-users',
-    component: () => import('./pages/static/docs/terminology/Terminology.vue'),
-    name: 'docsSturdyForGitUsers',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Sturdy for Git users', group: 'Documentation' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/features/migrate-from-github',
     component: () => import('./pages/static/MigrateFromGitHub.vue'),
     name: 'resourcesMigrateFromGitHub',
-    meta: {
-      nonApp: true,
-      documentation: { title: 'Migrate from GitHub', group: 'Documentation' },
-    },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/docs/continuous-integration',
@@ -247,6 +181,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
     component: () => import('./pages/blog/graphql-componentized-uis/Post.vue'),
     meta: {
       nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
       blog: { title: '#013 - GraphQL & Componentized UIs' },
     },
   },
@@ -256,6 +192,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
     component: () => import('./pages/blog/2021-12-07/Post.vue'),
     meta: {
       nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
       blog: { title: '#012 - Launching the Sturdy App!' },
     },
   },
@@ -265,6 +203,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
     component: () => import('./pages/blog/scaling-teams/Post.vue'),
     meta: {
       nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
       blog: { title: '#011 - Scaling teams as parallel computing systems' },
     },
   },
@@ -272,7 +212,12 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/blog/2021-11-22-sturdy-the-app-is-coming',
     name: 'blog-2021-11-22',
     component: () => import('./pages/blog/2021-11-22/Post.vue'),
-    meta: { nonApp: true, blog: { title: '#010 - Sturdy-the-app is coming!' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#010 - Sturdy-the-app is coming!' },
+    },
   },
   {
     path: '/blog/2021-09-29-acls-and-a-fresh-hot-look',
@@ -284,7 +229,12 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/blog/2021-09-09-large-files',
     name: 'blogLargeFiles',
     component: () => import('./pages/blog/large-files/LargeFiles.vue'),
-    meta: { nonApp: true, blog: { title: '#008 - Large Files' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#008 - Large Files' },
+    },
   },
   {
     path: '/blog/2021-08-18-unbreaking-code-collaboration',
@@ -292,6 +242,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
     component: () => import('./pages/blog/vision/Vision.vue'),
     meta: {
       nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
       blog: { title: '#007 - Unbreaking code collaboration' },
     },
   },
@@ -299,25 +251,45 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/blog/2021-08-12-signup-is-open',
     name: 'blogSignupIsOpen',
     component: () => import('./pages/blog/signup-is-open/SignupIsOpen.vue'),
-    meta: { nonApp: true, blog: { title: '#006 - Sturdy is here' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#006 - Sturdy is here' },
+    },
   },
   {
     path: '/blog/2021-06-10-humane-code-review',
     name: 'blogHumaneCodeReview',
     component: () => import('./pages/blog/humane-code-review/HumaneCodeReview.vue'),
-    meta: { nonApp: true, blog: { title: '#005 - Humane Code Review' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#005 - Humane Code Review' },
+    },
   },
   {
     path: '/blog/2021-05-06-importing-from-git',
     name: 'blogImportingFromGit',
     component: () => import('./pages/blog/import-from-git/ImportFromGit.vue'),
-    meta: { nonApp: true, blog: { title: '#004 - Importing from Git' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#004 - Importing from Git' },
+    },
   },
   {
     path: '/blog/2021-04-16-share-now',
     name: 'blogShareNow',
     component: () => import('./pages/blog/share-now/ShareNow.vue'),
-    meta: { nonApp: true, blog: { title: '#003 - Share Now!' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#003 - Share Now!' },
+    },
   },
   {
     path: '/blog/2021-04-01-restore-to-any-point-in-time',
@@ -326,6 +298,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       import('./pages/blog/restore-to-any-point-in-time/RestoreToAnyPointInTime.vue'),
     meta: {
       nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
       blog: { title: '#002 - Restore to any point in time' },
     },
   },
@@ -333,19 +307,29 @@ export const RoutesDocs: RouteRecordRaw[] = [
     path: '/blog/2021-03-24-yc-w21-demo-day',
     name: 'blogDemoDay',
     component: () => import('./pages/blog/yc-w21-demo-day/DemoDay.vue'),
-    meta: { nonApp: true, blog: { title: '#001 - YC W21 Demo Day!' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#001 - YC W21 Demo Day!' },
+    },
   },
   {
     path: '/blog/2021-03-18-this-week-at-sturdy',
     name: 'blogThisWeekAtSturdy',
     component: () => import('./pages/blog/first-post/ThisWeekAtSturdy.vue'),
-    meta: { nonApp: true, blog: { title: '#000 - This Week at Sturdy' } },
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#000 - This Week at Sturdy' },
+    },
   },
   {
     path: '/blog',
     name: 'blog',
     component: () => import('./pages/blog/Blog.vue'),
-    meta: { nonApp: true },
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
     path: '/careers',
@@ -393,7 +377,7 @@ export const RoutesDocs: RouteRecordRaw[] = [
   },
   {
     path: '/docs/how-sturdy-interacts-with-git',
-    alias: '/v2/docs/how-sturdy-interacts-with-git',
+    alias: ['/v2/docs/how-sturdy-interacts-with-git', '/docs/sturdy-for-git-users'],
     component: () => import('./pages/docs/HowSturdyInteractsWithGit.vue'),
     name: 'v2DocsHowSturdyInteractsWithGit',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },

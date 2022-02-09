@@ -1,5 +1,5 @@
 <template>
-  <Public>
+  <Documentation>
     <JobHeader title="Come and work with us!" />
 
     <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8 flex flex-col space-y-32">
@@ -34,7 +34,8 @@
 
             <p>
               We regularly post about tech and product on our
-              <router-link :to="{ name: 'blog' }">blog</router-link>.
+              <router-link :to="{ name: 'blog' }">blog</router-link>
+              .
             </p>
           </div>
         </div>
@@ -58,26 +59,16 @@
       </div>
       <JobTeam />
     </div>
-  </Public>
+  </Documentation>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import Public from '../../layouts/Public.vue'
+<script lang="ts" setup>
 import JobHeader from '../../organisms/careers/JobHeader.vue'
 import JobTeam from '../../organisms/careers/JobTeam.vue'
 import { useHead } from '@vueuse/head'
+import Documentation from '../../layouts/Documentation.vue'
 
-export default defineComponent({
-  components: {
-    Public,
-    JobTeam,
-    JobHeader,
-  },
-  setup() {
-    useHead({
-      title: 'Careers at Sturdy',
-    })
-  },
+useHead({
+  title: 'Careers at Sturdy',
 })
 </script>

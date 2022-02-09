@@ -115,7 +115,7 @@ curl -v -H "Authorization: bearer {{ token }}" \
 </template>
 
 <script>
-import StaticPage from './StaticPage.vue'
+import StaticPage from '../../layouts/StaticPage.vue'
 import http from '../../http'
 import LinkButton from '../../components/shared/LinkButton.vue'
 import { ClientOnly } from 'vite-ssr/vue'

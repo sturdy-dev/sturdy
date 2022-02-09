@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import StaticPage from '../../StaticPage.vue'
+import StaticPage from '../../../../layouts/StaticPage.vue'
 
 import thomasStartImage from './thomas_start.png'
 import thomasSuggestingImage from './thomas_suggesting.png'
