@@ -62,10 +62,51 @@ exports.handler = (event, context, callback) => {
     '/docs/index',
     '/docs/self-hosted',
     '/privacy',
-    '/terms-of-service'
+    '/terms-of-service',
   ]
 
   const request = event.Records[0].cf.request
+
+  // Redirect go-imports of "getsturdy.com/api" to "github.com/sturdy-dev/sturdy"
+  if (request.uri === '/api' && request.querystring === 'go-get=1') {
+    const content = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="go-import" content="getsturdy.com/api git https://github.com/sturdy-dev/sturdy">
+    <meta name="go-source" content="getsturdy.com/api https://github.com/sturdy-dev/sturdy https://github.com/sturdy-dev/sturdy/tree/master{/dir} https://github.com/sturdy-dev/sturdy/blob/master{/dir}/{file}#L{line}">
+    <title>Hello Gophers!</title>
+  </head>
+  <body>
+    <p><a href="https://github.com/sturdy-dev/sturdy">https://github.com/sturdy-dev/sturdy</a></p>
+  </body>
+</html>
+`
+
+    const response = {
+      status: '200',
+      statusDescription: 'OK',
+      headers: {
+        'cache-control': [
+          {
+            key: 'Cache-Control',
+            value: 'max-age=100',
+          },
+        ],
+        'content-type': [
+          {
+            key: 'Content-Type',
+            value: 'text/html',
+          },
+        ],
+      },
+      body: content,
+    }
+    callback(null, response)
+    return
+  }
+
   // Don't modify request
   if (
     request.uri.startsWith('/css/') ||
