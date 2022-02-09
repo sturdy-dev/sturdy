@@ -3,13 +3,12 @@ package graphql
 import (
 	"context"
 
-	"github.com/graph-gophers/graphql-go"
-
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
 	service_downloads "getsturdy.com/api/pkg/change/downloads/enterprise/cloud/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"github.com/graph-gophers/graphql-go"
 )
 
 type ContentsDownloadURLRootResolver struct {
@@ -27,15 +26,15 @@ func New(
 	}
 }
 
-func (r *ContentsDownloadURLRootResolver) InternalContentsDownloadTarGzUrl(ctx context.Context, change *change.Change, changeCommit *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.download(ctx, change, changeCommit, service_downloads.ArchiveFormatTarGz)
+func (r *ContentsDownloadURLRootResolver) InternalContentsDownloadTarGzUrl(ctx context.Context, change *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.download(ctx, change, service_downloads.ArchiveFormatTarGz)
 }
 
-func (r *ContentsDownloadURLRootResolver) InternalContentsDownloadZipUrl(ctx context.Context, change *change.Change, changeCommit *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.download(ctx, change, changeCommit, service_downloads.ArchiveFormatZip)
+func (r *ContentsDownloadURLRootResolver) InternalContentsDownloadZipUrl(ctx context.Context, change *change.ChangeCommit) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.download(ctx, change, service_downloads.ArchiveFormatZip)
 }
 
-func (r *ContentsDownloadURLRootResolver) download(ctx context.Context, change *change.Change, changeCommit *change.ChangeCommit, format service_downloads.ArchiveFormat) (resolvers.ContentsDownloadUrlResolver, error) {
+func (r *ContentsDownloadURLRootResolver) download(ctx context.Context, change *change.ChangeCommit, format service_downloads.ArchiveFormat) (resolvers.ContentsDownloadUrlResolver, error) {
 	if err := r.authService.CanRead(ctx, change); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -45,7 +44,7 @@ func (r *ContentsDownloadURLRootResolver) download(ctx context.Context, change *
 		return nil, gqlerrors.Error(err)
 	}
 
-	url, err := r.service.CreateArchive(ctx, allower, change.CodebaseID, changeCommit.CommitID, format)
+	url, err := r.service.CreateArchive(ctx, allower, change.CodebaseID, change.CommitID, format)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
