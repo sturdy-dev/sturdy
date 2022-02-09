@@ -18,6 +18,7 @@ type Repository interface {
 	Update(*users.User) error
 	UpdatePassword(u *users.User) error
 	Count(context.Context) (uint64, error)
+	List(ctx context.Context, limit uint64) ([]*users.User, error)
 }
 
 type repo struct {
@@ -26,6 +27,14 @@ type repo struct {
 
 func NewRepo(db *sqlx.DB) Repository {
 	return &repo{db: db}
+}
+
+func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
+	users := []*users.User{}
+	if err := r.db.SelectContext(ctx, &users, "SELECT * FROM users ORDER BY created_at DESC LIMIT $1", limit); err != nil {
+		return nil, fmt.Errorf("failed to select: %w", err)
+	}
+	return users, nil
 }
 
 // The ID value is set inside this method
