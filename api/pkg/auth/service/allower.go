@@ -201,9 +201,25 @@ func (s *Service) getAnonymousChangeAllower(ctx context.Context, change *change.
 }
 
 func (s *Service) getAnonymousCodebaseAllower(ctx context.Context, cb *codebase.Codebase) (*unidiff.Allower, error) {
-	if cb.IsPublic {
-		return allAllowed, nil
+	if !cb.IsPublic {
+		// if codebase is not public, then anonymous users can't see any files.
+		return noneAllowed, nil
 	}
 
-	return noneAllowed, nil
+	// for public codebases, use acls to determine what files are visible.
+
+	aclPolicy, err := s.aclProvider.GetByCodebaseID(ctx, cb.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return noneAllowed, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get acl policy: %w", err)
+	}
+
+	allowedByID := aclPolicy.Policy.List(
+		acl.Identity{Type: acl.Users, ID: "anonymous"},
+		acl.ActionWrite,
+		acl.Files,
+	)
+
+	return unidiff.NewAllower(allowedByID...)
 }
