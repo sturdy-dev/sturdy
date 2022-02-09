@@ -46,8 +46,6 @@ type Executor interface {
 	// ExecTemporaryView creates a view for the given codebase, cloning it from the trunk,
 	// executes all the scheduled functions, and then deletes the view.
 	ExecTemporaryView(codebaseID, actionName string) error
-	// ExecTemporaryViewOnBranch is the same as TemporaryView, but switches to the given branch.
-	ExecTemporaryViewOnBranch(codebaseID, branchName, actionName string) error
 }
 
 type executeFunc struct {
@@ -229,21 +227,6 @@ func (e *executor) AssertBranchName(name string) Executor {
 
 var ErrIsRebasing = fmt.Errorf("unexpected git executor state, is rebasing")
 var ErrUnexpectedBranch = fmt.Errorf("unexpected git executor state, on unexpected branch")
-
-func (e *executor) ExecTemporaryViewOnBranch(codebaseID, branchName, actionName string) error {
-	return e.Write(func(repo vcs.RepoWriter) error {
-		if err := repo.FetchBranch(branchName); err != nil {
-			return fmt.Errorf("failed to fetch branch '%s': %w", branchName, err)
-		}
-		if err := repo.CreateBranchTrackingUpstream(branchName); err != nil {
-			return fmt.Errorf("failed to create branch '%s': %w", branchName, err)
-		}
-		if err := repo.CheckoutBranchWithForce(branchName); err != nil {
-			return fmt.Errorf("failed to checkout branch '%s': %w", branchName, err)
-		}
-		return nil
-	}).AssertBranchName(branchName).ExecTemporaryView(codebaseID, actionName)
-}
 
 func (e *executor) ExecTemporaryView(codebaseID, actionName string) error {
 	viewID := fmt.Sprintf("tmp-%s", uuid.NewString())

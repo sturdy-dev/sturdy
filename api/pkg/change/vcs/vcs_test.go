@@ -10,11 +10,9 @@ import (
 
 	vcs_change "getsturdy.com/api/pkg/change/vcs"
 	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
-	vcs_snapshot "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	viewsvcs "getsturdy.com/api/pkg/view/vcs"
 	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
-	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -39,62 +37,6 @@ func getDiffs(t *testing.T, repo vcs.RepoReader) []unidiff.FileDiff {
 	assert.NoError(t, err)
 
 	return diffs
-}
-
-func TestCreateAndLandFromSnapshot(t *testing.T) {
-	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
-	workspaceID := "workspaceID"
-	viewID := "viewID"
-	setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
-
-	// add a new file to the view
-	viewPath := repoProvider.ViewPath(codebaseID, viewID)
-	assert.NoError(t, os.WriteFile(path.Join(viewPath, "file"), []byte("content\n"), 0777))
-
-	repo, err := repoProvider.ViewRepo(codebaseID, viewID)
-	assert.NoError(t, err)
-
-	// calculate patch ids
-	diffs := getDiffs(t, repo)
-	assert.Len(t, diffs, 1)
-	patchIDs := []string{}
-	for _, diff := range diffs {
-		for _, hunk := range diff.Hunks {
-			patchIDs = append(patchIDs, hunk.ID)
-		}
-	}
-
-	// create a snapshot
-	snapshotID := "snapshotID"
-	_, err = vcs_snapshot.SnapshotOnViewRepo(zap.NewNop(), repo, codebaseID, snapshotID)
-	assert.NoError(t, err)
-
-	// create change from view
-	commitID, pushFunc, err := vcs_change.CreateAndLandFromSnapshot(
-		repoProvider,
-		zap.NewNop(),
-		codebaseID,
-		workspaceID,
-		snapshotID,
-		patchIDs,
-		"commit message",
-		sig,
-	)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
-
-	// make sure it is pushed
-	trunk, err := repoProvider.TrunkRepo(codebaseID)
-	assert.NoError(t, err)
-
-	// push it
-	assert.NoError(t, pushFunc())
-
-	trunkHeadCommit, err := trunk.HeadCommit()
-	assert.NoError(t, err)
-	assert.Equal(t, commitID, trunkHeadCommit.Id().String())
 }
 
 func TestCreateAndLandFromView(t *testing.T) {
@@ -127,7 +69,6 @@ func TestCreateAndLandFromView(t *testing.T) {
 		zap.NewNop(),
 		codebaseID,
 		workspaceID,
-		viewID,
 		patchIDs,
 		"commit message",
 		sig,
@@ -207,7 +148,7 @@ func setupCodebase(t *testing.T, repoProvider provider.RepoProvider, codebaseID,
 
 	repo, err := repoProvider.TrunkRepo(codebaseID)
 	assert.NoError(t, err)
-	err = workspacevcs.Create(repo, workspaceID)
+	err = vcs_workspace.Create(repo, workspaceID)
 	assert.NoError(t, err)
 
 	err = viewsvcs.Create(repoProvider, codebaseID, workspaceID, viewID)

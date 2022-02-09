@@ -388,6 +388,9 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+	if gerr, ok := err.(*gqlerrors.SturdyGraphqlError); ok {
+		t.Logf("err=%+v", gerr.OriginalError())
+	}
 
 	// Check file on trunk
 	fileOrDirResolver, err = cbResolver.File(authenticatedUserContext, resolvers.CodebaseFileArgs{Path: "hello.txt"})

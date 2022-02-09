@@ -4,16 +4,17 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	vcsvcs "getsturdy.com/api/vcs"
 
+	"getsturdy.com/api/vcs"
+
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/snapshots"
 	db3 "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
-	"getsturdy.com/api/pkg/view/vcs"
+	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	db2 "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs/executor"
@@ -79,36 +80,26 @@ func OpenWorkspaceOnView(
 		// TODO: unset view.workspace_id?
 	}
 
-	if err := executorProvider.New().Write(func(repo vcsvcs.RepoWriter) error {
-		headBranch, err := repo.HeadBranch()
-		if err != nil {
-			return fmt.Errorf("failed to open repo get branch")
-		}
-		if headBranch != ws.ID {
-			// Checkout
-			if err := vcs.SetWorkspaceRepo(repo, ws.ID); err != nil {
-				return fmt.Errorf("failed to checkout view: %w", err)
+	if err := executorProvider.New().
+		Write(vcs_view.CheckoutBranch(ws.ID)).
+		Write(func(repo vcs.RepoWriter) error {
+			// Restore snapshot
+			if ws.LatestSnapshotID != nil {
+				snapshot, err := snapshotRepo.Get(*ws.LatestSnapshotID)
+				if err != nil {
+					return fmt.Errorf("failed to get snapshot: %w", err)
+				}
+				if err := vcs2.RestoreRepo(logger, repo, ws.CodebaseID, ws.ID, snapshot.ID, snapshot.CommitID); err != nil {
+					return fmt.Errorf("failed to restore snapshot: %w", err)
+				}
+			} else {
+				// vcs2.Restore does this as well, make sure to smudge files in this scenario as well
+				if err := repo.LargeFilesPull(); err != nil {
+					logger.Warn("failed to pull large files", zap.Error(err))
+				}
 			}
-		}
-
-		// Restore snapshot
-		if ws.LatestSnapshotID != nil {
-			snapshot, err := snapshotRepo.Get(*ws.LatestSnapshotID)
-			if err != nil {
-				return fmt.Errorf("failed to get snapshot: %w", err)
-			}
-			if err := vcs2.RestoreRepo(logger, repo, ws.CodebaseID, ws.ID, snapshot.ID, snapshot.CommitID); err != nil {
-				return fmt.Errorf("failed to restore snapshot: %w", err)
-			}
-		} else {
-			// vcs2.Restore does this as well, make sure to smudge files in this scenario as well
-			if err := repo.LargeFilesPull(); err != nil {
-				logger.Warn("failed to pull large files", zap.Error(err))
-			}
-		}
-
-		return nil
-	}).ExecView(ws.CodebaseID, view.ID, "OpenWorkspaceOnView"); err != nil {
+			return nil
+		}).ExecView(ws.CodebaseID, view.ID, "OpenWorkspaceOnView"); err != nil {
 		return fmt.Errorf("failed to open workspace on view: %w", err)
 	}
 
