@@ -29,10 +29,10 @@ func NewFileRootResolver(
 	}
 }
 
-func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, pathsWithFallback ...string) (resolvers.FileOrDirectoryResolver, error) {
+func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebase.Codebase, pathsWithFallback ...string) (resolvers.FileOrDirectoryResolver, error) {
 	var resolver resolvers.FileOrDirectoryResolver
 
-	allower, err := r.authService.GetAllower(ctx, &codebase.Codebase{ID: codebaseID})
+	allower, err := r.authService.GetAllower(ctx, codebase)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -56,7 +56,7 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, 
 				contents, err := repo.FileContentsAtCommit(headCommit.Id().String(), variantName)
 				if err == nil && allower.IsAllowed(variantName, false) {
 					resolver = &fileResolver{
-						codebaseID: codebaseID,
+						codebaseID: codebase.ID,
 						path:       variantName,
 						contents:   contents,
 					}
@@ -66,7 +66,7 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, 
 				children, err := repo.DirectoryChildrenAtCommit(headCommit.Id().String(), variantName)
 				if err == nil {
 					resolver = &directoryResolver{
-						codebaseID:   codebaseID,
+						codebase:     codebase,
 						path:         variantName,
 						children:     children,
 						rootResolver: r,
@@ -77,7 +77,7 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebaseID string, 
 		}
 
 		return gqlerrors.ErrNotFound
-	}).ExecTrunk(codebaseID, "fileRootResolver")
+	}).ExecTrunk(codebase.ID, "fileRootResolver")
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/codebase/acl"
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -144,7 +145,7 @@ func TestFileResolver(t *testing.T) {
 	ctx := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})
 
 	root := NewFileRootResolver(executorProvider, authService)
-	fileResolver, err := root.InternalFile(ctx, codebaseID, "README.md", "README.markdown")
+	fileResolver, err := root.InternalFile(ctx, &codebase.Codebase{ID: codebaseID}, "README.md", "README.markdown")
 	assert.Error(t, err, gqlerrors.ErrNotFound)
 	assert.Nil(t, fileResolver)
 
@@ -162,7 +163,7 @@ func TestFileResolver(t *testing.T) {
 	}
 
 	t.Run("get readme", func(t *testing.T) {
-		fileResolver, err = root.InternalFile(ctx, codebaseID, "README.md", "README.markdown")
+		fileResolver, err = root.InternalFile(ctx, &codebase.Codebase{ID: codebaseID}, "README.md", "README.markdown")
 		assert.NoError(t, err)
 		if assert.NotNil(t, fileResolver) {
 			fileResolver, ok := fileResolver.ToFile()
@@ -174,7 +175,7 @@ func TestFileResolver(t *testing.T) {
 	})
 
 	t.Run("list root not see not_allowed.txt", func(t *testing.T) {
-		fileResolver, err = root.InternalFile(ctx, codebaseID, "/")
+		fileResolver, err = root.InternalFile(ctx, &codebase.Codebase{ID: codebaseID}, "/")
 		assert.NoError(t, err)
 		if assert.NotNil(t, fileResolver) {
 			dir, ok := fileResolver.ToDirectory()
@@ -194,7 +195,7 @@ func TestFileResolver(t *testing.T) {
 	})
 
 	t.Run("list not_allowed.txt not allowed", func(t *testing.T) {
-		fileResolver, err = root.InternalFile(ctx, codebaseID, "not_allowed.txt")
+		fileResolver, err = root.InternalFile(ctx, &codebase.Codebase{ID: codebaseID}, "not_allowed.txt")
 		assert.Error(t, err, gqlerrors.ErrNotFound)
 	})
 
@@ -202,7 +203,7 @@ func TestFileResolver(t *testing.T) {
 		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirUserID, Type: auth.SubjectUser})
 
 		{
-			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			fileResolver, err = root.InternalFile(restrictedUserCtx, &codebase.Codebase{ID: codebaseID}, "/")
 			assert.NoError(t, err)
 			if assert.NotNil(t, fileResolver) {
 				dir, ok := fileResolver.ToDirectory()
@@ -223,7 +224,7 @@ func TestFileResolver(t *testing.T) {
 		}
 
 		{
-			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/dir")
+			fileResolver, err = root.InternalFile(restrictedUserCtx, &codebase.Codebase{ID: codebaseID}, "/dir")
 			assert.NoError(t, err)
 			if assert.NotNil(t, fileResolver) {
 				dir, ok := fileResolver.ToDirectory()
@@ -243,7 +244,7 @@ func TestFileResolver(t *testing.T) {
 	t.Run("as restrictedUserReadmeUserID", func(t *testing.T) {
 		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserReadmeUserID, Type: auth.SubjectUser})
 		{
-			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			fileResolver, err = root.InternalFile(restrictedUserCtx, &codebase.Codebase{ID: codebaseID}, "/")
 			assert.NoError(t, err)
 			if assert.NotNil(t, fileResolver) {
 				dir, ok := fileResolver.ToDirectory()
@@ -263,7 +264,7 @@ func TestFileResolver(t *testing.T) {
 	t.Run("as restrictedUserDirNoTrailingSlashCtx", func(t *testing.T) {
 		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirNoTrailingSlashUserID, Type: auth.SubjectUser})
 		{
-			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			fileResolver, err = root.InternalFile(restrictedUserCtx, &codebase.Codebase{ID: codebaseID}, "/")
 			assert.NoError(t, err)
 			if assert.NotNil(t, fileResolver) {
 				dir, ok := fileResolver.ToDirectory()
@@ -286,7 +287,7 @@ func TestFileResolver(t *testing.T) {
 	t.Run("as restrictedUserDirFooCtx", func(t *testing.T) {
 		restrictedUserCtx := auth.NewContext(context.Background(), &auth.Subject{ID: restrictedUserDirFooUserID, Type: auth.SubjectUser})
 		{
-			fileResolver, err = root.InternalFile(restrictedUserCtx, codebaseID, "/")
+			fileResolver, err = root.InternalFile(restrictedUserCtx, &codebase.Codebase{ID: codebaseID}, "/")
 			assert.NoError(t, err)
 			if assert.NotNil(t, fileResolver) {
 				dir, ok := fileResolver.ToDirectory()

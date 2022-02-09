@@ -617,7 +617,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
 	// GitHub supported names:
 	// https://github.com/github/markup/blob/master/README.md
-	fileResolver, err := r.root.fileRootResolver.InternalFile(ctx, r.c.ID, "README.md", "README.mkdn", "README.mdown", "README.markdown")
+	fileResolver, err := r.root.fileRootResolver.InternalFile(ctx, r.c, "README.md", "README.mkdn", "README.mdown", "README.markdown")
 	switch {
 	case err == nil && fileResolver != nil:
 		if file, ok := fileResolver.ToFile(); ok {
@@ -633,7 +633,7 @@ func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, 
 }
 
 func (r *CodebaseResolver) File(ctx context.Context, args resolvers.CodebaseFileArgs) (resolvers.FileOrDirectoryResolver, error) {
-	fr, err := r.root.fileRootResolver.InternalFile(ctx, r.c.ID, args.Path)
+	fr, err := r.root.fileRootResolver.InternalFile(ctx, r.c, args.Path)
 	switch {
 	case err == nil:
 		return fr, nil

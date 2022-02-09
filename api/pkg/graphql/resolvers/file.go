@@ -3,11 +3,12 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebase"
 	"github.com/graph-gophers/graphql-go"
 )
 
 type FileRootResolver interface {
-	InternalFile(ctx context.Context, codebaseID string, pathsWithFallback ...string) (FileOrDirectoryResolver, error)
+	InternalFile(ctx context.Context, codebase *codebase.Codebase, pathsWithFallback ...string) (FileOrDirectoryResolver, error)
 }
 
 type FileOrDirectoryResolver interface {
