@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"getsturdy.com/api/vcs"
@@ -200,7 +201,24 @@ func (q *Queue) gcSnapshot(
 		return nil
 	}
 
-	snapshotBranchName := "snapshot-" + snapshot.ID
+	// Throttle heavy operations
+	time.Sleep(time.Second / 2)
+
+	if err := q.deleteSnapshotBranch(logger, snapshot); err != nil {
+		return fmt.Errorf("failed to delete snapshot id=%s: %w", snapshot.ID, err)
+	}
+
+	t := time.Now()
+	snapshot.DeletedAt = &t
+	if err := q.snapshotsRepo.Update(snapshot); err != nil {
+		return fmt.Errorf("failed to mark snapshot as deleted: %w", err)
+	}
+
+	return nil
+}
+
+func (q *Queue) deleteSnapshotBranch(logger *zap.Logger, snapshot *snapshots.Snapshot) error {
+	logger.Info("deleting snapshot")
 
 	if ws, err := q.workspaceReader.GetBySnapshotID(snapshot.ID); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("could not get workspace by snapshot: %w", err)
@@ -209,10 +227,7 @@ func (q *Queue) gcSnapshot(
 		return nil
 	}
 
-	// Throttle heavy operations
-	time.Sleep(time.Second / 2)
-
-	logger.Info("deleting snapshot")
+	snapshotBranchName := "snapshot-" + snapshot.ID
 
 	// Delete branch on trunk
 	if err := q.executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
@@ -223,14 +238,14 @@ func (q *Queue) gcSnapshot(
 		logger.Info("trunk branch deleted", zap.String("branch_name", snapshotBranchName))
 
 		return nil
-	}).ExecTrunk(m.CodebaseID, "deleteTrunkSnapshot"); err != nil {
+	}).ExecTrunk(snapshot.CodebaseID, "deleteTrunkSnapshot"); err != nil {
 		logger.Error("failed to delete snapshot on trunk", zap.Error(err))
 		// do not fail
 		return nil
 	}
 
 	// Delete branch on the view that created the snapshot
-	if snapshot.ViewID != "" {
+	if snapshot.ViewID != "" && !strings.HasPrefix(snapshot.ViewID, "tmp-") {
 		if err := q.executorProvider.New().
 			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
 			GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
@@ -241,16 +256,10 @@ func (q *Queue) gcSnapshot(
 				logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
 
 				return nil
-			}).ExecView(m.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
+			}).ExecView(snapshot.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
 			logger.Error("failed to open view", zap.Error(err))
 			return nil
 		}
-	}
-
-	t := time.Now()
-	snapshot.DeletedAt = &t
-	if err := q.snapshotsRepo.Update(snapshot); err != nil {
-		return fmt.Errorf("failed to mark snapshot as deleted: %w", err)
 	}
 
 	return nil
