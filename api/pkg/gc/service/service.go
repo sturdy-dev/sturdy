@@ -282,7 +282,7 @@ func (svc *Service) WorkWithOptions(
 				// don't exit
 			}
 
-			if err := viewGitRepo.GitRemotePrune(logger, "origin"); err != nil {
+			if err := viewGitRepo.GitRemotePrune("origin"); err != nil {
 				logger.Error("failed to run git remote prune on view", zap.Error(err))
 				// don't exit
 			}

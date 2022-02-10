@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
-
-	"go.uber.org/zap"
 )
 
 func (r *repository) GitGC() error {
@@ -42,37 +40,13 @@ func (r *repository) GitReflogExpire() error {
 	return nil
 }
 
-func (r *repository) GitRemotePrune(logger *zap.Logger, remoteName string) error {
-	remote, err := r.r.Remotes.Lookup(remoteName)
-	if err != nil {
-		return err
+func (r *repository) GitRemotePrune(remoteName string) error {
+	cmd := exec.Command("git", "remote", "prune", remoteName)
+	errLog := &bytes.Buffer{}
+	cmd.Dir = r.path
+	cmd.Stderr = errLog
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run git remote prune: %w, %s", err, errLog.String())
 	}
-
-	log := logger.Named("GitRemotePrune")
-
-	preRefspecs, err := remote.PushRefspecs()
-	if err != nil {
-		log.Error("failed to get push refspects pre", zap.Error(err))
-		// don't fail
-		return nil
-	}
-
-	remote.RefspecCount()
-
-	if err := remote.Prune(nil); err != nil {
-		log.Error("pruning failed", zap.Error(err))
-		// don't fail
-		return nil
-	}
-
-	postRefspecs, err := remote.PushRefspecs()
-	if err != nil {
-		log.Error("failed to get push refspects post", zap.Error(err))
-		// don't fail
-		return nil
-	}
-
-	log.Info("cleanup remote refspecs", zap.Int("pre", len(preRefspecs)), zap.Int("post", len(postRefspecs)))
-
 	return nil
 }
