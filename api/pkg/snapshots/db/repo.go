@@ -114,7 +114,7 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapsh
 		  AND created_at < NOW() - interval '3 hour'
 		ORDER BY 
 		  created_at DESC
-		LIMIT 100
+		LIMIT 1000
 		`, codebaseID); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
