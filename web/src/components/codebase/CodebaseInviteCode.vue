@@ -12,7 +12,7 @@
         <div class="relative flex items-stretch flex-grow focus-within:z-10">
           <input
             id="invite_code"
-            :value="'https://getsturdy.com/join/' + data.codebase.inviteCode"
+            :value="inviteURL"
             type="text"
             readonly
             class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
@@ -136,6 +136,11 @@ export default {
       copyText.select()
       copyText.setSelectionRange(0, 99999)
       document.execCommand('copy')
+    },
+  },
+  computed: {
+    inviteURL() {
+      return `${location.origin}/join/${this.data.codebase.inviteCode}`
     },
   },
 }
