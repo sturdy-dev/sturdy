@@ -35,6 +35,8 @@ import (
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/events"
+	db_gc "getsturdy.com/api/pkg/gc/db"
+	service_gc "getsturdy.com/api/pkg/gc/service"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	"getsturdy.com/api/pkg/notification/sender"
@@ -99,7 +101,7 @@ func TestCreate(t *testing.T) {
 		panic(err)
 	}
 
-	logger := zap.NewNop()
+	logger, _ := zap.NewDevelopment()
 	postHogClient := disabled.NewClient()
 
 	userRepo := db_user.NewRepo(d)
@@ -123,6 +125,7 @@ func TestCreate(t *testing.T) {
 	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
+	gcRepo := db_gc.NewRepository(d)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
@@ -340,6 +343,8 @@ func TestCreate(t *testing.T) {
 		nil,
 		logger,
 	)
+
+	serivceGc := service_gc.New(logger, gcRepo, viewRepo, snapshotRepo, workspaceRepo, suggestionsService, executorProvider)
 
 	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
@@ -680,6 +685,31 @@ func TestCreate(t *testing.T) {
 			// TODO: it would be cool to support detecting that the file has been renamed to "file-a-renamed.txt"
 			assert.Equal(t, "file-a.txt", codeContext.Path())
 		}
+	}
+
+	{
+		// Trigger GC
+		err := serivceGc.WorkWithOptions(context.Background(), logger, codebaseRes.ID, 0, 0)
+		assert.NoError(t, err)
+
+		// make another change (after gc)
+		// Remove the trailing newline in test.txt
+		err = ioutil.WriteFile(path.Join(viewPath, "test-after-gc.txt"), []byte("THIS IS EPIC!"), 0o666)
+		assert.NoError(t, err)
+
+		// Get diff
+		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+		assert.NoError(t, err)
+		t.Logf("diffs=%+v", diffs)
+		assert.Len(t, diffs, 2)
+		assert.Len(t, diffs[0].Hunks, 1)
+
+		// Apply and land
+		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+			WorkspaceID: graphql.ID(workspaceRes.ID),
+			PatchIDs:    []string{diffs[0].Hunks[0].ID, diffs[1].Hunks[0].ID},
+		}})
+		assert.NoError(t, err)
 	}
 }
 

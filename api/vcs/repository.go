@@ -72,6 +72,7 @@ type RepoGitWriter interface {
 
 	GitGC() error
 	GitReflogExpire() error
+	GitRemotePrune(logger *zap.Logger, remoteName string) error
 
 	MergeBranches(ourBranchName, theirBranchName string) (*git.Index, error)
 	MergeBranchInto(branchName, mergeIntoBranchName string) error

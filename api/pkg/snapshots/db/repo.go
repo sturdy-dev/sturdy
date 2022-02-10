@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"time"
 
 	"getsturdy.com/api/pkg/snapshots"
 
@@ -15,7 +16,7 @@ type Repository interface {
 	LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error)
 	Get(ID string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
-	ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapshot, error)
+	ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error)
 }
 
 type dbrepo struct {
@@ -92,7 +93,7 @@ func (r *dbrepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
 	return res, nil
 }
 
-func (r *dbrepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapshot, error) {
+func (r *dbrepo) ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error) {
 	var res []*snapshots.Snapshot
 	if err := r.db.Select(&res, `
 		SELECT 
@@ -109,13 +110,13 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapsh
 			action
 		FROM 
 			snapshots
-		WHERE codebase_id=$1
+		WHERE codebase_id = $1
 	      AND deleted_at IS NULL
-		  AND created_at < NOW() - interval '3 hour'
+		  AND created_at < $2
 		ORDER BY 
 		  created_at DESC
 		LIMIT 1000
-		`, codebaseID); err != nil {
+		`, codebaseID, threshold); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return res, nil
