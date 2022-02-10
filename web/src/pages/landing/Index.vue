@@ -12,7 +12,8 @@
         <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
           Sturdy is an
           <code class="font-mono font-semibold text-amber-500"
-            >open-source version control platform</code
+            ><a class="underline" href="https://getsturdy.com/sturdy-zyTDsnY">open-source</a>
+            version control platform</code
           >
           that allows you to interact with your code at a higher abstraction level.
         </p>
