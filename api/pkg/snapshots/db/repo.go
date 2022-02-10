@@ -111,6 +111,7 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapsh
 			snapshots
 		WHERE codebase_id=$1
 	      AND deleted_at IS NULL
+		  AND created_at < NOW() - interval '3 hour'
 		ORDER BY 
 		  created_at DESC
 		LIMIT 100
