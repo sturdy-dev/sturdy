@@ -91,17 +91,7 @@ func (q *Queue) Start(ctx context.Context) error {
 			}
 			logger := q.logger.With(zap.String("codebase_id", m.CodebaseID))
 
-			if err := work(
-				context.Background(),
-				q.gcRepo,
-				*m,
-				q.viewRepo,
-				logger,
-				q.snapshotsRepo,
-				q.workspaceReader,
-				q.suggestionService,
-				q.executorProvider,
-			); err != nil {
+			if err := q.work(context.Background(), *m, logger); err != nil {
 				logger.Error("failed to gc codebase", zap.Error(err))
 				continue
 			}
@@ -124,42 +114,27 @@ func (q *Queue) Start(ctx context.Context) error {
 	return nil
 }
 
-func gcSnapshots(
-	ctx context.Context,
-	m CodebaseGarbageCollectionQueueEntry,
-	logger *zap.Logger,
-	snapshotsRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
-	suggestionService *service_suggestion.Service,
-	executorProvider executor.Provider,
-) error {
-	// Disabled for now
-	return nil
-
+func (q *Queue) gcSnapshots(ctx context.Context, m CodebaseGarbageCollectionQueueEntry) error {
 	// GC unused snapshots
-	snapshots, err := snapshotsRepo.ListUndeletedInCodebase(m.CodebaseID)
+	snapshots, err := q.snapshotsRepo.ListUndeletedInCodebase(m.CodebaseID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("could not get snapshots: %w", err)
 	}
 
-	logger.Info("cleaning up snapshots", zap.Int("total_snapshots", len(snapshots)))
+	q.logger.Info("cleaning up snapshots", zap.Int("total_snapshots", len(snapshots)))
 
 	// Delete snapshots older than 3 hours
 	threshold := time.Now().Add(-3 * time.Hour)
 
 	for _, snapshot := range snapshots {
-		logger := logger.With(zap.String("snapshot_id", snapshot.ID))
+		logger := q.logger.With(zap.String("snapshot_id", snapshot.ID))
 
-		if err := gcSnapshot(
+		if err := q.gcSnapshot(
 			ctx,
 			snapshot,
 			threshold,
 			m,
 			logger,
-			snapshotsRepo,
-			workspaceReader,
-			suggestionService,
-			executorProvider,
 		); err != nil {
 			logger.Error("failed to gc snapshot", zap.Error(err))
 			// do not fail
@@ -169,17 +144,13 @@ func gcSnapshots(
 	return nil
 }
 
-func isSnapshotUsedAsSuggestion(
-	ctx context.Context,
-	snapshot *snapshots.Snapshot,
-	suggestionService *service_suggestion.Service,
-) (bool, error) {
+func (q *Queue) isSnapshotUsedAsSuggestion(ctx context.Context, snapshot *snapshots.Snapshot) (bool, error) {
 	if snapshot.WorkspaceID == nil {
 		return false, nil
 	}
 
 	// if there is a suggestion for this snapshot, it is used
-	ss, err := suggestionService.ListBySnapshotID(ctx, snapshot.ID)
+	ss, err := q.suggestionService.ListBySnapshotID(ctx, snapshot.ID)
 	if err != nil {
 		return false, fmt.Errorf("could not get suggestions: %w", err)
 	}
@@ -187,7 +158,7 @@ func isSnapshotUsedAsSuggestion(
 		return true, nil
 	}
 
-	s, err := suggestionService.GetByWorkspaceID(ctx, *snapshot.WorkspaceID)
+	s, err := q.suggestionService.GetByWorkspaceID(ctx, *snapshot.WorkspaceID)
 	switch {
 	case err == nil:
 		return s.ForSnapshotID == snapshot.ID, nil
@@ -198,16 +169,12 @@ func isSnapshotUsedAsSuggestion(
 	}
 }
 
-func gcSnapshot(
+func (q *Queue) gcSnapshot(
 	ctx context.Context,
 	snapshot *snapshots.Snapshot,
 	threshold time.Time,
 	m CodebaseGarbageCollectionQueueEntry,
 	logger *zap.Logger,
-	snapshotsRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
-	suggestionService *service_suggestion.Service,
-	executorProvider executor.Provider,
 ) error {
 	if snapshot.CreatedAt.After(threshold) {
 		logger.Info(
@@ -223,7 +190,7 @@ func gcSnapshot(
 		return nil
 	}
 
-	partOfSuggestion, err := isSnapshotUsedAsSuggestion(ctx, snapshot, suggestionService)
+	partOfSuggestion, err := q.isSnapshotUsedAsSuggestion(ctx, snapshot)
 	if err != nil {
 		return fmt.Errorf("failed to calculate if snapshot is a part of suggestion: %w", err)
 	}
@@ -235,7 +202,7 @@ func gcSnapshot(
 
 	snapshotBranchName := "snapshot-" + snapshot.ID
 
-	if ws, err := workspaceReader.GetBySnapshotID(snapshot.ID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if ws, err := q.workspaceReader.GetBySnapshotID(snapshot.ID); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("could not get workspace by snapshot: %w", err)
 	} else if err == nil && !ws.IsArchived() {
 		logger.Info("snapshot is in use by non-archived workspace, skipping", zap.String("workspace_id", ws.ID))
@@ -248,7 +215,7 @@ func gcSnapshot(
 	logger.Info("deleting snapshot")
 
 	// Delete branch on trunk
-	if err := executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
+	if err := q.executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
 		if err := trunkRepo.DeleteBranch(snapshotBranchName); err != nil {
 			return fmt.Errorf("failed to delete snapshot branch on trunk: %w", err)
 		}
@@ -264,7 +231,7 @@ func gcSnapshot(
 
 	// Delete branch on the view that created the snapshot
 	if snapshot.ViewID != "" {
-		if err := executorProvider.New().
+		if err := q.executorProvider.New().
 			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
 			GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
 				if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
@@ -282,33 +249,27 @@ func gcSnapshot(
 
 	t := time.Now()
 	snapshot.DeletedAt = &t
-	if err := snapshotsRepo.Update(snapshot); err != nil {
+	if err := q.snapshotsRepo.Update(snapshot); err != nil {
 		return fmt.Errorf("failed to mark snapshot as deleted: %w", err)
 	}
 
 	return nil
 }
 
-func getGCInterval(m CodebaseGarbageCollectionQueueEntry) time.Duration {
+func getGCInterval() time.Duration {
 	return time.Hour
 }
 
-func work(
+func (q *Queue) work(
 	ctx context.Context,
-	gcRepo db.Repository,
 	m CodebaseGarbageCollectionQueueEntry,
-	viewRepo db_view.Repository,
 	logger *zap.Logger,
-	snapshotsRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
-	suggestionService *service_suggestion.Service,
-	executorProvider executor.Provider,
 ) error {
 	t0 := time.Now()
 
-	gcInterval := getGCInterval(m)
+	gcInterval := getGCInterval()
 	// Skip if recently run
-	entries, err := gcRepo.ListSince(ctx, m.CodebaseID, t0.Add(-1*gcInterval))
+	entries, err := q.gcRepo.ListSince(ctx, m.CodebaseID, t0.Add(-1*gcInterval))
 	if err != nil {
 		return fmt.Errorf("failed to get last runs: %w", err)
 
@@ -320,20 +281,12 @@ func work(
 
 	logger.Info("starting gc")
 
-	if err := gcSnapshots(
-		ctx,
-		m,
-		logger,
-		snapshotsRepo,
-		workspaceReader,
-		suggestionService,
-		executorProvider,
-	); err != nil {
+	if err := q.gcSnapshots(ctx, m); err != nil {
 		logger.Error("failed to gc snapshots", zap.Error(err))
 		// do not fail
 	}
 
-	if err := executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
+	if err := q.executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
 		if err := trunkRepo.GitReflogExpire(); err != nil {
 			logger.Error("failed to run git-reflog expire on trunk", zap.Error(err))
 			// don't exit
@@ -353,7 +306,7 @@ func work(
 	}
 
 	// gc all views
-	views, err := viewRepo.ListByCodebase(m.CodebaseID)
+	views, err := q.viewRepo.ListByCodebase(m.CodebaseID)
 	if err != nil {
 		return err
 	}
@@ -361,7 +314,7 @@ func work(
 	for _, view := range views {
 		logger := logger.With(zap.String("view_id", view.ID))
 
-		if err := executorProvider.New().GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
+		if err := q.executorProvider.New().GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
 			if err := viewGitRepo.GitReflogExpire(); err != nil {
 				logger.Error("failed to run git-reflog expire on trunk", zap.Error(err))
 				// don't exit
@@ -384,7 +337,7 @@ func work(
 	}
 
 	now := time.Now()
-	if err := gcRepo.Create(ctx, &gc.CodebaseGarbageStatus{
+	if err := q.gcRepo.Create(ctx, &gc.CodebaseGarbageStatus{
 		CodebaseID:     m.CodebaseID,
 		CompletedAt:    now,
 		DurationMillis: now.Sub(t0).Milliseconds(),
