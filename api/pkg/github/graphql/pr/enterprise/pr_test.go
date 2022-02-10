@@ -54,6 +54,7 @@ import (
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/unidiff"
+	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	graphql_view "getsturdy.com/api/pkg/view/graphql"
@@ -96,7 +97,7 @@ func TestPRHighLevel(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 	viewRepo := inmemory.NewInMemoryViewRepo()
 	viewUpdates := events.NewInMemory()
-	userRepo := inmemory.NewInMemoryUserRepo()
+	userRepo := db_users.NewMemory()
 	codebaseRepo := db_codebase.NewRepo(d)
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
