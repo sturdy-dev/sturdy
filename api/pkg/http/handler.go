@@ -19,6 +19,7 @@ import (
 	worker_gc "getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/ginzap"
 	sturdygrapql "getsturdy.com/api/pkg/graphql"
+	"getsturdy.com/api/pkg/ip"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/metrics/ginprometheus"
 	db_mutagen "getsturdy.com/api/pkg/mutagen/db"
@@ -136,6 +137,8 @@ func ProvideHandler(
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(ginzap.RecoveryWithZap(logger, true))
 	r.Use(cors)
+	r.Use(setIp)
+
 	// Setup Prometheus metrics for Gin
 	ginprom := ginprometheus.NewPrometheus("gin", logger)
 	ginprom.ReqCntURLLabelMappingFn = metricsMapper
@@ -248,4 +251,12 @@ func metricsMapper(c *gin.Context) string {
 		url = strings.Replace(url, p.Value, ":"+p.Key, 1)
 	}
 	return url
+}
+
+func setIp(c *gin.Context) {
+	// This is not checking if the remote IP is "trusted" or not
+	// TODO: Allow configuration for trusted proxies?
+	remoteIp, _ := c.RemoteIP()
+	c.Request = c.Request.WithContext(ip.NewContext(c.Request.Context(), remoteIp))
+	c.Next()
 }
