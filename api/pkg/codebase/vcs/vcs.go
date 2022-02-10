@@ -22,14 +22,6 @@ func Create(trunkProvider provider.TrunkProvider, codebaseID string) error {
 	return nil
 }
 
-func Import(trunkProvider provider.TrunkProvider, codebaseID, gitURL string) error {
-	_, err := vcs.RemoteBareClone(gitURL, trunkProvider.TrunkPath(codebaseID))
-	if err != nil {
-		return fmt.Errorf("failed remote clone %s: %w", gitURL, err)
-	}
-	return nil
-}
-
 // If no limit is set, a default of 100 is used
 func ListChanges(repo vcs.RepoGitReader, limit int) ([]*vcs.LogEntry, error) {
 	if limit < 1 {
