@@ -123,17 +123,6 @@ func CloneRepo(source, target string) (*repository, error) {
 	return OpenRepo(target)
 }
 
-// CloneRepoShared should only be used for testing purposes
-func CloneRepoShared(source, target string) (RepoWriter, error) {
-	cmd := exec.Command("git", "clone", "--local", "--shared", source, target)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Println(string(output))
-		return nil, err
-	}
-	return OpenRepo(target)
-}
-
 func CloneRepoBare(source, target string) (*repository, error) {
 	cmd := exec.Command("git", "clone", "--bare", source, target)
 	output, err := cmd.CombinedOutput()
@@ -163,20 +152,6 @@ func RemoteCloneWithCreds(url, target string, creds git.CredentialsCallback, bar
 	r, err := OpenRepo(target)
 	if err != nil {
 		return nil, fmt.Errorf("failed opening newly created repo at %s: %w", target, err)
-	}
-	return r, nil
-}
-
-func RemoteBareClone(url, target string) (*repository, error) {
-	if err := exec.Command("git", "clone", "--bare", url, target).Run(); err != nil {
-		return nil, err
-	}
-	r, err := OpenRepo(target)
-	if err != nil {
-		return nil, err
-	}
-	if err := r.CreateAndSetDefaultBranch("sturdytrunk"); err != nil {
-		return nil, fmt.Errorf("failed to create new default branch: %w", err)
 	}
 	return r, nil
 }
@@ -666,13 +641,6 @@ func (r *repository) pushRemoteWithRefSpec(logger *zap.Logger, remote *git.Remot
 	return "", nil
 }
 
-func NewCredentialsCallback(publicKey, privateKey string) git.CredentialsCallback {
-	return func(url string, username string, allowedTypes git.CredType) (*git.Cred, error) {
-		cred, _ := git.NewCredSshKeyFromMemory("git", publicKey, privateKey, "")
-		return cred, nil
-	}
-}
-
 func (r *repository) annotatedCommitFromBranchName(name string) (*git.AnnotatedCommit, error) {
 	branch, err := r.r.LookupBranch(name, git.BranchAll)
 	if err != nil {
@@ -713,7 +681,7 @@ func (r *repository) commitFromBranchName(name string) (*git.Commit, error) {
 	return commit, nil
 }
 
-// moveBranch moves branchName to point to targetBranchName
+// MoveBranch moves branchName to point to targetBranchName
 func (r *repository) MoveBranch(branchName, targetBranchName string) error {
 	defer getMeterFunc("MoveBranch")()
 
@@ -802,10 +770,10 @@ func (r *repository) RemoteFetchWithCreds(remoteName string, creds git.Credentia
 
 func (r *repository) FetchBranch(branches ...string) error {
 	defer getMeterFunc("FetchBranch")()
-	return r.fetch(false, branches...)
+	return r.fetch(branches...)
 }
 
-func (r *repository) fetch(ifNotExists bool, branches ...string) error {
+func (r *repository) fetch(branches ...string) error {
 	remotes, err := r.r.Remotes.List()
 	if err != nil {
 		return err
@@ -874,7 +842,6 @@ func (r *repository) HeadBranch() (string, error) {
 	return name, nil
 }
 
-// git symbolic-ref HEAD refs/heads/sturdytrunk
 func (r *repository) SetDefaultBranch(targetBranch string) error {
 	defer getMeterFunc("SetDefaultBranch")()
 	ref, err := r.r.References.Lookup("HEAD")
@@ -883,6 +850,7 @@ func (r *repository) SetDefaultBranch(targetBranch string) error {
 	}
 	defer ref.Free()
 
+	// git symbolic-ref HEAD refs/heads/sturdytrunk
 	newRef, err := ref.SetSymbolicTarget("refs/heads/"+targetBranch, "")
 	if err != nil {
 		return err
@@ -905,12 +873,12 @@ func (r *repository) GetDefaultBranch() (string, error) {
 
 func (r *repository) CreateAndSetDefaultBranch(headBranchName string) error {
 	defer getMeterFunc("CreateAndSetDefaultBranch")()
-	err := r.CreateNewBranchOnHEAD(headBranchName)
-	if err != nil {
+
+	if err := r.CreateNewBranchOnHEAD(headBranchName); err != nil {
 		return fmt.Errorf("failed to create a new trunk: %w", err)
 	}
-	err = r.SetDefaultBranch(headBranchName)
-	if err != nil {
+
+	if err := r.SetDefaultBranch(headBranchName); err != nil {
 		return fmt.Errorf("failed to set new trunk branch: %w", err)
 	}
 
@@ -943,8 +911,7 @@ func (r *repository) CleanStaged() error {
 	}
 	defer commit.Free()
 
-	err = r.ResetMixed(commit.Id().String())
-	if err != nil {
+	if err := r.ResetMixed(commit.Id().String()); err != nil {
 		return err
 	}
 	return nil

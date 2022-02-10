@@ -1,8 +1,9 @@
 package vcs
 
 import (
-	"getsturdy.com/api/vcs/testutil"
 	"testing"
+
+	"getsturdy.com/api/vcs/testutil"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -10,13 +11,6 @@ import (
 func TestCreateCodebase(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
 	err := Create(repoProvider, "codebaseID")
-	assert.NoError(t, err)
-}
-
-func TestImportCodebaseFromGit(t *testing.T) {
-	gitURL := "https://github.com/tantivy-search/tantivy-cli.git"
-	repoProvider := testutil.TestingRepoProvider(t)
-	err := Import(repoProvider, "codebaseID", gitURL)
 	assert.NoError(t, err)
 }
 
