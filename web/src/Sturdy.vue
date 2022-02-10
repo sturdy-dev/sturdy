@@ -238,6 +238,11 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
     })
 
+    provide(
+      'user',
+      computed(() => data.value?.user)
+    )
+
     return {
       data,
       fetching,
