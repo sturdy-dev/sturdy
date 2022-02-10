@@ -2,6 +2,8 @@ package inmemory
 
 import (
 	"database/sql"
+	"time"
+
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 )
@@ -49,7 +51,7 @@ func (f *snapshotRepo) Get(ID string) (*snapshots.Snapshot, error) {
 	return nil, sql.ErrNoRows
 }
 
-func (f *snapshotRepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapshot, error) {
+func (f *snapshotRepo) ListUndeletedInCodebase(_ string, _ time.Time) ([]*snapshots.Snapshot, error) {
 	panic("not implemented")
 }
 
