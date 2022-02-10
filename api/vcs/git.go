@@ -654,7 +654,8 @@ func (r *repository) pushRemoteWithRefSpec(logger *zap.Logger, remote *git.Remot
 	}
 	err = remote.Push(refspecs, opts)
 	if err != nil {
-		return fmt.Sprintf("Push failed: %s", err.Error()), err
+		return fmt.Sprintf("Push failed: %s", err.Error()),
+			fmt.Errorf("failed to push refspecs=%v: %w", refspecs, err)
 	}
 
 	if githubProtectedBranchDeclined {
