@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/pkg/snapshots"
 
 	"github.com/jmoiron/sqlx"
@@ -112,7 +113,7 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string) ([]*snapshots.Snapsh
 	      AND deleted_at IS NULL
 		ORDER BY 
 		  created_at DESC
-		LIMIT 50000
+		LIMIT 100
 		`, codebaseID); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
