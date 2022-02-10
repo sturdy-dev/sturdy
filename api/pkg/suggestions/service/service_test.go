@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/analytics/disabled"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots"
@@ -22,7 +23,6 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
@@ -110,13 +110,6 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		assert.NoError(t, os.WriteFile(path.Join(viewPath, "file"), *o.writeOriginal, 0777))
 
 		// take a workspace snapshot
-
-		if test.originalWorkspace != nil {
-			fmt.Printf("\noriginal: %+v\n\n", test.originalWorkspace.ID)
-		}
-		if test.suggestingWorkspace != nil {
-			fmt.Printf("\nsuggesting: %+v\n\n", test.suggestingWorkspace.ID)
-		}
 
 		snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.originalViewID))
 		assert.NoError(t, err)

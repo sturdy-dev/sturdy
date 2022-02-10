@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	db_users "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -35,7 +36,7 @@ func setup(t *testing.T) *testCollaborators {
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, viewEvents)
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
-	userRepo := inmemory.NewInMemoryUserRepo()
+	userRepo := db_users.NewMemory()
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 

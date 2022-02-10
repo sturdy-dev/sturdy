@@ -16,6 +16,7 @@ import (
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/internal/inmemory"
+	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -41,7 +42,7 @@ func TestFileResolver(t *testing.T) {
 	assert.NoError(t, err)
 
 	aclRepo := inmemory.NewInMemoryAclRepo()
-	userRepo := inmemory.NewInMemoryUserRepo()
+	userRepo := db_users.NewMemory()
 
 	userService := service_user.New(
 		zap.NewNop(),

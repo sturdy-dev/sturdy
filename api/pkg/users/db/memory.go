@@ -1,19 +1,24 @@
-package inmemory
+package db
 
 import (
 	"context"
 
 	"getsturdy.com/api/pkg/users"
-	db_user "getsturdy.com/api/pkg/users/db"
 )
 
-// inMemoryUserRepo implements user.Repository
 type inMemoryUserRepo struct {
 	users []*users.User
 }
 
-func NewInMemoryUserRepo() db_user.Repository {
+func NewMemory() Repository {
 	return &inMemoryUserRepo{}
+}
+
+func (f *inMemoryUserRepo) List(_ context.Context, limit uint64) ([]*users.User, error) {
+	if len(f.users) > int(limit) {
+		return f.users[:limit], nil
+	}
+	return f.users, nil
 }
 
 func (f *inMemoryUserRepo) Create(newUser *users.User) error {

@@ -22,6 +22,7 @@ import (
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/users"
+	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 )
@@ -29,7 +30,7 @@ import (
 func TestListAllows(t *testing.T) {
 	viewRepo := inmemory.NewInMemoryViewRepo()
 	aclRepo := inmemory.NewInMemoryAclRepo()
-	userRepo := inmemory.NewInMemoryUserRepo()
+	userRepo := db_users.NewMemory()
 
 	userService := service_user.New(
 		zap.NewNop(),
