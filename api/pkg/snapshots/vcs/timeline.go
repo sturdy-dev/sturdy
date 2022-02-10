@@ -119,10 +119,10 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 	// Push to upstream
 	branchName := "snapshot-" + snapshotID
 	if err := repo.CreateNewBranchAt(branchName, snapshotCommitID); err != nil {
-		return "", fmt.Errorf("failed to create branch at snapshot: %w", err)
+		return "", fmt.Errorf("failed to create branch at snapshot branchName=%s snapshotCommitID=%s: %w", branchName, snapshotCommitID, err)
 	}
 	if err := repo.Push(logger, branchName); err != nil {
-		return "", fmt.Errorf("failed to push snapshot branch: %w", err)
+		return "", fmt.Errorf("failed to push snapshot branch branchName=%s snapshotCommitID=%s: %w", branchName, snapshotCommitID, err)
 	}
 
 	return snapshotCommitID, nil
