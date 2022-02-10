@@ -55,6 +55,19 @@
                 >
                   Get started
                 </router-link>
+
+                <router-link
+                  v-if="user"
+                  :to="{ name: 'home' }"
+                  :class="[
+                    light
+                      ? 'hover:bg-amber-400 text-slate-800'
+                      : 'hover:text-amber-500 hover:bg-transparent',
+                  ]"
+                  class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+                >
+                  Go to codebases
+                </router-link>
               </div>
             </div>
           </div>
@@ -125,24 +138,18 @@
   </Disclosure>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { defineProps, inject, withDefaults } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
 
-export default defineComponent({
-  components: {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    MenuIcon,
-    XIcon,
-  },
-  props: {
-    light: {
-      type: Boolean,
-      required: true,
-    },
-  },
+interface Props {
+  light?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  light: false,
 })
+
+let user = inject('user')
 </script>
