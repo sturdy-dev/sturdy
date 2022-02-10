@@ -584,6 +584,8 @@ github.com/graph-gophers/dataloader/v6 v6.0.0 h1:qBpmq3B8PIQesoh0EJXKGfw+ulMUb+K
 github.com/graph-gophers/dataloader/v6 v6.0.0/go.mod h1:J15OZSnOoZgMkijpbZcwCmglIDYqlUiTEE1xLPbyqZM=
 github.com/graph-gophers/graphql-go v1.2.1-0.20211027203416-c32bb4221b77 h1:rPp2IsQI0Y1guuFhNnaQX3o/gUw4zT3pO24D+DGlQaw=
 github.com/graph-gophers/graphql-go v1.2.1-0.20211027203416-c32bb4221b77/go.mod h1:9CQHMSxwO4MprSdzoIEobiHpoLtHm77vfxsvsIN5Vuc=
+github.com/graph-gophers/graphql-go v1.3.0 h1:Eb9x/q6MFpCLz7jBCiP/WTxjSDrYLR1QY41SORZyNJ0=
+github.com/graph-gophers/graphql-go v1.3.0/go.mod h1:9CQHMSxwO4MprSdzoIEobiHpoLtHm77vfxsvsIN5Vuc=
 github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7/go.mod h1:FecbI9+v66THATjSRHfNgh1IVFe/9kFxbXtjV0ctIMA=
 github.com/grpc-ecosystem/go-grpc-middleware v1.0.0/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=
 github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=

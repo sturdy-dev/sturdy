@@ -37,7 +37,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gosimple/slug v1.9.0
 	github.com/graph-gophers/dataloader/v6 v6.0.0
-	github.com/graph-gophers/graphql-go v1.2.1-0.20211027203416-c32bb4221b77
+	github.com/graph-gophers/graphql-go v1.3.0
 	github.com/graph-gophers/graphql-transport-ws v0.0.1
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/jessevdk/go-flags v1.5.0
