@@ -1,6 +1,6 @@
 <template>
   <div class="border sm:rounded-lg flex flex-col overflow-hidden">
-    <div class="px-4 py-2 bg-gray-50 space-y-1">
+    <div class="px-4 py-2 bg-gray-50 space-y-1 border-b border-gray-200">
       <span v-if="hideBreadcrumb">{{ file.path }}</span>
       <DirectoryBreadcrumb v-else :path="file.path" :codebase="codebase" />
       <div v-if="!isMarkdown" class="text-sm text-gray-500">{{ lines.length }} lines</div>
@@ -8,7 +8,7 @@
 
     <div
       v-if="isMarkdown"
-      class="border-t border-gray-200 p-4 prose prose-yellow break-all"
+      class="p-4 prose prose-yellow break-word max-w-[60rem] readme-prose"
       v-html="render"
     />
 
@@ -19,7 +19,7 @@
       </p>
     </div>
 
-    <table v-else class="border-t border-gray-200 p-4 leading-4 text-sm px-4 font-mono">
+    <table v-else class="p-4 leading-4 text-sm px-4 font-mono">
       <tbody v-if="hl">
         <tr v-for="(line, idx) in hl" :key="idx">
           <td
@@ -56,10 +56,24 @@ import showdown from 'showdown'
 import highlight from '../../highlight/highlight_file'
 import '../../highlight/highlight_common_languages'
 import { gql } from '@urql/vue'
-import { PropType, ref } from 'vue'
+import { defineComponent, PropType, ref } from 'vue'
 import { OpenFileFragment } from './__generated__/File'
 import { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 import DirectoryBreadcrumb from './DirectoryBreadcrumb.vue'
+
+import { Marked } from '@ts-stack/markdown'
+import { SturdyMarkdownRenderer } from './SturdyMarkdownRenderer'
+
+Marked.setOptions({
+  renderer: new SturdyMarkdownRenderer(),
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: false,
+  smartLists: true,
+  smartypants: false,
+})
 
 export const OPEN_FILE = gql`
   fragment OpenFile on File {
@@ -70,7 +84,7 @@ export const OPEN_FILE = gql`
   }
 `
 
-export default {
+export default defineComponent({
   props: {
     file: {
       required: true,
@@ -87,13 +101,9 @@ export default {
   },
   components: { DirectoryBreadcrumb },
   setup() {
-    let conv = new showdown.Converter()
-    conv.setFlavor('github')
-
     let forceShowDiff = ref(false)
 
     return {
-      conv,
       forceShowDiff,
       setForceShow: function () {
         forceShowDiff.value = true
@@ -105,7 +115,7 @@ export default {
       return this.file.mimeType === 'text/markdown'
     },
     render() {
-      return this.conv.makeHtml(this.file.contents)
+      return Marked.parse(this.file.contents)
     },
     lines() {
       return this.file.contents.split('\n')
@@ -135,11 +145,11 @@ export default {
       return false
     },
   },
-}
+})
 </script>
 
 <style>
-.prose img {
+.readme-prose img {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   display: initial !important;
