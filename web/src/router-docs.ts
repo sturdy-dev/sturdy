@@ -464,4 +464,10 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'v2DocsSelfHosted',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
+  {
+    path: '/handbook/code-of-conduct',
+    component: () => import('./pages/docs/handbook/CodeOfConduct.vue'),
+    name: 'handbookCodeOfConduct',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
 ]
