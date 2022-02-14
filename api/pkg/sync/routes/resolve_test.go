@@ -369,7 +369,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 	executorProvider := executor.NewProvider(logger, repoProvider)
 
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 
 	reviewRepo := db_review.NewReviewRepository(d)
 	viewEvents := events.NewInMemory()
@@ -386,7 +385,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(nil, userRepo, changeRepo)
 	workspaceService := service_workspace.New(
 		logger,
 		disabled.NewClient(),

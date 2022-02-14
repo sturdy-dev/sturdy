@@ -106,7 +106,6 @@ func TestPRHighLevel(t *testing.T) {
 	gitHubInstallationRepo := inmemory.NewInMemoryGitHubInstallationRepository()
 	gitHubRepositoryRepo := inmemory.NewInMemoryGitHubRepositoryRepo()
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 	commentsRepo := db_comments.NewRepo(d)
 	snapshotsRepo := db_snapshots.NewRepo(d)
 	executorProvider := executor.NewProvider(logger, repoProvider)
@@ -127,7 +126,7 @@ func TestPRHighLevel(t *testing.T) {
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(nil, userRepo, changeRepo)
 	importer := service_github.ImporterQueue(workers_github.NopImporter())
 	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
@@ -204,16 +203,12 @@ func TestPRHighLevel(t *testing.T) {
 		codebaseRepo,
 		executorProvider,
 		clientProvider,
-		gitHubUserRepo,
-		codebaseUserRepo,
-		nil,
 		gitHubPRRepo,
 		workspaceRepo,
 		workspaceRepo,
 		workspaceService,
 		syncService,
 		changeRepo,
-		changeCommitRepo,
 		reviewsRepo,
 		eventsSender,
 		activitySender,
@@ -331,12 +326,10 @@ func TestPRHighLevel(t *testing.T) {
 
 	changeResolver := graphql_change.NewResolver(
 		changeService,
-		changeRepo,
-		changeCommitRepo,
 		commentsRepo,
 		authService,
 		&commentsResolver,
-		nil, // authorresolver
+		nil, // authorresolver¸
 		statusesRootResolver,
 		nil, // downloadsResolver
 		executorProvider,
@@ -707,13 +700,13 @@ func TestPRHighLevel(t *testing.T) {
 			var changeID change.ID
 
 			if assert.True(t, importIdx >= 0) {
-				cc, err := changeCommitRepo.GetByCommitID(trunkCommits[importIdx].ID, codebaseID)
+				ch, err := changeRepo.GetByCommitID(context.Background(), trunkCommits[importIdx].ID, codebaseID)
 				assert.NoError(t, err)
-				changeID = cc.ChangeID
-				ch, err := changeRepo.Get(cc.ChangeID)
-				assert.NoError(t, err)
-				if assert.NotNil(t, ch.Title) {
-					assert.Equal(t, "draft description", *ch.Title)
+				if assert.NotNil(t, ch) {
+					changeID = ch.ID
+					if assert.NotNil(t, ch.Title) {
+						assert.Equal(t, "draft description", *ch.Title)
+					}
 				}
 				assert.Equal(t, "<p><em>draft description</em></p>", ch.UpdatedDescription)
 			}

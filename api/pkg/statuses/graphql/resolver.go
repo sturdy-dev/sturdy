@@ -9,11 +9,11 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
 	service_changes "getsturdy.com/api/pkg/change/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
-	"getsturdy.com/api/pkg/events"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"github.com/google/uuid"
@@ -79,11 +79,6 @@ func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateSt
 		return nil, gqlerrors.Error(err)
 	}
 
-	chCommit, err := r.changeService.GetChangeCommitOnTrunkByChangeID(ctx, change.ID(args.Input.ChangeID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	if err := r.authService.CanWrite(ctx, ch); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -102,7 +97,7 @@ func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateSt
 
 	status := &statuses.Status{
 		ID:          uuid.NewString(),
-		CommitID:    chCommit.CommitID,
+		CommitID:    *ch.CommitID,
 		CodebaseID:  ch.CodebaseID,
 		Type:        tp,
 		Title:       args.Input.Title,

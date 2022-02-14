@@ -19,7 +19,6 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/routes/statuses"
 	"getsturdy.com/api/pkg/github/enterprise/routes/workflows"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -42,16 +41,12 @@ func Webhook(
 	codebaseRepo db_codebase.CodebaseRepository,
 	executorProvider executor.Provider,
 	githubClientProvider client.InstallationClientProvider,
-	gitHubUserRepo db.GitHubUserRepo,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	gitHubClonerPublisher *workers_github.ClonerQueue,
 	gitHubPRRepo db.GitHubPRRepo,
 	workspaceReader db_workspace.WorkspaceReader,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	workspaceService service_workspace.Service,
 	syncService *service_sync.Service,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 	reviewRepo db_review.ReviewRepository,
 	eventsSender events.EventSender,
 	activitySender activity_sender.ActivitySender,
@@ -99,7 +94,7 @@ func Webhook(
 
 			logger.Info("about to handle push event")
 
-			if err := push.HandlePushEvent(c, logger, event, gitHubRepositoryRepo, gitHubInstallationRepo, workspaceWriter, workspaceReader, workspaceService, syncService, gitHubPRRepo, changeRepo, changeCommitRepo, executorProvider, config, githubClientProvider, eventsSender, analyticsClient, reviewRepo, activitySender, commentsService, buildQueue); err != nil {
+			if err := push.HandlePushEvent(c, logger, event, gitHubRepositoryRepo, gitHubInstallationRepo, workspaceWriter, workspaceReader, workspaceService, syncService, gitHubPRRepo, changeRepo, executorProvider, config, githubClientProvider, eventsSender, analyticsClient, reviewRepo, activitySender, commentsService, buildQueue); err != nil {
 				logger.Error("failed to handle github push event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return

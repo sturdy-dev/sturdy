@@ -38,10 +38,9 @@ type Service struct {
 	logger           *zap.Logger
 	executorProvider executor.Provider
 
-	configRepo       db_integrations.IntegrationsRepository
-	ciCommitRepo     db_ci.CommitRepository
-	changeRepo       db_change.Repository
-	changeCommitRepo db_change.CommitRepository
+	configRepo   db_integrations.IntegrationsRepository
+	ciCommitRepo db_ci.CommitRepository
+	changeRepo   db_change.Repository
 
 	publicApiHostname string
 	statusService     *svc_statuses.Service
@@ -59,7 +58,6 @@ func New(
 	configRepo db_integrations.IntegrationsRepository,
 	ciCommitRepo db_ci.CommitRepository,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 
 	cfg *Configuration,
 	statusService *svc_statuses.Service,
@@ -69,10 +67,9 @@ func New(
 		logger:           logger.Named("ciService"),
 		executorProvider: executorProvider,
 
-		configRepo:       configRepo,
-		ciCommitRepo:     ciCommitRepo,
-		changeRepo:       changeRepo,
-		changeCommitRepo: changeCommitRepo,
+		configRepo:   configRepo,
+		ciCommitRepo: ciCommitRepo,
+		changeRepo:   changeRepo,
 
 		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,
@@ -88,11 +85,11 @@ type sturdyJsonData struct {
 //go:embed download.bash
 var downloadBash string
 
-func (svc *Service) loadSeedFiles(commit *change.ChangeCommit, seedFiles []string) (map[string][]byte, error) {
+func (svc *Service) loadSeedFiles(ch *change.Change, seedFiles []string) (map[string][]byte, error) {
 	seedFilesContents := make(map[string][]byte)
 	if err := svc.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		for _, sf := range seedFiles {
-			contents, err := repo.FileContentsAtCommit(commit.CommitID, sf)
+			contents, err := repo.FileContentsAtCommit(*ch.CommitID, sf)
 			switch {
 			case err == nil:
 				seedFilesContents[sf] = contents
@@ -103,20 +100,20 @@ func (svc *Service) loadSeedFiles(commit *change.ChangeCommit, seedFiles []strin
 			}
 		}
 		return nil
-	}).ExecTrunk(commit.CodebaseID, "readSeedFiles"); err != nil {
+	}).ExecTrunk(ch.CodebaseID, "readSeedFiles"); err != nil {
 		return nil, fmt.Errorf("failed to get seed files: %w", err)
 	}
 	return seedFilesContents, nil
 }
 
-func (svc *Service) createGit(ctx context.Context, commit *change.ChangeCommit, seedFiles []string) (string, error) {
-	jwt, err := svc.jwtService.IssueToken(ctx, string(commit.ChangeID), oneDay, jwt.TokenTypeCI)
+func (svc *Service) createGit(ctx context.Context, ch *change.Change, seedFiles []string) (string, error) {
+	jwt, err := svc.jwtService.IssueToken(ctx, string(ch.ID), oneDay, jwt.TokenTypeCI)
 	if err != nil {
 		return "", err
 	}
 
 	// Load seed files contents from trunk
-	seedFilesContents, err := svc.loadSeedFiles(commit, seedFiles)
+	seedFilesContents, err := svc.loadSeedFiles(ch, seedFiles)
 	if err != nil {
 		return "", err
 	}
@@ -127,7 +124,7 @@ func (svc *Service) createGit(ctx context.Context, commit *change.ChangeCommit, 
 		Schedule(func(repoProvider provider.RepoProvider) error {
 			// Create repo if not exists
 			// This is a non-bare repository
-			ciPath := repoProvider.ViewPath(commit.CodebaseID, "ci")
+			ciPath := repoProvider.ViewPath(ch.CodebaseID, "ci")
 
 			var repo vcs.RepoWriter
 			// Create if not exists
@@ -139,15 +136,15 @@ func (svc *Service) createGit(ctx context.Context, commit *change.ChangeCommit, 
 			} else if err != nil {
 				return fmt.Errorf("failed to create repo: %w", err)
 			} else {
-				repo, err = repoProvider.ViewRepo(commit.CodebaseID, "ci")
+				repo, err = repoProvider.ViewRepo(ch.CodebaseID, "ci")
 				if err != nil {
 					return fmt.Errorf("failed to init repo: %w", err)
 				}
 			}
 
 			data, err := json.Marshal(sturdyJsonData{
-				CodebaseID: commit.CodebaseID,
-				ChangeID:   string(commit.ChangeID),
+				CodebaseID: ch.CodebaseID,
+				ChangeID:   string(ch.ID),
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create metadata file: %w", err)
@@ -183,21 +180,21 @@ func (svc *Service) createGit(ctx context.Context, commit *change.ChangeCommit, 
 				return fmt.Errorf("failed to write download.bash: %w", err)
 			}
 
-			commitID, err = repo.AddAndCommit(fmt.Sprintf("Change %s on Sturdy", commit.ChangeID))
+			commitID, err = repo.AddAndCommit(fmt.Sprintf("Change %s on Sturdy", ch.ID))
 			if err != nil {
 				return fmt.Errorf("failed to create commit: %w", err)
 			}
 
 			return nil
-		}).ExecView(commit.CodebaseID, "ci", "prepareContinuousIntegrationRepo"); err != nil {
+		}).ExecView(ch.CodebaseID, "ci", "prepareContinuousIntegrationRepo"); err != nil {
 		return "", err
 	}
 
 	// Record in ci commits repository
 	if err := svc.ciCommitRepo.Create(ctx, &ci.Commit{
 		ID:             uuid.NewString(),
-		CodebaseID:     commit.CodebaseID,
-		TrunkCommitID:  commit.CommitID,
+		CodebaseID:     ch.CodebaseID,
+		TrunkCommitID:  *ch.CommitID,
 		CiRepoCommitID: commitID,
 		CreatedAt:      time.Now(),
 	}); err != nil {
@@ -261,18 +258,13 @@ func (svc *Service) Trigger(ctx context.Context, ch *change.Change, opts ...Trig
 		return nil, fmt.Errorf("failed to list ci configs: %w", err)
 	}
 
-	commit, err := svc.changeCommitRepo.GetByChangeIDOnTrunk(ch.ID)
-	if err != nil {
-		return nil, fmt.Errorf("could not get change commit: %w", err)
-	}
-
 	// todo: do not mix seed files?
 	seedFiles := []string{}
 	for _, c := range ciConfigurations {
 		seedFiles = append(seedFiles, c.SeedFiles...)
 	}
 
-	commitID, err := svc.createGit(ctx, &commit, seedFiles)
+	commitID, err := svc.createGit(ctx, ch, seedFiles)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create git commit: %w", err)
 	}
@@ -305,7 +297,7 @@ func (svc *Service) Trigger(ctx context.Context, ch *change.Change, opts ...Trig
 
 		status := &statuses.Status{
 			ID:          uuid.NewString(),
-			CommitID:    commit.CommitID,
+			CommitID:    *ch.CommitID,
 			CodebaseID:  ch.CodebaseID,
 			Type:        statuses.TypePending,
 			Title:       build.Name,

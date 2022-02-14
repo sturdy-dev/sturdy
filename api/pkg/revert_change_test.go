@@ -94,7 +94,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	workspaceRepo := db_workspace.NewRepo(d)
 	viewRepo := db_view.NewRepo(d)
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -119,7 +118,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(aclProvider, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(aclProvider, userRepo, changeRepo)
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -184,8 +183,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	changeRootResolver := graphql_change.NewResolver(
 		changeService,
-		changeRepo,
-		changeCommitRepo,
 		commentRepo,
 		authService,
 		nil, // commentResolver
@@ -244,7 +241,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		workspaceRepo,
 		userRepo,
 		changeRepo,
-		changeCommitRepo,
 
 		nil,
 		nil,
@@ -437,7 +433,6 @@ func TestRevertChangeFromView(t *testing.T) {
 	workspaceRepo := db_workspace.NewRepo(d)
 	viewRepo := db_view.NewRepo(d)
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -460,7 +455,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(nil, userRepo, changeRepo)
 
 	workspaceService := service_workspace.New(
 		logger,
@@ -528,8 +523,6 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	changeRootResolver := graphql_change.NewResolver(
 		changeService,
-		changeRepo,
-		changeCommitRepo,
 		commentRepo,
 		authService,
 		nil, // commentResolver
@@ -607,7 +600,6 @@ func TestRevertChangeFromView(t *testing.T) {
 		workspaceRepo,
 		userRepo,
 		changeRepo,
-		changeCommitRepo,
 
 		nil,
 		nil,
