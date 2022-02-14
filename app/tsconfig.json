@@ -8,5 +8,6 @@
     "moduleResolution": "node",
     "useDefineForClassFields": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "./src/preferences/app"]
 }

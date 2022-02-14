@@ -1,3 +1,4 @@
+import path from 'path'
 import { Logger } from '../Logger'
 
 export class Host {
@@ -11,29 +12,25 @@ export class Host {
   readonly #logger: Logger
 
   constructor({
-    id,
     title,
     webURL,
     apiURL,
-    graphqlURL,
     syncURL,
     reposBasePath,
   }: {
-    id: string
     title: string
     webURL: URL
     apiURL: URL
-    graphqlURL: URL
     syncURL: URL
     reposBasePath: string
   }) {
-    this.#id = id
+    this.#id = title.toLowerCase()
     this.#title = title
     this.#webURL = webURL
     this.#apiURL = apiURL
-    this.#graphqlURL = graphqlURL
+    this.#graphqlURL = new URL(path.join(apiURL.pathname, 'graphql'), apiURL.origin)
     this.#syncURL = syncURL
-    this.#logger = new Logger('host', id)
+    this.#logger = new Logger('host', title)
     this.#reposBasePath = reposBasePath
   }
 

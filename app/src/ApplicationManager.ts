@@ -14,8 +14,8 @@ export interface ApplicationManagerEvents {
 }
 
 export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEvents> {
-  readonly #hosts: Map<string, Host>
-  readonly #menuItems: Map<string, MenuItem>
+  #hosts: Map<string, Host> = new Map()
+  #menuItems: Map<string, MenuItem> = new Map()
   readonly #applications: Map<string, Application> = new Map()
 
   #activeApplication?: string
@@ -30,7 +30,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   readonly #status: Status
 
   constructor(
-    hosts: Host[],
     postHogToken: string,
     isAppPackaged: boolean,
     protocol: string,
@@ -66,18 +65,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     })
     daemon.on('connection-to-server-dropped', status.connectionDropped.bind(status))
 
-    this.#hosts = new Map(hosts.map((host) => [host.id, host]))
-    this.#menuItems = new Map(
-      hosts.map((host) => [
-        host.id,
-        new MenuItem({
-          label: host.title,
-          enabled: false,
-          type: 'radio',
-          click: () => this.set(host),
-        }),
-      ])
-    )
     this.#mutagenExecutable = mutagenExecutable
     this.#postHogToken = postHogToken
     this.#isAppPackaged = isAppPackaged
@@ -86,6 +73,26 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     this.#daemon = daemon
     this.#status = status
     this.#mutagenLog = mutagenLog
+  }
+
+  #addHost(host: Host) {
+    if (this.#hosts.has(host.id)) {
+      return
+    }
+    this.#hosts.set(host.id, host)
+    this.#menuItems.set(
+      host.id,
+      new MenuItem({
+        label: host.title,
+        enabled: false,
+        type: 'radio',
+        click: () => this.set(host),
+      })
+    )
+  }
+
+  #addHosts(hosts: Host[]) {
+    hosts.forEach((host) => this.#addHost(host))
   }
 
   async getOrCreateApplication(host: Host) {
@@ -119,6 +126,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
 
   async set(host: Host) {
     const application = await this.getOrCreateApplication(host)
+    this.#menuItems.forEach((item) => (item.checked = false))
     this.#menuItems.get(host.id)!.checked = true
     this.emit('switch', application)
 
@@ -161,10 +169,11 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     )
   }
 
-  async whenReady() {
+  async updateHosts(hosts: Host[]) {
+    this.#addHosts(hosts)
     // fetch status of all known hosts
     const promises = []
-    for (const [, host] of this.#hosts) {
+    for (const host of hosts) {
       promises.push(
         host.isUp().then((isUp) => {
           this.#menuItems.get(host.id)!.enabled = isUp

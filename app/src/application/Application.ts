@@ -23,7 +23,7 @@ export class Application {
   #window?: BrowserWindow
   #lastURL?: URL
 
-  private constructor (
+  private constructor(
     host: Host,
     auth: Auth,
     isAppPackaged: boolean,
@@ -43,7 +43,7 @@ export class Application {
     this.#logger = logger
   }
 
-  static async start ({
+  static async start({
     host,
     mutagenExecutable,
     postHogToken,
@@ -51,7 +51,7 @@ export class Application {
     protocol,
     logger,
     daemon,
-    status
+    status,
   }: {
     host: Host
     mutagenExecutable: MutagenExecutable
@@ -95,7 +95,7 @@ export class Application {
       await dialog.showMessageBox({
         title: 'Migration Complete',
         message:
-          "Thanks for being a Sturdy user! We've migrated the configuration from your existing Sturdy installation to the native app. Any questions? Reach out to support@getsturdy.com!"
+          "Thanks for being a Sturdy user! We've migrated the configuration from your existing Sturdy installation to the native app. Any questions? Reach out to support@getsturdy.com!",
       })
     }
 
@@ -139,14 +139,14 @@ export class Application {
     )
   }
 
-  async close () {
+  async close() {
     if (this.#window) {
       this.#logger.log('closing window')
       this.#window.close()
     }
   }
 
-  async open (startURL?: URL) {
+  async open(startURL?: URL) {
     if (!startURL && this.#lastURL) {
       startURL = this.#lastURL
     }
@@ -176,14 +176,14 @@ export class Application {
       minHeight: 400,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
-        devTools: !this.#isAppPackaged
+        devTools: !this.#isAppPackaged,
       },
       titleBarStyle: 'hidden',
       titleBarOverlay: {
         color: '#F9FAFB',
-        symbolColor: '#1F2937'
+        symbolColor: '#1F2937',
       },
-      trafficLightPosition: { x: 16, y: 16 }
+      trafficLightPosition: { x: 16, y: 16 },
     })
 
     // Create base IPC
@@ -250,8 +250,8 @@ export class Application {
         this.#logger.error('did-fail-load', { errorCode, errorDescription })
         this.#window?.loadFile(resourcePath('app-fail.html'), {
           query: {
-            goto: this.#host.webURL.href
-          }
+            goto: this.#host.webURL.href,
+          },
         })
       }
     )
@@ -266,25 +266,25 @@ export class Application {
     }
   }
 
-  async isUp () {
+  async isUp() {
     return await this.#host.isUp()
   }
 
-  get status () {
+  get status() {
     return this.#status
   }
 
-  async cleanup () {
+  async cleanup() {
     this.#logger.log('cleaning up...')
     this.#postHogTracker.flush()
     await this.#mutagenManager?.cleanup()
   }
 
-  get host () {
+  get host() {
     return this.#host
   }
 
-  async forceRestart () {
+  async forceRestart() {
     try {
       await this.#mutagenManager.forceRestart()
     } catch (e) {
@@ -292,14 +292,14 @@ export class Application {
     }
   }
 
-  #addFallbackMutagenIpc () {
+  #addFallbackMutagenIpc() {
     const ipcImplementation: MutagenIPC = {
-      async createView (workspaceID, mountPath) {
+      async createView(workspaceID, mountPath) {
         throw new Error('mutagen is not available')
       },
-      async createNewViewWithDialog (workspaceID: string) {
+      async createNewViewWithDialog(workspaceID: string) {
         throw new Error('mutagen is not available')
-      }
+      },
     }
 
     Object.values(sharedMutagenIpc).forEach((method) => method.clean())
@@ -310,7 +310,7 @@ export class Application {
     })
   }
 
-  #addNonMutagenIpc () {
+  #addNonMutagenIpc() {
     const auth = this.#auth
     const window = this.#window
     const logger = this.#logger
@@ -318,31 +318,31 @@ export class Application {
     const status = this.#status
 
     const ipcImplementation: AppIPC = {
-      isAuthenticated () {
+      isAuthenticated() {
         return auth.jwt !== null
       },
-      goBack () {
+      goBack() {
         window?.webContents.goBack()
       },
-      goForward () {
+      goForward() {
         window?.webContents.goForward()
       },
-      canGoBack () {
+      canGoBack() {
         return window?.webContents.canGoBack() ?? false
       },
-      canGoForward () {
+      canGoForward() {
         return window?.webContents.canGoForward() ?? false
       },
-      state () {
+      state() {
         return status.state
       },
-      async forceRestartMutagen () {
+      async forceRestartMutagen() {
         try {
           await mutagenManager.forceRestart()
         } catch (e) {
           logger.error('failed to restart mutagen', e)
         }
-      }
+      },
     }
 
     Object.entries(ipcImplementation).forEach(([channel, implementation]) => {
@@ -351,7 +351,7 @@ export class Application {
   }
 }
 
-async function loadURLWithoutThrowingOnRedirects (
+async function loadURLWithoutThrowingOnRedirects(
   window: BrowserWindow,
   logger: Logger,
   url: string
