@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 
 	vcsvcs "getsturdy.com/api/vcs"
 
@@ -111,12 +110,8 @@ func (r *ChangeRootResolver) Change(ctx context.Context, args resolvers.ChangeAr
 }
 
 type ChangeResolver struct {
-	ch   change.Change
+	ch   *change.Change
 	root *ChangeRootResolver
-
-	changeOnTrunk    change.ChangeCommit
-	changeOnTrunkErr error
-	getChangeOnTrunk sync.Once
 }
 
 func (r *ChangeResolver) ID() graphql.ID {
@@ -154,19 +149,8 @@ func (r *ChangeResolver) Description() string {
 	return r.ch.UpdatedDescription
 }
 
-func (r *ChangeResolver) loadChangeOnTrunk() {
-	r.changeOnTrunk, r.changeOnTrunkErr = r.root.changeCommitRepo.GetByChangeIDOnTrunk(r.ch.ID)
-}
-
 func (r *ChangeResolver) TrunkCommitID() (*string, error) {
-	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
-	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if r.changeOnTrunkErr != nil {
-		return nil, gqlerrors.Error(r.changeOnTrunkErr)
-	}
-	return &r.changeOnTrunk.CommitID, nil
+	return r.ch.CommitID, nil
 }
 
 func (r *ChangeResolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
@@ -196,18 +180,14 @@ func (r *ChangeResolver) CreatedAt() int32 {
 }
 
 func (r *ChangeResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolver, error) {
-	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
-	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if r.changeOnTrunkErr != nil {
-		return nil, gqlerrors.Error(r.changeOnTrunkErr)
+	if r.ch.CommitID == nil {
+		return nil, gqlerrors.ErrNotFound
 	}
 
 	var diffs []string
 	err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
 		var err error
-		diffs, err = vcs.GetDiffs(repo, r.changeOnTrunk.CommitID)
+		diffs, err = vcs.GetDiffs(repo, *r.ch.CommitID)
 		if err != nil {
 			return err
 		}
@@ -253,23 +233,9 @@ func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolv
 }
 
 func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
-	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if r.changeOnTrunkErr != nil {
-		return nil, gqlerrors.Error(r.changeOnTrunkErr)
-	}
-	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, &r.changeOnTrunk)
+	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, r.ch)
 }
 
 func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	r.getChangeOnTrunk.Do(r.loadChangeOnTrunk)
-	if errors.Is(r.changeOnTrunkErr, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if r.changeOnTrunkErr != nil {
-		return nil, gqlerrors.Error(r.changeOnTrunkErr)
-	}
-	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, &r.changeOnTrunk)
+	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, r.ch)
 }

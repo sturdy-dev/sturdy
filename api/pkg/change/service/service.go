@@ -52,7 +52,7 @@ func (svc *Service) GetChangeByID(ctx context.Context, id change.ID) (*change.Ch
 	if err != nil {
 		return nil, err
 	}
-	return &ch, nil
+	return ch, nil
 }
 
 func (svc *Service) GetChangeCommitOnTrunkByChangeID(ctx context.Context, id change.ID) (*change.ChangeCommit, error) {

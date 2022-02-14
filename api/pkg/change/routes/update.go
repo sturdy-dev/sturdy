@@ -3,12 +3,13 @@ package routes
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+	"strings"
+
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/change/message"
-	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -65,7 +66,7 @@ func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserReposito
 			ch.Title = &cleanCommitMessageTitle
 		}
 
-		err = changeRepo.Update(ch)
+		err = changeRepo.Update(*ch)
 		if err != nil {
 			logger.Error("failed to update change", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, err)

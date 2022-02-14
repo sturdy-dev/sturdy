@@ -2,13 +2,15 @@ package db
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/pkg/change"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type Repository interface {
-	Get(id change.ID) (change.Change, error)
+	Get(id change.ID) (*change.Change, error)
+	GetByCommitID(commitID, codebaseID string) (*change.Change, error)
 	Insert(change.Change) error
 	Update(change.Change) error
 }
@@ -21,19 +23,32 @@ type repo struct {
 	db *sqlx.DB
 }
 
-func (r *repo) Get(id change.ID) (change.Change, error) {
+func (r *repo) Get(id change.ID) (*change.Change, error) {
 	var res change.Change
-	err := r.db.Get(&res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at FROM changes WHERE id = $1`, id)
+	err := r.db.Get(&res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id
+		FROM changes
+		WHERE id = $1`, id)
 	if err != nil {
-		return change.Change{}, err
+		return nil, err
 	}
-	return res, nil
+	return &res, nil
+}
+
+func (r *repo) GetByCommitID(commitID, codebaseID string) (*change.Change, error) {
+	var res change.Change
+	err := r.db.Get(&res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id
+		FROM changes
+		WHERE commit_id = $1 AND codebase_id = $2`, commitID, codebaseID)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 
 func (r *repo) Insert(ch change.Change) error {
 	_, err := r.db.NamedExec(`INSERT INTO changes
-		(id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at)
-		VALUES(:id, :codebase_id, :title, :updated_description, :user_id, :git_creator_name, :git_creator_email, :created_at, :git_created_at)
+		(id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id)
+		VALUES(:id, :codebase_id, :title, :updated_description, :user_id, :git_creator_name, :git_creator_email, :created_at, :git_created_at, :commit_id)
     	`, &ch)
 	if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
@@ -49,7 +64,8 @@ func (r *repo) Update(ch change.Change) error {
     	    git_creator_name = :git_creator_name,
     	    git_creator_email = :git_creator_email,
     	    created_at = :created_at,
-    	    git_created_at = :git_created_at
+    	    git_created_at = :git_created_at,
+			commit_id = :commit_id
     	WHERE id = :id`, &ch)
 	if err != nil {
 		return fmt.Errorf("failed to update change: %w", err)

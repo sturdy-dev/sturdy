@@ -123,7 +123,7 @@ func HandlePushEvent(
 
 	// Decorate / import new commits
 	for _, maybeNewChange := range maybeImportedChanges {
-		_, err := changeCommitRepo.GetByCommitID(maybeNewChange.ID, repo.CodebaseID)
+		_, err := changeRepo.GetByCommitID(maybeNewChange.ID, repo.CodebaseID)
 		switch {
 		case err == nil:
 			continue

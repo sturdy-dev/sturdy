@@ -358,7 +358,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, c
 			if err != nil {
 				return fmt.Errorf("failed to get parent change: %w", err)
 			}
-			data.Parent.Change = &change
+			data.Parent.Change = change
 			title := fmt.Sprintf(
 				"[Strudy] %s repied to %s's comment on %s",
 				author.Name, parentAuthor.Name, *change.Title)
@@ -382,7 +382,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, c
 		if err != nil {
 			return fmt.Errorf("failed to get change: %w", err)
 		}
-		data.Change = &change
+		data.Change = change
 		title := fmt.Sprintf("[Sturdy] %s commented on %s", author.Name, *change.Title)
 		return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 	case comment.WorkspaceID != nil:
