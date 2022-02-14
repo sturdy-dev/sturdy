@@ -23,12 +23,12 @@ steps:
   - label: ":docker: :golang: Run unit tests"
     commands:
       - "./download && cd ./tmp_output"
-      - "docker-compose -f ci/docker-compose.yaml -f ci/unit/docker-compose.yaml up --build --exit-code-from runner"
+      - "docker-compose -f ci/docker-compose.yaml -f ci/unit/docker-compose.yaml up --build --exit-code-from runner --remove-orphans"
 
   - label: ":docker: :yarn: Lint and test"
     commands:
       - "./download && cd ./tmp_output"
-      - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner"
+      - "export UID && export GID=$(id -g $(whoami)) && docker-compose -f ci/docker-compose.web.yaml up --build --exit-code-from web-runner --remove-orphans"
 
   # - label: ":docker: :golang: :yarn: Build oneliner (no push)"
   #   agents:
