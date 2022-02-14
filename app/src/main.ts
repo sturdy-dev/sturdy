@@ -3,12 +3,13 @@ import { app, crashReporter, Menu, MenuItem, nativeImage, Tray } from 'electron'
 import { Updater } from './Updater'
 import { dataPath, resourcePath } from './resources'
 import * as Sentry from '@sentry/electron'
-import { Host, Status } from './application'
+import { Status } from './application'
 import { CaptureConsole } from '@sentry/integrations'
 import { Application } from './Application'
 import { ApplicationManager } from './ApplicationManager'
 import { Logger } from './Logger'
 import log from 'electron-log'
+import { Preferences } from './preferences'
 
 // Start crash reporter before setting up logging
 crashReporter.start({
@@ -73,44 +74,9 @@ const postHogToken =
 
 const runAutoUpdater = app.isPackaged && !process.env.STURDY_DISABLE_AUTO_UPDATER
 
-const development = new Host({
-  id: 'development',
-  title: 'Development',
-  webURL: new URL('http://localhost:8080'),
-  graphqlURL: new URL('http://localhost:3000/graphql'),
-  apiURL: new URL('http://localhost:3000'),
-  syncURL: new URL('ssh://127.0.0.1:2222'),
-  reposBasePath: '/repos',
-})
-const cloud = new Host({
-  id: 'cloud',
-  title: 'Cloud',
-  webURL: new URL('https://getsturdy.com'),
-  graphqlURL: new URL('https://api.getsturdy.com/graphql'),
-  apiURL: new URL('https://api.getsturdy.com'),
-  syncURL: new URL('ssh://sync.getsturdy.com'),
-  reposBasePath: '/repos',
-})
-const selfhosted = new Host({
-  id: 'selfhosted',
-  title: 'Self-hosted',
-  webURL: new URL('http://localhost:30080'),
-  graphqlURL: new URL('http://localhost:30080/api/graphql'),
-  apiURL: new URL('http://localhost:30080/api'),
-  syncURL: new URL('ssh://localhost:30022'),
-  reposBasePath: '/var/data/repos',
-})
-
-const knownHosts =
-  process.env.STURDY_DEFAULT_BACKEND === 'development'
-    ? [cloud, selfhosted, development]
-    : [cloud, selfhosted]
-
-const defaultHost = knownHosts.find((h) => h.id === process.env.STURDY_DEFAULT_BACKEND) ?? cloud
-
 const status = new Status(logger)
+
 const manager = new ApplicationManager(
-  knownHosts,
   postHogToken,
   app.isPackaged,
   protocol,
@@ -121,6 +87,9 @@ const manager = new ApplicationManager(
 
 let tray: Tray | undefined
 
+let preferences: Preferences | undefined
+
+// todo: assemble menu in a better way, this uses a lot of globals
 const menu = (application: Application) => {
   const menu = new Menu()
   status.appendMenuItem(menu)
@@ -143,6 +112,8 @@ const menu = (application: Application) => {
       ]),
     })
   )
+  menu.append(new MenuItem({ type: 'separator' }))
+  preferences?.appendMenuItem(menu)
   menu.append(new MenuItem({ type: 'separator' }))
   if (runAutoUpdater) {
     Updater.start(logger, menu).catch((e) => {
@@ -216,7 +187,10 @@ app.on('activate', () => {
   }
 })
 
-manager.on('switch', async (application) => {
+let application: Application | undefined
+
+manager.on('switch', async (application: Application) => {
+  application = application
   tray?.setContextMenu(menu(application))
   await application.open()
 })
@@ -226,6 +200,7 @@ async function main() {
     await Updater.finalizePendingUpdate()
   }
 
+  preferences = await Preferences.open(logger)
   await app.whenReady()
   tray = new Tray(iconTrayDisconnected)
 
@@ -234,9 +209,17 @@ async function main() {
     app.setAppUserModelId('com.getsturdy.sturdy')
   }
 
-  await manager.whenReady()
+  preferences.on('open', (host) => manager.set(host))
+
+  preferences.on('hostsChanged', (hosts) => {
+    manager.updateHosts(hosts)
+    tray?.setContextMenu(menu(application!))
+  })
+
+  await manager.updateHosts(preferences.hosts)
+
   // kick off the app with the default host
-  manager.set(defaultHost)
+  manager.set(preferences.hosts[0])
 }
 
 main().catch(async (e) => {

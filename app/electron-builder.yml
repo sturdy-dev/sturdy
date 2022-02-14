@@ -15,6 +15,7 @@ directories:
 
 files:
   - 'dist/*'
+  - 'dist/**/*'
   - 'assets/**/*'
   - 'assets/*'
 
