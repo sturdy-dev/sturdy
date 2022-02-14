@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
+
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/change"
 	db_change "getsturdy.com/api/pkg/change/db"
@@ -11,7 +13,6 @@ import (
 	"getsturdy.com/api/pkg/jsontime"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/vcs"
-	"strings"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -46,19 +47,20 @@ func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logge
 func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, changeCommitRepo db_change.CommitRepository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string, isTrunk bool) (DecoratedChange, error) {
 	meta := ParseCommitMessage(entry.RawCommitMessage)
 
-	var ch change.Change
+	var ch *change.Change
 	var chCommit change.ChangeCommit
 	var err error
 
 	chCommit, err = changeCommitRepo.GetByCommitID(entry.ID, codebaseID)
 	if errors.Is(err, sql.ErrNoRows) {
 		// Create both a change and a change
-		ch = change.Change{
+		ch = &change.Change{
 			ID:              change.ID(uuid.New().String()),
 			CodebaseID:      codebaseID,
 			GitCreatedAt:    &entry.Time,
 			GitCreatorName:  &entry.Name,
 			GitCreatorEmail: &entry.Email,
+			CommitID:        &entry.ID,
 		}
 
 		// TODO: Remove this! This import can not be trusted, and the association between commits and users should only be done on GitHub push events
@@ -68,7 +70,7 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 			}
 		}
 
-		err = changeRepo.Insert(ch)
+		err = changeRepo.Insert(*ch)
 		if err != nil {
 			return DecoratedChange{}, fmt.Errorf("failed to create change: %w", err)
 		}
@@ -128,7 +130,7 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 
 	// Save changes to the db
 	if updatedChange {
-		if err := changeRepo.Update(ch); err != nil {
+		if err := changeRepo.Update(*ch); err != nil {
 			return DecoratedChange{}, fmt.Errorf("failed to update change: %w", err)
 		}
 	}

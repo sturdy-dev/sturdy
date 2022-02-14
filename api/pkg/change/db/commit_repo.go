@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/change"
 
 	"github.com/jmoiron/sqlx"
@@ -11,7 +12,6 @@ import (
 
 type CommitRepository interface {
 	ListByChangeIDs(context.Context, ...change.ID) ([]*change.ChangeCommit, error)
-	ListByChangeID(id change.ID) ([]change.ChangeCommit, error)
 	GetByCommitID(commitID, codebaseID string) (change.ChangeCommit, error)
 	GetByChangeIDOnTrunk(id change.ID) (change.ChangeCommit, error)
 	Insert(ch change.ChangeCommit) error
@@ -31,17 +31,6 @@ func (r *commitRepo) GetByCommitID(commitID, codebaseID string) (change.ChangeCo
 	err := r.db.Get(&res, `SELECT change_id, commit_id, codebase_id, trunk FROM change_commits WHERE commit_id = $1 AND codebase_id = $2`, commitID, codebaseID)
 	if err != nil {
 		return change.ChangeCommit{}, err
-	}
-	return res, nil
-}
-
-func (r *commitRepo) ListByChangeID(id change.ID) ([]change.ChangeCommit, error) {
-	var res []change.ChangeCommit
-	err := r.db.Select(&res, `SELECT change_id, commit_id, codebase_id, trunk
-		FROM change_commits
-		WHERE change_id = $1`, id)
-	if err != nil {
-		return nil, err
 	}
 	return res, nil
 }

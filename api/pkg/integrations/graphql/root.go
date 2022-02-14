@@ -3,6 +3,7 @@ package graphql
 import (
 	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/integrations"
 
@@ -62,7 +63,7 @@ func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resol
 		}
 	}
 
-	ss, err := r.svc.Trigger(ctx, &ch, triggerOptions...)
+	ss, err := r.svc.Trigger(ctx, ch, triggerOptions...)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
