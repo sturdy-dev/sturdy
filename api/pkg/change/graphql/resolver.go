@@ -2,15 +2,12 @@ package graphql
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	vcsvcs "getsturdy.com/api/vcs"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/service"
 	"getsturdy.com/api/pkg/change/vcs"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -26,9 +23,7 @@ import (
 type ChangeRootResolver struct {
 	svc *service.Service
 
-	changeRepo       db_change.Repository
-	changeCommitRepo db_change.CommitRepository
-	commentsRepo     db_comments.Repository
+	commentsRepo db_comments.Repository
 
 	authService *service_auth.Service
 
@@ -45,8 +40,6 @@ type ChangeRootResolver struct {
 func NewResolver(
 	svc *service.Service,
 
-	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 	commentsRepo db_comments.Repository,
 
 	authService *service_auth.Service,
@@ -63,9 +56,7 @@ func NewResolver(
 	return &ChangeRootResolver{
 		svc: svc,
 
-		changeRepo:       changeRepo,
-		changeCommitRepo: changeCommitRepo,
-		commentsRepo:     commentsRepo,
+		commentsRepo: commentsRepo,
 
 		authService: authService,
 
@@ -81,25 +72,23 @@ func NewResolver(
 }
 
 func (r *ChangeRootResolver) Change(ctx context.Context, args resolvers.ChangeArgs) (resolvers.ChangeResolver, error) {
-	var changeID change.ID
+	var ch *change.Change
+	var err error
+
 	if args.ID != nil {
 		// Lookup by ChangeID
-		changeID = change.ID(*args.ID)
+		ch, err = r.svc.GetChangeByID(ctx, change.ID(*args.ID))
+		if err != nil {
+			return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by id: %w", err))
+		}
 	} else if args.CommitID != nil && args.CodebaseID != nil {
 		// Lookup by CommitID and CodebaseID
-		changeCommit, err := r.changeCommitRepo.GetByCommitID(string(*args.CommitID), string(*args.CodebaseID))
+		ch, err = r.svc.GetByCommitID(ctx, string(*args.CommitID), string(*args.CodebaseID))
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by commit id and codebaseid: %w", err))
 		}
-		changeID = changeCommit.ChangeID
 	} else {
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "neither id nor commitID is set")
-	}
-
-	// Get change
-	ch, err := r.changeRepo.Get(changeID)
-	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by id: %w", err))
 	}
 
 	if err := r.authService.CanRead(ctx, ch); err != nil {
@@ -221,15 +210,10 @@ func (r *ChangeResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolve
 }
 
 func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolver, error) {
-	changeCommit, err := r.root.changeCommitRepo.GetByChangeIDOnTrunk(r.ch.ID)
-	switch {
-	case err == nil:
-		return (*r.root.statusResovler).InteralStatusesByCodebaseIDAndCommitID(ctx, changeCommit.CodebaseID, changeCommit.CommitID)
-	case errors.Is(err, sql.ErrNoRows):
-		return nil, nil
-	default:
-		return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by commit id and codebaseid: %w", err))
+	if r.ch.CommitID == nil {
+		return nil, gqlerrors.ErrNotFound
 	}
+	return (*r.root.statusResovler).InteralStatusesByCodebaseIDAndCommitID(ctx, r.ch.CodebaseID, *r.ch.CommitID)
 }
 
 func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {

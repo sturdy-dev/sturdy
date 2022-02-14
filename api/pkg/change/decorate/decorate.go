@@ -1,6 +1,7 @@
 package decorate
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -32,11 +33,11 @@ type DecoratedChange struct {
 	Author author.Author  `json:"author"`
 }
 
-func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, changeCommitRepo db_change.CommitRepository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string, isTrunk bool) ([]DecoratedChange, error) {
+func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string) ([]DecoratedChange, error) {
 	res := make([]DecoratedChange, len(changes))
 	var err error
 	for k, entry := range changes {
-		res[k], err = DecorateChange(entry, userRepo, logger, changeRepo, changeCommitRepo, codebaseUserRepo, codebaseID, isTrunk)
+		res[k], err = DecorateChange(entry, userRepo, logger, changeRepo, codebaseUserRepo, codebaseID)
 		if err != nil {
 			return nil, err
 		}
@@ -44,16 +45,15 @@ func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logge
 	return res, nil
 }
 
-func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, changeCommitRepo db_change.CommitRepository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string, isTrunk bool) (DecoratedChange, error) {
+func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string) (DecoratedChange, error) {
 	meta := ParseCommitMessage(entry.RawCommitMessage)
 
 	var ch *change.Change
-	var chCommit change.ChangeCommit
 	var err error
 
-	chCommit, err = changeCommitRepo.GetByCommitID(entry.ID, codebaseID)
+	ch, err = changeRepo.GetByCommitID(context.Background(), entry.ID, codebaseID)
 	if errors.Is(err, sql.ErrNoRows) {
-		// Create both a change and a change
+		// Create a change
 		ch = &change.Change{
 			ID:              change.ID(uuid.New().String()),
 			CodebaseID:      codebaseID,
@@ -74,26 +74,8 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 		if err != nil {
 			return DecoratedChange{}, fmt.Errorf("failed to create change: %w", err)
 		}
-
-		chCommit = change.ChangeCommit{
-			ChangeID:   ch.ID,
-			CommitID:   entry.ID,
-			CodebaseID: codebaseID,
-			Trunk:      isTrunk,
-		}
-
-		err = changeCommitRepo.Insert(chCommit)
-		if err != nil {
-			return DecoratedChange{}, fmt.Errorf("failed to create change_commit: %w", err)
-		}
 	} else if err != nil {
 		return DecoratedChange{}, fmt.Errorf("failed to get change from commit: %w", err)
-	} else {
-		// Load change
-		ch, err = changeRepo.Get(chCommit.ChangeID)
-		if err != nil {
-			return DecoratedChange{}, fmt.Errorf("failed to get change: %w", err)
-		}
 	}
 
 	// If git metadata is missing (changes imported before 2021-09-21), update the entry
@@ -111,13 +93,6 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 		title := firstLine(meta.Description)
 		ch.Title = &title
 		updatedChange = true
-	}
-
-	if !chCommit.Trunk && isTrunk {
-		chCommit.Trunk = true
-		if err := changeCommitRepo.Update(chCommit); err != nil {
-			return DecoratedChange{}, fmt.Errorf("failed to update change commit: %w", err)
-		}
 	}
 
 	// TODO: Remove this! This import can not be trusted, and the association between commits and users should only be done on GitHub push events

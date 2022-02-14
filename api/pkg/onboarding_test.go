@@ -110,7 +110,6 @@ func TestCreate(t *testing.T) {
 	workspaceRepo := db_workspace.NewRepo(d)
 	viewRepo := db_view.NewRepo(d)
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -129,7 +128,7 @@ func TestCreate(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(nil, userRepo, changeRepo)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -284,8 +283,6 @@ func TestCreate(t *testing.T) {
 
 	changeRootResolver := graphql_change.NewResolver(
 		changeService,
-		changeRepo,
-		changeCommitRepo,
 		nil, // commentsRepo
 		authService,
 		nil, // commentResolver
@@ -314,7 +311,6 @@ func TestCreate(t *testing.T) {
 		workspaceRepo,
 		userRepo,
 		changeRepo,
-		changeCommitRepo,
 		nil,
 		authorRootResolver,
 		nil,
@@ -754,7 +750,6 @@ func TestLargeFiles(t *testing.T) {
 	workspaceRepo := db_workspace.NewRepo(d)
 	viewRepo := db_view.NewRepo(d)
 	changeRepo := db_change.NewRepo(d)
-	changeCommitRepo := db_change.NewCommitRepository(d)
 	snapshotRepo := db_snapshots.NewRepo(d)
 	commentRepo := db_comments.NewRepo(d)
 	workspaceActivityRepo := db_activity.NewActivityRepo(d)
@@ -770,7 +765,7 @@ func TestLargeFiles(t *testing.T) {
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(nil, userRepo, changeRepo, changeCommitRepo)
+	changeService := service_change.New(nil, userRepo, changeRepo)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -841,8 +836,6 @@ func TestLargeFiles(t *testing.T) {
 
 	changeRootResolver := graphql_change.NewResolver(
 		changeService,
-		changeRepo,
-		changeCommitRepo,
 		nil, // commentsRepo
 		authService,
 		nil, // commentsResolver

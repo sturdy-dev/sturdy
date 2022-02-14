@@ -106,10 +106,6 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canUserAccessChange(ctx, subject.ID, at, &object)
 		case *change.Change:
 			return s.canUserAccessChange(ctx, subject.ID, at, object)
-		case change.ChangeCommit:
-			return s.canUserAccessChangeCommit(ctx, subject.ID, at, &object)
-		case *change.ChangeCommit:
-			return s.canUserAccessChangeCommit(ctx, subject.ID, at, object)
 		case activity.WorkspaceActivity:
 			return s.canUserAccessWorkspaceActivity(ctx, subject.ID, at, &object)
 		case *activity.WorkspaceActivity:
@@ -156,10 +152,6 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canAnonymousAccessChange(ctx, at, &object)
 		case *change.Change:
 			return s.canAnonymousAccessChange(ctx, at, object)
-		case change.ChangeCommit:
-			return s.canAnonymousAccessChangeCommit(ctx, at, &object)
-		case *change.ChangeCommit:
-			return s.canAnonymousAccessChangeCommit(ctx, at, object)
 		case codebase.Codebase:
 			return s.canAnonymousAccessCodebase(ctx, at, &object)
 		case *codebase.Codebase:
@@ -201,14 +193,6 @@ func (s *Service) canCIAccessChange(ctx context.Context, changeID string, change
 
 func (s *Service) canUserAccessChange(ctx context.Context, userID string, at accessType, change *change.Change) error {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
-	if err != nil {
-		return fmt.Errorf("failed to get codebase: %w", err)
-	}
-	return s.canUserAccessCodebase(ctx, userID, at, cb)
-}
-
-func (s *Service) canUserAccessChangeCommit(ctx context.Context, userID string, at accessType, changeCommit *change.ChangeCommit) error {
-	cb, err := s.codebaseService.GetByID(ctx, changeCommit.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
 	}
@@ -349,20 +333,6 @@ func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, c
 
 	// user can access a change if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
-	if err != nil {
-		return fmt.Errorf("failed to get codebase: %w", err)
-	}
-
-	return s.canAnonymousAccessCodebase(ctx, at, cb)
-}
-
-func (s *Service) canAnonymousAccessChangeCommit(ctx context.Context, at accessType, changeCommit *change.ChangeCommit) error {
-	if at != accessTypeRead {
-		return fmt.Errorf("anonymous users can only read changes: %w", auth.ErrForbidden)
-	}
-
-	// user can access a change if they can access the codebase it's in
-	cb, err := s.codebaseService.GetByID(ctx, changeCommit.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
 	}

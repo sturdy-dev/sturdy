@@ -39,7 +39,6 @@ func TestCodebaseAccess(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		nil,
 		zap.NewNop(),
 		nil,
 		nil,

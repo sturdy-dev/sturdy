@@ -14,7 +14,6 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	routes_v3_ghapp "getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/http"
 	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -42,22 +41,19 @@ func ProvideHandler(
 	userRepo db_user.Repository,
 	analyticsClient analytics.Client,
 	codebaseRepo db_codebase.CodebaseRepository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceReader db_workspace.WorkspaceReader,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
-	gitHubInstallationsRepo db_github.GitHubInstallationRepo,
+	gitHubInstallationRepo db_github.GitHubInstallationRepo,
 	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
 	gitHubUserRepo db_github.GitHubUserRepo,
 	gitHubPRRepo db_github.GitHubPRRepo,
 	gitHubAppConfig *config.GitHubAppConfig,
-	gitHubClientProvider ghappclient.InstallationClientProvider,
-	gitHubClonerPublisher *workers_github.ClonerQueue,
+	githubClientProvider ghappclient.InstallationClientProvider,
 	workspaceWriter db_workspace.WorkspaceWriter,
 	executorProvider executor.Provider,
 	reviewRepo db_review.ReviewRepository,
 	activitySender activity_sender.ActivitySender,
-	eventSender events.EventSender,
+	eventsSender events.EventSender,
 	workspaceService service_workspace.Service,
 	statusesService *service_statuses.Service,
 	syncService *service_sync.Service,
@@ -75,7 +71,29 @@ func ProvideHandler(
 	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
 
 	publ := ossEngine.Group("")
-	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubAppConfig, analyticsClient, gitHubInstallationsRepo, gitHubRepositoryRepo, codebaseRepo, executorProvider, gitHubClientProvider, gitHubUserRepo, codebaseUserRepo, gitHubClonerPublisher, gitHubPRRepo, workspaceReader, workspaceWriter, workspaceService, syncService, changeRepo, changeCommitRepo, reviewRepo, eventSender, activitySender, statusesService, commentsService, gitHubService, ciBuildQueue))
+	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(
+		logger,
+		gitHubAppConfig,
+		analyticsClient,
+		gitHubInstallationRepo,
+		gitHubRepositoryRepo,
+		codebaseRepo,
+		executorProvider,
+		githubClientProvider,
+		gitHubPRRepo,
+		workspaceReader,
+		workspaceWriter,
+		workspaceService,
+		syncService,
+		changeRepo,
+		reviewRepo,
+		eventsSender,
+		activitySender,
+		statusesService,
+		commentsService,
+		gitHubService,
+		ciBuildQueue,
+	))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
 	return (*Engine)(ossEngine)
 }

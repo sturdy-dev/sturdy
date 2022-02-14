@@ -15,36 +15,25 @@ import (
 )
 
 type Service struct {
-	aclProvider      *acl_provider.Provider
-	userRepo         db_user.Repository
-	changeRepo       db_change.Repository
-	commitChangeRepo db_change.CommitRepository
+	aclProvider *acl_provider.Provider
+	userRepo    db_user.Repository
+	changeRepo  db_change.Repository
 }
 
 func New(
 	aclProvider *acl_provider.Provider,
 	userRepo db_user.Repository,
 	changeRepo db_change.Repository,
-	commitChangeRepo db_change.CommitRepository,
 ) *Service {
 	return &Service{
-		aclProvider:      aclProvider,
-		userRepo:         userRepo,
-		changeRepo:       changeRepo,
-		commitChangeRepo: commitChangeRepo,
+		aclProvider: aclProvider,
+		userRepo:    userRepo,
+		changeRepo:  changeRepo,
 	}
 }
 
-func (svc *Service) ListChangeCommits(ctx context.Context, ids ...change.ID) ([]*change.ChangeCommit, error) {
-	return svc.commitChangeRepo.ListByChangeIDs(ctx, ids...)
-}
-
-func (svc *Service) GetChangeCommitByCommitIDAndCodebaseID(ctx context.Context, commitID, codebaseID string) (*change.ChangeCommit, error) {
-	changeCommit, err := svc.commitChangeRepo.GetByCommitID(commitID, codebaseID)
-	if err != nil {
-		return nil, err
-	}
-	return &changeCommit, nil
+func (svc *Service) ListChanges(ctx context.Context, ids ...change.ID) ([]*change.Change, error) {
+	return svc.changeRepo.ListByIDs(ctx, ids...)
 }
 
 func (svc *Service) GetChangeByID(ctx context.Context, id change.ID) (*change.Change, error) {
@@ -55,12 +44,12 @@ func (svc *Service) GetChangeByID(ctx context.Context, id change.ID) (*change.Ch
 	return ch, nil
 }
 
-func (svc *Service) GetChangeCommitOnTrunkByChangeID(ctx context.Context, id change.ID) (*change.ChangeCommit, error) {
-	ch, err := svc.commitChangeRepo.GetByChangeIDOnTrunk(id)
+func (svc *Service) GetByCommitID(ctx context.Context, commitID, codebaseID string) (*change.Change, error) {
+	ch, err := svc.changeRepo.GetByCommitID(ctx, commitID, codebaseID)
 	if err != nil {
 		return nil, err
 	}
-	return &ch, nil
+	return ch, nil
 }
 
 func (s *Service) Create(ctx context.Context, ws *workspace.Workspace, commitID, msg string) (*change.Change, error) {
@@ -73,18 +62,10 @@ func (s *Service) Create(ctx context.Context, ws *workspace.Workspace, commitID,
 		UpdatedDescription: ws.DraftDescription,
 		UserID:             &ws.UserID,
 		CreatedAt:          &t,
+		CommitID:           &commitID,
 	}
 	if err := s.changeRepo.Insert(changeChange); err != nil {
 		return nil, fmt.Errorf("failed to insert change: %w", err)
-	}
-
-	if err := s.commitChangeRepo.Insert(change.ChangeCommit{
-		ChangeID:   changeID,
-		CommitID:   commitID,
-		CodebaseID: ws.CodebaseID,
-		Trunk:      true,
-	}); err != nil {
-		return nil, fmt.Errorf("failed to insert change commit: %w", err)
 	}
 
 	return &changeChange, nil

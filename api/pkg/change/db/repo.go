@@ -1,7 +1,10 @@
 package db
 
 import (
+	"context"
 	"fmt"
+
+	"github.com/lib/pq"
 
 	"getsturdy.com/api/pkg/change"
 
@@ -10,7 +13,8 @@ import (
 
 type Repository interface {
 	Get(id change.ID) (*change.Change, error)
-	GetByCommitID(commitID, codebaseID string) (*change.Change, error)
+	ListByIDs(ctx context.Context, ids ...change.ID) ([]*change.Change, error)
+	GetByCommitID(ctx context.Context, commitID, codebaseID string) (*change.Change, error)
 	Insert(change.Change) error
 	Update(change.Change) error
 }
@@ -34,9 +38,9 @@ func (r *repo) Get(id change.ID) (*change.Change, error) {
 	return &res, nil
 }
 
-func (r *repo) GetByCommitID(commitID, codebaseID string) (*change.Change, error) {
+func (r *repo) GetByCommitID(ctx context.Context, commitID, codebaseID string) (*change.Change, error) {
 	var res change.Change
-	err := r.db.Get(&res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id
+	err := r.db.GetContext(ctx, &res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id
 		FROM changes
 		WHERE commit_id = $1 AND codebase_id = $2`, commitID, codebaseID)
 	if err != nil {
@@ -71,4 +75,20 @@ func (r *repo) Update(ch change.Change) error {
 		return fmt.Errorf("failed to update change: %w", err)
 	}
 	return nil
+}
+
+func (r *repo) ListByIDs(ctx context.Context, ids ...change.ID) ([]*change.Change, error) {
+	var res []*change.Change
+	err := r.db.SelectContext(ctx, &res, `
+		SELECT
+			id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id
+		FROM
+			changes
+		WHERE
+			id = ANY($1)
+	`, pq.Array(ids))
+	if err != nil {
+		return nil, fmt.Errorf("failed to select: %w", err)
+	}
+	return res, nil
 }

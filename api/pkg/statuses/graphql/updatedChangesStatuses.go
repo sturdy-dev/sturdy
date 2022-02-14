@@ -8,9 +8,9 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )
@@ -26,19 +26,21 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 		changeIDs = append(changeIDs, change.ID(id))
 	}
 
-	changes, err := r.changeService.ListChangeCommits(ctx, changeIDs...)
+	changes, err := r.changeService.ListChanges(ctx, changeIDs...)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to list change commits: %w", err))
 	}
 
 	watchCommit := map[string]bool{}
 	codebaseIDs := map[string]bool{}
-	for _, change := range changes {
-		if err := r.authService.CanRead(ctx, change); err != nil {
+	for _, ch := range changes {
+		if err := r.authService.CanRead(ctx, ch); err != nil {
 			return nil, gqlerrors.Error(err)
 		}
-		watchCommit[change.CommitID] = true
-		codebaseIDs[change.CodebaseID] = true
+		if ch.CommitID != nil {
+			watchCommit[*ch.CommitID] = true
+		}
+		codebaseIDs[ch.CodebaseID] = true
 	}
 
 	c := make(chan resolvers.StatusResolver, 100)

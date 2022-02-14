@@ -15,6 +15,7 @@ type LogEntry struct {
 	Email string
 
 	// If this commits has been landed on sturdytrunk (potentially with another commit ID)
+	// TODO(gustav): delete this field
 	IsLanded bool
 }
 

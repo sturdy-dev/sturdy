@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -47,7 +48,6 @@ func HandlePushEvent(
 	syncService *service_sync.Service,
 	gitHubPRRepo db.GitHubPRRepo,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 	executorProvider executor.Provider,
 	gitHubAppConfig *config.GitHubAppConfig,
 	githubClientProvider client.InstallationClientProvider,
@@ -123,7 +123,8 @@ func HandlePushEvent(
 
 	// Decorate / import new commits
 	for _, maybeNewChange := range maybeImportedChanges {
-		_, err := changeRepo.GetByCommitID(maybeNewChange.ID, repo.CodebaseID)
+		_, err := changeRepo.GetByCommitID(ctx, maybeNewChange.ID, repo.CodebaseID)
+		log.Println("heer")
 		switch {
 		case err == nil:
 			continue
@@ -136,6 +137,8 @@ func HandlePushEvent(
 				GitCreatedAt:    &maybeNewChange.Time,
 				GitCreatorEmail: &maybeNewChange.Email,
 				GitCreatorName:  &maybeNewChange.Name,
+
+				CommitID: &maybeNewChange.ID,
 			}
 
 			meta := decorate.ParseCommitMessage(maybeNewChange.RawCommitMessage)
@@ -160,16 +163,6 @@ func HandlePushEvent(
 
 			if err := changeRepo.Insert(ch); err != nil {
 				return fmt.Errorf("failed to create change: %w", err)
-			}
-
-			chCommit := change.ChangeCommit{
-				ChangeID:   ch.ID,
-				CommitID:   maybeNewChange.ID,
-				CodebaseID: repo.CodebaseID,
-				Trunk:      true,
-			}
-			if err := changeCommitRepo.Insert(chCommit); err != nil {
-				return fmt.Errorf("failed to create change_commit: %w", err)
 			}
 
 			// Reset the workspace draftDescription
@@ -241,7 +234,7 @@ func HandlePushEvent(
 				}
 			}
 
-			logger.Info("decorate commit imported from github", zap.Any("change_id", ch.ID), zap.Any("change_commit_id", chCommit.CommitID), zap.Any("meta", meta))
+			logger.Info("decorate commit imported from github", zap.Stringer("change_id", ch.ID), zap.Stringp("commit_id", ch.CommitID), zap.Any("meta", meta))
 
 		default:
 			return fmt.Errorf("failed to get change commit from db: %w", err)

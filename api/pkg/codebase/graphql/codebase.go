@@ -43,7 +43,6 @@ type CodebaseRootResolver struct {
 	workspaceReader  db_workspace.WorkspaceReader
 	userRepo         db_user.Repository
 	changeRepo       db_change.Repository
-	changeCommitRepo db_change.CommitRepository
 
 	workspaceResolver                 *resolvers.WorkspaceRootResolver
 	authorResolver                    resolvers.AuthorRootResolver
@@ -73,7 +72,6 @@ func NewCodebaseRootResolver(
 	workspaceReader db_workspace.WorkspaceReader,
 	userRepo db_user.Repository,
 	changeRepo db_change.Repository,
-	changeCommitRepo db_change.CommitRepository,
 
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	authorResolver resolvers.AuthorRootResolver,
@@ -102,7 +100,6 @@ func NewCodebaseRootResolver(
 		workspaceReader:  workspaceReader,
 		userRepo:         userRepo,
 		changeRepo:       changeRepo,
-		changeCommitRepo: changeCommitRepo,
 
 		workspaceResolver:                 workspaceResolver,
 		authorResolver:                    authorResolver,
@@ -592,7 +589,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 		return nil, gqlerrors.Error(err)
 	}
 
-	decoratedLog, err := decorate.DecorateChanges(log, r.root.userRepo, r.root.logger, r.root.changeRepo, r.root.changeCommitRepo, r.root.codebaseUserRepo, r.c.ID, true)
+	decoratedLog, err := decorate.DecorateChanges(log, r.root.userRepo, r.root.logger, r.root.changeRepo, r.root.codebaseUserRepo, r.c.ID)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to decorate changes: %w", err))
 	}
