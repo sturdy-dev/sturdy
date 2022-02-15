@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	service_change "getsturdy.com/api/pkg/change/service"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/integrations"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/ci/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type rootResolver struct {
-	svc         *service.Service
-	changeRepo  db_change.Repository
-	authService *service_auth.Service
+	svc           *service.Service
+	changeService *service_change.Service
+	authService   *service_auth.Service
 
 	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver
 	statusesRootResolver  resolvers.StatusesRootResolver
@@ -26,16 +26,16 @@ type rootResolver struct {
 
 func NewRootResolver(
 	svc *service.Service,
-	changeRepo db_change.Repository,
+	changeService *service_change.Service,
 	authService *service_auth.Service,
 
 	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver,
 	statusesRootResolver resolvers.StatusesRootResolver,
 ) resolvers.IntegrationRootResolver {
 	return &rootResolver{
-		svc:         svc,
-		changeRepo:  changeRepo,
-		authService: authService,
+		svc:           svc,
+		changeService: changeService,
+		authService:   authService,
 
 		buildkiteRootResolver: buildkiteRootResolver,
 		statusesRootResolver:  statusesRootResolver,
@@ -43,7 +43,7 @@ func NewRootResolver(
 }
 
 func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resolvers.TriggerInstantIntegrationArgs) ([]resolvers.StatusResolver, error) {
-	ch, err := r.changeRepo.Get(change.ID(args.Input.ChangeID))
+	ch, err := r.changeService.GetChangeByID(ctx, change.ID(args.Input.ChangeID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -52,7 +52,7 @@ func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	triggerOptions := []service.TriggerOption{}
+	var triggerOptions []service.TriggerOption
 	if args.Input.Providers != nil {
 		for _, provider := range *args.Input.Providers {
 			providerType, err := convertProvider(provider)

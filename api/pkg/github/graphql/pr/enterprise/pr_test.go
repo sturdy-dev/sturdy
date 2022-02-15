@@ -126,7 +126,7 @@ func TestPRHighLevel(t *testing.T) {
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
-	changeService := service_change.New(nil, userRepo, changeRepo)
+	changeService := service_change.New(nil, changeRepo, logger)
 	importer := service_github.ImporterQueue(workers_github.NopImporter())
 	cloner := service_github.ClonerQueue(workers_github.NopCloner())
 	gitHubService := service_github.New(
@@ -251,9 +251,9 @@ func TestPRHighLevel(t *testing.T) {
 		workspaceRepo,
 		viewRepo,
 		codebaseUserRepo,
-		changeRepo,
 		workspaceWatchersService,
 		authService,
+		changeService,
 		eventsSender,
 		viewUpdates,
 		sender.NewNoopNotificationSender(),

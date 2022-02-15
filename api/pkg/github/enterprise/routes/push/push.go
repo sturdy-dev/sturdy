@@ -12,7 +12,6 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/change"
 	db_change "getsturdy.com/api/pkg/change/db"
-	"getsturdy.com/api/pkg/change/decorate"
 	"getsturdy.com/api/pkg/change/message"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	service_comments "getsturdy.com/api/pkg/comments/service"
@@ -141,7 +140,7 @@ func HandlePushEvent(
 				CommitID: &maybeNewChange.ID,
 			}
 
-			meta := decorate.ParseCommitMessage(maybeNewChange.RawCommitMessage)
+			meta := change.ParseCommitMessage(maybeNewChange.RawCommitMessage)
 
 			var ws *workspace.Workspace
 

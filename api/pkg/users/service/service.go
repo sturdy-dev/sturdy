@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 
@@ -34,6 +35,7 @@ type Service interface {
 	GetByEmail(_ context.Context, email string) (*users.User, error)
 	UsersCount(context.Context) (uint64, error)
 	GetFirstUser(ctx context.Context) (*users.User, error)
+	GetAsAuthor(ctx context.Context, userID string) (*author.Author, error)
 }
 
 func New(
@@ -125,4 +127,25 @@ func (s *UserSerice) GetByEmail(_ context.Context, email string) (*users.User, e
 
 func (s *UserSerice) UsersCount(ctx context.Context) (uint64, error) {
 	return s.userRepo.Count(ctx)
+}
+
+func (s *UserSerice) GetAsAuthor(ctx context.Context, userID string) (*author.Author, error) {
+	user, err := s.GetByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user %s: %w", userID, err)
+	}
+
+	return &author.Author{
+		UserID:    user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		AvatarURL: emptyIfNull(user.AvatarURL),
+	}, nil
+}
+
+func emptyIfNull(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

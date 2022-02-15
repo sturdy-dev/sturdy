@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/access"
 	"getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_user "getsturdy.com/api/pkg/users/service"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -25,7 +25,7 @@ func Get(
 	repo db.CodebaseRepository,
 	codebaseUserRepo db.CodebaseUserRepository,
 	logger *zap.Logger,
-	userRepo db_user.Repository,
+	userService service_user.Service,
 	executorProvider executor.Provider,
 ) gin.HandlerFunc {
 	lastUpdatedAt := func(codebaseID string) time.Time {
@@ -78,7 +78,7 @@ func Get(
 			return
 		}
 
-		memberAuthors, err := membersAsAuthors(codebaseUserRepo, userRepo, cb.ID)
+		memberAuthors, err := membersAsAuthors(c.Request.Context(), codebaseUserRepo, userService, cb.ID)
 		if err != nil {
 			logger.Error("failed to get members", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)

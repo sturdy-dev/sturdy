@@ -9,7 +9,6 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/change"
-	"getsturdy.com/api/pkg/change/decorate"
 	"getsturdy.com/api/pkg/change/message"
 	service_change "getsturdy.com/api/pkg/change/service"
 	change_vcs "getsturdy.com/api/pkg/change/vcs"
@@ -381,7 +380,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 
 	cleanCommitMessage := message.CommitMessage(ws.DraftDescription)
 
-	changeMeta := decorate.ChangeMetadata{
+	changeMeta := change.ChangeMetadata{
 		Description: cleanCommitMessage,
 		UserID:      user.ID,
 	}

@@ -9,7 +9,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change/decorate"
+	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/change/message"
 	vcs_change "getsturdy.com/api/pkg/change/vcs"
 	"getsturdy.com/api/pkg/codebase"
@@ -184,7 +184,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		remoteBranchName = prs[0].Head
 	}
 
-	meta := decorate.ChangeMetadata{
+	meta := change.ChangeMetadata{
 		Description: message.CommitMessage(ws.DraftDescription),
 		UserID:      userID,
 		WorkspaceID: ws.ID,

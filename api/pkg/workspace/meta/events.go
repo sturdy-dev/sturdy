@@ -1,11 +1,8 @@
 package meta
 
 import (
-	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/author"
-	db2 "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/db"
@@ -86,16 +83,4 @@ func Updated(workspaceReader db.WorkspaceReader, workspaceWriter db.WorkspaceWri
 		return err
 	}
 	return nil
-}
-
-func AddMetadata(ws workspace.Workspace, userRepo db2.Repository) (workspace.WorkspaceWithMetadata, error) {
-	user, err := author.GetAuthor(ws.UserID, userRepo)
-	if err != nil {
-		return workspace.WorkspaceWithMetadata{}, fmt.Errorf("failed get author metadata: %w", err)
-	}
-
-	return workspace.WorkspaceWithMetadata{
-		Workspace: ws,
-		CreatedBy: user,
-	}, nil
 }

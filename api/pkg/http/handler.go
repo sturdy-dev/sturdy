@@ -162,13 +162,13 @@ func ProvideHandler(
 	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(userRepo))                                                                                                                        // Used by the web (2021-10-04)
 	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                // Used by the command line client
 	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                    // Used by the web (2021-10-04)
-	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userRepo, executorProvider))                                                                         // Used by the command line client
+	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService, executorProvider))                                                                      // Used by the command line client
 	auth.POST("/v3/codebases/:id/invite", routes_v3_codebase.Invite(codebaseService, authService))                                                                                                    // No longer used (after 2022-01-31)
 	publ.GET("/v3/join/get-codebase/:code", routes_v3_codebase.JoinGetCodebase(logger, codebaseRepo))                                                                                                 // Used by the web (2021-10-04)
 	auth.POST("/v3/join/codebase/:code", routes_v3_codebase.JoinCodebase(logger, codebaseRepo, codebaseUserRepo, eventSender))                                                                        // Used by the web (2021-10-04)
 	auth.POST("/v3/views", routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsClient, workspaceReader, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender)) // Used by the command line client
 	authedViews := auth.Group("/v3/views/:viewID", view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
-	authedViews.GET("", routes_v3_view.Get(viewRepo, workspaceReader, userRepo, logger))                                                           // Used by the command line client
+	authedViews.GET("", routes_v3_view.Get(viewRepo, workspaceReader, logger, userService))                                                        // Used by the command line client
 	authedViews.POST("/ignore-file", routes_v3_change.IgnoreFile(logger, viewRepo, codebaseUserRepo, executorProvider, viewUpdatedFunc))           // Used by the web (2021-10-04)
 	authedViews.GET("/ignores", routes_v3_view.Ignores(logger, executorProvider, viewRepo))                                                        // Called from client-side sturdy-cli
 	auth.GET("/v3/stream", routes.Stream(logger, viewRepo, codebaseViewEvents, workspaceReader, authService, workspaceService, suggestionService)) // Used by the web (2021-10-04)
