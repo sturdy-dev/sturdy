@@ -85,7 +85,7 @@ export function createApp(ssrApp: boolean) {
     exchanges.unshift(devtoolsExchange)
   }
 
-  const graphqlUrl = `${graphqlHost}${apiPrefix}/graphql`
+  const graphqlUrl = `${host}${apiPrefix}/graphql`
 
   app.use(urql, {
     url: graphqlUrl,
