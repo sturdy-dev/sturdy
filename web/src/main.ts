@@ -57,17 +57,16 @@ export function createApp(ssrApp: boolean) {
     retryExchange(options), // Use the retryExchange factory to add a new exchange
   ]
 
-  const graphqlHost = import.meta.env.VITE_API_HOST
+  const host = import.meta.env.VITE_API_HOST
     ? (import.meta.env.VITE_API_HOST as string)
-        .replace('http://', 'ws://')
-        .replace('https://', 'wss://')
-    : `${location.origin}`.replace('http://', 'ws://').replace('https://', 'wss://')
+    : `${location.origin}`
 
   const apiPrefix = import.meta.env.VITE_API_PATH ?? ''
 
   // Client-side only
   if (!import.meta.env.SSR) {
-    const graphqlWsUrl = `${graphqlHost}${apiPrefix}/graphql/ws`
+    const wsHost = host.replace('http://', 'ws://').replace('https://', 'wss://')
+    const graphqlWsUrl = `${wsHost}${apiPrefix}/graphql/ws`
 
     const subscriptionClient = new SubscriptionClient(graphqlWsUrl, {
       reconnect: true,
