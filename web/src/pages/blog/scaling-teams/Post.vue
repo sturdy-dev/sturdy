@@ -414,7 +414,7 @@ const author = {
   link: 'https://twitter.com/krlvi',
 }
 
-let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
+let ogImageFull = computed(() => new URL(ogImage, location.origin).href)
 
 let amdahl = computed(() =>
   katex.renderToString(String.raw`Speedup(n) = \frac{1}{(1-p) + \frac{p}{n}}`, {
