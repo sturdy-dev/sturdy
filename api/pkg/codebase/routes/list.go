@@ -1,12 +1,14 @@
 package routes
 
 import (
+	"context"
+
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/codebase/db"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_user "getsturdy.com/api/pkg/users/service"
 )
 
-func membersAsAuthors(codebaseUserRepo db.CodebaseUserRepository, userRepo db_user.Repository, codebaseID string) ([]author.Author, error) {
+func membersAsAuthors(ctx context.Context, codebaseUserRepo db.CodebaseUserRepository, userService service_user.Service, codebaseID string) ([]author.Author, error) {
 	// Get members
 	members, err := codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
@@ -15,11 +17,11 @@ func membersAsAuthors(codebaseUserRepo db.CodebaseUserRepository, userRepo db_us
 
 	var memberAuthors []author.Author
 	for _, m := range members {
-		userAuthor, err := author.GetAuthor(m.UserID, userRepo)
+		userAuthor, err := userService.GetAsAuthor(ctx, m.UserID)
 		if err != nil {
 			return nil, err
 		}
-		memberAuthors = append(memberAuthors, userAuthor)
+		memberAuthors = append(memberAuthors, *userAuthor)
 	}
 
 	return memberAuthors, nil

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/change/decorate"
 	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	graphql_comments "getsturdy.com/api/pkg/comments/graphql"
@@ -128,7 +129,7 @@ func TestCreate(t *testing.T) {
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(nil, userRepo, changeRepo)
+	changeService := service_change.New(nil, changeRepo, logger)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -206,9 +207,9 @@ func TestCreate(t *testing.T) {
 		workspaceRepo,
 		viewRepo,
 		codebaseUserRepo,
-		changeRepo,
 		workspaceWatchersService,
 		authService,
+		changeService,
 		eventsSender,
 		nil,
 		nil,
@@ -304,13 +305,14 @@ func TestCreate(t *testing.T) {
 		viewEvents,
 	)
 
+	changeDecorator := decorate.New(changeRepo, userService, codebaseService, executorProvider, logger)
+
 	codebaseRootResolver := graphql_codebase.NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		viewRepo,
 		workspaceRepo,
 		userRepo,
-		changeRepo,
 		nil,
 		authorRootResolver,
 		nil,
@@ -328,6 +330,7 @@ func TestCreate(t *testing.T) {
 		authService,
 		codebaseService,
 		nil,
+		changeDecorator,
 	)
 
 	userRootResolver := graphql_user.NewResolver(
@@ -765,7 +768,7 @@ func TestLargeFiles(t *testing.T) {
 	suggestionRepo := db_suggestion.New(d)
 	notificationSender := sender.NewNoopNotificationSender()
 	commentsService := service_comments.New(commentRepo)
-	changeService := service_change.New(nil, userRepo, changeRepo)
+	changeService := service_change.New(nil, changeRepo, logger)
 
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)

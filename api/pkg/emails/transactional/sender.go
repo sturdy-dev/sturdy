@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
-	db_change "getsturdy.com/api/pkg/change/db"
+	service_change "getsturdy.com/api/pkg/change/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -47,14 +47,14 @@ type Sender struct {
 	userRepo                       db_users.Repository
 	codebaseUserRepo               db_codebase.CodebaseUserRepository
 	commentsRepo                   db_comments.Repository
-	changeRepo                     db_change.Repository
 	codebaseRepo                   db_codebase.CodebaseRepository
 	workspaceRepo                  db_workspace.Repository
 	suggestionRepo                 db_suggestion.Repository
 	reviewRepo                     db_review.ReviewRepository
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository
 
-	jwtService *service_jwt.Service
+	jwtService    *service_jwt.Service
+	changeService *service_change.Service
 
 	notificationPreferences *service_notification.Preferences
 	analyticsClient         analytics.Client
@@ -67,7 +67,6 @@ func New(
 	userRepo db_users.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	commentsRepo db_comments.Repository,
-	changeRepo db_change.Repository,
 	codebaseRepo db_codebase.CodebaseRepository,
 	workspaceRepo db_workspace.Repository,
 	suggestionRepo db_suggestion.Repository,
@@ -75,6 +74,7 @@ func New(
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository,
 
 	jwtService *service_jwt.Service,
+	changeService *service_change.Service,
 
 	notificationPreferences *service_notification.Preferences,
 
@@ -87,14 +87,14 @@ func New(
 		userRepo:                       userRepo,
 		codebaseUserRepo:               codebaseUserRepo,
 		commentsRepo:                   commentsRepo,
-		changeRepo:                     changeRepo,
 		codebaseRepo:                   codebaseRepo,
 		workspaceRepo:                  workspaceRepo,
 		suggestionRepo:                 suggestionRepo,
 		reviewRepo:                     reviewRepo,
 		notificationSettingsRepository: notificationSettingsRepository,
 
-		jwtService: jwtService,
+		jwtService:    jwtService,
+		changeService: changeService,
 
 		notificationPreferences: notificationPreferences,
 		analyticsClient:         analyticsClient,
@@ -354,7 +354,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, c
 
 		switch {
 		case parentComment.ChangeID != nil:
-			change, err := e.changeRepo.Get(*parentComment.ChangeID)
+			change, err := e.changeService.GetChangeByID(ctx, *parentComment.ChangeID)
 			if err != nil {
 				return fmt.Errorf("failed to get parent change: %w", err)
 			}
@@ -378,7 +378,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, c
 			return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 		}
 	case comment.ChangeID != nil:
-		change, err := e.changeRepo.Get(*comment.ChangeID)
+		change, err := e.changeService.GetChangeByID(ctx, *comment.ChangeID)
 		if err != nil {
 			return fmt.Errorf("failed to get change: %w", err)
 		}

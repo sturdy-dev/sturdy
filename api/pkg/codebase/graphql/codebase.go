@@ -14,7 +14,6 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/decorate"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -42,7 +41,6 @@ type CodebaseRootResolver struct {
 	viewRepo         db_view.Repository
 	workspaceReader  db_workspace.WorkspaceReader
 	userRepo         db_user.Repository
-	changeRepo       db_change.Repository
 
 	workspaceResolver                 *resolvers.WorkspaceRootResolver
 	authorResolver                    resolvers.AuthorRootResolver
@@ -63,6 +61,7 @@ type CodebaseRootResolver struct {
 	authService         *service_auth.Service
 	codebaseService     *service_codebase.Service
 	organizationService *service_organization.Service
+	changeDecorator     *decorate.Decorator
 }
 
 func NewCodebaseRootResolver(
@@ -71,7 +70,6 @@ func NewCodebaseRootResolver(
 	viewRepo db_view.Repository,
 	workspaceReader db_workspace.WorkspaceReader,
 	userRepo db_user.Repository,
-	changeRepo db_change.Repository,
 
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	authorResolver resolvers.AuthorRootResolver,
@@ -92,6 +90,7 @@ func NewCodebaseRootResolver(
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
 	organizationService *service_organization.Service,
+	changeDecorator *decorate.Decorator,
 ) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
@@ -99,7 +98,6 @@ func NewCodebaseRootResolver(
 		viewRepo:         viewRepo,
 		workspaceReader:  workspaceReader,
 		userRepo:         userRepo,
-		changeRepo:       changeRepo,
 
 		workspaceResolver:                 workspaceResolver,
 		authorResolver:                    authorResolver,
@@ -120,6 +118,7 @@ func NewCodebaseRootResolver(
 		authService:         authService,
 		codebaseService:     codebaseService,
 		organizationService: organizationService,
+		changeDecorator:     changeDecorator,
 	}
 }
 
@@ -574,22 +573,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 		limit = int(*args.Input.Limit)
 	}
 
-	// vcs.ListChanges and decorate.DecorateChanges will import all commits to Sturdy.
-	// This is not ideal. If we could make sure that the database is already is up to date with the Git state,
-	// we would not have to read from disk here.
-	var log []*vcsvcs.LogEntry
-	if err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-		var err error
-		log, err = vcs.ListChanges(repo, limit)
-		if err != nil {
-			return fmt.Errorf("failed to list changes: %w", err)
-		}
-		return nil
-	}).ExecTrunk(r.c.ID, "codebase.Changes"); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	decoratedLog, err := decorate.DecorateChanges(log, r.root.userRepo, r.root.logger, r.root.changeRepo, r.root.codebaseUserRepo, r.c.ID)
+	decoratedLog, err := r.root.changeDecorator.List(ctx, r.c.ID, limit)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to decorate changes: %w", err))
 	}

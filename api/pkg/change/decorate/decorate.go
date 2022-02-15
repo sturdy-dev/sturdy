@@ -10,14 +10,46 @@ import (
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/change"
 	db_change "getsturdy.com/api/pkg/change/db"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/jsontime"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/executor"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
+
+type Decorator struct {
+	changeRepo      db_change.Repository
+	userService     service_user.Service
+	codebaseService *service_codebase.Service
+
+	executorProvider executor.Provider
+
+	logger *zap.Logger
+}
+
+func New(
+	changeRepo db_change.Repository,
+	userService service_user.Service,
+	codebaseService *service_codebase.Service,
+
+	executorProvider executor.Provider,
+
+	logger *zap.Logger,
+) *Decorator {
+	return &Decorator{
+		changeRepo:      changeRepo,
+		userService:     userService,
+		codebaseService: codebaseService,
+
+		executorProvider: executorProvider,
+
+		logger: logger.Named("changeDecorator"),
+	}
+}
 
 type DecoratedChange struct {
 	ChangeID change.ID `json:"change_id"`
@@ -29,15 +61,15 @@ type DecoratedChange struct {
 	Title       string `json:"title"`
 	Description string `json:"description"` // can be HTML
 
-	Meta   ChangeMetadata `json:"meta"` // Data from the commit message
-	Author author.Author  `json:"author"`
+	Meta   change.ChangeMetadata `json:"meta"` // Data from the commit message
+	Author author.Author         `json:"author"`
 }
 
-func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string) ([]DecoratedChange, error) {
+func (d *Decorator) DecorateChanges(ctx context.Context, changes []*vcs.LogEntry, codebaseID string) ([]DecoratedChange, error) {
 	res := make([]DecoratedChange, len(changes))
 	var err error
 	for k, entry := range changes {
-		res[k], err = DecorateChange(entry, userRepo, logger, changeRepo, codebaseUserRepo, codebaseID)
+		res[k], err = d.DecorateChange(ctx, entry, codebaseID)
 		if err != nil {
 			return nil, err
 		}
@@ -45,13 +77,13 @@ func DecorateChanges(changes []*vcs.LogEntry, userRepo db_user.Repository, logge
 	return res, nil
 }
 
-func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *zap.Logger, changeRepo db_change.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseID string) (DecoratedChange, error) {
-	meta := ParseCommitMessage(entry.RawCommitMessage)
+func (d *Decorator) DecorateChange(ctx context.Context, entry *vcs.LogEntry, codebaseID string) (DecoratedChange, error) {
+	meta := change.ParseCommitMessage(entry.RawCommitMessage)
 
 	var ch *change.Change
 	var err error
 
-	ch, err = changeRepo.GetByCommitID(context.Background(), entry.ID, codebaseID)
+	ch, err = d.changeRepo.GetByCommitID(context.Background(), entry.ID, codebaseID)
 	if errors.Is(err, sql.ErrNoRows) {
 		// Create a change
 		ch = &change.Change{
@@ -65,12 +97,12 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 
 		// TODO: Remove this! This import can not be trusted, and the association between commits and users should only be done on GitHub push events
 		if meta.UserID != "" {
-			if _, err := codebaseUserRepo.GetByUserAndCodebase(meta.UserID, codebaseID); err == nil {
+			if ok, err := d.codebaseService.CanAccess(ctx, meta.UserID, codebaseID); err == nil && ok {
 				ch.UserID = &meta.UserID
 			}
 		}
 
-		err = changeRepo.Insert(*ch)
+		err = d.changeRepo.Insert(*ch)
 		if err != nil {
 			return DecoratedChange{}, fmt.Errorf("failed to create change: %w", err)
 		}
@@ -97,7 +129,7 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 
 	// TODO: Remove this! This import can not be trusted, and the association between commits and users should only be done on GitHub push events
 	if ch.UserID == nil && len(meta.UserID) > 0 {
-		if _, err := codebaseUserRepo.GetByUserAndCodebase(meta.UserID, codebaseID); err == nil {
+		if ok, err := d.codebaseService.CanAccess(ctx, meta.UserID, codebaseID); err == nil && ok {
 			ch.UserID = &meta.UserID
 			updatedChange = true
 		}
@@ -105,7 +137,7 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 
 	// Save changes to the db
 	if updatedChange {
-		if err := changeRepo.Update(*ch); err != nil {
+		if err := d.changeRepo.Update(*ch); err != nil {
 			return DecoratedChange{}, fmt.Errorf("failed to update change: %w", err)
 		}
 	}
@@ -124,17 +156,17 @@ func DecorateChange(entry *vcs.LogEntry, userRepo db_user.Repository, logger *za
 	}
 
 	if len(meta.UserID) > 0 {
-		authorObj, err := author.GetAuthor(meta.UserID, userRepo)
+		authorObj, err := d.userService.GetAsAuthor(ctx, meta.UserID)
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				logger.Error("failed to decorate change", zap.Error(err))
+				d.logger.Error("failed to decorate change", zap.Error(err))
 			}
 			res.Author = author.Author{
 				Name:           entry.Name,
 				IsExternalUser: true,
 			}
 		} else {
-			res.Author = authorObj
+			res.Author = *authorObj
 		}
 	} else {
 		res.Author = author.Author{
@@ -161,4 +193,28 @@ func firstLine(in string) string {
 		return in
 	}
 	return in[0:idx]
+}
+
+func (d *Decorator) List(ctx context.Context, codebaseID string, limit int) ([]DecoratedChange, error) {
+	// vcs.ListChanges and decorate.DecorateChanges will import all commits to Sturdy.
+	// This is not ideal. If we could make sure that the database is already is up to date with the Git state,
+	// we would not have to read from disk here.
+	var gitChangeLog []*vcs.LogEntry
+	if err := d.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
+		var err error
+		gitChangeLog, err = vcs_codebase.ListChanges(repo, limit)
+		if err != nil {
+			return fmt.Errorf("failed to list changes: %w", err)
+		}
+		return nil
+	}).ExecTrunk(codebaseID, "codebase.Changes"); err != nil {
+		return nil, err
+	}
+
+	decoratedLog, err := d.DecorateChanges(ctx, gitChangeLog, codebaseID)
+	if err != nil {
+		return nil, err
+	}
+
+	return decoratedLog, nil
 }

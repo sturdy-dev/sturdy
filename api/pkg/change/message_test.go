@@ -1,4 +1,4 @@
-package decorate
+package change
 
 import (
 	"testing"

@@ -1,22 +1,23 @@
 package routes
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"getsturdy.com/api/pkg/author"
+	"net/http"
+
 	"getsturdy.com/api/pkg/jsontime"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func Get(repo db.Repository, workspaceReader db_workspace.WorkspaceReader, userRepo db_user.Repository, logger *zap.Logger) func(c *gin.Context) {
+func Get(repo db.Repository, workspaceReader db_workspace.WorkspaceReader, logger *zap.Logger, userService service_user.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		viewID := c.Param("viewID")
 
@@ -27,7 +28,7 @@ func Get(repo db.Repository, workspaceReader db_workspace.WorkspaceReader, userR
 			return
 		}
 
-		res, err := addMeta(toViewJson(viewObj), workspaceReader, userRepo)
+		res, err := addMeta(c.Request.Context(), toViewJson(viewObj), workspaceReader, userService)
 		if err != nil {
 			logger.Error("failed to get view meta", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to get view"})
@@ -50,15 +51,15 @@ func toViewJson(in *view.View) view.ViewJSON {
 	}
 }
 
-func addMeta(v view.ViewJSON, workspaceReader db_workspace.WorkspaceReader, userRepo db_user.Repository) (view.ViewWithMetadataJSON, error) {
-	user, err := author.GetAuthor(v.UserID, userRepo)
+func addMeta(ctx context.Context, v view.ViewJSON, workspaceReader db_workspace.WorkspaceReader, userService service_user.Service) (view.ViewWithMetadataJSON, error) {
+	author, err := userService.GetAsAuthor(ctx, v.UserID)
 	if err != nil {
 		return view.ViewWithMetadataJSON{}, fmt.Errorf("failed to get user metadata: %w", err)
 	}
 
 	res := view.ViewWithMetadataJSON{
 		ViewJSON: v,
-		User:     user,
+		User:     *author,
 	}
 
 	ws, err := workspaceReader.Get(v.WorkspaceID)

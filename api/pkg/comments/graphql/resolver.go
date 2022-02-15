@@ -11,13 +11,14 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
+	service_change "getsturdy.com/api/pkg/change/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	decorate_comment "getsturdy.com/api/pkg/comments/decorate"
 	"getsturdy.com/api/pkg/comments/live"
 	"getsturdy.com/api/pkg/comments/vcs"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/notification"
@@ -26,7 +27,6 @@ import (
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	"getsturdy.com/api/pkg/workspace/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
@@ -57,9 +57,9 @@ type CommentRootResolver struct {
 	workspaceReader          db_workspace.WorkspaceReader
 	viewRepo                 db_view.Repository
 	codebaseUserRepo         db_codebase.CodebaseUserRepository
-	changeRepo               db_change.Repository
 	workspaceWatchersService *service_workspace_watchers.Service
 	authService              *service_auth.Service
+	changeService            *service_change.Service
 
 	eventsReader       events.EventReader
 	eventsSender       events.EventSender
@@ -81,9 +81,9 @@ func NewResolver(
 	workspaceReader db_workspace.WorkspaceReader,
 	viewRepo db_view.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	changeRepo db_change.Repository,
 	workspaceWatchersService *service_workspace_watchers.Service,
 	authService *service_auth.Service,
+	changeService *service_change.Service,
 
 	eventsSender events.EventSender,
 	eventsReader events.EventReader,
@@ -107,9 +107,9 @@ func NewResolver(
 		workspaceReader:          workspaceReader,
 		viewRepo:                 viewRepo,
 		codebaseUserRepo:         codebaseUserRepo,
-		changeRepo:               changeRepo,
 		workspaceWatchersService: workspaceWatchersService,
 		authService:              authService,
+		changeService:            changeService,
 
 		eventsSender:       eventsSender,
 		eventsReader:       eventsReader,
@@ -472,7 +472,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 	} else {
 		// Comment on a change
 		cid := change.ID(*args.Input.ChangeID)
-		ch, err := r.changeRepo.Get(cid)
+		ch, err := r.changeService.GetChangeByID(ctx, cid)
 		if err != nil {
 			return nil, err
 		}

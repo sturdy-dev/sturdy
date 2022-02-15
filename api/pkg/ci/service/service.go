@@ -14,7 +14,6 @@ import (
 	integrations "getsturdy.com/api/pkg/integrations"
 
 	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/ci"
 	db_ci "getsturdy.com/api/pkg/ci/db"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
@@ -40,7 +39,6 @@ type Service struct {
 
 	configRepo   db_integrations.IntegrationsRepository
 	ciCommitRepo db_ci.CommitRepository
-	changeRepo   db_change.Repository
 
 	publicApiHostname string
 	statusService     *svc_statuses.Service
@@ -57,7 +55,6 @@ func New(
 
 	configRepo db_integrations.IntegrationsRepository,
 	ciCommitRepo db_ci.CommitRepository,
-	changeRepo db_change.Repository,
 
 	cfg *Configuration,
 	statusService *svc_statuses.Service,
@@ -69,7 +66,6 @@ func New(
 
 		configRepo:   configRepo,
 		ciCommitRepo: ciCommitRepo,
-		changeRepo:   changeRepo,
 
 		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,

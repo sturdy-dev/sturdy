@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_change "getsturdy.com/api/pkg/change/db"
+	"getsturdy.com/api/pkg/change/decorate"
 	graphql_change "getsturdy.com/api/pkg/change/graphql"
 	service_change "getsturdy.com/api/pkg/change/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
@@ -118,7 +119,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	aclProvider := provider_acl.New(aclRepo, codebaseUserRepo, userRepo)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(aclProvider, userRepo, changeRepo)
+	changeService := service_change.New(aclProvider, changeRepo, logger)
 	workspaceService := service_workspace.New(
 		logger,
 		postHogClient,
@@ -234,13 +235,14 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		&workspaceRootResolver,
 	)
 
+	changeDecorator := decorate.New(changeRepo, userService, codebaseService, executorProvider, logger)
+
 	codebaseRootResolver := graphql_codebase.NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		viewRepo,
 		workspaceRepo,
 		userRepo,
-		changeRepo,
 
 		nil,
 		nil,
@@ -261,6 +263,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		authService,
 		codebaseService,
 		nil,
+		changeDecorator,
 	)
 
 	*statusesRootResolver = graphql_statuses.New(
@@ -455,7 +458,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	userService := service_user.New(zap.NewNop(), userRepo, postHogClient)
 
 	workspaceWriter := ws_meta.NewWriterWithEvents(logger, workspaceRepo, eventsSender)
-	changeService := service_change.New(nil, userRepo, changeRepo)
+	changeService := service_change.New(nil, changeRepo, logger)
 
 	workspaceService := service_workspace.New(
 		logger,
@@ -593,13 +596,14 @@ func TestRevertChangeFromView(t *testing.T) {
 		authService,
 	)
 
+	changeDecorator := decorate.New(changeRepo, userService, codebaseService, executorProvider, logger)
+
 	codebaseRootResolver := graphql_codebase.NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,
 		viewRepo,
 		workspaceRepo,
 		userRepo,
-		changeRepo,
 
 		nil,
 		nil,
@@ -620,6 +624,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		authService,
 		codebaseService,
 		nil,
+		changeDecorator,
 	)
 
 	*statusesRootResolver = graphql_statuses.New(

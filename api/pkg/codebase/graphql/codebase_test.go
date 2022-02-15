@@ -38,7 +38,6 @@ func TestCodebaseAccess(t *testing.T) {
 		nil,
 		nil,
 		nil,
-		nil,
 		zap.NewNop(),
 		nil,
 		nil,
@@ -46,6 +45,7 @@ func TestCodebaseAccess(t *testing.T) {
 		nil,
 		authService,
 		codebaseService,
+		nil,
 		nil,
 	)
 
