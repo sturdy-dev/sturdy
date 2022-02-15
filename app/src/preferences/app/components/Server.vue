@@ -44,13 +44,7 @@ export default {
   },
   computed: {
     fields() {
-      return [
-        this.server.title,
-        this.server.webURL,
-        this.server.apiURL,
-        this.server.syncURL,
-        this.server.reposBasePath,
-      ]
+      return [this.server.title, this.server.webURL, this.server.apiURL, this.server.syncURL]
     },
   },
   methods: {

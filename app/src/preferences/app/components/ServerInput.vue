@@ -59,20 +59,6 @@
     </td>
 
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-      <input
-        type="text"
-        class="relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
-        :class="[
-          isReposBasePathWarning
-            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
-            : 'focus:ring-indigo-500 focus:border-indigo-500 ',
-        ]"
-        placeholder="/path/to/repos"
-        v-model="reposBasePath"
-      />
-    </td>
-
-    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
       <button
         type="button"
         class="text-indigo-600 hover:text-indigo-900"
@@ -102,9 +88,6 @@ export default {
 
       syncURL: '',
       syncURLActivated: false,
-
-      reposBasePath: '',
-      reposBasePathActivated: false,
     }
   },
   watch: {
@@ -126,11 +109,6 @@ export default {
     syncURL(n) {
       if (n.length > 0) {
         this.syncURLActivated = true
-      }
-    },
-    reposBasePath(n) {
-      if (n.length > 0) {
-        this.reposBasePathActivated = true
       }
     },
   },
@@ -178,20 +156,8 @@ export default {
       }
     },
 
-    isReposBasePathWarning() {
-      return this.reposBasePathActivated && !this.isReposBasePathValid
-    },
-    isReposBasePathValid() {
-      return this.reposBasePath.length > 0
-    },
     isValid() {
-      return (
-        this.isTitleValid &&
-        this.isWebURLValid &&
-        this.isApiURLValid &&
-        this.isSyncURLValid &&
-        this.isReposBasePathValid
-      )
+      return this.isTitleValid && this.isWebURLValid && this.isApiURLValid && this.isSyncURLValid
     },
     hostConfig() {
       return {
@@ -199,7 +165,6 @@ export default {
         webURL: this.webURL,
         apiURL: this.apiURL,
         syncURL: this.syncURL,
-        reposBasePath: this.reposBasePath,
       }
     },
   },
@@ -218,14 +183,12 @@ export default {
       this.webURLActivated = false
       this.apiURLActivated = false
       this.syncURLActivated = false
-      this.reposBasePathActivated = false
     },
     resetValues() {
       this.title = ''
       this.webURL = ''
       this.apiURL = ''
       this.syncURL = ''
-      this.reposBasePath = ''
     },
   },
 }

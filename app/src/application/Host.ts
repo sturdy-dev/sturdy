@@ -8,7 +8,6 @@ export class Host {
   readonly #apiURL: URL
   readonly #graphqlURL: URL
   readonly #syncURL: URL
-  readonly #reposBasePath: string
   readonly #logger: Logger
 
   constructor({
@@ -16,13 +15,11 @@ export class Host {
     webURL,
     apiURL,
     syncURL,
-    reposBasePath,
   }: {
     title: string
     webURL: URL
     apiURL: URL
     syncURL: URL
-    reposBasePath: string
   }) {
     this.#id = title.toLowerCase()
     this.#title = title
@@ -31,7 +28,6 @@ export class Host {
     this.#graphqlURL = new URL(path.join(apiURL.pathname, 'graphql'), apiURL.origin)
     this.#syncURL = syncURL
     this.#logger = new Logger('host', title)
-    this.#reposBasePath = reposBasePath
   }
 
   get id() {
@@ -56,10 +52,6 @@ export class Host {
 
   get syncURL() {
     return this.#syncURL
-  }
-
-  get reposBasePath() {
-    return this.#reposBasePath
   }
 
   async isUp(): Promise<boolean> {
