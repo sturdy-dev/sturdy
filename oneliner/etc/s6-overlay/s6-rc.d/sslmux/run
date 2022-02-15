@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+set -euo pipefail
+
+# proxy all ssh connections to the ssh server
+# proxy all other connections to reproxy
+
+exec 2>&1
+exec sslmux \
+	-l tcp://0.0.0.0:80 \
+	-ssh tcp://localhost:22 \
+	-others tcp://localhost:8080

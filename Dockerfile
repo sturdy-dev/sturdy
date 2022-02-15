@@ -125,6 +125,9 @@ RUN yarn install --frozen-lockfile \
 COPY ./web .
 RUN yarn build:oneliner
 
+FROM golang:1.17.6-alpine3.15 as sslmux-builder
+RUN go install -v github.com/JamesDunne/sslmux@v0.0.0-20180531161153-81a78ca8247d
+
 FROM alpine:3.15 as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
@@ -165,6 +168,7 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
+COPY --from=sslmux-builder /go/bin/sslmux /usr/bin/sslmux
 # s6-overlay
 ARG S6_OVERLAY_VERSION="3.0.0.2" \
     S6_OVERLAY_NOARCH_SHA256_SUM="17880e4bfaf6499cd1804ac3a6e245fd62bc2234deadf8ff4262f4e01e3ee521" \
@@ -211,7 +215,7 @@ ENV LANG="en_US.UTF-8" \
     STURDY_GITHUB_APP_CLIENT_ID= \
     STURDY_GITHUB_APP_SECRET= \
     STURDY_GITHUB_APP_PRIVATE_KEY_PATH=
-# 80 is a port for web + api
+# 80 is a port for web, api and ssh
 # 22 is a port for ssh
 EXPOSE 80 22
 VOLUME [ "/var/data" ]

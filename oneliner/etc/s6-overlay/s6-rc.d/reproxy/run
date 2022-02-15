@@ -2,12 +2,15 @@
 
 set -eou pipefail
 
+# serve the static files as an SPA
+# proxy /api/* http calls to the backend
+
 exec 2>&1
 exec reproxy \
-  --assets.location='/web/dist' \
-  --assets.spa \
-  --static.enabled \
-  --static.rule='*,^/api/(.*),http://127.0.0.1:3000/$1,' \
-  --gzip \
-  --logger.stdout \
-  --listen="0.0.0.0:80"
+	--assets.location='/web/dist' \
+	--assets.spa \
+	--static.enabled \
+	--static.rule='*,^/api/(.*),http://127.0.0.1:3000/$1,' \
+	--gzip \
+	--logger.stdout \
+	--listen="127.0.0.1:8080"
