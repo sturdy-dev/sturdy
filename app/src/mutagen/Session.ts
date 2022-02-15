@@ -11,7 +11,8 @@ import { Logger } from '../Logger'
 // 5 - Sturdy < 0.2.5
 // [6-19] (inclusive) - Are reserved for the CLI version of Sturdy
 // 20 - Sturdy > 0.3.0
-const SESSION_VERSION_NUMBER = 20
+// 21 - Strudy >= 0.5.0
+const SESSION_VERSION_NUMBER = 21
 
 interface ListOutputSession {
   identifier: string
@@ -31,7 +32,6 @@ export interface SessionSharedConfig {
   syncHostURL: URL
   executable: MutagenExecutable
   daemon: MutagenDaemon
-  reposBasePath: string
 }
 
 export interface SessionConfig extends SessionSharedConfig {
@@ -246,7 +246,6 @@ export class MutagenSession {
     syncHostURL,
     executable,
     daemon,
-    reposBasePath,
   }: SessionConfig): Promise<MutagenSession> {
     const name = `view-${viewID}`
     logger.log(`new session ${name}`)
@@ -269,7 +268,8 @@ export class MutagenSession {
             mountPath,
 
             // Beta
-            `${userID}@${syncHostURL.host}:${reposBasePath}/${codebaseID}/${viewID}/`,
+            // Note: /repos here is a convention
+            `${userID}@${syncHostURL.host}:/repos/${codebaseID}/${viewID}/`,
         ]
 
     // Create session object before calling the daemon to create it

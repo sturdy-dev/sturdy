@@ -26,7 +26,6 @@ export class MutagenManager {
   readonly #syncHostURL: URL
   readonly #postHog: PostHogTracker
   readonly #auth: Auth
-  readonly #reposBasePath: string
 
   #sessions: MutagenSession[] = []
   #mainWindow: BrowserWindow | undefined
@@ -41,8 +40,7 @@ export class MutagenManager {
     graphqlURL: URL,
     syncHostURL: URL,
     postHog: PostHogTracker,
-    auth: Auth,
-    reposBasePath: string
+    auth: Auth
   ) {
     this.#logger = logger.withPrefix('mutagen-manager')
     this.#mutagen = mutagen
@@ -54,7 +52,6 @@ export class MutagenManager {
     this.#syncHostURL = syncHostURL
     this.#postHog = postHog
     this.#auth = auth
-    this.#reposBasePath = reposBasePath
 
     mutagen.on('session-state-changed', (name, fromState, toState) => {
       // Wait for sessions to update their states
@@ -158,8 +155,7 @@ export class MutagenManager {
       sshKeys,
       this.#apiURL,
       this.#syncHostURL,
-      client,
-      this.#reposBasePath
+      client
     )
 
     // Only the views that configured and exist on the server for this user are expected

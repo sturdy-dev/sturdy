@@ -84,8 +84,7 @@ export class Application {
       host.graphqlURL,
       host.syncURL,
       postHogTracker,
-      auth,
-      host.reposBasePath
+      auth
     )
 
     await mutagenManager.preStartMutagen()

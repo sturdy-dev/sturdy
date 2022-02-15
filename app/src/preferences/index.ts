@@ -11,7 +11,6 @@ export type HostConfig = {
   webURL: string
   apiURL: string
   syncURL: string
-  reposBasePath: string
 }
 
 const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
@@ -33,9 +32,6 @@ const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
   } catch (e) {
     throw new Error('Host config must have a valid syncURL')
   }
-  if (!hostConfig.reposBasePath) {
-    throw new Error('Host config must have a reposBasePath')
-  }
   return hostConfig
 }
 
@@ -48,7 +44,6 @@ const development: HostConfig = {
   webURL: 'http://localhost:8080',
   apiURL: 'http://localhost:3000',
   syncURL: 'ssh://127.0.0.1:2222',
-  reposBasePath: '/repos',
 }
 
 const cloud: HostConfig = {
@@ -56,14 +51,12 @@ const cloud: HostConfig = {
   webURL: 'https://getsturdy.com',
   apiURL: 'https://api.getsturdy.com',
   syncURL: 'ssh://sync.getsturdy.com',
-  reposBasePath: '/repos',
 }
 const selfhosted: HostConfig = {
   title: 'Self-hosted',
   webURL: 'http://localhost:30080',
   apiURL: 'http://localhost:30080/api',
   syncURL: 'ssh://localhost:30022',
-  reposBasePath: '/var/data/repos',
 }
 
 const hostFromConfig = (config: HostConfig): Host => {
@@ -72,7 +65,6 @@ const hostFromConfig = (config: HostConfig): Host => {
     webURL: new URL(config.webURL),
     apiURL: new URL(config.apiURL),
     syncURL: new URL(config.syncURL),
-    reposBasePath: config.reposBasePath,
   })
 }
 
@@ -185,9 +177,9 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
 
   #newWindow() {
     const window = new BrowserWindow({
-      width: 1174,
+      width: 1000,
       height: 460,
-      minWidth: 1174,
+      minWidth: 1000,
       minHeight: 230,
       webPreferences: {
         nodeIntegration: true,
