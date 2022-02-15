@@ -53,18 +53,23 @@ export function createApp(ssrApp: boolean) {
     }),
     ssrExchange({
       isClient: !import.meta.env.SSR,
-      // initialState: !import.meta.env.SSR ? window.__URQL_DATA__ : undefined,
     }),
     retryExchange(options), // Use the retryExchange factory to add a new exchange
   ]
 
+  const graphqlHost = import.meta.env.VITE_API_HOST
+    ? (import.meta.env.VITE_API_HOST as string)
+        .replace('http://', 'ws://')
+        .replace('https://', 'wss://')
+    : `${location.origin}`.replace('http://', 'ws://').replace('https://', 'wss://')
+
+  const apiPrefix = import.meta.env.VITE_API_PATH ?? ''
+
   // Client-side only
   if (!import.meta.env.SSR) {
-    const wsHost = (import.meta.env.VITE_API_HOST as string)
-      .replace('http://', 'ws://')
-      .replace('https://', 'wss://')
+    const graphqlWsUrl = `${graphqlHost}${apiPrefix}/graphql/ws`
 
-    const subscriptionClient = new SubscriptionClient(wsHost + 'graphql/ws', {
+    const subscriptionClient = new SubscriptionClient(graphqlWsUrl, {
       reconnect: true,
     })
 
@@ -81,8 +86,10 @@ export function createApp(ssrApp: boolean) {
     exchanges.unshift(devtoolsExchange)
   }
 
+  const graphqlUrl = `${graphqlHost}${apiPrefix}/graphql`
+
   app.use(urql, {
-    url: import.meta.env.VITE_API_HOST + 'graphql',
+    url: graphqlUrl,
     fetchOptions: {
       credentials: 'include',
     },
