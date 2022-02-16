@@ -12,3 +12,9 @@ func Module(c *di.Container) {
 	c.Import(snapshotter.Module)
 	c.Import(worker.Module)
 }
+
+func TestingModule(c *di.Container) {
+	c.Import(db.Module)
+	c.Import(snapshotter.Module)
+	c.Import(worker.TestingModule)
+}

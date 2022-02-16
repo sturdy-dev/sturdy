@@ -1,4 +1,4 @@
-package graphql
+package graphql_test
 
 import (
 	"context"
@@ -22,6 +22,7 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
+	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -97,7 +98,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	err = userRepo.Create(&users.User{ID: userID.String(), Email: userID.String() + "@test.com"})
 	assert.NoError(t, err)
 
-	viewResolver := NewResolver(
+	viewResolver := graphql_view.NewResolver(
 		viewRepo,
 		workspaceRepo,
 		gitSnapshotter,

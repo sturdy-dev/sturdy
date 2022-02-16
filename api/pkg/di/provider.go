@@ -135,5 +135,9 @@ func Init(dest interface{}, module Module) error {
 		return []reflect.Value{}
 	})
 
-	return c.container.Invoke(invokeFn.Interface())
+	if err := c.container.Invoke(invokeFn.Interface()); err != nil {
+		return err
+	}
+
+	return nil
 }

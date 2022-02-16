@@ -1,12 +1,14 @@
-package vcs
+package vcs_test
 
 import (
-	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
-	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
-	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/view/vcs"
+	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,41 +16,41 @@ import (
 func TestCreateView(t *testing.T) {
 	repoProvider := newRepoProvider(t)
 	codebaseID := "codebaseID"
-	err := codebasevcs.Create(repoProvider, codebaseID)
+	err := vcs_codebase.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"
 	trunkRepo, err := repoProvider.TrunkRepo(codebaseID)
 	assert.NoError(t, err)
-	err = workspacevcs.Create(trunkRepo, workspaceID)
+	err = vcs_workspace.Create(trunkRepo, workspaceID)
 	assert.NoError(t, err)
 
 	viewID := "viewID"
-	err = Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
 	assert.NoError(t, err)
 }
 
 func TestSetWorkspace(t *testing.T) {
 	repoProvider := newRepoProvider(t)
 	codebaseID := "codebaseID"
-	err := codebasevcs.Create(repoProvider, codebaseID)
+	err := vcs_codebase.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"
 	trunkRepo, err := repoProvider.TrunkRepo(codebaseID)
 	assert.NoError(t, err)
-	err = workspacevcs.Create(trunkRepo, workspaceID)
+	err = vcs_workspace.Create(trunkRepo, workspaceID)
 	assert.NoError(t, err)
 
 	viewID := "viewID"
-	err = Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
 	assert.NoError(t, err)
 
 	newWorkspaceID := "ws2"
-	err = workspacevcs.Create(trunkRepo, newWorkspaceID)
+	err = vcs_workspace.Create(trunkRepo, newWorkspaceID)
 	assert.NoError(t, err)
 
-	err = SetWorkspace(repoProvider, codebaseID, viewID, newWorkspaceID)
+	err = vcs.SetWorkspace(repoProvider, codebaseID, viewID, newWorkspaceID)
 	assert.NoError(t, err)
 }
 

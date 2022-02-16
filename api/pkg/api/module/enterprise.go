@@ -1,7 +1,7 @@
 //go:build enterprise
 // +build enterprise
 
-package api
+package module
 
 import (
 	"getsturdy.com/api/pkg/api"
@@ -10,6 +10,7 @@ import (
 )
 
 func Module(c *di.Container) {
+	common(c)
 	c.Register(api.ProvideAPI)
 	c.Import(selfhosted.Module)
 }
