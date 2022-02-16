@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, MenuItem } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, MenuItem } from 'electron'
 import { Logger } from '../Logger'
 import path from 'path'
 import { readFile, writeFile } from 'fs/promises'
@@ -145,6 +145,8 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     this.#logger = logger.withPrefix('settings')
     this.#config = config
     this.#hosts = config.hosts.map(hostFromConfig)
+
+    globalShortcut.register('CommandOrControl+,', () => this.#showWindow())
   }
 
   get hosts() {
@@ -180,6 +182,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     menu.append(
       new MenuItem({
         label: 'Preferences',
+        accelerator: process.platform === 'darwin' ? 'Cmd+,' : 'Ctrl+i',
         click: () => this.#showWindow(),
       })
     )
