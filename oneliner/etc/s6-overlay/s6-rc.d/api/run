@@ -11,10 +11,9 @@ flags="$flags --db.url=postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=di
 flags="$flags --logger.production"
 
 # append allow origin flags
-for allow_origin in ${STURDY_API_ALLOW_CORS_ORIGINS//,/ }; do
+for allow_origin in "${STURDY_API_ALLOW_CORS_ORIGINS//,/ }"; do
 	flags="$flags --http.allow-cors-origin=${allow_origin}"
 done
 
 exec 2>&1
-echo "$flags"
 exec api $flags
