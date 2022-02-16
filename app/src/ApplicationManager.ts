@@ -11,6 +11,7 @@ import { WriteStream } from 'fs'
 export interface ApplicationManagerEvents {
   switch: [application: Application]
   status: [state: State]
+  openPreferences: []
 }
 
 export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEvents> {
@@ -115,6 +116,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     application.status.on('change', (state) => {
       this.#stateChanged(host, state)
     })
+    application.on('openPreferences', () => this.emit('openPreferences'))
     return application
   }
 

@@ -210,6 +210,7 @@ async function main() {
   }
 
   preferences.on('open', (host) => manager.set(host))
+  manager.on('openPreferences', () => preferences?.showWindow())
 
   preferences.on('hostsChanged', (hosts) => {
     manager.updateHosts(hosts)
