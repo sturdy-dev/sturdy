@@ -18,7 +18,6 @@ type ShortHostConfig = {
 
 export type HostConfig = (DetailedHostConfig | ShortHostConfig) & {
   title: string
-  hidden?: boolean
 }
 
 const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
@@ -62,22 +61,6 @@ const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHos
 
 type migration = (cfg: Config) => Config
 
-const makeDevelopmentHidden = (cfg: Config): Config => {
-  const developmentHost = cfg.hosts.find((h) => h.title === 'Development')
-  if (developmentHost) {
-    developmentHost.hidden = true
-  }
-  return cfg
-}
-
-const makeCloudHidden = (cfg: Config): Config => {
-  const cloudHost = cfg.hosts.find((h) => h.title === 'Cloud')
-  if (cloudHost) {
-    cloudHost.hidden = true
-  }
-  return cfg
-}
-
 const updateSelfHosted = (cfg: Config): Config => {
   return {
     hosts: [
@@ -90,7 +73,7 @@ const updateSelfHosted = (cfg: Config): Config => {
   }
 }
 
-const migrations: migration[] = [makeCloudHidden, updateSelfHosted, makeDevelopmentHidden]
+const migrations: migration[] = [updateSelfHosted]
 
 type Config = {
   hosts: HostConfig[]
@@ -101,7 +84,6 @@ const development: HostConfig = {
   webURL: 'http://localhost:8080',
   apiURL: 'http://localhost:3000',
   syncURL: 'ssh://localhost:2222',
-  hidden: true,
 }
 
 const cloud: HostConfig = {
@@ -109,7 +91,6 @@ const cloud: HostConfig = {
   webURL: 'https://getsturdy.com',
   apiURL: 'https://api.getsturdy.com',
   syncURL: 'ssh://sync.getsturdy.com',
-  hidden: true,
 }
 const selfhosted: HostConfig = {
   title: 'Self-hosted',
@@ -277,7 +258,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
       },
       trafficLightPosition: { x: 16, y: 16 },
     })
-    ipcMain.handle('config:hosts:list', () => this.#config.hosts.filter((h) => !h.hidden))
+    ipcMain.handle('config:hosts:list', () => this.#config.hosts)
     ipcMain.on('config:hosts:add', (_, hostConfig) => this.#handleAddHostConfig(hostConfig))
     ipcMain.on('config:hosts:delete', (_, hostConfig) => this.#handleDeleteHostConfig(hostConfig))
     ipcMain.handle('config:hosts:isUp', (_, hostConfig) => this.#isHostUp(hostConfig))
