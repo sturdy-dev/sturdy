@@ -2,13 +2,19 @@
 
 set -euo pipefail
 
-DB_ADDR="postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable"
+flags=""
+flags="$flags --vcs.repos-path=/var/data/repos"
+flags="$flags --http.addr=127.0.0.1:3000"
+flags="$flags --git.addr=127.0.0.1:3001"
+flags="$flags --vcs.lfs.addr=127.0.0.1:8888"
+flags="$flags --db.url=postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable"
+flags="$flags --logger.production"
+
+# append allow origin flags
+for allow_origin in ${STURDY_API_ALLOW_CORS_ORIGINS//,/ }; do
+	flags="$flags --http.allow-cors-origin=${allow_origin}"
+done
 
 exec 2>&1
-exec api \
-  --vcs.repos-path="/var/data/repos" \
-  --http.addr="127.0.0.1:3000" \
-  --git.addr="127.0.0.1:3001" \
-  --vcs.lfs.addr="127.0.0.1:8888" \
-  --db.url="${DB_ADDR}" \
-  --logger.production
+echo "$flags"
+exec api $flags
