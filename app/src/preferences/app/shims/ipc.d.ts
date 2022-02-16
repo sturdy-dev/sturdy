@@ -1,5 +1,14 @@
-export type HostConfig = {
+export type HostConfig = (DetailedHostConfig | ShortHostConfig) & {
   title: string
+}
+
+export type DetailedHostConfig = {
+  webURL: string
+  apiURL: string
+  syncURL: string
+}
+
+export type ShortHostConfig = {
   host: string
 }
 

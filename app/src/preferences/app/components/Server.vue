@@ -11,7 +11,13 @@
       {{ field }}
     </td>
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-      <button type="button" class="text-red-600 hover:text-red-900" @click.prevent="handleDelete">
+      <button
+        type="button"
+        :disabled="isImmutable"
+        class="text-red-600 hover:text-red-900"
+        :class="{ 'opacity-25 cursor-not-allowed': isImmutable }"
+        @click.prevent="handleDelete"
+      >
         Delete
       </button>
     </td>
@@ -44,7 +50,16 @@ export default {
   },
   computed: {
     fields() {
-      return [this.server.title, this.server.host]
+      if (this.server.host) {
+        return [this.server.title, this.server.host]
+      }
+      return [this.server.title, new URL(this.server.webURL).host]
+    },
+    isImmutable() {
+      return {
+        Cloud: true,
+        Development: true,
+      }[this.server.title]
     },
   },
   methods: {
