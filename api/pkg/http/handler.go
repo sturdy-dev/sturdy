@@ -121,12 +121,14 @@ func ProvideHandler(
 		"https://gustav-staging.driva.dev",
 		"https://gustav-staging.getsturdy.com",
 	}
+
 	allowOrigins = append(allowOrigins, config.AllowCORSOrigins...)
 	cors := ginCors.New(ginCors.Config{
 		AllowOrigins:     allowOrigins,
 		AllowMethods:     []string{"POST, OPTIONS, GET, PUT, DELETE"},
 		AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, Cookie", "sentry-trace"},
 		ExposeHeaders:    []string{"Content-Length"},
+		AllowWebSockets:  true,
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	})
