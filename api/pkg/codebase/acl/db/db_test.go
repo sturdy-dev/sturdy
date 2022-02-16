@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/codebase/acl"
+	acl_db "getsturdy.com/api/pkg/codebase/acl/db"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 
@@ -29,7 +30,7 @@ func Test_Create(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	entity := acl.ACL{
@@ -48,7 +49,7 @@ func Test_Create_twice_fails(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	entity := acl.ACL{
@@ -68,7 +69,7 @@ func Test_GetByCodebaseID_not_found(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	fromDB, err := repo.GetByCodebaseID(ctx, "unknown")
@@ -82,7 +83,7 @@ func Test_GetByCodebaseID(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	entity := acl.ACL{
@@ -113,7 +114,7 @@ func Test_Update(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	entity := acl.ACL{
@@ -164,7 +165,7 @@ func Test_Update_not_found(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	repo := NewACLRepository(d)
+	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
 	entity := acl.ACL{

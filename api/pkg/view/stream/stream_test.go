@@ -1,14 +1,17 @@
-package stream
+package stream_test
 
 import (
 	"context"
+	"io/ioutil"
 	"log"
 	"os"
 	"sync"
 	"testing"
 
 	"getsturdy.com/api/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/view/stream"
 	"getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase"
@@ -173,7 +176,7 @@ func TestStream(t *testing.T) {
 
 			wg.Add(1)
 			go func() {
-				events, err := Stream(
+				events, err := stream.Stream(
 					context.Background(),
 					logger,
 					&ws,
@@ -208,4 +211,10 @@ func TestStream(t *testing.T) {
 			wg.Wait()
 		})
 	}
+}
+
+func newRepoProvider(t *testing.T) provider.RepoProvider {
+	reposBasePath, err := ioutil.TempDir(os.TempDir(), "mash")
+	assert.NoError(t, err)
+	return provider.New(reposBasePath, "")
 }

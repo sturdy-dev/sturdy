@@ -1,4 +1,4 @@
-package routes
+package routes_test
 
 import (
 	"bytes"
@@ -34,6 +34,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/sync"
+	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
@@ -88,7 +89,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		workspaceFiles                []nameContents // "unsaved changes" in the workspace
 		expectedConflicts             bool
 		customWorkspaceResolutions    []nameContents
-		resolves                      []ResolveFileRequest
+		resolves                      []routes_v3_sync.ResolveFileRequest
 		expectedContentsBeforeResolve []nameContents // data on disk when in the conflicting state
 		expectedContentsAfterResolve  []nameContents
 		tryToLandWithConflicts        bool
@@ -116,7 +117,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				{path: "b.txt", contents: str("new-workspace")},
 			},
 			expectedConflicts: true,
-			resolves:          []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			resolves:          []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
 			expectedContentsAfterResolve: []nameContents{
 				{path: "foo.txt", contents: str("foo-workspace")},
 				{path: "a.txt", contents: str("new-trunk")},
@@ -136,7 +137,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				{path: "b.txt", contents: str("new-workspace")},
 			},
 			expectedConflicts: true,
-			resolves:          []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			resolves:          []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
 			expectedContentsAfterResolve: []nameContents{
 				{path: "foo.txt", contents: str("foo-workspace")},
 				{path: "a.txt", contents: str("new-trunk")},
@@ -159,7 +160,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			trunkFiles:                   []nameContents{{path: "foo.txt", contents: str("foo-trunk")}},
 			workspaceFiles:               []nameContents{{path: "foo.txt", contents: str("foo-workspace")}},
 			expectedConflicts:            true,
-			resolves:                     []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			resolves:                     []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
 			expectedContentsAfterResolve: []nameContents{{path: "foo.txt", contents: str("foo-workspace")}},
 		},
 		{
@@ -167,7 +168,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			trunkFiles:                   []nameContents{{path: "foo.txt", contents: str("foo-trunk")}},
 			workspaceFiles:               []nameContents{{path: "foo.txt", contents: str("foo-workspace")}},
 			expectedConflicts:            true,
-			resolves:                     []ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
+			resolves:                     []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
 			expectedContentsAfterResolve: []nameContents{{path: "foo.txt", contents: str("foo-trunk")}},
 		},
 		{
@@ -176,7 +177,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			workspaceFiles:               []nameContents{{path: "foo.txt", contents: str("foo-workspace")}},
 			expectedConflicts:            true,
 			customWorkspaceResolutions:   []nameContents{{path: "foo.txt", contents: str("foo-custom")}},
-			resolves:                     []ResolveFileRequest{{FilePath: "foo.txt", Version: "custom"}},
+			resolves:                     []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "custom"}},
 			expectedContentsAfterResolve: []nameContents{{path: "foo.txt", contents: str("foo-custom")}},
 		},
 		{
@@ -193,7 +194,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			},
 			expectedConflicts:          true,
 			customWorkspaceResolutions: []nameContents{{path: "c.txt", contents: str("c-custom")}},
-			resolves: []ResolveFileRequest{
+			resolves: []routes_v3_sync.ResolveFileRequest{
 				{FilePath: "a.txt", Version: "trunk"},
 				{FilePath: "b.txt", Version: "workspace"},
 				{FilePath: "c.txt", Version: "custom"},
@@ -210,7 +211,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			trunkFiles:                   []nameContents{{path: "foo.txt"}}, // deleted on trunk
 			workspaceFiles:               []nameContents{{path: "foo.txt", contents: str("modified-workspace")}},
 			expectedConflicts:            true,
-			resolves:                     []ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
+			resolves:                     []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "workspace"}},
 			expectedContentsAfterResolve: []nameContents{{path: "foo.txt", contents: str("modified-workspace")}},
 		},
 		{
@@ -219,7 +220,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			trunkFiles:                   []nameContents{{path: "foo.txt"}}, // deleted on trunk
 			workspaceFiles:               []nameContents{{path: "foo.txt", contents: str("modified-workspace")}},
 			expectedConflicts:            true,
-			resolves:                     []ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
+			resolves:                     []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
 			expectedContentsAfterResolve: []nameContents{{path: "foo.txt"}},
 		},
 
@@ -236,7 +237,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				{path: "new.txt", contents: str("added")}, // previously untracked file
 				{path: "to-delete.txt"},                   // delete this file, mid-sync
 			},
-			resolves: []ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
+			resolves: []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
 			expectedContentsAfterResolve: []nameContents{
 				{path: "foo.txt", contents: str("modified-trunk")},
 				{path: "new.txt", contents: str("added")},
@@ -253,7 +254,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			trunkFiles:        []nameContents{{path: "foo.txt", contents: str("modified-trunk")}},
 			workspaceFiles:    []nameContents{{path: "foo.txt", contents: str("modified-workspace")}},
 			expectedConflicts: true,
-			resolves:          []ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
+			resolves:          []routes_v3_sync.ResolveFileRequest{{FilePath: "foo.txt", Version: "trunk"}},
 			expectedContentsBeforeResolve: []nameContents{
 				{path: "foo.txt", contents: str(
 					"<<<<<<< ........................................\n" +
@@ -280,7 +281,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				{path: "large.jpg", copyFrom: str("testdata/large-img-2.jpg")},
 			},
 			expectedConflicts: true,
-			resolves:          []ResolveFileRequest{{FilePath: "large.jpg", Version: "workspace"}},
+			resolves:          []routes_v3_sync.ResolveFileRequest{{FilePath: "large.jpg", Version: "workspace"}},
 			expectedContentsBeforeResolve: []nameContents{
 				// TODO: Today the LFS data is visible during conflicts in large files. Is this a good or bad idea?
 				{path: "large.jpg", contents: str("version https://git-lfs.github.com/spec/v1\n" +
@@ -337,7 +338,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 						"size 13337\n")},
 			},
 			expectedConflicts: true,
-			resolves:          []ResolveFileRequest{{FilePath: "not-exists.jpg", Version: "workspace"}},
+			resolves:          []routes_v3_sync.ResolveFileRequest{{FilePath: "not-exists.jpg", Version: "workspace"}},
 			expectedContentsAfterResolve: []nameContents{
 				{path: "not-exists.jpg", contents: str(
 					"version https://git-lfs.github.com/spec/v1\n" +
@@ -488,9 +489,9 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 	syncService := service_sync.New(logger, executorProvider, viewRepo, workspaceRepo, workspaceRepo, gitSnapshotter)
 
-	startRoutev2 := StartV2(logger, syncService)
-	resolveRoutev2 := ResolveV2(logger, syncService)
-	statusRoute := Status(viewRepo, executorProvider, logger)
+	startRoutev2 := routes_v3_sync.StartV2(logger, syncService)
+	resolveRoutev2 := routes_v3_sync.ResolveV2(logger, syncService)
+	statusRoute := routes_v3_sync.Status(viewRepo, executorProvider, logger)
 
 	createViewRoute := routes_v3_view.Create(
 		logger,
@@ -634,14 +635,14 @@ func TestResolveHighLevelV2(t *testing.T) {
 			// Start sync
 			viewIDParams := []gin.Param{{"viewID", viewRes.ID}}
 			var startRebaseRes sync.RebaseStatusResponse
-			requestWithParams(t, userID, startRoutev2, InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
+			requestWithParams(t, userID, startRoutev2, routes_v3_sync.InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
 			assert.Equal(t, tc.expectedConflicts, startRebaseRes.HaveConflicts)
 
 			// start sync again??
 			{
 				viewIDParams := []gin.Param{{"viewID", viewRes.ID}}
 				var startRebaseRes sync.RebaseStatusResponse
-				requestWithParams(t, userID, startRoutev2, InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
+				requestWithParams(t, userID, startRoutev2, routes_v3_sync.InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
 				// assert.Equal(t, tc.expectedConflicts, startRebaseRes.HaveConflicts)
 			}
 
@@ -717,7 +718,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 				// Resolve conflict
 				var resolveRebaseRes sync.RebaseStatusResponse
-				requestWithParams(t, userID, resolveRoutev2, ResolveRequest{Files: tc.resolves}, &resolveRebaseRes, viewIDParams)
+				requestWithParams(t, userID, resolveRoutev2, routes_v3_sync.ResolveRequest{Files: tc.resolves}, &resolveRebaseRes, viewIDParams)
 
 				// The final resolve should leave leave state that is not rebasing and has no conflicts
 				assert.False(t, resolveRebaseRes.IsRebasing)

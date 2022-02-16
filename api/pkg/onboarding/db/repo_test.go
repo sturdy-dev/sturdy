@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	"getsturdy.com/api/pkg/onboarding"
+	db_onboarding "getsturdy.com/api/pkg/onboarding/db"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func getDB(t *testing.T) *sqlx.DB {
 }
 
 func Test_InsertCompletedStep__double_insert_doesnt_fail(t *testing.T) {
-	repo := New(getDB(t))
+	repo := db_onboarding.New(getDB(t))
 	ctx := context.Background()
 
 	step := &onboarding.Step{
@@ -41,7 +42,7 @@ func Test_InsertCompletedStep__double_insert_doesnt_fail(t *testing.T) {
 }
 
 func Test_GetCompletedSteps(t *testing.T) {
-	repo := New(getDB(t))
+	repo := db_onboarding.New(getDB(t))
 	ctx := context.Background()
 
 	step := &onboarding.Step{

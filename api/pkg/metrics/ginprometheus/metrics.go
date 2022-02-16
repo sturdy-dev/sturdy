@@ -145,6 +145,7 @@ func NewPrometheus(subsystem string, logger *zap.Logger, customMetricsList ...[]
 		ReqCntURLLabelMappingFn: func(c *gin.Context) string {
 			return c.Request.URL.Path // i.e. by default do nothing, i.e. return URL as is
 		},
+		log: logger,
 	}
 
 	p.registerMetrics(subsystem)
