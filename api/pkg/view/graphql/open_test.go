@@ -6,30 +6,24 @@ import (
 	"os"
 	"testing"
 
-	"getsturdy.com/api/pkg/analytics/disabled"
+	"go.uber.org/dig"
+
+	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
-	"getsturdy.com/api/pkg/db"
-	"getsturdy.com/api/pkg/events"
+	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/di"
+	module_github "getsturdy.com/api/pkg/github/module"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/internal/sturdytest"
-	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
-	db_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
 	"getsturdy.com/api/vcs"
-	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
@@ -38,10 +32,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func newRepoProvider(t *testing.T) provider.RepoProvider {
-	reposBasePath, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
-	return provider.New(reposBasePath, "localhost:8888")
+func module(c *di.Container) {
+	ctx := context.Background()
+	c.Register(func() context.Context {
+		return ctx
+	})
+
+	c.Import(module_api.Module)
+	c.Import(module_configuration.TestingModule)
+	c.Import(module_snapshots.TestingModule)
+
+	// OSS version
+	c.Import(module_github.Module)
 }
 
 func TestUpdateViewWorkspace(t *testing.T) {
@@ -49,73 +51,34 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		t.SkipNow()
 	}
 
-	repoProvider := newRepoProvider(t)
+	type deps struct {
+		dig.In
+		ViewRootResolver resolvers.ViewRootResolver
 
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	if err != nil {
-		panic(err)
+		RepoProvider provider.RepoProvider
+
+		UserRepo         db_user.Repository
+		CodebaseRepo     db_codebase.CodebaseRepository
+		WorkspaceRepo    db_workspace.Repository
+		ViewRepo         db_view.Repository
+		CodebaseUserRepo db_codebase.CodebaseUserRepository
 	}
 
-	viewRepo := db_view.NewRepo(d)
-	userRepo := db_user.NewRepo(d)
-	codebaseRepo := db_codebase.NewRepo(d)
-	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
-	snapshotRepo := db_snapshots.NewRepo(d)
-	workspaceRepo := db_workspace.NewRepo(d)
-	logger, _ := zap.NewDevelopment()
-	executorProvider := executor.NewProvider(logger, repoProvider)
-	codebaseViewEvents := events.NewInMemory()
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, codebaseViewEvents)
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
-	postHogClient := disabled.NewClient()
-
-	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
-	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
-
-	workspaceService := service_workspace.New(
-		zap.NewNop(),
-		postHogClient,
-		workspaceRepo,
-		workspaceRepo,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		executorProvider,
-		eventsSender,
-		nil,
-		gitSnapshotter,
-		nil,
-	)
-
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil)
-	authService := service_auth.New(codebaseService, nil, workspaceService, nil /*aclProvider*/, nil /*organizationService*/)
+	var d deps
+	if !assert.NoError(t, di.Init(&d, module)) {
+		t.FailNow()
+	}
 
 	userID := uuid.New()
-	err = userRepo.Create(&users.User{ID: userID.String(), Email: userID.String() + "@test.com"})
+	err := d.UserRepo.Create(&users.User{ID: userID.String(), Email: userID.String() + "@test.com"})
 	assert.NoError(t, err)
 
-	viewResolver := graphql_view.NewResolver(
-		viewRepo,
-		workspaceRepo,
-		gitSnapshotter,
-		snapshotRepo,
-		nil,
-		nil,
-		workspaceRepo,
-		codebaseViewEvents,
-		eventsSender,
-		executorProvider,
-		logger,
-		nil,
-		workspaceWatchersService,
-		postHogClient,
-		nil,
-		authService,
-	)
+	viewResolver := d.ViewRootResolver
+	repoProvider := d.RepoProvider
+	codebaseRepo := d.CodebaseRepo
+	workspaceRepo := d.WorkspaceRepo
+	codebaseUserRepo := d.CodebaseUserRepo
+	viewRepo := d.ViewRepo
 
 	authCtx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID.String()})
 

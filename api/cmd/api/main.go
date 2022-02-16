@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/banner"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
+	module_github "getsturdy.com/api/pkg/github/module"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 )
 
@@ -24,6 +25,7 @@ func main() {
 		c.Import(module_configuration.Module)
 		c.Import(module_api.Module)
 		c.Import(module_snapshots.Module)
+		c.Import(module_github.Module)
 	}
 
 	var apiServer api.Starter

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -123,7 +122,6 @@ func HandlePushEvent(
 	// Decorate / import new commits
 	for _, maybeNewChange := range maybeImportedChanges {
 		_, err := changeRepo.GetByCommitID(ctx, maybeNewChange.ID, repo.CodebaseID)
-		log.Println("heer")
 		switch {
 		case err == nil:
 			continue

@@ -25,6 +25,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
 	service_gc "getsturdy.com/api/pkg/gc/service"
+	module_github "getsturdy.com/api/pkg/github/module"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -64,6 +65,9 @@ func module(c *di.Container) {
 	c.Import(module_api.Module)
 	c.Import(module_configuration.TestingModule)
 	c.Import(module_snapshots.TestingModule)
+
+	// OSS version
+	c.Import(module_github.Module)
 }
 
 func TestCreate(t *testing.T) {
@@ -508,7 +512,7 @@ func gid(in graphql.ID) *graphql.ID {
 
 func TestLargeFiles(t *testing.T) {
 	if os.Getenv("E2E_TEST") == "" {
-		// t.SkipNow()
+		t.SkipNow()
 	}
 
 	type deps struct {
