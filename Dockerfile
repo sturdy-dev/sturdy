@@ -152,7 +152,7 @@ FROM alpine:3.15 as oneliner
 # ca-cerificates is needed by ssh to connect to tls hosts
 RUN apk update \
     && apk add --no-cache \
-    postgresql14=14.1-r5 \
+    postgresql14=14.2-r0 \
     openssl=1.1.1l-r8 \
     git \
     git-lfs=3.0.2-r0 \

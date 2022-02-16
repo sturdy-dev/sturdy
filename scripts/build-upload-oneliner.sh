@@ -14,9 +14,32 @@ IMAGE="getsturdy/server"
 VERSION=$(date +%Y-%m-%d-%H-%M-%S)
 DOCKER_VERSION_TAG_ARG=""
 PUSH_ARG=""
+LATEST_VERSION="$(curl -s https://registry.hub.docker.com/v1/repositories/getsturdy/server/tags | jq -r '.[].name' | tail -1)"
+VERSION=""
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
+	--major)
+		MAJOR="$(($(echo "$LATEST_VERSION" | cut -d. -f1) + 1))"
+		MINOR="0"
+		PATCH="0"
+		VERSION="$MAJOR.$MINOR.$PATCH"
+		shift
+		;;
+	--minor)
+		MAJOR="$(echo "$LATEST_VERSION" | cut -d. -f1)"
+		MINOR="$(($(echo "$LATEST_VERSION" | cut -d. -f2) + 1))"
+		PATCH="0"
+		VERSION="$MAJOR.$MINOR.$PATCH"
+		shift
+		;;
+	--patch)
+		MAJOR="$(echo "$LATEST_VERSION" | cut -d. -f1)"
+		MINOR="$(echo "$LATEST_VERSION" | cut -d. -f2)"
+		PATCH="$(($(echo "$LATEST_VERSION" | cut -d. -f3) + 1))"
+		VERSION="$MAJOR.$MINOR.$PATCH"
+		shift
+		;;
 	--version)
 		VERSION="$2"
 		DOCKER_VERSION_TAG_ARG="--tag ${IMAGE}:${VERSION}"
@@ -30,12 +53,22 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
+if [[ -z "$VERSION" ]]; then
+	echo "version number is not set"
+	echo "you can set it via --version or --major/--minor/--patch"
+	exit 1
+fi
+
+echo "version: $VERSION"
+sleep 0.5
+echo
+
 docker buildx build \
-  --platform linux/arm64,linux/amd64 \
-  --target oneliner \
-  --build-arg API_BUILD_TAGS=enterprise \
-  --build-arg VERSION="${VERSION}" \
-  --tag "${IMAGE}:latest" \
-  ${DOCKER_VERSION_TAG_ARG} \
-  ${PUSH_ARG} \
-  "$CWD/.."
+	--platform linux/arm64,linux/amd64 \
+	--target oneliner \
+	--build-arg API_BUILD_TAGS=enterprise \
+	--build-arg VERSION="${VERSION}" \
+	--tag "${IMAGE}:latest" \
+	${DOCKER_VERSION_TAG_ARG} \
+	${PUSH_ARG} \
+	"$CWD/.."
