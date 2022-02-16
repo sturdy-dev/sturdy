@@ -1,7 +1,11 @@
 <template>
   <tr class="bg-white">
-    <td class="px-3 py-2 flex items-center">
-      <ServerStatus :server="server" />
+    <td class="pl-3 py-2 whitespace-nowrap">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <ServerStatus :server="server" />
+        </div>
+      </div>
     </td>
     <td
       v-for="field in fields"
