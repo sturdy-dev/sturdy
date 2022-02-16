@@ -9,8 +9,13 @@ import { dialog, BrowserWindow, shell, app } from 'electron'
 import { Logger } from '../Logger'
 import { File } from '../Config'
 import { AppIPC, MutagenIPC, sharedAppIpc, sharedMutagenIpc } from '../ipc'
+import { TypedEventEmitter } from '../TypedEventEmitter'
 
-export class Application {
+interface ApplicationEvents {
+  openPreferences: []
+}
+
+export class Application extends TypedEventEmitter<ApplicationEvents> {
   readonly #host: Host
   readonly #auth: Auth
   readonly #isAppPackaged: boolean
@@ -33,6 +38,7 @@ export class Application {
     status: Status,
     logger: Logger
   ) {
+    super()
     this.#host = host
     this.#auth = auth
     this.#isAppPackaged = isAppPackaged
@@ -219,6 +225,14 @@ export class Application {
       if (targetURL.toString() === this.#lastURL?.toString()) return
       this.#logger.log('navigated to', targetURL.toString())
       this.#lastURL = new URL(targetURL)
+    })
+
+    this.#window.webContents.on('before-input-event', (event, input) => {
+      const cmdOrCtrl = input.meta || input.control
+      if (cmdOrCtrl && input.key.toLowerCase() === ',') {
+        event.preventDefault()
+        this.emit('openPreferences')
+      }
     })
 
     this.#window.webContents.on('will-navigate', (event, url) => {

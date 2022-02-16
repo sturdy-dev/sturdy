@@ -145,8 +145,6 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     this.#logger = logger.withPrefix('settings')
     this.#config = config
     this.#hosts = config.hosts.map(hostFromConfig)
-
-    globalShortcut.register('CommandOrControl+,', () => this.#showWindow())
   }
 
   get hosts() {
@@ -182,13 +180,15 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     menu.append(
       new MenuItem({
         label: 'Preferences',
-        accelerator: process.platform === 'darwin' ? 'Cmd+,' : 'Ctrl+i',
-        click: () => this.#showWindow(),
+        accelerator: 'CommandOrControl+,',
+        click: () => {
+          this.showWindow()
+        },
       })
     )
   }
 
-  #showWindow() {
+  showWindow() {
     this.#logger.log('showWindow')
     if (this.#window) {
       this.#window.show()
