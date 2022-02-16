@@ -6,17 +6,42 @@ import { dataPath } from '../resources'
 import { Host } from '../application'
 import { TypedEventEmitter } from '../TypedEventEmitter'
 
-export type HostConfig = {
-  title: string
+type DetailedHostConfig = {
   webURL: string
   apiURL: string
   syncURL: string
+}
+
+type ShortHostConfig = {
+  host: string
+}
+
+export type HostConfig = (DetailedHostConfig | ShortHostConfig) & {
+  title: string
+  hidden?: boolean
 }
 
 const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
   if (!hostConfig.title) {
     throw new Error('Host config must have a title')
   }
+  try {
+    validateShortHostConfig(hostConfig as ShortHostConfig)
+  } catch (e) {
+    validateDetailedHostConfig(hostConfig as DetailedHostConfig)
+  } finally {
+    return hostConfig
+  }
+}
+
+const validateShortHostConfig = (hostConfig: ShortHostConfig): ShortHostConfig => {
+  if (!hostConfig.host) {
+    throw new Error('Host config must have a host')
+  }
+  return hostConfig
+}
+
+const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHostConfig => {
   try {
     new URL(hostConfig.webURL)
   } catch (e) {
@@ -35,6 +60,38 @@ const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
   return hostConfig
 }
 
+type migration = (cfg: Config) => Config
+
+const makeDevelopmentHidden = (cfg: Config): Config => {
+  const developmentHost = cfg.hosts.find((h) => h.title === 'Development')
+  if (developmentHost) {
+    developmentHost.hidden = true
+  }
+  return cfg
+}
+
+const makeCloudHidden = (cfg: Config): Config => {
+  const cloudHost = cfg.hosts.find((h) => h.title === 'Cloud')
+  if (cloudHost) {
+    cloudHost.hidden = true
+  }
+  return cfg
+}
+
+const updateSelfHosted = (cfg: Config): Config => {
+  return {
+    hosts: [
+      ...cfg.hosts.filter((h) => h.title !== 'Self-hosted'),
+      {
+        title: 'Self-hosted',
+        host: 'localhost:30080',
+      },
+    ],
+  }
+}
+
+const migrations: migration[] = [makeCloudHidden, updateSelfHosted, makeDevelopmentHidden]
+
 type Config = {
   hosts: HostConfig[]
 }
@@ -43,7 +100,8 @@ const development: HostConfig = {
   title: 'Development',
   webURL: 'http://localhost:8080',
   apiURL: 'http://localhost:3000',
-  syncURL: 'ssh://127.0.0.1:2222',
+  syncURL: 'ssh://localhost:2222',
+  hidden: true,
 }
 
 const cloud: HostConfig = {
@@ -51,21 +109,33 @@ const cloud: HostConfig = {
   webURL: 'https://getsturdy.com',
   apiURL: 'https://api.getsturdy.com',
   syncURL: 'ssh://sync.getsturdy.com',
+  hidden: true,
 }
 const selfhosted: HostConfig = {
   title: 'Self-hosted',
-  webURL: 'http://localhost:30080',
-  apiURL: 'http://localhost:30080/api',
-  syncURL: 'ssh://localhost:30022',
+  host: 'localhost:30080',
 }
 
-const hostFromConfig = (config: HostConfig): Host => {
-  return new Host({
-    title: config.title,
-    webURL: new URL(config.webURL),
-    apiURL: new URL(config.apiURL),
-    syncURL: new URL(config.syncURL),
-  })
+const hostFromConfig = (hostConfig: HostConfig): Host => {
+  try {
+    const config = hostConfig as ShortHostConfig
+    validateShortHostConfig(config)
+    return new Host({
+      title: hostConfig.title,
+      webURL: new URL(`http://${config.host}`),
+      apiURL: new URL(`http://${config.host}/api`),
+      syncURL: new URL(`ssh://${config.host}`),
+    })
+  } catch (e) {
+    const config = hostConfig as DetailedHostConfig
+    validateDetailedHostConfig(config)
+    return new Host({
+      title: hostConfig.title,
+      webURL: new URL(config.webURL),
+      apiURL: new URL(config.apiURL),
+      syncURL: new URL(config.syncURL),
+    })
+  }
 }
 
 const defaultConfig = {
@@ -101,7 +171,17 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   static async open(logger: Logger) {
-    return new Preferences(logger, await this.#read())
+    let cfg = await this.#read()
+    cfg = await this.migrate(cfg)
+    return new Preferences(logger, cfg)
+  }
+
+  static async migrate(cfg: Config) {
+    for (const migration of migrations) {
+      cfg = migration(cfg)
+    }
+    await writeFile(preferencesPath, JSON.stringify(cfg, null, 2))
+    return cfg
   }
 
   static async #read(): Promise<Config> {
@@ -141,10 +221,12 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     const host = hostFromConfig(hostConfig)
     console.log('host', host)
     this.emit('open', host)
+    this.emit('hostsChanged', this.#hosts)
   }
 
   async #isHostUp(hostConfig: HostConfig) {
     const host = hostFromConfig(validateHostConfig(hostConfig))
+    this.emit('hostsChanged', this.#hosts)
     return host.isUp()
   }
 
@@ -168,6 +250,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   async #saveConfig(config: Config) {
+    this.emit('hostsChanged', this.#hosts)
     await writeFile(preferencesPath, JSON.stringify(config, null, 2))
   }
 
@@ -177,9 +260,9 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
 
   #newWindow() {
     const window = new BrowserWindow({
-      width: 1000,
-      height: 460,
-      minWidth: 1000,
+      width: 640,
+      height: 320,
+      minWidth: 640,
       minHeight: 230,
       webPreferences: {
         nodeIntegration: true,
@@ -193,7 +276,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
       },
       trafficLightPosition: { x: 16, y: 16 },
     })
-    ipcMain.handle('config:get', () => this.#config)
+    ipcMain.handle('config:hosts:list', () => this.#config.hosts.filter((h) => !h.hidden))
     ipcMain.on('config:hosts:add', (_, hostConfig) => this.#handleAddHostConfig(hostConfig))
     ipcMain.on('config:hosts:delete', (_, hostConfig) => this.#handleDeleteHostConfig(hostConfig))
     ipcMain.handle('config:hosts:isUp', (_, hostConfig) => this.#isHostUp(hostConfig))
@@ -201,7 +284,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     window.on('closed', () => {
       ipcMain.removeHandler('config:hosts:add')
       ipcMain.removeHandler('config:hosts:delete')
-      ipcMain.removeHandler('config:get')
+      ipcMain.removeHandler('config:hosts:list')
       ipcMain.removeHandler('config:hosts:isUp')
       ipcMain.removeHandler('config:hosts:open')
     })

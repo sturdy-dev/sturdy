@@ -2,7 +2,7 @@
   <Spacer />
   <div class="flex flex-row">
     <Navigation />
-    <section id="servers">
+    <section id="servers" class="flex flex-1">
       <ServersList />
     </section>
   </div>
