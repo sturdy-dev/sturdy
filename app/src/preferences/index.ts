@@ -263,6 +263,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
       width: 640,
       height: 320,
       minWidth: 640,
+      maxWidth: 640,
       minHeight: 230,
       webPreferences: {
         nodeIntegration: true,
