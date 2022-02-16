@@ -3,7 +3,7 @@
     <td class="pl-3 py-2 whitespace-nowrap">
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <ServerStatus :server="server" />
+          <ServerStatus :server="server" @click="onServerStatusClick" />
         </div>
       </div>
     </td>
@@ -28,7 +28,9 @@
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
       <button
         type="button"
-        class="text-indigo-600 hover:text-indigo-900"
+        class="text-blue-600 hover:text-blue-900"
+        :disabled="!server.isUp"
+        :class="{ 'opacity-25 cursor-not-allowed': !server.isUp }"
         @click.prevent="handleOpen"
       >
         Open
@@ -40,7 +42,14 @@
 <script>
 import ServerStatus from './ServerStatus.vue'
 import ipc from '../ipc'
-import { remove as deleteServer } from '../stores/servers'
+import { remove as deleteServer, update as updateServer } from '../stores/servers'
+import { toRefs } from 'vue'
+
+const updateServerStatus = (cfg) => {
+  ipc.isHostUp(cfg).then((isUp) => {
+    updateServer({ ...cfg, isUp })
+  })
+}
 
 export default {
   components: {
@@ -51,6 +60,10 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  setup(props) {
+    const { server } = toRefs(props)
+    updateServerStatus(server.value)
   },
   computed: {
     fields() {
@@ -68,13 +81,14 @@ export default {
   },
   methods: {
     handleOpen() {
-      ipc.isHostUp(this.server).then((isUp) => {
-        if (isUp) ipc.openHost(this.server)
-      })
+      if (this.server.isUp) ipc.openHost(this.server)
     },
     handleDelete() {
       deleteServer(this.server)
       ipc.deleteHost(this.server)
+    },
+    onServerStatusClick() {
+      updateServerStatus(this.server)
     },
   },
 }

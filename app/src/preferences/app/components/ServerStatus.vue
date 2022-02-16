@@ -3,14 +3,11 @@
     type="button"
     class="rounded-full w-3 h-3"
     :class="color"
-    @click.prevent="handleTest"
+    @click.prevent="() => $emit('click')"
   ></button>
 </template>
 
 <script>
-import ipc from '../ipc'
-import { ref, toRefs } from 'vue'
-
 export default {
   props: {
     server: {
@@ -18,32 +15,16 @@ export default {
       required: true,
     },
   },
-  setup(props) {
-    const { server } = toRefs(props)
-    const status = ref(undefined)
-    ipc.isHostUp(server.value).then((isUp) => {
-      status.value = isUp
-    })
-    return {
-      status,
-    }
-  },
+  emits: ['click'],
   computed: {
     color() {
-      if (this.status == true) {
+      if (this.server.isUp == true) {
         return 'bg-green-500'
-      } else if (this.status == false) {
+      } else if (this.server.isUp == false) {
         return 'bg-red-500'
       } else {
         return 'bg-gray-500'
       }
-    },
-  },
-  methods: {
-    handleTest() {
-      ipc.isHostUp(this.server).then((status) => {
-        this.status = status
-      })
     },
   },
 }
