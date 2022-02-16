@@ -1,6 +1,10 @@
 <template>
-  <Spacer />
-  <div class="flex flex-row">
+  <Spacer>
+    <div class="flex flex-1 items-center justify-center">
+      <h1>Preferences</h1>
+    </div>
+  </Spacer>
+  <div class="flex px-2 space-x-4">
     <Navigation />
     <section id="servers" class="flex flex-1">
       <ServersList />
