@@ -18,7 +18,6 @@ import (
 	module_features "getsturdy.com/api/pkg/features/module"
 	module_file "getsturdy.com/api/pkg/file/module"
 	module_gc "getsturdy.com/api/pkg/gc/module"
-	module_github "getsturdy.com/api/pkg/github/module"
 	module_gitserver "getsturdy.com/api/pkg/gitserver"
 	module_graphql "getsturdy.com/api/pkg/graphql"
 	module_http "getsturdy.com/api/pkg/http/module"
@@ -74,7 +73,6 @@ func common(c *di.Container) {
 	c.Import(module_features.Module)
 	c.Import(module_file.Module)
 	c.Import(module_gc.Module)
-	c.Import(module_github.Module)
 	c.Import(module_gitserver.Module)
 	c.Import(module_graphql.Module)
 	c.Import(module_http.Module)

@@ -399,7 +399,7 @@ func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws 
 	})
 
 	if err := exec.ExecView(ws.CodebaseID, *ws.ViewID, "prepareBranchForPullRequestWithView"); err != nil {
-		return "", fmt.Errorf("failed to create pr branch from view")
+		return "", fmt.Errorf("failed to create pr branch from view: %w", err)
 	}
 
 	return resSha, nil
