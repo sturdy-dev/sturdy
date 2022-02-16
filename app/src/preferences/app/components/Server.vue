@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     fields() {
-      return [this.server.title, this.server.webURL, this.server.apiURL, this.server.syncURL]
+      return [this.server.title, this.server.host]
     },
   },
   methods: {

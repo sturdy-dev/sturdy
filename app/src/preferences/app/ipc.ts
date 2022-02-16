@@ -1,7 +1,7 @@
-import { Config, HostConfig } from './shims/ipc'
+import { HostConfig } from './shims/ipc'
 
-const getConfig = (): Promise<Config> => {
-  return window.ipc.getConfig()
+const listHosts = (): Promise<HostConfig[]> => {
+  return window.ipc.listHosts()
 }
 
 const addHostConfig = async (cfg: HostConfig): Promise<void> => {
@@ -21,7 +21,7 @@ const deleteHost = async (cfg: HostConfig): Promise<void> => {
 }
 
 export default {
-  getConfig,
+  listHosts,
   addHostConfig,
   isHostUp,
   openHost,

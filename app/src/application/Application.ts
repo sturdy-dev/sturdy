@@ -166,7 +166,7 @@ export class Application {
     }
 
     this.#logger.log('creating new window')
-    app.dock.show()
+    app.dock?.show()
 
     this.#window = new BrowserWindow({
       height: 1200,

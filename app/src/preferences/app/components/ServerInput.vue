@@ -20,38 +20,10 @@
       <input
         type="text"
         class="focus:ring-indigo-500 focus:border-indigo-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
-        placeholder="https://example.com"
-        v-model="webURL"
+        placeholder="127.0.0.1:30080"
+        v-model="host"
         :class="[
-          isWebURLWarning
-            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
-            : 'focus:ring-indigo-500 focus:border-indigo-500 ',
-        ]"
-      />
-    </td>
-
-    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-      <input
-        type="text"
-        class="focus:ring-indigo-500 focus:border-indigo-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
-        placeholder="https://api.example.com"
-        v-model="apiURL"
-        :class="[
-          isApiURLWarning
-            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
-            : 'focus:ring-indigo-500 focus:border-indigo-500 ',
-        ]"
-      />
-    </td>
-
-    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-      <input
-        type="text"
-        class="focus:ring-indigo-500 focus:border-indigo-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
-        placeholder="ssh://example.com"
-        v-model="syncURL"
-        :class="[
-          isSyncURLWarning
+          isHostWarning
             ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
             : 'focus:ring-indigo-500 focus:border-indigo-500 ',
         ]"
@@ -80,14 +52,8 @@ export default {
       title: '',
       titleActivated: false,
 
-      webURL: '',
-      webURLActivated: false,
-
-      apiURL: '',
-      apiURLActivated: false,
-
-      syncURL: '',
-      syncURLActivated: false,
+      host: '',
+      hostActivated: false,
     }
   },
   watch: {
@@ -96,19 +62,9 @@ export default {
         this.titleActivated = true
       }
     },
-    webURL(n) {
+    host(n) {
       if (n.length > 0) {
-        this.webURLActivated = true
-      }
-    },
-    apiURL(n) {
-      if (n.length > 0) {
-        this.apiURLActivated = true
-      }
-    },
-    syncURL(n) {
-      if (n.length > 0) {
-        this.syncURLActivated = true
+        this.hostActivated = true
       }
     },
   },
@@ -120,51 +76,20 @@ export default {
       return this.title.length > 0
     },
 
-    isWebURLWarning() {
-      return this.webURLActivated && !this.isWebURLValid
+    isHostWarning() {
+      return this.hostActivated && !this.isHostValid
     },
-    isWebURLValid() {
-      try {
-        new URL(this.webURL)
-        return true
-      } catch (e) {
-        return false
-      }
-    },
-
-    isApiURLWarning() {
-      return this.apiURLActivated && !this.isApiURLValid
-    },
-    isApiURLValid() {
-      try {
-        new URL(this.apiURL)
-        return true
-      } catch (e) {
-        return false
-      }
-    },
-
-    isSyncURLWarning() {
-      return this.syncURLActivated && !this.isSyncURLValid
-    },
-    isSyncURLValid() {
-      try {
-        new URL(this.syncURL)
-        return true
-      } catch (e) {
-        return false
-      }
+    isHostValid() {
+      return this.host.length > 0
     },
 
     isValid() {
-      return this.isTitleValid && this.isWebURLValid && this.isApiURLValid && this.isSyncURLValid
+      return this.isTitleValid && this.isHostValid
     },
     hostConfig() {
       return {
         title: this.title,
-        webURL: this.webURL,
-        apiURL: this.apiURL,
-        syncURL: this.syncURL,
+        host: this.host,
       }
     },
   },
@@ -180,15 +105,11 @@ export default {
     },
     resetActivated() {
       this.titleActivated = false
-      this.webURLActivated = false
-      this.apiURLActivated = false
-      this.syncURLActivated = false
+      this.hostActivated = false
     },
     resetValues() {
       this.title = ''
-      this.webURL = ''
-      this.apiURL = ''
-      this.syncURL = ''
+      this.host = ''
     },
   },
 }
