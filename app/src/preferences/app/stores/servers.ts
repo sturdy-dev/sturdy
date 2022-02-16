@@ -1,8 +1,16 @@
 import { atom } from 'nanostores'
 
-import type { HostConfig } from '../shims/ipc'
+import type { HostConfig as cfg } from '../shims/ipc'
+
+export type HostConfig = cfg & {
+  isUp: boolean
+}
 
 export const servers = atom<HostConfig[]>([])
+
+export const update = (server: HostConfig) => {
+  servers.set(servers.get().map((s) => (s.title === server.title ? server : s)))
+}
 
 export const add = (server: HostConfig) => {
   servers.set([...servers.get(), server])

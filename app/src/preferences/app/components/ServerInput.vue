@@ -5,13 +5,13 @@
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
       <input
         type="text"
-        class="focus:ring-indigo-500 focus:border-indigo-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
+        class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
         placeholder="My Sturdy"
         v-model="title"
         :class="[
           isTitleWarning
             ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
-            : 'focus:ring-indigo-500 focus:border-indigo-500 ',
+            : 'focus:ring-blue-500 focus:border-blue-500 ',
         ]"
       />
     </td>
@@ -19,23 +19,19 @@
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
       <input
         type="text"
-        class="focus:ring-indigo-500 focus:border-indigo-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
+        class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
         placeholder="127.0.0.1:30080"
         v-model="host"
         :class="[
           isHostWarning
             ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
-            : 'focus:ring-indigo-500 focus:border-indigo-500 ',
+            : 'focus:ring-blue-500 focus:border-blue-500 ',
         ]"
       />
     </td>
 
     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-      <button
-        type="button"
-        class="text-indigo-600 hover:text-indigo-900"
-        @click.prevent="handleAdd"
-      >
+      <button type="button" class="text-blue-600 hover:text-blue-900" @click.prevent="handleAdd">
         Add
       </button>
     </td>
