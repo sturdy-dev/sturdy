@@ -11,28 +11,21 @@ import (
 	"path"
 	"testing"
 
-	"getsturdy.com/api/pkg/analytics/disabled"
+	"go.uber.org/dig"
+
+	"getsturdy.com/api/pkg/analytics"
+	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	service_auth "getsturdy.com/api/pkg/auth/service"
-	db_change "getsturdy.com/api/pkg/change/db"
-	service_change "getsturdy.com/api/pkg/change/service"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
-	db_comments "getsturdy.com/api/pkg/comments/db"
-	service_comments "getsturdy.com/api/pkg/comments/service"
-	"getsturdy.com/api/pkg/db"
+	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
+	module_github "getsturdy.com/api/pkg/github/module"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/internal/sturdytest"
-	"getsturdy.com/api/pkg/queue"
-	db_review "getsturdy.com/api/pkg/review/db"
-	graphql_review "getsturdy.com/api/pkg/review/graphql"
-	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
+	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/sync"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -41,17 +34,9 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	graphql_view "getsturdy.com/api/pkg/view/graphql"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	db_activity "getsturdy.com/api/pkg/workspace/activity/db"
-	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
-	service_activity "getsturdy.com/api/pkg/workspace/activity/service"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	graphql_workspace "getsturdy.com/api/pkg/workspace/graphql"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
-	db_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/db"
-	graphql_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/graphql"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -69,6 +54,20 @@ var (
 
 func str(s string) *string {
 	return &s
+}
+
+func module(c *di.Container) {
+	ctx := context.Background()
+	c.Register(func() context.Context {
+		return ctx
+	})
+
+	c.Import(module_api.Module)
+	c.Import(module_configuration.TestingModule)
+	c.Import(module_snapshots.TestingModule)
+
+	// OSS version
+	c.Import(module_github.Module)
 }
 
 func TestResolveHighLevelV2(t *testing.T) {
@@ -347,177 +346,57 @@ func TestResolveHighLevelV2(t *testing.T) {
 			},
 		},
 	}
-	reposBasePath, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
-	repoProvider := provider.New(reposBasePath, "localhost:8888")
 
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	if err != nil {
-		panic(err)
+	type deps struct {
+		dig.In
+		UserRepo              db_user.Repository
+		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		ViewRootResolver      resolvers.ViewRootResolver
+		WorkspaceService      service_workspace.Service
+		GitSnapshotter        snapshotter.Snapshotter
+		RepoProvider          provider.RepoProvider
+		CodebaseUserRepo      db_codebase.CodebaseUserRepository
+		WorkspaceRepo         db_workspace.Repository
+		ViewRepo              db_view.Repository
+		SnapshotRepo          db_snapshots.Repository
+		ExecutorProvider      executor.Provider
+		EventsSender          events.EventSender
+		Logger                *zap.Logger
+		AnalyticsClient       analytics.Client
+		CodebaseRepo          db_codebase.CodebaseRepository
+		SyncService           *service_sync.Service
 	}
 
-	logger, _ := zap.NewDevelopment()
-	viewRepo := db_view.NewRepo(d)
-	viewUpdates := events.NewInMemory()
-	userRepo := db_user.NewRepo(d)
-	codebaseRepo := db_codebase.NewRepo(d)
-	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
-	workspaceRepo := db_workspace.NewRepo(d)
-	snapshotsRepo := db_snapshots.NewRepo(d)
+	var d deps
+	if !assert.NoError(t, di.Init(&d, module)) {
+		t.FailNow()
+	}
 
-	executorProvider := executor.NewProvider(logger, repoProvider)
+	userRepo := d.UserRepo
+	workspaceRootResolver := d.WorkspaceRootResolver
+	viewRootResolver := d.ViewRootResolver
+	workspaceService := d.WorkspaceService
+	repoProvider := d.RepoProvider
+	codebaseUserRepo := d.CodebaseUserRepo
+	codebaseRepo := d.CodebaseRepo
 
-	changeRepo := db_change.NewRepo(d)
-
-	reviewRepo := db_review.NewReviewRepository(d)
-	viewEvents := events.NewInMemory()
-	workspaceActivityRepo := db_activity.NewActivityRepo(d)
-	workspaceActivityReadsRepo := db_activity.NewActivityReadsRepo(d)
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, viewUpdates)
-	activityService := service_activity.New(workspaceActivityReadsRepo, eventsSender)
-	activitySender := activity_sender.NewActivitySender(codebaseUserRepo, workspaceActivityRepo, activityService, eventsSender)
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsRepo, workspaceRepo, workspaceRepo, viewRepo, eventsSender, executorProvider, logger)
-	commentRepo := db_comments.NewRepo(d)
-	queue := queue.NewNoop()
-	snapshotPublisher := worker_snapshots.New(logger, queue, gitSnapshotter)
-	commentsService := service_comments.New(commentRepo)
-
-	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-
-	changeService := service_change.New(nil, changeRepo, logger)
-	workspaceService := service_workspace.New(
-		logger,
-		disabled.NewClient(),
-
-		workspaceRepo,
-		workspaceRepo,
-
-		userRepo,
-		reviewRepo,
-
-		commentsService,
-		changeService,
-
-		activitySender,
-		executorProvider,
-		eventsSender,
-		snapshotPublisher,
-		gitSnapshotter,
-		buildQueue,
-	)
-
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, eventsSender)
-	authService := service_auth.New(codebaseService, nil, workspaceService, nil, nil)
-
-	workspaceWatchersRootResolver := new(resolvers.WorkspaceWatcherRootResolver)
-	workspaceWatcherRepo := db_workspace_watchers.NewInMemory()
-	workspaceWatchersService := service_workspace_watchers.New(workspaceWatcherRepo, eventsSender)
-
-	reviewRootResolver := graphql_review.New(
-		logger,
-		reviewRepo,
-		nil,
-		authService,
-		nil,
-		nil,
-		eventsSender,
-		viewEvents,
-		nil,
-		activitySender,
-		workspaceWatchersService,
-	)
-
-	workspaceRootResolver := graphql_workspace.NewResolver(
-		workspaceRepo,
-		codebaseRepo,
-		viewRepo,
-		nil, // commentRepo
-		nil, // snapshotRepo
-		nil, // codebaseResolver
-		nil, // authorResolver
-		nil, // viewResolver
-		nil, // commentResolver
-		nil, // prResolver
-		nil, // changeResolver
-		nil, // workspaceActivityResolver
-		reviewRootResolver,
-		nil, // presenceRootResolver
-		nil, // suggestitonsRootResolver
-		nil, // statusesRootResolver
-		*workspaceWatchersRootResolver,
-		nil, // suggestionsService
-		workspaceService,
-		authService,
-		logger,
-		viewUpdates,
-		workspaceRepo,
-		executorProvider,
-		eventsSender,
-		gitSnapshotter,
-	)
-
-	*workspaceWatchersRootResolver = graphql_workspace_watchers.NewRootResolver(
-		logger,
-		workspaceWatchersService,
-		workspaceService,
-		authService,
-		viewEvents,
-		nil,
-		&workspaceRootResolver,
-	)
-
-	viewRootResolver := graphql_view.NewResolver(
-		viewRepo,
-		workspaceRepo,
-		gitSnapshotter,
-		snapshotsRepo,
-		nil,
-		nil,
-		workspaceRepo,
-		viewEvents,
-		eventsSender,
-		executorProvider,
-		logger,
-		nil,
-		workspaceWatchersService,
-		nil,
-		nil,
-		authService,
-	)
-
-	syncService := service_sync.New(logger, executorProvider, viewRepo, workspaceRepo, workspaceRepo, gitSnapshotter)
-
-	startRoutev2 := routes_v3_sync.StartV2(logger, syncService)
-	resolveRoutev2 := routes_v3_sync.ResolveV2(logger, syncService)
-	statusRoute := routes_v3_sync.Status(viewRepo, executorProvider, logger)
-
-	createViewRoute := routes_v3_view.Create(
-		logger,
-		viewRepo,
-		codebaseUserRepo,
-		disabled.NewClient(),
-		workspaceRepo,
-		gitSnapshotter,
-		snapshotsRepo,
-		workspaceRepo,
-		executorProvider,
-		eventsSender,
-	)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsClient, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	startRoutev2 := routes_v3_sync.StartV2(d.Logger, d.SyncService)
+	resolveRoutev2 := routes_v3_sync.ResolveV2(d.Logger, d.SyncService)
+	statusRoute := routes_v3_sync.Status(d.ViewRepo, d.ExecutorProvider, d.Logger)
 
 	for _, tc := range cases {
 
 		t.Run(tc.name, func(t *testing.T) {
 			userID := uuid.NewString()
-			err = userRepo.Create(&users.User{ID: userID, Name: "Test Test", Email: userID + "@test.com"})
+			err := userRepo.Create(&users.User{ID: userID, Name: "Test Test", Email: userID + "@test.com"})
 			assert.NoError(t, err)
 
 			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})
 
 			codebaseID := uuid.NewString()
 
-			err := codebaseRepo.Create(codebase.Codebase{
+			err = codebaseRepo.Create(codebase.Codebase{
 				ID:              codebaseID,
 				ShortCodebaseID: codebase.ShortCodebaseID(codebaseID), // not realistic
 			})
@@ -678,9 +557,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 				}
 
-				// Trigger snapshot! (just because, it usually happens when new files are written)
-				assert.NoError(t, snapshotPublisher.Enqueue(context.Background(), codebaseID, viewRes.ID, viewRes.WorkspaceID, []string{"."}, snapshots.ActionViewSync))
-
 				// get status, expect to say that we're syncing
 				{
 					var syncStatusRes sync.RebaseStatusResponse
@@ -703,10 +579,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 					assert.NoError(t, err)
 				}
-
-				// Trigger snapshot! (just because, it usually happens when new files are written)
-				assert.NoError(t, snapshotPublisher.Enqueue(context.Background(), codebaseID, viewRes.ID, viewRes.WorkspaceID, []string{"."}, snapshots.ActionViewSync))
-
+				
 				// get status, expect to say that we're syncing
 				{
 					var syncStatusRes sync.RebaseStatusResponse
