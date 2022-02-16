@@ -7,15 +7,16 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/notification"
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/review"
 	db_review "getsturdy.com/api/pkg/review/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace/activity"
 	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
@@ -40,6 +41,8 @@ type reviewRootResolver struct {
 	notificationSender sender.NotificationSender
 	activitySender     activity_sender.ActivitySender
 
+	analyticsService analytics.Client
+
 	workspaceWatchersService *service_workspace_watchers.Service
 }
 
@@ -57,6 +60,8 @@ func New(
 	notificationSender sender.NotificationSender,
 	activitySender activity_sender.ActivitySender,
 
+	analyticsService analytics.Client,
+
 	workspaceWatchersService *service_workspace_watchers.Service,
 ) resolvers.ReviewRootResolver {
 	return &reviewRootResolver{
@@ -73,6 +78,8 @@ func New(
 		eventsReader:       eventsReader,
 		notificationSender: notificationSender,
 		activitySender:     activitySender,
+
+		analyticsService: analyticsService,
 
 		workspaceWatchersService: workspaceWatchersService,
 	}
@@ -186,6 +193,17 @@ func (r *reviewRootResolver) CreateOrUpdateReview(ctx context.Context, args reso
 		// do not fail
 	}
 
+	if err := r.analyticsService.Enqueue(analytics.Capture{
+		DistinctId: userID,
+		Event:      "review created",
+		Properties: analytics.NewProperties().
+			Set("workspace_id", ws.ID).
+			Set("codebase_id", ws.CodebaseID).
+			Set("grade", rev.Grade),
+	}); err != nil {
+		r.logger.Error("failed to send analytics event", zap.Error(err))
+	}
+
 	return &reviewResolver{root: r, rev: &rev}, nil
 }
 
@@ -268,10 +286,26 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 		// do not fail
 	}
 
+	if err := r.analyticsService.Enqueue(analytics.Capture{
+		DistinctId: userID,
+		Event:      "review requested",
+		Properties: analytics.NewProperties().
+			Set("workspace_id", ws.ID).
+			Set("codebase_id", ws.CodebaseID).
+			Set("user_id", rev.UserID),
+	}); err != nil {
+		r.logger.Error("failed to send analytics event", zap.Error(err))
+	}
+
 	return &reviewResolver{root: r, rev: &rev}, nil
 }
 
 func (r *reviewRootResolver) DismissReview(ctx context.Context, args resolvers.DismissReviewArgs) (resolvers.ReviewResolver, error) {
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	rev, err := r.reviewRepo.Get(ctx, string(args.Input.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -296,6 +330,17 @@ func (r *reviewRootResolver) DismissReview(ctx context.Context, args resolvers.D
 	if err := r.eventsSender.Workspace(rev.WorkspaceID, events.ReviewUpdated, rev.ID); err != nil {
 		r.logger.Error("failed to send workspace event", zap.Error(err))
 		// do not fail
+	}
+
+	if err := r.analyticsService.Enqueue(analytics.Capture{
+		DistinctId: userID,
+		Event:      "review dismissed",
+		Properties: analytics.NewProperties().
+			Set("workspace_id", rev.WorkspaceID).
+			Set("codebase_id", rev.CodebaseID).
+			Set("user_id", rev.UserID),
+	}); err != nil {
+		r.logger.Error("failed to send analytics event", zap.Error(err))
 	}
 
 	return &reviewResolver{root: r, rev: rev}, nil
