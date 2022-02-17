@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/users/db"
@@ -14,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Client, jwtService *service_jwt.Service) func(c *gin.Context) {
+func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_analytics.Service, jwtService *service_jwt.Service) func(c *gin.Context) {
 	type request struct {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -53,24 +54,9 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsClient analytics.Cli
 			return
 		}
 
-		// Identify to analytics
-		if err := analyticsClient.Enqueue(analytics.Identify{
-			DistinctId: getUser.ID,
-			Properties: analytics.NewProperties().
-				Set("name", getUser.Name).
-				Set("email", getUser.Email),
-		}); err != nil {
-			logger.Error("send to analytics failed", zap.Error(err))
-		}
-
-		if err := analyticsClient.Enqueue(analytics.Capture{
-			DistinctId: getUser.ID,
-			Event:      "logged in",
-			Properties: analytics.NewProperties().
-				Set("type", "password"),
-		}); err != nil {
-			logger.Error("send to analytics failed", zap.Error(err))
-		}
+		ctx := c.Request.Context()
+		analyticsService.IdentifyUser(ctx, getUser)
+		analyticsService.Capture(ctx, "logged in", analytics.Property("type", "password"))
 
 		// Send the user object in the response
 		c.JSON(http.StatusOK, getUser)

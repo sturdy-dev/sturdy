@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/change"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/events"
@@ -56,7 +56,7 @@ type Service struct {
 	executorProvider executor.Provider
 
 	snap               snapshotter.Snapshotter
-	analyticsClient    analytics.Client
+	analyticsService   *service_analytics.Service
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
 
@@ -85,7 +85,7 @@ func New(
 
 	executorProvider executor.Provider,
 	snap snapshotter.Snapshotter,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,
 
@@ -113,7 +113,7 @@ func New(
 
 		executorProvider:   executorProvider,
 		snap:               snap,
-		analyticsClient:    analyticsClient,
+		analyticsService:   analyticsService,
 		notificationSender: notificationSender,
 		eventsSender:       eventsSender,
 

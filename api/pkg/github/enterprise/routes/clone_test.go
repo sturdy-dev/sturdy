@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"getsturdy.com/api/pkg/analytics/disabled"
 	events "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
@@ -43,7 +42,6 @@ func TestCloneSendsNotifications(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
-	postHogClient := disabled.NewClient()
 	executorProvider := executor.TestingExecutorProvider(t)
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, events.NewInMemory())
 
@@ -134,7 +132,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 		codebaseRepo,
 		executorProvider,
 		nil,
-		postHogClient,
+		nil,
 		notificationSender,
 		eventsSender,
 
@@ -147,7 +145,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 		event,
 		gitHubInstallationRepo,
 		gitHubRepositoryRepo,
-		postHogClient,
+		nil,
 		codebaseRepo,
 		svc,
 	)

@@ -1,10 +1,12 @@
 package waitinglist
 
 import (
-	"getsturdy.com/api/pkg/analytics"
 	"log"
 	"net/http"
 	"strings"
+
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -14,7 +16,7 @@ type WaitingListRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo WaitingListRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo WaitingListRepo) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 
@@ -41,13 +43,9 @@ func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo WaitingLi
 			return
 		}
 
-		err = analyticsClient.Enqueue(&analytics.Capture{
-			DistinctId: req.Email,
-			Event:      "signed up for waiting list",
-		})
-		if err != nil {
-			logger.Error("analytics failed", zap.Error(err))
-		}
+		analyticsService.Capture(c.Request.Context(), "signed up for waiting list",
+			analytics.DistinctID(req.Email),
+		)
 
 		logger.Info("added to waitinglist")
 		c.Status(http.StatusOK)

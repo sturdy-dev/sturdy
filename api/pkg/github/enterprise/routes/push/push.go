@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/change"
 	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/message"
@@ -50,7 +51,7 @@ func HandlePushEvent(
 	gitHubAppConfig *config.GitHubAppConfig,
 	githubClientProvider client.InstallationClientProvider,
 	eventsSender events.EventSender,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	reviewRepo db_review.ReviewRepository,
 	activitySender sender_workspace_activity.ActivitySender,
 	commentsService *service_comments.Service,
@@ -203,16 +204,11 @@ func HandlePushEvent(
 					return fmt.Errorf("failed to dissmiss reviews: %w", err)
 				}
 
-				if err := analyticsClient.Enqueue(analytics.Capture{
-					Event:      "pull request merged",
-					DistinctId: ws.UserID,
-					Properties: analytics.NewProperties().
-						Set("github", true).
-						Set("codebase_id", ws.CodebaseID).
-						Set("workspace_id", ws.ID),
-				}); err != nil {
-					logger.Error("analytics failed", zap.Error(err))
-				}
+				analyticsService.Capture(ctx, "pull request merged",
+					analytics.CodebaseID(ws.CodebaseID),
+					analytics.Property("workspace_id", ws.ID),
+					analytics.Property("github", true),
+				)
 
 				// Create workspace activity
 				if err := activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.WorkspaceActivityTypeCreatedChange, string(ch.ID)); err != nil {

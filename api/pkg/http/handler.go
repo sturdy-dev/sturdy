@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	authz "getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_change "getsturdy.com/api/pkg/change/db"
@@ -76,7 +76,7 @@ func ProvideHandler(
 	logger *zap.Logger,
 	config *Configuration,
 	userRepo db_user.Repository,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	waitingListRepo waitinglist.WaitingListRepo,
 	aclInterestRepo acl.ACLInterestRepo,
 	instantIntegrationInterestRepo instantintegration.InstantIntegrationInterestRepo,
@@ -156,19 +156,19 @@ func ProvideHandler(
 	// Private endpoints, requires a valid auth cookie
 	auth := r.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
-	publ.POST("/v3/auth", routes_v3_user.Login(logger, userRepo, analyticsClient, jwtService))
-	publ.POST("/v3/users", routes_v3_user.Signup(logger, userService, jwtService, analyticsClient))
+	publ.POST("/v3/auth", routes_v3_user.Login(logger, userRepo, analyticsService, jwtService))
+	publ.POST("/v3/users", routes_v3_user.Signup(logger, userService, jwtService, analyticsService))
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))
 	auth.POST("/v3/auth/renew-token", routes_v3_user.RenewToken(logger, userRepo, jwtService))
-	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(userRepo))                                                                                                                        // Used by the web (2021-10-04)
-	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                // Used by the command line client
-	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                    // Used by the web (2021-10-04)
-	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService, executorProvider))                                                                      // Used by the command line client
-	auth.POST("/v3/codebases/:id/invite", routes_v3_codebase.Invite(codebaseService, authService))                                                                                                    // No longer used (after 2022-01-31)
-	publ.GET("/v3/join/get-codebase/:code", routes_v3_codebase.JoinGetCodebase(logger, codebaseRepo))                                                                                                 // Used by the web (2021-10-04)
-	auth.POST("/v3/join/codebase/:code", routes_v3_codebase.JoinCodebase(logger, codebaseRepo, codebaseUserRepo, eventSender))                                                                        // Used by the web (2021-10-04)
-	auth.POST("/v3/views", routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsClient, workspaceReader, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender)) // Used by the command line client
+	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(userRepo))                                                                                                                         // Used by the web (2021-10-04)
+	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                 // Used by the command line client
+	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                     // Used by the web (2021-10-04)
+	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService, executorProvider))                                                                       // Used by the command line client
+	auth.POST("/v3/codebases/:id/invite", routes_v3_codebase.Invite(codebaseService, authService))                                                                                                     // No longer used (after 2022-01-31)
+	publ.GET("/v3/join/get-codebase/:code", routes_v3_codebase.JoinGetCodebase(logger, codebaseRepo))                                                                                                  // Used by the web (2021-10-04)
+	auth.POST("/v3/join/codebase/:code", routes_v3_codebase.JoinCodebase(logger, codebaseRepo, codebaseUserRepo, eventSender))                                                                         // Used by the web (2021-10-04)
+	auth.POST("/v3/views", routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsService, workspaceReader, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender)) // Used by the command line client
 	authedViews := auth.Group("/v3/views/:viewID", view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
 	authedViews.GET("", routes_v3_view.Get(viewRepo, workspaceReader, logger, userService))                                                        // Used by the command line client
 	authedViews.POST("/ignore-file", routes_v3_change.IgnoreFile(logger, viewRepo, codebaseUserRepo, executorProvider, viewUpdatedFunc))           // Used by the web (2021-10-04)
@@ -176,19 +176,19 @@ func ProvideHandler(
 	auth.GET("/v3/stream", routes.Stream(logger, viewRepo, codebaseViewEvents, workspaceReader, authService, workspaceService, suggestionService)) // Used by the web (2021-10-04)
 	rebase := auth.Group("/v3/rebase/")
 	rebase.Use(view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
-	rebase.GET(":viewID", routes_v3_sync.Status(viewRepo, executorProvider, logger))                                    // Used by the web (2021-10-04)
-	rebase.POST(":viewID/start", routes_v3_sync.StartV2(logger, syncService))                                           // Used by the web (2021-10-25)
-	rebase.POST(":viewID/resolve", routes_v3_sync.ResolveV2(logger, syncService))                                       // Used by the web (2021-10-25)
-	auth.POST("/v3/changes/:id/update", routes_v3_change.Update(logger, codebaseUserRepo, analyticsClient, changeRepo)) // Used by the web (2021-10-04)
-	auth.POST("/v3/workspaces", routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo))                 // Used by the command line client
+	rebase.GET(":viewID", routes_v3_sync.Status(viewRepo, executorProvider, logger))                                     // Used by the web (2021-10-04)
+	rebase.POST(":viewID/start", routes_v3_sync.StartV2(logger, syncService))                                            // Used by the web (2021-10-25)
+	rebase.POST(":viewID/resolve", routes_v3_sync.ResolveV2(logger, syncService))                                        // Used by the web (2021-10-25)
+	auth.POST("/v3/changes/:id/update", routes_v3_change.Update(logger, codebaseUserRepo, analyticsService, changeRepo)) // Used by the web (2021-10-04)
+	auth.POST("/v3/workspaces", routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo))                  // Used by the command line client
 	// Used by LBS to check for health
 	publ.GET("/readyz", func(c *gin.Context) { c.Status(http.StatusOK) })
-	publ.POST("/v3/waitinglist", waitinglist.Insert(logger, analyticsClient, waitingListRepo))                                                                                                                // Used by the web (2021-10-04)
-	publ.POST("/v3/acl-request-enterprise", acl.Insert(logger, analyticsClient, aclInterestRepo))                                                                                                             // Used by the web (2021-10-04)
-	publ.POST("/v3/instant-integration", instantintegration.Insert(logger, analyticsClient, instantIntegrationInterestRepo))                                                                                  // Used by the web (2021-10-27)
+	publ.POST("/v3/waitinglist", waitinglist.Insert(logger, analyticsService, waitingListRepo))                                                                                                               // Used by the web (2021-10-04)
+	publ.POST("/v3/acl-request-enterprise", acl.Insert(logger, analyticsService, aclInterestRepo))                                                                                                            // Used by the web (2021-10-04)
+	publ.POST("/v3/instant-integration", instantintegration.Insert(logger, analyticsService, instantIntegrationInterestRepo))                                                                                 // Used by the web (2021-10-27)
 	auth.POST("/v3/pki/add-public-key", routes_v3_pki.AddPublicKey(userPublicKeyRepo))                                                                                                                        // Used by the command line client
 	publ.POST("/v3/pki/verify", routes_v3_pki.Verify(userPublicKeyRepo))                                                                                                                                      // Used by the command line client
-	publ.POST("/v3/mutagen/validate-view", routes_v3_mutagen.ValidateView(logger, viewRepo, analyticsClient, eventSender))                                                                                    // Called from server-side mutagen
+	publ.POST("/v3/mutagen/validate-view", routes_v3_mutagen.ValidateView(logger, viewRepo, analyticsService, eventSender))                                                                                   // Called from server-side mutagen
 	publ.POST("/v3/mutagen/sync-transitions", routes_v3_mutagen.SyncTransitions(logger, snapshotterQueue, viewRepo, gcQueue, presenceService, snapshotRepo, workspaceReader, suggestionService, eventSender)) // Called from server-side mutagen
 	publ.GET("/v3/mutagen/views/:id/allows", routes_v3_mutagen.ListAllows(logger, viewRepo, authService))                                                                                                     // Called form server-side mutagen
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen

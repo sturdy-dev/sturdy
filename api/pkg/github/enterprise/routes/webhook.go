@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_change "getsturdy.com/api/pkg/change/db"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -35,7 +35,7 @@ import (
 func Webhook(
 	logger *zap.Logger,
 	config *config.GitHubAppConfig,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
 	codebaseRepo db_codebase.CodebaseRepository,
@@ -73,14 +73,14 @@ func Webhook(
 
 		switch event := event.(type) {
 		case *gh.InstallationEvent:
-			if err := installation.HandleInstallationEvent(c, logger.Named("githubHandleInstallationEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsClient, codebaseRepo, gitHubService); err != nil {
+			if err := installation.HandleInstallationEvent(c, logger.Named("githubHandleInstallationEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsService, codebaseRepo, gitHubService); err != nil {
 				logger.Error("failed to handle github installation webhook event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 
 		case *gh.InstallationRepositoriesEvent:
-			if err := installation.HandleInstallationRepositoriesEvent(c, logger.Named("githubHandleInstallationRepositoriesEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsClient, codebaseRepo, gitHubService); err != nil {
+			if err := installation.HandleInstallationRepositoriesEvent(c, logger.Named("githubHandleInstallationRepositoriesEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsService, codebaseRepo, gitHubService); err != nil {
 				logger.Error("failed to handle github installation repository webhook event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
@@ -94,7 +94,7 @@ func Webhook(
 
 			logger.Info("about to handle push event")
 
-			if err := push.HandlePushEvent(c, logger, event, gitHubRepositoryRepo, gitHubInstallationRepo, workspaceWriter, workspaceReader, workspaceService, syncService, gitHubPRRepo, changeRepo, executorProvider, config, githubClientProvider, eventsSender, analyticsClient, reviewRepo, activitySender, commentsService, buildQueue); err != nil {
+			if err := push.HandlePushEvent(c, logger, event, gitHubRepositoryRepo, gitHubInstallationRepo, workspaceWriter, workspaceReader, workspaceService, syncService, gitHubPRRepo, changeRepo, executorProvider, config, githubClientProvider, eventsSender, analyticsService, reviewRepo, activitySender, commentsService, buildQueue); err != nil {
 				logger.Error("failed to handle github push event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return

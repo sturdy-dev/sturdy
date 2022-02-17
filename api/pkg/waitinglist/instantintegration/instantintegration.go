@@ -3,10 +3,12 @@ package instantintegration
 
 import (
 	"fmt"
-	"getsturdy.com/api/pkg/analytics"
 	"log"
 	"net/http"
 	"strings"
+
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -38,7 +40,7 @@ type IIAccessRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo InstantIntegrationInterestRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo InstantIntegrationInterestRepo) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 
@@ -65,13 +67,10 @@ func Insert(logger *zap.Logger, analyticsClient analytics.Client, repo InstantIn
 			return
 		}
 
-		err = analyticsClient.Enqueue(&analytics.Capture{
-			DistinctId: req.Email,
-			Event:      "requested instant integration access",
-		})
-		if err != nil {
-			logger.Error("analytics failed", zap.Error(err))
-		}
+		analyticsService.Capture(c.Request.Context(), "requested instant integration access",
+			analytics.DistinctID(req.Email),
+		)
+
 		c.Status(http.StatusOK)
 	}
 }

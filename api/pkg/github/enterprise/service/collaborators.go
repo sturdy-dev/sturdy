@@ -97,16 +97,11 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 				continue
 			}
 
-			if err := svc.analyticsClient.Enqueue(analytics.Capture{
-				Event:      "added user to codebase",
-				DistinctId: gitHubUser.UserID,
-				Properties: analytics.NewProperties().
-					Set("github", true).
-					Set("is_github_sender", false). // This event is not fired for the user that installed the GitHub app
-					Set("codebase_id", codebaseID),
-			}); err != nil {
-				logger.Error("analytics failed", zap.Error(err))
-			}
+			svc.analyticsService.Capture(ctx, "added user to codebase",
+				analytics.CodebaseID(codebaseID),
+				analytics.Property("github", true),
+				analytics.Property("is_github_sender", false), // This event is not fired for the user that installed the GitHub app
+			)
 
 			// enqueue import pull requests for this user
 			if err := svc.EnqueueGitHubPullRequestImport(ctx, codebaseID, gitHubUser.UserID); err != nil {
@@ -196,32 +191,21 @@ func (svc *Service) AddUser(codebaseID, userID string) error {
 		return fmt.Errorf("failed to add sender to codebaseUserRepo: %w", err)
 	}
 
-	err = svc.analyticsClient.Enqueue(analytics.Capture{
-		Event:      "added user to codebase",
-		DistinctId: userID,
-		Properties: analytics.NewProperties().
-			Set("github", true).
-			Set("is_github_sender", true).
-			Set("codebase_id", codebaseID),
-	})
-	if err != nil {
-		svc.logger.Error("analytics failed", zap.Error(err))
-	}
+	svc.analyticsService.Capture(context.TODO(), "added user to codebase",
+		analytics.DistinctID(userID),
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("github", true),
+		analytics.Property("is_github_sender", true),
+	)
 
 	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", userID))
 
-	// Track installation event on the user that installed it
-	err = svc.analyticsClient.Enqueue(analytics.Capture{
-		Event:      "installed github repository",
-		DistinctId: userID,
-		Properties: analytics.NewProperties().
-			Set("github", true).
-			Set("is_github_sender", true).
-			Set("codebase_id", codebaseID),
-	})
-	if err != nil {
-		svc.logger.Error("analytics failed", zap.Error(err))
-	}
+	svc.analyticsService.Capture(context.TODO(), "installed github repository",
+		analytics.DistinctID(userID),
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("github", true),
+		analytics.Property("is_github_sender", false),
+	)
 
 	// Send events
 	svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID)

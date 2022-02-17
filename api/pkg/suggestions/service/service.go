@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/notification"
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
@@ -33,10 +34,10 @@ type Service struct {
 	suggestionRepo db_suggestions.Repository
 
 	workspaceService service_workspace.Service
+	analyticsService *service_analytics.Service
 
 	executorProvider   executor.Provider
 	snapshotter        snapshotter.Snapshotter
-	analyticsClient    analytics.Client
 	notificationSender sender_notification.NotificationSender
 	eventSender        events.EventSender
 }
@@ -47,7 +48,7 @@ func New(
 	workspaceService service_workspace.Service,
 	executorProvider executor.Provider,
 	snapshotter snapshotter.Snapshotter,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	notificationSender sender_notification.NotificationSender,
 	eventSender events.EventSender,
 ) *Service {
@@ -60,9 +61,9 @@ func New(
 
 		executorProvider:   executorProvider,
 		snapshotter:        snapshotter,
-		analyticsClient:    analyticsClient,
 		notificationSender: notificationSender,
 		eventSender:        eventSender,
+		analyticsService:   analyticsService,
 	}
 }
 
@@ -166,16 +167,11 @@ func (s *Service) Create(ctx context.Context, userID string, forWorkspace *works
 		return nil, fmt.Errorf("failed to create: %w", err)
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: suggestion.UserID,
-		Event:      "suggestions-create",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", suggestion.CodebaseID).
-			Set("workspace_id", forWorkspace.ID).
-			Set("suggestion_id", suggestion.ID),
-	}); err != nil {
-		s.logger.Error("failed to send analytics event", zap.Error(err))
-	}
+	s.analyticsService.Capture(ctx, "suggestions-create",
+		analytics.CodebaseID(suggestion.CodebaseID),
+		analytics.Property("suggestion_id", suggestion.ID),
+		analytics.Property("workspace_id", suggestion.ForWorkspaceID),
+	)
 
 	return suggestion, nil
 }
@@ -302,17 +298,11 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 	if err := s.suggestionRepo.Update(ctx, suggestion); err != nil {
 		return fmt.Errorf("failed to update: %w", err)
 	}
-
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: originalWorkspace.UserID,
-		Event:      "suggestions-apply",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", originalWorkspace.CodebaseID).
-			Set("workspace_id", originalWorkspace.ID).
-			Set("suggestion_id", suggestion.ID),
-	}); err != nil {
-		s.logger.Error("failed to send analytics event", zap.Error(err))
-	}
+	s.analyticsService.Capture(ctx, "suggestions-apply",
+		analytics.CodebaseID(suggestion.CodebaseID),
+		analytics.Property("suggestion_id", suggestion.ID),
+		analytics.Property("workspace_id", suggestion.ForWorkspaceID),
+	)
 
 	return nil
 }
@@ -355,16 +345,11 @@ func (s *Service) DismissHunks(ctx context.Context, suggestion *suggestions.Sugg
 		return fmt.Errorf("failed to update: %w", err)
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: originalWorkspace.UserID,
-		Event:      "suggestions-dismiss",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", originalWorkspace.CodebaseID).
-			Set("workspace_id", originalWorkspace.ID).
-			Set("suggestion_id", suggestion.ID),
-	}); err != nil {
-		s.logger.Error("failed to send analytics event", zap.Error(err))
-	}
+	s.analyticsService.Capture(ctx, "suggestions-dismiss",
+		analytics.CodebaseID(suggestion.CodebaseID),
+		analytics.Property("suggestion_id", suggestion.ID),
+		analytics.Property("workspace_id", suggestion.ForWorkspaceID),
+	)
 
 	return nil
 }

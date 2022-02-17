@@ -13,7 +13,7 @@ import (
 
 	"go.uber.org/dig"
 
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
@@ -362,7 +362,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		ExecutorProvider      executor.Provider
 		EventsSender          events.EventSender
 		Logger                *zap.Logger
-		AnalyticsClient       analytics.Client
+		AnalyticsService      *service_analytics.Service
 		CodebaseRepo          db_codebase.CodebaseRepository
 		SyncService           *service_sync.Service
 	}
@@ -380,7 +380,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	codebaseUserRepo := d.CodebaseUserRepo
 	codebaseRepo := d.CodebaseRepo
 
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsClient, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
 	startRoutev2 := routes_v3_sync.StartV2(d.Logger, d.SyncService)
 	resolveRoutev2 := routes_v3_sync.ResolveV2(d.Logger, d.SyncService)
 	statusRoute := routes_v3_sync.Status(d.ViewRepo, d.ExecutorProvider, d.Logger)
@@ -579,7 +579,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 					assert.NoError(t, err)
 				}
-				
+
 				// get status, expect to say that we're syncing
 				{
 					var syncStatusRes sync.RebaseStatusResponse

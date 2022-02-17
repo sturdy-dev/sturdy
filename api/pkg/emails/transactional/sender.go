@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/change/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/comments"
@@ -57,7 +58,7 @@ type Sender struct {
 	changeService *service_change.Service
 
 	notificationPreferences *service_notification.Preferences
-	analyticsClient         analytics.Client
+	analyticsService        *service_analytics.Service
 }
 
 func New(
@@ -78,7 +79,7 @@ func New(
 
 	notificationPreferences *service_notification.Preferences,
 
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 ) *Sender {
 	return &Sender{
 		logger: logger,
@@ -97,7 +98,7 @@ func New(
 		changeService: changeService,
 
 		notificationPreferences: notificationPreferences,
-		analyticsClient:         analyticsClient,
+		analyticsService:        analyticsService,
 	}
 }
 
@@ -428,18 +429,6 @@ func (e *Sender) Send(
 		zap.String("template", string(template)),
 	)
 
-	if err := e.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: u.ID,
-		Event:      "email_sent",
-		Properties: map[string]interface{}{
-			"user_id":  u.ID,
-			"template": string(template),
-			"subject":  subject,
-		},
-	}); err != nil {
-		e.logger.Error("failed to enqueue analytics event", zap.Error(err))
-	}
-
 	if err := e.sender.Send(ctx, &emails.Email{
 		To:      u.Email,
 		Subject: subject,
@@ -447,6 +436,11 @@ func (e *Sender) Send(
 	}); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
+
+	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(u.ID),
+		analytics.Property("template", string(template)),
+		analytics.Property("subject", subject),
+	)
 
 	return nil
 }

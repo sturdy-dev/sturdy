@@ -10,7 +10,7 @@ import (
 
 	"go.uber.org/dig"
 
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -55,7 +55,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		WorkspaceService service_workspace.Service
 		GitSnapshotter   snapshotter.Snapshotter
 		RepoProvider     provider.RepoProvider
-		
+
 		CodebaseUserRepo db_codebase.CodebaseUserRepository
 		WorkspaceRepo    db_workspace.Repository
 		ViewRepo         db_view.Repository
@@ -63,8 +63,8 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		ExecutorProvider executor.Provider
 		EventsSender     events.EventSender
 
-		Logger          *zap.Logger
-		AnalyticsClient analytics.Client
+		Logger           *zap.Logger
+		AnalyticsService *service_analytics.Service
 	}
 
 	var d deps
@@ -79,7 +79,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsClient, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
 
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver
@@ -243,8 +243,8 @@ func TestRevertChangeFromView(t *testing.T) {
 		ExecutorProvider executor.Provider
 		EventsSender     events.EventSender
 
-		Logger          *zap.Logger
-		AnalyticsClient analytics.Client
+		Logger           *zap.Logger
+		AnalyticsSerivce *service_analytics.Service
 	}
 
 	var d deps
@@ -259,7 +259,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsClient, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
 
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver

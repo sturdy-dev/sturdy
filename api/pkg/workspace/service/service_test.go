@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"getsturdy.com/api/pkg/analytics/disabled"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
@@ -29,7 +30,7 @@ func setup(t *testing.T) *testCollaborators {
 	repoProvider := testutil.TestingRepoProvider(t)
 	executorProvider := executor.NewProvider(logger, repoProvider)
 	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
-	postHogClient := disabled.NewClient()
+	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient())
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
 	viewRepo := inmemory.NewInMemoryViewRepo()
 	viewEvents := events.NewInMemory()
@@ -42,7 +43,7 @@ func setup(t *testing.T) *testCollaborators {
 
 	service := New(
 		logger,
-		postHogClient,
+		analyticsService,
 
 		workspaceRepo,
 		workspaceRepo,

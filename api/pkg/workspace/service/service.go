@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/change/message"
 	service_change "getsturdy.com/api/pkg/change/service"
@@ -57,8 +58,8 @@ type Service interface {
 }
 
 type WorkspaceService struct {
-	logger          *zap.Logger
-	analyticsClient analytics.Client
+	logger           *zap.Logger
+	analyticsService *service_analytics.Service
 
 	workspaceWriter db.WorkspaceWriter
 	workspaceReader db.WorkspaceReader
@@ -79,7 +80,7 @@ type WorkspaceService struct {
 
 func New(
 	logger *zap.Logger,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 
 	workspaceWriter db.WorkspaceWriter,
 	workspaceReader db.WorkspaceReader,
@@ -98,8 +99,8 @@ func New(
 	buildQueue *workers_ci.BuildQueue,
 ) *WorkspaceService {
 	return &WorkspaceService{
-		logger:          logger,
-		analyticsClient: analyticsClient,
+		logger:           logger,
+		analyticsService: analyticsService,
 
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
@@ -358,16 +359,13 @@ func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Worksp
 		return nil, fmt.Errorf("failed to write workspace to db: %w", err)
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: req.UserID,
-		Event:      "create workspace",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", req.CodebaseID).
-			Set("name", ws.Name).
-			Set("at_existing_change", req.ChangeID != ""),
-	}); err != nil {
-		s.logger.Error("analytics failed", zap.Error(err))
-	}
+	s.analyticsService.Capture(context.TODO(), "create workspace",
+		analytics.DistinctID(req.UserID),
+		analytics.CodebaseID(req.CodebaseID),
+		analytics.Property("id", ws.ID),
+		analytics.Property("at_existing_change", req.ChangeID != ""),
+		analytics.Property("name", ws.Name),
+	)
 
 	return &ws, nil
 }
@@ -446,16 +444,11 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		ws.LatestSnapshotID = nil
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: ws.UserID,
-		Event:      "created change",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", ws.CodebaseID).
-			Set("workspace_id", ws.ID).
-			Set("change_id", change.ID),
-	}); err != nil {
-		s.logger.Error("analytics failed", zap.Error(err))
-	}
+	s.analyticsService.Capture(ctx, "create change",
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("change_id", change.ID),
+	)
 
 	if err := s.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
 		return nil, fmt.Errorf("failed to dismiss all reviews: %w", err)
@@ -491,16 +484,11 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		return nil, fmt.Errorf("failed to unset up_to_date_with_trunk: %w", err)
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: ws.UserID,
-		Event:      "landed changes",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", ws.CodebaseID).
-			Set("workspace_id", ws.ID).
-			Set("change_id", change.ID),
-	}); err != nil {
-		s.logger.Error("analytics failed", zap.Error(err))
-	}
+	s.analyticsService.Capture(ctx, "landed changes",
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("change_id", change.ID),
+	)
 
 	if err := s.commentService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, change.ID); err != nil {
 		return nil, fmt.Errorf("failed to move comments from workspace to change: %w", err)

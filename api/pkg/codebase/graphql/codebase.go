@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change/decorate"
@@ -55,8 +56,8 @@ type CodebaseRootResolver struct {
 	logger           *zap.Logger
 	viewEvents       events.EventReader
 	eventsSender     events.EventSender
-	analyticsClient  analytics.Client
 	executorProvider executor.Provider
+	analyticsService *service_analytics.Service
 
 	authService         *service_auth.Service
 	codebaseService     *service_codebase.Service
@@ -84,7 +85,7 @@ func NewCodebaseRootResolver(
 	logger *zap.Logger,
 	viewEvents events.EventReader,
 	eventsSender events.EventSender,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	executorProvider executor.Provider,
 
 	authService *service_auth.Service,
@@ -112,8 +113,8 @@ func NewCodebaseRootResolver(
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
 		eventsSender:     eventsSender,
-		analyticsClient:  analyticsClient,
 		executorProvider: executorProvider,
+		analyticsService: analyticsService,
 
 		authService:         authService,
 		codebaseService:     codebaseService,
@@ -260,11 +261,6 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 
-	authSubject, ok := auth.FromContext(ctx)
-	if !ok {
-		return nil, gqlerrors.Error(fmt.Errorf("could not get auth"))
-	}
-
 	if args.Input.Name != nil && len(*args.Input.Name) > 0 {
 		cb.Name = *args.Input.Name
 	}
@@ -288,11 +284,7 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	if args.Input.IsPublic != nil {
 		cb.IsPublic = *args.Input.IsPublic
 		// track, will be used to review malicious activity and the codebases that are made public
-		_ = r.analyticsClient.Enqueue(analytics.Capture{
-			Event:      "set codebase is_public",
-			DistinctId: authSubject.ID,
-			Properties: analytics.NewProperties().Set("codebase_id", cb.ID),
-		})
+		r.analyticsService.Capture(ctx, "ser codebase is_public", analytics.CodebaseID(cb.ID))
 	}
 
 	if err := r.codebaseService.Update(ctx, cb); err != nil {

@@ -8,7 +8,6 @@ import (
 	"sync"
 	"testing"
 
-	"getsturdy.com/api/pkg/analytics/disabled"
 	"getsturdy.com/api/pkg/view/stream"
 	"getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/vcs/provider"
@@ -82,13 +81,12 @@ func TestStream(t *testing.T) {
 	aclRepo := db_acl.NewACLRepository(d)
 	codebaseUserRepo := db_codebase.NewCodebaseUserRepo(d)
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
-	userService := service_user.New(zap.NewNop(), userRepo, disabled.NewClient(), nil)
+	userService := service_user.New(zap.NewNop(), userRepo, nil)
 	suggestionsDB := db_suggestion.New(d)
 
 	workspaceService := service_workspace.New(
 		logger,
-		disabled.NewClient(),
-
+		nil,
 		workspaceRepo,
 		workspaceRepo,
 
@@ -106,7 +104,7 @@ func TestStream(t *testing.T) {
 		nil,
 	)
 
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, nil, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, nil)
 	authService := service_auth.New(codebaseService, userService, nil, aclProvider, nil /*organizationService*/)
 
 	suggestionsService := service_suggestion.New(

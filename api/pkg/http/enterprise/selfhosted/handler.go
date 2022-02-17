@@ -1,7 +1,7 @@
 package selfhosted
 
 import (
-	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	authz "getsturdy.com/api/pkg/auth"
 	db_change "getsturdy.com/api/pkg/change/db"
 	service_ci "getsturdy.com/api/pkg/ci/service"
@@ -39,7 +39,7 @@ type Engine gin.Engine
 func ProvideHandler(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
-	analyticsClient analytics.Client,
+	analyticsSerivce *service_analytics.Service,
 	codebaseRepo db_codebase.CodebaseRepository,
 	workspaceReader db_workspace.WorkspaceReader,
 	changeRepo db_change.Repository,
@@ -74,7 +74,7 @@ func ProvideHandler(
 	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(
 		logger,
 		gitHubAppConfig,
-		analyticsClient,
+		analyticsSerivce,
 		gitHubInstallationRepo,
 		gitHubRepositoryRepo,
 		codebaseRepo,

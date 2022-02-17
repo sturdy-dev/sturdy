@@ -1,31 +1,50 @@
 package analytics
 
-import (
-	"github.com/posthog/posthog-go"
-)
-
-type Client interface {
-	posthog.Client
-	// this is to prevevnt the posthog.Client from being used as a Client
-	_incompatible()
+type CaptureOptions struct {
+	DistinctId string
+	Groups     map[string]interface{}
+	Properties map[string]interface{}
 }
 
-type client struct {
-	posthog.Client
+type CaptureOption func(*CaptureOptions)
+
+func Property(key string, value interface{}) CaptureOption {
+	return func(o *CaptureOptions) {
+		if o.Properties == nil {
+			o.Properties = make(map[string]interface{})
+		}
+		o.Properties[key] = value
+	}
 }
 
-func New(pc posthog.Client) *client {
-	return &client{pc}
+func DistinctID(id string) CaptureOption {
+	return func(o *CaptureOptions) {
+		o.DistinctId = id
+	}
 }
 
-func (c *client) _incompatible() {}
+func CodebaseID(id string) CaptureOption {
+	return func(o *CaptureOptions) {
+		if o.Properties == nil {
+			o.Properties = make(map[string]interface{})
+		}
+		o.Properties["codebase_id"] = id
+		if o.Groups == nil {
+			o.Groups = make(map[string]interface{})
+		}
+		o.Groups["codebase"] = id
+	}
+}
 
-type Message = posthog.Message
-type Capture = posthog.Capture
-type Identify = posthog.Identify
-type GroupIdentify = posthog.GroupIdentify
-type Properties = posthog.Properties
-
-func NewProperties() Properties {
-	return posthog.NewProperties()
+func OrganizationID(id string) CaptureOption {
+	return func(o *CaptureOptions) {
+		if o.Properties == nil {
+			o.Properties = make(map[string]interface{})
+		}
+		o.Properties["organization_id"] = id
+		if o.Groups == nil {
+			o.Groups = make(map[string]interface{})
+		}
+		o.Groups["organization"] = id
+	}
 }

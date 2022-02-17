@@ -33,9 +33,8 @@ type Service struct {
 
 	logger           *zap.Logger
 	executorProvider executor.Provider
-	analyticsClient  analytics.Client
 	eventsSender     events.EventSender
-	analyticsServcie *service_analytics.Service
+	analyticsService *service_analytics.Service
 }
 
 func New(
@@ -47,7 +46,6 @@ func New(
 
 	logger *zap.Logger,
 	executorProvider executor.Provider,
-	analyticsClient analytics.Client,
 	eventsSender events.EventSender,
 	analyticsServcie *service_analytics.Service,
 ) *Service {
@@ -60,9 +58,8 @@ func New(
 
 		logger:           logger,
 		executorProvider: executorProvider,
-		analyticsClient:  analyticsClient,
 		eventsSender:     eventsSender,
-		analyticsServcie: analyticsServcie,
+		analyticsService: analyticsServcie,
 	}
 }
 
@@ -182,7 +179,7 @@ func (svc *Service) Update(ctx context.Context, cb *codebase.Codebase) error {
 	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
 		svc.logger.Error("failed to send codebase updated event", zap.Error(err))
 	}
-	svc.analyticsServcie.IdentifyCodebase(ctx, cb)
+	svc.analyticsService.IdentifyCodebase(ctx, cb)
 	return nil
 }
 
@@ -231,17 +228,15 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 		return nil, fmt.Errorf("failed to add creator as member: %w", err)
 	}
 
-	svc.analyticsServcie.IdentifyCodebase(ctx, &cb)
+	svc.analyticsService.IdentifyCodebase(ctx, &cb)
 
-	if err := svc.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "create codebase",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", cb.ID).
-			Set("name", cb.Name),
-	}); err != nil {
-		svc.logger.Error("analytics failed", zap.Error(err))
+	opts := []analytics.CaptureOption{
+		analytics.CodebaseID(cb.ID),
 	}
+	if cb.OrganizationID != nil {
+		analytics.OrganizationID(*cb.OrganizationID)
+	}
+	svc.analyticsService.Capture(ctx, "create codebase", opts...)
 
 	if err := svc.workspaceService.CreateWelcomeWorkspace(cb.ID, userID, cb.Name); err != nil {
 		svc.logger.Error("failed to create welcome workspace", zap.Error(err))
@@ -261,11 +256,6 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 }
 
 func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string) (*codebase.CodebaseUser, error) {
-	actorUserID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %w", err)
@@ -295,25 +285,15 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
-	if err := svc.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: actorUserID,
-		Event:      "remove user from codebase",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", codebaseID).
-			Set("user_id", inviteUser.ID),
-	}); err != nil {
-		svc.logger.Error("analytics failed", zap.Error(err))
-	}
+	svc.analyticsService.Capture(ctx, "add user to codebase",
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("user_id", inviteUser.ID),
+	)
 
 	return &member, nil
 }
 
 func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) error {
-	actorUserID, err := auth.UserID(ctx)
-	if err != nil {
-		return err
-	}
-
 	member, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
@@ -331,15 +311,10 @@ func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) e
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
-	if err := svc.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: actorUserID,
-		Event:      "remove user from codebase",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", codebaseID).
-			Set("user_id", userID),
-	}); err != nil {
-		svc.logger.Error("analytics failed", zap.Error(err))
-	}
+	svc.analyticsService.Capture(ctx, "remove user from codebase",
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("user_id", userID),
+	)
 
 	return nil
 }

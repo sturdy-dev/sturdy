@@ -9,7 +9,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/users"
@@ -26,7 +25,6 @@ var (
 type UserSerice struct {
 	logger           *zap.Logger
 	userRepo         db_user.Repository
-	analyticsClient  analytics.Client
 	analyticsServcie *service_analytics.Service
 }
 
@@ -43,13 +41,11 @@ type Service interface {
 func New(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
-	analyticsClient analytics.Client,
 	analyticsServcie *service_analytics.Service,
 ) *UserSerice {
 	return &UserSerice{
 		logger:           logger,
 		userRepo:         userRepo,
-		analyticsClient:  analyticsClient,
 		analyticsServcie: analyticsServcie,
 	}
 }
@@ -98,13 +94,7 @@ func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, ema
 	}
 
 	s.analyticsServcie.IdentifyUser(ctx, newUser)
-
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: newUser.ID,
-		Event:      "created account",
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
+	s.analyticsServcie.Capture(ctx, "created account")
 
 	return newUser, nil
 }

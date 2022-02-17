@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
@@ -70,8 +71,8 @@ type CommentRootResolver struct {
 	workspaceResolver *resolvers.WorkspaceRootResolver
 	changeResolver    resolvers.ChangeRootResolver
 
-	logger          *zap.Logger
-	analyticsClient analytics.Client
+	logger           *zap.Logger
+	analyticsService *service_analytics.Service
 }
 
 func NewResolver(
@@ -95,7 +96,7 @@ func NewResolver(
 	changeResolver resolvers.ChangeRootResolver,
 
 	logger *zap.Logger,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	executroProvider executor.Provider,
 ) resolvers.CommentRootResolver {
 	return &CommentRootResolver{
@@ -120,8 +121,8 @@ func NewResolver(
 		workspaceResolver: workspaceResolver,
 		changeResolver:    changeResolver,
 
-		logger:          logger,
-		analyticsClient: analyticsClient,
+		logger:           logger,
+		analyticsService: analyticsService,
 	}
 }
 
@@ -237,11 +238,6 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 }
 
 func (r *CommentRootResolver) UpdateComment(ctx context.Context, args resolvers.UpdateCommentArgs) (resolvers.CommentResolver, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	comm, err := r.commentsRepo.Get(comments.ID(args.Input.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -276,25 +272,15 @@ func (r *CommentRootResolver) UpdateComment(ctx context.Context, args resolvers.
 		}
 	}
 
-	if err := r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "updated comment",
-		Properties: analytics.NewProperties().
-			Set("comment_id", comment.ID).
-			Set("codebase_id", comment.CodebaseID),
-	}); err != nil {
-		r.logger.Error("analytics failed", zap.Error(err))
-	}
+	r.analyticsService.Capture(ctx, "updated comment",
+		analytics.CodebaseID(comment.CodebaseID),
+		analytics.Property("comment_id", comment.ID),
+	)
 
 	return &CommentResolver{root: r, comment: *comment}, nil
 }
 
 func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.DeleteCommentArgs) (resolvers.CommentResolver, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	comm, err := r.commentsRepo.Get(comments.ID(args.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -304,15 +290,10 @@ func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "deleted comment",
-		Properties: analytics.NewProperties().
-			Set("comment_id", comm.ID).
-			Set("codebase_id", comm.CodebaseID),
-	}); err != nil {
-		r.logger.Error("analytics failed", zap.Error(err))
-	}
+	r.analyticsService.Capture(ctx, "deleted comment",
+		analytics.CodebaseID(comm.CodebaseID),
+		analytics.Property("comment_id", comm.ID),
+	)
 
 	t := time.Now()
 	comm.DeletedAt = &t
@@ -487,18 +468,13 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 
 	id := comments.ID(uuid.NewString())
 
-	if err := r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "created comment",
-		Properties: analytics.NewProperties().
-			Set("is_reply", false).
-			Set("comment_id", id).
-			Set("codebase_id", codebaseID).
-			Set("workspace_id", workspaceID).
-			Set("change_id", changeID),
-	}); err != nil {
-		r.logger.Error("analytics failed", zap.Error(err))
-	}
+	r.analyticsService.Capture(ctx, "created comment",
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("is_reply", false),
+		analytics.Property("comment_id", id),
+		analytics.Property("workspace_id", workspaceID),
+		analytics.Property("change_id", changeID),
+	)
 
 	newComm := &comments.Comment{
 		ID:                  id,
@@ -556,18 +532,13 @@ func (r *CommentRootResolver) prepareReplyComment(ctx context.Context, args reso
 		return nil, err
 	}
 
-	if err := r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "created comment",
-		Properties: analytics.NewProperties().
-			Set("is_reply", true).
-			Set("comment_id", id).
-			Set("codebase_id", parent.CodebaseID).
-			Set("workspace_id", parent.WorkspaceID).
-			Set("change_id", parent.ChangeID),
-	}); err != nil {
-		r.logger.Error("analytics failed", zap.Error(err))
-	}
+	r.analyticsService.Capture(ctx, "created comment",
+		analytics.CodebaseID(parent.CodebaseID),
+		analytics.Property("is_reply", true),
+		analytics.Property("comment_id", id),
+		analytics.Property("workspace_id", parent.WorkspaceID),
+		analytics.Property("change_id", parent.ChangeID),
+	)
 
 	return comment, nil
 }

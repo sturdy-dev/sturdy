@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 
-	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -54,7 +53,6 @@ type prRootResolver struct {
 	gitHubClientProvider         client.InstallationClientProvider
 	gitHubPersonalClientProvider client.PersonalClientProvider
 	events                       events.EventReadWriter
-	analyticsClient              analytics.Client
 
 	authService   *service_auth.Service
 	gitHubService *service_github.Service
@@ -82,7 +80,6 @@ func NewResolver(
 	gitHubClientProvider client.InstallationClientProvider,
 	gitHubPersonalClientProvider client.PersonalClientProvider,
 	events events.EventReadWriter,
-	analyticsClient analytics.Client,
 
 	authService *service_auth.Service,
 	gitHubService *service_github.Service,
@@ -109,7 +106,6 @@ func NewResolver(
 		gitHubClientProvider:         gitHubClientProvider,
 		gitHubPersonalClientProvider: gitHubPersonalClientProvider,
 		events:                       events,
-		analyticsClient:              analyticsClient,
 
 		authService:   authService,
 		gitHubService: gitHubService,

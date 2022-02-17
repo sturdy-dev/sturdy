@@ -1,7 +1,6 @@
 package proxy
 
 import (
-	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/analytics/disabled"
 	"getsturdy.com/api/pkg/installations"
 
@@ -20,36 +19,40 @@ type client struct {
 	installation *installations.Installation
 }
 
-func (c *client) Enqueue(event analytics.Message) error {
+func (c *client) setProperties(properties map[string]interface{}) map[string]interface{} {
+	if properties == nil {
+		properties = make(map[string]interface{}, 3)
+	}
+	properties["installation_id"] = c.installation.ID
+	properties["installation_type"] = c.installation.Type.String()
+	properties["version"] = c.installation.Version
+	return properties
+}
+
+func (c *client) setGroups(groups map[string]interface{}) map[string]interface{} {
+	if groups == nil {
+		groups = make(map[string]interface{}, 1)
+	}
+	groups["installation"] = c.installation.ID
+	return groups
+}
+
+func (c *client) Enqueue(event posthog.Message) error {
 	switch e := event.(type) {
-	case *analytics.Capture:
-		if e.Properties == nil {
-			e.Properties = make(map[string]interface{})
-		}
-		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type.String())
-		e.Properties.Set("version", c.installation.Version)
-	case analytics.Capture:
-		if e.Properties == nil {
-			e.Properties = make(map[string]interface{})
-		}
-		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type.String())
-		e.Properties.Set("version", c.installation.Version)
-	case analytics.Identify:
-		if e.Properties == nil {
-			e.Properties = make(map[string]interface{})
-		}
-		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type.String())
-		e.Properties.Set("version", c.installation.Version)
-	case *analytics.Identify:
-		if e.Properties == nil {
-			e.Properties = make(map[string]interface{})
-		}
-		e.Properties.Set("installation_id", c.installation.ID)
-		e.Properties.Set("installation_type", c.installation.Type.String())
-		e.Properties.Set("version", c.installation.Version)
+	case *posthog.Capture:
+		e.Properties = c.setProperties(e.Properties)
+		e.Groups = c.setGroups(e.Groups)
+	case posthog.Capture:
+		e.Properties = c.setProperties(e.Properties)
+		e.Groups = c.setGroups(e.Groups)
+	case posthog.Identify:
+		e.Properties = c.setProperties(e.Properties)
+	case *posthog.Identify:
+		e.Properties = c.setProperties(e.Properties)
+	case *posthog.GroupIdentify:
+		e.Properties = c.setProperties(e.Properties)
+	case posthog.GroupIdentify:
+		e.Properties = c.setProperties(e.Properties)
 	}
 
 	c.identifyInstallation()
@@ -58,8 +61,8 @@ func (c *client) Enqueue(event analytics.Message) error {
 }
 
 func (c *client) identifyInstallation() {
-	if err := c.Enqueue(analytics.GroupIdentify{
-		Type: "installation_id", // this should match other event's property key
+	if err := c.Enqueue(posthog.GroupIdentify{
+		Type: "installation", // this should match other event's property key
 		Key:  c.installation.ID,
 		Properties: map[string]interface{}{
 			"type":            c.installation.Type.String(),
@@ -75,7 +78,7 @@ func NewClient(
 	cfg *Configuration,
 	installation *installations.Installation,
 	logger *zap.Logger,
-) (analytics.Client, error) {
+) (posthog.Client, error) {
 	if cfg.Disable {
 		return disabled.NewClient(), nil
 	}
@@ -88,9 +91,9 @@ func NewClient(
 		return nil, err
 	}
 
-	return analytics.New(&client{
+	return &client{
 		Client:       posthogClient,
 		logger:       logger,
 		installation: installation,
-	}), nil
+	}, nil
 }
