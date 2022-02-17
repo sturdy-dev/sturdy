@@ -369,7 +369,7 @@ hljs.registerLanguage('typescript', ts)
 hljs.registerLanguage('diff', diff)
 hljs.registerLanguage('xml', xml)
 
-let ogImageFull = computed(() => new URL(ogImage, location.origin).href)
+let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
 
 let container = ref(null)
 
