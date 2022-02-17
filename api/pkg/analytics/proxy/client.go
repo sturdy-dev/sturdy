@@ -61,7 +61,7 @@ func (c *client) Enqueue(event posthog.Message) error {
 }
 
 func (c *client) identifyInstallation() {
-	if err := c.Enqueue(posthog.GroupIdentify{
+	if err := c.Client.Enqueue(posthog.GroupIdentify{
 		Type: "installation", // this should match other event's property key
 		Key:  c.installation.ID,
 		Properties: map[string]interface{}{
