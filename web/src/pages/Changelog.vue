@@ -331,6 +331,11 @@ export default {
       ipc: window.ipc,
     }
   },
+  watch: {
+    'data.codebase.id': function (id) {
+      if (id) this.emitter.emit('codebase', id)
+    },
+  },
   data() {
     return {
       reactive_changes_cancel_func: null,

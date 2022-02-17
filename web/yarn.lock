@@ -2065,9 +2065,9 @@
   integrity sha512-zBw5gPUsofXUSpS3ZAXqRNedLRBvirl3sqkj2Lez7X2EkKRgn5D8m9fQIrig/X3TsKcXUpijDW5Buk5zeCVzJA==
 
 "@sentry/types@^6.11.0":
-  version "6.16.1"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.16.1.tgz#4917607115b30315757c2cf84f80bac5100b8ac0"
-  integrity sha512-Wh354g30UsJ5kYJbercektGX4ZMc9MHU++1NjeN2bTMnbofEcpUDWIiKeulZEY65IC1iU+1zRQQgtYO+/hgCUQ==
+  version "6.17.9"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-6.17.9.tgz#d579c33cde0301adaf8ff4762479ad017bf0dffa"
+  integrity sha512-xuulX6qUCL14ayEOh/h6FUIvZtsi1Bx34dSOaWDrjXUOJHJAM7214uiqW1GZxPJ13YuaUIubjTSfDmSQ9CBzTw==
 
 "@sentry/utils@5.30.0":
   version "5.30.0"
@@ -10264,9 +10264,9 @@ rope-sequence@^1.3.0:
   integrity sha512-ku6MFrwEVSVmXLvy3dYph3LAMNS0890K7fabn+0YIRQ2T96T9F4gkFf0vf0WW0JUraNWwGRtInEpH7yO4tbQZg==
 
 rrweb-snapshot@^1.1.7:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/rrweb-snapshot/-/rrweb-snapshot-1.1.11.tgz#2eebe16e21c2edde287d07b090934f3c398d476f"
-  integrity sha512-4FRkBQCS4T++FvGurSonBMMYo9XEClTe7sbfoiSrA38mutuJdx0gakFPbtnvLdDmM41a4vEGIB7Hs4JMQnS1zA==
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/rrweb-snapshot/-/rrweb-snapshot-1.1.12.tgz#74c183bffc829001652bc21c9e1dbef8daf0a684"
+  integrity sha512-T97d7am/q3PT8EDakGD6NFR4hb3Ll8h9eKTFYsSEhK6Y0/PvggobmeDTzGZXVHZ3e+tjJ1s6vVCSjvVdvqnhAw==
 
 run-async@^2.4.0:
   version "2.4.1"
