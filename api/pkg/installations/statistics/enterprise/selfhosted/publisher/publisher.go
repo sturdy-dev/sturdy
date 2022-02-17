@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"getsturdy.com/api/pkg/installations/statistics"
@@ -38,8 +39,13 @@ func (p *Publisher) Publish(ctx context.Context, statistics *statistics.Statisti
 	}
 	defer resp.Body.Close()
 
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to send statistics: status code %d", resp.StatusCode)
+		return fmt.Errorf("failed to send statistics: %s (status %d)", string(body), resp.StatusCode)
 	}
 
 	return nil
