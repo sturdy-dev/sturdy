@@ -1047,6 +1047,9 @@ export default defineComponent({
         this.reset()
       }
     },
+    'data.workspace.codebase.id': function (n) {
+      if (n) this.emitter.emit('codebase', n)
+    },
     'data.workspace.id': function (n) {
       if (n) {
         this.subscribe()

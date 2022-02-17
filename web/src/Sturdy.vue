@@ -391,6 +391,11 @@ export default defineComponent({
   },
   mounted() {
     this.emitter.on('authed', this.refreshUser)
+    this.emitter.on('codebase', (id: string) => {
+      if (this.postHogEnabled) {
+        posthog.group('codebase', id)
+      }
+    })
 
     this.configureSentry()
     this.configurePostHog()

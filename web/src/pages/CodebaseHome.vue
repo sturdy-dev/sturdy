@@ -339,6 +339,9 @@ export default defineComponent({
     },
   },
   watch: {
+    'data.codebase.id': function (id) {
+      if (id) this.emitter.emit('codebase', id)
+    },
     error: function (err) {
       if (err) throw err
     },

@@ -94,5 +94,10 @@ export default {
       stale,
     }
   },
+  watch: {
+    'data.codebase.id': function (id) {
+      if (id) this.emitter.emit('codebase', id)
+    },
+  },
 }
 </script>
