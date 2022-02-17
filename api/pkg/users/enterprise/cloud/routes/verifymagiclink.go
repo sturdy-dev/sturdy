@@ -1,10 +1,12 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	"getsturdy.com/api/pkg/onetime/service"
 	service_user "getsturdy.com/api/pkg/users/enterprise/cloud/service"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +31,16 @@ func VerifyMagicLink(logger *zap.Logger, userService *service_user.Service, jwtS
 			return
 		}
 
-		if err := userService.VerifyMagicLink(c.Request.Context(), user, req.Code); err != nil {
+		if err := userService.VerifyMagicLink(c.Request.Context(), user, req.Code); errors.Is(err, service.ErrExpired) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "code expired"})
+			return
+		} else if errors.Is(err, service.ErrReused) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "code already used"})
+			return
+		} else if errors.Is(err, service.ErrInvalid) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "code invalid"})
+			return
+		} else if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
 			logger.Error("failed to verify magic link", zap.Error(err))
 			return
