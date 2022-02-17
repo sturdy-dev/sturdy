@@ -2,6 +2,8 @@ package graphql
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -20,11 +22,15 @@ func (r *resolver) ID() graphql.ID {
 }
 
 func (r *resolver) NeedsFirstTimeSetup(ctx context.Context) (bool, error) {
-	hasOrg, err := r.root.service.HasOrganization(ctx)
-	if err != nil {
+	_, err := r.root.organizationService.GetFirst(ctx)
+	switch {
+	case err == nil:
+		return true, nil
+	case errors.Is(err, sql.ErrNoRows):
+		return false, nil
+	default:
 		return false, gqlerrors.Error(err)
 	}
-	return hasOrg, nil
 }
 
 func (r *resolver) Version() string {

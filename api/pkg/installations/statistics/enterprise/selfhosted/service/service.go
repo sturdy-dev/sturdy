@@ -7,33 +7,31 @@ import (
 	"time"
 
 	service_codebases "getsturdy.com/api/pkg/codebase/service"
-	"getsturdy.com/api/pkg/installations"
+	service_installations "getsturdy.com/api/pkg/installations/service"
 	"getsturdy.com/api/pkg/installations/statistics"
 	"getsturdy.com/api/pkg/installations/statistics/enterprise/selfhosted/publisher"
 	service_users "getsturdy.com/api/pkg/users/service"
 )
 
 type Service struct {
-	installation installations.GetInstallationFunc
-
-	codebasesService *service_codebases.Service
-	usersService     service_users.Service
-	publisher        *publisher.Publisher
+	installationsService *service_installations.Service
+	codebasesService     *service_codebases.Service
+	usersService         service_users.Service
+	publisher            *publisher.Publisher
 }
 
 func New(
-	installation installations.GetInstallationFunc,
-
+	installationsService *service_installations.Service,
 	codebasesService *service_codebases.Service,
 	usersService service_users.Service,
 
 	publisher *publisher.Publisher,
 ) *Service {
 	return &Service{
-		installation:     installation,
-		codebasesService: codebasesService,
-		usersService:     usersService,
-		publisher:        publisher,
+		installationsService: installationsService,
+		codebasesService:     codebasesService,
+		usersService:         usersService,
+		publisher:            publisher,
 	}
 }
 
@@ -48,7 +46,7 @@ func (s *Service) Get(ctx context.Context) (*statistics.Statistic, error) {
 		return nil, fmt.Errorf("failed to get codebases count: %w", err)
 	}
 
-	ins, err := s.installation()
+	ins, err := s.installationsService.Get(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get the current installation: %w", err)
 	}

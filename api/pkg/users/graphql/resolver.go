@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -28,6 +29,7 @@ type userRootResolver struct {
 	viewRootResolver          resolvers.ViewRootResolver
 	notificationRootResolver  resolvers.NotificationRootResolver
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver
+	analyticsServcie          *service_analytics.Service
 }
 
 func NewResolver(
@@ -41,6 +43,7 @@ func NewResolver(
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver,
 
 	logger *zap.Logger,
+	analyticsServcie *service_analytics.Service,
 ) *UserDataloader {
 	return NewDataloader(&userRootResolver{
 		userRepo:                 userRepo,
@@ -85,6 +88,8 @@ func (r *userRootResolver) UpdateUser(ctx context.Context, args resolvers.Update
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
+
+	r.analyticsServcie.IdentifyUser(ctx, user)
 
 	// User password is updated by a separate method
 	if args.Input.Password != nil && len(*args.Input.Password) >= 8 {

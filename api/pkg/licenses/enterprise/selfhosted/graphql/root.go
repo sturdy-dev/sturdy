@@ -6,36 +6,27 @@ import (
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/installations"
+	service_installations "getsturdy.com/api/pkg/installations/service"
 	"getsturdy.com/api/pkg/licenses/enterprise/selfhosted/validator"
 )
 
 type licenseRootResovler struct {
-	validator    *validator.Validator
-	installation installations.GetInstallationFunc
+	validator            *validator.Validator
+	installationsService *service_installations.Service
 }
 
 func New(
 	validator *validator.Validator,
-	installation installations.GetInstallationFunc,
+	installationsService *service_installations.Service,
 ) resolvers.LicenseRootResolver {
 	return &licenseRootResovler{
-		validator:    validator,
-		installation: installation,
+		validator:            validator,
+		installationsService: installationsService,
 	}
 }
 
 func (r *licenseRootResovler) InternalByKey(ctx context.Context, key string) (resolvers.LicenseResolver, error) {
-	ins, err := r.installation()
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if ins.LicenseKey == nil {
-		return nil, gqlerrors.ErrNotFound
-	}
-
-	license, err := r.validator.Validate(ctx, *ins.LicenseKey)
+	license, err := r.validator.Validate(ctx, key)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to validate license: %w", err))
 	}
@@ -46,7 +37,7 @@ func (r *licenseRootResovler) InternalByKey(ctx context.Context, key string) (re
 }
 
 func (r *licenseRootResovler) InternalListForOrganizationID(ctx context.Context, organizationID string) ([]resolvers.LicenseResolver, error) {
-	ins, err := r.installation()
+	ins, err := r.installationsService.Get(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

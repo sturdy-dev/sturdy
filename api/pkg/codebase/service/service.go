@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -34,6 +35,7 @@ type Service struct {
 	executorProvider executor.Provider
 	analyticsClient  analytics.Client
 	eventsSender     events.EventSender
+	analyticsServcie *service_analytics.Service
 }
 
 func New(
@@ -47,6 +49,7 @@ func New(
 	executorProvider executor.Provider,
 	analyticsClient analytics.Client,
 	eventsSender events.EventSender,
+	analyticsServcie *service_analytics.Service,
 ) *Service {
 	return &Service{
 		repo:             repo,
@@ -59,15 +62,24 @@ func New(
 		executorProvider: executorProvider,
 		analyticsClient:  analyticsClient,
 		eventsSender:     eventsSender,
+		analyticsServcie: analyticsServcie,
 	}
 }
 
-func (svc *Service) GetByID(_ context.Context, id string) (*codebase.Codebase, error) {
-	return svc.repo.Get(id)
+func (svc *Service) GetByID(ctx context.Context, id string) (*codebase.Codebase, error) {
+	cb, err := svc.repo.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	return cb, nil
 }
 
-func (svc *Service) GetByShortID(_ context.Context, shortID string) (*codebase.Codebase, error) {
-	return svc.repo.GetByShortID(shortID)
+func (svc *Service) GetByShortID(ctx context.Context, shortID string) (*codebase.Codebase, error) {
+	cb, err := svc.repo.GetByShortID(shortID)
+	if err != nil {
+		return nil, err
+	}
+	return cb, nil
 }
 
 func (svc *Service) CanAccess(ctx context.Context, userID string, codebaseID string) (bool, error) {
@@ -163,6 +175,17 @@ func (svc *Service) orgsByUser(ctx context.Context, userID string) (map[string]s
 	return orgIDs, nil
 }
 
+func (svc *Service) Update(ctx context.Context, cb *codebase.Codebase) error {
+	if err := svc.repo.Update(cb); err != nil {
+		return fmt.Errorf("could not update codebase: %w", err)
+	}
+	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
+		svc.logger.Error("failed to send codebase updated event", zap.Error(err))
+	}
+	svc.analyticsServcie.IdentifyCodebase(ctx, cb)
+	return nil
+}
+
 func (svc *Service) Create(ctx context.Context, name string, organizationID *string) (*codebase.Codebase, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
@@ -208,14 +231,15 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 		return nil, fmt.Errorf("failed to add creator as member: %w", err)
 	}
 
-	err = svc.analyticsClient.Enqueue(analytics.Capture{
+	svc.analyticsServcie.IdentifyCodebase(ctx, &cb)
+
+	if err := svc.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: userID,
 		Event:      "create codebase",
 		Properties: analytics.NewProperties().
 			Set("codebase_id", cb.ID).
 			Set("name", cb.Name),
-	})
-	if err != nil {
+	}); err != nil {
 		svc.logger.Error("analytics failed", zap.Error(err))
 	}
 
@@ -237,6 +261,11 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 }
 
 func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string) (*codebase.CodebaseUser, error) {
+	actorUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %w", err)
@@ -266,10 +295,25 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
+	if err := svc.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: actorUserID,
+		Event:      "remove user from codebase",
+		Properties: analytics.NewProperties().
+			Set("codebase_id", codebaseID).
+			Set("user_id", inviteUser.ID),
+	}); err != nil {
+		svc.logger.Error("analytics failed", zap.Error(err))
+	}
+
 	return &member, nil
 }
 
 func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) error {
+	actorUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return err
+	}
+
 	member, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
@@ -285,6 +329,16 @@ func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) e
 	// Send events
 	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
 		svc.logger.Error("failed to send events", zap.Error(err))
+	}
+
+	if err := svc.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: actorUserID,
+		Event:      "remove user from codebase",
+		Properties: analytics.NewProperties().
+			Set("codebase_id", codebaseID).
+			Set("user_id", userID),
+	}); err != nil {
+		svc.logger.Error("analytics failed", zap.Error(err))
 	}
 
 	return nil

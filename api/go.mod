@@ -48,7 +48,7 @@ require (
 	github.com/libgit2/git2go/v33 v33.0.0
 	github.com/mergestat/timediff v0.0.2
 	github.com/microcosm-cc/bluemonday v1.0.16
-	github.com/posthog/posthog-go v0.0.0-20210521164710-e0ee8499d623
+	github.com/posthog/posthog-go v0.0.0-20211028072449-93c17c49e2b0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/psanford/memfs v0.0.0-20210214183328-a001468d78ef
 	github.com/sourcegraph/go-diff v0.6.2-0.20210526090523-35b24a7eb480

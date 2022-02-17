@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"getsturdy.com/api/pkg/installations"
+	service_installations "getsturdy.com/api/pkg/installations/service"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/users/service"
@@ -18,23 +18,23 @@ type Service struct {
 	*service.UserSerice
 
 	organizationService *service_organization.Service
-	installation        installations.GetInstallationFunc
+	installationService *service_installations.Service
 }
 
 func New(
 	userService *service.UserSerice,
 	organizationService *service_organization.Service,
-	installation installations.GetInstallationFunc,
+	installationService *service_installations.Service,
 ) *Service {
 	return &Service{
 		UserSerice:          userService,
 		organizationService: organizationService,
-		installation:        installation,
+		installationService: installationService,
 	}
 }
 
 func (s *Service) ValidateUserCount(ctx context.Context) error {
-	ins, err := s.installation()
+	ins, err := s.installationService.Get(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get current installation: %w", err)
 	}
