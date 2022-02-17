@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,8 +34,16 @@ func Batch(logger *zap.Logger, client posthog.Client) gin.HandlerFunc {
 		}
 
 		for _, event := range req.Batch {
+			delete(event.Properties, "$lib")
+			delete(event.Properties, "$lib_version")
 			if event.Event == "$groupidentify" {
+				key := fmt.Sprint(event.Properties["$group_key"])
+				typ := fmt.Sprint(event.Properties["$group_type"])
+				delete(event.Properties, "$group_key")
+				delete(event.Properties, "$group_type")
 				if err := client.Enqueue(posthog.GroupIdentify{
+					Key:        key,
+					Type:       typ,
 					DistinctId: event.DistinctID,
 					Timestamp:  event.Timestamp,
 					Properties: event.Properties,
@@ -52,8 +61,6 @@ func Batch(logger *zap.Logger, client posthog.Client) gin.HandlerFunc {
 						logger.Error("failed to enqueue identify", zap.Error(err))
 					}
 				case "capture":
-					delete(event.Properties, "$lib")
-					delete(event.Properties, "$lib_version")
 					if err := client.Enqueue(posthog.Capture{
 						Event:      event.Event,
 						DistinctId: event.DistinctID,
