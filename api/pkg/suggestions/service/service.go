@@ -170,6 +170,7 @@ func (s *Service) Create(ctx context.Context, userID string, forWorkspace *works
 		DistinctId: suggestion.UserID,
 		Event:      "suggestions-create",
 		Properties: analytics.NewProperties().
+			Set("codebase_id", suggestion.CodebaseID).
 			Set("workspace_id", forWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
@@ -306,6 +307,7 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 		DistinctId: originalWorkspace.UserID,
 		Event:      "suggestions-apply",
 		Properties: analytics.NewProperties().
+			Set("codebase_id", originalWorkspace.CodebaseID).
 			Set("workspace_id", originalWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
@@ -357,6 +359,7 @@ func (s *Service) DismissHunks(ctx context.Context, suggestion *suggestions.Sugg
 		DistinctId: originalWorkspace.UserID,
 		Event:      "suggestions-dismiss",
 		Properties: analytics.NewProperties().
+			Set("codebase_id", originalWorkspace.CodebaseID).
 			Set("workspace_id", originalWorkspace.ID).
 			Set("suggestion_id", suggestion.ID),
 	}); err != nil {
