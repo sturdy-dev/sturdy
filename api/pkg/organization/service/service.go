@@ -48,6 +48,7 @@ func (svc *Service) ListByUserID(ctx context.Context, userID string) ([]*organiz
 		if err != nil {
 			return nil, fmt.Errorf("could not get organization by membership: %w", err)
 		}
+		svc.analyticsServcie.IdentifyOrganization(ctx, org) // todo: remove when most of the orgs are identified in the posthog
 		res = append(res, org)
 	}
 
@@ -155,19 +156,21 @@ func (svc *Service) RemoveMember(ctx context.Context, orgID, userID, deletedByUs
 }
 
 func (svc *Service) GetByID(ctx context.Context, organizationID string) (*organization.Organization, error) {
-	member, err := svc.organizationRepository.Get(ctx, organizationID)
+	org, err := svc.organizationRepository.Get(ctx, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization: %w", err)
 	}
-	return member, nil
+	svc.analyticsServcie.IdentifyOrganization(ctx, org) // todo: remove when most of the orgs are identified in the posthog
+	return org, nil
 }
 
 func (svc *Service) GetByShortID(ctx context.Context, shortID organization.ShortOrganizationID) (*organization.Organization, error) {
-	member, err := svc.organizationRepository.GetByShortID(ctx, shortID)
+	org, err := svc.organizationRepository.GetByShortID(ctx, shortID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization: %w", err)
 	}
-	return member, nil
+	svc.analyticsServcie.IdentifyOrganization(ctx, org) // todo: remove when most of the orgs are identified in the posthog
+	return org, nil
 }
 
 func (svc *Service) GetMemberByUserIDAndOrganizationID(ctx context.Context, userID, organizationID string) (*organization.Member, error) {
