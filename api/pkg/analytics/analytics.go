@@ -23,6 +23,7 @@ func (c *client) _incompatible() {}
 type Message = posthog.Message
 type Capture = posthog.Capture
 type Identify = posthog.Identify
+type GroupIdentify = posthog.GroupIdentify
 type Properties = posthog.Properties
 
 func NewProperties() Properties {

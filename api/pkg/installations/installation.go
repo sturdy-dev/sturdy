@@ -7,8 +7,6 @@ import (
 
 type Type uint
 
-type GetInstallationFunc func() (*Installation, error)
-
 // Installation represents a selfhosted installation of Sturdy.
 type Installation struct {
 	ID         string                   `db:"id"`

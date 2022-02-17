@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -23,9 +24,10 @@ var (
 )
 
 type UserSerice struct {
-	logger          *zap.Logger
-	userRepo        db_user.Repository
-	analyticsClient analytics.Client
+	logger           *zap.Logger
+	userRepo         db_user.Repository
+	analyticsClient  analytics.Client
+	analyticsServcie *service_analytics.Service
 }
 
 type Service interface {
@@ -42,11 +44,13 @@ func New(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
 	analyticsClient analytics.Client,
+	analyticsServcie *service_analytics.Service,
 ) *UserSerice {
 	return &UserSerice{
-		logger:          logger,
-		userRepo:        userRepo,
-		analyticsClient: analyticsClient,
+		logger:           logger,
+		userRepo:         userRepo,
+		analyticsClient:  analyticsClient,
+		analyticsServcie: analyticsServcie,
 	}
 }
 
@@ -93,15 +97,7 @@ func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, ema
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// Send events
-	if err := s.analyticsClient.Enqueue(analytics.Identify{
-		DistinctId: newUser.ID,
-		Properties: analytics.NewProperties().
-			Set("name", newUser.Name).
-			Set("email", newUser.Email),
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
+	s.analyticsServcie.IdentifyUser(ctx, newUser)
 
 	if err := s.analyticsClient.Enqueue(analytics.Capture{
 		DistinctId: newUser.ID,

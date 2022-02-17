@@ -7,26 +7,34 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
-
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/shortid"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
 	organizationRepository       db_organization.Repository
 	organizationMemberRepository db_organization.MemberRepository
+	analyticsServcie             *service_analytics.Service
+	analyticsClient              analytics.Client
 }
 
 func New(
 	organizationRepository db_organization.Repository,
 	organizationMemberRepository db_organization.MemberRepository,
+	analyticsServcie *service_analytics.Service,
+	analyticsClient analytics.Client,
 ) *Service {
 	return &Service{
 		organizationRepository:       organizationRepository,
 		organizationMemberRepository: organizationMemberRepository,
+		analyticsServcie:             analyticsServcie,
+		analyticsClient:              analyticsClient,
 	}
 }
 
@@ -100,10 +108,25 @@ func (svc *Service) Create(ctx context.Context, name string) (*organization.Orga
 		return nil, fmt.Errorf("failed to invite creator to organization: %w", err)
 	}
 
+	svc.analyticsServcie.IdentifyOrganization(ctx, &org)
+
+	_ = svc.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: userID,
+		Event:      "organization_created",
+		Properties: map[string]interface{}{
+			"organization": org.ID,
+		},
+	})
+
 	return &org, nil
 }
 
 func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID string) (*organization.Member, error) {
+	actorUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	member := organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: orgID,
@@ -116,10 +139,24 @@ func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID 
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
+	_ = svc.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: actorUserID,
+		Event:      "add memeber to organization",
+		Properties: map[string]interface{}{
+			"organization": orgID,
+			"user_id":      userID,
+		},
+	})
+
 	return &member, nil
 }
 
 func (svc *Service) RemoveMember(ctx context.Context, orgID, userID, deletedByUserID string) error {
+	actorUserID, err := auth.UserID(ctx)
+	if err != nil {
+		return err
+	}
+
 	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, orgID)
 	if err != nil {
 		return fmt.Errorf("could not get member: %w", err)
@@ -132,6 +169,15 @@ func (svc *Service) RemoveMember(ctx context.Context, orgID, userID, deletedByUs
 	if err := svc.organizationMemberRepository.Update(ctx, member); err != nil {
 		return fmt.Errorf("could not update member: %w", err)
 	}
+
+	_ = svc.analyticsClient.Enqueue(analytics.Capture{
+		DistinctId: actorUserID,
+		Event:      "remove memeber from organization",
+		Properties: map[string]interface{}{
+			"organization": orgID,
+			"user_id":      userID,
+		},
+	})
 
 	return nil
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"sync"
@@ -10,7 +9,6 @@ import (
 	"getsturdy.com/api/pkg/installations"
 	"getsturdy.com/api/pkg/installations/db"
 	"getsturdy.com/api/pkg/licenses"
-	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/version"
 
 	"github.com/google/uuid"
@@ -19,8 +17,7 @@ import (
 var ErrInvalidLicense = errors.New("invalid license")
 
 type Service struct {
-	repo                db.Repository
-	organizationService *service_organization.Service
+	repo db.Repository
 
 	licenseGuard *sync.RWMutex
 	// license is the latest license that was retrieved from the licensing server.
@@ -29,25 +26,11 @@ type Service struct {
 
 func New(
 	repo db.Repository,
-	organizationService *service_organization.Service,
 ) *Service {
 	return &Service{
-		repo:                repo,
-		organizationService: organizationService,
+		repo: repo,
 
 		licenseGuard: &sync.RWMutex{},
-	}
-}
-
-func (svc *Service) HasOrganization(ctx context.Context) (bool, error) {
-	_, err := svc.organizationService.GetFirst(ctx)
-	switch {
-	case err == nil:
-		return true, nil
-	case errors.Is(err, sql.ErrNoRows):
-		return false, nil
-	default:
-		return false, err
 	}
 }
 

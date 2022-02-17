@@ -295,13 +295,8 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 		})
 	}
 
-	if err := r.codebaseRepo.Update(cb); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to update codebase repo: %w", err))
-	}
-
-	// Send events
-	if err := r.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to send codebase event: %w", err))
+	if err := r.codebaseService.Update(ctx, cb); err != nil {
+		return nil, gqlerrors.Error(fmt.Errorf("failed to update codebase: %w", err))
 	}
 
 	return &CodebaseResolver{c: cb, root: r}, nil

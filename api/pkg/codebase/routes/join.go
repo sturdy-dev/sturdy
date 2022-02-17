@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/codebase/db"
@@ -38,7 +37,7 @@ func JoinGetCodebase(logger *zap.Logger, repo db.CodebaseRepository) func(c *gin
 	}
 }
 
-func JoinCodebase(logger *zap.Logger, repo db.CodebaseRepository, codeBaseUserRepo db.CodebaseUserRepository, eventSender events.EventSender, analyticsClient analytics.Client) func(c *gin.Context) {
+func JoinCodebase(logger *zap.Logger, repo db.CodebaseRepository, codeBaseUserRepo db.CodebaseUserRepository, eventSender events.EventSender) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		code := c.Param("code")
 		if len(code) == 0 {
@@ -85,14 +84,6 @@ func JoinCodebase(logger *zap.Logger, repo db.CodebaseRepository, codeBaseUserRe
 		if err := eventSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
 			logger.Error("failed to send events", zap.Error(err))
 		}
-
-		_ = analyticsClient.Enqueue(analytics.Capture{
-			DistinctId: userID,
-			Event:      "join codebase",
-			Properties: map[string]interface{}{
-				"codebase_id": cb.ID,
-			},
-		})
 
 		c.JSON(http.StatusOK, cb)
 	}
