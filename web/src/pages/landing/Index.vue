@@ -497,7 +497,7 @@ import IconGears from '../../molecules/landing/IconGears.vue'
 import IconDesktop from '../../molecules/landing/IconDesktop.vue'
 import IconLaptop from '../../molecules/landing/IconLaptop.vue'
 import IconMobile from '../../molecules/landing/IconMobile.vue'
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useHead } from '@vueuse/head'
 import {
   CheckCircleIcon,
@@ -519,6 +519,7 @@ import videoGiveSuggestion from './assets/give-suggestion.mp4'
 import videoTryCode from './assets/try-code.mp4'
 import videoCollaborate from './assets/collaborate.mp4'
 import { DOCKER_ONELINER } from '../../docker'
+import ogImage from './assets/sturdy_og.png'
 
 export default defineComponent({
   components: {
@@ -552,6 +553,7 @@ export default defineComponent({
   },
 
   setup() {
+    let ogImageFull = computed(() => new URL(ogImage, location.origin).href)
     useHead({
       title: 'Sturdy - Real-time code collaboration',
       meta: [
@@ -570,7 +572,7 @@ export default defineComponent({
           content:
             'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
         },
-        // { property: 'og:image', content: '' },
+        { property: 'og:image', content: ogImageFull },
       ],
     })
 
