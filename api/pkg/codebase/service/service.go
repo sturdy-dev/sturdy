@@ -76,6 +76,7 @@ func (svc *Service) GetByShortID(ctx context.Context, shortID string) (*codebase
 	if err != nil {
 		return nil, err
 	}
+	svc.analyticsService.IdentifyCodebase(ctx, cb) // todo: remove after most of codebases are identified in posthog
 	return cb, nil
 }
 
@@ -96,6 +97,10 @@ func (svc *Service) ListByOrganization(ctx context.Context, organizationID strin
 	if err != nil {
 		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
 	}
+	for _, cb := range res {
+		svc.analyticsService.IdentifyCodebase(ctx, cb) // todo: remove after most of codebases are identified in posthog
+	}
+
 	return res, nil
 }
 
@@ -117,6 +122,7 @@ func (svc *Service) ListByOrganizationAndUser(ctx context.Context, organizationI
 		case err == nil:
 			res = append(res, cb)
 		}
+		svc.analyticsService.IdentifyCodebase(ctx, cb) // todo: remove after most of codebases are identified in posthog
 	}
 
 	return res, nil
