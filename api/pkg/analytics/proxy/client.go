@@ -91,9 +91,12 @@ func NewClient(
 		return nil, err
 	}
 
-	return &client{
+	c := &client{
 		Client:       posthogClient,
 		logger:       logger,
 		installation: installation,
-	}, nil
+	}
+	c.identifyInstallation()
+
+	return c, nil
 }
