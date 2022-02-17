@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/db"
@@ -25,32 +26,17 @@ func HandleInstallationEvent(
 	event *gh.InstallationEvent,
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
-	analyticsClient analytics.Client,
+	analyticsServcie *service_analytics.Service,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
 	log.Printf("GitHub Installed: %+v", event)
 
-	// Identify the installation to analytics
-	err := analyticsClient.Enqueue(analytics.Identify{
-		DistinctId: fmt.Sprintf("%d", event.GetInstallation().GetID()), // Using the installation ID as a person?
-		Properties: analytics.NewProperties().
-			Set("installation_org", event.Installation.Account.GetLogin()).
-			Set("email", event.Installation.Account.GetLogin()).
-			Set("github_app_installation", true), // To differentiate between humans and installations
-	})
-	if err != nil {
-		logger.Error("analytics post failed", zap.Error(err))
-	}
+	analyticsServcie.IdentifyGitHubInstallation(ctx, event.GetInstallation())
 
-	// Track with analytics
-	err = analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: fmt.Sprintf("%d", event.GetInstallation().GetID()), // Using the installation ID as a person?
-		Event:      fmt.Sprintf("github installation %s", event.GetAction()),
-	})
-	if err != nil {
-		logger.Error("analytics post failed", zap.Error(err))
-	}
+	analyticsServcie.Capture(ctx, fmt.Sprintf("github installation %s", event.GetAction()),
+		analytics.DistinctID(fmt.Sprintf("%d", event.GetInstallation().GetID())),
+	)
 
 	if event.GetAction() == "created" ||
 		event.GetAction() == "deleted" ||
@@ -103,7 +89,7 @@ func HandleInstallationEvent(
 					r,
 					event.GetSender(),
 					gitHubRepositoryRepo,
-					analyticsClient,
+					analyticsServcie,
 					codebaseRepo,
 					gitHubService,
 				)

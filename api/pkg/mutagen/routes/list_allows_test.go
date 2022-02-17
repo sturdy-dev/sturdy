@@ -36,7 +36,6 @@ func TestListAllows(t *testing.T) {
 		zap.NewNop(),
 		userRepo,
 		nil,
-		nil,
 	)
 
 	aclProvider := provider_acl.New(

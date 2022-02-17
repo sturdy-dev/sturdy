@@ -311,15 +311,10 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 			return nil, err
 		}
 
-		if err := svc.analyticsClient.Enqueue(analytics.Capture{
-			Event:      "created pull request",
-			DistinctId: userID,
-			Properties: analytics.NewProperties().
-				Set("github", true).
-				Set("codebase_id", codebaseID),
-		}); err != nil {
-			logger.Error("analytics failed", zap.Error(err))
-		}
+		svc.analyticsService.Capture(ctx, "created pull request",
+			analytics.CodebaseID(codebaseID),
+			analytics.Property("github", true),
+		)
 
 		return &pr, nil
 	}
@@ -347,16 +342,10 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	if err := svc.gitHubPullRequestRepo.Update(currentPR); err != nil {
 		return nil, err
 	}
-
-	if err := svc.analyticsClient.Enqueue(analytics.Capture{
-		Event:      "updated pull request",
-		DistinctId: userID,
-		Properties: analytics.NewProperties().
-			Set("github", true).
-			Set("codebase_id", codebaseID),
-	}); err != nil {
-		logger.Error("analytics failed", zap.Error(err))
-	}
+	svc.analyticsService.Capture(ctx, "updated pull request",
+		analytics.CodebaseID(codebaseID),
+		analytics.Property("github", true),
+	)
 
 	return currentPR, nil
 }

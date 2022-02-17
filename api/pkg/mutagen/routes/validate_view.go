@@ -1,16 +1,16 @@
 package routes
 
 import (
-	"getsturdy.com/api/pkg/analytics"
-	"getsturdy.com/api/pkg/events"
 	"net/http"
 	"time"
 
-	"go.uber.org/zap"
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/events"
+	db_view "getsturdy.com/api/pkg/view/db"
 
 	"github.com/gin-gonic/gin"
-
-	db_view "getsturdy.com/api/pkg/view/db"
+	"go.uber.org/zap"
 )
 
 type ValidateViewRequest struct {
@@ -20,7 +20,7 @@ type ValidateViewRequest struct {
 	IsNewConnection bool   `json:"is_new_connection"`
 }
 
-func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsClient analytics.Client, eventsSender events.EventSender) func(c *gin.Context) {
+func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsService *service_analytics.Service, eventsSender events.EventSender) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req ValidateViewRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,17 +65,12 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsClie
 		}
 
 		if req.IsNewConnection {
-			err = analyticsClient.Enqueue(analytics.Capture{
-				DistinctId: req.UserID,
-				Event:      "mutagen connection to view",
-				Properties: analytics.NewProperties().
-					Set("codebase_id", req.CodebaseID).
-					Set("view_id", req.ViewID).
-					Set("is_new_connection", req.IsNewConnection), // This is always true...
-			})
-			if err != nil {
-				logger.Error("analytics failed", zap.Error(err))
-			}
+			analyticsService.Capture(c.Request.Context(), "mutagen connection to view",
+				analytics.DistinctID(req.UserID),
+				analytics.CodebaseID(req.CodebaseID),
+				analytics.Property("view_id", req.ViewID),
+				analytics.Property("is_new_connection", req.IsNewConnection), // This is alway true...
+			)
 		}
 
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

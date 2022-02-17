@@ -1,7 +1,6 @@
 package cloud
 
 import (
-	"getsturdy.com/api/pkg/analytics"
 	routes_v3_analytics "getsturdy.com/api/pkg/analytics/enterprise/cloud/routes"
 	authz "getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/http/enterprise/selfhosted"
@@ -17,12 +16,13 @@ import (
 
 	"github.com/getsentry/raven-go"
 	"github.com/gin-gonic/gin"
+	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
 func ProvideHandler(
 	logger *zap.Logger,
-	analyticsClient analytics.Client,
+	posthogClient posthog.Client,
 	enterpriseEngine *selfhosted.Engine,
 	serviceLicenses *service_licenses.Service,
 	serviceValidations *service_validations.Service,
@@ -36,7 +36,7 @@ func ProvideHandler(
 	auth.POST("/v3/users/verify-email", routes_v3_user.SendEmailVerification(logger, userService)) // Used by the web (2021-11-14)
 
 	publ := enterpriseEngine.Group("")
-	publ.POST("/v3/analytics/batch/", routes_v3_analytics.Batch(logger, analyticsClient))
+	publ.POST("/v3/analytics/batch/", routes_v3_analytics.Batch(logger, posthogClient))
 	publ.GET("/v3/licenses/:key", routes_v3_licenses.Validate(logger, serviceLicenses, serviceValidations))
 	publ.POST("/v3/statistics", gin.WrapF(routes_v3_statistics.Create(logger, serviceStatistics)))
 	publ.POST("v3/sentry/store/", gin.WrapF(routes_v3_logger.Store(logger, sentryClient)))

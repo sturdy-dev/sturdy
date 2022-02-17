@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
@@ -20,7 +22,6 @@ import (
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/view/ignore"
 	"getsturdy.com/api/pkg/view/open"
 	view_vcs "getsturdy.com/api/pkg/view/vcs"
@@ -59,9 +60,9 @@ type ViewRootResolver struct {
 	logger                   *zap.Logger
 	viewStatusRootResolver   resolvers.ViewStatusRootResolver
 	workspaceWatchersService *service_workspace_watchers.Service
-	analyticsClient          analytics.Client
 	codebaseResolver         resolvers.CodebaseRootResolver
 	authService              *service_auth.Service
+	analyticsService         *service_analytics.Service
 }
 
 func NewResolver(
@@ -78,7 +79,7 @@ func NewResolver(
 	logger *zap.Logger,
 	viewStatusRootResolver resolvers.ViewStatusRootResolver,
 	workspaceWatchersService *service_workspace_watchers.Service,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	codebaseResolver resolvers.CodebaseRootResolver,
 	authService *service_auth.Service,
 ) resolvers.ViewRootResolver {
@@ -96,7 +97,7 @@ func NewResolver(
 		logger:                   logger,
 		viewStatusRootResolver:   viewStatusRootResolver,
 		workspaceWatchersService: workspaceWatchersService,
-		analyticsClient:          analyticsClient,
+		analyticsService:         analyticsService,
 		codebaseResolver:         codebaseResolver,
 		authService:              authService,
 	}
@@ -329,19 +330,13 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "create view",
-		Properties: analytics.NewProperties().
-			Set("codebase_id", ws.CodebaseID).
-			Set("workspace_id", ws.ID).
-			Set("view_id", e.ID).
-			Set("mount_path", e.MountPath).
-			Set("mount_hostname", e.MountHostname),
-	}); err != nil {
-		r.logger.Error("analytics failed", zap.Error(err))
-		// do not fail
-	}
+	r.analyticsService.Capture(ctx, "create view",
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("view_id", e.ID),
+		analytics.Property("mount_path", e.MountPath),
+		analytics.Property("mount_hostname", e.MountHostname),
+	)
 
 	return r.resolveView(ctx, graphql.ID(e.ID))
 }

@@ -3,19 +3,19 @@ package routes
 import (
 	"time"
 
-	"getsturdy.com/api/pkg/analytics"
-
 	"github.com/gin-gonic/gin"
+	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
 // Batch implements posthog /batch/ api endpoint
-func Batch(logger *zap.Logger, client analytics.Client) gin.HandlerFunc {
+func Batch(logger *zap.Logger, client posthog.Client) gin.HandlerFunc {
 	type event struct {
 		Type       string                 `json:"type"`
 		Event      string                 `json:"event"`
 		Timestamp  time.Time              `json:"timestamp"`
 		Properties map[string]interface{} `json:"properties"`
+		Groups     map[string]interface{} `json:"groups"`
 		DistinctID string                 `json:"distinct_id"`
 		Set        map[string]interface{} `json:"$set"`
 	}
@@ -33,31 +33,39 @@ func Batch(logger *zap.Logger, client analytics.Client) gin.HandlerFunc {
 		}
 
 		for _, event := range req.Batch {
-			switch event.Type {
-			case "identify":
-				if err := client.Enqueue(analytics.Identify{
+			if event.Event == "$groupidentify" {
+				if err := client.Enqueue(posthog.GroupIdentify{
 					DistinctId: event.DistinctID,
-					Properties: event.Set,
 					Timestamp:  event.Timestamp,
-				}); err != nil {
-					logger.Error("failed to enqueue identify", zap.Error(err))
-					return
-				}
-			case "capture":
-				delete(event.Properties, "$lib")
-				delete(event.Properties, "$lib_version")
-				if err := client.Enqueue(analytics.Capture{
-					Event:      event.Event,
-					DistinctId: event.DistinctID,
 					Properties: event.Properties,
-					Timestamp:  event.Timestamp,
 				}); err != nil {
-					logger.Error("failed to enqueue identify", zap.Error(err))
-					return
+					logger.Error("failed to enqueue group", zap.Error(err))
 				}
-			default:
-				logger.Error("unknown event type", zap.String("type", event.Type))
-				return
+			} else {
+				switch event.Type {
+				case "identify":
+					if err := client.Enqueue(posthog.Identify{
+						DistinctId: event.DistinctID,
+						Properties: event.Set,
+						Timestamp:  event.Timestamp,
+					}); err != nil {
+						logger.Error("failed to enqueue identify", zap.Error(err))
+					}
+				case "capture":
+					delete(event.Properties, "$lib")
+					delete(event.Properties, "$lib_version")
+					if err := client.Enqueue(posthog.Capture{
+						Event:      event.Event,
+						DistinctId: event.DistinctID,
+						Properties: event.Properties,
+						Groups:     event.Groups,
+						Timestamp:  event.Timestamp,
+					}); err != nil {
+						logger.Error("failed to enqueue identify", zap.Error(err))
+					}
+				default:
+					logger.Error("unknown event type", zap.String("type", event.Type))
+				}
 			}
 		}
 	}

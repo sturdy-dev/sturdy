@@ -2,24 +2,28 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"getsturdy.com/api/pkg/analytics"
+	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/users"
 
+	"github.com/google/go-github/v39/github"
+	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
 type Service struct {
 	logger *zap.Logger
 
-	client analytics.Client
+	client posthog.Client
 }
 
 func New(
 	logger *zap.Logger,
-	client analytics.Client,
+	client posthog.Client,
 ) *Service {
 	return &Service{
 		logger: logger,
@@ -27,8 +31,25 @@ func New(
 	}
 }
 
+func (s *Service) Capture(ctx context.Context, event string, oo ...analytics.CaptureOption) {
+	userID, _ := auth.UserID(ctx)
+	options := &analytics.CaptureOptions{
+		DistinctId: userID,
+	}
+	for _, o := range oo {
+		o(options)
+	}
+
+	s.client.Enqueue(posthog.Capture{
+		DistinctId: options.DistinctId,
+		Properties: options.Properties,
+		Event:      event,
+		Groups:     options.Groups,
+	})
+}
+
 func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Organization) {
-	if err := s.client.Enqueue(analytics.GroupIdentify{
+	if err := s.client.Enqueue(posthog.GroupIdentify{
 		Type: "organization", // this should match other event's property key
 		Key:  org.ID,
 		Properties: map[string]interface{}{
@@ -40,8 +61,8 @@ func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Or
 }
 
 func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
-	if err := s.client.Enqueue(analytics.GroupIdentify{
-		Type: "codebase_id", // this should match other event's property key
+	if err := s.client.Enqueue(posthog.GroupIdentify{
+		Type: "codebase",
 		Key:  cb.ID,
 		Properties: map[string]interface{}{
 			"name":      cb.Name,
@@ -53,12 +74,26 @@ func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
 }
 
 func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
-	if err := s.client.Enqueue(analytics.Identify{
+	if err := s.client.Enqueue(posthog.Identify{
 		DistinctId: user.ID,
-		Properties: analytics.NewProperties().
-			Set("name", user.Name).
-			Set("email", user.Email),
+		Properties: map[string]interface{}{
+			"name":  user.Name,
+			"email": user.Email,
+		},
 	}); err != nil {
 		s.logger.Error("failed to identify user", zap.Error(err))
+	}
+}
+
+func (s *Service) IdentifyGitHubInstallation(ctx context.Context, installation *github.Installation) {
+	if err := s.client.Enqueue(posthog.Identify{
+		DistinctId: fmt.Sprintf("%d", installation.GetID()), // Using the installation ID as a person?
+		Properties: map[string]interface{}{
+			"installation_org":        installation.GetAccount().GetLogin(),
+			"email":                   installation.GetAccount().GetEmail(),
+			"github_app_installation": true,
+		},
+	}); err != nil {
+		s.logger.Error("failed to identify github installation", zap.Error(err))
 	}
 }

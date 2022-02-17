@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/db"
@@ -16,7 +17,6 @@ import (
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
-	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
 
@@ -26,7 +26,7 @@ func HandleInstallationRepositoriesEvent(
 	event *gh.InstallationRepositoriesEvent,
 	gitHubAppInstallationsRepository db.GitHubInstallationRepo,
 	gitHubAppInstalledRepositoryRepository db.GitHubRepositoryRepo,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
@@ -55,7 +55,7 @@ func HandleInstallationRepositoriesEvent(
 				r,
 				event.GetSender(),
 				gitHubAppInstalledRepositoryRepository,
-				analyticsClient,
+				analyticsService,
 				codebaseRepo,
 				gitHubService,
 			)
@@ -96,25 +96,13 @@ func handleInstalledRepository(
 	ghRepo *gh.Repository,
 	sender *gh.User,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
-	analyticsClient posthog.Client,
+	analyticsService *service_analytics.Service,
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
 	// Create a non-ready codebase (add the initiating user), and put the event on a queue
 	logger = logger.With(zap.String("repo_name", ghRepo.GetName()), zap.Int64("installation_id", installationID))
 	logger.Info("handleInstalledRepository")
-
-	// Tracking on the GitHub installation itself, there is also some tracking on the user
-	err := analyticsClient.Enqueue(posthog.Capture{
-		DistinctId: fmt.Sprintf("%d", installationID), // Using the installation ID as a person?
-		Event:      "installed repository",
-		Properties: analytics.NewProperties().
-			Set("installation_id", installationID).
-			Set("repo_name", ghRepo.GetName()),
-	})
-	if err != nil {
-		logger.Error("analytics post failed", zap.Error(err))
-	}
 
 	existingGitHubRepo, err := gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID())
 	// If GitHub repo already exists (previously installed and then uninstalled) un-archive it
@@ -127,6 +115,11 @@ func handleInstalledRepository(
 			logger.Error("failed to get codebase", zap.Error(err))
 			return err
 		}
+
+		analyticsService.Capture(ctx, "installed repository", analytics.DistinctID(fmt.Sprintf("%d", installationID)),
+			analytics.CodebaseID(cb.ID),
+			analytics.Property("repo_name", ghRepo.GetName()),
+		)
 
 		if cb.ArchivedAt != nil {
 			cb.ArchivedAt = nil

@@ -1,7 +1,6 @@
 package posthog
 
 import (
-	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/analytics/disabled"
 	"getsturdy.com/api/pkg/analytics/proxy"
 
@@ -17,9 +16,9 @@ type postHogConfiguration struct {
 	ApiToken string `long:"api-token" description:"PostHog API token"`
 }
 
-func NewClient(cfg *Configuration) (analytics.Client, error) {
+func NewClient(cfg *Configuration) (posthog.Client, error) {
 	if cfg.Disable {
 		return disabled.NewClient(), nil
 	}
-	return analytics.New(posthog.New(cfg.Posthog.ApiToken)), nil
+	return posthog.New(cfg.Posthog.ApiToken), nil
 }

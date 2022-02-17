@@ -9,7 +9,6 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/graph-gophers/graphql-go"
 
-	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase"
@@ -30,8 +29,6 @@ type organizationRootResolver struct {
 	authorRootResolver    resolvers.AuthorRootResolver
 	licensesRootResolver  resolvers.LicenseRootResolver
 	codebasesRootResolver resolvers.CodebaseRootResolver
-
-	analyticsClient analytics.Client
 }
 
 func New(
@@ -44,7 +41,6 @@ func New(
 	licensesRootResolver resolvers.LicenseRootResolver,
 	codebasesRootResolver resolvers.CodebaseRootResolver,
 
-	analyticsClient analytics.Client,
 ) resolvers.OrganizationRootResolver {
 	return &organizationRootResolver{
 		service:         service,
@@ -55,8 +51,6 @@ func New(
 		authorRootResolver:    authorRootResolver,
 		licensesRootResolver:  licensesRootResolver,
 		codebasesRootResolver: codebasesRootResolver,
-
-		analyticsClient: analyticsClient,
 	}
 }
 
@@ -152,11 +146,6 @@ func (r *organizationRootResolver) CreateOrganization(ctx context.Context, args 
 }
 
 func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, args resolvers.AddUserToOrganizationArgs) (resolvers.OrganizationResolver, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	org, err := r.service.GetByID(ctx, string(args.Input.OrganizationID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -180,15 +169,6 @@ func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, ar
 		return nil, gqlerrors.Error(err)
 	}
 
-	_ = r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: userID,
-		Event:      "added user to organization",
-		Properties: map[string]interface{}{
-			"organization_id": org.ID,
-			"user_id":         user.ID,
-		},
-	})
-
 	return &organizationResolver{root: r, org: org}, nil
 }
 
@@ -210,15 +190,6 @@ func (r *organizationRootResolver) RemoveUserFromOrganization(ctx context.Contex
 	if err := r.service.RemoveMember(ctx, org.ID, string(args.Input.UserID), removedByUserID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
-
-	_ = r.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: removedByUserID,
-		Event:      "removed user from organization",
-		Properties: map[string]interface{}{
-			"organization_id": org.ID,
-			"user_id":         args.Input.UserID,
-		},
-	})
 
 	return &organizationResolver{root: r, org: org}, nil
 }

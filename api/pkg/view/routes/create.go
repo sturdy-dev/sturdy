@@ -5,14 +5,15 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase/access"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/events"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/view/open"
 	"getsturdy.com/api/pkg/view/vcs"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
@@ -36,7 +37,7 @@ func Create(
 	logger *zap.Logger,
 	viewRepo db.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 	workspaceReader db_workspace.WorkspaceReader,
 	snapshotter snapshotter.Snapshotter,
 	snapshotRepo db_snapshots.Repository,
@@ -105,19 +106,13 @@ func Create(
 			return
 		}
 
-		if err := analyticsClient.Enqueue(analytics.Capture{
-			DistinctId: userID,
-			Event:      "create view",
-			Properties: analytics.NewProperties().
-				Set("codebase_id", req.CodebaseID).
-				Set("workspace_id", req.WorkspaceID).
-				Set("view_id", e.ID).
-				Set("mount_path", e.MountPath).
-				Set("mount_hostname", e.MountHostname),
-		}); err != nil {
-			logger.Error("analytics failed", zap.Error(err))
-			// do not fail
-		}
+		analyticsService.Capture(c.Request.Context(), "create view",
+			analytics.CodebaseID(req.CodebaseID),
+			analytics.Property("workspace_id", req.WorkspaceID),
+			analytics.Property("view_id", e.ID),
+			analytics.Property("mount_path", req.MountPath),
+			analytics.Property("mount_hostname", req.MountHostname),
+		)
 
 		c.JSON(http.StatusOK, e)
 	}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -26,7 +27,7 @@ type Service struct {
 	jwtService               *service_jwt.Service
 	transactionalEmailSender transactional.EmailSender
 	onetimeService           *service_onetime.Service
-	analyticsClient          analytics.Client
+	analyticsService         *service_analytics.Service
 }
 
 func New(
@@ -36,7 +37,7 @@ func New(
 	jwtService *service_jwt.Service,
 	transactionalEmailSender transactional.EmailSender,
 	onetimeService *service_onetime.Service,
-	analyticsClient analytics.Client,
+	analyticsService *service_analytics.Service,
 ) *Service {
 	return &Service{
 		UserSerice: userService,
@@ -46,7 +47,7 @@ func New(
 		jwtService:               jwtService,
 		transactionalEmailSender: transactionalEmailSender,
 		onetimeService:           onetimeService,
-		analyticsClient:          analyticsClient,
+		analyticsService:         analyticsService,
 	}
 }
 
@@ -84,22 +85,8 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// Send events
-	if err := s.analyticsClient.Enqueue(analytics.Identify{
-		DistinctId: newUser.ID,
-		Properties: analytics.NewProperties().
-			Set("name", newUser.Name).
-			Set("email", newUser.Email),
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
-
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: newUser.ID,
-		Event:      "created account",
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
+	s.analyticsService.IdentifyUser(ctx, newUser)
+	s.analyticsService.Capture(ctx, "created account")
 
 	if err := s.transactionalEmailSender.SendWelcome(ctx, newUser); err != nil {
 		s.logger.Error("failed to send welcome email", zap.Error(err))
@@ -153,24 +140,8 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *users.User, code st
 		return fmt.Errorf("failed to set email verified: %w", err)
 	}
 
-	if err := s.analyticsClient.Enqueue(analytics.Identify{
-		DistinctId: user.ID,
-		Properties: analytics.NewProperties().
-			Set("name", user.Name).
-			Set("email", user.Email),
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
-
-	if err := s.analyticsClient.Enqueue(analytics.Capture{
-		DistinctId: user.ID,
-		Event:      "logged in",
-		Properties: analytics.NewProperties().
-			Set("type", "code"),
-	}); err != nil {
-		s.logger.Error("send to analytics failed", zap.Error(err))
-	}
-
+	s.analyticsService.IdentifyUser(ctx, user)
+	s.analyticsService.Capture(ctx, "logged in", analytics.Property("type", "code"))
 	return nil
 }
 

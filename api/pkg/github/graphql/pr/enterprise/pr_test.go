@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/analytics"
+	analytics_service "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/change"
@@ -130,7 +130,7 @@ func TestPRHighLevel(t *testing.T) {
 		dig.In
 
 		ActivitySender                activity_sender.ActivitySender
-		AnalyticsClient               analytics.Client
+		AnalyticsClient               *analytics_service.Service
 		BuildQueue                    *workers_ci.BuildQueue
 		ChangeRepo                    db_change.Repository
 		ChangeRootResolver            resolvers.ChangeRootResolver

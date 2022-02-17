@@ -7,23 +7,28 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/change"
+	changeDB "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/message"
+	"getsturdy.com/api/pkg/codebase/access"
+	codebaseDB "getsturdy.com/api/pkg/codebase/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-
-	changeDB "getsturdy.com/api/pkg/change/db"
-	"getsturdy.com/api/pkg/codebase/access"
-	codebaseDB "getsturdy.com/api/pkg/codebase/db"
 )
 
 type UpdateRequest struct {
 	UpdatedDescription string `json:"updated_description" binding:"required"`
 }
 
-func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserRepository, analyticsClient analytics.Client, changeRepo changeDB.Repository) func(c *gin.Context) {
+func Update(
+	logger *zap.Logger,
+	codebaseUserRepo codebaseDB.CodebaseUserRepository,
+	analyticsService *service_analytics.Service,
+	changeRepo changeDB.Repository,
+) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())
 		if err != nil {
@@ -73,16 +78,10 @@ func Update(logger *zap.Logger, codebaseUserRepo codebaseDB.CodebaseUserReposito
 			return
 		}
 
-		err = analyticsClient.Enqueue(analytics.Capture{
-			DistinctId: userID,
-			Event:      "updated change",
-			Properties: analytics.NewProperties().
-				Set("commit_id", changeID).
-				Set("codebase_id", ch.CodebaseID),
-		})
-		if err != nil {
-			logger.Error("analytics failed", zap.Error(err))
-		}
+		analyticsService.Capture(c.Request.Context(), "updated change",
+			analytics.CodebaseID(ch.CodebaseID),
+			analytics.Property("commit_id", ch.ID),
+		)
 
 		// TODO: Migrate this to GraphQL, it's a temporary hack for now
 		c.JSON(http.StatusOK, gin.H{

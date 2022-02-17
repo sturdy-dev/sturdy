@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	service_user "getsturdy.com/api/pkg/users/service"
@@ -14,7 +15,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func Signup(logger *zap.Logger, userService service_user.Service, jwtService *service_jwt.Service, analyticsClient analytics.Client) func(c *gin.Context) {
+func Signup(
+	logger *zap.Logger,
+	userService service_user.Service,
+	jwtService *service_jwt.Service,
+	analyticsService *service_analytics.Service,
+) func(c *gin.Context) {
 	type request struct {
 		Name     string `json:"name" binding:"required"`
 		Email    string `json:"email" binding:"required"`
@@ -52,14 +58,9 @@ func Signup(logger *zap.Logger, userService service_user.Service, jwtService *se
 			return
 		}
 
-		if err := analyticsClient.Enqueue(analytics.Capture{
-			DistinctId: newUser.ID,
-			Event:      "logged in",
-			Properties: analytics.NewProperties().
-				Set("type", "password"),
-		}); err != nil {
-			logger.Error("send to analytics failed", zap.Error(err))
-		}
+		ctx := c.Request.Context()
+		analyticsService.IdentifyUser(ctx, newUser)
+		analyticsService.Capture(ctx, "logged in", analytics.Property("type", "password"))
 
 		// Send the user object in the response
 		c.JSON(http.StatusOK, newUser)
