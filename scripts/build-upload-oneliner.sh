@@ -24,6 +24,7 @@ while [[ $# -gt 0 ]]; do
 		MINOR="0"
 		PATCH="0"
 		VERSION="$MAJOR.$MINOR.$PATCH"
+		DOCKER_VERSION_TAG_ARG="--tag ${IMAGE}:${VERSION}"
 		shift
 		;;
 	--minor)
@@ -31,6 +32,7 @@ while [[ $# -gt 0 ]]; do
 		MINOR="$(($(echo "$LATEST_VERSION" | cut -d. -f2) + 1))"
 		PATCH="0"
 		VERSION="$MAJOR.$MINOR.$PATCH"
+		DOCKER_VERSION_TAG_ARG="--tag ${IMAGE}:${VERSION}"
 		shift
 		;;
 	--patch)
@@ -38,6 +40,7 @@ while [[ $# -gt 0 ]]; do
 		MINOR="$(echo "$LATEST_VERSION" | cut -d. -f2)"
 		PATCH="$(($(echo "$LATEST_VERSION" | cut -d. -f3) + 1))"
 		VERSION="$MAJOR.$MINOR.$PATCH"
+		DOCKER_VERSION_TAG_ARG="--tag ${IMAGE}:${VERSION}"
 		shift
 		;;
 	--version)
