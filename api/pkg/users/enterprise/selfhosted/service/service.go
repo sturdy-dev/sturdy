@@ -15,19 +15,19 @@ import (
 const maxUsersWithoutLicense = 10
 
 type Service struct {
-	*service.UserSerice
+	*service.UserService
 
 	organizationService *service_organization.Service
 	installationService *service_installations.Service
 }
 
 func New(
-	userService *service.UserSerice,
+	userService *service.UserService,
 	organizationService *service_organization.Service,
 	installationService *service_installations.Service,
 ) *Service {
 	return &Service{
-		UserSerice:          userService,
+		UserService:         userService,
 		organizationService: organizationService,
 		installationService: installationService,
 	}
@@ -56,7 +56,7 @@ func (s *Service) CreateWithPassword(ctx context.Context, name, password, email 
 		return nil, err
 	}
 
-	usr, err := s.UserSerice.CreateWithPassword(ctx, name, password, email)
+	usr, err := s.UserService.CreateWithPassword(ctx, name, password, email)
 	if err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@ import (
 )
 
 type Service struct {
-	*service.UserSerice
+	*service.UserService
 
 	logger                   *zap.Logger
 	userRepo                 db_user.Repository
@@ -31,7 +31,7 @@ type Service struct {
 }
 
 func New(
-	userService *service.UserSerice,
+	userService *service.UserService,
 	logger *zap.Logger,
 	userRepo db_user.Repository,
 	jwtService *service_jwt.Service,
@@ -40,7 +40,7 @@ func New(
 	analyticsService *service_analytics.Service,
 ) *Service {
 	return &Service{
-		UserSerice: userService,
+		UserService: userService,
 
 		logger:                   logger,
 		userRepo:                 userRepo,
@@ -52,7 +52,7 @@ func New(
 }
 
 func (s *Service) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
-	user, err := s.UserSerice.CreateWithPassword(ctx, name, password, email)
+	user, err := s.UserService.CreateWithPassword(ctx, name, password, email)
 	if err != nil {
 		return nil, err
 	}
