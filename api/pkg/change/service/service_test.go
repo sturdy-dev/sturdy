@@ -104,6 +104,10 @@ func TestChangelog(t *testing.T) {
 		for k, v := range log {
 			assert.Equal(t, expected[k].message, v.UpdatedDescription, "pos=%d", k)
 		}
+	} else {
+		for k, v := range log {
+			t.Logf("got: k=%d v=%+v", k, v)
+		}
 	}
 }
 

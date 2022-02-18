@@ -1,4 +1,4 @@
-package statuses
+package webhooks
 
 import (
 	"context"
@@ -7,13 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	db_github "getsturdy.com/api/pkg/github/enterprise/db"
-	"getsturdy.com/api/pkg/statuses"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
-
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/statuses"
 )
 
 func getStatusType(event *gh.StatusEvent) statuses.Type {
@@ -37,16 +34,12 @@ func getStatusTime(event *gh.StatusEvent) time.Time {
 	return event.GetCreatedAt().Time
 }
 
-func HandleStatusEvent(
-	ctx context.Context,
-	logger *zap.Logger,
-	event *gh.StatusEvent,
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	statusesService *service_statuses.Service,
-) error {
+func (svc *Service) HandleStatusEvent(event *gh.StatusEvent) error {
+	ctx := context.Background()
+
 	gitHubRepoID := event.GetRepo().GetID()
 	installationID := event.GetInstallation().GetID()
-	repo, err := gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)
+	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
@@ -66,7 +59,7 @@ func HandleStatusEvent(
 		Timestamp:   getStatusTime(event),
 	}
 
-	if err := statusesService.Set(ctx, status); err != nil {
+	if err := svc.statusService.Set(ctx, status); err != nil {
 		return fmt.Errorf("failed to set status: %w", err)
 	}
 
