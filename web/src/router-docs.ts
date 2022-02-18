@@ -470,4 +470,10 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'handbookCodeOfConduct',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
+  {
+    path: '/handbook/releases',
+    component: () => import('./pages/docs/handbook/Releases.vue'),
+    name: 'handbookReleases',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
 ]
