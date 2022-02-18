@@ -11,16 +11,16 @@ import (
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 
-	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/change"
 	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
-	module_github "getsturdy.com/api/pkg/github/module"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
+	"getsturdy.com/api/pkg/installations"
+	module_logger "getsturdy.com/api/pkg/logger/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
+	module_vcs "getsturdy.com/api/vcs/module"
 	"getsturdy.com/api/vcs/provider"
 )
 
@@ -30,11 +30,13 @@ func module(c *di.Container) {
 		return ctx
 	})
 
-	c.Import(module_api.Module)
+	c.Register(func() *installations.Installation {
+		return &installations.Installation{ID: uuid.NewString()}
+	})
+
+	c.Import(module_logger.Module)
+	c.Import(module_vcs.Module)
 	c.Import(module_configuration.TestingModule)
-	c.Import(module_snapshots.TestingModule)
-	// OSS version
-	c.Import(module_github.Module)
 }
 
 func TestChangelog(t *testing.T) {
