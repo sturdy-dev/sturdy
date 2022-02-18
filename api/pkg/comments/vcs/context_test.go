@@ -2,19 +2,22 @@ package vcs
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"testing"
+
+	"io/ioutil"
+
+	events2 "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
-	events2 "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
-	"io/ioutil"
-	"os"
-	"strings"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -169,7 +172,7 @@ func TestContext(t *testing.T) {
 			}
 
 			snapshotRepo := inmemory.NewInMemorySnapshotRepo()
-			workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
+			workspaceRepo := db_workspace.NewMemory()
 			viewRepo := inmemory.NewInMemoryViewRepo()
 			events := events2.NewInMemory()
 			logger := zap.NewNop()

@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	db_users "getsturdy.com/api/pkg/users/db"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -29,7 +30,7 @@ func setup(t *testing.T) *testCollaborators {
 	logger, _ := zap.NewDevelopment()
 	repoProvider := testutil.TestingRepoProvider(t)
 	executorProvider := executor.NewProvider(logger, repoProvider)
-	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
+	workspaceRepo := db_workspace.NewMemory()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient())
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
 	viewRepo := inmemory.NewInMemoryViewRepo()

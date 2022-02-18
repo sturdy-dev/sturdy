@@ -283,7 +283,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		// If authoritative view, or explicitly asked to mark this as the latest snapshot
 		if isAuthoritativeView || options.markAsLatestInWorkspace {
 			ws.LatestSnapshotID = &snap.ID
-			if err := s.workspaceWriter.Update(ws); err != nil {
+			if err := s.workspaceWriter.Update(context.TODO(), ws); err != nil {
 				return nil, fmt.Errorf("failed to update workspace: %w", err)
 			}
 		}

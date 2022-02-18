@@ -100,7 +100,7 @@ func Create(
 		}
 
 		// Use workspace on view
-		if err := open.OpenWorkspaceOnView(logger, &e, ws, viewRepo, workspaceReader, snapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender); err != nil {
+		if err := open.OpenWorkspaceOnView(c.Request.Context(), logger, &e, ws, viewRepo, workspaceReader, snapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender); err != nil {
 			logger.Error("failed to open workspace on view", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return

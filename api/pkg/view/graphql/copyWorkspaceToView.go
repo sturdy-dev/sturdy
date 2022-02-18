@@ -52,7 +52,7 @@ func (r *ViewRootResolver) CopyWorkspaceToView(ctx context.Context, args resolve
 		}
 		currentWorkspaceOnView.LatestSnapshotID = &snapshot.ID
 		currentWorkspaceOnView.ViewID = nil // The workspace no longer has any view open
-		if err := r.workspaceWriter.Update(currentWorkspaceOnView); err != nil {
+		if err := r.workspaceWriter.Update(ctx, currentWorkspaceOnView); err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to finalize previous workspace on view: %w", err))
 		}
 	}

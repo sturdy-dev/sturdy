@@ -122,7 +122,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 
 			// mark as latest snapshot (will not be done automatically by the snapshotter in this scenario)
 			ws.LatestSnapshotID = &snapshot.ID
-			if err = r.workspaceWriter.Update(&ws); err != nil {
+			if err = r.workspaceWriter.Update(ctx, &ws); err != nil {
 				return fmt.Errorf("failed to update workspace: %w", err)
 			}
 			return nil

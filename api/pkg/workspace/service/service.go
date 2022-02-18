@@ -55,6 +55,8 @@ type Service interface {
 	CopyPatches(ctx context.Context, src, dist *workspace.Workspace, opts ...CopyPatchesOption) error
 	RemovePatches(context.Context, *unidiff.Allower, *workspace.Workspace, ...string) error
 	HasConflicts(context.Context, *workspace.Workspace) (bool, error)
+	Archive(context.Context, *workspace.Workspace) error
+	Unarchive(context.Context, *workspace.Workspace) error
 }
 
 type WorkspaceService struct {
@@ -284,7 +286,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 		dist.LatestSnapshotID = src.LatestSnapshotID
 	}
 
-	if err := s.workspaceWriter.Update(dist); err != nil {
+	if err := s.workspaceWriter.Update(ctx, dist); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
 
@@ -470,7 +472,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	ws.UpdatedAt = &now
 	ws.DraftDescription = ""
 	ws.HeadCommitID = nil
-	if err := s.workspaceWriter.Update(ws); err != nil {
+	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
 		return nil, fmt.Errorf("failed to update workspace: %w", err)
 	}
 
@@ -691,4 +693,31 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspace.Works
 		}
 		return hasConflicts, nil
 	}
+}
+
+func (s *WorkspaceService) Archive(ctx context.Context, ws *workspace.Workspace) error {
+	t := time.Now()
+	ws.ArchivedAt = &t
+	ws.UnarchivedAt = nil
+	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
+		return fmt.Errorf("failed to archive workspace: %w", err)
+	}
+	s.analyticsService.Capture(ctx, "workspace archived", analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+	)
+	return nil
+}
+
+func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspace.Workspace) error {
+	t := time.Now()
+	ws.ArchivedAt = nil
+	ws.UnarchivedAt = &t
+	ws.ViewID = nil
+	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
+		return fmt.Errorf("failed to unarchive workspace: %w", err)
+	}
+	s.analyticsService.Capture(ctx, "workspace unarchived", analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+	)
+	return nil
 }

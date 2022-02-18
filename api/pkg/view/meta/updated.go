@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/events"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	workspace_meta "getsturdy.com/api/pkg/workspace/meta"
 )
@@ -23,7 +23,7 @@ func NewViewUpdatedFunc(
 ) ViewUpdatedFunc {
 	return func(ctx context.Context, view *view.View, action snapshots.Action) error {
 		// Workspace has updated
-		if err := workspace_meta.Updated(workspaceReader, workspaceWriter, view.WorkspaceID); err != nil {
+		if err := workspace_meta.Updated(ctx, workspaceReader, workspaceWriter, view.WorkspaceID); err != nil {
 			return fmt.Errorf("error updating workspace meta: %w", err)
 		}
 

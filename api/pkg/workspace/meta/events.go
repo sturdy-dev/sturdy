@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"context"
 	"time"
 
 	"getsturdy.com/api/pkg/events"
@@ -35,9 +36,8 @@ func (w *writerWithEvents) Create(workspace workspace.Workspace) error {
 	return nil
 }
 
-func (w *writerWithEvents) Update(workspace *workspace.Workspace) error {
-	err := w.workspaceRepo.Update(workspace)
-	if err != nil {
+func (w *writerWithEvents) Update(ctx context.Context, workspace *workspace.Workspace) error {
+	if err := w.workspaceRepo.Update(ctx, workspace); err != nil {
 		return err
 	}
 	if err := w.eventSender.Codebase(workspace.CodebaseID, events.WorkspaceUpdated, workspace.ID); err != nil {
@@ -66,7 +66,7 @@ func (w *writerWithEvents) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID str
 }
 
 // Updated sets UpdatedAt, and resets Behind and Ahead counters
-func Updated(workspaceReader db.WorkspaceReader, workspaceWriter db.WorkspaceWriter, workspaceID string) error {
+func Updated(ctx context.Context, workspaceReader db.WorkspaceReader, workspaceWriter db.WorkspaceWriter, workspaceID string) error {
 	ws, err := workspaceReader.Get(workspaceID)
 	if err != nil {
 		return err
@@ -78,8 +78,7 @@ func Updated(workspaceReader db.WorkspaceReader, workspaceWriter db.WorkspaceWri
 	ws.UpToDateWithTrunk = nil
 	ws.HeadCommitID = nil
 
-	err = workspaceWriter.Update(ws)
-	if err != nil {
+	if err := workspaceWriter.Update(ctx, ws); err != nil {
 		return err
 	}
 	return nil

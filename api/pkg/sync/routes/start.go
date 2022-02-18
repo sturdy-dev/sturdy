@@ -26,7 +26,7 @@ func StartV2(
 
 		logger := logger.With(zap.String("view_id", viewID))
 
-		if status, err := syncService.OnTrunk(viewID); err != nil {
+		if status, err := syncService.OnTrunk(c.Request.Context(), viewID); err != nil {
 			logger.Error("failed to sync on trunk", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return

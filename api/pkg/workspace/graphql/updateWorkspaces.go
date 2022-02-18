@@ -30,7 +30,7 @@ func (r *WorkspaceRootResolver) UpdateWorkspace(ctx context.Context, args resolv
 	t := time.Now()
 	ws.UpdatedAt = &t
 
-	if err := r.workspaceWriter.Update(ws); err != nil {
+	if err := r.workspaceWriter.Update(ctx, ws); err != nil {
 		return nil, errors.Error(err)
 	}
 

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 
 	"getsturdy.com/api/pkg/workspace"
@@ -37,7 +38,7 @@ func (f *memory) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string)
 	panic("not implemented")
 }
 
-func (f *memory) Update(entity *workspace.Workspace) error {
+func (f *memory) Update(_ context.Context, entity *workspace.Workspace) error {
 	for idx, ws := range f.workspaces {
 		if ws.ID == entity.ID {
 			f.workspaces[idx] = *entity

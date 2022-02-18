@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -56,7 +57,7 @@ func New(
 //
 // The current work in progress will be added to a commit, that is rebased on top of the trunk.
 // After the syncing is done, the commit is "git reset --mixed HEAD^1"-ed, to restore it to the WIP.
-func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
+func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatusResponse, error) {
 	syncID := uuid.NewString()
 
 	view, err := s.viewRepo.Get(viewID)
@@ -117,7 +118,7 @@ func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
 			if err := repo.CheckoutBranchWithForce(branchName); err != nil {
 				return fmt.Errorf("failed to checkout branch in early return: %w", err)
 			}
-			if err := s.complete(repo, view.CodebaseID, view.WorkspaceID, view.ID, nil, nil); err != nil {
+			if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, nil, nil); err != nil {
 				return fmt.Errorf("failed to complete in early return: %w", err)
 			}
 			rebaseStatusResponse = &sync.RebaseStatusResponse{HaveConflicts: false}
@@ -177,7 +178,7 @@ func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
 			return fmt.Errorf("branch to head failed: %w", err)
 		}
 
-		if err := s.complete(repo, view.CodebaseID, view.WorkspaceID, view.ID, &unsavedCommitID, rebasedCommits); err != nil {
+		if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &unsavedCommitID, rebasedCommits); err != nil {
 			return err
 		}
 
@@ -202,7 +203,7 @@ func (s *Service) OnTrunk(viewID string) (*sync.RebaseStatusResponse, error) {
 }
 
 // complete is called by OnTrunk (if there where no conflicts) and Resolve (when all conflicts have been resolved)
-func (svc *Service) complete(repo vcsvcs.RepoWriter, codebaseID, workspaceID, viewID string, unsavedCommitID *string, rebasedCommits []vcsvcs.RebasedCommit) error {
+func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codebaseID, workspaceID, viewID string, unsavedCommitID *string, rebasedCommits []vcsvcs.RebasedCommit) error {
 	if err := repo.MoveBranchToHEAD(workspaceID); err != nil {
 		return fmt.Errorf("failed to move workspace to head: %w", err)
 	}
@@ -253,7 +254,7 @@ func (svc *Service) complete(repo vcsvcs.RepoWriter, codebaseID, workspaceID, vi
 	}
 
 	// Update workspace
-	if err := ws_meta.Updated(svc.workspaceReader, svc.workspaceWriter, workspaceID); err != nil {
+	if err := ws_meta.Updated(ctx, svc.workspaceReader, svc.workspaceWriter, workspaceID); err != nil {
 		return fmt.Errorf("failed to send event: %w", err)
 	}
 

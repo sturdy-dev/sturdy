@@ -17,6 +17,7 @@ import (
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification"
+	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs/testutil/executor"
 	"getsturdy.com/api/vcs/testutil/history"
 
@@ -41,7 +42,7 @@ func TestCloneSendsNotifications(t *testing.T) {
 	gitHubUserRepo := inmemory.NewInMemoryGitHubUserRepo()
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	workspaceRepo := inmemory.NewInMemoryWorkspaceRepo()
+	workspaceRepo := db_workspace.NewMemory()
 	executorProvider := executor.TestingExecutorProvider(t)
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, events.NewInMemory())
 
