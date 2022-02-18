@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+set -x
 
 # generate-repo.sh generates a small git repository with some minor history
 # The output is deterministic, and all commit IDs are always the same
@@ -60,6 +61,9 @@ set -euo pipefail
 # git init .
 
 pushd "$1"
+
+git config user.email "support@getsturdy.com"
+git config user.name "Sturdy Testdata"
 
 # This script is expected to be executed in a repository initialized from CreateBareRepoWithRootCommit and CloneRepo
 git checkout -b tmp
