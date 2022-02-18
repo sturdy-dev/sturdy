@@ -41,10 +41,10 @@ func Signup(
 
 		newUser, err := userService.CreateWithPassword(c.Request.Context(), req.Name, req.Password, req.Email)
 		if errors.Is(err, service_user.ErrExists) {
-			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "User already exists"})
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "A user with this email already exists, did you mean to login?"})
 			return
 		} else if errors.Is(err, service_user.ErrExceeded) {
-			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "Maximum number of users exceeded"})
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "This service is exceeding the number of users allowed. Please contact the server administrator or email support@getsturdy.com"})
 			return
 		} else if err != nil {
 			logger.Error("failed to create user", zap.Error(err))
