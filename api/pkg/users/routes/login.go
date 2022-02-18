@@ -25,7 +25,7 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_ana
 		var req request
 		if err := c.ShouldBindJSON(&req); err != nil {
 			logger.Warn("failed to bind input", zap.Error(err))
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password input"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Something went wrong, please check the input and try again"})
 			return
 		}
 
@@ -35,7 +35,7 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_ana
 		getUser, err := repo.GetByEmail(req.Email)
 		if err != nil {
 			logger.Warn("failed to get user", zap.Error(err))
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password, please check the input and try again"})
 			return
 		}
 
@@ -44,7 +44,7 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_ana
 			[]byte(getUser.PasswordHash),
 			[]byte(req.Password),
 		); err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password, please check the input and try again"})
 			return
 		}
 
