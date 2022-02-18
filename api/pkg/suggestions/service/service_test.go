@@ -86,7 +86,7 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		t.Logf("writing original")
 		// create workspace
 		if test.originalWorkspace == nil {
-			originalWorkspace, err := test.workspaceService.Create(service_workspace.CreateWorkspaceRequest{
+			originalWorkspace, err := test.workspaceService.Create(context.TODO(), service_workspace.CreateWorkspaceRequest{
 				UserID:     test.originalUserID,
 				CodebaseID: test.codebaseID,
 				Name:       fmt.Sprintf("%s's workspace", test.originalUserID),

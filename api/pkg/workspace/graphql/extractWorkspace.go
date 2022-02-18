@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspace"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
@@ -82,7 +82,7 @@ func (r *workspaceExtractor) copyWorkspace(ctx context.Context, from *workspace.
 		ChangeID:   changeID,
 	}
 
-	newWorkspace, err := r.workspaceService.Create(createRequest)
+	newWorkspace, err := r.workspaceService.Create(ctx, createRequest)
 	if err != nil {
 		return nil, fmt.Errorf("faliled to create a workspace")
 	}
