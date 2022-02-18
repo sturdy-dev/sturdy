@@ -14,6 +14,7 @@ type RepoGitReader interface {
 
 	CurrentDiffNoIndex() (*git.Diff, error)
 	DiffCommits(firstCommitID, secondCommitID string) (*git.Diff, error)
+	DiffCommitToRoot(firstCommitID string) (*git.Diff, error)
 
 	RemoteBranchCommit(remoteName, branchName string) (*git.Commit, error)
 
@@ -28,6 +29,7 @@ type RepoGitReader interface {
 	GetCommitParents(commitID string) ([]string, error)
 	CommitMessage(id string) (author *git.Signature, message string, err error)
 	ShowCommit(id string) (diffs []string, entry *LogEntry, err error)
+	GetCommitDetails(id string) (*CommitDetails, error)
 	BranchHasCommit(branchName, commitID string) (bool, error)
 
 	FileContentsAtCommit(commitID, filePath string) ([]byte, error)
@@ -75,7 +77,7 @@ type RepoGitWriter interface {
 	GitRemotePrune(remoteName string) error
 
 	MergeBranches(ourBranchName, theirBranchName string) (*git.Index, error)
-	MergeBranchInto(branchName, mergeIntoBranchName string) error
+	MergeBranchInto(branchName, mergeIntoBranchName string) (mergeCommitId string, err error)
 
 	ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error)
 

@@ -15,7 +15,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/change/decorate"
+	service_change "getsturdy.com/api/pkg/change/service"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
@@ -62,7 +62,7 @@ type CodebaseRootResolver struct {
 	authService         *service_auth.Service
 	codebaseService     *service_codebase.Service
 	organizationService *service_organization.Service
-	changeDecorator     *decorate.Decorator
+	changeService       *service_change.Service
 }
 
 func NewCodebaseRootResolver(
@@ -91,7 +91,7 @@ func NewCodebaseRootResolver(
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
 	organizationService *service_organization.Service,
-	changeDecorator *decorate.Decorator,
+	changeService *service_change.Service,
 ) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
@@ -119,7 +119,7 @@ func NewCodebaseRootResolver(
 		authService:         authService,
 		codebaseService:     codebaseService,
 		organizationService: organizationService,
-		changeDecorator:     changeDecorator,
+		changeService:       changeService,
 	}
 }
 
@@ -564,14 +564,15 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 		limit = int(*args.Input.Limit)
 	}
 
-	decoratedLog, err := r.root.changeDecorator.List(ctx, r.c.ID, limit)
+	changes, err := r.root.changeService.Changelog(ctx, r.c.ID, limit)
 	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to decorate changes: %w", err))
+		return nil, err
 	}
 
+	// TODO: pass down full change object instead of id
 	var res []resolvers.ChangeResolver
-	for _, dc := range decoratedLog {
-		id := graphql.ID(dc.ChangeID)
+	for _, change := range changes {
+		id := graphql.ID(change.ID)
 		r, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{ID: &id})
 		switch {
 		case err == nil:

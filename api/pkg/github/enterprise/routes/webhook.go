@@ -4,56 +4,30 @@ import (
 	"fmt"
 	"net/http"
 
-	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	db_change "getsturdy.com/api/pkg/change/db"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	service_comments "getsturdy.com/api/pkg/comments/service"
-	"getsturdy.com/api/pkg/events"
-	"getsturdy.com/api/pkg/github/enterprise/client"
-	"getsturdy.com/api/pkg/github/enterprise/config"
-	"getsturdy.com/api/pkg/github/enterprise/db"
-	"getsturdy.com/api/pkg/github/enterprise/routes/installation"
-	"getsturdy.com/api/pkg/github/enterprise/routes/pr"
-	"getsturdy.com/api/pkg/github/enterprise/routes/push"
-	"getsturdy.com/api/pkg/github/enterprise/routes/statuses"
-	"getsturdy.com/api/pkg/github/enterprise/routes/workflows"
-	service_github "getsturdy.com/api/pkg/github/enterprise/service"
-	db_review "getsturdy.com/api/pkg/review/db"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
-	service_sync "getsturdy.com/api/pkg/sync/service"
-	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
-	"getsturdy.com/api/vcs/executor"
-
 	"github.com/gin-gonic/gin"
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
+
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/github/enterprise/routes/installation"
+	"getsturdy.com/api/pkg/github/enterprise/routes/statuses"
+	"getsturdy.com/api/pkg/github/enterprise/routes/workflows"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 )
 
 func Webhook(
 	logger *zap.Logger,
-	config *config.GitHubAppConfig,
 	analyticsService *service_analytics.Service,
 	gitHubInstallationRepo db.GitHubInstallationRepo,
 	gitHubRepositoryRepo db.GitHubRepositoryRepo,
 	codebaseRepo db_codebase.CodebaseRepository,
-	executorProvider executor.Provider,
-	githubClientProvider client.InstallationClientProvider,
-	gitHubPRRepo db.GitHubPRRepo,
-	workspaceReader db_workspace.WorkspaceReader,
-	workspaceWriter db_workspace.WorkspaceWriter,
-	workspaceService service_workspace.Service,
-	syncService *service_sync.Service,
-	changeRepo db_change.Repository,
-	reviewRepo db_review.ReviewRepository,
-	eventsSender events.EventSender,
-	activitySender activity_sender.ActivitySender,
 	statusesService *service_statuses.Service,
-	commentsService *service_comments.Service,
 	gitHubService *service_github.Service,
-	buildQueue *workers_ci.BuildQueue,
+	gitHubWebhooksService *service_github_webhooks.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		payload, err := gh.ValidatePayload(c.Request, nil)
@@ -94,7 +68,7 @@ func Webhook(
 
 			logger.Info("about to handle push event")
 
-			if err := push.HandlePushEvent(c, logger, event, gitHubRepositoryRepo, gitHubInstallationRepo, workspaceWriter, workspaceReader, workspaceService, syncService, gitHubPRRepo, changeRepo, executorProvider, config, githubClientProvider, eventsSender, analyticsService, reviewRepo, activitySender, commentsService, buildQueue); err != nil {
+			if err := gitHubWebhooksService.HandlePushEvent(event); err != nil {
 				logger.Error("failed to handle github push event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
@@ -108,7 +82,7 @@ func Webhook(
 				zap.Int64("installation_id", event.GetInstallation().GetID()),
 			)
 
-			if err := pr.HandlePullRequestEvent(logger, event, workspaceReader, gitHubPRRepo, eventsSender, workspaceWriter); err != nil {
+			if err := gitHubWebhooksService.HandlePullRequestEvent(event); err != nil {
 				logger.Error("failed to handle github pull request event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return

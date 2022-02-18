@@ -46,6 +46,7 @@ func TestCodebaseAccess(t *testing.T) {
 		codebaseService,
 		nil,
 		nil,
+		nil,
 	)
 
 	privateCodebase := codebase.Codebase{ID: uuid.NewString(), ShortCodebaseID: "short-private"}

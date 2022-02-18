@@ -7,7 +7,10 @@ import (
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/change"
+	service_change "getsturdy.com/api/pkg/change/service"
+	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
@@ -15,8 +18,11 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/notification/sender"
+	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_sync "getsturdy.com/api/pkg/sync/service"
 	service_user "getsturdy.com/api/pkg/users/service"
+	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
 	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -52,6 +58,7 @@ type Service struct {
 	workspaceReader  db_workspace.WorkspaceReader
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 	codebaseRepo     db_codebase.CodebaseRepository
+	reviewRepo       db_review.ReviewRepository
 
 	executorProvider executor.Provider
 
@@ -59,8 +66,14 @@ type Service struct {
 	analyticsService   *service_analytics.Service
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
+	activitySender     sender_workspace_activity.ActivitySender
 
-	userService service_user.Service
+	userService     service_user.Service
+	syncService     *service_sync.Service
+	commentsService *service_comments.Service
+	changeService   *service_change.Service
+
+	buildQueue *workers_ci.BuildQueue
 }
 
 func New(
@@ -82,14 +95,21 @@ func New(
 	workspaceReader db_workspace.WorkspaceReader,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	codebaseRepo db_codebase.CodebaseRepository,
+	reviewRepo db_review.ReviewRepository,
 
 	executorProvider executor.Provider,
 	snap snapshotter.Snapshotter,
 	analyticsService *service_analytics.Service,
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,
+	activitySender sender_workspace_activity.ActivitySender,
 
 	userService service_user.Service,
+	syncService *service_sync.Service,
+	commentsService *service_comments.Service,
+	changeService *service_change.Service,
+
+	buildQueue *workers_ci.BuildQueue,
 ) *Service {
 	return &Service{
 		logger: logger,
@@ -110,14 +130,21 @@ func New(
 		workspaceReader:  workspaceReader,
 		codebaseUserRepo: codebaseUserRepo,
 		codebaseRepo:     codebaseRepo,
+		reviewRepo:       reviewRepo,
 
 		executorProvider:   executorProvider,
 		snap:               snap,
 		analyticsService:   analyticsService,
 		notificationSender: notificationSender,
 		eventsSender:       eventsSender,
+		activitySender:     activitySender,
 
-		userService: userService,
+		userService:     userService,
+		syncService:     syncService,
+		commentsService: commentsService,
+		changeService:   changeService,
+
+		buildQueue: buildQueue,
 	}
 }
 

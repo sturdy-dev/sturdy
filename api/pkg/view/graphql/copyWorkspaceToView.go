@@ -57,7 +57,7 @@ func (r *ViewRootResolver) CopyWorkspaceToView(ctx context.Context, args resolve
 		}
 	}
 
-	// TODO: Create a snapshot of the authorative view (or use latest snapshot)
+	// TODO: CreateWithCommitAsParent a snapshot of the authorative view (or use latest snapshot)
 	if err := r.executorProvider.New().
 		Write(vcs.CheckoutBranch(ws.ID)).
 		ExecView(ws.CodebaseID, view.ID, "copyWorkspaceToView"); err != nil {

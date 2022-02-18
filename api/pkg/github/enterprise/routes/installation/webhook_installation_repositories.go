@@ -100,7 +100,7 @@ func handleInstalledRepository(
 	codebaseRepo db_codebase.CodebaseRepository,
 	gitHubService *service_github.Service,
 ) error {
-	// Create a non-ready codebase (add the initiating user), and put the event on a queue
+	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue
 	logger = logger.With(zap.String("repo_name", ghRepo.GetName()), zap.Int64("installation_id", installationID))
 	logger.Info("handleInstalledRepository")
 

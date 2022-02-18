@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/vcs/diff"
 
 	git "github.com/libgit2/git2go/v33"
@@ -141,6 +142,36 @@ func (repo *repository) DiffCommits(firstCommitID, secondCommitID string) (*git.
 	defer secondCommitTree.Free()
 
 	diff, err := repo.r.DiffTreeToTree(firstCommitTree, secondCommitTree, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	err = sturdyFindSimilar(diff)
+	if err != nil {
+		return nil, err
+	}
+
+	return diff, nil
+}
+
+func (repo *repository) DiffCommitToRoot(firstCommitID string) (*git.Diff, error) {
+	defer getMeterFunc("DiffCommitToRoot")()
+	firstCommitOID, err := git.NewOid(firstCommitID)
+	if err != nil {
+		return nil, err
+	}
+
+	firstCommit, err := repo.r.LookupCommit(firstCommitOID)
+	if err != nil {
+		return nil, err
+	}
+
+	firstCommitTree, err := firstCommit.Tree()
+	if err != nil {
+		return nil, err
+	}
+
+	diff, err := repo.r.DiffTreeToTree(nil, firstCommitTree, nil)
 	if err != nil {
 		return nil, err
 	}

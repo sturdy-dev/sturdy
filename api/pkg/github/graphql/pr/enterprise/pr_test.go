@@ -27,8 +27,6 @@ import (
 	analytics_service "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -42,6 +40,7 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	"getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/github/graphql/enterprise"
 	graphql_pr_enterprise "getsturdy.com/api/pkg/github/graphql/pr/enterprise"
@@ -79,6 +78,8 @@ func module(c *di.Container) {
 	c.Import(workers.Module)
 	c.Import(db_github.Module)
 	c.Register(service_github.New)
+	c.Register(service_github_webhooks.New)
+
 	c.Register(func() (client.InstallationClientProvider, client.PersonalClientProvider, client.AppClientProvider) {
 		return clientProvider, personalClientProvider, appsClientProvider
 	})
@@ -132,8 +133,7 @@ func TestPRHighLevel(t *testing.T) {
 		ActivitySender                activity_sender.ActivitySender
 		AnalyticsClient               *analytics_service.Service
 		BuildQueue                    *workers_ci.BuildQueue
-		ChangeRepo                    db_change.Repository
-		ChangeRootResolver            resolvers.ChangeRootResolver
+		CodebaseRootResolver          resolvers.CodebaseRootResolver
 		CodebaseRepo                  db_codebase.CodebaseRepository
 		CodebaseUserRepo              db_codebase.CodebaseUserRepository
 		CommentsRootResolver          resolvers.CommentRootResolver
@@ -145,6 +145,7 @@ func TestPRHighLevel(t *testing.T) {
 		GitHubPullRequestRootResolver resolvers.GitHubPullRequestRootResolver
 		GitHubRepositoryRepo          db_github.GitHubRepositoryRepo
 		GitHubService                 *service_github.Service
+		GitHubWebhookService          *service_github_webhooks.Service
 		GitHubUserRepo                db_github.GitHubUserRepo
 		Logger                        *zap.Logger
 		RepoProvider                  provider.RepoProvider
@@ -166,7 +167,6 @@ func TestPRHighLevel(t *testing.T) {
 
 	commentsResolver := d.CommentsRootResolver
 	viewResolver := d.ViewRootResolver
-	changeRepo := d.ChangeRepo
 	gitHubRepositoryRepo := d.GitHubRepositoryRepo
 	gitHubUserRepo := d.GitHubUserRepo
 	gitHubInstallationRepo := d.GitHubInstallationRepo
@@ -174,36 +174,13 @@ func TestPRHighLevel(t *testing.T) {
 	gitHubPRRepo := d.GitHubPRRepo
 	workspaceResolver := d.WorkspaceRootResolver
 	prResolver := d.GitHubPullRequestRootResolver
-	changeResolver := d.ChangeRootResolver
 	workspaceService := d.WorkspaceService
 	repoProvider := d.RepoProvider
 	codebaseUserRepo := d.CodebaseUserRepo
 	workspaceRepo := d.WorkspaceRepo
 	viewRepo := d.ViewRepo
 
-	webhookRoute := routes.Webhook(
-		d.Logger,
-		&config.GitHubAppConfig{},
-		d.AnalyticsClient,
-		d.GitHubInstallationRepo,
-		d.GitHubRepositoryRepo,
-		d.CodebaseRepo,
-		d.ExecutorProvider,
-		clientProvider,
-		d.GitHubPRRepo,
-		d.WorkspaceRepo,
-		d.WorkspaceRepo,
-		d.WorkspaceService,
-		d.SyncService,
-		d.ChangeRepo,
-		d.ReviewsRepo,
-		d.EventsSender,
-		d.ActivitySender,
-		d.StatusesService,
-		d.CommentsService,
-		d.GitHubService,
-		d.BuildQueue,
-	)
+	webhookRoute := routes.Webhook(d.Logger, d.AnalyticsClient, d.GitHubInstallationRepo, d.GitHubRepositoryRepo, d.CodebaseRepo, d.StatusesService, d.GitHubService, d.GitHubWebhookService)
 
 	testCases := []struct {
 		name                       string
@@ -305,7 +282,8 @@ func TestPRHighLevel(t *testing.T) {
 			viewID := uuid.NewString()
 			codebaseID := uuid.NewString()
 			codebaseUserID := uuid.NewString()
-			gitHubRepositoryID := uuid.NewString()
+			sturdyRepositoryID := uuid.NewString()
+			gitHubRepositoryID := rand.Int63n(500_000_000)
 			gitHubInstallationID := rand.Int63n(500_000_000)
 			log.Println("gitHubInstallationID!!!", gitHubInstallationID)
 			ctx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID})
@@ -320,7 +298,8 @@ func TestPRHighLevel(t *testing.T) {
 			}
 			expT := time.Now().Add(20 * time.Minute)
 			ghr := &github.GitHubRepository{
-				ID:                               gitHubRepositoryID,
+				ID:                               sturdyRepositoryID,
+				GitHubRepositoryID:               gitHubRepositoryID,
 				InstallationID:                   gitHubInstallationID,
 				Name:                             gitHubRepoName,
 				TrackedBranch:                    "master",
@@ -366,7 +345,7 @@ func TestPRHighLevel(t *testing.T) {
 			pathBase := repoProvider.TrunkPath(codebaseID)
 			t.Logf("base=%s", pathBase)
 
-			bareRepo, err := vcs.CloneRepoBare(fakeGitHubRemotePath, pathBase)
+			_, err = vcs.CloneRepoBare(fakeGitHubRemotePath, pathBase)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -485,7 +464,14 @@ func TestPRHighLevel(t *testing.T) {
 			gitHubPullRequestID := ghpr.GitHubID
 
 			// PR was closed
-			prWebhookEvent(t, "closed", false, userID, gitHubPullRequestID, webhookRoute)
+			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
+				PullRequest: &gh.PullRequest{
+					ID:    &gitHubPullRequestID,
+					State: str("closed"),
+				},
+				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
+				Installation: &gh.Installation{ID: &gitHubInstallationID},
+			})
 
 			// Updated PR is closed
 			gqlID := graphql.ID(workspaceID)
@@ -494,7 +480,14 @@ func TestPRHighLevel(t *testing.T) {
 			assert.False(t, updatedPR.Open())
 
 			// PR was reopened
-			prWebhookEvent(t, "open", false, userID, gitHubPullRequestID, webhookRoute)
+			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
+				PullRequest: &gh.PullRequest{
+					ID:    &gitHubPullRequestID,
+					State: str("open"),
+				},
+				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
+				Installation: &gh.Installation{ID: &gitHubInstallationID},
+			})
 
 			// Updated PR is opened
 			gqlID = graphql.ID(workspaceID)
@@ -502,8 +495,37 @@ func TestPRHighLevel(t *testing.T) {
 			assert.NoError(t, err)
 			assert.True(t, updatedPR.Open())
 
+			preMergeHeadSha, err := fakeGitHubBareRepo.BranchCommitID("master")
+			assert.NoError(t, err)
+
+			// Rebase or rebase the commit
+			var mergeCommitSha string
+			if tc.gitHubRebase {
+				branchCommit, err := fakeGitHubBareRepo.BranchCommitID("sturdy-pr-" + workspaceID)
+				assert.NoError(t, err)
+				mergeCommitSha, _, _, err = fakeGitHubBareRepo.CherryPickOnto(branchCommit, preMergeHeadSha)
+				assert.NoError(t, err)
+				err = fakeGitHubBareRepo.MoveBranchToCommit("master", mergeCommitSha)
+				assert.NoError(t, err)
+			} else {
+				mergeCommitSha, err = fakeGitHubBareRepo.MergeBranchInto("sturdy-pr-"+workspaceID, "master")
+				assert.NoError(t, err)
+			}
+
 			// Merge PR
-			prWebhookEvent(t, "closed", true, userID, gitHubPullRequestID, webhookRoute)
+			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
+				PullRequest: &gh.PullRequest{
+					ID:             &gitHubPullRequestID,
+					State:          str("closed"),
+					Merged:         b(true),
+					MergeCommitSHA: &mergeCommitSha,
+					Base: &gh.PullRequestBranch{
+						SHA: &preMergeHeadSha,
+					},
+				},
+				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
+				Installation: &gh.Installation{ID: &gitHubInstallationID},
+			})
 
 			// Updated PR is merged
 			updatedPR, err = prResolver.InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &gqlID})
@@ -511,24 +533,10 @@ func TestPRHighLevel(t *testing.T) {
 			assert.False(t, updatedPR.Open())
 			assert.True(t, updatedPR.Merged())
 
-			// Rebase or rebase the commit
-			if tc.gitHubRebase {
-				masterCommit, err := fakeGitHubBareRepo.BranchCommitID("master")
-				assert.NoError(t, err)
-				branchCommit, err := fakeGitHubBareRepo.BranchCommitID("sturdy-pr-" + workspaceID)
-				assert.NoError(t, err)
-				newCommit, _, _, err := fakeGitHubBareRepo.CherryPickOnto(branchCommit, masterCommit)
-				assert.NoError(t, err)
-				err = fakeGitHubBareRepo.MoveBranchToCommit("master", newCommit)
-				assert.NoError(t, err)
-			} else {
-				err = fakeGitHubBareRepo.MergeBranchInto("sturdy-pr-"+workspaceID, "master")
-				assert.NoError(t, err)
-			}
-
 			// Post-merge push webhook event
 			webhookRepoPush := gh.PushEvent{
 				Ref:          str("refs/heads/master"),
+				Repo:         &gh.PushEventRepository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
 			}
 			requestWithParams(t, userID, webhookRoute, webhookRepoPush, nil, "push", []gin.Param{})
@@ -539,36 +547,6 @@ func TestPRHighLevel(t *testing.T) {
 			assert.Nil(t, ws.UpToDateWithTrunk)
 			assert.Empty(t, ws.DraftDescription) // draft message is reset after push event
 
-			// Imported commit has full metadata
-			trunkCommits, err := bareRepo.LogBranch("sturdytrunk", 10)
-			assert.NoError(t, err)
-			for _, c := range trunkCommits {
-				t.Logf("trunkcommit: %+v", c)
-			}
-			assert.Len(t, trunkCommits, 2)
-
-			// One of the commits is the imported one
-			var importIdx = -1
-			for idx, c := range trunkCommits {
-				if c.Name == "Test Testsson" {
-					importIdx = idx
-				}
-			}
-
-			var changeID change.ID
-
-			if assert.True(t, importIdx >= 0) {
-				ch, err := changeRepo.GetByCommitID(context.Background(), trunkCommits[importIdx].ID, codebaseID)
-				assert.NoError(t, err)
-				if assert.NotNil(t, ch) {
-					changeID = ch.ID
-					if assert.NotNil(t, ch.Title) {
-						assert.Equal(t, "draft description", *ch.Title)
-					}
-				}
-				assert.Equal(t, "<p><em>draft description</em></p>", ch.UpdatedDescription)
-			}
-
 			// The workspace should no longer have any comments
 			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID})
 			assert.NoError(t, err)
@@ -576,28 +554,36 @@ func TestPRHighLevel(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Len(t, workspaceComments, 0)
 
-			// The new change should have comments
-			changeIDgql := graphql.ID(changeID)
-			chResolver, err := changeResolver.Change(ctx, resolvers.ChangeArgs{ID: &changeIDgql})
+			gqlCodebaseID := graphql.ID(codebaseID)
+			codebaseResolver, err := d.CodebaseRootResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &gqlCodebaseID})
 			assert.NoError(t, err)
-			if assert.NotNil(t, chResolver) {
-				changeComments, err := chResolver.Comments()
-				assert.NoError(t, err)
-				assert.Len(t, changeComments, 5)
+			changeResolvers, err := codebaseResolver.Changes(ctx, &resolvers.CodebaseChangesArgs{Input: &resolvers.CodebaseChangesInput{Limit: i32(50)}})
+			assert.NoError(t, err)
+
+			var found bool
+			for _, changeResolver := range changeResolvers {
+				if changeResolver.Title() == "draft description" {
+					found = true
+
+					author, err := changeResolver.Author(ctx)
+					assert.NoError(t, err)
+					assert.Equal(t, "Test Testsson", author.Name())
+
+					assert.Equal(t, "<p><em>draft description</em></p>", changeResolver.Description())
+
+					// The new change should have comments
+					changeComments, err := changeResolver.Comments()
+					assert.NoError(t, err)
+					assert.Len(t, changeComments, 5)
+				}
 			}
+			assert.True(t, found)
 		})
 	}
 }
 
-func prWebhookEvent(t *testing.T, state string, merged bool, userID string, pullRequestID int64, webhookRoute gin.HandlerFunc) {
-	webhookPREvent := gh.PullRequestEvent{
-		PullRequest: &gh.PullRequest{
-			ID:     &pullRequestID,
-			State:  &state,
-			Merged: &merged,
-		},
-	}
-	requestWithParams(t, userID, webhookRoute, webhookPREvent, nil, "pull_request", []gin.Param{})
+func prWebhookEvent(t *testing.T, userID string, webhookRoute gin.HandlerFunc, event gh.PullRequestEvent) {
+	requestWithParams(t, userID, webhookRoute, event, nil, "pull_request", []gin.Param{})
 }
 
 func clientProvider(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, appsClient client.AppsClient, err error) {

@@ -377,10 +377,9 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	cleanCommitMessage := message.CommitMessage(ws.DraftDescription)
-
+	// TODO: We can start to remove the metadata from commit messages, it's not used anymore
 	changeMeta := change.ChangeMetadata{
-		Description: cleanCommitMessage,
+		Description: message.CommitMessage(ws.DraftDescription),
 		UserID:      user.ID,
 	}
 	if ws.ViewID != nil {
@@ -393,8 +392,6 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 		Email: user.Email,
 		When:  time.Now(),
 	}
-
-	cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
 
 	var change *change.Change
 	creteAndLand := func(viewRepo vcs.RepoWriter) error {
@@ -412,10 +409,19 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			return fmt.Errorf("failed to create and land from view: %w", err)
 		}
 
-		change, err = s.changeService.Create(ctx, ws, createdCommitID, cleanCommitMessageTitle)
+		parents, err := viewRepo.GetCommitParents(createdCommitID)
+		if err != nil {
+			return fmt.Errorf("failed get parents of new commit: %w", err)
+		}
+		if len(parents) != 1 {
+			return fmt.Errorf("commit has an unexpected number of parents n=%d", len(parents))
+		}
+
+		change, err = s.changeService.CreateWithCommitAsParent(ctx, ws, createdCommitID, parents[0])
 		if err != nil {
 			return fmt.Errorf("failed to create change: %w", err)
 		}
+
 		if err := fromViewPushFunc(viewRepo); err != nil {
 			return fmt.Errorf("failed to push the landed result: %w", err)
 		}

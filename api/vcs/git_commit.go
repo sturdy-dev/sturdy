@@ -105,6 +105,38 @@ func (r *repository) ShowCommit(id string) (diffs []string, entry *LogEntry, err
 	return out, CommitLogEntry(c), nil
 }
 
+type CommitDetails struct {
+	CommitID string
+	Parents  []string
+	Message  string
+	Author   *git.Signature
+}
+
+func (r *repository) GetCommitDetails(id string) (*CommitDetails, error) {
+	defer getMeterFunc("GetCommitDetails")()
+	co, err := r.r.RevparseSingle(id)
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := co.AsCommit()
+	if err != nil {
+		return nil, err
+	}
+
+	var parents []string
+	for p := uint(0); p < c.ParentCount(); p++ {
+		parents = append(parents, c.ParentId(p).String())
+	}
+
+	return &CommitDetails{
+		CommitID: c.Id().String(),
+		Message:  c.Message(),
+		Parents:  parents,
+		Author:   c.Author(),
+	}, nil
+}
+
 func (r *repository) BranchHasCommit(branchName, commitID string) (bool, error) {
 	defer getMeterFunc("BranchHasCommit")()
 	branch, err := r.r.LookupBranch(branchName, git.BranchLocal)
