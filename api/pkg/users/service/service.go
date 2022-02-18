@@ -22,10 +22,10 @@ var (
 	ErrExceeded = fmt.Errorf("maximum number of users exceeded")
 )
 
-type UserSerice struct {
+type UserService struct {
 	logger           *zap.Logger
 	userRepo         db_user.Repository
-	analyticsServcie *service_analytics.Service
+	analyticsService *service_analytics.Service
 }
 
 type Service interface {
@@ -41,12 +41,12 @@ type Service interface {
 func New(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
-	analyticsServcie *service_analytics.Service,
-) *UserSerice {
-	return &UserSerice{
+	analyticsService *service_analytics.Service,
+) *UserService {
+	return &UserService{
 		logger:           logger,
 		userRepo:         userRepo,
-		analyticsServcie: analyticsServcie,
+		analyticsService: analyticsService,
 	}
 }
 
@@ -55,7 +55,7 @@ var (
 	ErrNotFound = fmt.Errorf("user not found")
 )
 
-func (s *UserSerice) GetFirstUser(ctx context.Context) (*users.User, error) {
+func (s *UserService) GetFirstUser(ctx context.Context) (*users.User, error) {
 	uu, err := s.userRepo.List(ctx, 1)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list users: %w", err)
@@ -66,7 +66,7 @@ func (s *UserSerice) GetFirstUser(ctx context.Context) (*users.User, error) {
 	return uu[0], nil
 }
 
-func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
+func (s *UserService) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {
 	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {
 		// all good
 	} else if err != nil {
@@ -93,29 +93,29 @@ func (s *UserSerice) CreateWithPassword(ctx context.Context, name, password, ema
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	s.analyticsServcie.IdentifyUser(ctx, newUser)
-	s.analyticsServcie.Capture(ctx, "created account")
+	s.analyticsService.IdentifyUser(ctx, newUser)
+	s.analyticsService.Capture(ctx, "created account")
 
 	return newUser, nil
 }
 
-func (s *UserSerice) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error) {
+func (s *UserService) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error) {
 	return s.userRepo.GetByIDs(ctx, ids...)
 }
 
-func (s *UserSerice) GetByID(_ context.Context, id string) (*users.User, error) {
+func (s *UserService) GetByID(_ context.Context, id string) (*users.User, error) {
 	return s.userRepo.Get(id)
 }
 
-func (s *UserSerice) GetByEmail(_ context.Context, email string) (*users.User, error) {
+func (s *UserService) GetByEmail(_ context.Context, email string) (*users.User, error) {
 	return s.userRepo.GetByEmail(email)
 }
 
-func (s *UserSerice) UsersCount(ctx context.Context) (uint64, error) {
+func (s *UserService) UsersCount(ctx context.Context) (uint64, error) {
 	return s.userRepo.Count(ctx)
 }
 
-func (s *UserSerice) GetAsAuthor(ctx context.Context, userID string) (*author.Author, error) {
+func (s *UserService) GetAsAuthor(ctx context.Context, userID string) (*author.Author, error) {
 	user, err := s.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user %s: %w", userID, err)
