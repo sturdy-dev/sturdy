@@ -8,6 +8,7 @@ import (
 	"time"
 
 	gh "github.com/google/go-github/v39/github"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -15,14 +16,17 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/change/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	vcs_github "getsturdy.com/api/pkg/github/enterprise/vcs"
 	db_review "getsturdy.com/api/pkg/review/db"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/workspace/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
@@ -42,6 +46,7 @@ type Service struct {
 	workspaceWriter db_workspace.WorkspaceWriter
 	workspaceReader db_workspace.WorkspaceReader
 	reviewRepo      db_review.ReviewRepository
+	codebaseRepo    db_codebase.CodebaseRepository
 
 	gitHubAppConfig                  *config_github.GitHubAppConfig
 	gitHubInstallationClientProvider github_client.InstallationClientProvider
@@ -58,6 +63,7 @@ type Service struct {
 	workspaceService service_workspace.Service
 	commentsService  *service_comments.Service
 	changeService    *service_change.Service
+	statusService    *service_statuses.Service
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -72,6 +78,7 @@ func New(
 	workspaceWriter db_workspace.WorkspaceWriter,
 	workspaceReader db_workspace.WorkspaceReader,
 	reviewRepo db_review.ReviewRepository,
+	codebaseRepo db_codebase.CodebaseRepository,
 
 	gitHubAppConfig *config_github.GitHubAppConfig,
 	gitHubInstallationClientProvider github_client.InstallationClientProvider,
@@ -88,6 +95,7 @@ func New(
 	workspaceService service_workspace.Service,
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
+	statusService *service_statuses.Service,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
@@ -101,6 +109,7 @@ func New(
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
 		reviewRepo:      reviewRepo,
+		codebaseRepo:    codebaseRepo,
 
 		gitHubAppConfig:                  gitHubAppConfig,
 		gitHubInstallationClientProvider: gitHubInstallationClientProvider,
@@ -117,6 +126,7 @@ func New(
 		workspaceService: workspaceService,
 		commentsService:  commentsService,
 		changeService:    changeService,
+		statusService:    statusService,
 
 		buildQueue: buildQueue,
 	}
@@ -357,4 +367,167 @@ func (svc *Service) accessToken(installationID, repositoryID int64) (string, err
 	}
 
 	return accessToken, nil
+}
+
+func (svc *Service) HandleInstallationEvent(event *gh.InstallationEvent) error {
+	ctx := context.Background()
+
+	svc.analyticsService.IdentifyGitHubInstallation(ctx, event.GetInstallation())
+
+	svc.analyticsService.Capture(ctx, fmt.Sprintf("github installation %s", event.GetAction()),
+		analytics.DistinctID(fmt.Sprintf("%d", event.GetInstallation().GetID())),
+	)
+
+	if event.GetAction() == "created" ||
+		event.GetAction() == "deleted" ||
+		event.GetAction() == "new_permissions_accepted" {
+
+		t := time.Now()
+		var uninstalledAt *time.Time
+		if event.GetAction() == "deleted" {
+			uninstalledAt = &t
+		}
+
+		// Check if it's already installed (stale data or whatever)
+		existing, err := svc.gitHubInstallationRepo.GetByInstallationID(event.Installation.GetID())
+		if errors.Is(err, sql.ErrNoRows) {
+			// Save new installation
+			err := svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
+				ID:                     uuid.NewString(),
+				InstallationID:         event.Installation.GetID(),
+				Owner:                  event.Installation.GetAccount().GetLogin(), // "sturdy-dev" or "zegl", etc.
+				CreatedAt:              t,
+				UninstalledAt:          uninstalledAt,
+				HasWorkflowsPermission: true,
+			})
+			if err != nil {
+				return err
+			}
+		} else if err != nil {
+			return err
+		} else {
+			// Update existing entry
+			existing.UninstalledAt = uninstalledAt
+
+			if event.GetAction() == "new_permissions_accepted" {
+				existing.HasWorkflowsPermission = true
+			}
+
+			err = svc.gitHubInstallationRepo.Update(existing)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Save all repositories
+		if event.GetAction() == "created" {
+			for _, r := range event.Repositories {
+
+				if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+					return err
+				}
+			}
+		}
+		// TODO: Handle deleted - update installed repositories?
+
+		return nil
+	}
+
+	// Unhandled actions:
+	// suspend, unsuspend
+
+	return nil
+}
+
+func (svc *Service) HandleInstallationRepositoriesEvent(event *gh.InstallationRepositoriesEvent) error {
+	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.Installation.GetID())
+	// If the original InstallationEvent webhook was missed (otherwise user has to remove and re-add app)
+	if errors.Is(err, sql.ErrNoRows) {
+		installation := github.GitHubInstallation{
+			ID:                     uuid.NewString(),
+			InstallationID:         event.Installation.GetID(),
+			Owner:                  event.Installation.Account.GetLogin(), // "sturdy-dev" or "zegl", etc.
+			CreatedAt:              time.Now(),
+			HasWorkflowsPermission: true,
+		}
+
+		if err := svc.gitHubInstallationRepo.Create(installation); err != nil {
+			return err
+		}
+	}
+
+	if event.GetRepositorySelection() == "selected" || event.GetRepositorySelection() == "all" {
+		// Add new repos
+		for _, r := range event.RepositoriesAdded {
+			if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+				return err
+			}
+		}
+
+		// Mark uninstalled repos as uninstalled
+		for _, r := range event.RepositoriesRemoved {
+			installedRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), r.GetID())
+			if err != nil {
+				svc.logger.Error("failed to mark as uninstalled", zap.Error(err))
+				continue
+			}
+
+			t := time.Now()
+			installedRepo.UninstalledAt = &t
+
+			if err := svc.gitHubRepositoryRepo.Update(installedRepo); err != nil {
+				svc.logger.Error("failed to mark as uninstalled", zap.Error(err))
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *gh.Repository) error {
+	ctx := context.Background()
+
+	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue
+	logger := svc.logger.With(zap.String("repo_name", ghRepo.GetName()), zap.Int64("installation_id", installationID))
+	logger.Info("handleInstalledRepository")
+
+	existingGitHubRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID())
+	// If GitHub repo already exists (previously installed and then uninstalled) un-archive it
+	if err == nil {
+		logger.Info("handleInstalledRepository repository already exists", zap.Any("existing_github_repo", existingGitHubRepo))
+
+		// un-archive the codebase if archived
+		cb, err := svc.codebaseRepo.GetAllowArchived(existingGitHubRepo.CodebaseID)
+		if err != nil {
+			logger.Error("failed to get codebase", zap.Error(err))
+			return err
+		}
+
+		svc.analyticsService.Capture(ctx, "installed repository", analytics.DistinctID(fmt.Sprintf("%d", installationID)),
+			analytics.CodebaseID(cb.ID),
+			analytics.Property("repo_name", ghRepo.GetName()),
+		)
+
+		if cb.ArchivedAt != nil {
+			cb.ArchivedAt = nil
+			if err := svc.codebaseRepo.Update(cb); err != nil {
+				logger.Error("failed to un-archive codebase", zap.Error(err))
+				return err
+			}
+		}
+
+		if existingGitHubRepo.UninstalledAt != nil {
+			existingGitHubRepo.UninstalledAt = nil
+			err := svc.gitHubRepositoryRepo.Update(existingGitHubRepo)
+			if err != nil {
+				logger.Error("failed to un-archive github repository entry", zap.Error(err))
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	return nil
 }

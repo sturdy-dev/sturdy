@@ -8,27 +8,10 @@ import (
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
 
-	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	"getsturdy.com/api/pkg/github/enterprise/db"
-	"getsturdy.com/api/pkg/github/enterprise/routes/installation"
-	"getsturdy.com/api/pkg/github/enterprise/routes/statuses"
-	"getsturdy.com/api/pkg/github/enterprise/routes/workflows"
-	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
 )
 
-func Webhook(
-	logger *zap.Logger,
-	analyticsService *service_analytics.Service,
-	gitHubInstallationRepo db.GitHubInstallationRepo,
-	gitHubRepositoryRepo db.GitHubRepositoryRepo,
-	codebaseRepo db_codebase.CodebaseRepository,
-	statusesService *service_statuses.Service,
-	gitHubService *service_github.Service,
-	gitHubWebhooksService *service_github_webhooks.Service,
-) func(c *gin.Context) {
+func Webhook(logger *zap.Logger, gitHubWebhooksService *service_github_webhooks.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		payload, err := gh.ValidatePayload(c.Request, nil)
 		if err != nil {
@@ -47,14 +30,14 @@ func Webhook(
 
 		switch event := event.(type) {
 		case *gh.InstallationEvent:
-			if err := installation.HandleInstallationEvent(c, logger.Named("githubHandleInstallationEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsService, codebaseRepo, gitHubService); err != nil {
+			if err := gitHubWebhooksService.HandleInstallationEvent(event); err != nil {
 				logger.Error("failed to handle github installation webhook event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 
 		case *gh.InstallationRepositoriesEvent:
-			if err := installation.HandleInstallationRepositoriesEvent(c, logger.Named("githubHandleInstallationRepositoriesEvent"), event, gitHubInstallationRepo, gitHubRepositoryRepo, analyticsService, codebaseRepo, gitHubService); err != nil {
+			if err := gitHubWebhooksService.HandleInstallationRepositoriesEvent(event); err != nil {
 				logger.Error("failed to handle github installation repository webhook event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
@@ -94,13 +77,7 @@ func Webhook(
 				zap.Int64("installation_id", event.GetInstallation().GetID()),
 			)
 
-			if err := statuses.HandleStatusEvent(
-				c.Request.Context(),
-				logger,
-				event,
-				gitHubRepositoryRepo,
-				statusesService,
-			); err != nil {
+			if err := gitHubWebhooksService.HandleStatusEvent(event); err != nil {
 				logger.Error("failed to handle status event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
@@ -111,13 +88,7 @@ func Webhook(
 				zap.Int64("installation_id", event.GetInstallation().GetID()),
 			)
 
-			if err := workflows.HandleWorkflowJobEvent(
-				c.Request.Context(),
-				logger,
-				event,
-				gitHubRepositoryRepo,
-				statusesService,
-			); err != nil {
+			if err := gitHubWebhooksService.HandleWorkflowJobEvent(event); err != nil {
 				logger.Error("failed to handle workflow job event", zap.Error(err))
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return

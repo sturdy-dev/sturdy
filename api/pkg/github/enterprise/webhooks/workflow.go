@@ -1,4 +1,4 @@
-package workflows
+package webhooks
 
 import (
 	"context"
@@ -7,13 +7,11 @@ import (
 	"fmt"
 	"time"
 
-	db_github "getsturdy.com/api/pkg/github/enterprise/db"
-	"getsturdy.com/api/pkg/statuses"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
-
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/statuses"
 )
 
 var statusPending = map[string]bool{
@@ -67,16 +65,11 @@ func getJobType(job *gh.WorkflowJob) statuses.Type {
 	}
 }
 
-func HandleWorkflowJobEvent(
-	ctx context.Context,
-	logger *zap.Logger,
-	event *gh.WorkflowJobEvent,
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	statusesService *service_statuses.Service,
-) error {
+func (svc *Service) HandleWorkflowJobEvent(event *gh.WorkflowJobEvent) error {
+	ctx := context.Background()
 	gitHubRepoID := event.GetRepo().GetID()
 	installationID := event.GetInstallation().GetID()
-	repo, err := gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)
+	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
@@ -89,7 +82,7 @@ func HandleWorkflowJobEvent(
 
 	jobType := getJobType(job)
 	if jobType == statuses.TypeUndefined {
-		logger.Warn(
+		svc.logger.Warn(
 			"failed to parse github job type",
 			zap.String("repo_id", repo.ID),
 			zap.String("status", job.GetStatus()),
@@ -108,7 +101,7 @@ func HandleWorkflowJobEvent(
 		DetailsURL: job.HTMLURL,
 	}
 
-	if err := statusesService.Set(ctx, status); err != nil {
+	if err := svc.statusService.Set(ctx, status); err != nil {
 		return fmt.Errorf("failed to set status: %w", err)
 	}
 

@@ -180,7 +180,7 @@ func TestPRHighLevel(t *testing.T) {
 	workspaceRepo := d.WorkspaceRepo
 	viewRepo := d.ViewRepo
 
-	webhookRoute := routes.Webhook(d.Logger, d.AnalyticsClient, d.GitHubInstallationRepo, d.GitHubRepositoryRepo, d.CodebaseRepo, d.StatusesService, d.GitHubService, d.GitHubWebhookService)
+	webhookRoute := routes.Webhook(d.Logger, d.GitHubWebhookService)
 
 	testCases := []struct {
 		name                       string
