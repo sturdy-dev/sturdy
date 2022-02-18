@@ -15,7 +15,7 @@
         <p>How to make a new release of the Sturdy Docker oneliner.</p>
 
         <ol>
-          <li>Prepare release notes CHANGELOG.md</li>
+          <li>In a new workspace, prepare release notes (CHANGELOG.md)</li>
           <li>
             Announce in <a href="https://getsturdy.slack.com/archives/C01MHP6SUKS">#general</a> that
             you're making a release
@@ -31,16 +31,16 @@
             <a href="https://github.com/sturdy-dev/sturdy/releases/new">
               Tag the release on GitHub
             </a>
-            using the format `api/$VERSION`.
+            using the format <code>api/$VERSION</code>
           </li>
         </ol>
 
         <h2>App</h2>
 
-        <p>How to make a new release of the Sturdy electron app.</p>
+        <p>How to make a new release of the Sturdy Electron app.</p>
 
         <ol>
-          <li>Prepare release notes CHANGELOG.md</li>
+          <li>In a new workspace, prepare release notes (CHANGELOG.md)</li>
           <li>
             Announce in <a href="https://getsturdy.slack.com/archives/C01MHP6SUKS">#general</a> that
             you're making a release
@@ -56,7 +56,7 @@
             <a href="https://github.com/sturdy-dev/sturdy/releases/new">
               Tag the release on GitHub
             </a>
-            using the format `app/$VERSION`.
+            using the format <code>app/$VERSION</code>
           </li>
         </ol>
       </div>
