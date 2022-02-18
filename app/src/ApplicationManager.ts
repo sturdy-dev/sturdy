@@ -15,8 +15,11 @@ export interface ApplicationManagerEvents {
 }
 
 export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEvents> {
-  #hosts: Map<string, Host> = new Map()
-  #menuItems: Map<string, MenuItem> = new Map()
+  readonly #menuItem: MenuItem = new MenuItem({
+    label: 'Server',
+    submenu: Menu.buildFromTemplate([]),
+    visible: false,
+  })
   readonly #applications: Map<string, Application> = new Map()
 
   #activeApplication?: string
@@ -76,24 +79,21 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     this.#mutagenLog = mutagenLog
   }
 
-  #addHost(host: Host) {
-    if (this.#hosts.has(host.id)) {
-      return
-    }
-    this.#hosts.set(host.id, host)
-    this.#menuItems.set(
-      host.id,
-      new MenuItem({
+  #addHosts(hosts: Host[]) {
+    this.#menuItem.visible = true
+    const submenu = this.#menuItem.submenu!
+    hosts.forEach((host) => {
+      if (submenu.getMenuItemById(host.id)) return
+      const item = new MenuItem({
+        id: host.id,
         label: host.title,
         enabled: false,
-        type: 'radio',
         click: () => this.set(host),
+        type: 'radio',
       })
-    )
-  }
-
-  #addHosts(hosts: Host[]) {
-    hosts.forEach((host) => this.#addHost(host))
+      submenu.append(item)
+      this.#updateHostStatus(host)
+    })
   }
 
   async getOrCreateApplication(host: Host) {
@@ -128,8 +128,8 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
 
   async set(host: Host) {
     const application = await this.getOrCreateApplication(host)
-    this.#menuItems.forEach((item) => (item.checked = false))
-    this.#menuItems.get(host.id)!.checked = true
+    const item = this.#menuItem.submenu?.getMenuItemById(host.id)
+    if (item) item.checked = true
     this.emit('switch', application)
 
     // close all other applications
@@ -156,19 +156,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
   }
 
   appendMenu(menu: Menu) {
-    const enabledMenues = Array.from(this.#menuItems.values()).filter((item) => item.enabled)
-    if (enabledMenues.length <= 1) {
-      // don't show the menu if there is only one backend available
-      return
-    }
-    menu.append(
-      new MenuItem({
-        label: 'Server',
-        submenu: Menu.buildFromTemplate(
-          Array.from(this.#menuItems.values()).sort((a, b) => a.label.localeCompare(b.label))
-        ),
-      })
-    )
+    menu.append(this.#menuItem)
   }
 
   async updateHosts(hosts: Host[]) {
@@ -176,13 +164,19 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     // fetch status of all known hosts
     const promises = []
     for (const host of hosts) {
-      promises.push(
-        host.isUp().then((isUp) => {
-          this.#menuItems.get(host.id)!.enabled = isUp
-        })
-      )
+      promises.push(this.#updateHostStatus(host))
     }
     await Promise.all(promises)
+  }
+
+  async #updateHostStatus(host: Host) {
+    await host.isUp().then((isUp) => {
+      const submenu = this.#menuItem.submenu
+      if (!submenu) return
+      const item = submenu.getMenuItemById(host.id)
+      if (!item) return
+      item.enabled = isUp
+    })
   }
 
   async cleanup() {

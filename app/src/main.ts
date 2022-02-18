@@ -85,65 +85,6 @@ const manager = new ApplicationManager(
   logsDir
 )
 
-let tray: Tray | undefined
-
-let preferences: Preferences | undefined
-
-// todo: assemble menu in a better way, this uses a lot of globals
-const menu = (application: Application) => {
-  const menu = new Menu()
-  status.appendMenuItem(menu)
-  menu.append(new MenuItem({ type: 'separator' }))
-  menu.append(
-    new MenuItem({
-      label: 'Open Sturdy',
-      click: () => application.open(),
-    })
-  )
-  manager.appendMenu(menu)
-  menu.append(
-    new MenuItem({
-      label: 'Debug',
-      submenu: Menu.buildFromTemplate([
-        new MenuItem({
-          label: 'Force Restart Syncer',
-          click: () => application.forceRestart(),
-        }),
-      ]),
-    })
-  )
-  menu.append(new MenuItem({ type: 'separator' }))
-  preferences?.appendMenuItem(menu)
-  menu.append(new MenuItem({ type: 'separator' }))
-  if (runAutoUpdater) {
-    Updater.start(logger, menu).catch((e) => {
-      logger.error('Auto updater error!', e)
-    })
-  }
-  menu.append(
-    new MenuItem({
-      label: 'Quit Sturdy',
-      click: async () => {
-        try {
-          await manager.cleanup()
-        } finally {
-          process.exit()
-        }
-      },
-      accelerator: 'CommandOrControl+Q',
-    })
-  )
-  return menu
-}
-
-status.on('change', (state) => {
-  if (state === 'online') {
-    tray?.setImage(iconTray)
-  } else {
-    tray?.setImage(iconTrayDisconnected)
-  }
-})
-
 app.on('window-all-closed', () => {
   // Don't do anything
   // Keep the app running in the tray
@@ -187,22 +128,69 @@ app.on('activate', () => {
   }
 })
 
-let application: Application | undefined
-
-manager.on('switch', async (application: Application) => {
-  application = application
-  tray?.setContextMenu(menu(application))
-  await application.open()
-})
-
 async function main() {
   if (app.isPackaged) {
     await Updater.finalizePendingUpdate()
   }
 
-  preferences = await Preferences.open(logger)
+  const preferences = await Preferences.open(logger)
+
+  const menu = (application: Application) => {
+    const menu = new Menu()
+    status.appendMenuItem(menu)
+    menu.append(new MenuItem({ type: 'separator' }))
+    menu.append(
+      new MenuItem({
+        label: 'Open Sturdy',
+        click: () => application.open(),
+      })
+    )
+    manager.appendMenu(menu)
+    menu.append(
+      new MenuItem({
+        label: 'Debug',
+        submenu: Menu.buildFromTemplate([
+          new MenuItem({
+            label: 'Force Restart Syncer',
+            click: () => application.forceRestart(),
+          }),
+        ]),
+      })
+    )
+    menu.append(new MenuItem({ type: 'separator' }))
+    preferences.appendMenuItem(menu)
+    menu.append(new MenuItem({ type: 'separator' }))
+    if (runAutoUpdater) {
+      Updater.start(logger, menu).catch((e) => {
+        logger.error('Auto updater error!', e)
+      })
+    }
+    menu.append(
+      new MenuItem({
+        label: 'Quit Sturdy',
+        click: async () => {
+          try {
+            await manager.cleanup()
+          } finally {
+            process.exit()
+          }
+        },
+        accelerator: 'CommandOrControl+Q',
+      })
+    )
+    return menu
+  }
+
   await app.whenReady()
-  tray = new Tray(iconTrayDisconnected)
+  const tray = new Tray(iconTrayDisconnected)
+
+  status.on('change', (state) => {
+    if (state === 'online') {
+      tray.setImage(iconTray)
+    } else {
+      tray.setImage(iconTrayDisconnected)
+    }
+  })
 
   // Adds support for notifications on Windows
   if (process.platform === 'win32') {
@@ -210,11 +198,14 @@ async function main() {
   }
 
   preferences.on('open', (host) => manager.set(host))
-  manager.on('openPreferences', () => preferences?.showWindow())
+  manager.on('openPreferences', () => preferences.showWindow())
+  manager.on('switch', async (application: Application) => {
+    tray.setContextMenu(menu(application))
+    await application.open()
+  })
 
   preferences.on('hostsChanged', (hosts) => {
     manager.updateHosts(hosts)
-    tray?.setContextMenu(menu(application!))
   })
 
   await manager.updateHosts(preferences.hosts)
