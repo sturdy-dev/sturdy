@@ -54,6 +54,7 @@ func NewResolver(
 		viewRootResolver:          viewRootResolver,
 		notificationRootResolver:  notificationRootResolver,
 		githubAccountRootResolver: githubAccountRootResolver,
+		analyticsServcie:          analyticsServcie,
 	}, logger)
 }
 
