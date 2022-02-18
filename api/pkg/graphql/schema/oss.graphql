@@ -298,6 +298,7 @@ type Codebase implements Writeable {
   id: ID!
   shortID: ID!
   name: String!
+  slug: String!
   description: String!
   inviteCode: String
   createdAt: Int!

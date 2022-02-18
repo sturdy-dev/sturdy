@@ -38,6 +38,10 @@ type CodebaseWithMetadata struct {
 	Members           []author.Author `json:"members"`
 }
 
+func (c Codebase) Slug() string {
+	return slug.Make(c.Name)
+}
+
 func (c Codebase) GenerateSlug() string {
 	// TODO: Remove the "Slug" method on the frontend, and generate all slugs on the backend
 	return slug.Make(c.Name) + "-" + string(c.ShortCodebaseID)
