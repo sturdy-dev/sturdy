@@ -205,6 +205,7 @@ func HandlePushEvent(
 				}
 
 				analyticsService.Capture(ctx, "pull request merged",
+					analytics.DistinctID(ws.UserID),
 					analytics.CodebaseID(ws.CodebaseID),
 					analytics.Property("workspace_id", ws.ID),
 					analytics.Property("github", true),
