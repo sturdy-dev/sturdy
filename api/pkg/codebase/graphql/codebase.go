@@ -345,6 +345,10 @@ func (r *CodebaseResolver) Name() string {
 	return r.c.Name
 }
 
+func (r *CodebaseResolver) Slug() string {
+	return r.c.Slug()
+}
+
 func (r *CodebaseResolver) ShortID() graphql.ID {
 	return graphql.ID(r.c.ShortCodebaseID)
 }

@@ -54,6 +54,7 @@ type UpdateCodebaseInput struct {
 type CodebaseResolver interface {
 	ID() graphql.ID
 	Name() string
+	Slug() string
 	ShortID() graphql.ID
 	Description() string
 	InviteCode() *string
