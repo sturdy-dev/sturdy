@@ -70,7 +70,7 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 		}
 	}
 
-	ws, err := r.workspaceService.Create(req)
+	ws, err := r.workspaceService.Create(ctx, req)
 	if err != nil {
 		return nil, err
 	}

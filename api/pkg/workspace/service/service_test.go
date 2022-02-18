@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"getsturdy.com/api/pkg/analytics/disabled"
@@ -86,7 +87,7 @@ func TestCreateNewWorkspace(t *testing.T) {
 
 	c.createCodebase(t, request.CodebaseID)
 
-	ws, err := c.service.Create(request)
+	ws, err := c.service.Create(context.TODO(), request)
 	assert.NoError(t, err)
 
 	assert.Equal(t, ws.UserID, request.UserID)
@@ -105,7 +106,7 @@ func TestCreateNewWorkspaceWithExplicitName(t *testing.T) {
 
 	c.createCodebase(t, request.CodebaseID)
 
-	ws, err := c.service.Create(request)
+	ws, err := c.service.Create(context.TODO(), request)
 	assert.NoError(t, err)
 
 	assert.Equal(t, ws.UserID, request.UserID)

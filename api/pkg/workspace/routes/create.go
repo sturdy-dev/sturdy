@@ -1,10 +1,11 @@
 package routes
 
 import (
-	"getsturdy.com/api/pkg/auth"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
 	"net/http"
 	"strings"
+
+	"getsturdy.com/api/pkg/auth"
+	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"go.uber.org/zap"
 
@@ -46,7 +47,7 @@ func Create(logger *zap.Logger, workspaceService service_workspace.Service, code
 			return
 		}
 
-		ws, err := workspaceService.Create(service_workspace.CreateWorkspaceRequest{
+		ws, err := workspaceService.Create(c.Request.Context(), service_workspace.CreateWorkspaceRequest{
 			UserID:         userID,
 			CodebaseID:     req.CodebaseID,
 			Name:           req.Name,

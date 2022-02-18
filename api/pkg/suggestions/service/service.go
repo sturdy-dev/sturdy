@@ -86,7 +86,7 @@ func (s *Service) copyWorkspace(ctx context.Context, userID string, ws *workspac
 		ChangeID:   changeID,
 	}
 
-	newWorkspace, err := s.workspaceService.Create(createRequest)
+	newWorkspace, err := s.workspaceService.Create(ctx, createRequest)
 	if err != nil {
 		return nil, fmt.Errorf("faliled to create a workspace: %w", err)
 	}

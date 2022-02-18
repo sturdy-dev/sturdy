@@ -238,7 +238,7 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 	}
 	svc.analyticsService.Capture(ctx, "create codebase", opts...)
 
-	if err := svc.workspaceService.CreateWelcomeWorkspace(cb.ID, userID, cb.Name); err != nil {
+	if err := svc.workspaceService.CreateWelcomeWorkspace(ctx, cb.ID, userID, cb.Name); err != nil {
 		svc.logger.Error("failed to create welcome workspace", zap.Error(err))
 		// not a critical error, continue
 	}

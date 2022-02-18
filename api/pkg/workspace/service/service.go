@@ -47,10 +47,10 @@ type CreateWorkspaceRequest struct {
 }
 
 type Service interface {
-	Create(CreateWorkspaceRequest) (*workspace.Workspace, error)
+	Create(context.Context, CreateWorkspaceRequest) (*workspace.Workspace, error)
 	GetByID(context.Context, string) (*workspace.Workspace, error)
 	LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*change.Change, error)
-	CreateWelcomeWorkspace(codebaseID, userID, codebaseName string) error
+	CreateWelcomeWorkspace(ctx context.Context, codebaseID, userID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspace.Workspace, opts ...CopyPatchesOption) error
 	RemovePatches(context.Context, *unidiff.Allower, *workspace.Workspace, ...string) error
@@ -293,7 +293,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	return nil
 }
 
-func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Workspace, error) {
+func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceRequest) (*workspace.Workspace, error) {
 	t := time.Now()
 	ws := workspace.Workspace{
 		ID:               uuid.New().String(),
@@ -361,8 +361,7 @@ func (s *WorkspaceService) Create(req CreateWorkspaceRequest) (*workspace.Worksp
 		return nil, fmt.Errorf("failed to write workspace to db: %w", err)
 	}
 
-	s.analyticsService.Capture(context.TODO(), "create workspace",
-		analytics.DistinctID(req.UserID),
+	s.analyticsService.Capture(ctx, "create workspace",
 		analytics.CodebaseID(req.CodebaseID),
 		analytics.Property("id", ws.ID),
 		analytics.Property("at_existing_change", req.ChangeID != ""),
@@ -555,11 +554,11 @@ const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <p>Happy hacking!</p>
 `
 
-func (svc *WorkspaceService) CreateWelcomeWorkspace(codebaseID, userID, codebaseName string) error {
+func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID, userID, codebaseName string) error {
 	readMeContents := strings.ReplaceAll(readMeTemplate, "__CODEBASE__NAME__", codebaseName)
 	draftDescriptionContents := strings.ReplaceAll(draftDescriptionTemplate, "__CODEBASE__NAME__", codebaseName)
 
-	ws, err := svc.Create(CreateWorkspaceRequest{
+	ws, err := svc.Create(ctx, CreateWorkspaceRequest{
 		CodebaseID:       codebaseID,
 		UserID:           userID,
 		Name:             "Add README",
