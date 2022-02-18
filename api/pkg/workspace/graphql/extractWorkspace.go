@@ -84,7 +84,7 @@ func (r *workspaceExtractor) copyWorkspace(ctx context.Context, from *workspace.
 
 	newWorkspace, err := r.workspaceService.Create(ctx, createRequest)
 	if err != nil {
-		return nil, fmt.Errorf("faliled to create a workspace")
+		return nil, fmt.Errorf("faliled to create a workspace: %w", err)
 	}
 	return newWorkspace, nil
 }
