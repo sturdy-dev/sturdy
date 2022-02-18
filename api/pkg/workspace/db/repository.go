@@ -1,6 +1,10 @@
 package db
 
-import "getsturdy.com/api/pkg/workspace"
+import (
+	"context"
+
+	"getsturdy.com/api/pkg/workspace"
+)
 
 type Repository interface {
 	WorkspaceWriter
@@ -9,7 +13,7 @@ type Repository interface {
 
 type WorkspaceWriter interface {
 	Create(workspace workspace.Workspace) error
-	Update(workspace *workspace.Workspace) error
+	Update(context.Context, *workspace.Workspace) error
 	UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error
 }
 

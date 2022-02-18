@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
 	"getsturdy.com/api/pkg/workspace"
@@ -82,8 +83,8 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 	return views, nil
 }
 
-func (r *repo) Update(entity *workspace.Workspace) error {
-	_, err := r.db.NamedExec(`UPDATE workspaces
+func (r *repo) Update(ctx context.Context, entity *workspace.Workspace) error {
+	if _, err := r.db.NamedExecContext(ctx, `UPDATE workspaces
 		SET name = :name,
 			ready_for_review_change = :ready_for_review_change,
 			approved_change = :approved_change,
@@ -97,8 +98,7 @@ func (r *repo) Update(entity *workspace.Workspace) error {
 		    latest_snapshot_id = :latest_snapshot_id,
 		    head_commit_id = :head_commit_id,
 		    head_commit_show = :head_commit_show
-		WHERE id = :id`, &entity)
-	if err != nil {
+		WHERE id = :id`, &entity); err != nil {
 		return fmt.Errorf("failed to perform update: %w", err)
 	}
 	return nil

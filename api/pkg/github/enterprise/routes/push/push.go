@@ -166,7 +166,7 @@ func HandlePushEvent(
 			// Reset the workspace draftDescription
 			if ws != nil {
 				ws.DraftDescription = ""
-				if err := workspaceWriter.Update(ws); err != nil {
+				if err := workspaceWriter.Update(ctx, ws); err != nil {
 					return fmt.Errorf("failed to update workspace: %w", err)
 				}
 
@@ -178,7 +178,7 @@ func HandlePushEvent(
 
 				// sync workspace with head if possible
 				if !hasConflicts && ws.ViewID != nil {
-					if _, err := syncService.OnTrunk(*ws.ViewID); err != nil {
+					if _, err := syncService.OnTrunk(ctx, *ws.ViewID); err != nil {
 						return fmt.Errorf("failed to sync workspace: %w", err)
 					}
 					if err := eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {

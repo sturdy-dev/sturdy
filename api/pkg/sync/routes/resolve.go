@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"net/http"
+
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	vcsvcs "getsturdy.com/api/vcs"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -41,7 +42,7 @@ func ResolveV2(
 			resolves = append(resolves, vcsvcs.SturdyRebaseResolve{Path: rf.FilePath, Version: rf.Version})
 		}
 
-		if status, err := syncService.Resolve(viewID, resolves); err != nil {
+		if status, err := syncService.Resolve(c.Request.Context(), viewID, resolves); err != nil {
 			logger.Error("failed to sync on trunk", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return

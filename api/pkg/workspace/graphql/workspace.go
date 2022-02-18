@@ -185,11 +185,7 @@ func (r *WorkspaceRootResolver) ArchiveWorkspace(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	t := time.Now()
-	ws.ArchivedAt = &t
-	ws.UnarchivedAt = nil
-	err = r.workspaceWriter.Update(ws)
-	if err != nil {
+	if err := r.workspaceService.Archive(ctx, ws); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -206,12 +202,7 @@ func (r *WorkspaceRootResolver) UnarchiveWorkspace(ctx context.Context, args res
 		return nil, gqlerrors.Error(err)
 	}
 
-	t := time.Now()
-	ws.ArchivedAt = nil
-	ws.UnarchivedAt = &t
-	ws.ViewID = nil // make sure to reset this as well
-	err = r.workspaceWriter.Update(ws)
-	if err != nil {
+	if err := r.workspaceService.Unarchive(ctx, ws); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -355,8 +346,8 @@ func (r *WorkspaceResolver) GitHubPullRequest(ctx context.Context) (resolvers.Gi
 	}
 }
 
-func (r WorkspaceResolver) UpToDateWithTrunk() (bool, error) {
-	if err := r.updateIsUpToDateWithTrunk(); err != nil {
+func (r WorkspaceResolver) UpToDateWithTrunk(ctx context.Context) (bool, error) {
+	if err := r.updateIsUpToDateWithTrunk(ctx); err != nil {
 		return false, gqlerrors.Error(err)
 	}
 	if r.w.UpToDateWithTrunk == nil {
@@ -365,7 +356,7 @@ func (r WorkspaceResolver) UpToDateWithTrunk() (bool, error) {
 	return *r.w.UpToDateWithTrunk, nil
 }
 
-func (r *WorkspaceResolver) updateIsUpToDateWithTrunk() error {
+func (r *WorkspaceResolver) updateIsUpToDateWithTrunk(ctx context.Context) error {
 	// We have a cached result, don't do anything
 	if r.w.UpToDateWithTrunk != nil {
 		return nil
@@ -395,7 +386,7 @@ func (r *WorkspaceResolver) updateIsUpToDateWithTrunk() error {
 	wsForUpdates.UpToDateWithTrunk = &upToDate
 
 	// Save updated cache
-	if err := r.root.workspaceWriter.Update(wsForUpdates); err != nil {
+	if err := r.root.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
 		return err
 	}
 
@@ -462,7 +453,7 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 		wsForUpdates.HeadCommitID = newHeadCommitID
 
 		// Save updated cache
-		if err := r.root.workspaceWriter.Update(wsForUpdates); err != nil {
+		if err := r.root.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
 			return nil, gqlerrors.Error(err)
 		}
 

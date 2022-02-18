@@ -1,6 +1,7 @@
 package open
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -25,6 +26,7 @@ import (
 var ErrRebasing = errors.New("rebase in progress")
 
 func OpenWorkspaceOnView(
+	ctx context.Context,
 	logger *zap.Logger,
 	view *view.View,
 	ws *workspace.Workspace,
@@ -62,7 +64,7 @@ func OpenWorkspaceOnView(
 
 		currentWorkspaceOnView.LatestSnapshotID = &snapshot.ID
 		currentWorkspaceOnView.ViewID = nil // The workspace no longer has any view open
-		if err := workspaceWriter.Update(currentWorkspaceOnView); err != nil {
+		if err := workspaceWriter.Update(ctx, currentWorkspaceOnView); err != nil {
 			return fmt.Errorf("failed to finalize previous workspace on view: %w", err)
 		}
 	}
@@ -105,7 +107,7 @@ func OpenWorkspaceOnView(
 
 	// Update workspace object
 	ws.ViewID = &view.ID
-	if err := workspaceWriter.Update(ws); err != nil {
+	if err := workspaceWriter.Update(ctx, ws); err != nil {
 		return err
 	}
 

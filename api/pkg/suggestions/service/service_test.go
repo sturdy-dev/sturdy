@@ -103,7 +103,7 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 			CodebaseID: test.codebaseID,
 		}))
 		test.originalWorkspace.ViewID = &test.originalViewID
-		assert.NoError(t, test.workspaceDB.Update(test.originalWorkspace))
+		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
 		vcs_view.Create(test.repoProvider, test.codebaseID, test.originalWorkspace.ID, test.originalViewID)
 
 		// make some changes
@@ -115,7 +115,7 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.originalViewID))
 		assert.NoError(t, err)
 		test.originalWorkspace.LatestSnapshotID = &snapshot.ID
-		assert.NoError(t, test.workspaceDB.Update(test.originalWorkspace))
+		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
 
 		if suggestion != nil {
 			result, err := test.suggestionService.Diffs(context.Background(), suggestion)
@@ -143,7 +143,7 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 			CodebaseID: test.codebaseID,
 		}))
 		suggestingWorkspace.ViewID = &test.suggestingViewID
-		assert.NoError(t, test.workspaceDB.Update(suggestingWorkspace))
+		assert.NoError(t, test.workspaceDB.Update(context.TODO(), suggestingWorkspace))
 		assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
 
 		// make some suggestions
@@ -154,7 +154,7 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
 		assert.NoError(t, err)
 		test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
-		assert.NoError(t, test.workspaceDB.Update(test.suggestingWorkspace))
+		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.suggestingWorkspace))
 
 		result, err := test.suggestionService.Diffs(context.Background(), suggestion)
 		if assert.NoError(t, err) {

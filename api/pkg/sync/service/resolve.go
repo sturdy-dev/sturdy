@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"getsturdy.com/api/pkg/sync"
@@ -13,7 +14,7 @@ import (
 // * use the version from trunk
 // * use the version from the workspace
 // * use the current version of the file on disk (called "custom")
-func (s *Service) Resolve(viewID string, resolves []vcsvcs.SturdyRebaseResolve) (*sync.RebaseStatusResponse, error) {
+func (s *Service) Resolve(ctx context.Context, viewID string, resolves []vcsvcs.SturdyRebaseResolve) (*sync.RebaseStatusResponse, error) {
 	view, err := s.viewRepo.Get(viewID)
 	if err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func (s *Service) Resolve(viewID string, resolves []vcsvcs.SturdyRebaseResolve) 
 
 		// No conflicts
 
-		if err := s.complete(repo, view.CodebaseID, view.WorkspaceID, view.ID, &rebasedCommits[0].OldCommitID, rebasedCommits); err != nil {
+		if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &rebasedCommits[0].OldCommitID, rebasedCommits); err != nil {
 			return err
 		}
 

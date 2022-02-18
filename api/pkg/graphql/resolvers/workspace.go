@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+
 	"getsturdy.com/api/pkg/workspace"
 
 	"github.com/graph-gophers/graphql-go"
@@ -133,7 +134,7 @@ type WorkspaceResolver interface {
 	View(ctx context.Context) (ViewResolver, error)
 	Comments() ([]TopCommentResolver, error)
 	GitHubPullRequest(ctx context.Context) (GitHubPullRequestResolver, error)
-	UpToDateWithTrunk() (bool, error)
+	UpToDateWithTrunk(context.Context) (bool, error)
 	Conflicts(context.Context) (bool, error)
 	HeadChange(ctx context.Context) (ChangeResolver, error)
 	Activity(ctx context.Context, args WorkspaceActivityArgs) ([]WorkspaceActivityResolver, error)

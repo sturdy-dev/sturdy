@@ -214,7 +214,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "On hello.txt", newWs.Name())
 
-	isUpToDateWithTrunk, err := newWs.UpToDateWithTrunk()
+	isUpToDateWithTrunk, err := newWs.UpToDateWithTrunk(authenticatedUserContext)
 	assert.NoError(t, err)
 	assert.False(t, isUpToDateWithTrunk)
 }
@@ -397,7 +397,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "On hello.txt", newWs.Name())
 
-	isUpToDateWithTrunk, err := newWs.UpToDateWithTrunk()
+	isUpToDateWithTrunk, err := newWs.UpToDateWithTrunk(authenticatedUserContext)
 	assert.NoError(t, err)
 	assert.False(t, isUpToDateWithTrunk)
 }
