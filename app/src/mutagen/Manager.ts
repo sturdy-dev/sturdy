@@ -179,10 +179,17 @@ export class MutagenManager {
 
     let manager = this
 
+    const logger = this.#logger
+
     const ipcImplementation: MutagenIPC = {
       async createView(workspaceID, mountPath) {
-        if ((await readdir(mountPath)).length > 0) {
-          throw new Error('Cannot create view in non-empty directory')
+        logger.log(`mounting workspace ${workspaceID} at ${mountPath}`)
+
+        const dirname = path.dirname(mountPath)
+        const baseName = path.basename(mountPath)
+        const content = await readdir(dirname)
+        if (content.find((f) => f === baseName)) {
+          throw new Error(`${baseName} already exists`)
         }
 
         const { error, data } = await client
@@ -223,14 +230,41 @@ export class MutagenManager {
         return viewID
       },
       async createNewViewWithDialog(workspaceID: string) {
+        const workspaceInfo = client.query(
+          gql`
+            query GetWorkspace($workspaceID: ID!) {
+              workspace(id: $workspaceID) {
+                id
+                codebase {
+                  id
+                  slug
+                }
+              }
+            }
+          `,
+          { workspaceID }
+        )
+
         const { canceled, filePaths } = await dialog.showOpenDialog(manager.#mainWindow!, {
           properties: ['openDirectory', 'createDirectory'],
         })
+
         if (canceled || filePaths.length === 0) {
           throw new Error('Cancelled by user')
         }
 
-        return this.createView(workspaceID, filePaths[0])
+        const { error, data } = await workspaceInfo.toPromise()
+        if (error) {
+          logger.error('failed to get workspace info', error, data)
+          throw new Error('Failed to get workspace info')
+        }
+        const mountPath = path.join(filePaths[0], data.workspace.codebase.slug)
+        try {
+          return await this.createView(workspaceID, mountPath)
+        } catch (e) {
+          logger.error(`failed to create view for workspace ${workspaceID} at ${mountPath}`, e)
+          throw e
+        }
       },
     }
 
