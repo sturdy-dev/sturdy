@@ -4,16 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	vcsvcs "getsturdy.com/api/vcs"
-
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/change/service"
-	"getsturdy.com/api/pkg/change/vcs"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/graph-gophers/graphql-go"
@@ -173,37 +169,18 @@ func (r *ChangeResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolve
 		return nil, gqlerrors.ErrNotFound
 	}
 
-	var diffs []string
-	err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-		var err error
-		diffs, err = vcs.GetDiffs(repo, *r.ch.CommitID)
-		if err != nil {
-			return err
-		}
-		return nil
-	}).ExecTrunk(
-		r.ch.CodebaseID,
-		"changeResolverDiffs",
-	)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	allower, err := r.root.authService.GetAllower(ctx, r.ch)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
-	decoratedDiff, err := unidiff.NewUnidiff(
-		unidiff.NewStringsPatchReader(diffs),
-		r.root.logger,
-	).WithAllower(allower).Decorate()
+	diffs, err := r.root.svc.Diffs(ctx, r.ch, allower)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
-	res := make([]resolvers.FileDiffResolver, len(decoratedDiff))
-	for k, v := range decoratedDiff {
+	res := make([]resolvers.FileDiffResolver, len(diffs))
+	for k, v := range diffs {
 		res[k] = &fileDiffResolver{diff: v}
 	}
 	return res, nil

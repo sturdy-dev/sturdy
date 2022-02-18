@@ -27,4 +27,8 @@ type Change struct {
 	GitCreatorEmail *string    `db:"git_creator_email"`
 
 	CommitID *string `db:"commit_id"` // Commit IDs are only unique within a codebase / repository
+
+	// This changes parent.
+	// Is null for the first change in a codebase, or if the changes parent hasn't been imported to Sturdy yet.
+	ParentChangeID *ID `db:"parent_change_id"`
 }

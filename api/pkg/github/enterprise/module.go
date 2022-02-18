@@ -8,6 +8,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	"getsturdy.com/api/pkg/github/enterprise/workers"
 
 	"go.uber.org/zap"
@@ -17,6 +18,8 @@ func Module(c *di.Container) {
 	c.Import(workers.Module)
 	c.Import(db.Module)
 	c.Register(service.New)
+	c.Register(service_github_webhooks.New)
+
 	c.Register(func() (client.InstallationClientProvider, client.PersonalClientProvider, client.AppClientProvider) {
 		return client.NewInstallationClient, client.NewPersonalClient, client.NewAppClient
 	})

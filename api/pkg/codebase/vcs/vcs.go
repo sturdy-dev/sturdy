@@ -23,6 +23,7 @@ func Create(trunkProvider provider.TrunkProvider, codebaseID string) error {
 }
 
 // If no limit is set, a default of 100 is used
+// TODO(gustav): delete
 func ListChanges(repo vcs.RepoGitReader, limit int) ([]*vcs.LogEntry, error) {
 	if limit < 1 {
 		limit = 100

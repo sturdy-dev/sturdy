@@ -30,7 +30,9 @@ func Update(
 	changeRepo changeDB.Repository,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		userID, err := auth.UserID(c.Request.Context())
+		ctx := c.Request.Context()
+
+		userID, err := auth.UserID(ctx)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -46,7 +48,7 @@ func Update(
 		changeID := change.ID(c.Param("id"))
 
 		// Get the change (it might exist in the db)
-		ch, err := changeRepo.Get(changeID)
+		ch, err := changeRepo.Get(ctx, changeID)
 		if err != nil && errors.Is(err, sql.ErrNoRows) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
@@ -71,7 +73,7 @@ func Update(
 			ch.Title = &cleanCommitMessageTitle
 		}
 
-		err = changeRepo.Update(*ch)
+		err = changeRepo.Update(ctx, *ch)
 		if err != nil {
 			logger.Error("failed to update change", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, err)
