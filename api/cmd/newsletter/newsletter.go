@@ -25,14 +25,15 @@ func main() {
 
 	receivers := []string{
 		"gustav@westling.dev",
+		"gustav@getsturdy.com",
 	}
 
-	subject := "This week at Sturdy - Launching the Sturdy App! 🖥"
+	subject := "This week at Sturdy - Sturdy is now open-source"
 
 	for _, receiver := range receivers {
 		receiver = strings.TrimSpace(receiver)
 		log.Println("Sending to", receiver)
-		newsletter.Send(sess, subject, "output/2021-12-07.html", receiver)
+		newsletter.Send(sess, subject, "output/2022-02-21.html", receiver)
 		time.Sleep(time.Second)
 	}
 }

@@ -1,0 +1,141 @@
+<mjml>
+    <mj-head>
+        <mj-preview>Hey folks! 👋 We have some really exciting news to share — Sturdy is now open-source! As developers, we love OSS, so to say that we are thrilled about this announcement would be an understatement! 🎉</mj-preview>
+    </mj-head>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hey folks! 👋 We have some really exciting news to share — Sturdy is now open-source! As developers, we love OSS, so to say that we are thrilled about this announcement would be an understatement! 🎉
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2022-02-21-sturdy-is-now-open-source?ref=newsletter"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🖥 Sturdy is now open-source</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Sturdy is now officially an open-source project. You can check out the
+                    <a href="https://github.com/sturdy-dev/sturdy?ref=newsletter">GitHub repository</a>
+                    and, while you are there, giving us a ⭐️ would be awesome!
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The project is open to contributions from everyone! We love to receive your feedback, bug reports, issues, and even code! If you would like to get involved, check out the
+                    <a href="https://github.com/sturdy-dev/sturdy/blob/main/CONTRIBUTING.md?ref=newsletter">contribution guidelines</a>.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Within the Sturdy team, we use Sturdy for its own development and have
+                    <a href="https://getsturdy.com/sturdy-zyTDsnY?ref=newsletter">the codebase</a>
+                    and
+                    <a href="https://github.com/sturdy-dev/sturdy?ref=newsletter">the repo</a> connected using the
+                    <a href="https://getsturdy.com/docs/how-to-setup-sturdy-with-github?ref=newsletter">GitHub integration</a>.
+                    This allows us to develop Sturdy using Sturdy, and also take community contributions.
+                </mj-text>
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🏃‍♂️ Running your own Sturdy instance</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We know that for some teams, trying a new SaaS at work involves a lot of red tape. This is why we created an easy way to try Sturdy locally using Docker — the setup takes only a few minutes and you can still try most of the features.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    To get started, run this one-liner:</mj-text>
+
+
+                <mj-text font-size="10px" color="#555555" font-family="helvetica">
+                    <pre>docker run --interactive \
+    --pull always \
+    --publish 30080:80 \
+    --volume "$HOME/.sturdydata:/var/data" \
+    getsturdy/server</pre>
+                </mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    You can find a detailed description of the setup over in our <a href="https://getsturdy.com/docs/self-hosted?ref=newsletter">docs</a>.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Of course, Sturdy in the Cloud is still the easiest way to use Sturdy with zero setup. At the same time, adding the ability to self-host Sturdy makes it accessible to even more teams.</mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🏢 Introducing organizations</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Sturdy now has organizations. The way it works is simple — an organization has members and codebases. Developers who are members of an organization automatically have access to all codebases in the organization.</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">As a developer, you can have multiple organizations to create separation — for example between personal projects and work.</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/organizations.19bde884.png" border-radius="8px" />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Organizations are also used to manage your billing and license keys.</mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">📖 Updated Documentation</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Over the past few weeks we have been working on beefing up our <a href="https://getsturdy.com/docs?ref=newsletter">docs</a>. As developers ourselves we always check the docs of tools in order to understand how they <em>really</em> work.</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">We have added articles with detailed run-downs of how different aspects of Sturdy work. For example:
+                    <ul>
+                        <li>
+                            <a href="https://getsturdy.com/docs/using-sturdy?ref=newsletter">A getting started tutorial</a>
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/docs/how-to-collaborate-with-others?ref=newsletter">Collaborating with others</a>
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/docs/how-to-switch-between-tasks?ref=newsletter">Switching between tasks</a>
+                        </li>
+                    </ul>
+
+                    ...and many others. As we move forward we will be investing even more in the documentation.
+                </mj-text>
+                <mj-image src="https://getsturdy.com/assets/UI_overview.2b3a1d53.png" border-radius="8px" />
+
+
+
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🏡 New home page</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Our <a href="https://getsturdy.com?ref=newsletter">home page</a> has received a redesign to better the goals and vision for Sturdy. It has a few GIFs showing a number of workflows.
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">Thanks for being with us on this journey for better code collaboration!<br />&mdash; Gustav and team Sturdy</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
