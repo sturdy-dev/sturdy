@@ -26,7 +26,8 @@
 <script lang="ts">
 import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref, Ref, PropType, watch } from 'vue'
+import { gql, useQuery } from '@urql/vue'
 
 export default defineComponent({
   components: {
@@ -37,11 +38,33 @@ export default defineComponent({
     user: { type: Object, default: null },
     startWithSignUp: { type: Boolean, default: false },
     navigateTo: { type: String, default: () => '/codebases' },
+    features: { type: Array as PropType<Feature[]>, required: true },
   },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isEmailAuthEnabled = computed(() => features?.value?.includes(Feature.Emails))
+
+    const isMultiTenancyEnabled = ref(false)
+    watch(features, (newVal) => {
+      isMultiTenancyEnabled.value = newVal?.includes(Feature.MultiTenancy)
+    })
+
+    const { data } = useQuery({
+      query: gql`
+        query LoginRegister($isMultiTenancyEnabled: Boolean!) {
+          installation @skip(if: $isMultiTenancyEnabled) {
+            id
+            usersCount
+          }
+        }
+      `,
+      variables: {
+        isMultiTenancyEnabled: isMultiTenancyEnabled,
+      },
+    })
+
     return {
+      data,
       isEmailAuthEnabled,
     }
   },
@@ -51,6 +74,9 @@ export default defineComponent({
     }
   },
   computed: {
+    usersCount() {
+      return this.data?.installation?.usersCount
+    },
     headerText() {
       return this.isLogin ? 'Sign in to your Sturdy account' : 'Create your Sturdy account'
     },
@@ -59,6 +85,10 @@ export default defineComponent({
     },
   },
   watch: {
+    usersCount: function (newValue) {
+      // force show register form if there are no users
+      if (newValue === 0) this.isLogin = false
+    },
     user: {
       immediate: true,
       handler: function (newVal) {

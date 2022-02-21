@@ -7,23 +7,27 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_installations "getsturdy.com/api/pkg/installations/service"
 	service_organization "getsturdy.com/api/pkg/organization/service"
+	service_users "getsturdy.com/api/pkg/users/service"
 )
 
 type RootResolver struct {
 	service             *service_installations.Service
 	licenseResolver     resolvers.LicenseRootResolver
 	organizationService *service_organization.Service
+	usersService        service_users.Service
 }
 
 func New(
 	service *service_installations.Service,
 	licenseResolver resolvers.LicenseRootResolver,
 	organizationService *service_organization.Service,
+	usersService service_users.Service,
 ) *RootResolver {
 	return &RootResolver{
 		service:             service,
 		licenseResolver:     licenseResolver,
 		organizationService: organizationService,
+		usersService:        usersService,
 	}
 }
 
