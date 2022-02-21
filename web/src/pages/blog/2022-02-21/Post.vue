@@ -4,6 +4,7 @@
     subtitle="This week at Sturdy"
     date="February 21, 2022"
     :author="author"
+    :image="ogImageFull"
   >
     <template #introduction>
       We have some really exciting news to share &mdash; Sturdy is now open-source! As developers,
@@ -122,7 +123,12 @@
 <script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../kiril.jpeg'
+import ogImage from './og_image_oss.png'
+
 import { DOCKER_ONELINER as dockerOneliner } from '../../../docker'
+import { computed } from 'vue'
+
+let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
 
 const author = {
   name: 'Kiril Videlov',
