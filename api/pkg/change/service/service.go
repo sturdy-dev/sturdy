@@ -148,6 +148,10 @@ func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int)
 
 findChanges:
 	for {
+		if len(res) >= limit {
+			break
+		}
+
 		next, err := svc.parentChange(ctx, nextChange)
 		switch {
 		case errors.Is(err, errNotFound):
@@ -157,10 +161,6 @@ findChanges:
 		case err == nil:
 			res = append(res, next)
 			nextChange = next
-		}
-
-		if len(res) == limit {
-			break
 		}
 	}
 
