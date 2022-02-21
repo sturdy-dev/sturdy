@@ -25,6 +25,7 @@ const (
 	CodebaseGarbageCollection         IncompleteQueueName = "codebase_gc"
 	CodebaseGitHubCloner              IncompleteQueueName = "codebase_githubCloner"
 	CodebaseGitHubPullRequestImporter IncompleteQueueName = "codebase_githubPRimport"
+	GithubWebhooks                    IncompleteQueueName = "github_webhooks"
 	ViewSnapshot                      IncompleteQueueName = "view_snapshot"
 	CITriggerQueue                    IncompleteQueueName = "ci_trigger"
 	longestAllowedName                IncompleteQueueName = "xxxxxXXXXXxxxxxXXXXXxxxx" // To highlight how long a name can be

@@ -3,8 +3,9 @@ package queue
 import (
 	"context"
 	"encoding/json"
-	"getsturdy.com/api/pkg/queue/names"
 	"sync"
+
+	"getsturdy.com/api/pkg/queue/names"
 
 	"go.uber.org/zap"
 )

@@ -10,7 +10,7 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	routes_v3_ghapp "getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
-	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
+	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/http"
 	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -19,8 +19,6 @@ import (
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	db_user "getsturdy.com/api/pkg/users/db"
 )
-
-type DevelopmentAllowExtraCorsOrigin string
 
 type Engine gin.Engine
 
@@ -36,14 +34,14 @@ func ProvideHandler(
 	serviceTokensService *service_servicetokens.Service,
 	buildkiteService *service_buildkite.Service,
 	ossEngine *http.Engine,
-	gitHubWebhooksService *service_github_webhooks.Service,
+	gitHubWebhooksQueue *workers_github.WebhooksQueue,
 ) *Engine {
 	auth := ossEngine.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
 	auth.POST("/v3/github/oauth", routes_v3_ghapp.Oauth(logger, gitHubAppConfig, userRepo, gitHubUserRepo, gitHubService))
 
 	publ := ossEngine.Group("")
-	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubWebhooksService))
+	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubWebhooksQueue))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
 	return (*Engine)(ossEngine)
 }
