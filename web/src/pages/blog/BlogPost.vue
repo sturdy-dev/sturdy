@@ -1,8 +1,5 @@
 <template>
   <Documentation>
-    <div class="hidden lg:right-0 lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
-      <div class="relative h-full text-lg max-w-prose mx-auto" aria-hidden="true"></div>
-    </div>
     <div class="relative px-4 sm:px-6 lg:px-8">
       <div class="text-lg max-w-prose mx-auto">
         <h1 class="space-y-2">
