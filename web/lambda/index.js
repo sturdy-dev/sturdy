@@ -28,6 +28,7 @@ exports.handler = (event, context, callback) => {
     '/docs/sturdy-for-git-users',
     '/features/migrate-from-github',
     '/docs/continuous-integration',
+    '/blog/2022-02-21-sturdy-is-now-open-source',
     '/blog/2021-12-17-graphql-componentized-uis',
     '/blog/2021-12-07-launching-the-sturdy-app',
     '/blog/2021-11-29-scaling-teams',
