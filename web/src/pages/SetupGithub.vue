@@ -1,32 +1,41 @@
 <template>
-  <PaddedApp>
-    <div v-if="show_redirected_to_app">
-      <div class="p-3 pt-32 flex flex-col gap-5 items-center justify-center">
-        <img src="../assets/Web/Duck/DuckCap256.png" class="h-16 w-16" alt="Sturdy Duck Logo" />
+  <ElectronNavigation>
+    <PaddedApp>
+      <div v-if="show_redirected_to_app">
+        <div class="p-3 pt-32 flex flex-col gap-5 items-center justify-center">
+          <img src="../assets/Web/Duck/DuckCap256.png" class="h-16 w-16" alt="Sturdy Duck Logo" />
 
-        <h1 class="text-3xl font-bold">Opening App...</h1>
+          <h1 class="text-3xl font-bold">Opening App...</h1>
 
-        <p class="max-w-md text-center">
-          We're trying to open this link up in your Sturdy app!<br />Please hang tight!
-          <router-link class="text-yellow-600 underline" :to="{ name: 'home' }">
-            Continue to Sturdy
-          </router-link>
-          .
-        </p>
+          <p class="max-w-md text-center">
+            We're trying to open this link up in your Sturdy app!<br />Please hang tight!
+            <router-link class="text-yellow-600 underline" :to="{ name: 'home' }">
+              Continue to Sturdy
+            </router-link>
+            .
+          </p>
 
-        <Spinner class="w-7 h-7 text-yellow-600" />
+          <Spinner class="w-7 h-7 text-yellow-600" />
+        </div>
       </div>
-    </div>
-    <Banner v-else-if="show_oauth_went_wrong" status="error">
-      Something went wrong connecting to GitHub, please try again!
-    </Banner>
-    <Banner v-else status="info">
-      <div class="inline-flex">
-        <span>Setting up...</span>
-        <Spinner class="ml-3" />
+      <div v-else-if="show_oauth_went_wrong" class="flex flex-col space-y-4">
+        <Banner status="error">
+          Something went wrong connecting to GitHub, please try again!
+        </Banner>
+        <div>
+          <RouterLinkButton color="green" :to="{ name: 'home' }"
+            >Take me back to safety</RouterLinkButton
+          >
+        </div>
       </div>
-    </Banner>
-  </PaddedApp>
+      <Banner v-else status="info">
+        <div class="inline-flex">
+          <span>Setting up...</span>
+          <Spinner class="ml-3" />
+        </div>
+      </Banner>
+    </PaddedApp>
+  </ElectronNavigation>
 </template>
 
 <script lang="ts">
@@ -36,6 +45,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { Banner } from '../atoms'
 import Spinner from '../components/shared/Spinner.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
+import ElectronNavigation from '../layouts/ElectronNavigation.vue'
+import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 
 const openInAppUrl = (): string | undefined => {
   let searchParams = new URLSearchParams(location.search)
@@ -61,7 +72,7 @@ const openInAppUrl = (): string | undefined => {
 }
 
 export default defineComponent({
-  components: { PaddedApp, Banner, Spinner },
+  components: { ElectronNavigation, PaddedApp, Banner, Spinner, RouterLinkButton },
   setup() {
     let route = useRoute()
     let router = useRouter()
