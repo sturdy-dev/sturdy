@@ -158,6 +158,7 @@ func TestPRHighLevel(t *testing.T) {
 		WorkspaceRepo                 db_workspace.Repository
 		WorkspaceRootResolver         resolvers.WorkspaceRootResolver
 		WorkspaceService              service_workspace.Service
+		WebhooksQueue                 *workers.WebhooksQueue
 	}
 
 	var d deps
@@ -180,7 +181,7 @@ func TestPRHighLevel(t *testing.T) {
 	workspaceRepo := d.WorkspaceRepo
 	viewRepo := d.ViewRepo
 
-	webhookRoute := routes.Webhook(d.Logger, d.GitHubWebhookService)
+	webhookRoute := routes.Webhook(d.Logger, d.WebhooksQueue)
 
 	testCases := []struct {
 		name                       string
