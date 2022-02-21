@@ -19,12 +19,19 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
+
 		event, err := gh.ParseWebHook(gh.WebHookType(c.Request), payload)
 		if err != nil {
 			logger.Warn("failed to parse webhook", zap.Error(err))
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
+
+		logger = logger.With(
+			zap.String("github_delivery", c.Request.Header.Get("X-GitHub-Delivery")),
+			zap.String("github_event", c.Request.Header.Get("X-GitHub-Event")),
+			zap.String("hook_id", c.Request.Header.Get("X-GitHub-Hook-Id")),
+		)
 
 		logger.Info("github webhook", zap.String("type", fmt.Sprintf("%T", event)))
 
