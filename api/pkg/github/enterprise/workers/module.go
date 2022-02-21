@@ -7,4 +7,5 @@ import (
 func Module(c *di.Container) {
 	c.Register(NewImporterQueue)
 	c.Register(NewClonerQueue)
+	c.Register(NewWebhooksQueue)
 }

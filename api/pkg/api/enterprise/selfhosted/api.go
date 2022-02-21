@@ -19,6 +19,7 @@ type API struct {
 	githubImporterQueue          workers_github.ImporterQueue
 	licenseWorker                *workers_license.Worker
 	installationStatisticsWorker *worker_installation_statistics.Worker
+	githubWebhooksQueue          *workers_github.WebhooksQueue
 }
 
 func ProvideAPI(
@@ -28,6 +29,7 @@ func ProvideAPI(
 	githubImporterQueue workers_github.ImporterQueue,
 	licenseWorker *workers_license.Worker,
 	installationStatisticsWorker *worker_installation_statistics.Worker,
+	githubWebhooksQueue *workers_github.WebhooksQueue,
 ) *API {
 	return &API{
 		ossAPI:                       ossAPI,
@@ -35,6 +37,7 @@ func ProvideAPI(
 		githubImporterQueue:          githubImporterQueue,
 		licenseWorker:                licenseWorker,
 		installationStatisticsWorker: installationStatisticsWorker,
+		githubWebhooksQueue:          githubWebhooksQueue,
 	}
 }
 
@@ -69,6 +72,13 @@ func (a *API) Start(ctx context.Context) error {
 	wg.Go(func() error {
 		if err := a.installationStatisticsWorker.Start(ctx); err != nil {
 			return fmt.Errorf("failed to start installation statistics worker: %v", err)
+		}
+		return nil
+	})
+
+	wg.Go(func() error {
+		if err := a.githubWebhooksQueue.Start(ctx); err != nil {
+			return fmt.Errorf("failed to start github webhooks queue: %v", err)
 		}
 		return nil
 	})
