@@ -84,6 +84,8 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
+		case *gh.PullRequestReview:
+			// noop
 		default:
 			c.Status(http.StatusNotFound)
 			return
