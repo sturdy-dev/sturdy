@@ -14,6 +14,7 @@ type InstallationsRootResolver interface {
 
 type InstallationsResolver interface {
 	ID() graphql.ID
+	UsersCount(context.Context) (int32, error)
 	NeedsFirstTimeSetup(context.Context) (bool, error)
 	Version() string
 	License(context.Context) (LicenseResolver, error)

@@ -43,3 +43,11 @@ func (r *resolver) License(ctx context.Context) (resolvers.LicenseResolver, erro
 	}
 	return r.root.licenseResolver.InternalByKey(ctx, *r.installation.LicenseKey)
 }
+
+func (r *resolver) UsersCount(ctx context.Context) (int32, error) {
+	c, err := r.root.usersService.UsersCount(ctx)
+	if err != nil {
+		return 0, gqlerrors.Error(err)
+	}
+	return int32(c), nil
+}
