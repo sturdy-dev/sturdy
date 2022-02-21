@@ -176,6 +176,17 @@ export const RoutesDocs: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/blog/2022-02-21-sturdy-is-now-open-source',
+    name: 'blog2022-02-21',
+    component: () => import('./pages/blog/2022-02-21/Post.vue'),
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      // blog: { title: '#014 - Sturdy is now open-source' },
+    },
+  },
+  {
     path: '/blog/2021-12-17-graphql-componentized-uis',
     name: 'graphql-componentized-uis',
     component: () => import('./pages/blog/graphql-componentized-uis/Post.vue'),
