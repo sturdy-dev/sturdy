@@ -72,18 +72,20 @@ func Oauth(
 			return
 		}
 
-		ctx := context.Background()
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: accessToken},
-		)
-		tc := oauth2.NewClient(ctx, ts)
+		ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
+		tc := oauth2.NewClient(c.Request.Context(), ts)
 		client := gh.NewClient(tc)
 
-		ghApiUser, _, err := client.Users.Get(ctx, "")
+		ghApiUser, resp, err := client.Users.Get(c.Request.Context(), "")
 		if err != nil {
-			logger.Error("failed to get github user from api", zap.Error(err))
-			c.Status(http.StatusInternalServerError)
-			return
+			if resp.StatusCode == http.StatusUnauthorized {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "GitHub authentication failed: invalid code provided"})
+				return
+			} else {
+				logger.Error("failed to get github user from api", zap.Error(err))
+				c.Status(http.StatusInternalServerError)
+				return
+			}
 		}
 
 		user, err := userRepo.Get(userID)
@@ -103,8 +105,7 @@ func Oauth(
 				AccessToken: accessToken,
 				CreatedAt:   t0,
 			}
-			err := gitHubUserRepo.Create(*ghUser)
-			if err != nil {
+			if err := gitHubUserRepo.Create(*ghUser); err != nil {
 				logger.Error("failed to create github user in db", zap.Error(err))
 				c.Status(http.StatusInternalServerError)
 				return
@@ -115,14 +116,18 @@ func Oauth(
 			return
 		}
 
-		if err := gitHubService.AddUserToCodebases(ctx, user.ID); err != nil {
+		if ghUser.UserID != user.ID {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", user.Email)})
+			return
+		}
+
+		if err := gitHubService.AddUserToCodebases(c.Request.Context(), user.ID); err != nil {
 			logger.Error("failed to grant user access", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
 		}
 
 		c.Status(http.StatusOK)
-		return
 	}
 }
 
