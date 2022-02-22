@@ -1,3 +1,4 @@
+//nolint:bodyclose
 package routes_test
 
 import (
@@ -29,7 +30,6 @@ import (
 	"getsturdy.com/api/pkg/sync"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -46,10 +46,6 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
-)
-
-var (
-	allFilesAllowed, _ = unidiff.NewAllower("*")
 )
 
 func str(s string) *string {
@@ -574,6 +570,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 						d, err := ioutil.ReadFile(*f.copyFrom)
 						assert.NoError(t, err)
 						err = ioutil.WriteFile(path.Join(viewPath, f.path), d, 0o644)
+						assert.NoError(t, err)
 					} else {
 						err = os.Remove(path.Join(viewPath, f.path))
 					}

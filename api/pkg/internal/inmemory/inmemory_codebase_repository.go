@@ -71,7 +71,8 @@ func (r *inMemoryCodebaseRepository) ListByOrganization(_ context.Context, id st
 	var res []*codebase.Codebase
 	for _, cb := range r.codebases {
 		if cb.OrganizationID != nil && *cb.OrganizationID == id {
-			res = append(res, &cb)
+			c2 := cb
+			res = append(res, &c2)
 		}
 	}
 	return res, nil

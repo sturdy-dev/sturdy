@@ -178,7 +178,7 @@ func listCollaborators(ctx context.Context, reposClient client.RepositoriesClien
 	return users, rsp.NextPage, nil
 }
 
-func (svc *Service) AddUser(codebaseID, userID string) error {
+func (svc *Service) AddUser(ctx context.Context, codebaseID, userID string) error {
 	// Add access to this user directly
 	t := time.Now()
 	err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
@@ -191,7 +191,7 @@ func (svc *Service) AddUser(codebaseID, userID string) error {
 		return fmt.Errorf("failed to add sender to codebaseUserRepo: %w", err)
 	}
 
-	svc.analyticsService.Capture(context.TODO(), "added user to codebase",
+	svc.analyticsService.Capture(ctx, "added user to codebase",
 		analytics.DistinctID(userID),
 		analytics.CodebaseID(codebaseID),
 		analytics.Property("github", true),
@@ -200,7 +200,7 @@ func (svc *Service) AddUser(codebaseID, userID string) error {
 
 	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", userID))
 
-	svc.analyticsService.Capture(context.TODO(), "installed github repository",
+	svc.analyticsService.Capture(ctx, "installed github repository",
 		analytics.DistinctID(userID),
 		analytics.CodebaseID(codebaseID),
 		analytics.Property("github", true),

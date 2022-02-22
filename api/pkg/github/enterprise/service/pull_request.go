@@ -87,6 +87,7 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 
 	commitMessage := message.CommitMessage(ws.DraftDescription) + "\n\nMerged via Sturdy"
 
+	//nolint:contextcheck
 	res, _, err := userAuthClient.PullRequests.Merge(bgCtx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
 	if err != nil {
 		// 405 not allowed

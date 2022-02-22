@@ -42,21 +42,21 @@ func (a *API) Start(ctx context.Context) error {
 
 	wg.Go(func() error {
 		if err := a.githubClonerQueue.Start(ctx); err != nil {
-			return fmt.Errorf("failed to start github cloner queue: %v", err)
+			return fmt.Errorf("failed to start github cloner queue: %w", err)
 		}
 		return nil
 	})
 
 	wg.Go(func() error {
 		if err := a.githubImporterQueue.Start(ctx); err != nil {
-			return fmt.Errorf("failed to start github importer queue: %v", err)
+			return fmt.Errorf("failed to start github importer queue: %w", err)
 		}
 		return nil
 	})
 
 	wg.Go(func() error {
 		if err := a.githubWebhooksQueue.Start(ctx); err != nil {
-			return fmt.Errorf("failed to start github webhooks queue: %v", err)
+			return fmt.Errorf("failed to start github webhooks queue: %w", err)
 		}
 		return nil
 	})

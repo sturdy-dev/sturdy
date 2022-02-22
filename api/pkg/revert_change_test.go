@@ -194,6 +194,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+	//nolint:errorlint
 	if gerr, ok := err.(*gqlerrors.SturdyGraphqlError); ok {
 		t.Logf("err=%+v", gerr.OriginalError())
 	}
@@ -353,6 +354,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		ViewID:      graphql.ID(viewRes.ID),
 	}})
 	if !assert.NoError(t, err) {
+		//nolint:errorlint
 		t.Logf("err=%+v", err.(*gqlerrors.SturdyGraphqlError).OriginalError())
 	}
 

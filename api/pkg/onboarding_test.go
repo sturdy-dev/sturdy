@@ -1,3 +1,4 @@
+//nolint:bodyclose
 package pkg_test
 
 import (
@@ -50,10 +51,6 @@ import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
-)
-
-var (
-	allFilesAllowed, _ = unidiff.NewAllower("*")
 )
 
 func module(c *di.Container) {

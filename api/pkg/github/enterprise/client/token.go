@@ -64,7 +64,7 @@ func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *co
 		ghr.InstallationAccessTokenExpiresAt.After(time.Now().Add(time.Minute*10)) {
 		logger.Info("re-using existing token",
 			zap.Time("expiresAt", *ghr.InstallationAccessTokenExpiresAt),
-			zap.Duration("expiresIn", (*ghr.InstallationAccessTokenExpiresAt).Sub(time.Now())),
+			zap.Duration("expiresIn", ghr.InstallationAccessTokenExpiresAt.Sub(time.Now())),
 		)
 		return *ghr.InstallationAccessToken, nil
 	}
@@ -94,7 +94,7 @@ func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *co
 
 	logger.Info("refreshed gitHub access token",
 		zap.Time("expiresAt", *ghr.InstallationAccessTokenExpiresAt),
-		zap.Duration("expiresIn", (*ghr.InstallationAccessTokenExpiresAt).Sub(time.Now())),
+		zap.Duration("expiresIn", ghr.InstallationAccessTokenExpiresAt.Sub(time.Now())),
 	)
 
 	err = repo.Update(ghr)

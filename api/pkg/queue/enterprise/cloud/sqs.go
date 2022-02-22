@@ -263,6 +263,7 @@ func getOrCreateQueue(logger *zap.Logger, q *sqs.SQS, stsClient *sts.STS, queueN
 	}
 
 	// Queue does not exist
+	//nolint:errorlint
 	if aerr, ok := err.(awserr.Error); ok && aerr.Code() == sqs.ErrCodeQueueDoesNotExist {
 
 		pol := PolicyDocument{

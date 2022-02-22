@@ -2,13 +2,14 @@ package db
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/pkg/github"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type GitHubInstallationRepo interface {
-	GetByID(ID string) (*github.GitHubInstallation, error)
+	GetByID(id string) (*github.GitHubInstallation, error)
 	GetByOwner(owner string) (*github.GitHubInstallation, error)
 	GetByInstallationID(int64) (*github.GitHubInstallation, error)
 	Create(github.GitHubInstallation) error
@@ -23,9 +24,9 @@ func NewGitHubInstallationRepo(db *sqlx.DB) GitHubInstallationRepo {
 	return &gitHubInstallationRepository{db}
 }
 
-func (r *gitHubInstallationRepository) GetByID(ID string) (*github.GitHubInstallation, error) {
+func (r *gitHubInstallationRepository) GetByID(id string) (*github.GitHubInstallation, error) {
 	var res github.GitHubInstallation
-	err := r.db.Get(&res, "SELECT * FROM github_installations WHERE id=$1 AND uninstalled_at IS NULL", ID)
+	err := r.db.Get(&res, "SELECT * FROM github_installations WHERE id=$1 AND uninstalled_at IS NULL", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

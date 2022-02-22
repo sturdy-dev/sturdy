@@ -41,15 +41,16 @@ type SturdyRebase struct {
 	lastCompletedCommit string
 }
 
-var NoRebaseInProgress = errors.New("no rebasing in progress")
+var ErrNoRebaseInProgress = errors.New("no rebasing in progress")
 
 // OpenRebase resumes a rebasing operation started by InitRebase
 func (r *repository) OpenRebase() (*SturdyRebase, error) {
 	defer getMeterFunc("OpenRebase")()
 	reb, err := r.r.OpenRebase(commonRebaseOptions)
 	if err != nil {
+		//nolint:errorlint
 		if gitErr, ok := err.(*git.GitError); ok && gitErr.Class == git.ErrClassRebase && gitErr.Code == git.ErrNotFound {
-			return nil, NoRebaseInProgress
+			return nil, ErrNoRebaseInProgress
 		}
 		return nil, fmt.Errorf("could not open rebase: %w", err)
 	}
@@ -172,6 +173,7 @@ func ConflictingFilesInIndex(idx *git.Index) ([]string, error) {
 	for {
 		c, err := conflicts.Next()
 		if err != nil {
+			//nolint:errorlint
 			if gitErr, ok := err.(*git.GitError); ok && gitErr.Code == git.ErrIterOver {
 				break
 			}
@@ -212,6 +214,7 @@ func (rebase *SturdyRebase) Continue() (conflicts bool, rebasedCommits []Rebased
 				// Continue with the next operation
 				operation, err = rebase.gitRebase.Next()
 				if err != nil {
+					//nolint:errorlint
 					if gitErr, ok := err.(*git.GitError); ok && gitErr.Code == git.ErrIterOver {
 						break
 					}
@@ -243,7 +246,8 @@ func (rebase *SturdyRebase) Continue() (conflicts bool, rebasedCommits []Rebased
 		var noop bool
 		err = rebase.gitRebase.Commit(operation.Id, commit.Author(), commit.Committer(), commit.Message())
 		if err != nil {
-			if gitErr, ok := err.(*git.GitError); ok && gitErr.Class == git.ErrClassRebase && gitErr.Code == git.ErrApplied {
+			//nolint:errorlint
+			if gitErr, ok := err.(*git.GitError); ok && gitErr.Class == git.ErrorClassRebase && gitErr.Code == git.ErrorCodeApplied {
 				noop = true
 			} else {
 				return false, nil, fmt.Errorf("failed to commit: %w", err)
@@ -273,7 +277,8 @@ func (rebase *SturdyRebase) Continue() (conflicts bool, rebasedCommits []Rebased
 		// Advance to the next operation
 		_, err = rebase.gitRebase.Next()
 		if err != nil {
-			if gitErr, ok := err.(*git.GitError); ok && gitErr.Code == git.ErrIterOver {
+			//nolint:errorlint
+			if gitErr, ok := err.(*git.GitError); ok && gitErr.Code == git.ErrorCodeIterOver {
 				break
 			}
 			return false, nil, fmt.Errorf("failed to run next operation: %w", err)
@@ -468,7 +473,8 @@ func (r *repository) stashUnsavedForRebase() error {
 	}, "Stashing to perform rebase", git.StashDefault)
 	if err != nil {
 		// Nothing to stash
-		if gitErr := err.(*git.GitError); gitErr.Class == git.ErrClassStash && gitErr.Code == git.ErrNotFound {
+		//nolint:errorlint
+		if gitErr := err.(*git.GitError); gitErr.Class == git.ErrorClassStash && gitErr.Code == git.ErrorCodeNotFound {
 			return nil
 		}
 		return err

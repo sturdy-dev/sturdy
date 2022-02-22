@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/queue/names"
 	"golang.org/x/sync/errgroup"
+
+	"getsturdy.com/api/pkg/queue/names"
 )
 
 var _ Queue = &Sync{}
@@ -32,7 +33,7 @@ func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg 
 		wg.Go(func() error {
 			m, err := newInmemoryMessage(msg)
 			if err != nil {
-				return fmt.Errorf("failed to create message: %v", err)
+				return fmt.Errorf("failed to create message: %w", err)
 			}
 			ch <- m
 			m.AwaitAcked()

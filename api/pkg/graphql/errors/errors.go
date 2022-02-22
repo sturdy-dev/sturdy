@@ -83,6 +83,7 @@ func (e *SturdyGraphqlError) OriginalError() error {
 }
 
 func (e *SturdyGraphqlError) Is(target error) bool {
+	//nolint:errorlint
 	return target == e.err
 }
 

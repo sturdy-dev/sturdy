@@ -88,7 +88,7 @@ func (h *Server) Start() error {
 
 	h.logger.Info("starting gitserver", zap.Stringer("addr", h.cfg.Addr))
 
-	if err := h.router.Run(h.cfg.Addr.String()); err != http.ErrServerClosed {
+	if err := h.router.Run(h.cfg.Addr.String()); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("failed to run the server: %w", err)
 	}
 

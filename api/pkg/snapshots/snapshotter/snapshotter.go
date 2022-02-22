@@ -141,6 +141,7 @@ var (
 	ErrCantSnapshotWrongBranch = errors.New("can't snapshot, unexpected branch")
 )
 
+//nolint:cyclop
 func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
 

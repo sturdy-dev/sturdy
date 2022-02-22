@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"getsturdy.com/api/pkg/queue"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/queue"
 )
 
 type Configuration struct {
@@ -19,7 +20,7 @@ func New(awsSession *session.Session, logger *zap.Logger, cfg *Configuration) (q
 	if cfg.Hostname == "" {
 		defaultHostname, err := os.Hostname()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get hostname: %v", err)
+			return nil, fmt.Errorf("failed to get hostname: %w", err)
 		}
 		cfg.Hostname = defaultHostname
 	}

@@ -46,7 +46,7 @@ func (b *Service) GetConfigurationByIntegrationID(ctx context.Context, integrati
 func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, title string) (*integrations.Build, error) {
 	cfg, err := b.configRepo.GetConfigByIntegrationID(ctx, integrationID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get config by codebase id: %s", err)
+		return nil, fmt.Errorf("failed to get config by codebase id: %w", err)
 	}
 
 	data := createBuild{

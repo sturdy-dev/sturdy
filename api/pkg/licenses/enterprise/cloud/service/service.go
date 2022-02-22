@@ -83,10 +83,13 @@ func (s *Service) Validate(ctx context.Context, license *licenses.License) error
 var (
 	oneDay = time.Hour * 24
 
-	expiryLeeway              = 3 * oneDay
-	seatsLeeway        uint64 = 5
-	statisticsLeeway          = 3 * time.Hour
-	statisticsDeadline        = oneDay
+	expiryLeeway = 3 * oneDay
+
+	// TODO: Start using
+	// seatsLeeway        uint64 = 5
+
+	statisticsLeeway   = 3 * time.Hour
+	statisticsDeadline = oneDay
 )
 
 func (s *Service) validate(ctx context.Context, license *licenses.License) (licenses.Status, []*licenses.Message, error) {

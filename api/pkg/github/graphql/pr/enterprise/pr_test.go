@@ -1,3 +1,4 @@
+//nolint:bodyclose
 package enterprise_test
 
 import (
@@ -49,7 +50,6 @@ import (
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -61,8 +61,6 @@ import (
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 )
-
-var allFilesAllowed, _ = unidiff.NewAllower("*")
 
 func module(c *di.Container) {
 	ctx := context.Background()
@@ -379,6 +377,7 @@ func TestPRHighLevel(t *testing.T) {
 				ViewID:      graphql.ID(viewID),
 			}})
 			if !assert.NoError(t, err) {
+				//nolint:errorlint
 				t.Logf("err: %+v", err.(*gqlerrors.SturdyGraphqlError).OriginalError())
 			}
 
@@ -418,6 +417,7 @@ func TestPRHighLevel(t *testing.T) {
 					LineIsNew:   b(true),
 				}})
 				assert.NoError(t, err)
+				//nolint:errorlint
 				if gerr, ok := err.(*gqlerrors.SturdyGraphqlError); ok {
 					assert.NoError(t, gerr.OriginalError())
 				}
@@ -452,6 +452,7 @@ func TestPRHighLevel(t *testing.T) {
 					}},
 			)
 			if !assert.NoError(t, err) {
+				//nolint:errorlint
 				t.Logf("err=%+v", err.(*gqlerrors.SturdyGraphqlError).OriginalError())
 			}
 			if assert.NotNil(t, createdPullRequestResolver) {

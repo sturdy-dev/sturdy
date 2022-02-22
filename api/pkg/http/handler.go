@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/session"
+
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	authz "getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
@@ -106,6 +108,7 @@ func ProvideHandler(
 	codebaseService *service_codebase.Service,
 	authService *service_auth.Service,
 	grapqhlResolver *sturdygrapql.RootResolver,
+	awsSession *session.Session,
 ) *Engine {
 	logger = logger.With(zap.String("component", "http"))
 	allowOrigins := []string{
@@ -161,7 +164,7 @@ func ProvideHandler(
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))
 	auth.POST("/v3/auth/renew-token", routes_v3_user.RenewToken(logger, userRepo, jwtService))
-	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(userRepo))                                                                                                                         // Used by the web (2021-10-04)
+	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(logger, userRepo, awsSession))                                                                                                     // Used by the web (2021-10-04)
 	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                 // Used by the command line client
 	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                     // Used by the web (2021-10-04)
 	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService, executorProvider))                                                                       // Used by the command line client

@@ -29,7 +29,8 @@ func (r *inMemoryOrganizationMemberRepository) ListByOrganizationID(ctx context.
 	var res []*organization.Member
 	for _, u := range r.users {
 		if u.OrganizationID == id {
-			res = append(res, &u)
+			u2 := u
+			res = append(res, &u2)
 		}
 	}
 	return res, nil
@@ -39,7 +40,8 @@ func (r *inMemoryOrganizationMemberRepository) ListByUserID(ctx context.Context,
 	var res []*organization.Member
 	for _, u := range r.users {
 		if u.UserID == id {
-			res = append(res, &u)
+			u2 := u
+			res = append(res, &u2)
 		}
 	}
 	return res, nil

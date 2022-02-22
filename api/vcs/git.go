@@ -891,6 +891,7 @@ func (r *repository) HeadCommit() (*git.Commit, error) {
 	defer getMeterFunc("HeadCommit")()
 	ref, err := r.r.Head()
 	if err != nil {
+		//nolint:errorlint
 		if gErr, ok := err.(*git.GitError); ok && gErr.Code == git.ErrorCodeUnbornBranch {
 			return nil, ErrNotFound
 		}
