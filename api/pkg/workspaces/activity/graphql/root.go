@@ -72,10 +72,6 @@ func New(
 	}
 }
 
-func (r *root) InternalActivityCountByWorkspaceID(ctx context.Context, workspaceID string) (int32, error) {
-	return r.workspaceActivityRepo.CountByWorkspaceID(ctx, workspaceID)
-}
-
 func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID string, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {
 	unreadOnly := args.Input != nil && args.Input.UnreadOnly != nil && *args.Input.UnreadOnly
 	var newerThan time.Time

@@ -306,10 +306,6 @@ func (r *WorkspaceResolver) Activity(ctx context.Context, args resolvers.Workspa
 	return r.root.workspaceActivityRootResolver.InternalActivityByWorkspace(ctx, r.w.ID, args)
 }
 
-func (r *WorkspaceResolver) ActivityCount(ctx context.Context) (int32, error) {
-	return r.root.workspaceActivityRootResolver.InternalActivityCountByWorkspaceID(ctx, r.w.ID)
-}
-
 func (r *WorkspaceResolver) Reviews(ctx context.Context) ([]resolvers.ReviewResolver, error) {
 	res, err := r.root.reviewRootResolver.InternalReviews(ctx, r.w.ID)
 	switch {
