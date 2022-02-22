@@ -112,9 +112,17 @@ type message struct {
 }
 
 func (m *message) As(out interface{}) error {
-	err := json.Unmarshal([]byte(*m.data), out)
-	if err != nil {
-		return fmt.Errorf("failed to decode sqs message: %w", err)
+	if err := unmarshal([]byte(*m.data), out); err != nil {
+		// try parsing using deprecated message format
+		return m.AsJSON(out)
+	}
+	return nil
+}
+
+// deprecated message format
+func (m *message) AsJSON(out interface{}) error {
+	if err := json.Unmarshal([]byte(*m.data), out); err != nil {
+		return fmt.Errorf("failed to unmarshal message: %w", err)
 	}
 	return nil
 }
@@ -197,7 +205,7 @@ func newPublisher(logger *zap.Logger, awsSession *session.Session, queueName nam
 	}
 
 	publ := func(msg interface{}) error {
-		body, err := json.Marshal(msg)
+		body, err := marshal(msg)
 		if err != nil {
 			return err
 		}
