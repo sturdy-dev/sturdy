@@ -79,7 +79,7 @@ func (r *ChangeRootResolver) Change(ctx context.Context, args resolvers.ChangeAr
 		}
 	} else if args.CommitID != nil && args.CodebaseID != nil {
 		// Lookup by CommitID and CodebaseID
-		ch, err = r.svc.GetByCommitID(ctx, string(*args.CommitID), string(*args.CodebaseID))
+		ch, err = r.svc.GetByCommitAndCodebase(ctx, string(*args.CommitID), string(*args.CodebaseID))
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by commit id and codebaseid: %w", err))
 		}

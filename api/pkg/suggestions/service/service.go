@@ -67,33 +67,6 @@ func New(
 	}
 }
 
-// todo: move this to the workspace service
-func (s *Service) copyWorkspace(ctx context.Context, userID string, ws *workspace.Workspace) (*workspace.Workspace, error) {
-	changeID := ""
-	if ws.HeadCommitID != nil {
-		changeID = *ws.HeadCommitID
-	}
-
-	name := ""
-	if ws.Name != nil {
-		name = fmt.Sprintf("Suggestions: %s", *ws.Name)
-	}
-
-	createRequest := service_workspace.CreateWorkspaceRequest{
-		UserID:     userID,
-		CodebaseID: ws.CodebaseID,
-		Name:       name,
-		ChangeID:   changeID,
-	}
-
-	newWorkspace, err := s.workspaceService.Create(ctx, createRequest)
-	if err != nil {
-		return nil, fmt.Errorf("faliled to create a workspace: %w", err)
-	}
-
-	return newWorkspace, nil
-}
-
 // RecordActivity sends notifications and resurrects existing suggestions.
 func (s *Service) RecordActivity(ctx context.Context, workspaceID string) error {
 	suggestion, err := s.GetByWorkspaceID(ctx, workspaceID)
@@ -145,7 +118,12 @@ func (s *Service) Create(ctx context.Context, userID string, forWorkspace *works
 		return nil, fmt.Errorf("workspace has no snapshot")
 	}
 
-	ws, err := s.copyWorkspace(ctx, userID, forWorkspace)
+	name := ""
+	if forWorkspace.Name != nil {
+		name = fmt.Sprintf("Suggestions: %s", *forWorkspace.Name)
+	}
+
+	ws, err := s.workspaceService.CreateFromWorkspace(ctx, forWorkspace, userID, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy workspace: %w", err)
 	}

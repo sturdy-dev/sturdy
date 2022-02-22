@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
 	service_workspace "getsturdy.com/api/pkg/workspace/service"
 
 	"github.com/graph-gophers/graphql-go"
@@ -27,8 +26,6 @@ func (r *WorkspaceRootResolver) ExtractWorkspace(ctx context.Context, args resol
 	}
 
 	extractor := &workspaceExtractor{
-		workspaceWriter:  r.workspaceWriter,
-		gitSnapshotter:   r.gitSnapshotter,
 		workspaceService: r.workspaceService,
 	}
 
@@ -46,13 +43,21 @@ func (r *WorkspaceRootResolver) ExtractWorkspace(ctx context.Context, args resol
 }
 
 type workspaceExtractor struct {
-	workspaceWriter  db_workspace.WorkspaceWriter
-	gitSnapshotter   snapshotter.Snapshotter
 	workspaceService service_workspace.Service
 }
 
 func (r *workspaceExtractor) Extract(ctx context.Context, src *workspace.Workspace, patchIDs []string) (*workspace.Workspace, error) {
-	dist, err := r.copyWorkspace(ctx, src)
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("could not get authed user: %w", err)
+	}
+
+	name := ""
+	if src.Name != nil {
+		name = fmt.Sprintf("Fork of %s", *src.Name)
+	}
+
+	dist, err := r.workspaceService.CreateFromWorkspace(ctx, src, userID, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy a workspace: %w", err)
 	}
@@ -62,29 +67,4 @@ func (r *workspaceExtractor) Extract(ctx context.Context, src *workspace.Workspa
 	}
 
 	return dist, nil
-}
-
-func (r *workspaceExtractor) copyWorkspace(ctx context.Context, from *workspace.Workspace) (*workspace.Workspace, error) {
-	changeID := ""
-	if from.HeadCommitID != nil {
-		changeID = *from.HeadCommitID
-	}
-
-	name := ""
-	if from.Name != nil {
-		name = fmt.Sprintf("Fork of %s", *from.Name)
-	}
-
-	createRequest := service_workspace.CreateWorkspaceRequest{
-		UserID:     from.UserID,
-		CodebaseID: from.CodebaseID,
-		Name:       name,
-		ChangeID:   changeID,
-	}
-
-	newWorkspace, err := r.workspaceService.Create(ctx, createRequest)
-	if err != nil {
-		return nil, fmt.Errorf("faliled to create a workspace: %w", err)
-	}
-	return newWorkspace, nil
 }

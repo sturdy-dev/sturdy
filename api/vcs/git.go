@@ -885,10 +885,15 @@ func (r *repository) CreateAndSetDefaultBranch(headBranchName string) error {
 	return nil
 }
 
+var ErrNotFound = errors.New("not found")
+
 func (r *repository) HeadCommit() (*git.Commit, error) {
 	defer getMeterFunc("HeadCommit")()
 	ref, err := r.r.Head()
 	if err != nil {
+		if gErr, ok := err.(*git.GitError); ok && gErr.Code == git.ErrorCodeUnbornBranch {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
 	defer ref.Free()

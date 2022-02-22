@@ -24,7 +24,6 @@ type RepoGitReader interface {
 	HeadCommit() (*git.Commit, error)
 
 	BranchCommitID(branchName string) (string, error)
-	BranchFirstNonMergeCommit(branchName string) (string, error)
 
 	GetCommitParents(commitID string) ([]string, error)
 	CommitMessage(id string) (author *git.Signature, message string, err error)

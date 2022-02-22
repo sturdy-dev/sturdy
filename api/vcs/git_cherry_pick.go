@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"errors"
 	"fmt"
 
 	git "github.com/libgit2/git2go/v33"
@@ -79,43 +78,6 @@ func (r *repository) BranchCommitID(branchName string) (string, error) {
 	}
 	defer commit.Free()
 	return commit.Id().String(), nil
-}
-
-var ErrCommitNotFound = errors.New("commit not found")
-
-func (r *repository) BranchFirstNonMergeCommit(branchName string) (string, error) {
-	defer getMeterFunc("BranchFirstNonMergeCommit")()
-	branch, err := r.r.LookupBranch(branchName, git.BranchLocal)
-	if err != nil {
-		return "", fmt.Errorf("failed to look up branch: %w", err)
-	}
-	defer branch.Free()
-
-	// Breadth first search
-	q := []*git.Oid{branch.Target()}
-	for {
-		if len(q) == 0 {
-			return "", ErrCommitNotFound
-		}
-
-		id := q[0]
-		q = q[1:]
-
-		commit, err := r.r.LookupCommit(id)
-		if err != nil {
-			return "", fmt.Errorf("failed to look up commit: %w", err)
-		}
-
-		// Non-merge commit
-		if commit.ParentCount() == 1 {
-			return commit.Id().String(), nil
-		}
-
-		// Add to queue
-		for parentId := uint(0); parentId < commit.ParentCount(); parentId++ {
-			q = append(q, commit.ParentId(parentId))
-		}
-	}
 }
 
 func (r *repository) InitRebaseRaw(head, onto string) (*SturdyRebase, []RebasedCommit, error) {

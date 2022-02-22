@@ -19,15 +19,6 @@ import (
 	git "github.com/libgit2/git2go/v33"
 )
 
-func GetDiffs(r vcs.RepoGitReader, commitID string) ([]string, error) {
-	diffs, _, err := r.ShowCommit(commitID)
-	if err != nil {
-		return nil, fmt.Errorf("failed find commit %s: %w", commitID, err)
-	}
-
-	return diffs, nil
-}
-
 func CreateAndLandFromView(
 	viewRepo vcs.RepoWriter,
 	logger *zap.Logger,
