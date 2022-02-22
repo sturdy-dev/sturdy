@@ -6,14 +6,17 @@ RUN apk update \
     bash \
     git
 COPY ./ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
-RUN bash ./scripts/build-mutagen.sh
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    bash ./scripts/build-mutagen.sh
 # cache ssh depencencies
 COPY ./ssh/go.mod ./go.mod
 COPY ./ssh/go.sum ./go.sum
-RUN go mod download
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
 # build ssh
 COPY ./ssh .
-RUN go build -v -o /usr/bin/ssh getsturdy.com/ssh/cmd/ssh
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build -v -o /usr/bin/ssh getsturdy.com/ssh/cmd/ssh
 
 FROM alpine:3.15 as ssh
 RUN apk update \
@@ -37,10 +40,12 @@ WORKDIR /go/src/api
 # cache api dependencies
 COPY ./api/go.mod ./go.mod
 COPY ./api/go.sum ./go.sum
-RUN go mod download -x
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go mod download -x
 
 # cache dependencies
-RUN go build -v github.com/aws/aws-sdk-go/aws \
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build -v github.com/aws/aws-sdk-go/aws \
     github.com/aws/aws-sdk-go/aws/awserr \
     github.com/aws/aws-sdk-go/aws/session \
     github.com/aws/aws-sdk-go/service/kms \
@@ -90,7 +95,9 @@ RUN go build -v github.com/aws/aws-sdk-go/aws \
 ARG API_BUILD_TAGS
 ARG VERSION
 COPY ./api ./
-RUN go build \
+
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build \
     -tags "${API_BUILD_TAGS},static,system_libgit2" \
     -ldflags "-X getsturdy.com/api/pkg/version.Version=${VERSION}" \
     -v -o /usr/bin/api getsturdy.com/api/cmd/api
