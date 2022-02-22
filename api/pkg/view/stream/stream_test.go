@@ -29,10 +29,10 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
-	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/google/uuid"
@@ -74,7 +74,7 @@ func TestStream(t *testing.T) {
 	}
 
 	viewRepo := db_view.NewRepo(d)
-	workspaceRepo := db_workspace.NewRepo(d)
+	workspaceRepo := db_workspaces.NewRepo(d)
 	// snapshotRepo := db_snapshots.NewRepo(d)
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)
@@ -145,7 +145,7 @@ func TestStream(t *testing.T) {
 			})
 			assert.NoError(t, err)
 
-			ws := workspace.Workspace{
+			ws := workspaces.Workspace{
 				ID:         workspaceID,
 				CodebaseID: codebaseID,
 				ViewID:     &viewID,

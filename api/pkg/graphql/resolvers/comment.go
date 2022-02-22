@@ -3,14 +3,14 @@ package resolvers
 import (
 	"context"
 	"getsturdy.com/api/pkg/comments"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type CommentRootResolver interface {
 	Comment(ctx context.Context, args CommentArgs) (CommentResolver, error)
-	InternalWorkspaceComments(workspace *workspace.Workspace) ([]CommentResolver, error)
+	InternalWorkspaceComments(workspace *workspaces.Workspace) ([]CommentResolver, error)
 
 	// Mutations
 	DeleteComment(ctx context.Context, args DeleteCommentArgs) (CommentResolver, error)

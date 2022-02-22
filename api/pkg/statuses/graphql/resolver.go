@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"

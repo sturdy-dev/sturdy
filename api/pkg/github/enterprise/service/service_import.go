@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 
 	gh "github.com/google/go-github/v39/github"
@@ -146,7 +146,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 
 	t := time.Now()
 	// Create the workspace
-	ws := workspace.Workspace{
+	ws := workspaces.Workspace{
 		ID:               workspaceID,
 		CodebaseID:       codebaseID,
 		UserID:           userID,

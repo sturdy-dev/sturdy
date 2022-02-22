@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/graph-gophers/graphql-go"
@@ -29,8 +29,8 @@ type codebaseGitHubIntegrationRootResolver struct {
 	logger                 *zap.Logger
 	gitHubAppConfig        *config.GitHubAppConfig
 	gitHubClientProvider   github_client.InstallationClientProvider
-	workspaceReader        db_workspace.WorkspaceReader
-	workspaceWriter        db_workspace.WorkspaceWriter
+	workspaceReader        db_workspaces.WorkspaceReader
+	workspaceWriter        db_workspaces.WorkspaceWriter
 	snapshotter            snapshotter.Snapshotter
 	snapshotRepo           db_snapshots.Repository
 	authService            *service_auth.Service
@@ -48,8 +48,8 @@ func NewCodebaseGitHubIntegrationRootResolver(
 	logger *zap.Logger,
 	gitHubAppConfig *config.GitHubAppConfig,
 	gitHubClientProvider github_client.InstallationClientProvider,
-	workspaceReader db_workspace.WorkspaceReader,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	snapshotter snapshotter.Snapshotter,
 	snapshotRepo db_snapshots.Repository,
 	authService *service_auth.Service,

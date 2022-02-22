@@ -25,9 +25,9 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 	"getsturdy.com/api/vcs/testutil"
@@ -193,7 +193,7 @@ type test struct {
 	executorProvider  executor.Provider
 	suggestionRepo    db_suggestions.Repository
 	viewDB            db_view.Repository
-	workspaceDB       db_workspace.Repository
+	workspaceDB       db_workspaces.Repository
 	snapshotsDB       db_snapshots.Repository
 	codebaseUserRepo  db_codebase.CodebaseUserRepository
 	gitSnapshotter    snapshotter.Snapshotter
@@ -204,11 +204,11 @@ type test struct {
 
 	originalUserID    string
 	originalViewID    string
-	originalWorkspace *workspace.Workspace
+	originalWorkspace *workspaces.Workspace
 
 	suggestingUserID    string
 	suggestingViewID    string
-	suggestingWorkspace *workspace.Workspace
+	suggestingWorkspace *workspaces.Workspace
 	suggestion          *suggestions.Suggestion
 
 	operations []*operation
@@ -220,7 +220,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	suggestionRepo := db_suggestions.NewMemory()
 
 	viewDB := inmemory.NewInMemoryViewRepo()
-	workspaceDB := db_workspace.NewMemory()
+	workspaceDB := db_workspaces.NewMemory()
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())

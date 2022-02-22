@@ -18,10 +18,10 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/review"
 	db_review "getsturdy.com/api/pkg/review/db"
-	"getsturdy.com/api/pkg/workspace/activity"
-	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
+	"getsturdy.com/api/pkg/workspaces/activity"
+	activity_sender "getsturdy.com/api/pkg/workspaces/activity/sender"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -31,7 +31,7 @@ type reviewRootResolver struct {
 	logger *zap.Logger
 
 	reviewRepo      db_review.ReviewRepository
-	workspaceReader db_workspace.WorkspaceReader
+	workspaceReader db_workspaces.WorkspaceReader
 	authService     *service_auth.Service
 
 	authorRootResolver    resolvers.AuthorRootResolver
@@ -50,7 +50,7 @@ type reviewRootResolver struct {
 func New(
 	logger *zap.Logger,
 	reviewRepo db_review.ReviewRepository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	authService *service_auth.Service,
 
 	authorRootResolver resolvers.AuthorRootResolver,

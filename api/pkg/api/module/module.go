@@ -45,9 +45,9 @@ import (
 	module_user "getsturdy.com/api/pkg/users/module"
 	module_view "getsturdy.com/api/pkg/view/module"
 	module_waitinglist "getsturdy.com/api/pkg/waitinglist"
-	module_workspace_activity "getsturdy.com/api/pkg/workspace/activity/module"
-	module_workspace "getsturdy.com/api/pkg/workspace/module"
-	module_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/module"
+	module_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/module"
+	module_workspace "getsturdy.com/api/pkg/workspaces/module"
+	module_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/module"
 	module_vcs "getsturdy.com/api/vcs/module"
 )
 

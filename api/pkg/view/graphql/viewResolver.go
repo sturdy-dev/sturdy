@@ -25,9 +25,9 @@ import (
 	"getsturdy.com/api/pkg/view/ignore"
 	"getsturdy.com/api/pkg/view/open"
 	view_vcs "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -48,12 +48,12 @@ var (
 
 type ViewRootResolver struct {
 	viewRepo                 db_view.Repository
-	workspaceReader          db_workspace.WorkspaceReader
+	workspaceReader          db_workspaces.WorkspaceReader
 	snapshotter              snapshotter.Snapshotter
 	snapshotRepo             db_snapshots.Repository
 	authorResolver           resolvers.AuthorRootResolver
 	workspaceResolver        *resolvers.WorkspaceRootResolver
-	workspaceWriter          db_workspace.WorkspaceWriter
+	workspaceWriter          db_workspaces.WorkspaceWriter
 	viewEvents               events.EventReader
 	eventSender              events.EventSender
 	executorProvider         executor.Provider
@@ -67,12 +67,12 @@ type ViewRootResolver struct {
 
 func NewResolver(
 	viewRepo db_view.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	snapshotter snapshotter.Snapshotter,
 	snapshotRepo db_snapshots.Repository,
 	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewEvents events.EventReader,
 	eventSender events.EventSender,
 	executorProvider executor.Provider,
@@ -257,7 +257,7 @@ func (r *ViewRootResolver) RepairView(ctx context.Context, args struct{ ID graph
 	}
 
 	err = r.executorProvider.New().Schedule(func(repoProvider provider.RepoProvider) error {
-		var restoreWs *workspace.Workspace
+		var restoreWs *workspaces.Workspace
 		// This view is the authoritative view of a workspace, restore the workspace afterwards
 		if ws.ViewID != nil && *ws.ViewID == vw.ID {
 			restoreWs = ws
@@ -341,7 +341,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	return r.resolveView(ctx, graphql.ID(e.ID))
 }
 
-func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspace.Workspace, logger *zap.Logger, gitSnapshotter snapshotter.Snapshotter) error {
+func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter snapshotter.Snapshotter) error {
 	trunkPath := repoProvider.TrunkPath(vw.CodebaseID)
 	newView := vw.ID + "-recreate-" + uuid.NewString()
 	newViewPath := repoProvider.ViewPath(vw.CodebaseID, newView)

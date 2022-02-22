@@ -17,9 +17,9 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/workspace"
-	"getsturdy.com/api/pkg/workspace/activity"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/pkg/workspaces"
+	"getsturdy.com/api/pkg/workspaces/activity"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 )
 
 type Service struct {
@@ -110,9 +110,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canUserAccessWorkspaceActivity(ctx, subject.ID, at, &object)
 		case *activity.WorkspaceActivity:
 			return s.canUserAccessWorkspaceActivity(ctx, subject.ID, at, object)
-		case workspace.Workspace:
+		case workspaces.Workspace:
 			return s.canUserAccessWorkspace(ctx, subject.ID, at, &object)
-		case *workspace.Workspace:
+		case *workspaces.Workspace:
 			return s.canUserAccessWorkspace(ctx, subject.ID, at, object)
 		case suggestions.Suggestion:
 			return s.canUserAccessSuggestion(ctx, subject.ID, at, &object)
@@ -156,9 +156,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canAnonymousAccessCodebase(ctx, at, &object)
 		case *codebase.Codebase:
 			return s.canAnonymousAccessCodebase(ctx, at, object)
-		case workspace.Workspace:
+		case workspaces.Workspace:
 			return s.canAnonymousAccessWorkspace(ctx, at, &object)
-		case *workspace.Workspace:
+		case *workspaces.Workspace:
 			return s.canAnonymousAccessWorkspace(ctx, at, object)
 		case activity.WorkspaceActivity:
 			return s.canAnonymousAccessActivity(ctx, at, &object)
@@ -260,7 +260,7 @@ func (s *Service) canUserAccessSuggestion(ctx context.Context, userID string, at
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessWorkspace(ctx context.Context, userID string, at accessType, workspace *workspace.Workspace) error {
+func (s *Service) canUserAccessWorkspace(ctx context.Context, userID string, at accessType, workspace *workspaces.Workspace) error {
 	// user can access a workspace if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, workspace.CodebaseID)
 	if err != nil {
@@ -284,7 +284,7 @@ func (s *Service) canAnonymousAccessSuggestion(ctx context.Context, at accessTyp
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canAnonymousAccessWorkspace(ctx context.Context, at accessType, workspace *workspace.Workspace) error {
+func (s *Service) canAnonymousAccessWorkspace(ctx context.Context, at accessType, workspace *workspaces.Workspace) error {
 	if at != accessTypeRead {
 		return fmt.Errorf("anonymous users can only read workspaces: %w", auth.ErrForbidden)
 	}

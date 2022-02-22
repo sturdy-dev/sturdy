@@ -18,9 +18,9 @@ import (
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/workspace"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
-	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
+	"getsturdy.com/api/pkg/workspaces"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -113,7 +113,7 @@ func (s *Service) RecordActivity(ctx context.Context, workspaceID string) error 
 	return nil
 }
 
-func (s *Service) Create(ctx context.Context, userID string, forWorkspace *workspace.Workspace) (*suggestions.Suggestion, error) {
+func (s *Service) Create(ctx context.Context, userID string, forWorkspace *workspaces.Workspace) (*suggestions.Suggestion, error) {
 	if forWorkspace.LatestSnapshotID == nil {
 		return nil, fmt.Errorf("workspace has no snapshot")
 	}
@@ -420,7 +420,7 @@ func (s *Service) Diffs(ctx context.Context, suggestion *suggestions.Suggestion,
 func (s *Service) diffs(
 	ctx context.Context,
 	suggestion *suggestions.Suggestion,
-	originalWorkspace *workspace.Workspace,
+	originalWorkspace *workspaces.Workspace,
 	oo ...unidiff.Option,
 ) ([]unidiff.FileDiff, error) {
 	suggestingWorkspace, err := s.workspaceService.GetByID(ctx, suggestion.WorkspaceID)

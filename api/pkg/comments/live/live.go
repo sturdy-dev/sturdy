@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs/executor"
 )
 
@@ -117,7 +117,7 @@ func normalizeWhitespace(str string) string {
 
 func GetWorkspaceComments(
 	commentRepo db_comments.Repository,
-	ws *workspace.Workspace,
+	ws *workspaces.Workspace,
 	executorProvider executor.Provider,
 	snapshotRepo db_snapshots.Repository,
 ) ([]comments.Comment, error) {

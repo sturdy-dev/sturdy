@@ -7,7 +7,7 @@ import (
 
 	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/view/vcs"
-	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
+	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"
 
 	"github.com/stretchr/testify/assert"

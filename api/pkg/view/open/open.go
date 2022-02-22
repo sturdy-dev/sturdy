@@ -16,8 +16,8 @@ import (
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/pkg/workspace"
-	db2 "getsturdy.com/api/pkg/workspace/db"
+	"getsturdy.com/api/pkg/workspaces"
+	db2 "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
 	"go.uber.org/zap"
@@ -29,7 +29,7 @@ func OpenWorkspaceOnView(
 	ctx context.Context,
 	logger *zap.Logger,
 	view *view.View,
-	ws *workspace.Workspace,
+	ws *workspaces.Workspace,
 	viewRepo db.Repository,
 	workspaceReader db2.WorkspaceReader,
 	gitSnapshotter snapshotter.Snapshotter,

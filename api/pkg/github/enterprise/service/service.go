@@ -22,8 +22,8 @@ import (
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	service_user "getsturdy.com/api/pkg/users/service"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -54,8 +54,8 @@ type Service struct {
 	gitHubPersonalClientProvider     github_client.PersonalClientProvider
 	gitHubAppClientProvider          github_client.AppClientProvider
 
-	workspaceWriter  db_workspace.WorkspaceWriter
-	workspaceReader  db_workspace.WorkspaceReader
+	workspaceWriter  db_workspaces.WorkspaceWriter
+	workspaceReader  db_workspaces.WorkspaceReader
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 	codebaseRepo     db_codebase.CodebaseRepository
 	reviewRepo       db_review.ReviewRepository
@@ -91,8 +91,8 @@ func New(
 	gitHubPullRequestImporterQueue *ImporterQueue,
 	gitHubCloneQueue *ClonerQueue,
 
-	workspaceWriter db_workspace.WorkspaceWriter,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	codebaseRepo db_codebase.CodebaseRepository,
 	reviewRepo db_review.ReviewRepository,

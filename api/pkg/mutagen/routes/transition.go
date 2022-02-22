@@ -13,7 +13,7 @@ import (
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/events"
-	db_workspaces "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

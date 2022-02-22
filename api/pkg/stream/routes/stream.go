@@ -10,8 +10,8 @@ import (
 	"getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/view/stream"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -21,7 +21,7 @@ func Stream(
 	logger *zap.Logger,
 	viewRepo db.Repository,
 	viewEventsReader events.EventReader,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	authService *service_auth.Service,
 	workspaceService service_workspace.Service,
 	suggestionService *service_suggestions.Service,

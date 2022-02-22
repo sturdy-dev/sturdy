@@ -14,8 +14,8 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/events"
-	"getsturdy.com/api/pkg/workspace"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/pkg/workspaces"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"go.uber.org/zap"
 )
@@ -48,7 +48,7 @@ type getAllowerer interface {
 func Stream(
 	ctx context.Context,
 	logger *zap.Logger,
-	ws *workspace.Workspace,
+	ws *workspaces.Workspace,
 	vw *view.View,
 	done chan bool,
 	viewEventsReader events.EventReader,
@@ -197,7 +197,7 @@ func Stream(
 func getAllDiffs(
 	ctx context.Context,
 	workspaceService service_workspace.Service,
-	ws *workspace.Workspace,
+	ws *workspaces.Workspace,
 	allowerProvider getAllowerer,
 	suggestionsService *service_suggestions.Service,
 ) (Event, error) {

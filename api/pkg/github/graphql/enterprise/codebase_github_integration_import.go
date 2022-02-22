@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 
@@ -102,7 +102,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 
 			t := time.Now()
 			// Create the workspace
-			ws := workspace.Workspace{
+			ws := workspaces.Workspace{
 				ID:         workspaceID,
 				CodebaseID: codebaseID,
 				UserID:     userID,

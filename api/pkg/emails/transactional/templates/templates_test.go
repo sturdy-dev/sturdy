@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/jwt"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -112,7 +112,7 @@ func TestRenderNotificationComment_commented_on_workspace(t *testing.T) {
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Workspace: &workspace.Workspace{
+		Workspace: &workspaces.Workspace{
 			ID:   "workspace-id",
 			Name: strPointer("workspace"),
 		},
@@ -217,7 +217,7 @@ func TestRenderNotificationComment_replied_on_workspace(t *testing.T) {
 				ID:   "2",
 				Name: "User two",
 			},
-			Workspace: &workspace.Workspace{
+			Workspace: &workspaces.Workspace{
 				ID:   "workspace-id",
 				Name: strPointer("workspace"),
 			},
@@ -252,7 +252,7 @@ func TestRenderNotificationComment_replied_your_on_workspace(t *testing.T) {
 		},
 		Parent: &NotificationCommentTemplateData{
 			Author: usr,
-			Workspace: &workspace.Workspace{
+			Workspace: &workspaces.Workspace{
 				ID:   "workspace-id",
 				Name: strPointer("workspace"),
 			},
@@ -354,7 +354,7 @@ func TestRenderNotificationNewSuggestion(t *testing.T) {
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
-		Workspace: &workspace.Workspace{
+		Workspace: &workspaces.Workspace{
 			ID:   "workspace-id",
 			Name: strPointer("Workspace"),
 		},
@@ -384,7 +384,7 @@ func TestRenderNotificationRequestedReview(t *testing.T) {
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
-		Workspace: &workspace.Workspace{
+		Workspace: &workspaces.Workspace{
 			ID:   "workspace-id",
 			Name: strPointer("Workspace"),
 		},
@@ -417,7 +417,7 @@ func TestRenderNotificationReview_approved(t *testing.T) {
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
-		Workspace: &workspace.Workspace{
+		Workspace: &workspaces.Workspace{
 			ID:   "workspace-id",
 			Name: strPointer("Workspace"),
 		},
@@ -450,7 +450,7 @@ func TestRenderNotificationReview_rejected(t *testing.T) {
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
-		Workspace: &workspace.Workspace{
+		Workspace: &workspaces.Workspace{
 			ID:   "workspace-id",
 			Name: strPointer("Workspace"),
 		},

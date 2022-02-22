@@ -19,7 +19,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/shortid"
 	service_user "getsturdy.com/api/pkg/users/service"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 )

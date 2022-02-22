@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/jwt"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 )
 
 var (
@@ -68,7 +68,7 @@ type NotificationCommentTemplateData struct {
 	Comment   *comments.Comment
 	Author    *users.User
 	Codebase  *codebase.Codebase
-	Workspace *workspace.Workspace
+	Workspace *workspaces.Workspace
 	Change    *change.Change
 
 	Parent *NotificationCommentTemplateData
@@ -78,7 +78,7 @@ type NotificationNewSuggestionTemplateData struct {
 	User *users.User
 
 	Author    *users.User
-	Workspace *workspace.Workspace
+	Workspace *workspaces.Workspace
 	Codebase  *codebase.Codebase
 }
 
@@ -86,7 +86,7 @@ type NotificationRequestedReviewTemplateData struct {
 	User *users.User
 
 	RequestedBy *users.User
-	Workspace   *workspace.Workspace
+	Workspace   *workspaces.Workspace
 	Codebase    *codebase.Codebase
 }
 
@@ -95,7 +95,7 @@ type NotificationReviewTemplateData struct {
 
 	Author    *users.User
 	Review    *review.Review
-	Workspace *workspace.Workspace
+	Workspace *workspaces.Workspace
 	Codebase  *codebase.Codebase
 }
 

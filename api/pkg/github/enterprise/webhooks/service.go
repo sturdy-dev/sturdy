@@ -28,10 +28,10 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/workspace/activity"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/pkg/workspaces/activity"
+	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 )
@@ -43,8 +43,8 @@ type Service struct {
 	gitHubRepositoryRepo   db_github.GitHubRepositoryRepo
 	gitHubInstallationRepo db_github.GitHubInstallationRepo
 
-	workspaceWriter db_workspace.WorkspaceWriter
-	workspaceReader db_workspace.WorkspaceReader
+	workspaceWriter db_workspaces.WorkspaceWriter
+	workspaceReader db_workspaces.WorkspaceReader
 	reviewRepo      db_review.ReviewRepository
 	codebaseRepo    db_codebase.CodebaseRepository
 
@@ -75,8 +75,8 @@ func New(
 	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
 	gitHubInstallationRepo db_github.GitHubInstallationRepo,
 
-	workspaceWriter db_workspace.WorkspaceWriter,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
 	reviewRepo db_review.ReviewRepository,
 	codebaseRepo db_codebase.CodebaseRepository,
 

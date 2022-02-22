@@ -35,8 +35,8 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -356,7 +356,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		GitSnapshotter        snapshotter.Snapshotter
 		RepoProvider          provider.RepoProvider
 		CodebaseUserRepo      db_codebase.CodebaseUserRepository
-		WorkspaceRepo         db_workspace.Repository
+		WorkspaceRepo         db_workspaces.Repository
 		ViewRepo              db_view.Repository
 		SnapshotRepo          db_snapshots.Repository
 		ExecutorProvider      executor.Provider

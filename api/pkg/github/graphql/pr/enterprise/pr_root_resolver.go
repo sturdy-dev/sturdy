@@ -17,7 +17,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,7 +44,7 @@ type prRootResolver struct {
 	gitHubAppConfig *config.GitHubAppConfig
 
 	gitHubUserRepo         db.GitHubUserRepo
-	workspaceReader        db_workspace.WorkspaceReader
+	workspaceReader        db_workspaces.WorkspaceReader
 	viewRepo               db_view.Repository
 	gitHubPRRepo           db.GitHubPRRepo
 	gitHubInstallationRepo db.GitHubInstallationRepo
@@ -67,7 +67,7 @@ func NewResolver(
 
 	userRepo db_user.Repository,
 	codebaseRepo db_codebase.CodebaseRepository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	viewRepo db_view.Repository,
 
 	gitHubAppConfig *config.GitHubAppConfig,

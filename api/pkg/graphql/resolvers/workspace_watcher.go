@@ -3,7 +3,7 @@ package resolvers
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/graph-gophers/graphql-go"
 )
@@ -17,7 +17,7 @@ type WorkspaceWatcherRootResolver interface {
 	UpdatedWorkspaceWatchers(context.Context, UpdatedWorkspaceWatchersArgs) (<-chan WorkspaceWatcherResolver, error)
 
 	// Internal
-	InternalWorkspaceWatchers(context.Context, *workspace.Workspace) ([]WorkspaceWatcherResolver, error)
+	InternalWorkspaceWatchers(context.Context, *workspaces.Workspace) ([]WorkspaceWatcherResolver, error)
 }
 
 type UnwatchWorkspaceInput struct {

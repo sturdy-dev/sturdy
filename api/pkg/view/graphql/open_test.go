@@ -21,8 +21,8 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 
@@ -59,7 +59,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 
 		UserRepo         db_user.Repository
 		CodebaseRepo     db_codebase.CodebaseRepository
-		WorkspaceRepo    db_workspace.Repository
+		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
 		CodebaseUserRepo db_codebase.CodebaseUserRepository
 	}
@@ -132,12 +132,12 @@ func TestUpdateViewWorkspace(t *testing.T) {
 				CodebaseID: codebaseID,
 				UserID:     userID.String(),
 			}))
-			assert.NoError(t, workspaceRepo.Create(workspace.Workspace{
+			assert.NoError(t, workspaceRepo.Create(workspaces.Workspace{
 				ID:         workspaceAID.String(),
 				CodebaseID: codebaseID,
 				UserID:     userID.String(),
 			}))
-			assert.NoError(t, workspaceRepo.Create(workspace.Workspace{
+			assert.NoError(t, workspaceRepo.Create(workspaces.Workspace{
 				ID:         workspaceBID.String(),
 				CodebaseID: codebaseID,
 				UserID:     userID.String(),

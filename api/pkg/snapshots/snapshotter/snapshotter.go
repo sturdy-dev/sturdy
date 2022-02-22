@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -96,8 +96,8 @@ func WithMarkAsLatestInWorkspace() SnapshotOption {
 
 type snap struct {
 	snapshotsRepo    db_snapshots.Repository
-	workspaceReader  db_workspace.WorkspaceReader
-	workspaceWriter  db_workspace.WorkspaceWriter
+	workspaceReader  db_workspaces.WorkspaceReader
+	workspaceWriter  db_workspaces.WorkspaceWriter
 	viewRepo         db_view.Repository
 	eventsSender     events.EventSender
 	executorProvider executor.Provider
@@ -106,8 +106,8 @@ type snap struct {
 
 func NewGitSnapshotter(
 	snapshotsRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewRepo db_view.Repository,
 	eventSender events.EventSender,
 	executorProvider executor.Provider,
