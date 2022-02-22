@@ -1,6 +1,8 @@
 package db
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -14,7 +16,7 @@ type Repository interface {
 	ListByView(viewID string) ([]*snapshots.Snapshot, error)
 	LatestInView(viewID string) (*snapshots.Snapshot, error)
 	LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error)
-	Get(ID string) (*snapshots.Snapshot, error)
+	Get(string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
 	ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error)
 }
@@ -38,13 +40,16 @@ func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 	return nil
 }
 
+var ErrNotFound = fmt.Errorf("not found")
+
 func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action
+	if err := r.db.Get(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action
 		FROM snapshots
 		WHERE id=$1
-		AND deleted_at IS NULL`, id)
-	if err != nil {
+		AND deleted_at IS NULL`, id); errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	} else if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return &res, nil
