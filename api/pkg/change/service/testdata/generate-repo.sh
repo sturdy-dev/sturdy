@@ -64,6 +64,7 @@ pushd "$1"
 
 git config user.email "support@getsturdy.com"
 git config user.name "Sturdy Testdata"
+git config commit.gpgsign false
 
 # This script is expected to be executed in a repository initialized from CreateBareRepoWithRootCommit and CloneRepo
 git checkout -b tmp
@@ -72,23 +73,23 @@ git checkout --orphan sturdytrunk
 git branch -D tmp
 
 commit() {
-  num=$1
-  ts="Thu Feb 17 13:29:40 CET 2022"
-  GIT_AUTHOR_DATE=$ts \
-    GIT_COMMITTER_DATE=$ts \
-    GIT_AUTHOR_NAME="Sturdy Testdata" \
-    GIT_COMMITTER_NAME="Sturdy Testdata" \
-    GIT_AUTHOR_EMAIL="support@getsturdy.com" \
-    GIT_COMMITTER_EMAIL="support@getsturdy.com" \
-    git commit -m "$num"
+	num=$1
+	ts="Thu Feb 17 13:29:40 CET 2022"
+	GIT_AUTHOR_DATE=$ts \
+		GIT_COMMITTER_DATE=$ts \
+		GIT_AUTHOR_NAME="Sturdy Testdata" \
+		GIT_COMMITTER_NAME="Sturdy Testdata" \
+		GIT_AUTHOR_EMAIL="support@getsturdy.com" \
+		GIT_COMMITTER_EMAIL="support@getsturdy.com" \
+		git commit -m "$num"
 }
 
 write_and_commit() {
-  num=$1
-  file=$2
-  echo "$num" >$file
-  git add $file
-  commit "$num"
+	num=$1
+	file=$2
+	echo "$num" >$file
+	git add $file
+	commit "$num"
 }
 
 write_and_commit 1 file.txt
