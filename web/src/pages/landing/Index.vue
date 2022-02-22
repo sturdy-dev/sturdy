@@ -44,6 +44,8 @@
                 src="../../assets/Landing/ycombinator-logo.png"
                 alt="Y Combinator logo"
                 class="object-contain h-6 grayscale opacity-70"
+                height="24"
+                width="24"
               />
             </a>
           </div>
@@ -107,7 +109,9 @@
           </h1>
           <div class="mt-6 flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
             <Testimonial name="Kevin Simons" title="CTO, Kitemaker">
-              <template #logo><img src="./assets/kitemaker.svg" alt="Kitemaker logo" /></template>
+              <template #logo
+                ><img src="./assets/kitemaker.svg" alt="Kitemaker logo" height="26"
+              /></template>
               <template #quote>
                 Sturdy makes it extremely easy for us to explore and try each other’s ideas during
                 development. I can thoroughly recommend it for fast moving teams.
@@ -117,6 +121,8 @@
                   src="./assets/kevin_simons.jpeg"
                   alt="Kevin Simons"
                   class="h-10 w-10 border-2 border-amber-500/50 rounded-full"
+                  height="40"
+                  width="40"
               /></template>
             </Testimonial>
             <Testimonial name="&mdash; Will Stensvold">
@@ -385,6 +391,7 @@
                   src="./assets/web-summit.png"
                   alt="Web Summit logotype"
                   class="rounded-xl object-contain h-6"
+                  height="24"
                 />
               </a>
               <a href="https://devsecops.fm/episodes/36-sturdy/">
@@ -392,13 +399,15 @@
                   src="./assets/devsecops.png"
                   alt="DevSecOps logotype"
                   class="rounded-xl object-contain h-8"
+                  height="24"
                 />
               </a>
-              <a href="">
+              <a href="https://dev-con.dev/">
                 <img
                   src="./assets/devcon.png"
                   alt="Devcon logotype"
                   class="rounded-xl object-contain h-8"
+                  height="24"
                 />
               </a>
             </div>
