@@ -63,7 +63,6 @@
 </template>
 <script>
 import Avatar from '../shared/Avatar.vue'
-import { gql, useSubscription } from '@urql/vue'
 import { ref, toRef, watch } from 'vue'
 import { useUpdatedView } from '../../subscriptions/useUpdatedView'
 

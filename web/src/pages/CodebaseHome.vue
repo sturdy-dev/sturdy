@@ -1,13 +1,6 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
     <main class="relative md:overflow-y-auto focus:outline-none">
-      <ArchiveWorkspaceModal
-        :is-active="archiveWorkspaceActive"
-        :workspace-i-d="workspaceIdToArchive"
-        @deletedWorkspace="fetchWorkspaces"
-        @closeDeleteWorkspace="hideArchiveModal"
-      />
-
       <div class="">
         <div class="grid grid-cols-1 xl:grid-cols-4">
           <div
@@ -118,8 +111,6 @@
 </template>
 
 <script lang="ts">
-import ArchiveWorkspaceModal from '../components/codebase/ArchiveWorkspaceModal.vue'
-import time from '../time'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 'vue'
@@ -153,7 +144,6 @@ export default defineComponent({
     OnboardingStep,
     Directory,
     SetupNewView,
-    ArchiveWorkspaceModal,
     CodebaseMembers,
     Button,
     ViewListIcon,
@@ -288,7 +278,9 @@ export default defineComponent({
     }
   },
   data() {
-    return this.initialState()
+    return {
+      showSetupInstructions: false,
+    }
   },
   computed: {
     thisIsApp() {
@@ -305,14 +297,13 @@ export default defineComponent({
       if (!this.isAuthorized) return false
       return (
         !this.currentUserHasAView ||
-        !(this.data.codebase?.rootDir?.children.length > 0) ||
+        !(this.data?.codebase?.rootDir?.children?.length > 0) ||
         this.showSetupInstructions
       )
     },
 
     showDownloadApp() {
       if (this.thisIsApp) return false
-      if (this.showSetupNewViewCLI) return false
       return true
     },
 
@@ -322,7 +313,7 @@ export default defineComponent({
 
     currentUserHasAView() {
       if (this.data) {
-        return this.data.codebase.views.filter((vw) => vw.author.id === this.user?.id).length > 0
+        return this.data.codebase?.views.filter((vw) => vw.author.id === this.user?.id).length > 0
       }
       return false
     },
@@ -332,7 +323,7 @@ export default defineComponent({
 
     isAuthorized() {
       if (this.data) {
-        const isMember = this.data.codebase.members.some(({ id }) => id === this.user?.id)
+        const isMember = this.data.codebase?.members.some(({ id }) => id === this.user?.id)
         return this.isAuthenticated && isMember
       }
       return false
@@ -349,37 +340,6 @@ export default defineComponent({
       if (this.$route.params.codebaseSlug) {
         this.refresh()
       }
-    },
-  },
-  unmounted() {
-    clearTimeout(this.fetchWorkspacesTimeout)
-  },
-  methods: {
-    initialState() {
-      return {
-        archiveWorkspaceActive: false,
-        workspaceIdToArchive: '',
-        showSetupInstructions: false,
-      }
-    },
-    reset() {
-      clearTimeout(this.fetchWorkspacesTimeout)
-      Object.assign(this.$data, this.initialState())
-    },
-    showArchiveModal(ws) {
-      this.archiveWorkspaceActive = true
-      this.workspaceIdToArchive = ws.id
-    },
-    hideArchiveModal() {
-      this.archiveWorkspaceActive = false
-      this.workspaceIdToArchive = ''
-    },
-    fetchWorkspaces() {
-      this.refresh()
-    },
-
-    friendly_ago(ts) {
-      return time.getRelativeTime(new Date(ts * 1000), this.now)
     },
   },
 })
