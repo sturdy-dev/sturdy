@@ -51,8 +51,8 @@ func Create(logger *zap.Logger, workspaceService service_workspace.Service, code
 			UserID:         userID,
 			CodebaseID:     req.CodebaseID,
 			Name:           req.Name,
-			RevertChangeID: req.RevertChangeID,
-			ChangeID:       req.ChangeID,
+			RevertCommitID: req.RevertChangeID,
+			CommitID:       req.ChangeID,
 		})
 
 		if err != nil {

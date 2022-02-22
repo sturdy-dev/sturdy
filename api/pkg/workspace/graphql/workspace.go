@@ -9,6 +9,8 @@ import (
 	"time"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/change"
+	service_change "getsturdy.com/api/pkg/change/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/events"
@@ -52,6 +54,7 @@ type WorkspaceRootResolver struct {
 	suggestionsService *service_suggestions.Service
 	workspaceService   service_workspace.Service
 	authService        *service_auth.Service
+	changeService      *service_change.Service
 
 	logger           *zap.Logger
 	viewEvents       events.EventReadWriter
@@ -84,6 +87,7 @@ func NewResolver(
 	suggestionsService *service_suggestions.Service,
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
+	changeService *service_change.Service,
 
 	logger *zap.Logger,
 	viewEventsWriter events.EventReadWriter,
@@ -115,6 +119,7 @@ func NewResolver(
 		suggestionsService: suggestionsService,
 		workspaceService:   workspaceService,
 		authService:        authService,
+		changeService:      changeService,
 
 		logger:           logger.Named("workspaceRootResolver"),
 		viewEvents:       viewEventsWriter,
@@ -403,43 +408,33 @@ func (r *WorkspaceResolver) Conflicts(ctx context.Context) (bool, error) {
 	return r.hasConflicts, gqlerrors.Error(r.hasConflictsErr)
 }
 
-var nonExistentHeadChangeID = "00000000"
-
 func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeResolver, error) {
-	// This value is cached in the DB
-	// If not set, recalculate
-	if r.w.HeadCommitID == nil {
-
-		var newHeadCommitShow bool
-		var newHeadCommitID *string
+	// Recalculate head change
+	if !r.w.HeadChangeComputed {
+		var headCommitID string
 
 		err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-			headCommitID, err := repo.BranchFirstNonMergeCommit(r.w.ID)
-			if errors.Is(err, vcsvcs.ErrCommitNotFound) {
-				// This codebase has no commits, and that's OK
-				newHeadCommitShow = false
-				newHeadCommitID = &nonExistentHeadChangeID // 😭
-				return nil
-			}
+			var err error
+			headCommitID, err = repo.BranchCommitID(r.w.ID)
 			if err != nil {
-				return err
+				return fmt.Errorf("could not get head commit from git: %w", err)
 			}
-
-			// Don't show the root commit
-			if _, msg, err := repo.CommitMessage(headCommitID); err == nil && msg == "Root Commit" {
-				newHeadCommitShow = false
-			} else if err != nil {
-				r.root.logger.Error("failed to get commit message", zap.String("commit_id", headCommitID), zap.Error(err))
-				newHeadCommitShow = false
-			} else {
-				newHeadCommitShow = true
-			}
-
-			newHeadCommitID = &headCommitID
 			return nil
 		}).ExecTrunk(r.w.CodebaseID, "workspaceHeadChange")
 		if err != nil {
 			return nil, gqlerrors.Error(err)
+		}
+		var newHeadChangeID *change.ID
+
+		ch, err := r.root.changeService.GetByCommitAndCodebase(ctx, headCommitID, r.w.CodebaseID)
+		switch {
+		case errors.Is(err, sql.ErrNoRows), errors.Is(err, service_change.ErrNotFound):
+			// change not found (could be the root commit, etc), hide it
+			newHeadChangeID = nil
+		case err != nil:
+			return nil, gqlerrors.Error(fmt.Errorf("could not get change by commit: %w", err))
+		default:
+			newHeadChangeID = &ch.ID
 		}
 
 		// Fetch a new version of the workspace, and perform the update
@@ -449,8 +444,8 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 			return nil, gqlerrors.Error(err)
 		}
 
-		wsForUpdates.HeadCommitShow = newHeadCommitShow
-		wsForUpdates.HeadCommitID = newHeadCommitID
+		wsForUpdates.HeadChangeComputed = true
+		wsForUpdates.HeadChangeID = newHeadChangeID
 
 		// Save updated cache
 		if err := r.root.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
@@ -458,22 +453,22 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 		}
 
 		// Also update the cached version of the workspace that we have in memory
-		r.w.HeadCommitShow = wsForUpdates.HeadCommitShow
-		r.w.HeadCommitID = wsForUpdates.HeadCommitID
+		r.w.HeadChangeComputed = wsForUpdates.HeadChangeComputed
+		r.w.HeadChangeID = newHeadChangeID
 
-		r.root.logger.Info("recalculated head change", zap.String("workspace_id", r.w.ID), zap.Stringp("head", r.w.HeadCommitID))
+		r.root.logger.Info("recalculated head change", zap.String("workspace_id", r.w.ID), zap.Stringer("head", r.w.HeadChangeID))
 	}
 
-	if r.w.HeadCommitID == nil || !r.w.HeadCommitShow {
+	if r.w.HeadChangeID == nil || !r.w.HeadChangeComputed {
 		return nil, nil
 	}
 
 	cid := graphql.ID(r.w.CodebaseID)
-	commitID := graphql.ID(*r.w.HeadCommitID)
+	changeID := graphql.ID(*r.w.HeadChangeID)
 
 	resolver, err := r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{
+		ID:         &changeID,
 		CodebaseID: &cid,
-		CommitID:   &commitID,
 	})
 	switch {
 	case err == nil:

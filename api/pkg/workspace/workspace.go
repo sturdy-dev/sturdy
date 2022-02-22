@@ -2,9 +2,9 @@ package workspace
 
 import (
 	"fmt"
-	"getsturdy.com/api/pkg/author"
-	"getsturdy.com/api/pkg/jsontime"
 	"time"
+
+	"getsturdy.com/api/pkg/change"
 )
 
 type Workspace struct {
@@ -34,8 +34,8 @@ type Workspace struct {
 
 	UpToDateWithTrunk *bool `db:"up_to_date_with_trunk"`
 
-	HeadCommitID   *string `db:"head_commit_id" json:"-"`
-	HeadCommitShow bool    `db:"head_commit_show" json:"-"`
+	HeadChangeID       *change.ID `db:"head_change_id" json:"-"`
+	HeadChangeComputed bool       `db:"head_change_computed" json:"-"`
 }
 
 func (w Workspace) IsArchived() bool {
@@ -50,31 +50,4 @@ func (w Workspace) NameOrFallback() string {
 		return *w.Name
 	}
 	return fmt.Sprintf("Unnamed Workspace %s", w.ID[:8])
-}
-
-// WorkspaceWithMetadata contains dynamically generated content
-type WorkspaceWithMetadata struct {
-	Workspace
-	CreatedBy author.Author `json:"created_by"`
-}
-
-// time.Time replaced with jsontime.Time to marshal timestamps as unix timestamps
-type WorkspaceWithMetadataJSON struct {
-	WorkspaceWithMetadata
-	CreatedAt    jsontime.Time `json:"created_at"`
-	LastLandedAt jsontime.Time `json:"last_landed_at"`
-	UpdatedAt    jsontime.Time `json:"updated_at"`
-	ArchivedAt   jsontime.Time `json:"archived_at"`
-	UnarchivedAt jsontime.Time `json:"unarchived_at"`
-}
-
-func ToJSON(in WorkspaceWithMetadata) WorkspaceWithMetadataJSON {
-	return WorkspaceWithMetadataJSON{
-		WorkspaceWithMetadata: in,
-		CreatedAt:             jsontime.FromTimeZeroIfNil(in.CreatedAt),
-		LastLandedAt:          jsontime.FromTimeZeroIfNil(in.LastLandedAt),
-		UpdatedAt:             jsontime.FromTimeZeroIfNil(in.UpdatedAt),
-		ArchivedAt:            jsontime.FromTimeZeroIfNil(in.ArchivedAt),
-		UnarchivedAt:          jsontime.FromTimeZeroIfNil(in.UnarchivedAt),
-	}
 }

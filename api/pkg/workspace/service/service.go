@@ -41,13 +41,14 @@ type CreateWorkspaceRequest struct {
 	UserID           string
 	CodebaseID       string
 	Name             string
-	RevertChangeID   string
-	ChangeID         string
+	RevertCommitID   string
+	CommitID         string
 	DraftDescription string
 }
 
 type Service interface {
 	Create(context.Context, CreateWorkspaceRequest) (*workspace.Workspace, error)
+	CreateFromWorkspace(ctx context.Context, from *workspace.Workspace, userID, name string) (*workspace.Workspace, error)
 	GetByID(context.Context, string) (*workspace.Workspace, error)
 	LandChange(ctx context.Context, ws *workspace.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*change.Change, error)
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID, userID, codebaseName string) error
@@ -293,6 +294,35 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	return nil
 }
 
+func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspace.Workspace, userID, name string) (*workspace.Workspace, error) {
+	var branchCommitID string
+	err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
+		var err error
+		branchCommitID, err = repo.BranchCommitID(from.ID)
+		if err != nil {
+			return err
+		}
+		return nil
+	}).ExecTrunk(from.CodebaseID, "suggestionsServiceCopyWorkspace")
+	if err != nil {
+		return nil, fmt.Errorf("could not find workspace branchCommitID: %w", err)
+	}
+
+	createRequest := CreateWorkspaceRequest{
+		UserID:     userID,
+		CodebaseID: from.CodebaseID,
+		Name:       name,
+		CommitID:   branchCommitID,
+	}
+
+	newWorkspace, err := s.Create(ctx, createRequest)
+	if err != nil {
+		return nil, fmt.Errorf("faliled to create a workspace: %w", err)
+	}
+
+	return newWorkspace, nil
+}
+
 func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceRequest) (*workspace.Workspace, error) {
 	t := time.Now()
 	ws := workspace.Workspace{
@@ -321,14 +351,14 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 			return err
 		}
 
-		if req.RevertChangeID != "" {
+		if req.RevertCommitID != "" {
 			// Create workspace at the change that we want to revert
-			if err := vcs_workspace.CreateAtChange(repo, ws.ID, req.RevertChangeID); err != nil {
+			if err := vcs_workspace.CreateOnCommitID(repo, ws.ID, req.RevertCommitID); err != nil {
 				return fmt.Errorf("failed to create workspace at change: %w", err)
 			}
-		} else if req.ChangeID != "" {
+		} else if req.CommitID != "" {
 			// Create workspace at any change
-			if err := vcs_workspace.CreateAtChange(repo, ws.ID, req.ChangeID); err != nil {
+			if err := vcs_workspace.CreateOnCommitID(repo, ws.ID, req.CommitID); err != nil {
 				return fmt.Errorf("failed to create workspace at change: %w", err)
 			}
 		} else {
@@ -343,13 +373,13 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 	}
 
 	// Add the reverted changes to a snapshot
-	if req.RevertChangeID != "" {
+	if req.RevertCommitID != "" {
 		if snapshot, err := s.snap.Snapshot(
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
 			snapshotter.WithOnTrunk(),
-			snapshotter.WithRevertCommitID(req.RevertChangeID),
+			snapshotter.WithRevertCommitID(req.RevertCommitID),
 		); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
 		} else {
@@ -364,7 +394,7 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 	s.analyticsService.Capture(ctx, "create workspace",
 		analytics.CodebaseID(req.CodebaseID),
 		analytics.Property("id", ws.ID),
-		analytics.Property("at_existing_change", req.ChangeID != ""),
+		analytics.Property("at_existing_commit", req.CommitID != ""),
 		analytics.Property("name", ws.Name),
 	)
 
@@ -443,6 +473,9 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 			return nil, fmt.Errorf("failed to get snapshot: %w", err)
 		}
 		if err := s.executorProvider.New().
+			Write(func(writer vcs.RepoWriter) error {
+				return writer.CreateBranchTrackingUpstream(ws.ID)
+			}).
 			Write(vcs_view.CheckoutSnapshot(snapshot)).
 			Write(creteAndLand).
 			ExecTemporaryView(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
@@ -476,7 +509,8 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspace.Workspa
 	ws.LastLandedAt = &now
 	ws.UpdatedAt = &now
 	ws.DraftDescription = ""
-	ws.HeadCommitID = nil
+	ws.HeadChangeID = nil // TODO: Set this directly
+	ws.HeadChangeComputed = false
 	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
 		return nil, fmt.Errorf("failed to update workspace: %w", err)
 	}

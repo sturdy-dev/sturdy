@@ -62,10 +62,10 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 		}
 
 		if args.Input.OnTopOfChange != nil {
-			req.ChangeID = *trunkCommitID
+			req.CommitID = *trunkCommitID
 			req.Name = "On " + ch.Title()
 		} else {
-			req.RevertChangeID = *trunkCommitID
+			req.RevertCommitID = *trunkCommitID
 			req.Name = "Revert " + ch.Title()
 		}
 	}

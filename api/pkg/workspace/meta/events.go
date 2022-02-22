@@ -76,7 +76,8 @@ func Updated(ctx context.Context, workspaceReader db.WorkspaceReader, workspaceW
 
 	// Is recalculated on next get/list
 	ws.UpToDateWithTrunk = nil
-	ws.HeadCommitID = nil
+	ws.HeadChangeID = nil
+	ws.HeadChangeComputed = false
 
 	if err := workspaceWriter.Update(ctx, ws); err != nil {
 		return err

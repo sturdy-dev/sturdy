@@ -52,18 +52,23 @@ func (svc *Service) GetChangeByID(ctx context.Context, id change.ID) (*change.Ch
 	return ch, nil
 }
 
-func (svc *Service) GetByCommitID(ctx context.Context, commitID, codebaseID string) (*change.Change, error) {
+func (svc *Service) GetByCommitAndCodebase(ctx context.Context, commitID, codebaseID string) (*change.Change, error) {
 	ch, err := svc.changeRepo.GetByCommitID(ctx, commitID, codebaseID)
-	if err != nil {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		// import
+		return svc.importCommitToChange(ctx, codebaseID, commitID)
+	case err != nil:
 		return nil, err
+	default:
+		return ch, nil
 	}
-	return ch, nil
 }
 
 func (svc *Service) CreateOnTop(ctx context.Context, ws *workspace.Workspace, commitID string) (*change.Change, error) {
 	headChange, err := svc.head(ctx, ws.CodebaseID)
 	switch {
-	case errors.Is(err, errNotFound):
+	case errors.Is(err, ErrNotFound):
 		return svc.CreateWithChangeAsParent(ctx, ws, commitID, nil)
 	case err != nil:
 		return nil, fmt.Errorf("could not get head change: %w", err)
@@ -79,7 +84,7 @@ func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspace.
 	switch {
 	case err == nil:
 		parentChangeID = &parent.ID
-	case errors.Is(err, errNotFound):
+	case errors.Is(err, ErrNotFound):
 	// nothing
 	default:
 		return nil, fmt.Errorf("failed to get change from parent commit: %w", err)
@@ -126,17 +131,21 @@ func (svc *Service) head(ctx context.Context, codebaseID string) (*change.Change
 		return nil
 	}
 
-	if err := svc.executorProvider.New().GitRead(getHeadCommit).ExecTrunk(codebaseID, "changeServiceChangelog"); err != nil {
+	err := svc.executorProvider.New().GitRead(getHeadCommit).ExecTrunk(codebaseID, "changeServiceChangelog")
+	switch {
+	case errors.Is(err, vcs.ErrNotFound):
+		return nil, ErrNotFound
+	case err != nil:
 		return nil, fmt.Errorf("could not get head commit: %w", err)
+	default:
+		return svc.getChangeFromCommit(ctx, codebaseID, headCommitID)
 	}
-
-	return svc.getChangeFromCommit(ctx, codebaseID, headCommitID)
 }
 
 func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int) ([]*change.Change, error) {
 	headChange, err := svc.head(ctx, codebaseID)
 	switch {
-	case errors.Is(err, errNotFound):
+	case errors.Is(err, ErrNotFound):
 		return nil, nil
 	case err != nil:
 		return nil, fmt.Errorf("could not get head change: %w", err)
@@ -154,7 +163,7 @@ findChanges:
 
 		next, err := svc.parentChange(ctx, nextChange)
 		switch {
-		case errors.Is(err, errNotFound):
+		case errors.Is(err, ErrNotFound):
 			break findChanges
 		case err != nil:
 			return nil, err
@@ -167,7 +176,7 @@ findChanges:
 	return res, nil
 }
 
-var errNotFound = errors.New("not found")
+var ErrNotFound = errors.New("not found")
 
 func (svc *Service) parentChange(ctx context.Context, ch *change.Change) (*change.Change, error) {
 	if ch.ParentChangeID != nil {
@@ -199,7 +208,7 @@ func (svc *Service) parentChange(ctx context.Context, ch *change.Change) (*chang
 
 	// this commit is a root commit
 	if len(parents) == 0 {
-		return nil, errNotFound
+		return nil, ErrNotFound
 	}
 
 	// the first parent (usually) refers to the state of the branch that that the branch was merged _into_, prior to the merge.
@@ -259,7 +268,7 @@ func (svc *Service) importCommitToChange(ctx context.Context, codebaseID, commit
 
 	// don't import Sturdy-style root commits
 	if len(details.Parents) == 0 && details.Message == "Root Commit" {
-		return nil, errNotFound
+		return nil, ErrNotFound
 	}
 
 	meta := change.ParseCommitMessage(details.Message)
@@ -301,7 +310,7 @@ func firstLine(in string) string {
 func (svc *Service) Diffs(ctx context.Context, ch *change.Change, allower *unidiff.Allower) ([]unidiff.FileDiff, error) {
 	parent, err := svc.parentChange(ctx, ch)
 	switch {
-	case errors.Is(err, errNotFound):
+	case errors.Is(err, ErrNotFound):
 		// use diffToRoot
 	case err != nil:
 		return nil, fmt.Errorf("could not get change parent: %w", err)
