@@ -126,6 +126,15 @@ func (svc *Service) gcSnapshot(
 		return nil
 	}
 
+	if ws, err := svc.workspaceReader.GetBySnapshotID(snapshot.ID); errors.Is(err, sql.ErrNoRows) {
+		// continue
+	} else if err != nil {
+		return fmt.Errorf("could not get workspace: %w", err)
+	} else if !ws.IsArchived() {
+		logger.Info("snapshot is used by a workspace, skipping", zap.String("workspace_id", ws.ID))
+		return nil
+	}
+
 	partOfSuggestion, err := svc.isSnapshotUsedAsSuggestion(ctx, snapshot)
 	if err != nil {
 		return fmt.Errorf("failed to calculate if snapshot is a part of suggestion: %w", err)
