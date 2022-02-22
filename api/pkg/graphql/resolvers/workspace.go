@@ -3,7 +3,7 @@ package resolvers
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/graph-gophers/graphql-go"
 )
@@ -101,7 +101,7 @@ type RemovePatchesInput struct {
 
 type WorkspaceRootResolver interface {
 	// internal
-	InternalWorkspace(*workspace.Workspace) WorkspaceResolver
+	InternalWorkspace(*workspaces.Workspace) WorkspaceResolver
 
 	Workspace(ctx context.Context, args WorkspaceArgs) (WorkspaceResolver, error)
 	Workspaces(ctx context.Context, args WorkspacesArgs) ([]WorkspaceResolver, error)

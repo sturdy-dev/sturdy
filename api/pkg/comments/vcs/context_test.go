@@ -13,8 +13,8 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -160,7 +160,7 @@ func TestContext(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%v", tc.lineNumber, tc.lineIsNew), func(t *testing.T) {
 
-			ws := &workspace.Workspace{
+			ws := &workspaces.Workspace{
 				ID:         workspaceID,
 				CodebaseID: codebaseID,
 				ViewID:     &viewID,
@@ -172,7 +172,7 @@ func TestContext(t *testing.T) {
 			}
 
 			snapshotRepo := inmemory.NewInMemorySnapshotRepo()
-			workspaceRepo := db_workspace.NewMemory()
+			workspaceRepo := db_workspaces.NewMemory()
 			viewRepo := inmemory.NewInMemoryViewRepo()
 			events := events2.NewInMemory()
 			logger := zap.NewNop()

@@ -16,7 +16,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
 	"go.uber.org/zap"
@@ -27,7 +27,7 @@ type Service struct {
 	gcRepo            db.Repository
 	viewRepo          db_view.Repository
 	snapshotsRepo     db_snapshots.Repository
-	workspaceReader   db_workspace.WorkspaceReader
+	workspaceReader   db_workspaces.WorkspaceReader
 	suggestionService *service_suggestion.Service
 	executorProvider  executor.Provider
 }
@@ -37,7 +37,7 @@ func New(
 	gcRepo db.Repository,
 	viewRepo db_view.Repository,
 	snapshotsRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	suggestionService *service_suggestion.Service,
 	executorProvider executor.Provider,
 ) *Service {

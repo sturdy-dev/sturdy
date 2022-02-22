@@ -4,7 +4,7 @@ import (
 	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view/vcs"
-	workspacevcs "getsturdy.com/api/pkg/workspace/vcs"
+	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
 	"os"

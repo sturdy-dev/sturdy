@@ -12,8 +12,8 @@ import (
 	"getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	ws_meta "getsturdy.com/api/pkg/workspace/meta"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	ws_meta "getsturdy.com/api/pkg/workspaces/meta"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -28,8 +28,8 @@ type Service struct {
 	logger           *zap.Logger
 	executorProvider executor.Provider
 	viewRepo         db_view.Repository
-	workspaceReader  db_workspace.WorkspaceReader
-	workspaceWriter  db_workspace.WorkspaceWriter
+	workspaceReader  db_workspaces.WorkspaceReader
+	workspaceWriter  db_workspaces.WorkspaceWriter
 	snap             snapshotter.Snapshotter
 }
 
@@ -37,8 +37,8 @@ func New(
 	logger *zap.Logger,
 	executorProvider executor.Provider,
 	viewRepo db_view.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	snap snapshotter.Snapshotter,
 ) *Service {
 	return &Service{

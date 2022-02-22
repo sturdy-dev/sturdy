@@ -11,7 +11,7 @@ import (
 
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 )
@@ -21,7 +21,7 @@ var ErrNoFiles = fmt.Errorf("files not found")
 func WorkspaceFS(
 	executorProvider executor.Provider,
 	snapshotsRepo db_snapshots.Repository,
-	ws *workspace.Workspace,
+	ws *workspaces.Workspace,
 	// newLines directly links to comment.LineIsNew
 	newLines bool,
 ) (fs.FS, error) {

@@ -8,16 +8,16 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/view"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	workspace_meta "getsturdy.com/api/pkg/workspace/meta"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	workspace_meta "getsturdy.com/api/pkg/workspaces/meta"
 )
 
 type ViewUpdatedFunc func(ctx context.Context, view *view.View, action snapshots.Action) error
 
 // NewViewUpdatedFunc returns a function that sends events for updates of a views
 func NewViewUpdatedFunc(
-	workspaceReader db_workspace.WorkspaceReader,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceReader db_workspaces.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	eventsSender events.EventSender,
 	snapshotterQueue worker_snapshotter.Queue,
 ) ViewUpdatedFunc {

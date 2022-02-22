@@ -15,7 +15,7 @@ import (
 	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/message"
 	"getsturdy.com/api/pkg/unidiff"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -65,7 +65,7 @@ func (svc *Service) GetByCommitAndCodebase(ctx context.Context, commitID, codeba
 	}
 }
 
-func (svc *Service) CreateOnTop(ctx context.Context, ws *workspace.Workspace, commitID string) (*change.Change, error) {
+func (svc *Service) CreateOnTop(ctx context.Context, ws *workspaces.Workspace, commitID string) (*change.Change, error) {
 	headChange, err := svc.head(ctx, ws.CodebaseID)
 	switch {
 	case errors.Is(err, ErrNotFound):
@@ -77,7 +77,7 @@ func (svc *Service) CreateOnTop(ctx context.Context, ws *workspace.Workspace, co
 	}
 }
 
-func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspace.Workspace, commitID, parentCommitID string) (*change.Change, error) {
+func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspaces.Workspace, commitID, parentCommitID string) (*change.Change, error) {
 	var parentChangeID *change.ID
 
 	parent, err := svc.getChangeFromCommit(ctx, ws.CodebaseID, parentCommitID)
@@ -93,7 +93,7 @@ func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspace.
 	return svc.CreateWithChangeAsParent(ctx, ws, commitID, parentChangeID)
 }
 
-func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspace.Workspace, commitID string, parentChangeID *change.ID) (*change.Change, error) {
+func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspaces.Workspace, commitID string, parentChangeID *change.ID) (*change.Change, error) {
 	changeID := change.ID(uuid.NewString())
 	t := time.Now()
 

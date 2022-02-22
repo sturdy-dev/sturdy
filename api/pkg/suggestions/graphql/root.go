@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/events"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"go.uber.org/zap"
 )

@@ -47,9 +47,9 @@ import (
 	"getsturdy.com/api/pkg/waitinglist"
 	"getsturdy.com/api/pkg/waitinglist/acl"
 	"getsturdy.com/api/pkg/waitinglist/instantintegration"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	routes_v3_workspace "getsturdy.com/api/pkg/workspace/routes"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	routes_v3_workspace "getsturdy.com/api/pkg/workspaces/routes"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 
 	ginCors "github.com/gin-contrib/cors"
@@ -83,7 +83,7 @@ func ProvideHandler(
 	codebaseRepo db_codebase.CodebaseRepository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	viewRepo db_view.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	userPublicKeyRepo db_pki.Repo,
 	snapshotterQueue worker_snapshots.Queue,
 	snapshotRepo db_snapshots.Repository,
@@ -91,7 +91,7 @@ func ProvideHandler(
 	codebaseViewEvents events.EventReadWriter,
 	gcQueue *worker_gc.Queue,
 	gitSnapshotter snapshotter.Snapshotter,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewUpdatedFunc meta_view.ViewUpdatedFunc,
 	executorProvider executor.Provider,
 	viewStatusRepo db_mutagen.ViewStatusRepository,

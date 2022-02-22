@@ -27,7 +27,7 @@ import (
 	db_suggestion "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/users"
 	db_users "getsturdy.com/api/pkg/users/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"go.uber.org/zap"
 )
@@ -49,7 +49,7 @@ type Sender struct {
 	codebaseUserRepo               db_codebase.CodebaseUserRepository
 	commentsRepo                   db_comments.Repository
 	codebaseRepo                   db_codebase.CodebaseRepository
-	workspaceRepo                  db_workspace.Repository
+	workspaceRepo                  db_workspaces.Repository
 	suggestionRepo                 db_suggestion.Repository
 	reviewRepo                     db_review.ReviewRepository
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository
@@ -69,7 +69,7 @@ func New(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	commentsRepo db_comments.Repository,
 	codebaseRepo db_codebase.CodebaseRepository,
-	workspaceRepo db_workspace.Repository,
+	workspaceRepo db_workspaces.Repository,
 	suggestionRepo db_suggestion.Repository,
 	reviewRepo db_review.ReviewRepository,
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository,

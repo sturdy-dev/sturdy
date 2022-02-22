@@ -18,7 +18,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
-	"getsturdy.com/api/pkg/workspace"
+	"getsturdy.com/api/pkg/workspaces"
 	vcsvcs "getsturdy.com/api/vcs"
 
 	gh "github.com/google/go-github/v39/github"
@@ -126,7 +126,7 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 
 var ErrIntegrationNotEnabled = errors.New("github integration is not enabled")
 
-func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace.Workspace, patchIDs []string) (*github.GitHubPullRequest, error) {
+func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspaces.Workspace, patchIDs []string) (*github.GitHubPullRequest, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, err
@@ -350,7 +350,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	return currentPR, nil
 }
 
-func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws *workspace.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
+func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
 	signature := git.Signature{
 		Name:  userName,
 		Email: userEmail,
@@ -394,7 +394,7 @@ func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws 
 	return resSha, nil
 }
 
-func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspace.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
+func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
 	signature := git.Signature{
 		Name:  userName,
 		Email: userEmail,
@@ -426,7 +426,7 @@ func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context,
 }
 
 // GitHub support (some) HTML the Pull Request descriptions, so we don't need to clean that up here.
-func prDescription(userName, userGitHubLogin string, cb *codebase.Codebase, ws *workspace.Workspace) *string {
+func prDescription(userName, userGitHubLogin string, cb *codebase.Codebase, ws *workspaces.Workspace) *string {
 	var builder strings.Builder
 	builder.WriteString(ws.DraftDescription)
 	builder.WriteString("\n\n---\n\n")

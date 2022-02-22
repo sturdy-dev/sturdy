@@ -27,10 +27,10 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	"getsturdy.com/api/pkg/workspace"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	routes_v3_workspace "getsturdy.com/api/pkg/workspace/routes"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	routes_v3_workspace "getsturdy.com/api/pkg/workspaces/routes"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 
@@ -57,7 +57,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		RepoProvider     provider.RepoProvider
 
 		CodebaseUserRepo db_codebase.CodebaseUserRepository
-		WorkspaceRepo    db_workspace.Repository
+		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
@@ -97,7 +97,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	assert.True(t, codebaseRes.IsReady, "codebase is ready")
 
 	// Create a workspace
-	var workspaceRes workspace.Workspace
+	var workspaceRes workspaces.Workspace
 	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
 		CodebaseID: codebaseRes.ID,
 	}, &workspaceRes)
@@ -237,7 +237,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		RepoProvider     provider.RepoProvider
 
 		CodebaseUserRepo db_codebase.CodebaseUserRepository
-		WorkspaceRepo    db_workspace.Repository
+		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
@@ -277,7 +277,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	assert.True(t, codebaseRes.IsReady, "codebase is ready")
 
 	// Create a workspace
-	var workspaceRes workspace.Workspace
+	var workspaceRes workspaces.Workspace
 	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
 		CodebaseID: codebaseRes.ID,
 	}, &workspaceRes)

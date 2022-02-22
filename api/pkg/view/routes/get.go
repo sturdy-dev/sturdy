@@ -11,13 +11,13 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func Get(repo db.Repository, workspaceReader db_workspace.WorkspaceReader, logger *zap.Logger, userService service_user.Service) func(c *gin.Context) {
+func Get(repo db.Repository, workspaceReader db_workspaces.WorkspaceReader, logger *zap.Logger, userService service_user.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		viewID := c.Param("viewID")
 
@@ -51,7 +51,7 @@ func toViewJson(in *view.View) view.ViewJSON {
 	}
 }
 
-func addMeta(ctx context.Context, v view.ViewJSON, workspaceReader db_workspace.WorkspaceReader, userService service_user.Service) (view.ViewWithMetadataJSON, error) {
+func addMeta(ctx context.Context, v view.ViewJSON, workspaceReader db_workspaces.WorkspaceReader, userService service_user.Service) (view.ViewWithMetadataJSON, error) {
 	author, err := userService.GetAsAuthor(ctx, v.UserID)
 	if err != nil {
 		return view.ViewWithMetadataJSON{}, fmt.Errorf("failed to get user metadata: %w", err)

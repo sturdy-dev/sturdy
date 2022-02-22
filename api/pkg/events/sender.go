@@ -2,7 +2,7 @@ package events
 
 import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )
 
 // TODO: support sending multiple events. Some users of this interface call methods in a loop.
@@ -19,14 +19,14 @@ type EventSender interface {
 
 type eventsSender struct {
 	codebaseUserRepo db_codebase.CodebaseUserRepository
-	workspaceRepo    db_workspace.WorkspaceReader
+	workspaceRepo    db_workspaces.WorkspaceReader
 
 	events eventWriter
 }
 
 func NewSender(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	workspaceRepo db_workspace.WorkspaceReader,
+	workspaceRepo db_workspaces.WorkspaceReader,
 	events EventReadWriter,
 ) EventSender {
 	return &eventsSender{

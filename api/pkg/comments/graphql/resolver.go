@@ -28,11 +28,11 @@ import (
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/workspace"
-	"getsturdy.com/api/pkg/workspace/activity"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace_watchers "getsturdy.com/api/pkg/workspace/watchers/service"
+	"getsturdy.com/api/pkg/workspaces"
+	"getsturdy.com/api/pkg/workspaces/activity"
+	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/google/uuid"
@@ -55,7 +55,7 @@ type CommentRootResolver struct {
 	userRepo                 db_user.Repository
 	commentsRepo             db_comments.Repository
 	snapshotRepo             db_snapshots.Repository
-	workspaceReader          db_workspace.WorkspaceReader
+	workspaceReader          db_workspaces.WorkspaceReader
 	viewRepo                 db_view.Repository
 	codebaseUserRepo         db_codebase.CodebaseUserRepository
 	workspaceWatchersService *service_workspace_watchers.Service
@@ -79,7 +79,7 @@ func NewResolver(
 	userRepo db_user.Repository,
 	commentsRepo db_comments.Repository,
 	snapshotRepo db_snapshots.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	viewRepo db_view.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceWatchersService *service_workspace_watchers.Service,
@@ -143,7 +143,7 @@ func (r *CommentRootResolver) PreFetchedComment(c comments.Comment) (resolvers.C
 	return &CommentResolver{comment: c, root: r}, nil
 }
 
-func (r *CommentRootResolver) InternalWorkspaceComments(workspace *workspace.Workspace) ([]resolvers.CommentResolver, error) {
+func (r *CommentRootResolver) InternalWorkspaceComments(workspace *workspaces.Workspace) ([]resolvers.CommentResolver, error) {
 	comms, err := live.GetWorkspaceComments(r.commentsRepo, workspace, r.executorProvider, r.snapshotRepo)
 	if err != nil {
 		return nil, err

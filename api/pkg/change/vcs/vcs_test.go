@@ -12,7 +12,7 @@ import (
 	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	viewsvcs "getsturdy.com/api/pkg/view/vcs"
-	vcs_workspace "getsturdy.com/api/pkg/workspace/vcs"
+	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"

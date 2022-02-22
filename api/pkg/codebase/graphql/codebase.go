@@ -27,7 +27,7 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -40,7 +40,7 @@ type CodebaseRootResolver struct {
 	codebaseRepo     db_codebase.CodebaseRepository
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 	viewRepo         db_view.Repository
-	workspaceReader  db_workspace.WorkspaceReader
+	workspaceReader  db_workspaces.WorkspaceReader
 	userRepo         db_user.Repository
 
 	workspaceResolver                 *resolvers.WorkspaceRootResolver
@@ -69,7 +69,7 @@ func NewCodebaseRootResolver(
 	codebaseRepo db_codebase.CodebaseRepository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	viewRepo db_view.Repository,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	userRepo db_user.Repository,
 
 	workspaceResolver *resolvers.WorkspaceRootResolver,

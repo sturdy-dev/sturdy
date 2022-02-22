@@ -54,9 +54,9 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	activity_sender "getsturdy.com/api/pkg/workspace/activity/sender"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
-	service_workspace "getsturdy.com/api/pkg/workspace/service"
+	activity_sender "getsturdy.com/api/pkg/workspaces/activity/sender"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
@@ -154,7 +154,7 @@ func TestPRHighLevel(t *testing.T) {
 		UserRepo                      db_user.Repository
 		ViewRepo                      db_view.Repository
 		ViewRootResolver              resolvers.ViewRootResolver
-		WorkspaceRepo                 db_workspace.Repository
+		WorkspaceRepo                 db_workspaces.Repository
 		WorkspaceRootResolver         resolvers.WorkspaceRootResolver
 		WorkspaceService              service_workspace.Service
 		WebhooksQueue                 *workers.WebhooksQueue

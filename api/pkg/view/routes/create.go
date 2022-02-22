@@ -16,7 +16,7 @@ import (
 	"getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/open"
 	"getsturdy.com/api/pkg/view/vcs"
-	db_workspace "getsturdy.com/api/pkg/workspace/db"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 
@@ -38,10 +38,10 @@ func Create(
 	viewRepo db.Repository,
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	analyticsService *service_analytics.Service,
-	workspaceReader db_workspace.WorkspaceReader,
+	workspaceReader db_workspaces.WorkspaceReader,
 	snapshotter snapshotter.Snapshotter,
 	snapshotRepo db_snapshots.Repository,
-	workspaceWriter db_workspace.WorkspaceWriter,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
 	eventSender events.EventSender,
 ) func(c *gin.Context) {
