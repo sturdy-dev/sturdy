@@ -1,7 +1,9 @@
 package db
 
 import (
+	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/comments"
 
@@ -15,6 +17,7 @@ type Repository interface {
 	GetByCodebaseAndChange(codebaseID string, changeID change.ID) ([]comments.Comment, error)
 	GetByWorkspace(workspaceID string) ([]comments.Comment, error)
 	GetByParent(id comments.ID) ([]comments.Comment, error)
+	CountByWorkspaceID(context.Context, string) (int32, error)
 }
 
 type repo struct {
@@ -94,6 +97,14 @@ func (r *repo) GetByParent(id comments.ID) ([]comments.Comment, error) {
 		ORDER BY created_at ASC`, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
+	}
+	return res, nil
+}
+
+func (r *repo) CountByWorkspaceID(ctx context.Context, workspaceID string) (int32, error) {
+	var res int32
+	if err := r.db.GetContext(ctx, &res, `SELECT COUNT(*) FROM comments WHERE workspace_id = $1 AND deleted_at IS NULL`, workspaceID); err != nil {
+		return 0, fmt.Errorf("failed to query table: %w", err)
 	}
 	return res, nil
 }

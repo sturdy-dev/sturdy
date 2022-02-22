@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/workspaces"
 
@@ -11,6 +12,7 @@ import (
 type CommentRootResolver interface {
 	Comment(ctx context.Context, args CommentArgs) (CommentResolver, error)
 	InternalWorkspaceComments(workspace *workspaces.Workspace) ([]CommentResolver, error)
+	InternalCountByWorkspaceID(context.Context, string) (int32, error)
 
 	// Mutations
 	DeleteComment(ctx context.Context, args DeleteCommentArgs) (CommentResolver, error)

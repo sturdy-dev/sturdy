@@ -419,6 +419,7 @@ type Workspace {
 
   # List of comments made on this workspace that are not connected to a particular change
   comments: [TopComment!]!
+  commentsCount: Int!
 
   # Non-authoritative views using this workspace
   # DEPRECATED
@@ -434,6 +435,7 @@ type Workspace {
   headChange: Change
 
   activity(input: WorkspaceActivityInput): [WorkspaceActivity!]!
+  activityCount: Int!
 
   reviews: [Review!]!
 
@@ -448,6 +450,8 @@ type Workspace {
 
   # A list of users watching this workspace.
   watchers: [WorkspaceWatcher!]!
+
+  diffsCount: Int!
 }
 
 input WatchWorkspaceInput {
