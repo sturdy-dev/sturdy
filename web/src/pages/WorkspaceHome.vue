@@ -8,13 +8,6 @@
       <SearchToolbar />
     </div>
 
-    <ArchiveWorkspaceModal
-      :is-active="archiveWorkspaceActive"
-      :workspace-i-d="data.workspace.id"
-      @deletedWorkspace="onWorkspaceArchived"
-      @closeDeleteWorkspace="hideArchiveModal"
-    />
-
     <div class="py-8">
       <div class="mx-auto px-6 grid grid-cols-1 xl:grid-cols-4">
         <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
@@ -86,10 +79,7 @@
                     <span>Edit</span>
                   </Button>
 
-                  <Button size="wider" @click="showArchiveModal">
-                    <ArchiveIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    <span>Archive</span>
-                  </Button>
+                  <ArchiveButton :workspace-id="data.workspace.id" />
 
                   <div v-if="showSync">
                     <OnboardingStep
@@ -532,7 +522,6 @@
 <script lang="ts">
 import {
   AnnotationIcon,
-  ArchiveIcon,
   DesktopComputerIcon,
   LightningBoltIcon,
   PencilIcon,
@@ -568,7 +557,7 @@ import WorkspaceNewComment from '../components/workspace/WorkspaceNewComment.vue
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
 import Presence, { PRESENCE_FRAGMENT_QUERY } from '../components/workspace/Presence.vue'
-import ArchiveWorkspaceModal from '../components/codebase/ArchiveWorkspaceModal.vue'
+import ArchiveButton from '../organisms/workspace/ArchiveButton.vue'
 import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
   GITHUB_PULL_REQUEST_FRAGMENT,
@@ -616,9 +605,7 @@ export default defineComponent({
     Banner,
     Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
     PencilIcon,
-    ArchiveIcon,
     LightningBoltIcon,
-    ArchiveWorkspaceModal,
     GitHubPullRequest,
     Comments,
     UpdatedAt,
@@ -629,6 +616,7 @@ export default defineComponent({
     MenuItem,
     SearchToolbar,
     OpenInEditor,
+    ArchiveButton,
   },
   props: {
     user: {
@@ -1110,7 +1098,6 @@ export default defineComponent({
 
         loadingNewWorkspace: false,
         isSyncing: false,
-
         archiveWorkspaceActive: false,
       }
     },
@@ -1419,21 +1406,6 @@ export default defineComponent({
         return
       }
       this.conflictDiffs = ev.diffs.filter((diff) => !diff.is_hidden)
-    },
-
-    showArchiveModal() {
-      this.archiveWorkspaceActive = true
-    },
-
-    hideArchiveModal() {
-      this.archiveWorkspaceActive = false
-    },
-
-    onWorkspaceArchived() {
-      this.$router.push({
-        name: 'codebaseHome',
-        params: { codebaseSlug: this.$route.params.codebaseSlug },
-      })
     },
 
     async preCreateChange() {

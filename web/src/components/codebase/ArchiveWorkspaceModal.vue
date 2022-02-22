@@ -22,12 +22,12 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    workspaceID: {
+    workspaceId: {
       type: String,
       required: true,
     },
   },
-  emits: ['closeDeleteWorkspace', 'deletedWorkspace'],
+  emits: ['close', 'archived', 'archiving'],
   setup() {
     const { executeMutation: archiveWorkspaceResult } = useMutation(gql`
       mutation ArchiveWorkspaceModal($id: ID!) {
@@ -85,13 +85,14 @@ export default defineComponent({
       }
     },
     deleteWorkspace() {
-      this.archiveWorkspace(this.workspaceID).then(() => {
-        this.$emit('deletedWorkspace')
+      this.$emit('archiving')
+      this.archiveWorkspace(this.workspaceId).then(() => {
+        this.$emit('archived')
         this.close()
       })
     },
     close() {
-      this.$emit('closeDeleteWorkspace')
+      this.$emit('close')
     },
   },
 })
