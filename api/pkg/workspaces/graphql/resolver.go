@@ -12,6 +12,7 @@ import (
 	service_change "getsturdy.com/api/pkg/change/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/vcs"
 	vcsvcs "getsturdy.com/api/vcs"
@@ -129,16 +130,26 @@ func (r *WorkspaceResolver) View(ctx context.Context) (resolvers.ViewResolver, e
 }
 
 func (r *WorkspaceResolver) CommentsCount(ctx context.Context) (int32, error) {
-	return r.root.commentResolver.InternalCountByWorkspaceID(ctx, r.w.ID)
+	c, err := r.root.commentResolver.InternalCountByWorkspaceID(ctx, r.w.ID)
+	if err != nil {
+		return 0, gqlerrors.Error(err)
+	}
+	return c, nil
 }
 
 func (r *WorkspaceResolver) DiffsCount(ctx context.Context) (int32, error) {
 	r.diffsCountOnce.Do(func() {
 		diffs, _, err := r.root.workspaceService.Diffs(ctx, r.w.ID)
-		r.diffsCountErr = err
-		r.diffsCount = int32(len(diffs))
+		if errors.Is(err, db_snapshots.ErrNotFound) {
+			// TODO: there are some workspaces in the database where the latest snapshot is set, but deleted
+			// until that is the case, we have to return 0 here to not fail queries.
+			r.diffsCount = 0
+		} else {
+			r.diffsCountErr = err
+			r.diffsCount = int32(len(diffs))
+		}
 	})
-	return r.diffsCount, r.diffsCountErr
+	return r.diffsCount, gqlerrors.Error(r.diffsCountErr)
 }
 
 func (r *WorkspaceResolver) Comments() ([]resolvers.TopCommentResolver, error) {
@@ -361,7 +372,7 @@ func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusRes
 	switch {
 	case err == nil:
 		return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
-	case errors.Is(err, sql.ErrNoRows):
+	case errors.Is(err, db_snapshots.ErrNotFound):
 		return nil, nil
 	default:
 		return nil, gqlerrors.Error(err)
