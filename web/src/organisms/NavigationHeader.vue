@@ -56,18 +56,20 @@
                   Get started
                 </router-link>
 
-                <router-link
-                  v-if="user"
-                  :to="{ name: 'home' }"
-                  :class="[
-                    light
-                      ? 'hover:bg-amber-400 text-slate-800'
-                      : 'hover:text-amber-500 hover:bg-transparent',
-                  ]"
-                  class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
-                >
-                  Go to codebases
-                </router-link>
+                <ClientOnly>
+                  <router-link
+                    v-if="user"
+                    :to="{ name: 'home' }"
+                    :class="[
+                      light
+                        ? 'hover:bg-amber-400 text-slate-800'
+                        : 'hover:text-amber-500 hover:bg-transparent',
+                    ]"
+                    class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+                  >
+                    Go to codebases
+                  </router-link>
+                </ClientOnly>
               </div>
             </div>
           </div>
