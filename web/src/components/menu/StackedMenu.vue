@@ -255,7 +255,7 @@
 <script lang="ts">
 import { CogIcon, PlusSmIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
-import { computed, defineComponent, onUnmounted, PropType, ref, watch } from 'vue'
+import { computed, defineComponent, onUnmounted, PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug, Slug } from '../../slug'
 import Avatar from '../shared/Avatar.vue'
@@ -272,7 +272,6 @@ import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Tooltip from '../shared/Tooltip.vue'
 import {
   CodebaseFragment,
-  OrganizationFragment,
   PresenceFragment as WorkspacePresence,
   StackedMenu_ViewFragment as View,
   StackedMenu_WorkspaceActivityFragment as WorkspaceActivity,
@@ -281,7 +280,7 @@ import {
   StackedMenuQueryVariables,
   WorkspaceFragment,
 } from './__generated__/StackedMenu'
-import { Feature, ReviewGrade, User, WorkspacePresenceState } from '../../__generated__/types'
+import { ReviewGrade, User, WorkspacePresenceState } from '../../__generated__/types'
 import { useUpdatedReviews } from '../../subscriptions/useUpdatedReviews'
 import {
   NavigationCodebase,
@@ -293,7 +292,6 @@ import {
 import AppTitleBarSpacer from '../AppTitleBarSpacer.vue'
 import AppHistoryNavigationButtons from '../AppHistoryNavigationButtons.vue'
 import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
-import NavigationOrganizationPicker from '../../molecules/NavigationOrganizationPicker.vue'
 import NavigationOrganizationPickerMenu from '../../molecules/NavigationOrganizationPickerMenu.vue'
 
 const WORKSPACE_ACTIVITY_FRAGMENT = gql`
@@ -369,13 +367,16 @@ const WORKSPACE_FRAGMENT = gql`
       createdAt
     }
 
-    activity {
+    activity(input: { unreadOnly: true }) {
       ...StackedMenu_WorkspaceActivity
     }
 
     reviews {
       ...StackedMenu_WorkspaceReview
     }
+
+    commentsCount
+    diffsCount
   }
   ${PRESENSE_FRAGMENT}
   ${WORKSPACE_ACTIVITY_FRAGMENT}
@@ -483,6 +484,19 @@ const ownedBy = function (user: User | undefined): (ws: WorkspaceFragment) => bo
   return (ws: WorkspaceFragment) => ws.author.id === user?.id
 }
 
+const showTo = function (user: User | undefined): (ws: WorkspaceFragment) => boolean {
+  return user
+    ? (ws: WorkspaceFragment) => {
+        const isOwnWorkspace = ws.author.id === user.id
+        const hasComments = ws.commentsCount > 0
+        const hasActivity = ws.activity.length > 0
+        const hasDiffs = ws.diffsCount > 0
+        const reviewRequested = ws.reviews.some(reviewByUserId(user.id))
+        return isOwnWorkspace ? true : hasComments || hasActivity || hasDiffs || reviewRequested
+      }
+    : () => true
+}
+
 const nonSuggestingWorkspaces = (ws: WorkspaceFragment) => !ws.suggestion
 const suggestingWorkspaces = (ws: WorkspaceFragment) => !nonSuggestingWorkspaces(ws)
 
@@ -506,8 +520,6 @@ const isWorkspaceAuthorCoding = (ws: WorkspaceFragment) => {
       .filter(isPresenceNotStale).length > 0
   )
 }
-
-const isActivityUnread = (activity: WorkspaceActivity): boolean => activity.isRead === false
 
 const isReviewRequested = (review: WorkspaceReview) => {
   return !review.dismissedAt && !review.isReplaced && review.grade === ReviewGrade.Requested
@@ -669,13 +681,14 @@ export default defineComponent({
         const workspaces = cb.workspaces
           .sort(workspaceByLastUpdated)
           .filter(nonSuggestingWorkspaces)
+          .filter(showTo(this.user))
           .map((ws: WorkspaceFragment): NavigationWorkspace => {
             const requestedReviews = this.user
               ? ws.reviews.filter(reviewByUserId(this.user.id)).filter(isReviewRequested).length
               : 0
 
             const unseenMentions = this.user
-              ? ws.activity.filter(isActivityUnread).filter(hasMention(this.user.id)).length
+              ? ws.activity.filter(hasMention(this.user.id)).length
               : 0
 
             return {
@@ -683,7 +696,7 @@ export default defineComponent({
               name: ws.name,
               isCurrent: shortCodebaseID === cb.shortID && ws.id === this.route.params.id,
               author: ws.author,
-              isUnread: isMember ? ws.activity.some(isActivityUnread) : false,
+              isUnread: isMember ? ws.activity.length > 0 : false,
               badgeCount: unseenMentions + requestedReviews,
               presence: ws.presence,
               isAuthorCoding: isWorkspaceAuthorCoding(ws),
