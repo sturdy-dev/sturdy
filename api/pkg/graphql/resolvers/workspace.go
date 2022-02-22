@@ -139,7 +139,6 @@ type WorkspaceResolver interface {
 	Conflicts(context.Context) (bool, error)
 	HeadChange(ctx context.Context) (ChangeResolver, error)
 	Activity(ctx context.Context, args WorkspaceActivityArgs) ([]WorkspaceActivityResolver, error)
-	ActivityCount(context.Context) (int32, error)
 	Reviews(ctx context.Context) ([]ReviewResolver, error)
 	Presence(ctx context.Context) ([]PresenceResolver, error)
 	Suggestions(context.Context) ([]SuggestionResolver, error)

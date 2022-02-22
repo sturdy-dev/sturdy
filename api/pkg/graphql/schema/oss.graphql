@@ -435,7 +435,6 @@ type Workspace {
   headChange: Change
 
   activity(input: WorkspaceActivityInput): [WorkspaceActivity!]!
-  activityCount: Int!
 
   reviews: [Review!]!
 
