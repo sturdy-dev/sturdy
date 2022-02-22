@@ -14,7 +14,13 @@
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <router-link :to="{ name: 'v2Index' }">
-              <img src="../pages/landing/assets/logotype.svg" alt="Sturdy logotype" class="h-7" />
+              <img
+                src="../pages/landing/assets/logotype.svg"
+                alt="Sturdy logotype"
+                class="h-7"
+                height="28"
+                width="110"
+              />
             </router-link>
           </div>
         </div>
