@@ -1,8 +1,6 @@
 <template>
   <div class="">
-    <ClientOnly>
-      <NavigationHeader :user="user" :light="true" />
-    </ClientOnly>
+    <NavigationHeader :light="true" />
 
     <slot></slot>
 
@@ -10,22 +8,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import { ClientOnly } from 'vite-ssr/vue'
 import NavigationFooter from '../organisms/NavigationFooter.vue'
 import NavigationHeader from '../organisms/NavigationHeader.vue'
-
-export default defineComponent({
-  components: {
-    NavigationFooter,
-    NavigationHeader,
-    ClientOnly,
-  },
-  setup() {
-    return {
-      user: null,
-    }
-  },
-})
 </script>

@@ -69,11 +69,6 @@ export default defineComponent({
   components: {
     Documentation,
   },
-  setup() {
-    return {
-      user: null,
-    }
-  },
   data() {
     return {
       tableOfContents: [],
