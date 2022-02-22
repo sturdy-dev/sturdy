@@ -8,6 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/graph-gophers/graphql-go"
+	"go.uber.org/zap"
+
 	"getsturdy.com/api/pkg/change"
 	service_change "getsturdy.com/api/pkg/change/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -16,8 +19,6 @@ import (
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/vcs"
 	vcsvcs "getsturdy.com/api/vcs"
-	"github.com/graph-gophers/graphql-go"
-	"go.uber.org/zap"
 )
 
 type WorkspaceResolver struct {
@@ -59,6 +60,9 @@ func (r *WorkspaceResolver) Author(ctx context.Context) (resolvers.AuthorResolve
 }
 
 func (r *WorkspaceResolver) CreatedAt() int32 {
+	if r.w.CreatedAt == nil {
+		return 0
+	}
 	return int32(r.w.CreatedAt.Unix())
 }
 
