@@ -120,6 +120,11 @@ export default {
       },
     }
   },
+  computed: {
+    inviteURL() {
+      return `${location.origin}/join/${this.data.codebase.inviteCode}`
+    },
+  },
   methods: {
     updateInviteCode() {
       this.doGenerateInviteCode(this.data.codebase.id).catch(() => {
@@ -136,11 +141,6 @@ export default {
       copyText.select()
       copyText.setSelectionRange(0, 99999)
       document.execCommand('copy')
-    },
-  },
-  computed: {
-    inviteURL() {
-      return `${location.origin}/join/${this.data.codebase.inviteCode}`
     },
   },
 }
