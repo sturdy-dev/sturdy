@@ -137,7 +137,8 @@ export default defineComponent({
       .catch(async (e) => {
         const err = e as HttpError
         if (err.statusCode === 400) {
-          this.errorMessage = `Failed to connect: ${(await err.response?.json()).error}`
+          const msg = await err.response?.json()
+          this.errorMessage = `Failed to connect: ${msg.error}`
         } else {
           this.errorMessage = 'Something went wrong connecting to GitHub, please try again!'
         }

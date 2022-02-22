@@ -66,16 +66,16 @@ export default {
       data,
     }
   },
-  watch: {
-    'data.codebase.id': function (id) {
-      if (id) this.emitter.emit('codebase', id)
-    },
-  },
   data() {
     return {
       updateStatus: '',
       showRenameFailed: false,
     }
+  },
+  watch: {
+    'data.codebase.id': function (id) {
+      if (id) this.emitter.emit('codebase', id)
+    },
   },
 }
 </script>

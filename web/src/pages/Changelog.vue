@@ -331,11 +331,6 @@ export default {
       ipc: window.ipc,
     }
   },
-  watch: {
-    'data.codebase.id': function (id) {
-      if (id) this.emitter.emit('codebase', id)
-    },
-  },
   data() {
     return {
       reactive_changes_cancel_func: null,
@@ -347,6 +342,11 @@ export default {
         return Slug(this.data.codebase.name, this.data.codebase.shortID)
       }
       return null
+    },
+  },
+  watch: {
+    'data.codebase.id': function (id) {
+      if (id) this.emitter.emit('codebase', id)
     },
   },
   created() {
