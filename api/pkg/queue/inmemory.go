@@ -28,11 +28,26 @@ func NewInMemory(logger *zap.Logger) *memoryQueue {
 
 type inmemorymessage struct {
 	marshalledMessage []byte
-	ack               bool
+	ack               chan struct{}
+}
+
+func newInmemoryMessage(v interface{}) (*inmemorymessage, error) {
+	marshaled, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return &inmemorymessage{
+		marshalledMessage: marshaled,
+		ack:               make(chan struct{}),
+	}, nil
+}
+
+func (m *inmemorymessage) AwaitAcked() {
+	<-m.ack
 }
 
 func (m *inmemorymessage) Ack() error {
-	m.ack = true
+	close(m.ack)
 	return nil
 }
 

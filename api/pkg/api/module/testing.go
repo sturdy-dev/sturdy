@@ -1,6 +1,3 @@
-//go:build !enterprise && !cloud
-// +build !enterprise,!cloud
-
 package module
 
 import (
@@ -9,9 +6,8 @@ import (
 	module_queue "getsturdy.com/api/pkg/queue/module"
 )
 
-func Module(c *di.Container) {
+func TestingModule(c *di.Container) {
 	common(c)
-	c.Import(module_queue.Module)
-
+	c.Import(module_queue.TestingModule)
 	c.Register(api.ProvideAPI, new(api.Starter))
 }
