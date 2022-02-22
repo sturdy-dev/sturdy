@@ -322,6 +322,10 @@ func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebase
 	return users, nil
 }
 
+func (r *CommentRootResolver) InternalCountByWorkspaceID(ctx context.Context, workspaceID string) (int32, error) {
+	return r.commentsRepo.CountByWorkspaceID(ctx, workspaceID)
+}
+
 func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.CreateCommentArgs) (resolvers.CommentResolver, error) {
 	var comment *comments.Comment
 	var err error

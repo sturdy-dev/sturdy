@@ -8,9 +8,9 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces/activity"
 	db_activity "getsturdy.com/api/pkg/workspaces/activity/db"
 	service_activity "getsturdy.com/api/pkg/workspaces/activity/service"
@@ -70,6 +70,10 @@ func New(
 		eventsReader: eventsReader,
 		logger:       logger.Named("workspaceActivityRootResolver"),
 	}
+}
+
+func (r *root) InternalActivityCountByWorkspaceID(ctx context.Context, workspaceID string) (int32, error) {
+	return r.workspaceActivityRepo.CountByWorkspaceID(ctx, workspaceID)
 }
 
 func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID string, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {

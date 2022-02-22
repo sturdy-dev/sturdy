@@ -8,6 +8,7 @@ import (
 
 type WorkspaceActivityRootResolver interface {
 	InternalActivityByWorkspace(ctx context.Context, workspaceID string, args WorkspaceActivityArgs) ([]WorkspaceActivityResolver, error)
+	InternalActivityCountByWorkspaceID(context.Context, string) (int32, error)
 
 	ReadWorkspaceActivity(ctx context.Context, args WorkspaceActivityReadArgs) (WorkspaceActivityResolver, error)
 

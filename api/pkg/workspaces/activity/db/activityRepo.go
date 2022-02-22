@@ -15,6 +15,7 @@ type ActivityRepository interface {
 	Get(ctx context.Context, id string) (*activity.WorkspaceActivity, error)
 	ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.WorkspaceActivity, error)
 	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.WorkspaceActivity, error)
+	CountByWorkspaceID(context.Context, string) (int32, error)
 }
 
 type activityRepo struct {
@@ -67,4 +68,14 @@ func (r *activityRepo) ListByWorkspaceIDNewerThan(ctx context.Context, workspace
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return activities, nil
+}
+
+func (r *activityRepo) CountByWorkspaceID(ctx context.Context, workspaceID string) (int32, error) {
+	var count int32
+	if err := r.db.GetContext(ctx, &count, `SELECT COUNT(1)
+		FROM workspace_activity
+		WHERE workspace_id = $1`, workspaceID); err != nil {
+		return 0, fmt.Errorf("failed to query table: %w", err)
+	}
+	return count, nil
 }

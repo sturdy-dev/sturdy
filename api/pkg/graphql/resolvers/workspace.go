@@ -133,11 +133,13 @@ type WorkspaceResolver interface {
 	DraftDescription() string
 	View(ctx context.Context) (ViewResolver, error)
 	Comments() ([]TopCommentResolver, error)
+	CommentsCount(context.Context) (int32, error)
 	GitHubPullRequest(ctx context.Context) (GitHubPullRequestResolver, error)
 	UpToDateWithTrunk(context.Context) (bool, error)
 	Conflicts(context.Context) (bool, error)
 	HeadChange(ctx context.Context) (ChangeResolver, error)
 	Activity(ctx context.Context, args WorkspaceActivityArgs) ([]WorkspaceActivityResolver, error)
+	ActivityCount(context.Context) (int32, error)
 	Reviews(ctx context.Context) ([]ReviewResolver, error)
 	Presence(ctx context.Context) ([]PresenceResolver, error)
 	Suggestions(context.Context) ([]SuggestionResolver, error)
@@ -145,4 +147,5 @@ type WorkspaceResolver interface {
 	Watchers(context.Context) ([]WorkspaceWatcherResolver, error)
 	Suggestion(context.Context) (SuggestionResolver, error)
 	SuggestingViews() []ViewResolver
+	DiffsCount(context.Context) (int32, error)
 }

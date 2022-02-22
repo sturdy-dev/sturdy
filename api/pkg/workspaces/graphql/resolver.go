@@ -26,6 +26,10 @@ type WorkspaceResolver struct {
 	hasConflicts     bool
 	hasConflictsErr  error
 	hasConflictsOnce sync.Once
+
+	diffsCount     int32
+	diffsCountErr  error
+	diffsCountOnce sync.Once
 }
 
 func (r *WorkspaceResolver) ID() graphql.ID {
@@ -124,6 +128,19 @@ func (r *WorkspaceResolver) View(ctx context.Context) (resolvers.ViewResolver, e
 	return r.root.viewResolver.View(ctx, resolvers.ViewArgs{ID: graphql.ID(*r.w.ViewID)})
 }
 
+func (r *WorkspaceResolver) CommentsCount(ctx context.Context) (int32, error) {
+	return r.root.commentResolver.InternalCountByWorkspaceID(ctx, r.w.ID)
+}
+
+func (r *WorkspaceResolver) DiffsCount(ctx context.Context) (int32, error) {
+	r.diffsCountOnce.Do(func() {
+		diffs, _, err := r.root.workspaceService.Diffs(ctx, r.w.ID)
+		r.diffsCountErr = err
+		r.diffsCount = int32(len(diffs))
+	})
+	return r.diffsCount, r.diffsCountErr
+}
+
 func (r *WorkspaceResolver) Comments() ([]resolvers.TopCommentResolver, error) {
 	comments, err := r.root.commentResolver.InternalWorkspaceComments(r.w)
 	switch {
@@ -156,7 +173,7 @@ func (r *WorkspaceResolver) GitHubPullRequest(ctx context.Context) (resolvers.Gi
 	}
 }
 
-func (r WorkspaceResolver) UpToDateWithTrunk(ctx context.Context) (bool, error) {
+func (r *WorkspaceResolver) UpToDateWithTrunk(ctx context.Context) (bool, error) {
 	if err := r.updateIsUpToDateWithTrunk(ctx); err != nil {
 		return false, gqlerrors.Error(err)
 	}
@@ -287,6 +304,10 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 
 func (r *WorkspaceResolver) Activity(ctx context.Context, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {
 	return r.root.workspaceActivityRootResolver.InternalActivityByWorkspace(ctx, r.w.ID, args)
+}
+
+func (r *WorkspaceResolver) ActivityCount(ctx context.Context) (int32, error) {
+	return r.root.workspaceActivityRootResolver.InternalActivityCountByWorkspaceID(ctx, r.w.ID)
 }
 
 func (r *WorkspaceResolver) Reviews(ctx context.Context) ([]resolvers.ReviewResolver, error) {
