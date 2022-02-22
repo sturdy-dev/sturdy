@@ -171,10 +171,5 @@ func (r *codebaseGitHubIntegrationRootResolver) RefreshGitHubCodebases(ctx conte
 		return nil, gqlerrors.Error(err)
 	}
 
-	// find repos that are installed but not cloned, and add them to the clone queue
-	if err := r.gitHubService.CloneMissingRepositories(ctx, userID); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	return (*r.codebaseRootResolver).Codebases(ctx)
 }

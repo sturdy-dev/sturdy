@@ -127,58 +127,6 @@ func strOrNilIfEmpty(str string) *string {
 	return &str
 }
 
-func (svc *Service) CloneMissingRepositories(ctx context.Context, userID string) error {
-	repos, err := svc.ListAllAccessibleRepositoriesFromGitHub(ctx, userID)
-	if err != nil {
-		return fmt.Errorf("failed to list repos from github: %w", err)
-	}
-
-	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
-	if err != nil {
-		return fmt.Errorf("failed to get github user: %w", err)
-	}
-
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: existingGitHubUser.AccessToken})
-	tc := oauth2.NewClient(ctx, ts)
-	userAuthClient := gh.NewClient(tc)
-
-	currentGitHubUser, _, err := userAuthClient.Users.Get(ctx, "")
-
-	for _, repo := range repos {
-		// if the installation is missing, create it!
-		_, err := svc.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
-		if errors.Is(err, sql.ErrNoRows) {
-			if err := svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
-				ID:                     uuid.NewString(),
-				InstallationID:         repo.InstallationID,
-				Owner:                  repo.Owner,
-				CreatedAt:              time.Now(),
-				HasWorkflowsPermission: true, // This is an assumption
-			}); err != nil {
-				return fmt.Errorf("failed to re-create installation entry: %w", err)
-			}
-		} else if err != nil {
-			return fmt.Errorf("failed to get existing installation: %w", err)
-		}
-
-		_, err = svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(repo.InstallationID, repo.RepositoryID)
-		if err == nil {
-			continue
-		}
-
-		ghRepo, _, err := userAuthClient.Repositories.GetByID(ctx, repo.RepositoryID)
-		if err != nil {
-			return fmt.Errorf("could not get github repo: %w", err)
-		}
-
-		if _, err := svc.CreateNonReadyCodebaseAndClone(ctx, ghRepo, repo.InstallationID, currentGitHubUser, nil, nil); err != nil {
-			return fmt.Errorf("could enqueue clone: %w", err)
-		}
-	}
-
-	return nil
-}
-
 type GitHubRepo struct {
 	InstallationID int64
 	RepositoryID   int64
