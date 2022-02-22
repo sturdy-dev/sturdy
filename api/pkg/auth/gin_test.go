@@ -1,3 +1,4 @@
+//nolint:bodyclose
 package auth_test
 
 import (

@@ -32,7 +32,7 @@ func Status(repo db_view.Repository, executorProvider executor.Provider, logger 
 			Write(func(repo vcs.RepoWriter) error {
 				rebasing, err := repo.OpenRebase()
 				if err != nil {
-					if errors.Is(err, vcs.NoRebaseInProgress) {
+					if errors.Is(err, vcs.ErrNoRebaseInProgress) {
 						status = &sync.RebaseStatusResponse{}
 						return nil
 					}

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/codebase"
-	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/github"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
@@ -19,6 +19,7 @@ import (
 
 // AddUserToCodebases adds finds all GitHub installations and repositories that this user can see, and adds the user to
 // all of those codebases.
+//nolint:contextcheck
 func (svc *Service) AddUserToCodebases(ctx context.Context, userID string) error {
 	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
 	if err != nil {

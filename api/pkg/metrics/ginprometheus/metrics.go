@@ -233,13 +233,19 @@ func (p *Prometheus) getPushGatewayURL() string {
 
 func (p *Prometheus) sendMetricsToPushGateway(metrics []byte) {
 	req, err := http.NewRequest("POST", p.getPushGatewayURL(), bytes.NewBuffer(metrics))
-	client := &http.Client{}
-	if _, err = client.Do(req); err != nil {
+	if err != nil {
 		p.log.Error("failed to send to push gateway", zap.Error(err))
+	}
+	client := &http.Client{}
+	if resp, err := client.Do(req); err != nil {
+		p.log.Error("failed to send to push gateway", zap.Error(err))
+	} else {
+		resp.Body.Close()
 	}
 }
 
 func (p *Prometheus) startPushTicker() {
+	//nolint:durationcheck
 	ticker := time.NewTicker(time.Second * p.Ppg.PushIntervalSeconds)
 	go func() {
 		for range ticker.C {
@@ -325,7 +331,6 @@ func NewMetric(m *Metric, subsystem string) prometheus.Collector {
 }
 
 func (p *Prometheus) registerMetrics(subsystem string) {
-
 	for _, metricDef := range p.MetricsList {
 		metric := NewMetric(metricDef, subsystem)
 		if err := prometheus.Register(metric); err != nil {

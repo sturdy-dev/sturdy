@@ -49,6 +49,7 @@ func New(
 type accessType uint
 
 const (
+	//nolint:varcheck
 	accessTypeUnknown accessType = iota
 	accessTypeRead
 	accessTypeWrite
@@ -65,6 +66,7 @@ func (s *Service) CanWrite(ctx context.Context, obj interface{}) error {
 }
 
 // hasAccess checks if the user has the given permission on the given object.
+//nolint:cyclop
 func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{}) error {
 	subject, found := auth.FromContext(ctx)
 	if !found {

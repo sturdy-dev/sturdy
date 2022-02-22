@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -34,7 +35,7 @@ func New(cfg *Configuration) *Server {
 }
 
 func (s *Server) Start() error {
-	if err := s.srv.ListenAndServe(); err != http.ErrServerClosed {
+	if err := s.srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("failed to start metrics server: %w", err)
 	}
 	return nil

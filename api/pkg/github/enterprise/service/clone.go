@@ -135,7 +135,7 @@ type GitHubRepo struct {
 	Name  string
 }
 
-func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(ctx context.Context, userID string) ([]GitHubRepo, error) {
+func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID string) ([]GitHubRepo, error) {
 	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get github user: %w", err)
@@ -143,7 +143,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(ctx context.Context,
 
 	bgCtx := context.Background()
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: existingGitHubUser.AccessToken})
-	tc := oauth2.NewClient(ctx, ts)
+	tc := oauth2.NewClient(bgCtx, ts)
 	userAuthClient := gh.NewClient(tc)
 
 	installations, err := svc.listAllUserInstallations(bgCtx, userAuthClient)
@@ -154,7 +154,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(ctx context.Context,
 	var res []GitHubRepo
 
 	for _, installation := range installations {
-		repos, err := svc.userAccessibleRepoIDs(ctx, userAuthClient, installation.GetID())
+		repos, err := svc.userAccessibleRepoIDs(bgCtx, userAuthClient, installation.GetID())
 		if err != nil {
 			return nil, fmt.Errorf("failed to list repo ids: %w", err)
 		}
@@ -246,13 +246,13 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 			return nil, fmt.Errorf("failed to get github user: %w", err)
 		} else if err == nil {
 			senderUserID = gitHubUser.UserID
-			if err := svc.AddUser(nonReadyCodebase.ID, gitHubUser.UserID); err != nil {
+			if err := svc.AddUser(ctx, nonReadyCodebase.ID, gitHubUser.UserID); err != nil {
 				return nil, fmt.Errorf("failed to add sender to repo: %w", err)
 			}
 		}
 	} else if addUserID != nil {
 		senderUserID = *addUserID
-		if err := svc.AddUser(nonReadyCodebase.ID, *addUserID); err != nil {
+		if err := svc.AddUser(ctx, nonReadyCodebase.ID, *addUserID); err != nil {
 			return nil, fmt.Errorf("failed to add user to repo: %w", err)
 		}
 	}

@@ -51,7 +51,7 @@ func ParseAppliedHunkID(in string) (*Hunk, error) {
 
 	index, err := strconv.Atoi(in[idx+1:])
 	if err != nil {
-		return nil, fmt.Errorf("invalid applied hunk id: %s, error parsing index: %s", in, err)
+		return nil, fmt.Errorf("invalid applied hunk id: %s, error parsing index: %w", in, err)
 	}
 
 	return &Hunk{

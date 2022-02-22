@@ -1,9 +1,10 @@
 package view
 
 import (
+	"time"
+
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/jsontime"
-	"time"
 )
 
 type View struct {
@@ -11,7 +12,7 @@ type View struct {
 	UserID     string `db:"user_id" json:"user_id"`
 	CodebaseID string `db:"codebase_id" json:"codebase_id"`
 
-	// Deprecated in favour for workspace.ViewID
+	// Deprecated: in favour for workspace.ViewID
 	// TODO: Make nulllable, migrate, and delete?
 	WorkspaceID string `db:"workspace_id" json:"workspace_id"`
 

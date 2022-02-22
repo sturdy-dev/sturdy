@@ -7,12 +7,11 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
-	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/presence"
 	service_presence "getsturdy.com/api/pkg/presence/service"
-	"getsturdy.com/api/pkg/events"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
@@ -23,7 +22,6 @@ type presenceRootResolver struct {
 
 	authorRootResolver    resolvers.AuthorRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
-	authService           *service_auth.Service
 
 	logger           *zap.Logger
 	eventsReadWriter events.EventReadWriter

@@ -25,7 +25,8 @@ func (r *inMemoryCodebaseUserRepository) GetByUser(userID string) ([]*codebase.C
 	var res []*codebase.CodebaseUser
 	for _, u := range r.users {
 		if u.UserID == userID {
-			res = append(res, &u)
+			u2 := u
+			res = append(res, &u2)
 		}
 	}
 	return res, nil
@@ -35,7 +36,8 @@ func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*co
 	var res []*codebase.CodebaseUser
 	for _, u := range r.users {
 		if u.CodebaseID == codebaseID {
-			res = append(res, &u)
+			u2 := u
+			res = append(res, &u2)
 		}
 	}
 	return res, nil

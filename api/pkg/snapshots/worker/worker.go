@@ -48,7 +48,7 @@ func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string,
 		ChangedFiles: paths,
 		Action:       action,
 	}); err != nil {
-		return fmt.Errorf("failed to publish message: %v", err)
+		return fmt.Errorf("failed to publish message: %w", err)
 	}
 	return nil
 }

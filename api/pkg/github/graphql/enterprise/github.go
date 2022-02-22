@@ -36,7 +36,7 @@ func (r *gitHubRootResolver) GitHubRepositories(ctx context.Context) ([]resolver
 		return nil, gqlerrors.Error(err)
 	}
 
-	repos, err := r.svc.ListAllAccessibleRepositoriesFromGitHub(ctx, userID)
+	repos, err := r.svc.ListAllAccessibleRepositoriesFromGitHub(userID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return nil, nil
