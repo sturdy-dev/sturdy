@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -71,7 +70,7 @@ func module(c *di.Container) {
 		return ctx
 	})
 
-	c.Import(module_api.Module)
+	c.Import(module_api.TestingModule)
 	c.Import(module_configuration.TestingModule)
 	c.Import(module_snapshots.TestingModule)
 
@@ -183,6 +182,10 @@ func TestPRHighLevel(t *testing.T) {
 
 	webhookRoute := routes.Webhook(d.Logger, d.WebhooksQueue)
 
+	go func() {
+		assert.NoError(t, d.WebhooksQueue.Start(context.TODO()))
+	}()
+
 	testCases := []struct {
 		name                       string
 		gitHubRebase               bool
@@ -286,7 +289,6 @@ func TestPRHighLevel(t *testing.T) {
 			sturdyRepositoryID := uuid.NewString()
 			gitHubRepositoryID := rand.Int63n(500_000_000)
 			gitHubInstallationID := rand.Int63n(500_000_000)
-			log.Println("gitHubInstallationID!!!", gitHubInstallationID)
 			ctx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID})
 
 			gitHubRepoOwner := uuid.NewString()

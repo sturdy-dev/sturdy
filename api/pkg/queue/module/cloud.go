@@ -1,7 +1,7 @@
 //go:build cloud
 // +build cloud
 
-package queue
+package module
 
 import (
 	"getsturdy.com/api/pkg/di"
