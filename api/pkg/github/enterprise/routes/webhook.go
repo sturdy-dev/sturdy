@@ -54,6 +54,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *gh.PushEvent:
+			event.Commits = nil // do not send commits to workers, they are too big and we don't need them
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				Push: event,
 			}); err != nil {
