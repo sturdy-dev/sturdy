@@ -266,7 +266,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 			// snapshot on trunk is basically a copy of a commit => no diffs
 			diffsCount = 0
 		} else {
-			exec = exec.GitRead(countDiffs)
+			exec = exec.Read(countDiffs)
 			err = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, snapshotOptions...)
 				if err != nil {
