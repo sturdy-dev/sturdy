@@ -48,9 +48,9 @@ linux:
     Terminal: 'false'
 
   target:
-    - appImage
-    #- snap
-    - deb
+    # - appImage
+    - snap
+    # - deb
 
 dmg:
   background: assets/dmg.png
@@ -58,6 +58,9 @@ dmg:
     width: 658
     height: 498
   sign: true
+
+snap:
+  confinement: 'classic'
 
 nsis:
   menuCategory: false
