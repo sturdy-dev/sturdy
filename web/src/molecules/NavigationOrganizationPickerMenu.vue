@@ -266,7 +266,7 @@ import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { NavigationOrganizationPickerMenuFragment } from './__generated__/NavigationOrganizationPickerMenu'
 import { Feature } from '../__generated__/types'
 
-const ORGANIZATION_FRAGMENT = gql`
+export const ORGANIZATION_FRAGMENT = gql`
   fragment NavigationOrganizationPickerMenu on Organization {
     id
     name
