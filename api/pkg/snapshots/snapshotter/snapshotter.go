@@ -189,7 +189,25 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 
 	snapshotID := uuid.New().String()
 
-	var snapshotCommitID string
+	var (
+		snapshotCommitID string
+		diffsCount       int32
+	)
+
+	countDiffs := func(repo vcs.RepoGitReader) error {
+		gitDiffs, err := repo.CurrentDiffNoIndex()
+		if err != nil {
+			return fmt.Errorf("can't get git diffs: %w", err)
+		}
+		differ := unidiff.NewUnidiff(unidiff.NewGitPatchReader(gitDiffs), s.logger).
+			WithExpandedHunks()
+		diffs, err := differ.Decorate()
+		if err != nil {
+			return fmt.Errorf("can't decorate git diffs: %w", err)
+		}
+		diffsCount = int32(len(diffs))
+		return nil
+	}
 
 	var snapshotOptions []vcs_snapshots.SnapshotOption
 	if options.patchIDsFilter != nil {
@@ -200,12 +218,20 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	if options.onTrunk && options.onExistingCommit != nil && options.onRepo != nil {
+		if err := countDiffs(options.onRepo); err != nil {
+			return nil, err
+		}
+
 		var err error
 		snapshotCommitID, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
 		if err != nil {
 			return nil, err
 		}
 	} else if options.onRepo != nil && options.onView != nil {
+		if err := countDiffs(options.onRepo); err != nil {
+			return nil, err
+		}
+
 		var err error
 		snapshotCommitID, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, snapshotOptions...)
 		if err != nil {
@@ -227,7 +253,11 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 				snapshotCommitID = commitID
 				return nil
 			}).ExecTrunk(codebaseID, "snapshot")
+
+			// snapshot on trunk is basically a copy of a commit => no diffs
+			diffsCount = 0
 		} else {
+			exec = exec.GitRead(countDiffs)
 			err = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, snapshotOptions...)
 				if err != nil {
@@ -258,6 +288,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		CodebaseID:   codebaseID,
 		ChangedFiles: options.paths,
 		Action:       action,
+		DiffsCount:   &diffsCount,
 	}
 
 	if options.onView != nil {
@@ -283,7 +314,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 
 		// If authoritative view, or explicitly asked to mark this as the latest snapshot
 		if isAuthoritativeView || options.markAsLatestInWorkspace {
-			ws.LatestSnapshotID = &snap.ID
+			ws.SetSnapshot(snap)
 			if err := s.workspaceWriter.Update(context.TODO(), ws); err != nil {
 				return nil, fmt.Errorf("failed to update workspace: %w", err)
 			}
@@ -480,6 +511,7 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 		ViewID:      snapshot.CodebaseID,
 		WorkspaceID: snapshot.WorkspaceID,
 		Action:      snapshot.Action,
+		DiffsCount:  snapshot.DiffsCount,
 	}
 
 	if err := s.executorProvider.New().

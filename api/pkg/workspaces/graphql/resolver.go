@@ -15,6 +15,7 @@ import (
 	service_change "getsturdy.com/api/pkg/change/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/vcs"
@@ -29,9 +30,9 @@ type WorkspaceResolver struct {
 	hasConflictsErr  error
 	hasConflictsOnce sync.Once
 
-	diffsCount     int32
-	diffsCountErr  error
-	diffsCountOnce sync.Once
+	latestSnapshot     *snapshots.Snapshot
+	latestSnapshotErr  error
+	latestSnapshotOnce sync.Once
 }
 
 func (r *WorkspaceResolver) ID() graphql.ID {
@@ -141,19 +142,8 @@ func (r *WorkspaceResolver) CommentsCount(ctx context.Context) (int32, error) {
 	return c, nil
 }
 
-func (r *WorkspaceResolver) DiffsCount(ctx context.Context) (int32, error) {
-	r.diffsCountOnce.Do(func() {
-		diffs, _, err := r.root.workspaceService.Diffs(ctx, r.w.ID)
-		if errors.Is(err, db_snapshots.ErrNotFound) {
-			// TODO: there are some workspaces in the database where the latest snapshot is set, but deleted
-			// until that is the case, we have to return 0 here to not fail queries.
-			r.diffsCount = 0
-		} else {
-			r.diffsCountErr = err
-			r.diffsCount = int32(len(diffs))
-		}
-	})
-	return r.diffsCount, gqlerrors.Error(r.diffsCountErr)
+func (r *WorkspaceResolver) DiffsCount(ctx context.Context) *int32 {
+	return r.w.DiffsCount
 }
 
 func (r *WorkspaceResolver) Comments() ([]resolvers.TopCommentResolver, error) {
@@ -367,15 +357,30 @@ func (r *WorkspaceResolver) Suggestions(ctx context.Context) ([]resolvers.Sugges
 	return rr, nil
 }
 
+func (r *WorkspaceResolver) getLatestSnapshot() (*snapshots.Snapshot, error) {
+	r.latestSnapshotOnce.Do(func() {
+		if r.w.LatestSnapshotID == nil {
+			return
+		}
+		snaphot, err := r.root.snapshotsRepo.Get(*r.w.LatestSnapshotID)
+		r.latestSnapshot = snaphot
+		r.latestSnapshotErr = err
+	})
+	return r.latestSnapshot, r.latestSnapshotErr
+}
+
 func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolver, error) {
 	if r.w.LatestSnapshotID == nil {
 		return nil, nil
 	}
 
-	lastSnapshot, err := r.root.snapshotsRepo.Get(*r.w.LatestSnapshotID)
+	lastSnapshot, err := r.getLatestSnapshot()
 	switch {
 	case err == nil:
-		return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
+		if lastSnapshot != nil {
+			return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
+		}
+		return nil, nil
 	case errors.Is(err, db_snapshots.ErrNotFound):
 		return nil, nil
 	default:

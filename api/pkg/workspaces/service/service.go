@@ -267,7 +267,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 		if err != nil {
 			return fmt.Errorf("failed to create snapshot: %w", err)
 		}
-		dist.LatestSnapshotID = &snapshot.ID
+		dist.SetSnapshot(snapshot)
 	} else if options.PatchIDs != nil {
 		// if workspace doesn't have a view, copy patches from it's latest snapshot
 		if src.LatestSnapshotID == nil {
@@ -281,10 +281,11 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 		if err != nil {
 			return fmt.Errorf("failed to copy snapshot: %w", err)
 		}
-		dist.LatestSnapshotID = &snapshot.ID
+		dist.SetSnapshot(snapshot)
 	} else {
 		// if we don't need to copy patches, re-use the existing snapshot
 		dist.LatestSnapshotID = src.LatestSnapshotID
+		dist.DiffsCount = src.DiffsCount
 	}
 
 	if err := s.workspaceWriter.Update(ctx, dist); err != nil {
@@ -325,12 +326,14 @@ func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *worksp
 
 func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceRequest) (*workspaces.Workspace, error) {
 	t := time.Now()
+	var zero int32 = 0
 	ws := workspaces.Workspace{
 		ID:               uuid.New().String(),
 		UserID:           req.UserID,
 		CodebaseID:       req.CodebaseID,
 		CreatedAt:        &t,
 		DraftDescription: req.DraftDescription,
+		DiffsCount:       &zero,
 	}
 
 	if len(req.Name) > 0 {
@@ -383,7 +386,7 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 		); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
 		} else {
-			ws.LatestSnapshotID = &snapshot.ID
+			ws.SetSnapshot(snapshot)
 		}
 	}
 
@@ -481,7 +484,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 			ExecTemporaryView(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
 			return nil, fmt.Errorf("failed to create and land from snaphsot: %w", err)
 		}
-		ws.LatestSnapshotID = nil
+		ws.SetSnapshot(nil)
 	}
 
 	s.analyticsService.Capture(ctx, "create change",

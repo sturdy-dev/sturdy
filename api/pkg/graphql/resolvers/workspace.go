@@ -146,5 +146,5 @@ type WorkspaceResolver interface {
 	Watchers(context.Context) ([]WorkspaceWatcherResolver, error)
 	Suggestion(context.Context) (SuggestionResolver, error)
 	SuggestingViews() []ViewResolver
-	DiffsCount(context.Context) (int32, error)
+	DiffsCount(context.Context) *int32
 }

@@ -21,8 +21,9 @@ type Snapshot struct {
 	ChangedFiles       pq.StringArray `json:"changed_files" db:"changed_files"` // Unused, TODO: delete
 	DeletedFiles       pq.StringArray `json:"deleted_files" db:"deleted_files"` // Unused, TODO: delete
 	PreviousSnapshotID *string        `json:"previous_snapshot_id" db:"previous_snapshot_id"`
-	Action             Action         `json:"action" db:"action"`         // The action that triggered the snapshot creations
-	DeletedAt          *time.Time     `json:"deleted_at" db:"deleted_at"` // If the snapshot has been garbage collected
+	Action             Action         `json:"action" db:"action"`           // The action that triggered the snapshot creations
+	DeletedAt          *time.Time     `json:"deleted_at" db:"deleted_at"`   // If the snapshot has been garbage collected
+	DiffsCount         *int32         `json:"diffs_count" db:"diffs_count"` // number of diffs in a Snapshot
 }
 
 func (s *Snapshot) BranchName() string {
