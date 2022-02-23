@@ -410,6 +410,7 @@ const CODEBASE_FRAGMENT = gql`
     name
     shortID
     archivedAt
+    lastUpdatedAt
     createdAt
     isReady
 
@@ -465,18 +466,9 @@ const codebaseByMembership = function (
     }
   }
 }
-
-const codebaseLastActivity = (cb: CodebaseFragment) => {
-  return cb.workspaces.reduce((last, ws) => {
-    if (!ws.lastActivityAt) return last
-    return ws.lastActivityAt > last ? ws.lastActivityAt : last
-  }, cb.createdAt)
-}
-
-const codebaseByLastActivity = (a: CodebaseFragment, b: CodebaseFragment) => {
-  const av = codebaseLastActivity(a)
-  const bv = codebaseLastActivity(b)
-
+const codebaseByLastUpdated = (a: CodebaseFragment, b: CodebaseFragment) => {
+  let av = Math.max(a.lastUpdatedAt || 0, a.createdAt)
+  let bv = Math.max(b.lastUpdatedAt || 0, b.createdAt)
   if (!av && !bv) return 0
   if (!bv) return -1
   if (!av) return 1
@@ -651,7 +643,7 @@ export default defineComponent({
       return codebases
         .filter(nonArchived)
         .filter(onlyReady)
-        .sort(codebaseByLastActivity)
+        .sort(codebaseByLastUpdated)
         .sort(codebaseByMembership(this.user))
     },
     navigation(): NavigationCodebase[] {
