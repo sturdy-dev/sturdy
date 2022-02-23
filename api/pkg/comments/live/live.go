@@ -158,7 +158,11 @@ func GetWorkspaceComments(
 		if c.LineIsNew {
 			file, err = newFilesFS.Open(c.Path)
 		} else {
-			file, err = oldFilesFS.Open(c.Path)
+			if c.OldPath != nil {
+				file, err = oldFilesFS.Open(*c.OldPath)
+			} else {
+				file, err = oldFilesFS.Open(c.Path)
+			}
 		}
 		switch {
 		case err == nil:

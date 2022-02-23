@@ -238,6 +238,7 @@
                       :members="members"
                       :user="user"
                       :path="diffs.preferred_name || diffs.preferredName"
+                      :old-path="diffs.orig_name || diffs.origName"
                       :line-is-new="!!row.newNumber"
                       :line-start="row.oldNumber || row.newNumber"
                       :line-end="row.oldNumber || row.newNumber"
@@ -262,7 +263,7 @@
 
 <script lang="ts">
 import { CheckIcon, PlusIcon, XIcon } from '@heroicons/vue/solid'
-import { defineComponent, onMounted, PropType, reactive } from 'vue'
+import { defineComponent, PropType, reactive } from 'vue'
 import { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
 import DiffTable from './DiffTable.vue'
 import Button from '../shared/Button.vue'
