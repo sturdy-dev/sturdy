@@ -15,8 +15,7 @@
             </a>
           </p>
           <p v-else class="text-sm text-gray-500">
-            Integrate Sturdy with GitHub, to easily migrate from GitHub toworkspaceService,
-            syncService, Sturdy.
+            Install Sturdy for GitHub to use Sturdy on top of your existing GitHub repositories.
           </p>
         </div>
 
