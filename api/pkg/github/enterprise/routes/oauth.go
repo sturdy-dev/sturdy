@@ -88,7 +88,7 @@ func Oauth(
 
 		ghApiUser, resp, err := githubAPIClient.Users.Get(c.Request.Context(), "")
 		if err != nil {
-			if resp.StatusCode == http.StatusUnauthorized {
+			if resp != nil && resp.StatusCode == http.StatusUnauthorized {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "GitHub authentication failed: invalid code provided"})
 				return
 			} else {
