@@ -39,9 +39,8 @@ linux:
   category: development
   maintainer: Sturdy
   executableName: sturdy
-  # description: |
-  #   # Sturdy - Real-Time Version Control
-  #   Share, try, and iterate on code together using Sturdy’s supercharged workspaces. It’s like Slack instead of email.
+  description: |
+     # Sturdy - Real-Time Version Control
 
   desktop:
     Name: Sturdy
@@ -60,7 +59,9 @@ dmg:
   sign: true
 
 snap:
-  confinement: 'classic'
+  # TODO: Submit Sturdy for review to use the classic confinement (or see if we can make Sturdy run in the sandbox)
+  #   - (NEEDS REVIEW) confinement 'classic' not allowed. If your snap needs classic confinement to function, please make a request for this snap to use classic by creating a new topic in the forum using the 'store-requests' category and detail the technical reasons why classic is required.
+  confinement: 'devmode'
 
 nsis:
   menuCategory: false
@@ -88,3 +89,10 @@ publish:
     region: eu-north-1
     channel: latest
     publishAutoUpdate: true
+
+  - provider: snapStore
+    repo: Sturdy
+    channels:
+      - edge # TODO: Only set if building Sturdy Beta?
+      - beta
+      # - stable
