@@ -89,7 +89,7 @@ function build() {
   fi
 
   BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}.yml"
-
+  
   yq eval ".publish[0].url |= \"https://autoupdate.getsturdy.com/client$CHANNEL_PATH_SUFFIX/$OS/$ARCH\" | .publish[1].path=\"client$CHANNEL_PATH_SUFFIX/$OS/$ARCH\"" \
     electron-builder.yml > $BUILDER_CONFIG_YML
 
@@ -99,9 +99,9 @@ function build() {
 
   if [ ! -z "$CHANNEL" ]; then
     yq -i eval "
-      .productName += \" $CHANNEL\",
-      .appId += \"$CHANNEL_PATH_SUFFIX\",
-      .extraMetadata.name += \" $CHANNEL\",
+      .productName += \" $CHANNEL\" |
+      .appId += \"$CHANNEL_PATH_SUFFIX\" |
+      .extraMetadata.name += \" $CHANNEL\" |
       .linux.desktop.Name += \" $CHANNEL\"
     " "$BUILDER_CONFIG_YML"
   fi
