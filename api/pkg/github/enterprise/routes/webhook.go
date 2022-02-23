@@ -28,9 +28,10 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 		}
 
 		logger = logger.With(
-			zap.String("github_delivery", c.Request.Header.Get("X-GitHub-Delivery")),
-			zap.String("github_event", c.Request.Header.Get("X-GitHub-Event")),
-			zap.String("hook_id", c.Request.Header.Get("X-GitHub-Hook-Id")),
+			zap.String("X-GitHub-Delivery", c.Request.Header.Get("X-GitHub-Delivery")),
+			zap.String("X-GitHub-Event", c.Request.Header.Get("X-GitHub-Event")),
+			zap.String("X-GitHub-Hook-Id", c.Request.Header.Get("X-GitHub-Hook-Id")),
+			zap.Int64("Content-Length", c.Request.ContentLength),
 		)
 
 		logger.Info("github webhook", zap.String("type", fmt.Sprintf("%T", event)))

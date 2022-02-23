@@ -3,7 +3,6 @@ package cloud
 import (
 	"bytes"
 	"compress/zlib"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 )
@@ -29,11 +28,9 @@ func marshal(data interface{}) ([]byte, error) {
 	}
 
 	b := &bytes.Buffer{}
-	b64 := base64.NewEncoder(base64.StdEncoding, b)
-	deflate, _ := zlib.NewWriterLevel(b64, zlib.BestCompression)
+	deflate, _ := zlib.NewWriterLevel(b, zlib.BestCompression)
 	_, _ = deflate.Write(jsonData)
 	_ = deflate.Close()
-	_ = b64.Close()
 
 	return json.Marshal(transport{
 		ContentType: "application/octet-stream",
@@ -52,8 +49,7 @@ func unmarshal(data []byte, dist interface{}) error {
 	case "application/json":
 		return json.NewDecoder(dataReader).Decode(&dist)
 	case "application/octet-stream":
-		b64 := base64.NewDecoder(base64.StdEncoding, dataReader)
-		deflate, _ := zlib.NewReader(b64)
+		deflate, _ := zlib.NewReader(dataReader)
 		defer deflate.Close()
 		return json.NewDecoder(deflate).Decode(&dist)
 	default:
