@@ -64,6 +64,7 @@ export class MutagenExecutable {
         ...(options.env ?? process.env),
       },
       stdio,
+      windowsHide: true, // make sure that a subprocess window won't pop up
     }
   }
 
@@ -80,34 +81,42 @@ export class MutagenExecutable {
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>
   ): [proc: ChildProcessByStdio<Writable, Readable, Readable>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>
   ): [proc: ChildProcessByStdio<Writable, Readable, null>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>
   ): [proc: ChildProcessByStdio<Writable, null, Readable>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>
   ): [proc: ChildProcessByStdio<null, Readable, Readable>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>
   ): [proc: ChildProcessByStdio<Writable, null, null>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>
   ): [proc: ChildProcessByStdio<null, Readable, null>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>
   ): [proc: ChildProcessByStdio<null, null, Readable>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>
   ): [proc: ChildProcessByStdio<null, null, null>, onExit: Promise<void>]
+
   execute(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<any, any, any>
@@ -143,34 +152,42 @@ export class MutagenExecutable {
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioPipe>
   ): ChildProcessByStdio<Writable, Readable, Readable>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull>
   ): ChildProcessByStdio<Writable, Readable, null>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioPipe>
   ): ChildProcessByStdio<Writable, null, Readable>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioPipe>
   ): ChildProcessByStdio<null, Readable, Readable>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioPipe, StdioNull, StdioNull>
   ): ChildProcessByStdio<Writable, null, null>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioPipe, StdioNull>
   ): ChildProcessByStdio<null, Readable, null>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioPipe>
   ): ChildProcessByStdio<null, null, Readable>
+
   spawn(
     args: readonly string[],
     options: SpawnOptionsWithStdioTuple<StdioNull, StdioNull, StdioNull>
   ): ChildProcessByStdio<null, null, null>
+
   spawn(args: readonly string[], options: SpawnOptionsWithStdioTuple<any, any, any>): ChildProcess {
     const spawnOpts = this.#decorateSpawnOptions(options)
     this.#logger.log('spawn', {

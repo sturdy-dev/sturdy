@@ -81,7 +81,7 @@ export class MutagenDaemon extends TypedEventEmitter<MutagenDaemonEvents> {
 
   async onRunning() {
     if (!this.isRunning) {
-      await new Promise<void>((r) => this.once('session-manager-initialized', r))
+      await new Promise<void>((resolve) => this.once('session-manager-initialized', resolve))
     }
   }
 
@@ -144,7 +144,7 @@ export class MutagenDaemon extends TypedEventEmitter<MutagenDaemonEvents> {
     }
     const process = this.#process
     process.kill(signal)
-    await new Promise((r) => process.once('exit', r))
+    await new Promise((resolve) => process.once('exit', resolve))
   }
 
   async deleteDir() {
