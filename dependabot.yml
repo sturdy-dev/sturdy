@@ -1,0 +1,27 @@
+version: 2
+updates:
+
+  - directory: "/api"
+    package-ecosystem: "go"
+    schedule:
+      interval: "daily"
+
+  - directory: "/ssh"
+    package-ecosystem: "go"
+    schedule:
+      interval: "daily"
+
+  - directory: "/client"
+    package-ecosystem: "go"
+    schedule:
+      interval: "daily"
+
+  - directory: "/web"
+    package-ecosystem: "npm"
+    schedule:
+      interval: "daily"
+
+  - directory: "/app"
+    package-ecosystem: "npm"
+    schedule:
+      interval: "daily"
