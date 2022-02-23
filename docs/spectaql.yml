@@ -1,0 +1,29 @@
+#spectaql:
+#  logoFile: ./test/fixtures/logo.png
+#  faviconFile: ./test/fixtures/favicon.png
+
+introspection:
+  url: https://api.getsturdy.com/graphql
+
+#introspection:
+#  removeTrailingPeriodFromDescriptions: false
+#  schemaFile: ./examples/data/schema.gql
+#  metadataFile: ./examples/data/metadata.json
+#  dynamicExamplesProcessingModule: ./examples/customizations/examples
+
+info:
+  title: Sturdy GraphQL API Reference
+  description: Get started with the Sturdy API
+  termsOfService: https://getsturdy.com/terms
+  #contact:
+  #  name: API Support
+  #  url: http://www.example.com/support
+  #  email: support@example.com
+  #license:
+  #  name: Apache 2.0
+  #  url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.getsturdy.com/graphql
+    description: Sturdy
+    production: true

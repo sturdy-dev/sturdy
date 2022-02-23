@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@2fd/graphdoc": "^2.4.0"
+    "spectaql": "^0.12.0"
   }
 }
