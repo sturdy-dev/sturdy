@@ -23,9 +23,14 @@ fi
 source build-common.sh
 
 ARCH=amd64
+OS="darwin"
 
 if [[ $(uname -m) == "arm64" ]]; then
   ARCH=arm64
 fi
 
-download_sturdy_sync darwin "$ARCH"
+if [[ $(uname) == "Linux" ]]; then
+  OS="linux"
+fi
+
+download_sturdy_sync "$OS" "$ARCH"

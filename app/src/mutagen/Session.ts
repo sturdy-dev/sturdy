@@ -1,5 +1,5 @@
 import { MutagenSessionConfigurator } from './SessionConfigurator'
-import { ViewConfig } from '../Config'
+import { ViewConfig } from '../config'
 import { MutagenExecutable } from './Executable'
 import { MutagenDaemon } from './Daemon'
 import { Logger } from '../Logger'
