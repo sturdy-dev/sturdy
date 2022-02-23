@@ -7,7 +7,7 @@ import { dataPath, resourcePath } from '../resources'
 import { Status } from './Status'
 import { dialog, BrowserWindow, shell, app } from 'electron'
 import { Logger } from '../Logger'
-import { File } from '../Config'
+import { File } from '../config'
 import { AppIPC, MutagenIPC, sharedAppIpc, sharedMutagenIpc } from '../ipc'
 import { TypedEventEmitter } from '../TypedEventEmitter'
 
