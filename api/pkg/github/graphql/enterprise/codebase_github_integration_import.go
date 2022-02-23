@@ -167,7 +167,7 @@ func (r *codebaseGitHubIntegrationRootResolver) RefreshGitHubCodebases(ctx conte
 	}
 
 	// add user to codebases
-	if err := r.gitHubService.AddUserToCodebases(ctx, userID); err != nil {
+	if err := r.gitHubService.AddUserIDToCodebases(ctx, userID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
