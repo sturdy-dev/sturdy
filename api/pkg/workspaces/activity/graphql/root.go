@@ -79,12 +79,13 @@ func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID stri
 	if unreadOnly {
 		userID, err := auth.UserID(ctx)
 		if err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-		if read, err := r.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, workspaceID); err == nil {
-			newerThan = read.LastReadCreatedAt
-		} else if !errors.Is(err, sql.ErrNoRows) {
-			return nil, gqlerrors.Error(err)
+			// can't filter by unread if not logged in
+		} else {
+			if read, err := r.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, workspaceID); err == nil {
+				newerThan = read.LastReadCreatedAt
+			} else if !errors.Is(err, sql.ErrNoRows) {
+				return nil, gqlerrors.Error(err)
+			}
 		}
 	}
 
