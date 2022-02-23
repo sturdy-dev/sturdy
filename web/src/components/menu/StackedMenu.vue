@@ -378,6 +378,7 @@ const WORKSPACE_FRAGMENT = gql`
     }
 
     commentsCount
+    diffsCount
   }
   ${PRESENSE_FRAGMENT}
   ${WORKSPACE_ACTIVITY_FRAGMENT}
@@ -492,7 +493,8 @@ const showTo = function (user: User | undefined): (ws: WorkspaceFragment) => boo
         const isOwnWorkspace = ws.author.id === user.id
         const hasComments = ws.commentsCount > 0
         const hasActivity = ws.activity.length > 0
-        const hasDiffs = true // ws.diffsCount > 0
+        const hasDiffs =
+          ws.diffsCount !== null && ws.diffsCount !== undefined ? ws.diffsCount > 0 : true // fallback for older workspaces without diffs count
         const reviewRequested = ws.reviews.some(reviewByUserId(user.id))
         return isOwnWorkspace ? true : hasComments || hasActivity || hasDiffs || reviewRequested
       }
