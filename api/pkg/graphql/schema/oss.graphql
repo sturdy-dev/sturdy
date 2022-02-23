@@ -647,9 +647,11 @@ input CreateCommentInput {
   # If this is a reply to a TopComment
   inReplyTo: ID
 
-  # (path, lineStart, lineEnd, lineIsNew, changeID, workspaceID, and viewID) are mutually exclusive with inReplyTo
+  # (path, oldPath, lineStart, lineEnd, lineIsNew, changeID, workspaceID, and viewID) are mutually exclusive with inReplyTo
   # as they can only be set on TopComments
   path: String
+  oldPath: String # Required to be set when commenting on _deleted_ lines of a _moved_ file.
+
   lineStart: Int
   lineEnd: Int
   lineIsNew: Boolean

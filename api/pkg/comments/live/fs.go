@@ -120,7 +120,6 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 			return fmt.Errorf("failed to get head commit: %w", err)
 		}
 		defer headCommit.Free()
-
 		file, err = fileFromCommit(repo, headCommit.Id().String(), path)
 		return err
 	}).ExecView(viewFS.codebaseID, viewFS.viewID, fmt.Sprintf("open %s", path))

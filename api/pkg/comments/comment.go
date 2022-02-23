@@ -1,8 +1,9 @@
 package comments
 
 import (
-	"getsturdy.com/api/pkg/change"
 	"time"
+
+	"getsturdy.com/api/pkg/change"
 )
 
 type ID string
@@ -22,7 +23,8 @@ type Comment struct {
 	Message   string     `db:"message"`
 
 	// The file that is commented on
-	Path string `db:"path"`
+	Path    string  `db:"path"`
+	OldPath *string `db:"old_path"`
 
 	// The first and last line to be commented on (1-indexed), from the _start_ of the file.
 	// Not relative to the start of the hunk.

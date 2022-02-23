@@ -447,7 +447,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 		// Comment on code
 		if args.Input.Path != nil {
 			// Build context
-			context, contextStartsAt, err := vcs.GetContext(int(*args.Input.LineStart), *args.Input.LineIsNew, *args.Input.Path, ws, r.executorProvider, r.snapshotRepo)
+			context, contextStartsAt, err := vcs.GetContext(int(*args.Input.LineStart), *args.Input.LineIsNew, *args.Input.Path, args.Input.OldPath, ws, r.executorProvider, r.snapshotRepo)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create context: %w", err)
 			}
@@ -495,6 +495,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 	// Comment on code
 	if args.Input.Path != nil {
 		newComm.Path = *args.Input.Path
+		newComm.OldPath = args.Input.OldPath
 		newComm.LineStart = int(*args.Input.LineStart)
 		newComm.LineEnd = int(*args.Input.LineEnd)
 		newComm.LineIsNew = *args.Input.LineIsNew

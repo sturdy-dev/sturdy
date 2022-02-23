@@ -2,11 +2,10 @@ package vcs
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
-
-	"io/ioutil"
 
 	events2 "getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
@@ -193,7 +192,7 @@ func TestContext(t *testing.T) {
 				ws.LatestSnapshotID = &snapshot.ID
 			}
 
-			res, contextStartsAt, err := GetContext(tc.lineNumber, tc.lineIsNew, "file.txt", ws, executorProvider, snapshotRepo)
+			res, contextStartsAt, err := GetContext(tc.lineNumber, tc.lineIsNew, "file.txt", nil, ws, executorProvider, snapshotRepo)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, res)
 			assert.Equal(t, tc.expectedContextStartsAt, contextStartsAt)

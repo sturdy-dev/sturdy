@@ -57,6 +57,7 @@ type CreateCommentInput struct {
 	InReplyTo *graphql.ID
 
 	Path        *string
+	OldPath     *string
 	LineStart   *int32
 	LineEnd     *int32
 	LineIsNew   *bool

@@ -91,6 +91,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    oldPath: {
+      type: String,
+      required: true,
+    },
     lineStart: {
       type: Number,
       required: true,
@@ -131,6 +135,7 @@ export default defineComponent({
       async createComment(
         message: string,
         path: string | undefined,
+        oldPath: string | undefined,
         lineStart: number | undefined,
         lineEnd: number | undefined,
         lineIsNew: boolean,
@@ -141,6 +146,7 @@ export default defineComponent({
         await createCommentResult({
           message: ConvertEmojiToColons(message),
           path,
+          oldPath,
           lineStart,
           lineEnd,
           lineIsNew,
@@ -207,6 +213,7 @@ export default defineComponent({
       this.createComment(
         this.message,
         this.path,
+        this.oldPath,
         this.lineStart,
         this.lineStart, // TODO: Support multiline comments
         this.lineIsNew,

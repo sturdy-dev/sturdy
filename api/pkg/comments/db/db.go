@@ -38,8 +38,8 @@ func (r *repo) Get(id comments.ID) (comments.Comment, error) {
 }
 
 func (r *repo) Create(comment comments.Comment) error {
-	_, err := r.db.NamedExec(`INSERT INTO comments (id, codebase_id, change_id, user_id, created_at, message, path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id)
-		VALUES (:id, :codebase_id, :change_id, :user_id, :created_at, :message, :path, :line_start, :line_end, :line_is_new, :workspace_id, :context, :context_starts_at_line, :parent_comment_id)`, &comment)
+	_, err := r.db.NamedExec(`INSERT INTO comments (id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id)
+		VALUES (:id, :codebase_id, :change_id, :user_id, :created_at, :message, :path, :old_path, :line_start, :line_end, :line_is_new, :workspace_id, :context, :context_starts_at_line, :parent_comment_id)`, &comment)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
@@ -61,7 +61,7 @@ func (r *repo) Update(comment comments.Comment) error {
 
 func (r *repo) GetByCodebaseAndChange(codebaseID string, changeID change.ID) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
 		FROM comments
 		WHERE codebase_id = $1
 		  AND change_id = $2
@@ -76,7 +76,7 @@ func (r *repo) GetByCodebaseAndChange(codebaseID string, changeID change.ID) ([]
 
 func (r *repo) GetByWorkspace(workspaceID string) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
 		FROM comments
 		WHERE workspace_id = $1
 		  AND deleted_at IS NULL
@@ -90,7 +90,7 @@ func (r *repo) GetByWorkspace(workspaceID string) ([]comments.Comment, error) {
 
 func (r *repo) GetByParent(id comments.ID) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
 		FROM comments
 		WHERE parent_comment_id = $1
 		  AND deleted_at IS NULL

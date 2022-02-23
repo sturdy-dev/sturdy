@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"bufio"
+	"io/fs"
 	"strings"
 
 	"getsturdy.com/api/pkg/comments/live"
@@ -10,13 +11,25 @@ import (
 	"getsturdy.com/api/vcs/executor"
 )
 
-func GetContext(lineNumber int, lineIsNew bool, filePath string, ws *workspaces.Workspace, executorProvider executor.Provider, snapshotRepo db_snapshots.Repository) (context string, startsAtLine int, err error) {
-	fs, err := live.WorkspaceFS(executorProvider, snapshotRepo, ws, lineIsNew)
+func GetContext(lineNumber int, lineIsNew bool, filePath string, oldFilePath *string, ws *workspaces.Workspace, executorProvider executor.Provider, snapshotRepo db_snapshots.Repository) (context string, startsAtLine int, err error) {
+	workspaceFS, err := live.WorkspaceFS(executorProvider, snapshotRepo, ws, lineIsNew)
 	if err != nil {
 		return "", -1, err
 	}
 
-	file, err := fs.Open(filePath)
+	var file fs.File
+	if lineIsNew {
+		// New lines, always use the new file name
+		file, err = workspaceFS.Open(filePath)
+	} else {
+		if oldFilePath != nil {
+			// Comment on old line, and oldFilePath is set
+			file, err = workspaceFS.Open(*oldFilePath)
+		} else {
+			// Comment on old line, and oldFilePath is not set
+			file, err = workspaceFS.Open(filePath)
+		}
+	}
 	if err != nil {
 		return "", -1, err
 	}
