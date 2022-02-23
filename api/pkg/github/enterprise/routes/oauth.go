@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -21,11 +19,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	githubOAuth "golang.org/x/oauth2/github"
 )
-
-type GitHubAuthReq struct {
-	Code string `json:"code" binding:"required"`
-}
 
 func Oauth(
 	logger *zap.Logger,
@@ -34,6 +29,14 @@ func Oauth(
 	gitHubUserRepo db.GitHubUserRepo,
 	gitHubService *service_github.Service,
 ) func(*gin.Context) {
+	type GitHubAuthReq struct {
+		Code string `json:"code" binding:"required"`
+	}
+	oauthCfg := &oauth2.Config{
+		ClientID:     config.ClientID,
+		ClientSecret: config.Secret,
+		Endpoint:     githubOAuth.Endpoint,
+	}
 	return func(c *gin.Context) {
 		var incomingReq GitHubAuthReq
 		if err := c.ShouldBindJSON(&incomingReq); err != nil {
@@ -48,35 +51,42 @@ func Oauth(
 			return
 		}
 
-		// This user already have a github account connected
-		// Do a quick refresh of the permissions, and return early
-		if _, err := gitHubUserRepo.GetByUserID(userID); err == nil {
-			err = gitHubService.AddUserToCodebases(context.Background(), userID)
-			if err != nil {
-				logger.Error("failed to update codebase access for already authed user", zap.Error(err))
-				c.Status(http.StatusInternalServerError)
+		logger = logger.With(zap.String("user_id", userID))
+
+		if ghUser, err := gitHubUserRepo.GetByUserID(userID); errors.Is(err, sql.ErrNoRows) {
+			// This user doesn't have a github connected yet, connect it.
+		} else if err != nil {
+			logger.Error("failed to get user", zap.Error(err))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		} else {
+			// If user has a github connected already, refresh permissions without asking for a new token
+			if err := gitHubService.AddUserToCodebases(c.Request.Context(), ghUser); err != nil {
+				logger.Error("failed to add user to codebases", zap.Error(err))
+				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-
-			c.Status(http.StatusOK)
-			return
-		} else if !errors.Is(err, sql.ErrNoRows) {
-			logger.Error("failed to read github_users db", zap.Error(err))
-			c.Status(http.StatusInternalServerError)
 			return
 		}
 
-		accessToken, err := getAccessToken(logger, config, incomingReq.Code)
+		user, err := userRepo.Get(userID)
 		if err != nil {
+			logger.Error("failed to get user by ID provided in the state query param", zap.Error(err))
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		token, err := oauthCfg.Exchange(c.Request.Context(), incomingReq.Code)
+		if err != nil {
+			logger.Error("failed to exchange code for access token", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
 		}
 
-		ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
-		tc := oauth2.NewClient(c.Request.Context(), ts)
-		client := gh.NewClient(tc)
+		githubOAuth2Client := oauthCfg.Client(c.Request.Context(), token)
+		githubAPIClient := gh.NewClient(githubOAuth2Client)
 
-		ghApiUser, resp, err := client.Users.Get(c.Request.Context(), "")
+		ghApiUser, resp, err := githubAPIClient.Users.Get(c.Request.Context(), "")
 		if err != nil {
 			if resp.StatusCode == http.StatusUnauthorized {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "GitHub authentication failed: invalid code provided"})
@@ -88,22 +98,14 @@ func Oauth(
 			}
 		}
 
-		user, err := userRepo.Get(userID)
-		if err != nil {
-			logger.Error("failed to get user by ID provided in the state query param", zap.Error(err))
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-
 		ghUser, err := gitHubUserRepo.GetByUsername(ghApiUser.GetLogin())
 		if errors.Is(err, sql.ErrNoRows) {
-			t0 := time.Now()
 			ghUser = &github.GitHubUser{
 				ID:          uuid.NewString(),
 				UserID:      user.ID,
 				Username:    ghApiUser.GetLogin(),
-				AccessToken: accessToken,
-				CreatedAt:   t0,
+				AccessToken: token.AccessToken,
+				CreatedAt:   time.Now(),
 			}
 			if err := gitHubUserRepo.Create(*ghUser); err != nil {
 				logger.Error("failed to create github user in db", zap.Error(err))
@@ -114,61 +116,15 @@ func Oauth(
 			logger.Error("failed to lookup github user repo in db", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
-		}
-
-		if ghUser.UserID != user.ID {
+		} else if ghUser.UserID != user.ID {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", user.Email)})
 			return
 		}
 
-		if err := gitHubService.AddUserToCodebases(c.Request.Context(), user.ID); err != nil {
+		if err := gitHubService.AddUserToCodebases(c.Request.Context(), ghUser); err != nil {
 			logger.Error("failed to grant user access", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
 		}
-
-		c.Status(http.StatusOK)
 	}
-}
-
-type OAuthAccessResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
-func getAccessToken(logger *zap.Logger, config *config.GitHubAppConfig, code string) (token string, err error) {
-	httpClient := http.Client{}
-
-	// Next, lets for the HTTP request to call the github oauth endpoint
-	// to get our access token
-	reqURL := fmt.Sprintf("%s?client_id=%s&client_secret=%s&code=%s",
-		"https://github.com/login/oauth/access_token/",
-		config.ClientID,
-		config.Secret,
-		code)
-
-	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
-	if err != nil {
-		logger.Error("failed to build oauth request", zap.Error(err))
-		return "", err
-	}
-	// We set this header since we want the response
-	// as JSON
-	req.Header.Set("accept", "application/json")
-
-	// Send out the HTTP request
-	res, err := httpClient.Do(req)
-	if err != nil {
-		logger.Error("failed to call endpoint", zap.Error(err))
-		return "", err
-	}
-	defer res.Body.Close()
-
-	// Parse the request body into the `OAuthAccessResponse` struct
-	var t OAuthAccessResponse
-	if err := json.NewDecoder(res.Body).Decode(&t); err != nil {
-		logger.Error("failed to parse response", zap.Error(err))
-		return "", err
-	}
-
-	return t.AccessToken, nil
 }

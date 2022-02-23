@@ -10,39 +10,35 @@ import (
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
+	"golang.org/x/oauth2"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 )
 
-// AddUserToCodebases adds finds all GitHub installations and repositories that this user can see, and adds the user to
-// all of those codebases.
-//nolint:contextcheck
-func (svc *Service) AddUserToCodebases(ctx context.Context, userID string) error {
-	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
+func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID string) error {
+	githubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
 	if err != nil {
 		return fmt.Errorf("failed to get github user: %w", err)
 	}
+	return svc.AddUserToCodebases(ctx, githubUser)
+}
 
-	bgCtx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: existingGitHubUser.AccessToken},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	userAuthClient := gh.NewClient(tc)
+func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.GitHubUser) error {
+	githubOAuth2Client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: ghUser.AccessToken}))
+	githubAPIClient := gh.NewClient(githubOAuth2Client)
 
-	installations, err := svc.listAllUserInstallations(bgCtx, userAuthClient)
+	installations, err := svc.listAllUserInstallations(ctx, githubAPIClient)
 	if err != nil {
 		return fmt.Errorf("failed to lookup installations for user: %w", err)
 	}
 
 	for _, installation := range installations {
 		if err = svc.addUserToInstallationCodebases(
-			bgCtx,
-			userID,
-			userAuthClient,
+			ctx,
+			ghUser.ID,
+			githubAPIClient,
 			installation.GetID(),
 		); err != nil {
 			svc.logger.Error("failed to set codebase access for user", zap.Error(err))
