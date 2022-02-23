@@ -50,9 +50,8 @@ build darwin arm64
 
 build windows amd64 zip
 
-# TODO: Enable at some point?
 build linux amd64
-build linux arm64
+#build linux arm64
 
 if ((DO_UPLOAD)); then
 	invalidate_cloudfront "${CHANNEL}"
