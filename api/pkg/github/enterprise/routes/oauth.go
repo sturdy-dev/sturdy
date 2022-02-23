@@ -79,23 +79,18 @@ func Oauth(
 		token, err := oauthCfg.Exchange(c.Request.Context(), incomingReq.Code)
 		if err != nil {
 			logger.Error("failed to exchange code for access token", zap.Error(err))
-			c.Status(http.StatusInternalServerError)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "GitHub authentication failed: invalid code provided"})
 			return
 		}
 
 		githubOAuth2Client := oauthCfg.Client(c.Request.Context(), token)
 		githubAPIClient := gh.NewClient(githubOAuth2Client)
 
-		ghApiUser, resp, err := githubAPIClient.Users.Get(c.Request.Context(), "")
+		ghApiUser, _, err := githubAPIClient.Users.Get(c.Request.Context(), "")
 		if err != nil {
-			if resp != nil && resp.StatusCode == http.StatusUnauthorized {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "GitHub authentication failed: invalid code provided"})
-				return
-			} else {
-				logger.Error("failed to get github user from api", zap.Error(err))
-				c.Status(http.StatusInternalServerError)
-				return
-			}
+			logger.Error("failed to get github user from api", zap.Error(err))
+			c.Status(http.StatusInternalServerError)
+			return
 		}
 
 		ghUser, err := gitHubUserRepo.GetByUsername(ghApiUser.GetLogin())
