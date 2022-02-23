@@ -272,6 +272,7 @@ import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Tooltip from '../shared/Tooltip.vue'
 import {
   CodebaseFragment,
+  OrganizationFragment,
   PresenceFragment as WorkspacePresence,
   StackedMenu_ViewFragment as View,
   StackedMenu_WorkspaceActivityFragment as WorkspaceActivity,
@@ -292,12 +293,13 @@ import {
 import AppTitleBarSpacer from '../AppTitleBarSpacer.vue'
 import AppHistoryNavigationButtons from '../AppHistoryNavigationButtons.vue'
 import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
-import NavigationOrganizationPickerMenu from '../../molecules/NavigationOrganizationPickerMenu.vue'
+import NavigationOrganizationPickerMenu, {
+  ORGANIZATION_FRAGMENT as NAVIGATION_ORGANIZATION_FRAGMENT,
+} from '../../molecules/NavigationOrganizationPickerMenu.vue'
 
 const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   fragment StackedMenu_WorkspaceActivity on WorkspaceActivity {
     id
-    isRead
     ... on WorkspaceRequestedReviewActivity {
       id
     }
@@ -407,7 +409,6 @@ const CODEBASE_FRAGMENT = gql`
     id
     name
     shortID
-    lastUpdatedAt
     archivedAt
     createdAt
     isReady
@@ -423,10 +424,6 @@ const CODEBASE_FRAGMENT = gql`
     members {
       ...StackedMenu_Member
     }
-
-    organization {
-      id
-    }
   }
 
   ${VIEW_STATUS_INDICATOR}
@@ -438,14 +435,13 @@ const CODEBASE_FRAGMENT = gql`
 const ORGANIZATION_FRAGMENT = gql`
  fragment Organization on Organization {
     id
-    shortID
-    name
-
+    ...NavigationOrganizationPickerMenu
     codebases {
       ...Codebase
     }
 
     ${CODEBASE_FRAGMENT}
+    ${NAVIGATION_ORGANIZATION_FRAGMENT}
  }
 `
 
@@ -470,9 +466,16 @@ const codebaseByMembership = function (
   }
 }
 
-const codebaseByLastUpdated = (a: CodebaseFragment, b: CodebaseFragment) => {
-  let av = Math.max(a.lastUpdatedAt || 0, a.createdAt)
-  let bv = Math.max(b.lastUpdatedAt || 0, b.createdAt)
+const codebaseLastActivity = (cb: CodebaseFragment) => {
+  return cb.workspaces.reduce((last, ws) => {
+    if (!ws.lastActivityAt) return last
+    return ws.lastActivityAt > last ? ws.lastActivityAt : last
+  }, cb.createdAt)
+}
+
+const codebaseByLastActivity = (a: CodebaseFragment, b: CodebaseFragment) => {
+  const av = codebaseLastActivity(a)
+  const bv = codebaseLastActivity(b)
 
   if (!av && !bv) return 0
   if (!bv) return -1
@@ -635,22 +638,19 @@ export default defineComponent({
       return !!this.user
     },
     codebases(): CodebaseFragment[] {
-      let res: CodebaseFragment[] = []
-      if (this.currentOrDefaultOrganization) {
-        res = this.currentOrDefaultOrganization.codebases
-      }
+      const codebases: CodebaseFragment[] = this.currentOrDefaultOrganization?.codebases ?? []
 
       // Codebase by URL, might not be in the current organization
       if (this.data?.codebase) {
-        if (!res.some((c) => c.id === this.data?.codebase?.id)) {
-          res.push(this.data.codebase)
+        if (!codebases.some((c) => c.id === this.data?.codebase?.id)) {
+          codebases.push(this.data.codebase)
         }
       }
 
-      return res
+      return codebases
         .filter(nonArchived)
         .filter(onlyReady)
-        .sort(codebaseByLastUpdated)
+        .sort(codebaseByLastActivity)
         .sort(codebaseByMembership(this.user))
     },
     navigation(): NavigationCodebase[] {
@@ -731,20 +731,18 @@ export default defineComponent({
         }
       })
     },
-    currentOrDefaultOrganization() {
+    currentOrDefaultOrganization(): OrganizationFragment | undefined {
       // From codebase page URL
       if (
         this.$route.params?.codebaseSlug &&
         this.data?.organizations &&
         this.data?.organizations.length > 0
       ) {
-        let shortID = IdFromSlug(this.$route.params?.codebaseSlug as string)
-        let org = this.data?.organizations.find((org) =>
+        const shortID = IdFromSlug(this.$route.params?.codebaseSlug as string)
+        const org = this.data?.organizations.find((org) =>
           org.codebases.find((c) => c.shortID === shortID)
         )
-        if (org) {
-          return org
-        }
+        if (org) return org
       }
 
       // From organization page URL
@@ -753,12 +751,10 @@ export default defineComponent({
         this.data?.organizations &&
         this.data?.organizations.length > 0
       ) {
-        let org = this.data?.organizations.find(
+        const org = this.data?.organizations.find(
           (org) => org.shortID === this.$route.params?.organizationSlug
         )
-        if (org) {
-          return org
-        }
+        if (org) return org
       }
 
       // Fallback to first organization
@@ -767,7 +763,7 @@ export default defineComponent({
       }
 
       // User has no organizations
-      return null
+      return undefined
     },
   },
 
