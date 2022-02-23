@@ -12,6 +12,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/unidiff/lfs"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -194,13 +195,21 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		diffsCount       int32
 	)
 
-	countDiffs := func(repo vcs.RepoGitReader) error {
+	countDiffs := func(repo vcs.RepoReader) error {
 		gitDiffs, err := repo.CurrentDiffNoIndex()
 		if err != nil {
 			return fmt.Errorf("can't get git diffs: %w", err)
 		}
+
+		ignoreLFS, err := lfs.NewIgnoreLfsSmudgedFilter(repo)
+		if err != nil {
+			return fmt.Errorf("could not smudge lfs files: %w", err)
+		}
+
 		differ := unidiff.NewUnidiff(unidiff.NewGitPatchReader(gitDiffs), s.logger).
-			WithExpandedHunks()
+			WithExpandedHunks().
+			WithFilterFunc(ignoreLFS)
+
 		diffs, err := differ.Decorate()
 		if err != nil {
 			return fmt.Errorf("can't decorate git diffs: %w", err)
