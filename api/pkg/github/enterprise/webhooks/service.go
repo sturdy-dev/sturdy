@@ -20,7 +20,6 @@ import (
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
-	"getsturdy.com/api/pkg/github/enterprise/client"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
@@ -361,7 +360,7 @@ func (svc *Service) accessToken(installationID, repositoryID int64) (string, err
 		return "", fmt.Errorf("could not get installation: %w", err)
 	}
 
-	accessToken, err := client.GetAccessToken(context.Background(), svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
+	accessToken, err := github_client.GetAccessToken(context.Background(), svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
 	if err != nil {
 		return "", fmt.Errorf("failed to get access token: %w", err)
 	}
@@ -467,8 +466,15 @@ func (svc *Service) HandleInstallationRepositoriesEvent(event *gh.InstallationRe
 		// Mark uninstalled repos as uninstalled
 		for _, r := range event.RepositoriesRemoved {
 			installedRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), r.GetID())
-			if err != nil {
-				svc.logger.Error("failed to mark as uninstalled", zap.Error(err))
+			if errors.Is(err, sql.ErrNoRows) {
+				continue
+			} else if err != nil {
+				svc.logger.Error(
+					"failed to mark as uninstalled",
+					zap.Error(err),
+					zap.Int64("repository_id", r.GetID()),
+					zap.Int64("installation_id", event.GetInstallation().GetID()),
+				)
 				continue
 			}
 
@@ -476,7 +482,12 @@ func (svc *Service) HandleInstallationRepositoriesEvent(event *gh.InstallationRe
 			installedRepo.UninstalledAt = &t
 
 			if err := svc.gitHubRepositoryRepo.Update(installedRepo); err != nil {
-				svc.logger.Error("failed to mark as uninstalled", zap.Error(err))
+				svc.logger.Error(
+					"failed to mark as uninstalled",
+					zap.Error(err),
+					zap.Int64("repository_id", r.GetID()),
+					zap.Int64("installation_id", event.GetInstallation().GetID()),
+				)
 				continue
 			}
 		}
