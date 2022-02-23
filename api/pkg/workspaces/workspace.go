@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/snapshots"
 )
 
 type Workspace struct {
@@ -31,11 +32,22 @@ type Workspace struct {
 	// Is used as the "live" diff if the workspace has no view connected
 	// and to restore the contents when the workspace is opened again
 	LatestSnapshotID *string `db:"latest_snapshot_id" json:"-"`
+	DiffsCount       *int32  `db:"diffs_count" json:"-"`
 
 	UpToDateWithTrunk *bool `db:"up_to_date_with_trunk"`
 
 	HeadChangeID       *change.ID `db:"head_change_id" json:"-"`
 	HeadChangeComputed bool       `db:"head_change_computed" json:"-"`
+}
+
+func (w *Workspace) SetSnapshot(snapshot *snapshots.Snapshot) {
+	if snapshot == nil {
+		w.LatestSnapshotID = nil
+		w.DiffsCount = nil
+	} else {
+		w.LatestSnapshotID = &snapshot.ID
+		w.DiffsCount = snapshot.DiffsCount
+	}
 }
 
 func (w Workspace) IsArchived() bool {

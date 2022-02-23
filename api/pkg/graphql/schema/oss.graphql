@@ -450,7 +450,7 @@ type Workspace {
   # A list of users watching this workspace.
   watchers: [WorkspaceWatcher!]!
 
-  diffsCount: Int!
+  diffsCount: Int
 }
 
 input WatchWorkspaceInput {

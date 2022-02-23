@@ -19,9 +19,9 @@ func NewRepo(db *sqlx.DB) Repository {
 
 func (r *repo) Create(entity workspaces.Workspace) error {
 	_, err := r.db.NamedExec(`INSERT INTO workspaces
-		(id, user_id, codebase_id, name, created_at, view_id, latest_snapshot_id, draft_description)
+		(id, user_id, codebase_id, name, created_at, view_id, latest_snapshot_id, draft_description, diffs_count)
 		VALUES
-		(:id, :user_id, :codebase_id, :name, :created_at, :view_id, :latest_snapshot_id, :draft_description)`, &entity)
+		(:id, :user_id, :codebase_id, :name, :created_at, :view_id, :latest_snapshot_id, :draft_description, :diffs_count)`, &entity)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
@@ -30,7 +30,7 @@ func (r *repo) Create(entity workspaces.Workspace) error {
 
 func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 	var entity workspaces.Workspace
-	err := r.db.Get(&entity, `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed
+	err := r.db.Get(&entity, `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
 	FROM workspaces
 	WHERE id=$1`, id)
 	if err != nil {
@@ -40,7 +40,7 @@ func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 }
 
 func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]*workspaces.Workspace, error) {
-	q := `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed
+	q := `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
 	FROM workspaces
 	WHERE codebase_id IN(?)`
 
@@ -63,7 +63,7 @@ func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]
 }
 
 func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) ([]*workspaces.Workspace, error) {
-	query, args, err := sqlx.In(`SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id
+	query, args, err := sqlx.In(`SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, diffs_count
 	FROM workspaces
 	WHERE codebase_id IN(?)
 	  AND user_id = ?
@@ -97,7 +97,8 @@ func (r *repo) Update(ctx context.Context, entity *workspaces.Workspace) error {
 		    view_id = :view_id,
 		    latest_snapshot_id = :latest_snapshot_id,
 		    head_change_id = :head_change_id,
-		    head_change_computed = :head_change_computed
+		    head_change_computed = :head_change_computed,
+			diffs_count = :diffs_count
 		WHERE id = :id`, &entity); err != nil {
 		return fmt.Errorf("failed to perform update: %w", err)
 	}
@@ -115,7 +116,7 @@ func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
 func (r *repo) GetByViewID(viewID string, includeArchived bool) (*workspaces.Workspace, error) {
 	var entity workspaces.Workspace
 
-	q := `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed
+	q := `SELECT id, user_id, codebase_id, name, ready_for_review_change, approved_change, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
 		FROM workspaces
 		WHERE view_id=$1`
 
@@ -149,7 +150,8 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 			latest_snapshot_id,
 			up_to_date_with_trunk,
 			head_change_id,
-			head_change_computed
+			head_change_computed,
+			diffs_count
 		FROM 
 			workspaces
 		WHERE
