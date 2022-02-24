@@ -227,10 +227,6 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	if options.onTrunk && options.onExistingCommit != nil && options.onRepo != nil {
-		if err := countDiffs(options.onRepo); err != nil {
-			return nil, err
-		}
-
 		var err error
 		snapshotCommitID, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
 		if err != nil {
