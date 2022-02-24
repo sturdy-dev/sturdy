@@ -14,7 +14,8 @@ type RepoGitReader interface {
 
 	CurrentDiffNoIndex() (*git.Diff, error)
 	DiffCommits(firstCommitID, secondCommitID string) (*git.Diff, error)
-	DiffCommitToRoot(firstCommitID string) (*git.Diff, error)
+	DiffCommitToRoot(commitID string) (*git.Diff, error)
+	DiffRootToCommit(commitID string) (*git.Diff, error)
 
 	RemoteBranchCommit(remoteName, branchName string) (*git.Commit, error)
 
@@ -79,8 +80,6 @@ type RepoGitWriter interface {
 	MergeBranchInto(branchName, mergeIntoBranchName string) (mergeCommitId string, err error)
 
 	ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error)
-
-	RevertOnBranch(revertCommitID, branchName string) (string, error)
 }
 
 type RepoReaderGitWriter interface {

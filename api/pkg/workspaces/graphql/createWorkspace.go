@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/change"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/workspaces/service"
@@ -53,19 +54,15 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}
-		trunkCommitID, err := ch.TrunkCommitID()
-		if err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-		if trunkCommitID == nil {
-			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "repos without commits are not supported")
-		}
 
 		if args.Input.OnTopOfChange != nil {
-			req.CommitID = *trunkCommitID
-			req.Name = "On " + ch.Title()
-		} else {
-			req.RevertCommitID = *trunkCommitID
+			id := change.ID(*args.Input.OnTopOfChange)
+			req.BaseChangeID = &id
+			req.Name = "On " + ch.Title() // TODO: Use changeService, not resolver
+		} else if args.Input.OnTopOfChangeWithRevert != nil {
+			id := change.ID(*args.Input.OnTopOfChangeWithRevert)
+			req.BaseChangeID = &id
+			req.Revert = true
 			req.Name = "Revert " + ch.Title()
 		}
 	}

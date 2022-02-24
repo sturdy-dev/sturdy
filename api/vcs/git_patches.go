@@ -45,6 +45,46 @@ func (repo *repository) ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error) 
 	return oid, nil
 }
 
+func (repo *repository) ApplyPatchesToBranch(patches [][]byte, branchName string) (*git.Oid, error) {
+	defer getMeterFunc("ApplyPatchesToIndex")()
+
+	opts, err := git.DefaultApplyOptions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range patches {
+		diff, err := git.DiffFromBuffer(p, repo.r)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse change: %w", err)
+		}
+
+		err = repo.r.ApplyDiff(diff, git.ApplyLocationIndex, opts)
+		if err != nil {
+			return nil, fmt.Errorf("failed to apply change: %w", err)
+		}
+	}
+
+	branch, err := repo.r.LookupBranch(branchName, git.BranchLocal)
+	if err != nil {
+		return nil, err
+	}
+
+	branch.Target()
+
+	index, err := repo.r.Index()
+	if err != nil {
+		return nil, fmt.Errorf("failed to access vcs index: %w", err)
+	}
+	defer index.Free()
+
+	oid, err := index.WriteTree()
+	if err != nil {
+		return nil, fmt.Errorf("write tree failed: %w", err)
+	}
+	return oid, nil
+}
+
 func (repo *repository) ApplyPatchesToWorkdir(patches [][]byte) error {
 	defer getMeterFunc("ApplyPatchesToWorkdir")()
 	for _, patch := range patches {
