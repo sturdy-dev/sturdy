@@ -20,14 +20,9 @@
             button.
           </li>
           <li>
-            Select a directory where you want to have the code. It is a good idea to create a new
-            folder.
+            Select a directory where you want to have the code in. Sturdy will create a new
+            directory inside the directory that you select with the same name as the codebase.
           </li>
-          <ol>
-            <li>The folder you select must be empty</li>
-            <li>The folder that you select should not be inside a git repository</li>
-            <li><em>A current limitation</em> - once setup, the folder cannot be moved</li>
-          </ol>
           <li>
             You can use the folder for accessing and editing code with any IDE or text editor
             <SubtleText
