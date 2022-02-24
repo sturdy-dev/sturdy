@@ -170,6 +170,9 @@ func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter,
 	if len(nonBinaryPatches) > 0 {
 		treeID, err = r.ApplyPatchesToIndex(nonBinaryPatches)
 		if err != nil {
+			for id, patch := range nonBinaryPatches {
+				logger.Warn("failed to add patches", zap.Int("key", id), zap.String("patch", string(patch)))
+			}
 			return nil, fmt.Errorf("failed to add patches: %w", err)
 		}
 	}
