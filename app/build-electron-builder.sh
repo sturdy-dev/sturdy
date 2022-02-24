@@ -50,8 +50,8 @@ build darwin arm64
 
 build windows amd64 zip
 
-build linux amd64
-#build linux arm64
+LINUX_TARGET=rpm build linux amd64
+LINUX_TARGET=deb build linux amd64
 
 if ((DO_UPLOAD)); then
 	invalidate_cloudfront "${CHANNEL}"
