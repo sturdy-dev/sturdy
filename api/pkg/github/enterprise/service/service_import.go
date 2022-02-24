@@ -67,7 +67,11 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 		svc.logger.Info("importing pull request", zap.String("codebase_id", codebaseID), zap.Int("pr_number", pr.GetNumber()))
 
-		if err := svc.importPullRequest(codebaseID, userID, pr, repo, installation, accessToken); err != nil {
+		err := svc.importPullRequest(codebaseID, userID, pr, repo, installation, accessToken)
+		switch {
+		case errors.Is(err, ErrAlreadyImported):
+			continue
+		case err != nil:
 			return fmt.Errorf("failed import pull request: %w", err)
 		}
 	}
@@ -75,10 +79,12 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 	return nil
 }
 
+var ErrAlreadyImported = errors.New("pull request has already been imported")
+
 func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.PullRequest, ghRepo *github.GitHubRepository, ghInstallation *github.GitHubInstallation, accessToken string) error {
 	// check that this pull request hasn't been imported before
 	if _, err := svc.gitHubPullRequestRepo.GetByGitHubID(gitHubPR.GetID()); err == nil {
-		return fmt.Errorf("pull request has already been imported")
+		return ErrAlreadyImported
 	} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("failed to check if pr is imported: %w", err)
 	}
@@ -171,7 +177,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 		// Create a snapshot
 		if _, err := svc.snap.Snapshot(codebaseID, workspaceID,
 			snapshots.ActionSyncCompleted,
-			snapshotter.WithOnTrunk(),
+			snapshotter.WithOnTemporaryView(),
 			snapshotter.WithMarkAsLatestInWorkspace(),
 			snapshotter.WithOnExistingCommit(wsHead),
 			snapshotter.WithOnRepo(repo), // Re-use repo context

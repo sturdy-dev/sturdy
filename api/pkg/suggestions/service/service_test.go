@@ -10,6 +10,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	service_change "getsturdy.com/api/pkg/change/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/events"
@@ -261,10 +262,12 @@ func newTest(t *testing.T, operations []*operation) *test {
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
+	changeRepo := inmemory.NewInMemoryChangeRepo()
 
+	changeService := service_change.New(changeRepo, zap.NewNop(), executorProvider)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, nil, executorProvider, zap.NewNop())
-	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, nil, nil, nil, executorProvider, nil, nil, gitSnapshotter, nil)
+	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, nil, changeService, nil, executorProvider, nil, nil, gitSnapshotter, nil)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)
 	return &test{
 		repoProvider:      repoProvider,

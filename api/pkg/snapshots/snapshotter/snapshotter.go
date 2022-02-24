@@ -34,8 +34,8 @@ type Snapshotter interface {
 type SnapshotOptions struct {
 	paths                   []string
 	patchIDsFilter          *[]string
-	revertCommitID          *string
-	onTrunk                 bool
+	revertCommitHeadBase    *[2]*string
+	onTemporaryView         bool
 	onView                  *string
 	onRepo                  vcs.RepoReaderGitWriter
 	onExistingCommit        *string
@@ -59,15 +59,15 @@ func WithPatchIDsFilter(patchIDs []string) SnapshotOption {
 	}
 }
 
-func WithRevertCommitID(commitID string) SnapshotOption {
+func WithRevertDiff(head string, base *string) SnapshotOption {
 	return func(opts *SnapshotOptions) {
-		opts.revertCommitID = &commitID
+		opts.revertCommitHeadBase = &[2]*string{&head, base}
 	}
 }
 
-func WithOnTrunk() SnapshotOption {
+func WithOnTemporaryView() SnapshotOption {
 	return func(opts *SnapshotOptions) {
-		opts.onTrunk = true
+		opts.onTemporaryView = true
 	}
 }
 
@@ -146,11 +146,11 @@ var (
 func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
 
-	if !options.onTrunk && options.onView == nil {
-		return nil, errors.New("either onTrunk or onView must be set")
+	if !options.onTemporaryView && options.onView == nil {
+		return nil, errors.New("either onTemporaryView or onView must be set")
 	}
-	if options.onTrunk && options.onView != nil {
-		return nil, errors.New("onTrunk and onView are mutually exclusive")
+	if options.onTemporaryView && options.onView != nil {
+		return nil, errors.New("onTemporaryView and onView are mutually exclusive")
 	}
 	if options.onRepo != nil && (options.onView == nil && options.onExistingCommit == nil) {
 		return nil, errors.New("when onRepo is set, onView or onExistingCommit must also be set")
@@ -162,7 +162,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	logger := s.logger.With(
 		zap.String("codebase_id", codebaseID),
 		zap.String("workspace_id", workspaceID),
-		zap.Bool("option_on_trunk", options.onTrunk),
+		zap.Bool("option_on_temporary_view", options.onTemporaryView),
 		zap.Stringp("option_on_view", options.onView),
 		zap.Stringer("snapshot_action", action),
 	)
@@ -222,11 +222,11 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	if options.patchIDsFilter != nil {
 		snapshotOptions = append(snapshotOptions, vcs_snapshots.WithPatchIDsFilter(*options.patchIDsFilter))
 	}
-	if options.revertCommitID != nil {
-		snapshotOptions = append(snapshotOptions, vcs_snapshots.WithRevertCommitID(*options.revertCommitID))
+	if options.revertCommitHeadBase != nil {
+		snapshotOptions = append(snapshotOptions, vcs_snapshots.WithRevert(*options.revertCommitHeadBase[0], options.revertCommitHeadBase[1]))
 	}
 
-	if options.onTrunk && options.onExistingCommit != nil && options.onRepo != nil {
+	if options.onTemporaryView && options.onExistingCommit != nil && options.onRepo != nil {
 		var err error
 		snapshotCommitID, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
 		if err != nil {
@@ -245,32 +245,42 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	} else if options.onRepo == nil {
 		// Run in a new executor
 		exec := s.executorProvider.New()
-		if !options.onTrunk {
+		if !options.onTemporaryView {
 			exec = exec.AssertBranchName(workspaceID)
 		}
 		var err error
-		if options.onTrunk {
-			err = exec.GitWrite(func(repo vcs.RepoGitWriter) error {
-				commitID, err := vcs_snapshots.SnapshotOnTrunk(repo, workspaceID, snapshotID, snapshotOptions...)
+
+		if options.revertCommitHeadBase != nil {
+			// Reverting snapshot
+			exec = exec.Write(func(repo vcs.RepoWriter) error {
+				commitID, err := vcs_snapshots.SnapshotOnViewRepoWithRevert(repo, s.logger, snapshotID, snapshotOptions...)
 				if err != nil {
 					return err
 				}
 				snapshotCommitID = commitID
 				return nil
-			}).ExecTrunk(codebaseID, "snapshot")
+			})
 
+			// TODO: this is not true for reverts
 			// snapshot on trunk is basically a copy of a commit => no diffs
 			diffsCount = 0
 		} else {
+			// Normal snapshot
 			exec = exec.Read(countDiffs)
-			err = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
+			exec = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, snapshotOptions...)
 				if err != nil {
 					return err
 				}
 				snapshotCommitID = commitID
 				return nil
-			}).ExecView(codebaseID, *options.onView, "snapshot")
+			})
+		}
+
+		if options.onTemporaryView {
+			err = exec.ExecTemporaryView(codebaseID, "snapshotOnTemporaryView")
+		} else {
+			err = exec.ExecView(codebaseID, *options.onView, "snapshotOnView")
 		}
 		if errors.Is(err, executor.ErrUnexpectedBranch) {
 			return nil, fmt.Errorf("%w: view is on unexpected branch (%s)", ErrCantSnapshotWrongBranch, err)

@@ -9,15 +9,13 @@ import (
 	"time"
 
 	"github.com/graph-gophers/graphql-go"
-	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/change"
-	service_change "getsturdy.com/api/pkg/change/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/pkg/workspaces/vcs"
 	vcsvcs "getsturdy.com/api/vcs"
 )
@@ -236,62 +234,16 @@ func (r *WorkspaceResolver) Conflicts(ctx context.Context) (bool, error) {
 }
 
 func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeResolver, error) {
-	// Recalculate head change
-	if !r.w.HeadChangeComputed {
-		var headCommitID string
-
-		err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-			var err error
-			headCommitID, err = repo.BranchCommitID(r.w.ID)
-			if err != nil {
-				return fmt.Errorf("could not get head commit from git: %w", err)
-			}
-			return nil
-		}).ExecTrunk(r.w.CodebaseID, "workspaceHeadChange")
-		if err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-		var newHeadChangeID *change.ID
-
-		ch, err := r.root.changeService.GetByCommitAndCodebase(ctx, headCommitID, r.w.CodebaseID)
-		switch {
-		case errors.Is(err, sql.ErrNoRows), errors.Is(err, service_change.ErrNotFound):
-			// change not found (could be the root commit, etc), hide it
-			newHeadChangeID = nil
-		case err != nil:
-			return nil, gqlerrors.Error(fmt.Errorf("could not get change by commit: %w", err))
-		default:
-			newHeadChangeID = &ch.ID
-		}
-
-		// Fetch a new version of the workspace, and perform the update
-		// TODO: Wrap all workspace mutations in a lock?
-		wsForUpdates, err := r.root.workspaceReader.Get(r.w.ID)
-		if err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-
-		wsForUpdates.HeadChangeComputed = true
-		wsForUpdates.HeadChangeID = newHeadChangeID
-
-		// Save updated cache
-		if err := r.root.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-
-		// Also update the cached version of the workspace that we have in memory
-		r.w.HeadChangeComputed = wsForUpdates.HeadChangeComputed
-		r.w.HeadChangeID = newHeadChangeID
-
-		r.root.logger.Info("recalculated head change", zap.String("workspace_id", r.w.ID), zap.Stringer("head", r.w.HeadChangeID))
-	}
-
-	if r.w.HeadChangeID == nil || !r.w.HeadChangeComputed {
+	headChange, err := r.root.workspaceService.HeadChange(ctx, r.w)
+	switch {
+	case errors.Is(err, service_workspace.ErrNotFound):
 		return nil, nil
+	case err != nil:
+		return nil, gqlerrors.Error(err)
 	}
 
 	cid := graphql.ID(r.w.CodebaseID)
-	changeID := graphql.ID(*r.w.HeadChangeID)
+	changeID := graphql.ID(headChange.ID)
 
 	resolver, err := r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{
 		ID:         &changeID,

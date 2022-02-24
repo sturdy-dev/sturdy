@@ -154,24 +154,48 @@ func (repo *repository) DiffCommits(firstCommitID, secondCommitID string) (*git.
 	return diff, nil
 }
 
-func (repo *repository) DiffCommitToRoot(firstCommitID string) (*git.Diff, error) {
+func (repo *repository) DiffCommitToRoot(commitID string) (*git.Diff, error) {
 	defer getMeterFunc("DiffCommitToRoot")()
-	firstCommitOID, err := git.NewOid(firstCommitID)
+	commitOID, err := git.NewOid(commitID)
 	if err != nil {
 		return nil, err
 	}
 
-	firstCommit, err := repo.r.LookupCommit(firstCommitOID)
+	commit, err := repo.r.LookupCommit(commitOID)
 	if err != nil {
 		return nil, err
 	}
 
-	firstCommitTree, err := firstCommit.Tree()
+	commitTree, err := commit.Tree()
 	if err != nil {
 		return nil, err
 	}
 
-	diff, err := repo.r.DiffTreeToTree(nil, firstCommitTree, nil)
+	return repo.diffTreeToTree(nil, commitTree)
+}
+
+func (repo *repository) DiffRootToCommit(commitID string) (*git.Diff, error) {
+	defer getMeterFunc("DiffRootToCommit")()
+	commitOID, err := git.NewOid(commitID)
+	if err != nil {
+		return nil, err
+	}
+
+	commit, err := repo.r.LookupCommit(commitOID)
+	if err != nil {
+		return nil, err
+	}
+
+	commitTree, err := commit.Tree()
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.diffTreeToTree(commitTree, nil)
+}
+
+func (repo *repository) diffTreeToTree(t1, t2 *git.Tree) (*git.Diff, error) {
+	diff, err := repo.r.DiffTreeToTree(t1, t2, nil)
 	if err != nil {
 		return nil, err
 	}

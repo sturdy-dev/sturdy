@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -41,9 +42,10 @@ type CreateWorkspaceRequest struct {
 	UserID           string
 	CodebaseID       string
 	Name             string
-	RevertCommitID   string
-	CommitID         string
 	DraftDescription string
+
+	BaseChangeID *change.ID
+	Revert       bool
 }
 
 type Service interface {
@@ -58,6 +60,7 @@ type Service interface {
 	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
 	Archive(context.Context, *workspaces.Workspace) error
 	Unarchive(context.Context, *workspaces.Workspace) error
+	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*change.Change, error)
 }
 
 type WorkspaceService struct {
@@ -296,24 +299,24 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 }
 
 func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID, name string) (*workspaces.Workspace, error) {
-	var branchCommitID string
-	err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
-		var err error
-		branchCommitID, err = repo.BranchCommitID(from.ID)
-		if err != nil {
-			return err
-		}
-		return nil
-	}).ExecTrunk(from.CodebaseID, "suggestionsServiceCopyWorkspace")
-	if err != nil {
-		return nil, fmt.Errorf("could not find workspace branchCommitID: %w", err)
+
+	var baseChangeID *change.ID
+	fromBaseChange, err := s.HeadChange(ctx, from)
+	switch {
+	case errors.Is(err, ErrNotFound):
+	// head change not found (this repo does not have any changes, or this workspace is based on the root)
+	// do nothing
+	case err != nil:
+		return nil, fmt.Errorf("failed to get head change: %w", err)
+	default:
+		baseChangeID = &fromBaseChange.ID
 	}
 
 	createRequest := CreateWorkspaceRequest{
-		UserID:     userID,
-		CodebaseID: from.CodebaseID,
-		Name:       name,
-		CommitID:   branchCommitID,
+		UserID:       userID,
+		CodebaseID:   from.CodebaseID,
+		Name:         name,
+		BaseChangeID: baseChangeID,
 	}
 
 	newWorkspace, err := s.Create(ctx, createRequest)
@@ -348,20 +351,45 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 		}
 	}
 
+	var baseCommitSha string
+	var baseCommitParentSha *string
+	if req.BaseChangeID != nil {
+		ch, err := s.changeService.GetChangeByID(ctx, *req.BaseChangeID)
+		if err != nil {
+			return nil, fmt.Errorf("could not get change by id: %w", err)
+		}
+		if ch.CodebaseID != ws.CodebaseID {
+			return nil, fmt.Errorf("change does not belong to this codebase")
+		}
+		if ch.CommitID == nil {
+			return nil, fmt.Errorf("the change does not have a commit")
+		}
+
+		baseCommitSha = *ch.CommitID
+
+		// If the change has a parent, calculate the diffs between the change and it's parent
+		// otherwise use the diff between the change and the root of the repo
+		if ch.ParentChangeID != nil {
+			parentChange, err := s.changeService.GetChangeByID(ctx, *ch.ParentChangeID)
+			if err != nil {
+				return nil, fmt.Errorf("could not get parent change by id: %w", err)
+			}
+			if parentChange.CommitID == nil {
+				return nil, fmt.Errorf("the change parent does not have a commit")
+			}
+			baseCommitParentSha = parentChange.CommitID
+		}
+	}
+
 	if err := s.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
 		// Ensure codebase status
 		if err := EnsureCodebaseStatus(repo); err != nil {
 			return err
 		}
 
-		if req.RevertCommitID != "" {
+		if req.BaseChangeID != nil && baseCommitSha != "" {
 			// Create workspace at the change that we want to revert
-			if err := vcs_workspace.CreateOnCommitID(repo, ws.ID, req.RevertCommitID); err != nil {
-				return fmt.Errorf("failed to create workspace at change: %w", err)
-			}
-		} else if req.CommitID != "" {
-			// Create workspace at any change
-			if err := vcs_workspace.CreateOnCommitID(repo, ws.ID, req.CommitID); err != nil {
+			if err := vcs_workspace.CreateOnCommitID(repo, ws.ID, baseCommitSha); err != nil {
 				return fmt.Errorf("failed to create workspace at change: %w", err)
 			}
 		} else {
@@ -376,13 +404,13 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 	}
 
 	// Add the reverted changes to a snapshot
-	if req.RevertCommitID != "" {
+	if req.BaseChangeID != nil && baseCommitSha != "" && req.Revert {
 		if snapshot, err := s.snap.Snapshot(
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
-			snapshotter.WithOnTrunk(),
-			snapshotter.WithRevertCommitID(req.RevertCommitID),
+			snapshotter.WithOnTemporaryView(),
+			snapshotter.WithRevertDiff(baseCommitSha, baseCommitParentSha),
 		); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
 		} else {
@@ -397,11 +425,80 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 	s.analyticsService.Capture(ctx, "create workspace",
 		analytics.CodebaseID(req.CodebaseID),
 		analytics.Property("id", ws.ID),
-		analytics.Property("at_existing_commit", req.CommitID != ""),
+		analytics.Property("at_existing_change", req.BaseChangeID != nil),
 		analytics.Property("name", ws.Name),
 	)
 
 	return &ws, nil
+}
+
+var ErrNotFound = errors.New("not found")
+
+func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Workspace) (*change.Change, error) {
+	if ws.HeadChangeComputed {
+		if ws.HeadChangeID == nil {
+			return nil, ErrNotFound
+		}
+		ch, err := s.changeService.GetChangeByID(ctx, *ws.HeadChangeID)
+		if err != nil {
+			return nil, err
+		}
+		return ch, nil
+	}
+
+	// Compute!
+	var headCommitID string
+
+	err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
+		var err error
+		headCommitID, err = repo.BranchCommitID(ws.ID)
+		if err != nil {
+			return fmt.Errorf("could not get head commit from git: %w", err)
+		}
+		return nil
+	}).ExecTrunk(ws.CodebaseID, "workspaceHeadChange")
+	if err != nil {
+		return nil, err
+	}
+	var newHeadChangeID *change.ID
+
+	ch, err := s.changeService.GetByCommitAndCodebase(ctx, headCommitID, ws.CodebaseID)
+	switch {
+	case errors.Is(err, sql.ErrNoRows), errors.Is(err, service_change.ErrNotFound):
+		// change not found (could be the root commit, etc), hide it
+		newHeadChangeID = nil
+	case err != nil:
+		return nil, fmt.Errorf("could not get change by commit: %w", err)
+	default:
+		newHeadChangeID = &ch.ID
+	}
+
+	// Fetch a new version of the workspace, and perform the update
+	// TODO: Wrap all workspace mutations in a lock?
+	wsForUpdates, err := s.workspaceReader.Get(ws.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	wsForUpdates.HeadChangeComputed = true
+	wsForUpdates.HeadChangeID = newHeadChangeID
+
+	// Save updated cache
+	if err := s.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
+		return nil, err
+	}
+
+	// Also update the cached version of the workspace that we have in memory
+	ws.HeadChangeComputed = wsForUpdates.HeadChangeComputed
+	ws.HeadChangeID = newHeadChangeID
+
+	s.logger.Info("recalculated head change", zap.String("workspace_id", ws.ID), zap.Stringer("head", ws.HeadChangeID))
+
+	if ch == nil {
+		return nil, ErrNotFound
+	}
+
+	return ch, nil
 }
 
 func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*change.Change, error) {
@@ -624,7 +721,7 @@ func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebas
 		if _, err := svc.snap.Snapshot(
 			codebaseID, ws.ID,
 			snapshots.ActionViewSync, // TODO: Dedicated action for this?
-			snapshotter.WithOnTrunk(),
+			snapshotter.WithOnTemporaryView(),
 			snapshotter.WithMarkAsLatestInWorkspace(),
 			snapshotter.WithOnExistingCommit(commitID),
 			snapshotter.WithOnRepo(repo), // Re-use repo context

@@ -2,7 +2,6 @@ package service_test
 
 import (
 	"context"
-	"database/sql"
 	"os/exec"
 	"testing"
 
@@ -11,12 +10,11 @@ import (
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/change"
-	db_change "getsturdy.com/api/pkg/change/db"
 	"getsturdy.com/api/pkg/change/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/installations"
+	"getsturdy.com/api/pkg/internal/inmemory"
 	module_logger "getsturdy.com/api/pkg/logger/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -40,7 +38,7 @@ func module(c *di.Container) {
 }
 
 func TestChangelog(t *testing.T) {
-	changeRepo := NewInMemoryChangeRepo()
+	changeRepo := inmemory.NewInMemoryChangeRepo()
 
 	type deps struct {
 		dig.In
@@ -109,50 +107,4 @@ func TestChangelog(t *testing.T) {
 			t.Logf("got: k=%d v=%+v", k, v)
 		}
 	}
-}
-
-type inMemoryChangeRepo struct {
-	changes map[change.ID]change.Change
-}
-
-func NewInMemoryChangeRepo() db_change.Repository {
-	return &inMemoryChangeRepo{
-		changes: make(map[change.ID]change.Change),
-	}
-}
-
-func (r *inMemoryChangeRepo) Get(_ context.Context, id change.ID) (*change.Change, error) {
-	if c, ok := r.changes[id]; ok {
-		return &c, nil
-	}
-	return nil, sql.ErrNoRows
-}
-
-func (r *inMemoryChangeRepo) ListByIDs(_ context.Context, ids ...change.ID) ([]*change.Change, error) {
-	var res []*change.Change
-	for _, id := range ids {
-		if c, ok := r.changes[id]; ok {
-			res = append(res, &c)
-		}
-	}
-	return res, nil
-}
-
-func (r *inMemoryChangeRepo) GetByCommitID(_ context.Context, commitID, codebaseID string) (*change.Change, error) {
-	for _, c := range r.changes {
-		if c.CodebaseID == codebaseID && c.CommitID == nil && *c.CommitID == commitID {
-			return &c, nil
-		}
-	}
-	return nil, sql.ErrNoRows
-}
-
-func (r *inMemoryChangeRepo) Insert(_ context.Context, ch change.Change) error {
-	r.changes[ch.ID] = ch
-	return nil
-}
-
-func (r *inMemoryChangeRepo) Update(_ context.Context, ch change.Change) error {
-	r.changes[ch.ID] = ch
-	return nil
 }
