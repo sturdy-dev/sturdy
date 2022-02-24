@@ -112,6 +112,10 @@ func (o *operation) openSuggestion(t *testing.T, test *test) {
 }
 
 func (o *operation) validate(t *testing.T, test *test) {
+	if test.suggestion == nil {
+		return
+	}
+
 	result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 	if assert.NoError(t, err) {
 		assert.Equal(t, o.result, result)
@@ -132,31 +136,41 @@ func (o *operation) snapshotOriginal(t *testing.T, test *test) {
 	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
 }
 
+func (o *operation) setupOriginal(t *testing.T, test *test) {
+	o.setupOriginalWorkspace(t, test)
+	o.setupOriginalView(t, test)
+}
+
+func (o *operation) setupOriginalWorkspace(t *testing.T, test *test) {
+	if test.originalWorkspace == nil {
+		originalWorkspace, err := test.workspaceService.Create(context.TODO(), service_workspace.CreateWorkspaceRequest{
+			UserID:     test.originalUserID,
+			CodebaseID: test.codebaseID,
+			Name:       fmt.Sprintf("%s's workspace", test.originalUserID),
+		})
+		assert.NoError(t, err)
+		test.originalWorkspace = originalWorkspace
+	}
+}
+
+func (o *operation) setupOriginalView(t *testing.T, test *test) {
+	test.originalViewID = fmt.Sprintf("%s-view", test.originalUserID)
+	assert.NoError(t, test.viewDB.Create(view.View{
+		ID:         test.originalViewID,
+		UserID:     test.originalUserID,
+		CodebaseID: test.codebaseID,
+	}))
+	test.originalWorkspace.ViewID = &test.originalViewID
+	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
+	vcs_view.Create(test.repoProvider, test.codebaseID, test.originalWorkspace.ID, test.originalViewID)
+}
+
 func (o *operation) run(t *testing.T, test *test) {
 	switch {
 	case o.writeOriginal != nil:
 		t.Logf("writing original")
-		// create workspace
-		if test.originalWorkspace == nil {
-			originalWorkspace, err := test.workspaceService.Create(context.TODO(), service_workspace.CreateWorkspaceRequest{
-				UserID:     test.originalUserID,
-				CodebaseID: test.codebaseID,
-				Name:       fmt.Sprintf("%s's workspace", test.originalUserID),
-			})
-			assert.NoError(t, err)
-			test.originalWorkspace = originalWorkspace
-		}
 
-		// connect workspace to a view
-		test.originalViewID = fmt.Sprintf("%s-view", test.originalUserID)
-		assert.NoError(t, test.viewDB.Create(view.View{
-			ID:         test.originalViewID,
-			UserID:     test.originalUserID,
-			CodebaseID: test.codebaseID,
-		}))
-		test.originalWorkspace.ViewID = &test.originalViewID
-		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
-		vcs_view.Create(test.repoProvider, test.codebaseID, test.originalWorkspace.ID, test.originalViewID)
+		o.setupOriginal(t, test)
 
 		// make some changes
 		viewPath := test.repoProvider.ViewPath(test.codebaseID, test.originalViewID)
@@ -165,34 +179,26 @@ func (o *operation) run(t *testing.T, test *test) {
 		}
 
 		o.snapshotOriginal(t, test)
-		if test.suggestion != nil {
-			o.validate(t, test)
-		}
-
+		o.validate(t, test)
 	case o.suggesting != nil:
 		o.openSuggestion(t, test)
 
 		suggestingViewPath := test.repoProvider.ViewPath(test.codebaseID, test.suggestingViewID)
-
 		// delete
 		for _, filepath := range o.suggesting.delete {
 			t.Logf("suggesting: deleting %s", filepath)
 			fp := path.Join(suggestingViewPath, filepath)
 			assert.NoError(t, os.RemoveAll(fp), fp)
 		}
-
 		// write
 		for filepath, content := range o.suggesting.write {
 			t.Logf("suggesting: writing %s", filepath)
 			assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, filepath), content, 0777))
 		}
-
 		o.snapshotSuggesting(t, test)
-
 		o.validate(t, test)
 	case o.applyHunks != nil:
 		t.Logf("applying hunks")
-
 		if assert.NoError(t, test.suggestionService.ApplyHunks(context.Background(), test.suggestion, o.applyHunks...)) {
 			o.validate(t, test)
 		}
@@ -284,6 +290,18 @@ func TestDiff(t *testing.T) {
 		name       string
 		operations []*operation
 	}{
+		// {
+		// 	name: "new file",
+		// 	operations: []*operation{
+		// 		// {writeOriginal: map[string][]byte{"file": original}},
+		// 		{
+		// 			suggesting: &diffs{
+		// 					write: map[string][]byte{"file": original},
+		// 				},
+		// 		},
+		// 	},
+		// },
+
 		{
 			name: "move file",
 			operations: []*operation{
