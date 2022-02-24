@@ -46,10 +46,7 @@ linux:
     Name: Sturdy
     Terminal: 'false'
 
-  target:
-    # - appImage
-    - snap
-    # - deb
+  target: [] # No target by default (will be overwritten during build)
 
 dmg:
   background: assets/dmg.png
@@ -89,10 +86,3 @@ publish:
     region: eu-north-1
     channel: latest
     publishAutoUpdate: true
-
-  - provider: snapStore
-    repo: Sturdy
-    channels:
-      - edge # TODO: Only set if building Sturdy Beta?
-      - beta
-      # - stable

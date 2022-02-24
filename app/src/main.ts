@@ -3,7 +3,7 @@ import { app, crashReporter, Menu, MenuItem, nativeImage, Tray } from 'electron'
 import { Updater } from './Updater'
 import { dataPath, resourcePath } from './resources'
 import * as Sentry from '@sentry/electron'
-import { Status, Application } from './application'
+import { Application, Status } from './application'
 import { CaptureConsole } from '@sentry/integrations'
 import { ApplicationManager } from './ApplicationManager'
 import { Logger } from './Logger'
@@ -71,7 +71,10 @@ const iconTrayDisconnected =
 const postHogToken =
   process.env.STURDY_POSTHOG_API_KEY ?? 'ZuDRoGX9PgxGAZqY4RF9CCJJLpx14h3szUPzm7XBWSg'
 
-const runAutoUpdater = app.isPackaged && !process.env.STURDY_DISABLE_AUTO_UPDATER
+const runAutoUpdater =
+  app.isPackaged &&
+  !process.env.STURDY_DISABLE_AUTO_UPDATER &&
+  (process.platform === 'darwin' || process.platform === 'win32')
 
 const status = new Status(logger)
 

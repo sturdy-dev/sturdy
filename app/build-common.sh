@@ -89,9 +89,12 @@ function build() {
   fi
 
   BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}.yml"
+  if [ -v LINUX_TARGET ]; then
+    BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}-${LINUX_TARGET}.yml"
+  fi
   
   yq eval ".publish[0].url |= \"https://autoupdate.getsturdy.com/client$CHANNEL_PATH_SUFFIX/$OS/$ARCH\" | .publish[1].path=\"client$CHANNEL_PATH_SUFFIX/$OS/$ARCH\"" \
-    electron-builder.yml > $BUILDER_CONFIG_YML
+    electron-builder.yml > "$BUILDER_CONFIG_YML"
 
   if (( NOTARIZE )) && [ "$OS" == "darwin" ]; then
     yq -i eval '.afterSign = "./afterSignHook.js"' "$BUILDER_CONFIG_YML"
@@ -104,6 +107,23 @@ function build() {
       .extraMetadata.name += \" $CHANNEL\" |
       .linux.desktop.Name += \" $CHANNEL\"
     " "$BUILDER_CONFIG_YML"
+
+    # .productName can not contain space in RPM packages
+    if [ -v LINUX_TARGET ] && [ "$LINUX_TARGET" == "rpm" ]; then
+      yq -i eval "
+        .productName = \"Sturdy${CHANNEL}\" |
+        .extraMetadata.name = \"Sturdy${CHANNEL}\" |
+        .linux.desktop.Name = \"Sturdy${CHANNEL}\"
+      " "$BUILDER_CONFIG_YML"
+    fi
+  fi
+
+  if [ -v LINUX_TARGET ]; then
+    yq -i eval ".linux.target += \"${LINUX_TARGET}\"" "$BUILDER_CONFIG_YML"
+
+    if  [ "$LINUX_TARGET" == "snap" ]; then
+      yq -i eval '.publish += [{ "provider": "snapStore", "repo": "Sturdy", "channels": ["edge"] }]' "$BUILDER_CONFIG_YML"
+    fi
   fi
 
   PUBLISH_ARGS=""
@@ -181,6 +201,18 @@ function create_latest() {
     aws s3 cp \
       "s3://autoupdate.getsturdy.com/client/windows/amd64/Sturdy-Installer-${app_version}.exe" \
       "s3://autoupdate.getsturdy.com/client/windows/amd64/Sturdy-Installer.exe"
+  fi
+
+  if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "deb" ]; then
+    aws s3 cp \
+      "s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy_${app_version}_amd64.deb" \
+      "s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.deb"
+  fi
+
+  if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "rpm" ]; then
+    aws s3 cp \
+      "s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-${app_version}.x86_64.rpm" \
+      "s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.rpm"
   fi
 }
 
