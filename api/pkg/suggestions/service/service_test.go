@@ -137,6 +137,9 @@ func (o *operation) snapshotOriginal(t *testing.T, test *test) {
 }
 
 func (o *operation) setupOriginal(t *testing.T, test *test) {
+	if test.originalWorkspace != nil {
+		return
+	}
 	o.setupOriginalWorkspace(t, test)
 	o.setupOriginalView(t, test)
 }
@@ -166,15 +169,14 @@ func (o *operation) setupOriginalView(t *testing.T, test *test) {
 }
 
 func (o *operation) run(t *testing.T, test *test) {
+	o.setupOriginal(t, test)
+
 	switch {
 	case o.writeOriginal != nil:
-		t.Logf("writing original")
-
-		o.setupOriginal(t, test)
-
 		// make some changes
 		viewPath := test.repoProvider.ViewPath(test.codebaseID, test.originalViewID)
 		for filepath, content := range o.writeOriginal {
+			t.Logf("original: writing %s", filepath)
 			assert.NoError(t, os.WriteFile(path.Join(viewPath, filepath), content, 0777))
 		}
 
