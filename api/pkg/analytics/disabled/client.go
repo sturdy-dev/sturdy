@@ -2,11 +2,14 @@ package disabled
 
 import (
 	"github.com/posthog/posthog-go"
+
+	"go.uber.org/zap"
 )
 
 type Client struct{}
 
-func NewClient() posthog.Client {
+func NewClient(logger *zap.Logger) posthog.Client {
+	logger.Info("analytics disabled")
 	return &Client{}
 }
 
