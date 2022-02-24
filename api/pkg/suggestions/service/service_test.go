@@ -37,7 +37,6 @@ import (
 )
 
 // todo:
-// suggest new file
 // new file on both sides
 // suggest rename and edit file
 
@@ -46,6 +45,8 @@ var (
 	original []byte
 	//go:embed testdata/minus_original.diff
 	minusOriginalDiff []byte
+	//go:embed testdata/plus_original.diff
+	plusOriginalDiff []byte
 
 	//go:embed testdata/plus_start_chunk.txt
 	plusStartChunk []byte
@@ -130,7 +131,7 @@ func (o *operation) snapshotSuggesting(t *testing.T, test *test) {
 }
 
 func (o *operation) snapshotOriginal(t *testing.T, test *test) {
-	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.originalViewID))
+	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, snapshotter.WithOnView(test.originalViewID))
 	assert.NoError(t, err)
 	test.originalWorkspace.LatestSnapshotID = &snapshot.ID
 	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
@@ -183,6 +184,7 @@ func (o *operation) run(t *testing.T, test *test) {
 		o.snapshotOriginal(t, test)
 		o.validate(t, test)
 	case o.suggesting != nil:
+		o.snapshotOriginal(t, test)
 		o.openSuggestion(t, test)
 
 		suggestingViewPath := test.repoProvider.ViewPath(test.codebaseID, test.suggestingViewID)
@@ -292,17 +294,31 @@ func TestDiff(t *testing.T) {
 		name       string
 		operations []*operation
 	}{
-		// {
-		// 	name: "new file",
-		// 	operations: []*operation{
-		// 		// {writeOriginal: map[string][]byte{"file": original}},
-		// 		{
-		// 			suggesting: &diffs{
-		// 					write: map[string][]byte{"file": original},
-		// 				},
-		// 		},
-		// 	},
-		// },
+		{
+			name: "new file",
+			operations: []*operation{
+				{
+					suggesting: &diffs{
+						write: map[string][]byte{"file": original},
+					},
+
+					result: []unidiff.FileDiff{
+						{
+							OrigName:      "/dev/null",
+							NewName:       "file",
+							PreferredName: "file",
+							IsNew:         true,
+							Hunks: []unidiff.Hunk{
+								{
+									ID:    "b6e93f63ca1afe4d1f5c70b187ae2197b296e895f72635f2f9f8115392d104f9",
+									Patch: string(plusOriginalDiff),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 
 		{
 			name: "move file",
