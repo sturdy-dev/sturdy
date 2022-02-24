@@ -111,6 +111,27 @@ func (o *operation) openSuggestion(t *testing.T, test *test) {
 	assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
 }
 
+func (o *operation) validate(t *testing.T, test *test) {
+	result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
+	if assert.NoError(t, err) {
+		assert.Equal(t, o.result, result)
+	}
+}
+
+func (o *operation) snapshotSuggesting(t *testing.T, test *test) {
+	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
+	assert.NoError(t, err)
+	test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
+	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.suggestingWorkspace))
+}
+
+func (o *operation) snapshotOriginal(t *testing.T, test *test) {
+	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.originalViewID))
+	assert.NoError(t, err)
+	test.originalWorkspace.LatestSnapshotID = &snapshot.ID
+	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
+}
+
 func (o *operation) run(t *testing.T, test *test) {
 	switch {
 	case o.writeOriginal != nil:
@@ -143,18 +164,9 @@ func (o *operation) run(t *testing.T, test *test) {
 			assert.NoError(t, os.WriteFile(path.Join(viewPath, filepath), content, 0777))
 		}
 
-		// take a workspace snapshot
-
-		snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.originalViewID))
-		assert.NoError(t, err)
-		test.originalWorkspace.LatestSnapshotID = &snapshot.ID
-		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
-
+		o.snapshotOriginal(t, test)
 		if test.suggestion != nil {
-			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
-			if assert.NoError(t, err) {
-				assert.Equal(t, o.result, result)
-			}
+			o.validate(t, test)
 		}
 
 	case o.suggesting != nil:
@@ -175,40 +187,24 @@ func (o *operation) run(t *testing.T, test *test) {
 			assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, filepath), content, 0777))
 		}
 
-		// take a workspace snapshot
-		suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
-		assert.NoError(t, err)
-		test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
-		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.suggestingWorkspace))
+		o.snapshotSuggesting(t, test)
 
-		result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
-		if assert.NoError(t, err) {
-			assert.Equal(t, o.result, result)
-		}
+		o.validate(t, test)
 	case o.applyHunks != nil:
 		t.Logf("applying hunks")
 
 		if assert.NoError(t, test.suggestionService.ApplyHunks(context.Background(), test.suggestion, o.applyHunks...)) {
-			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
-			if assert.NoError(t, err) {
-				assert.Equal(t, o.result, result)
-			}
+			o.validate(t, test)
 		}
 	case o.dismissHunks != nil:
 		t.Logf("dismissing hunks")
 		if assert.NoError(t, test.suggestionService.DismissHunks(context.Background(), test.suggestion, o.dismissHunks...)) {
-			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
-			if assert.NoError(t, err) {
-				assert.Equal(t, o.result, result)
-			}
+			o.validate(t, test)
 		}
 	case o.dismiss:
 		t.Logf("dismissing sugestion")
 		if assert.NoError(t, test.suggestionService.Dismiss(context.Background(), test.suggestion)) {
-			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
-			if assert.NoError(t, err) {
-				assert.Equal(t, o.result, result)
-			}
+			o.validate(t, test)
 		}
 	}
 }
