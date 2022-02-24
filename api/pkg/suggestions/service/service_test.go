@@ -37,10 +37,13 @@ import (
 )
 
 // todo:
-// new file on both sides
-// suggest rename and edit file
+// * test new file on both sides
+// * construct diffs in the code maybe? there are too many testdata files already
 
 var (
+	//go:embed testdata/move_and_add_chunk_at_the_beginning.diff
+	moveAndAddChunkAtTheBeginning []byte
+
 	//go:embed testdata/original.txt
 	original []byte
 	//go:embed testdata/minus_original.diff
@@ -197,7 +200,10 @@ func (o *operation) run(t *testing.T, test *test) {
 		// write
 		for filepath, content := range o.suggesting.write {
 			t.Logf("suggesting: writing %s", filepath)
-			assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, filepath), content, 0777))
+			fp := path.Join(suggestingViewPath, filepath)
+			d := path.Dir(fp)
+			assert.NoError(t, os.MkdirAll(d, 0777))
+			assert.NoError(t, os.WriteFile(fp, content, 0777))
 		}
 		o.snapshotSuggesting(t, test)
 		o.validate(t, test)
@@ -294,6 +300,32 @@ func TestDiff(t *testing.T) {
 		name       string
 		operations []*operation
 	}{
+		{
+			name: "rename and add chunk at the beginning",
+			operations: []*operation{
+				{writeOriginal: map[string][]byte{"file": original}},
+				{
+					suggesting: &diffs{
+						delete: []string{"file"},
+						write:  map[string][]byte{"file.new": plusStartChunk},
+					},
+					result: []unidiff.FileDiff{
+						{
+							OrigName:      "file",
+							NewName:       "file.new",
+							PreferredName: "file.new",
+							IsMoved:       true,
+							Hunks: []unidiff.Hunk{
+								{
+									ID:    "f949828cc55fa98a1c4376bfe30272346088abbedd56bbda0f5eb219cdb6a0d9",
+									Patch: string(moveAndAddChunkAtTheBeginning),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		{
 			name: "new file",
 			operations: []*operation{
