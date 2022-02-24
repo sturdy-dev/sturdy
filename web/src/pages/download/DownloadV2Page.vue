@@ -44,8 +44,12 @@
             download
             class="appearance-none flex gap-1 items-center rounded-md bg-gradient-to-b from-green-500 to-green-600 border border-green-600 text-green-50 font-medium shadow-md py-2 px-3 hover:from-green-400 hover:to-green-500 hover:border-green-500"
           >
-            <DownloadIcon class="h-5 w-5" />
-            Sturdy for {{ selectedOs.name }} on {{ dl.name }}
+            <component :is="dl.icon" class="h-5 w-5" />
+
+            <span v-if="dl.fullName">
+              {{ dl.fullName }}
+            </span>
+            <span v-else> Sturdy for {{ selectedOs.name }} on {{ dl.name }} </span>
           </a>
         </li>
       </ul>
@@ -57,8 +61,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { DownloadIcon } from '@heroicons/vue/solid'
-import DownloadLinux from '../../organisms/download/DownloadLinux.vue'
+import { DownloadIcon, GlobeAltIcon } from '@heroicons/vue/solid'
 import Documentation from '../../layouts/Documentation.vue'
 
 interface OperatingSystem {
@@ -70,8 +73,10 @@ interface OperatingSystem {
 
 interface ArchDownload {
   id: string
-  name: string
+  name?: string
+  fullName?: string
   url: string
+  icon: any
 }
 
 const operatingSystems: OperatingSystem[] = []
@@ -90,6 +95,7 @@ macOs.archDownloads.push({
   id: 'darwin-arm64',
   name: 'Apple Silicon',
   url: new URL('darwin/arm64/Install Sturdy.dmg', url).href,
+  icon: DownloadIcon,
 })
 
 // Intel
@@ -97,6 +103,7 @@ macOs.archDownloads.push({
   id: 'darwin-amd64',
   name: 'Intel',
   url: new URL('darwin/amd64/Install Sturdy.dmg', url).href,
+  icon: DownloadIcon,
 })
 
 operatingSystems.push(macOs)
@@ -113,6 +120,7 @@ windows.archDownloads.push({
   id: 'windows-amd64',
   name: 'x86 (64 bit)',
   url: new URL('windows/amd64/Sturdy-Installer.exe', url).href,
+  icon: DownloadIcon,
 })
 
 operatingSystems.push(windows)
@@ -122,8 +130,28 @@ const linux: OperatingSystem = {
   id: 'linux',
   name: 'Linux',
   archDownloads: [],
-  component: DownloadLinux,
 }
+
+linux.archDownloads.push({
+  id: 'linux-deb',
+  fullName: 'Download .deb',
+  url: new URL('linux/amd64/Sturdy-Latest.deb', url).href,
+  icon: DownloadIcon,
+})
+
+linux.archDownloads.push({
+  id: 'linux-rpm',
+  fullName: 'Download .rpm',
+  url: new URL('linux/amd64/Sturdy-Latest.rpm', url).href,
+  icon: DownloadIcon,
+})
+
+linux.archDownloads.push({
+  id: 'linux-snapcraft',
+  fullName: 'Download from Snapcraft (beta)',
+  url: 'https://snapcraft.io/sturdy',
+  icon: DownloadIcon,
+})
 
 operatingSystems.push(linux)
 
