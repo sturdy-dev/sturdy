@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	authz "getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	routes_blobs "getsturdy.com/api/pkg/blobs/routes"
+	service_blobs "getsturdy.com/api/pkg/blobs/service"
 	db_change "getsturdy.com/api/pkg/change/db"
 	routes_v3_change "getsturdy.com/api/pkg/change/routes"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
@@ -38,6 +38,7 @@ import (
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
+	"getsturdy.com/api/pkg/users/avatars/uploader"
 	db_user "getsturdy.com/api/pkg/users/db"
 	routes_v3_user "getsturdy.com/api/pkg/users/routes"
 	service_user "getsturdy.com/api/pkg/users/service"
@@ -108,7 +109,8 @@ func ProvideHandler(
 	codebaseService *service_codebase.Service,
 	authService *service_auth.Service,
 	grapqhlResolver *sturdygrapql.RootResolver,
-	awsSession *session.Session,
+	blobsService *service_blobs.Service,
+	uploader uploader.Uploader,
 ) *Engine {
 	logger = logger.With(zap.String("component", "http"))
 	allowOrigins := []string{
@@ -164,7 +166,7 @@ func ProvideHandler(
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))
 	auth.POST("/v3/auth/renew-token", routes_v3_user.RenewToken(logger, userRepo, jwtService))
-	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(logger, userRepo, awsSession))                                                                                                     // Used by the web (2021-10-04)
+	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(logger, userRepo, uploader))                                                                                                       // Used by the web (2021-10-04)
 	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                                                                 // Used by the command line client
 	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                                                                     // Used by the web (2021-10-04)
 	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService, executorProvider))                                                                       // Used by the command line client
@@ -197,6 +199,8 @@ func ProvideHandler(
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen
 	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                                                         // Called from client-side sturdy-cli
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
+
+	routes_blobs.Register(publ.Group("/v3/blobs"), logger, blobsService)
 	return (*Engine)(r)
 }
 

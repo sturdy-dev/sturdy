@@ -5,6 +5,7 @@ import (
 	module_auth "getsturdy.com/api/pkg/auth/module"
 	module_author "getsturdy.com/api/pkg/author/module"
 	module_aws "getsturdy.com/api/pkg/aws/module"
+	module_blobs "getsturdy.com/api/pkg/blobs/module"
 	module_change "getsturdy.com/api/pkg/change/module"
 	module_ci "getsturdy.com/api/pkg/ci/module"
 	module_codebase_acl "getsturdy.com/api/pkg/codebase/acl/module"
@@ -57,6 +58,7 @@ func common(c *di.Container) {
 	c.Import(pprof.Module)
 
 	c.Import(module_aws.Module)
+	c.Import(module_blobs.Module)
 	c.Import(module_analytics.Module)
 	c.Import(module_auth.Module)
 	c.Import(module_author.Module)
@@ -65,7 +67,6 @@ func common(c *di.Container) {
 	c.Import(module_codebase.Module)
 	c.Import(module_codebase_acl.Module)
 	c.Import(module_comments.Module)
-
 	c.Import(module_emails.Module)
 	c.Import(module_email_transactional.Module)
 	c.Import(module_events.Module)
