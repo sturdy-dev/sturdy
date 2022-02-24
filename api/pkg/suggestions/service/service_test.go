@@ -39,12 +39,13 @@ import (
 // todo:
 // suggest new file
 // new file on both sides
-// suggest rename file
 // suggest rename and edit file
 
 var (
 	//go:embed testdata/original.txt
 	original []byte
+	//go:embed testdata/minus_original.diff
+	minusOriginalDiff []byte
 
 	//go:embed testdata/plus_start_chunk.txt
 	plusStartChunk []byte
@@ -69,18 +70,48 @@ var (
 	plusTwoChunksHunk2 []byte
 )
 
+type diffs struct {
+	write  map[string][]byte
+	delete []string
+}
+
 type operation struct {
 	applyHunks   []string
 	dismissHunks []string
 	dismiss      bool
 
-	writeOriginal   map[string][]byte
-	writeSuggesting map[string][]byte
+	writeOriginal map[string][]byte
+	suggesting    *diffs
 
 	result []unidiff.FileDiff
 }
 
-func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Suggestion) {
+func (o *operation) openSuggestion(t *testing.T, test *test) {
+	if test.suggestion != nil {
+		return
+	}
+
+	suggestion, err := test.suggestionService.Create(context.Background(), test.suggestingUserID, test.originalWorkspace)
+	assert.NoError(t, err)
+	test.suggestion = suggestion
+
+	suggestingWorkspace, err := test.workspaceDB.Get(suggestion.WorkspaceID)
+	assert.NoError(t, err)
+	test.suggestingWorkspace = suggestingWorkspace
+
+	// connect a workspace to suggestingView
+	test.suggestingViewID = fmt.Sprintf("%s-view", test.suggestingUserID)
+	assert.NoError(t, test.viewDB.Create(view.View{
+		ID:         test.suggestingViewID,
+		UserID:     test.suggestingUserID,
+		CodebaseID: test.codebaseID,
+	}))
+	suggestingWorkspace.ViewID = &test.suggestingViewID
+	assert.NoError(t, test.workspaceDB.Update(context.TODO(), suggestingWorkspace))
+	assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
+}
+
+func (o *operation) run(t *testing.T, test *test) {
 	switch {
 	case o.writeOriginal != nil:
 		t.Logf("writing original")
@@ -119,38 +150,28 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		test.originalWorkspace.LatestSnapshotID = &snapshot.ID
 		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
 
-		if suggestion != nil {
-			result, err := test.suggestionService.Diffs(context.Background(), suggestion)
+		if test.suggestion != nil {
+			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 			if assert.NoError(t, err) {
 				assert.Equal(t, o.result, result)
 			}
 		}
-	case o.writeSuggesting != nil:
-		t.Logf("writing suggestion")
 
-		// start suggesting
-		suggestion, err := test.suggestionService.Create(context.Background(), test.suggestingUserID, test.originalWorkspace)
-		assert.NoError(t, err)
-		test.suggestion = suggestion
+	case o.suggesting != nil:
+		o.openSuggestion(t, test)
 
-		suggestingWorkspace, err := test.workspaceDB.Get(suggestion.WorkspaceID)
-		assert.NoError(t, err)
-		test.suggestingWorkspace = suggestingWorkspace
-
-		// connect a workspace to suggestingView
-		test.suggestingViewID = fmt.Sprintf("%s-view", test.suggestingUserID)
-		assert.NoError(t, test.viewDB.Create(view.View{
-			ID:         test.suggestingViewID,
-			UserID:     test.suggestingUserID,
-			CodebaseID: test.codebaseID,
-		}))
-		suggestingWorkspace.ViewID = &test.suggestingViewID
-		assert.NoError(t, test.workspaceDB.Update(context.TODO(), suggestingWorkspace))
-		assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
-
-		// make some suggestions
 		suggestingViewPath := test.repoProvider.ViewPath(test.codebaseID, test.suggestingViewID)
-		for filepath, content := range o.writeSuggesting {
+
+		// delete
+		for _, filepath := range o.suggesting.delete {
+			t.Logf("suggesting: deleting %s", filepath)
+			fp := path.Join(suggestingViewPath, filepath)
+			assert.NoError(t, os.RemoveAll(fp), fp)
+		}
+
+		// write
+		for filepath, content := range o.suggesting.write {
+			t.Logf("suggesting: writing %s", filepath)
 			assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, filepath), content, 0777))
 		}
 
@@ -160,31 +181,31 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 		test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
 		assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.suggestingWorkspace))
 
-		result, err := test.suggestionService.Diffs(context.Background(), suggestion)
+		result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 		if assert.NoError(t, err) {
 			assert.Equal(t, o.result, result)
 		}
 	case o.applyHunks != nil:
 		t.Logf("applying hunks")
 
-		if assert.NoError(t, test.suggestionService.ApplyHunks(context.Background(), suggestion, o.applyHunks...)) {
-			result, err := test.suggestionService.Diffs(context.Background(), suggestion)
+		if assert.NoError(t, test.suggestionService.ApplyHunks(context.Background(), test.suggestion, o.applyHunks...)) {
+			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 			if assert.NoError(t, err) {
 				assert.Equal(t, o.result, result)
 			}
 		}
 	case o.dismissHunks != nil:
 		t.Logf("dismissing hunks")
-		if assert.NoError(t, test.suggestionService.DismissHunks(context.Background(), suggestion, o.dismissHunks...)) {
-			result, err := test.suggestionService.Diffs(context.Background(), suggestion)
+		if assert.NoError(t, test.suggestionService.DismissHunks(context.Background(), test.suggestion, o.dismissHunks...)) {
+			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 			if assert.NoError(t, err) {
 				assert.Equal(t, o.result, result)
 			}
 		}
 	case o.dismiss:
 		t.Logf("dismissing sugestion")
-		if assert.NoError(t, test.suggestionService.Dismiss(context.Background(), suggestion)) {
-			result, err := test.suggestionService.Diffs(context.Background(), suggestion)
+		if assert.NoError(t, test.suggestionService.Dismiss(context.Background(), test.suggestion)) {
+			result, err := test.suggestionService.Diffs(context.Background(), test.suggestion)
 			if assert.NoError(t, err) {
 				assert.Equal(t, o.result, result)
 			}
@@ -258,7 +279,7 @@ func (test *test) run(t *testing.T) {
 	assert.NoError(t, vcs_codebase.Create(test.repoProvider, test.codebaseID))
 
 	for _, operation := range test.operations {
-		operation.run(t, test, test.suggestion)
+		operation.run(t, test)
 	}
 }
 
@@ -268,12 +289,65 @@ func TestDiff(t *testing.T) {
 		operations []*operation
 	}{
 		{
+			name: "move file",
+			operations: []*operation{
+				{writeOriginal: map[string][]byte{"file": original}},
+				{
+					suggesting: &diffs{
+						write:  map[string][]byte{"file.new": original},
+						delete: []string{"file"},
+					},
+					result: []unidiff.FileDiff{
+						{
+							OrigName:      "file",
+							NewName:       "file.new",
+							PreferredName: "file.new",
+							IsMoved:       true,
+							Hunks: []unidiff.Hunk{
+								{
+									ID:    "4dd77342d6b087367f5708a3039ca8a33db2cca34fae4797aad9f0f66d9c8e28",
+									Patch: "diff --git \"a/file\" \"b/file.new\"\nsimilarity index 100%\nrename from \"file\"\nrename to \"file.new\"\n",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "delete file",
+			operations: []*operation{
+				{writeOriginal: map[string][]byte{"file": original}},
+				{
+					suggesting: &diffs{
+						delete: []string{"file"},
+					},
+					result: []unidiff.FileDiff{
+						{
+							OrigName:      "file",
+							NewName:       "/dev/null",
+							PreferredName: "file",
+							IsDeleted:     true,
+							Hunks: []unidiff.Hunk{
+								{
+									ID:    "f4b61e064338d2edf7fb902634553e0553adff59ae88616bbf29ba180e256958",
+									Patch: string(minusOriginalDiff),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "apply add chunk at the beginning",
 
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusStartChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusStartChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -315,7 +389,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusStartChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusStartChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -358,7 +434,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusMiddleChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusMiddleChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -400,7 +478,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusMiddleChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusMiddleChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -442,7 +522,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusEndChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusEndChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -484,7 +566,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusEndChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusEndChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -526,7 +610,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -600,7 +686,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -673,7 +761,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -747,7 +837,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -820,7 +912,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -871,7 +965,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -922,7 +1018,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusTwoChunks},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -973,7 +1071,9 @@ func TestDiff(t *testing.T) {
 			operations: []*operation{
 				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: map[string][]byte{"file": plusStartChunk},
+					suggesting: &diffs{
+						write: map[string][]byte{"file": plusStartChunk},
+					},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
