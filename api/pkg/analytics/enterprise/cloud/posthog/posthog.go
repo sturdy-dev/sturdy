@@ -5,6 +5,7 @@ import (
 	"getsturdy.com/api/pkg/analytics/proxy"
 
 	"github.com/posthog/posthog-go"
+	"go.uber.org/zap"
 )
 
 type Configuration struct {
@@ -16,9 +17,9 @@ type postHogConfiguration struct {
 	ApiToken string `long:"api-token" description:"PostHog API token"`
 }
 
-func NewClient(cfg *Configuration) (posthog.Client, error) {
+func NewClient(logger *zap.Logger, cfg *Configuration) (posthog.Client, error) {
 	if cfg.Disable {
-		return disabled.NewClient(), nil
+		return disabled.NewClient(logger), nil
 	}
 	return posthog.New(cfg.Posthog.ApiToken), nil
 }

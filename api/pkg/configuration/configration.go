@@ -27,13 +27,13 @@ type Base struct {
 	Pprof    *pprof.Configuration      `flags-group:"pprof" namespace:"pprof"`
 	Metrics  *metrics.Configuration    `flags-group:"metrics" namespace:"metrics"`
 	Logger   *logger.Configuration     `flags-group:"logger" namespace:"logger"`
-	Avatars  *uploader.Configuration   `flags-group:"avatars" namespace:"users.avatars"`
 }
 
 type Configuration struct {
 	Base
 
-	Analytics *proxy.Configuration `flags-group:"analytics" namespace:"analytics"`
+	Analytics *proxy.Configuration    `flags-group:"analytics" namespace:"analytics"`
+	Avatars   *uploader.Configuration `flags-group:"avatars" namespace:"users.avatars"`
 }
 
 func New() (Configuration, error) {
