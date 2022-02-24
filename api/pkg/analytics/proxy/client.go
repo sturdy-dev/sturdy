@@ -80,7 +80,7 @@ func NewClient(
 	logger *zap.Logger,
 ) (posthog.Client, error) {
 	if cfg.Disable {
-		return disabled.NewClient(), nil
+		return disabled.NewClient(logger), nil
 	}
 
 	// api token is intentionally not set here, as it is not needed for the proxy client

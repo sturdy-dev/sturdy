@@ -9,6 +9,11 @@ flags="$flags --git.addr=127.0.0.1:3001"
 flags="$flags --vcs.lfs.addr=127.0.0.1:8888"
 flags="$flags --db.url=postgres://sturdy:sturdy@127.0.0.1:5432/sturdy?sslmode=disable"
 flags="$flags --logger.production"
+flags="$flags --users.avatars.url=/api"
+
+if [ "${STURDY_ANALYTICS_DISABLE}" == "true" ]; then
+  flags="$flags --analytics.disable"
+fi
 
 # append allow origin flags
 for allow_origin in "${STURDY_API_ALLOW_CORS_ORIGINS//,/ }"; do
