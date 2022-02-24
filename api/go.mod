@@ -5,7 +5,8 @@ go 1.17
 // Fork of go-diff
 // Patched to introduce Windows compatible APIs
 // Patched to add API to always quote filenames
-replace github.com/sourcegraph/go-diff => github.com/zegl/go-diff v0.6.2-0.20211129194800-6d29830744dc
+// Patched to ensure correct diff headers order
+replace github.com/sourcegraph/go-diff => github.com/ngalaiko/go-diff v0.6.2-0.20220224161118-fbc7fabee1d1
 
 // replace github.com/sourcegraph/go-diff => /Users/gustav/src/go-diff
 
