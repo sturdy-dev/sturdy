@@ -7,15 +7,17 @@
         <h1
           class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-slate-50"
         >
-          Real-time code collaboration.
+          Simple & efficient source control
         </h1>
         <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
           Sturdy is an
           <code class="font-mono font-semibold text-amber-500"
-            ><a class="underline" href="https://getsturdy.com/sturdy-zyTDsnY">open-source</a>
-            version control platform</code
+            ><a class="underline" href="https://github.com/sturdy-dev/sturdy">open-source</a> coding
+            platform</code
           >
-          that allows you to interact with your code at a higher abstraction level.
+          that eliminates the overhead of versioning while maintaining
+          <router-link class="underline" :to="{ hash: '#compatible' }">compatibility</router-link>
+          with the Git ecosystem.
         </p>
         <div
           class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 text-sm"
@@ -54,14 +56,16 @@
 
       <div class="max-w-4xl mx-auto items-center mt-16">
         <div class="relative" style="filter: drop-shadow(0 0 1.5rem rgba(192, 132, 252, 0.14))">
-          <Video :src="videoCollaborate" />
+          <ThingsYouAreNotDoing
+            class="relative bg-slate-900 border border-slate-700/30 rounded-md md:w-2/3 py-4"
+          />
         </div>
       </div>
     </div>
 
     <section id="features">
       <div
-        class="-mt-20 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
+        class="-mt-28 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
       >
         <div class="mt-48 mb-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
           <h1
@@ -169,7 +173,10 @@
           </p>
         </template>
         <template #right>
-          <ThingsYouAreNotDoing />
+          <Video
+            :src="videoCollaborate"
+            style="filter: drop-shadow(0 0 1.5rem rgba(245, 158, 11, 0.14))"
+          ></Video>
         </template>
       </Usp>
 
@@ -562,22 +569,22 @@ export default defineComponent({
 
   setup() {
     useHead({
-      title: 'Sturdy - Real-time code collaboration',
+      title: 'Sturdy - Simple & efficient source control',
       meta: [
         {
           name: 'description',
           content:
-            'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
+            'Sturdy is an open-source coding platform which eliminates the overhead of versioning, while maintaining compatibility with the Git ecosystem.',
         },
         {
           name: 'keywords',
-          content: 'study code collaboration git vcs',
+          content: 'study code source collaboration git vcs',
         },
-        { property: 'og:title', content: 'Real-time code collaboration.' },
+        { property: 'og:title', content: 'Simple & efficient source control' },
         {
           property: 'og:description',
           content:
-            'Sturdy is an open-source version control platform that allows you to interact with your code at a higher abstraction level.',
+            'Sturdy is an open-source coding platform which eliminates the overhead of versioning, while maintaining compatibility with the Git ecosystem.',
         },
         // { property: 'og:image', content: '' },
       ],
