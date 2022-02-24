@@ -16,6 +16,7 @@ import (
 	"getsturdy.com/api/pkg/logger"
 	"getsturdy.com/api/pkg/metrics"
 	"getsturdy.com/api/pkg/pprof"
+	"getsturdy.com/api/pkg/users/avatars/uploader"
 	"getsturdy.com/api/vcs/provider"
 )
 
@@ -69,6 +70,7 @@ func TestingModule(c *di.Container) {
 			},
 
 			Analytics: &proxy.Configuration{Disable: true},
+			Avatars:   &uploader.Configuration{},
 		}
 	})
 }
