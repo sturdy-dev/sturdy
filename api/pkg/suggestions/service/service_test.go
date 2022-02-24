@@ -74,8 +74,8 @@ type operation struct {
 	dismissHunks []string
 	dismiss      bool
 
-	writeOriginal   *[]byte
-	writeSuggesting *[]byte
+	writeOriginal   map[string][]byte
+	writeSuggesting map[string][]byte
 
 	result []unidiff.FileDiff
 }
@@ -108,7 +108,9 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 
 		// make some changes
 		viewPath := test.repoProvider.ViewPath(test.codebaseID, test.originalViewID)
-		assert.NoError(t, os.WriteFile(path.Join(viewPath, "file"), *o.writeOriginal, 0777))
+		for filepath, content := range o.writeOriginal {
+			assert.NoError(t, os.WriteFile(path.Join(viewPath, filepath), content, 0777))
+		}
 
 		// take a workspace snapshot
 
@@ -148,7 +150,9 @@ func (o *operation) run(t *testing.T, test *test, suggestion *suggestions.Sugges
 
 		// make some suggestions
 		suggestingViewPath := test.repoProvider.ViewPath(test.codebaseID, test.suggestingViewID)
-		assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, "file"), *o.writeSuggesting, 0777))
+		for filepath, content := range o.writeSuggesting {
+			assert.NoError(t, os.WriteFile(path.Join(suggestingViewPath, filepath), content, 0777))
+		}
 
 		// take a workspace snapshot
 		suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
@@ -267,9 +271,9 @@ func TestDiff(t *testing.T) {
 			name: "apply add chunk at the beginning",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusStartChunk,
+					writeSuggesting: map[string][]byte{"file": plusStartChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -309,9 +313,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss chunk at the beginning",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusStartChunk,
+					writeSuggesting: map[string][]byte{"file": plusStartChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -352,9 +356,9 @@ func TestDiff(t *testing.T) {
 			name: "apply chunk in the middle",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusMiddleChunk,
+					writeSuggesting: map[string][]byte{"file": plusMiddleChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -394,9 +398,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss chunk in the middle",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusMiddleChunk,
+					writeSuggesting: map[string][]byte{"file": plusMiddleChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -436,9 +440,9 @@ func TestDiff(t *testing.T) {
 			name: "apply chunk in the end",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusEndChunk,
+					writeSuggesting: map[string][]byte{"file": plusEndChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -478,9 +482,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss chunk in the end",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusEndChunk,
+					writeSuggesting: map[string][]byte{"file": plusEndChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -520,9 +524,9 @@ func TestDiff(t *testing.T) {
 			name: "apply two chunks one by one",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -594,9 +598,9 @@ func TestDiff(t *testing.T) {
 			name: "apply two chunks one by one, backwards",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -667,9 +671,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss two chunks one by one",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -741,9 +745,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss two chunks one by one backwards",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -814,9 +818,9 @@ func TestDiff(t *testing.T) {
 			name: "apply two chunks",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -865,9 +869,9 @@ func TestDiff(t *testing.T) {
 			name: "apply two chunks",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -916,9 +920,9 @@ func TestDiff(t *testing.T) {
 			name: "dismiss two chunks",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusTwoChunks,
+					writeSuggesting: map[string][]byte{"file": plusTwoChunks},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -967,9 +971,9 @@ func TestDiff(t *testing.T) {
 			name: "outdated hunk suggestion",
 
 			operations: []*operation{
-				{writeOriginal: &original},
+				{writeOriginal: map[string][]byte{"file": original}},
 				{
-					writeSuggesting: &plusStartChunk,
+					writeSuggesting: map[string][]byte{"file": plusStartChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
@@ -985,7 +989,7 @@ func TestDiff(t *testing.T) {
 					},
 				},
 				{
-					writeOriginal: &plusStartChunk,
+					writeOriginal: map[string][]byte{"file": plusStartChunk},
 					result: []unidiff.FileDiff{
 						{
 							OrigName:      "file",
