@@ -49,6 +49,7 @@ require (
 	github.com/libgit2/git2go/v33 v33.0.0
 	github.com/mergestat/timediff v0.0.2
 	github.com/microcosm-cc/bluemonday v1.0.16
+	github.com/pkg/errors v0.9.1
 	github.com/posthog/posthog-go v0.0.0-20211028072449-93c17c49e2b0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/psanford/memfs v0.0.0-20210214183328-a001468d78ef
@@ -97,7 +98,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
