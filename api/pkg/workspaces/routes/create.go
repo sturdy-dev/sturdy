@@ -17,13 +17,6 @@ import (
 
 type CreateRequest struct {
 	CodebaseID string `json:"codebase_id" binding:"required"`
-	Name       string `json:"name"`
-
-	// ChangeID is a commit checksum
-	ChangeID string `json:"change_id"` // change_id and revert_change_id are mutually exclusive
-
-	// RevertChangeID is a commit checksum
-	RevertChangeID string `json:"revert_change_id"` //
 }
 
 func Create(logger *zap.Logger, workspaceService service_workspace.Service, codebaseUserRepo db_codebase.CodebaseUserRepository) func(c *gin.Context) {
@@ -48,13 +41,9 @@ func Create(logger *zap.Logger, workspaceService service_workspace.Service, code
 		}
 
 		ws, err := workspaceService.Create(c.Request.Context(), service_workspace.CreateWorkspaceRequest{
-			UserID:         userID,
-			CodebaseID:     req.CodebaseID,
-			Name:           req.Name,
-			RevertCommitID: req.RevertChangeID,
-			CommitID:       req.ChangeID,
+			UserID:     userID,
+			CodebaseID: req.CodebaseID,
 		})
-
 		if err != nil {
 			logger.Error("failed to create workspace", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
