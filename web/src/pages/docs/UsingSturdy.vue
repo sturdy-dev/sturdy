@@ -15,7 +15,7 @@
 
         <h2 id="ui-overview">UI Overview</h2>
 
-        <img src="./images/UI_overview.png" width="780" alt="Sturdy UI overview" />
+        <img src="./images/UI_overview.png" width="1551" height="937" alt="Sturdy UI overview" />
         <ol>
           <li>
             The left sidebar lists <strong>codebases</strong> and <strong>workspaces</strong> from
@@ -67,11 +67,10 @@
         <h3 id="import-a-repository">Setup Sturdy on a GitHub repository</h3>
         <p>
           Repositories imported from GitHub will remain up-to-date with changes made outside of
-          Sturdy (
-          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub', hash: '#source-of-truth' }"
-            >Read more
-          </router-link>
-          ).
+          Sturdy (<router-link
+            :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub', hash: '#source-of-truth' }"
+            >read more</router-link
+          >).
         </p>
         <ol>
           <li>Click on the three dots icon in the top left corner and select "Settings"</li>
@@ -81,21 +80,24 @@
             Update the GitHub installation, selecting one or multiple repositories
             <img
               src="./images/Add_repository_on_GitHub.png"
-              width="700"
+              width="1175"
+              height="586"
               alt="Updating the selected repositories on GitHub"
             />
           </li>
           <li>On GitHub, select the organization which contains the codebase you wish to setup</li>
           <img
             src="./images/GitHub_select_repository.png"
-            width="700"
+            width="1157"
+            height="640"
             alt="Selecting repository access on GitHub"
           />
           <li>You will be redirected back to Sturdy</li>
           <li>On Sturdy, click "Setup" on the repositories that you want to use from Sturdy</li>
           <img
             src="./images/Setup_repository.png"
-            width="700"
+            width="1184"
+            height="682"
             alt="Creating a Sturdy codebase connected to a GitHub repository"
           />
         </ol>
@@ -122,17 +124,14 @@
           </li>
           <img
             src="./images/Connect_directory.png"
-            width="700"
+            width="1248"
+            height="834"
             alt="Connecting a local directory to a Sturdy workspace"
           />
           <li>
-            Select a directory where you want to have the code. It is a good idea to create a new
-            folder
+            Select a directory where you want to have the code in. Sturdy will create a new
+            directory inside the directory that you select with the same name as the codebase.
           </li>
-          <ol>
-            <li>The folder you select must be empty</li>
-            <li>The folder that you select should not be inside a git repository</li>
-          </ol>
           <li>
             Observe that a new workspace was created with the name "Your Name's Workspace". In
             Sturdy, work always happens inside a workspace
@@ -162,7 +161,8 @@
           </ol>
           <img
             src="./images/Creating_first_change.png"
-            width="700"
+            width="1248"
+            height="1102"
             alt="Creating your first change on Sturdy"
           />
           <li>Using your editor, open a file in the codebase and make some changes to it</li>
@@ -191,7 +191,8 @@
           <li>Click the "Create pull request" button at the top</li>
           <img
             src="./images/Before_creating_PR.png"
-            width="500"
+            height="222"
+            width="1088"
             alt="Change description in Sturdy workspaces"
           />
           <li>Two new buttons will appear ("Update pull request" and "Merge")</li>
@@ -201,7 +202,8 @@
           </li>
           <img
             src="./images/After_creating_PR.png"
-            width="500"
+            height="235"
+            width="1118"
             alt="Managing a GitHub Pull Request from Sturdy"
           />
           <li>
@@ -223,7 +225,12 @@
           <li>The panel with recent changes now contains the change that you just created</li>
           <li>Click on the latest change</li>
           <li>You can see the diffs and description of the change as you created it</li>
-          <img src="./images/Previous_changes.png" width="700" alt="Exploring previous changes" />
+          <img
+            src="./images/Previous_changes.png"
+            height="837"
+            width="1312"
+            alt="Exploring previous changes"
+          />
           <li>
             Observe that on the right side you have a list of older changes &mdash; click on any of
             them to show you the details of that change
