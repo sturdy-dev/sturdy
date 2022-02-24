@@ -32,7 +32,7 @@ func setup(t *testing.T) *testCollaborators {
 	repoProvider := testutil.TestingRepoProvider(t)
 	executorProvider := executor.NewProvider(logger, repoProvider)
 	workspaceRepo := db_workspaces.NewMemory()
-	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient())
+	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(logger))
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
 	viewRepo := inmemory.NewInMemoryViewRepo()
 	viewEvents := events.NewInMemory()
