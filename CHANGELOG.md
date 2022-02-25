@@ -8,6 +8,17 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.2.1 (2022-02-25)
+
+* [Improvement] Make sure that a connected directory always is connected to a workspace. If a workspace connected to a directory is archived, a new workspace will be created and connected to that directory.
+* [Improvement] Inactive and unused workspace by other users are now hidden in the sidebar
+* [Fix] Fixed an issue where some changes imported from GitHub where not revertable
+* [Fix] Fixed an issue where some workspaces did not have a "Based On" change tracked
+* [Fix] Fixed an issue with changes that contained files that where (at the same time) renamed, edited, and had new file permissions.
+* [Fix] Fixed an issue where it was not possible to make comments in a workspace (live comments) on deleted lines in files that have been moved.
+* [Fix] Fixed an issue where it was not possible to upload custom user avatars
+* [Performance] Fetching and loading the changelog is now faster
+
 # Server v1.2.0 (2022-02-18)
 
 * Improved how Sturdy imports changes from GitHub – Merge commits are now correctly identified and converted to `changes`.
