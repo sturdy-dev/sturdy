@@ -132,15 +132,19 @@ func GetWorkspaceComments(
 	newFilesFS, err := WorkspaceFS(executorProvider, snapshotRepo, ws, true)
 	switch {
 	case err == nil:
-	case errors.Is(err, ErrNoFiles):
+	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
 		return nil, nil
 	default:
-		return nil, fmt.Errorf("could not prepare workspace filesystem: %w", err)
+		return nil, fmt.Errorf("could not prepare workspace filesystem for new files: %w", err)
 	}
 
 	oldFilesFS, err := WorkspaceFS(executorProvider, snapshotRepo, ws, false)
-	if err != nil {
-		return nil, fmt.Errorf("could not prepare workspace filesystem: %w", err)
+	switch {
+	case err == nil:
+	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("could not prepare workspace filesystem for old files: %w", err)
 	}
 
 	// fuzzily update line numbers
