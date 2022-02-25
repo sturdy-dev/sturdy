@@ -188,6 +188,15 @@ func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, ins
 }
 
 func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *gh.Repository, installationID int64, sender *gh.User, addUserID *string, organizationID *string) (*codebase.Codebase, error) {
+	if repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID()); errors.Is(err, sql.ErrNoRows) {
+		// no repo found, set it up!
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to save new repo installation: %w", err)
+	} else {
+		// repo already exists, return the codebase
+		return svc.codebaseRepo.Get(repo.CodebaseID)
+	}
+
 	svc.logger.Info("handleInstalledRepository setting up new non-ready codebase", zap.Int64("installation_ID", installationID), zap.String("gh_repo_name", ghRepo.GetName()))
 
 	// Create the installation if it does not exist
@@ -202,13 +211,15 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 		if err != nil {
 			return nil, fmt.Errorf("could not get installation metadata from github: %w", err)
 		}
-		svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
+		if err := svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
 			ID:                     uuid.NewString(),
 			InstallationID:         installationID,
 			Owner:                  installation.GetAccount().GetLogin(),
 			CreatedAt:              time.Now(),
 			HasWorkflowsPermission: true, // this is a guess
-		})
+		}); err != nil {
+			return nil, fmt.Errorf("could not create installation: %w", err)
+		}
 	case existingInstallationErr != nil:
 		return nil, fmt.Errorf("could not get installation from repo: %w", existingInstallationErr)
 	}
