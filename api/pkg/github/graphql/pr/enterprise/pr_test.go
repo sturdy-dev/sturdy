@@ -280,14 +280,14 @@ func TestPRHighLevel(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 			viewID := uuid.NewString()
 			codebaseID := uuid.NewString()
 			codebaseUserID := uuid.NewString()
 			sturdyRepositoryID := uuid.NewString()
 			gitHubRepositoryID := rand.Int63n(500_000_000)
 			gitHubInstallationID := rand.Int63n(500_000_000)
-			ctx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID})
+			ctx := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID.String()})
 
 			gitHubRepoOwner := uuid.NewString()
 			gitHubRepoName := uuid.NewString()
@@ -322,7 +322,7 @@ func TestPRHighLevel(t *testing.T) {
 				Owner:          gitHubRepoOwner,
 			}
 
-			assert.NoError(t, d.UserRepo.Create(&users.User{ID: userID, Email: userID + "@getsturdy.com", Name: "Test Testsson"}))
+			assert.NoError(t, d.UserRepo.Create(&users.User{ID: userID, Email: userID.String() + "@getsturdy.com", Name: "Test Testsson"}))
 			assert.NoError(t, codebaseRepo.Create(codebase.Codebase{ID: codebaseID, ShortCodebaseID: codebase.ShortCodebaseID(codebaseID)}))
 			assert.NoError(t, codebaseUserRepo.Create(*cu))
 			assert.NoError(t, gitHubUserRepo.Create(*ghu))
@@ -586,7 +586,7 @@ func TestPRHighLevel(t *testing.T) {
 	}
 }
 
-func prWebhookEvent(t *testing.T, userID string, webhookRoute gin.HandlerFunc, event gh.PullRequestEvent) {
+func prWebhookEvent(t *testing.T, userID users.ID, webhookRoute gin.HandlerFunc, event gh.PullRequestEvent) {
 	requestWithParams(t, userID, webhookRoute, event, nil, "pull_request", []gin.Param{})
 }
 
@@ -661,7 +661,7 @@ func (f *fakeGitHubAppsClient) Get(ctx context.Context, appSlug string) (*gh.App
 	panic("implement me")
 }
 
-func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, reqType string, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, reqType string, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params
@@ -670,7 +670,7 @@ func requestWithParams(t *testing.T, userID string, route func(*gin.Context), re
 	assert.NoError(t, err)
 
 	c.Request, err = http.NewRequest("GET", "/", bytes.NewReader(data))
-	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser}))
+	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID.String(), Type: auth.SubjectUser}))
 	assert.NoError(t, err)
 	c.Request.Header.Set("X-Hub-Signature", "sha1=126f2c800419c60137ce748d7672e77b65cf16d6")
 	c.Request.Header.Set("X-Github-Event", reqType)

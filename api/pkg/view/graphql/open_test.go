@@ -69,8 +69,8 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		t.FailNow()
 	}
 
-	userID := uuid.New()
-	err := d.UserRepo.Create(&users.User{ID: userID.String(), Email: userID.String() + "@test.com"})
+	userID := users.ID(uuid.NewString())
+	err := d.UserRepo.Create(&users.User{ID: userID, Email: userID.String() + "@test.com"})
 	assert.NoError(t, err)
 
 	viewResolver := d.ViewRootResolver
@@ -130,21 +130,21 @@ func TestUpdateViewWorkspace(t *testing.T) {
 			assert.NoError(t, codebaseUserRepo.Create(codebase.CodebaseUser{
 				ID:         uuid.NewString(),
 				CodebaseID: codebaseID,
-				UserID:     userID.String(),
+				UserID:     userID,
 			}))
 			assert.NoError(t, workspaceRepo.Create(workspaces.Workspace{
 				ID:         workspaceAID.String(),
 				CodebaseID: codebaseID,
-				UserID:     userID.String(),
+				UserID:     userID,
 			}))
 			assert.NoError(t, workspaceRepo.Create(workspaces.Workspace{
 				ID:         workspaceBID.String(),
 				CodebaseID: codebaseID,
-				UserID:     userID.String(),
+				UserID:     userID,
 			}))
 			err = viewRepo.Create(view.View{
 				ID:          viewID,
-				UserID:      userID.String(),
+				UserID:      userID,
 				CodebaseID:  codebaseID,
 				WorkspaceID: workspaceAID.String(),
 			})

@@ -18,6 +18,7 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/review"
 	db_review "getsturdy.com/api/pkg/review/db"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/activity"
 	activity_sender "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -226,11 +227,11 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 	}
 
 	// user requested review from starts watching the workspace
-	if _, err := r.workspaceWatchersService.Watch(ctx, string(args.Input.UserID), ws.ID); err != nil {
+	if _, err := r.workspaceWatchersService.Watch(ctx, users.ID(args.Input.UserID), ws.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to watch workspace: %w", err))
 	}
 
-	if existing, err := r.reviewRepo.GetLatestByUserAndWorkspace(ctx, string(args.Input.UserID), workspaceID); err == nil {
+	if existing, err := r.reviewRepo.GetLatestByUserAndWorkspace(ctx, users.ID(args.Input.UserID), workspaceID); err == nil {
 		// Don't request a review if this user already has a approved or rejected review
 		if existing.DismissedAt == nil && !existing.IsReplaced {
 			return &reviewResolver{root: r, rev: existing}, nil
@@ -250,7 +251,7 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 	// Create new
 	rev := review.Review{
 		ID:          uuid.NewString(),
-		UserID:      string(args.Input.UserID),
+		UserID:      users.ID(args.Input.UserID),
 		CodebaseID:  ws.CodebaseID,
 		WorkspaceID: workspaceID,
 		Grade:       review.ReviewGradeRequested,
@@ -267,7 +268,7 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 	}
 
 	// Send notification to the user that the review was requested from
-	if err := r.notificationSender.User(ctx, string(args.Input.UserID), ws.CodebaseID, notification.RequestedReviewNotificationType, rev.ID); err != nil {
+	if err := r.notificationSender.User(ctx, users.ID(args.Input.UserID), ws.CodebaseID, notification.RequestedReviewNotificationType, rev.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to send notification: %w", err))
 	}
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/lib/pq"
 )
 
@@ -27,7 +28,7 @@ type Suggestion struct {
 	// ID of the suggestion diff hunk ids that were dismissed.
 	DismissedHunks pq.StringArray `db:"dismissed_hunks"`
 	// The id of the user that created the suggestion.
-	UserID string `db:"user_id"`
+	UserID users.ID `db:"user_id"`
 	// DismissedAt is set if the whole suggestion was dismissed.
 	DismissedAt *time.Time `db:"dismissed_at"`
 	// NotifiedAt is set if the user has been notified about the suggestion.

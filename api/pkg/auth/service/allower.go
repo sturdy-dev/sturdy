@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/acl"
 	"getsturdy.com/api/pkg/suggestions"
 	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -32,32 +33,34 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 
 	switch subject.Type {
 	case auth.SubjectMutagen:
+		subjectID := users.ID(subject.ID)
 		// TODO: mutagen request should be authenticated
 		switch object := obj.(type) {
 		case *codebase.Codebase:
-			return s.getUserCodebaseAllower(ctx, subject.ID, object)
+			return s.getUserCodebaseAllower(ctx, subjectID, object)
 		case codebase.Codebase:
-			return s.getUserCodebaseAllower(ctx, subject.ID, &object)
+			return s.getUserCodebaseAllower(ctx, subjectID, &object)
 		}
 
 	case auth.SubjectUser:
+		subjectID := users.ID(subject.ID)
 		switch object := obj.(type) {
 		case *codebase.Codebase:
-			return s.getUserCodebaseAllower(ctx, subject.ID, object)
+			return s.getUserCodebaseAllower(ctx, subjectID, object)
 		case codebase.Codebase:
-			return s.getUserCodebaseAllower(ctx, subject.ID, &object)
+			return s.getUserCodebaseAllower(ctx, subjectID, &object)
 		case change.Change:
-			return s.getUserChangeAllower(ctx, subject.ID, &object)
+			return s.getUserChangeAllower(ctx, subjectID, &object)
 		case *change.Change:
-			return s.getUserChangeAllower(ctx, subject.ID, object)
+			return s.getUserChangeAllower(ctx, subjectID, object)
 		case workspaces.Workspace:
-			return s.getUserWorkspaceAllower(ctx, subject.ID, &object)
+			return s.getUserWorkspaceAllower(ctx, subjectID, &object)
 		case *workspaces.Workspace:
-			return s.getUserWorkspaceAllower(ctx, subject.ID, object)
+			return s.getUserWorkspaceAllower(ctx, subjectID, object)
 		case suggestions.Suggestion:
-			return s.getUserSuggestionAllower(ctx, subject.ID, &object)
+			return s.getUserSuggestionAllower(ctx, subjectID, &object)
 		case *suggestions.Suggestion:
-			return s.getUserSuggestionAllower(ctx, subject.ID, object)
+			return s.getUserSuggestionAllower(ctx, subjectID, object)
 		}
 
 	case auth.SubjectCI:
@@ -88,7 +91,7 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 	return noneAllowed, nil
 }
 
-func (s *Service) getUserChangeAllower(ctx context.Context, userID string, change *change.Change) (*unidiff.Allower, error) {
+func (s *Service) getUserChangeAllower(ctx context.Context, userID users.ID, change *change.Change) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
@@ -96,7 +99,7 @@ func (s *Service) getUserChangeAllower(ctx context.Context, userID string, chang
 	return s.getUserCodebaseAllower(ctx, userID, cb)
 }
 
-func (s *Service) getUserWorkspaceAllower(ctx context.Context, userID string, workspace *workspaces.Workspace) (*unidiff.Allower, error) {
+func (s *Service) getUserWorkspaceAllower(ctx context.Context, userID users.ID, workspace *workspaces.Workspace) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, workspace.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
@@ -104,7 +107,7 @@ func (s *Service) getUserWorkspaceAllower(ctx context.Context, userID string, wo
 	return s.getUserCodebaseAllower(ctx, userID, cb)
 }
 
-func (s *Service) getUserSuggestionAllower(ctx context.Context, userID string, suggestion *suggestions.Suggestion) (*unidiff.Allower, error) {
+func (s *Service) getUserSuggestionAllower(ctx context.Context, userID users.ID, suggestion *suggestions.Suggestion) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, suggestion.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
@@ -112,7 +115,7 @@ func (s *Service) getUserSuggestionAllower(ctx context.Context, userID string, s
 	return s.getUserCodebaseAllower(ctx, userID, cb)
 }
 
-func (s *Service) getUserCodebaseAllower(ctx context.Context, userID string, codebase *codebase.Codebase) (*unidiff.Allower, error) {
+func (s *Service) getUserCodebaseAllower(ctx context.Context, userID users.ID, codebase *codebase.Codebase) (*unidiff.Allower, error) {
 	aclPolicy, err := s.aclProvider.GetByCodebaseID(ctx, codebase.ID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return noneAllowed, nil
@@ -134,7 +137,7 @@ func (s *Service) getUserCodebaseAllower(ctx context.Context, userID string, cod
 	)
 
 	allowedByID := aclPolicy.Policy.List(
-		acl.Identity{Type: acl.Users, ID: user.ID},
+		acl.Identity{Type: acl.Users, ID: user.ID.String()},
 		acl.ActionWrite,
 		acl.Files,
 	)

@@ -2,8 +2,14 @@ package users
 
 import "time"
 
+type ID string
+
+func (id ID) String() string {
+	return string(id)
+}
+
 type User struct {
-	ID            string     `db:"id" json:"id"`
+	ID            ID         `db:"id" json:"id"`
 	Name          string     `db:"name" json:"name"`
 	Email         string     `db:"email" json:"email"`
 	EmailVerified bool       `db:"email_verified" json:"email_verified"`

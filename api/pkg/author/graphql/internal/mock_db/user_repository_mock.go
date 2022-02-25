@@ -65,7 +65,7 @@ func (mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *MockRepository) Get(arg0 string) (*users.User, error) {
+func (m *MockRepository) Get(arg0 users.ID) (*users.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", arg0)
 	ret0, _ := ret[0].(*users.User)
@@ -95,7 +95,7 @@ func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 interface{}) *gomock.Call 
 }
 
 // GetByIDs mocks base method.
-func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...string) ([]*users.User, error) {
+func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...users.ID) ([]*users.User, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0}
 	for _, a := range arg1 {

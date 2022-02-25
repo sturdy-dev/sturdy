@@ -75,7 +75,7 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 
 	t := time.Now()
 	newUser := &users.User{
-		ID:        uuid.New().String(),
+		ID:        users.ID(uuid.New().String()),
 		Name:      name,
 		Email:     email,
 		CreatedAt: &t,
@@ -114,7 +114,7 @@ func (s *Service) SendMagicLink(ctx context.Context, user *users.User) error {
 	return nil
 }
 
-func (s *Service) SendEmailVerification(ctx context.Context, userID string) error {
+func (s *Service) SendEmailVerification(ctx context.Context, userID users.ID) error {
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *users.User, code st
 	return nil
 }
 
-func (s *Service) VerifyEmail(ctx context.Context, userID string, rawToken string) (*users.User, error) {
+func (s *Service) VerifyEmail(ctx context.Context, userID users.ID, rawToken string) (*users.User, error) {
 	user, err := s.userRepo.Get(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -160,7 +160,7 @@ func (s *Service) VerifyEmail(ctx context.Context, userID string, rawToken strin
 		return nil, fmt.Errorf("failed to verify email: %w", err)
 	}
 
-	if emailToken.Subject != userID {
+	if emailToken.Subject != userID.String() {
 		return nil, fmt.Errorf("invalid token")
 	}
 

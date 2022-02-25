@@ -17,6 +17,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
+	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
 )
 
@@ -187,7 +188,7 @@ func (r *organizationRootResolver) RemoveUserFromOrganization(ctx context.Contex
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.service.RemoveMember(ctx, org.ID, string(args.Input.UserID), removedByUserID); err != nil {
+	if err := r.service.RemoveMember(ctx, org.ID, users.ID(args.Input.UserID), removedByUserID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

@@ -23,6 +23,7 @@ import (
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
+	"getsturdy.com/api/pkg/users"
 	user_db "getsturdy.com/api/pkg/users/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
@@ -39,7 +40,7 @@ import (
 )
 
 type CreateWorkspaceRequest struct {
-	UserID           string
+	UserID           users.ID
 	CodebaseID       string
 	Name             string
 	DraftDescription string
@@ -50,10 +51,10 @@ type CreateWorkspaceRequest struct {
 
 type Service interface {
 	Create(context.Context, CreateWorkspaceRequest) (*workspaces.Workspace, error)
-	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID, name string) (*workspaces.Workspace, error)
+	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error)
 	GetByID(context.Context, string) (*workspaces.Workspace, error)
 	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*change.Change, error)
-	CreateWelcomeWorkspace(ctx context.Context, codebaseID, userID, codebaseName string) error
+	CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
 	RemovePatches(context.Context, *unidiff.Allower, *workspaces.Workspace, ...string) error
@@ -298,7 +299,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	return nil
 }
 
-func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID, name string) (*workspaces.Workspace, error) {
+func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error) {
 
 	var baseChangeID *change.ID
 	fromBaseChange, err := s.HeadChange(ctx, from)
@@ -694,7 +695,7 @@ const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <p>Happy hacking!</p>
 `
 
-func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID, userID, codebaseName string) error {
+func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error {
 	readMeContents := strings.ReplaceAll(readMeTemplate, "__CODEBASE__NAME__", codebaseName)
 	draftDescriptionContents := strings.ReplaceAll(draftDescriptionTemplate, "__CODEBASE__NAME__", codebaseName)
 

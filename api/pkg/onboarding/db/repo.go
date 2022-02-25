@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/onboarding"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type CompletedOnboardingStepsRepository interface {
-	GetCompletedSteps(ctx context.Context, userID string) ([]*onboarding.Step, error)
+	GetCompletedSteps(context.Context, users.ID) ([]*onboarding.Step, error)
 	InsertCompletedStep(context.Context, *onboarding.Step) error
 }
 
@@ -22,7 +23,7 @@ type completedOnboardingStepsRepository struct {
 	db *sqlx.DB
 }
 
-func (c *completedOnboardingStepsRepository) GetCompletedSteps(ctx context.Context, userID string) ([]*onboarding.Step, error) {
+func (c *completedOnboardingStepsRepository) GetCompletedSteps(ctx context.Context, userID users.ID) ([]*onboarding.Step, error) {
 	var steps []*onboarding.Step
 	if err := c.db.SelectContext(ctx, &steps, `
 		SELECT step_id, user_id, created_at FROM completed_onboarding_steps

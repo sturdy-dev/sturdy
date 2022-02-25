@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"getsturdy.com/api/pkg/users"
 )
 
 // Token is a short-lived, one-time use token.
 type Token struct {
 	Key       string    `db:"key"`
-	UserID    string    `db:"user_id"`
+	UserID    users.ID  `db:"user_id"`
 	CreatedAt time.Time `db:"created_at"`
 	// Number of times the token has been used.
 	Clicks int `db:"clicks"`
@@ -27,7 +29,7 @@ func randSeq(n int) string {
 	return string(b)
 }
 
-func New(userID string) *Token {
+func New(userID users.ID) *Token {
 	return &Token{
 		Key:       fmt.Sprintf("%s%s", randSeq(3), randSeq(3)),
 		UserID:    userID,

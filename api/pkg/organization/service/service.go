@@ -13,6 +13,7 @@ import (
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/shortid"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/google/uuid"
 )
@@ -35,7 +36,7 @@ func New(
 	}
 }
 
-func (svc *Service) ListByUserID(ctx context.Context, userID string) ([]*organization.Organization, error) {
+func (svc *Service) ListByUserID(ctx context.Context, userID users.ID) ([]*organization.Organization, error) {
 	members, err := svc.organizationMemberRepository.ListByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("could not list organizations by user id: %w", err)
@@ -62,7 +63,7 @@ func (svc *Service) Members(ctx context.Context, organizationID string) ([]*orga
 	return members, nil
 }
 
-func (svc *Service) CanAccess(ctx context.Context, userID, organizationID string) (bool, error) {
+func (svc *Service) CanAccess(ctx context.Context, userID users.ID, organizationID string) (bool, error) {
 	_, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
@@ -74,7 +75,7 @@ func (svc *Service) CanAccess(ctx context.Context, userID, organizationID string
 	}
 }
 
-func (svc *Service) GetMember(ctx context.Context, organizationID, userID string) (*organization.Member, error) {
+func (svc *Service) GetMember(ctx context.Context, organizationID string, userID users.ID) (*organization.Member, error) {
 	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get member: %w", err)
@@ -111,7 +112,7 @@ func (svc *Service) Create(ctx context.Context, name string) (*organization.Orga
 	return &org, nil
 }
 
-func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID string) (*organization.Member, error) {
+func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedByUserID users.ID) (*organization.Member, error) {
 	member := organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: orgID,
@@ -132,7 +133,7 @@ func (svc *Service) AddMember(ctx context.Context, orgID, userID, addedByUserID 
 	return &member, nil
 }
 
-func (svc *Service) RemoveMember(ctx context.Context, orgID, userID, deletedByUserID string) error {
+func (svc *Service) RemoveMember(ctx context.Context, orgID string, userID users.ID, deletedByUserID users.ID) error {
 	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, orgID)
 	if err != nil {
 		return fmt.Errorf("could not get member: %w", err)
@@ -170,7 +171,7 @@ func (svc *Service) GetByShortID(ctx context.Context, shortID organization.Short
 	return member, nil
 }
 
-func (svc *Service) GetMemberByUserIDAndOrganizationID(ctx context.Context, userID, organizationID string) (*organization.Member, error) {
+func (svc *Service) GetMemberByUserIDAndOrganizationID(ctx context.Context, userID users.ID, organizationID string) (*organization.Member, error) {
 	member, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get member: %w", err)

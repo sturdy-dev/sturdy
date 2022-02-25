@@ -10,6 +10,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/acl"
 	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 
 	"github.com/google/uuid"
@@ -86,7 +87,7 @@ func (p *Provider) getUserEmailsForCodebase(ctx context.Context, codebaseID stri
 		return nil, fmt.Errorf("failed to query codebase users: %w", err)
 	}
 
-	userIDs := make([]string, 0, len(uu))
+	userIDs := make([]users.ID, 0, len(uu))
 	for _, u := range uu {
 		userIDs = append(userIDs, u.UserID)
 	}

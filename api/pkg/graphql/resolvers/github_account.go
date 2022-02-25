@@ -3,12 +3,13 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/graph-gophers/graphql-go"
 )
 
 type GitHubAccountRootResolver interface {
 	// internal
-	InteralByID(context.Context, string) (GitHubAccountResolver, error)
+	InteralByID(context.Context, users.ID) (GitHubAccountResolver, error)
 }
 
 type GitHubAccountResolver interface {

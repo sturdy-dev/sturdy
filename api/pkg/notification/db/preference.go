@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -32,7 +33,7 @@ func (repo *PreferenceRepository) Upsert(ctx context.Context, preference *notifi
 	return nil
 }
 
-func (repo *PreferenceRepository) ListByUserID(ctx context.Context, userID string) ([]*notification.Preference, error) {
+func (repo *PreferenceRepository) ListByUserID(ctx context.Context, userID users.ID) ([]*notification.Preference, error) {
 	var res []*notification.Preference
 	if err := repo.db.SelectContext(ctx, &res, `SELECT user_id, type, channel, enabled
 		FROM notification_preferences

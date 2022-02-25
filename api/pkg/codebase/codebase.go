@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/author"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/gosimple/slug"
 )
@@ -27,7 +28,7 @@ type Codebase struct {
 
 type CodebaseUser struct {
 	ID         string     `db:"id"`
-	UserID     string     `db:"user_id"`
+	UserID     users.ID   `db:"user_id"`
 	CodebaseID string     `db:"codebase_id"`
 	CreatedAt  *time.Time `db:"created_at" json:"created_at"`
 }

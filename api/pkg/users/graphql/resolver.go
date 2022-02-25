@@ -58,7 +58,7 @@ func NewResolver(
 	}, logger)
 }
 
-func (r *userRootResolver) InternalUser(ctx context.Context, id string) (resolvers.UserResolver, error) {
+func (r *userRootResolver) InternalUser(ctx context.Context, id users.ID) (resolvers.UserResolver, error) {
 	user, err := r.userRepo.Get(id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

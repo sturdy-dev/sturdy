@@ -3,21 +3,23 @@ package db
 import (
 	"context"
 	"database/sql"
-	"getsturdy.com/api/pkg/review"
 	"time"
+
+	"getsturdy.com/api/pkg/review"
+	"getsturdy.com/api/pkg/users"
 )
 
 var _ ReviewRepository = &memory{}
 
 type memory struct {
 	byID              map[string]*review.Review
-	byWorkspaceByUser map[string]map[string][]*review.Review
+	byWorkspaceByUser map[string]map[users.ID][]*review.Review
 }
 
 func NewMemory() *memory {
 	return &memory{
 		byID:              map[string]*review.Review{},
-		byWorkspaceByUser: map[string]map[string][]*review.Review{},
+		byWorkspaceByUser: map[string]map[users.ID][]*review.Review{},
 	}
 }
 
@@ -26,7 +28,7 @@ func (m *memory) store(r *review.Review) {
 
 	byWorkspace := m.byWorkspaceByUser[r.WorkspaceID]
 	if byWorkspace == nil {
-		byWorkspace = map[string][]*review.Review{}
+		byWorkspace = map[users.ID][]*review.Review{}
 		m.byWorkspaceByUser[r.WorkspaceID] = byWorkspace
 	}
 	byWorkspace[r.UserID] = append(byWorkspace[r.UserID], r)
@@ -49,7 +51,7 @@ func (m *memory) Get(ctx context.Context, id string) (*review.Review, error) {
 	return r, nil
 }
 
-func (m *memory) GetLatestByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*review.Review, error) {
+func (m *memory) GetLatestByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*review.Review, error) {
 	byWorkspace := m.byWorkspaceByUser[workspaceID]
 	if byWorkspace == nil {
 		return nil, sql.ErrNoRows

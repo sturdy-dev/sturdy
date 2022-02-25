@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/onboarding"
 	"getsturdy.com/api/pkg/onboarding/db"
-	"getsturdy.com/api/pkg/events"
 
 	"github.com/graph-gophers/graphql-go"
 )

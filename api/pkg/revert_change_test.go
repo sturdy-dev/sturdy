@@ -84,10 +84,10 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver
 
-	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
-	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})
+	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()})
 
 	// Create a codebase
 	var codebaseRes codebase.Codebase
@@ -265,10 +265,10 @@ func TestRevertChangeFromView(t *testing.T) {
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver
 
-	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
-	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})
+	authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()})
 
 	// Create a codebase
 	var codebaseRes codebase.Codebase

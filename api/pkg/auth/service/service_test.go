@@ -13,6 +13,7 @@ import (
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
+	"getsturdy.com/api/pkg/users"
 	"go.uber.org/zap"
 
 	"github.com/google/uuid"
@@ -78,7 +79,7 @@ func TestCanWrite_codebase(t *testing.T) {
 			cb := codebase.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
 			assert.NoError(t, codebaseRepo.Create(cb))
 
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
 				cbu := codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
@@ -88,7 +89,7 @@ func TestCanWrite_codebase(t *testing.T) {
 			ctx := context.Background()
 
 			if tc.isAuthenticated {
-				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID, Type: auth.SubjectUser})
+				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID.String(), Type: auth.SubjectUser})
 			} else {
 				ctx = auth.NewContext(ctx, &auth.Subject{Type: auth.SubjectAnonymous})
 			}
@@ -184,7 +185,7 @@ func TestCanRead_codebase(t *testing.T) {
 
 			assert.NoError(t, codebaseRepo.Create(cb))
 
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
 				cbu := codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
@@ -201,7 +202,7 @@ func TestCanRead_codebase(t *testing.T) {
 			ctx := context.Background()
 
 			if tc.isAuthenticated {
-				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID, Type: auth.SubjectUser})
+				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID.String(), Type: auth.SubjectUser})
 			} else {
 				ctx = auth.NewContext(ctx, &auth.Subject{Type: auth.SubjectAnonymous})
 			}
@@ -282,7 +283,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 			org := organization.Organization{ID: uuid.NewString()}
 			assert.NoError(t, organizationRepo.Create(bgCtx, org))
 
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
 				orgmember := organization.Member{ID: uuid.NewString(), OrganizationID: org.ID, UserID: userID}
@@ -300,7 +301,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 			ctx := context.Background()
 
 			if tc.isAuthenticated {
-				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID, Type: auth.SubjectUser})
+				ctx = auth.NewContext(ctx, &auth.Subject{ID: userID.String(), Type: auth.SubjectUser})
 			} else {
 				ctx = auth.NewContext(ctx, &auth.Subject{Type: auth.SubjectAnonymous})
 			}

@@ -3,6 +3,7 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/graph-gophers/graphql-go"
 )
 
@@ -10,8 +11,8 @@ type ViewRootResolver interface {
 	View(ctx context.Context, args ViewArgs) (ViewResolver, error)
 
 	// Internal
-	InternalViewsByUser(userID string) ([]ViewResolver, error)
-	InternalLastUsedViewByUser(ctx context.Context, codebaseID, userID string) (ViewResolver, error)
+	InternalViewsByUser(users.ID) ([]ViewResolver, error)
+	InternalLastUsedViewByUser(ctx context.Context, codebaseID string, userID users.ID) (ViewResolver, error)
 
 	// Mutations
 	OpenWorkspaceOnView(ctx context.Context, args OpenViewArgs) (ViewResolver, error)

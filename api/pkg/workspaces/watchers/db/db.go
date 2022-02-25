@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 
 	"github.com/jmoiron/sqlx"
@@ -63,7 +64,7 @@ func (d *database) ListWatchingByWorkspaceID(ctx context.Context, workspaceID st
 	return watchers, nil
 }
 
-func (d *database) GetByUserIDAndWorkspaceID(ctx context.Context, userID string, workspaceID string) (*watchers.Watcher, error) {
+func (d *database) GetByUserIDAndWorkspaceID(ctx context.Context, userID users.ID, workspaceID string) (*watchers.Watcher, error) {
 	watcher := &watchers.Watcher{}
 	if err := d.db.GetContext(ctx, watcher, `
 		SELECT

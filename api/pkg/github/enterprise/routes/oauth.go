@@ -51,7 +51,7 @@ func Oauth(
 			return
 		}
 
-		logger = logger.With(zap.String("user_id", userID))
+		logger = logger.With(zap.Stringer("user_id", userID))
 
 		if ghUser, err := gitHubUserRepo.GetByUserID(userID); errors.Is(err, sql.ErrNoRows) {
 			// This user doesn't have a github connected yet, connect it.

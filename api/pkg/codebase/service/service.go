@@ -18,6 +18,7 @@ import (
 	"getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/shortid"
+	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
@@ -79,7 +80,7 @@ func (svc *Service) GetByShortID(ctx context.Context, shortID string) (*codebase
 	return cb, nil
 }
 
-func (svc *Service) CanAccess(ctx context.Context, userID string, codebaseID string) (bool, error) {
+func (svc *Service) CanAccess(ctx context.Context, userID users.ID, codebaseID string) (bool, error) {
 	_, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case err == nil:
@@ -99,7 +100,7 @@ func (svc *Service) ListByOrganization(ctx context.Context, organizationID strin
 	return res, nil
 }
 
-func (svc *Service) ListByOrganizationAndUser(ctx context.Context, organizationID, userID string) ([]*codebase.Codebase, error) {
+func (svc *Service) ListByOrganizationAndUser(ctx context.Context, organizationID string, userID users.ID) ([]*codebase.Codebase, error) {
 	codebases, err := svc.repo.ListByOrganization(ctx, organizationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not ListByOrganization: %w", err)
@@ -124,7 +125,7 @@ func (svc *Service) ListByOrganizationAndUser(ctx context.Context, organizationI
 
 // ListOrgsByUser returns a list of organization IDs that the user can _see_ through it's explicit membership
 // of one of it's codebases.
-func (svc *Service) ListOrgsByUser(ctx context.Context, userID string) ([]string, error) {
+func (svc *Service) ListOrgsByUser(ctx context.Context, userID users.ID) ([]string, error) {
 	orgIDs, err := svc.orgsByUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -138,7 +139,7 @@ func (svc *Service) ListOrgsByUser(ctx context.Context, userID string) ([]string
 	return res, nil
 }
 
-func (svc *Service) UserIsMemberOfCodebaseInOrganization(ctx context.Context, userID, organizationID string) (bool, error) {
+func (svc *Service) UserIsMemberOfCodebaseInOrganization(ctx context.Context, userID users.ID, organizationID string) (bool, error) {
 	orgIDs, err := svc.orgsByUser(ctx, userID)
 	if err != nil {
 		return false, err
@@ -148,7 +149,7 @@ func (svc *Service) UserIsMemberOfCodebaseInOrganization(ctx context.Context, us
 	return ok, nil
 }
 
-func (svc *Service) orgsByUser(ctx context.Context, userID string) (map[string]struct{}, error) {
+func (svc *Service) orgsByUser(ctx context.Context, userID users.ID) (map[string]struct{}, error) {
 	codebaseUsers, err := svc.codebaseUserRepo.GetByUser(userID)
 	if err != nil {
 		return nil, fmt.Errorf("could not ListByUser: %w", err)
@@ -293,7 +294,7 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string
 	return &member, nil
 }
 
-func (svc *Service) RemoveUser(ctx context.Context, codebaseID, userID string) error {
+func (svc *Service) RemoveUser(ctx context.Context, codebaseID string, userID users.ID) error {
 	member, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):

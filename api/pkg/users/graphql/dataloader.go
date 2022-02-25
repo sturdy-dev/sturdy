@@ -7,6 +7,7 @@ import (
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/graph-gophers/dataloader/v6"
 	"go.uber.org/zap"
@@ -49,7 +50,7 @@ func (dl *UserDataloader) VerifyEmail(ctx context.Context, args resolvers.Verify
 	return r, err
 }
 
-func (dl *UserDataloader) InternalUser(ctx context.Context, userID string) (resolvers.UserResolver, error) {
+func (dl *UserDataloader) InternalUser(ctx context.Context, userID users.ID) (resolvers.UserResolver, error) {
 	thunk := dl.loader.Load(ctx, dataloader.StringKey(userID))
 	u, err := thunk()
 	if err != nil {
@@ -65,7 +66,7 @@ func batchFunction(resolver *userRootResolver) dataloader.BatchFunc {
 		)
 
 		for _, key := range keys {
-			user, err := resolver.InternalUser(ctx, key.String())
+			user, err := resolver.InternalUser(ctx, users.ID(key.String()))
 			if err != nil {
 				results = append(results, &dataloader.Result{Error: err})
 			} else {

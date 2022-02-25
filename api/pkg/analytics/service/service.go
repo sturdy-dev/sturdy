@@ -33,7 +33,7 @@ func New(
 func (s *Service) Capture(ctx context.Context, event string, oo ...analytics.CaptureOption) {
 	userID, _ := auth.UserID(ctx)
 	options := &analytics.CaptureOptions{
-		DistinctId: userID,
+		DistinctId: userID.String(),
 	}
 	for _, o := range oo {
 		o(options)
@@ -74,7 +74,7 @@ func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
 
 func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
 	if err := s.client.Enqueue(posthog.Identify{
-		DistinctId: user.ID,
+		DistinctId: user.ID.String(),
 		Properties: map[string]interface{}{
 			"name":  user.Name,
 			"email": user.Email,

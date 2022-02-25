@@ -2,13 +2,14 @@ package events
 
 import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/users"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )
 
 // TODO: support sending multiple events. Some users of this interface call methods in a loop.
 type EventSender interface {
 	// User sends this event to this user only
-	User(id string, eventType EventType, reference string)
+	User(id users.ID, eventType EventType, reference string)
 
 	// Codebase sends this event to all members of this codebase
 	Codebase(id string, eventType EventType, reference string) error
@@ -36,7 +37,7 @@ func NewSender(
 	}
 }
 
-func (s *eventsSender) User(id string, eventType EventType, reference string) {
+func (s *eventsSender) User(id users.ID, eventType EventType, reference string) {
 	s.events.UserEvent(id, eventType, reference)
 }
 

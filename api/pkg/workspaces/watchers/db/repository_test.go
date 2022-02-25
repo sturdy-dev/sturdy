@@ -13,6 +13,7 @@ import (
 
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 	watchers_db "getsturdy.com/api/pkg/workspaces/watchers/db"
 
@@ -50,7 +51,7 @@ func ShouldListIfWatching(t *testing.T, repo watchers_db.Repository) {
 	ww, err := repo.ListWatchingByWorkspaceID(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	if assert.Len(t, ww, 1) {
-		assert.Equal(t, "user1", ww[0].UserID)
+		assert.Equal(t, users.ID("user1"), ww[0].UserID)
 	}
 }
 
@@ -100,14 +101,14 @@ func ShouldReturnByUserIDWorkspaceID(t *testing.T, repo watchers_db.Repository) 
 
 	w, err := repo.GetByUserIDAndWorkspaceID(context.Background(), "user1", workspaceID)
 	if assert.NoError(t, err) {
-		assert.Equal(t, "user1", w.UserID)
+		assert.Equal(t, users.ID("user1"), w.UserID)
 		assert.Equal(t, workspaceID, w.WorkspaceID)
 		assert.Equal(t, watchers.StatusWatching, w.Status)
 	}
 
 	w, err = repo.GetByUserIDAndWorkspaceID(context.Background(), "user2", workspaceID)
 	if assert.NoError(t, err) {
-		assert.Equal(t, "user2", w.UserID)
+		assert.Equal(t, users.ID("user2"), w.UserID)
 		assert.Equal(t, workspaceID, w.WorkspaceID)
 		assert.Equal(t, watchers.StatusIgnored, w.Status)
 	}

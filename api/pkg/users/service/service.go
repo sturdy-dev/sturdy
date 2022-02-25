@@ -30,12 +30,12 @@ type UserService struct {
 
 type Service interface {
 	CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error)
-	GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error)
-	GetByID(_ context.Context, id string) (*users.User, error)
+	GetByIDs(context.Context, ...users.ID) ([]*users.User, error)
+	GetByID(context.Context, users.ID) (*users.User, error)
 	GetByEmail(_ context.Context, email string) (*users.User, error)
 	UsersCount(context.Context) (uint64, error)
 	GetFirstUser(ctx context.Context) (*users.User, error)
-	GetAsAuthor(ctx context.Context, userID string) (*author.Author, error)
+	GetAsAuthor(context.Context, users.ID) (*author.Author, error)
 }
 
 func New(
@@ -82,7 +82,7 @@ func (s *UserService) CreateWithPassword(ctx context.Context, name, password, em
 
 	t := time.Now()
 	newUser := &users.User{
-		ID:           uuid.New().String(),
+		ID:           users.ID(uuid.New().String()),
 		Name:         name,
 		Email:        email,
 		PasswordHash: string(hash),
@@ -99,11 +99,11 @@ func (s *UserService) CreateWithPassword(ctx context.Context, name, password, em
 	return newUser, nil
 }
 
-func (s *UserService) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error) {
+func (s *UserService) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, error) {
 	return s.userRepo.GetByIDs(ctx, ids...)
 }
 
-func (s *UserService) GetByID(_ context.Context, id string) (*users.User, error) {
+func (s *UserService) GetByID(_ context.Context, id users.ID) (*users.User, error) {
 	return s.userRepo.Get(id)
 }
 
@@ -115,7 +115,7 @@ func (s *UserService) UsersCount(ctx context.Context) (uint64, error) {
 	return s.userRepo.Count(ctx)
 }
 
-func (s *UserService) GetAsAuthor(ctx context.Context, userID string) (*author.Author, error) {
+func (s *UserService) GetAsAuthor(ctx context.Context, userID users.ID) (*author.Author, error) {
 	user, err := s.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user %s: %w", userID, err)

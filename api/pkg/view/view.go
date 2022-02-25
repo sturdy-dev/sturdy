@@ -5,12 +5,13 @@ import (
 
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/jsontime"
+	"getsturdy.com/api/pkg/users"
 )
 
 type View struct {
-	ID         string `db:"id" json:"id"`
-	UserID     string `db:"user_id" json:"user_id"`
-	CodebaseID string `db:"codebase_id" json:"codebase_id"`
+	ID         string   `db:"id" json:"id"`
+	UserID     users.ID `db:"user_id" json:"user_id"`
+	CodebaseID string   `db:"codebase_id" json:"codebase_id"`
 
 	// Deprecated: in favour for workspace.ViewID
 	// TODO: Make nulllable, migrate, and delete?

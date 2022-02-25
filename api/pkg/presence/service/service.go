@@ -5,16 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/presence"
 	db_presence "getsturdy.com/api/pkg/presence/db"
-	"getsturdy.com/api/pkg/events"
-	"time"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/google/uuid"
 )
 
 type Service interface {
-	Record(ctx context.Context, userID, workspaceID string, state presence.State) (*presence.Presence, error)
+	Record(ctx context.Context, userID users.ID, workspaceID string, state presence.State) (*presence.Presence, error)
 	ListByWorkspace(ctx context.Context, workspaceID string) ([]*presence.Presence, error)
 }
 
@@ -30,7 +32,7 @@ func New(presenceRepo db_presence.PresenceRepository, eventSender events.EventSe
 	}
 }
 
-func (p *service) Record(ctx context.Context, userID, workspaceID string, state presence.State) (*presence.Presence, error) {
+func (p *service) Record(ctx context.Context, userID users.ID, workspaceID string, state presence.State) (*presence.Presence, error) {
 	pre, err := p.presenceRepo.GetByUserAndWorkspace(ctx, userID, workspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
 		newPresence := presence.Presence{

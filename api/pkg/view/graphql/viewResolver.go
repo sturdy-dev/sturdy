@@ -20,6 +20,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/ignore"
@@ -107,7 +108,7 @@ func (r *ViewRootResolver) View(ctx context.Context, args resolvers.ViewArgs) (r
 	return r.resolveView(ctx, args.ID)
 }
 
-func (r *ViewRootResolver) InternalViewsByUser(userID string) ([]resolvers.ViewResolver, error) {
+func (r *ViewRootResolver) InternalViewsByUser(userID users.ID) ([]resolvers.ViewResolver, error) {
 	views, err := r.viewRepo.ListByUser(userID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -119,7 +120,7 @@ func (r *ViewRootResolver) InternalViewsByUser(userID string) ([]resolvers.ViewR
 	return res, nil
 }
 
-func (r *ViewRootResolver) InternalLastUsedViewByUser(ctx context.Context, codebaseID, userID string) (resolvers.ViewResolver, error) {
+func (r *ViewRootResolver) InternalLastUsedViewByUser(ctx context.Context, codebaseID string, userID users.ID) (resolvers.ViewResolver, error) {
 	vw, err := r.viewRepo.LastUsedByCodebaseAndUser(ctx, codebaseID, userID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

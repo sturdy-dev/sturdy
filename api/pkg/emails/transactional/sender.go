@@ -110,15 +110,15 @@ func (e *Sender) SendMagicLink(ctx context.Context, user *users.User, code strin
 	})
 }
 
-func (e *Sender) SendConfirmEmail(ctx context.Context, usr *users.User) error {
-	token, err := e.jwtService.IssueToken(ctx, usr.ID, time.Hour, jwt.TokenTypeVerifyEmail)
+func (e *Sender) SendConfirmEmail(ctx context.Context, user *users.User) error {
+	token, err := e.jwtService.IssueToken(ctx, user.ID.String(), time.Hour, jwt.TokenTypeVerifyEmail)
 	if err != nil {
 		return fmt.Errorf("failed to issue jwt token: %w", err)
 	}
 
 	title := "[Sturdy] Confirm your email"
-	return e.Send(ctx, usr, title, templates.VerifyEmailTemplate, &templates.VerifyEmailTemplateData{
-		User:  usr,
+	return e.Send(ctx, user, title, templates.VerifyEmailTemplate, &templates.VerifyEmailTemplateData{
+		User:  user,
 		Token: token,
 	})
 }
@@ -288,7 +288,7 @@ func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)
 	}
-	userIDs := make([]string, 0, len(codebaseUsers))
+	userIDs := make([]users.ID, 0, len(codebaseUsers))
 	for _, codebaseUser := range codebaseUsers {
 		userIDs = append(userIDs, codebaseUser.UserID)
 	}
@@ -425,7 +425,7 @@ func (e *Sender) Send(
 
 	e.logger.Info(
 		"sending email",
-		zap.String("user_id", u.ID),
+		zap.Stringer("user_id", u.ID),
 		zap.String("template", string(template)),
 	)
 
@@ -437,7 +437,7 @@ func (e *Sender) Send(
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 
-	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(u.ID),
+	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(u.ID.String()),
 		analytics.Property("template", string(template)),
 		analytics.Property("subject", subject),
 	)

@@ -1,10 +1,14 @@
 package activity
 
-import "time"
+import (
+	"time"
+
+	"getsturdy.com/api/pkg/users"
+)
 
 type WorkspaceActivityReads struct {
 	ID                string    `db:"id"`
-	UserID            string    `db:"user_id"`
+	UserID            users.ID  `db:"user_id"`
 	WorkspaceID       string    `db:"workspace_id"`
 	LastReadCreatedAt time.Time `db:"last_read_created_at"`
 }

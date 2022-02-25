@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"sort"
 
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 )
 
@@ -27,7 +28,7 @@ func (i *inMemory) Create(ctx context.Context, w *watchers.Watcher) error {
 
 func (i *inMemory) ListWatchingByWorkspaceID(ctx context.Context, workspaceID string) ([]*watchers.Watcher, error) {
 	// group by userID
-	latestByUserID := map[string]*watchers.Watcher{}
+	latestByUserID := map[users.ID]*watchers.Watcher{}
 	for _, watcher := range i.byWorkspaceID[workspaceID] {
 		latestByUserID[watcher.UserID] = watcher
 	}
@@ -49,7 +50,7 @@ func (i *inMemory) ListWatchingByWorkspaceID(ctx context.Context, workspaceID st
 	return nonIgnored, nil
 }
 
-func (i *inMemory) GetByUserIDAndWorkspaceID(ctx context.Context, userID string, workspaceID string) (*watchers.Watcher, error) {
+func (i *inMemory) GetByUserIDAndWorkspaceID(ctx context.Context, userID users.ID, workspaceID string) (*watchers.Watcher, error) {
 	byWorkspaceID := i.byWorkspaceID[workspaceID]
 	byUserID := make([]*watchers.Watcher, 0, len(byWorkspaceID))
 	for _, watcher := range byWorkspaceID {

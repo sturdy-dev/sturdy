@@ -115,7 +115,7 @@ func (r *presenceRootResolver) UpdatedWorkspacePresence(ctx context.Context, arg
 					}
 				default:
 					r.logger.Error("dropped subscription event",
-						zap.String("user_id", userID),
+						zap.Stringer("user_id", userID),
 						zap.Stringer("event_type", eventType),
 						zap.Int("channel_size", len(res)),
 					)

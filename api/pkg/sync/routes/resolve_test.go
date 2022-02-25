@@ -384,11 +384,11 @@ func TestResolveHighLevelV2(t *testing.T) {
 	for _, tc := range cases {
 
 		t.Run(tc.name, func(t *testing.T) {
-			userID := uuid.NewString()
-			err := userRepo.Create(&users.User{ID: userID, Name: "Test Test", Email: userID + "@test.com"})
+			userID := users.ID(uuid.NewString())
+			err := userRepo.Create(&users.User{ID: userID, Name: "Test Test", Email: userID.String() + "@test.com"})
 			assert.NoError(t, err)
 
-			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})
+			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{ID: userID.String(), Type: auth.SubjectUser})
 
 			codebaseID := uuid.NewString()
 
@@ -632,7 +632,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	}
 }
 
-func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params
@@ -641,7 +641,7 @@ func requestWithParams(t *testing.T, userID string, route func(*gin.Context), re
 	assert.NoError(t, err)
 
 	c.Request, err = http.NewRequest("POST", "/", bytes.NewReader(data))
-	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID}))
+	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID.String()}))
 	assert.NoError(t, err)
 	route(c)
 	assert.Equal(t, http.StatusOK, res.Result().StatusCode)

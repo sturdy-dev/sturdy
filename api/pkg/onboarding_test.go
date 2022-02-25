@@ -128,10 +128,10 @@ func TestCreate(t *testing.T) {
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
 	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsSerivce, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceRepo, executorProvider, eventsSender)
 
-	createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
 
-	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID}))
+	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()}))
 
 	// Create a codebase
 	var codebaseRes codebase.Codebase
@@ -574,10 +574,10 @@ func TestLargeFiles(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 
-			createUser := users.User{ID: uuid.New().String(), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+			createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 			assert.NoError(t, userRepo.Create(&createUser))
 
-			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID})
+			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()})
 
 			// Create a codebase
 			var codebaseRes codebase.Codebase
@@ -724,11 +724,11 @@ func copy(t *testing.T, src string, dst string) {
 	assert.NoError(t, err)
 }
 
-func request(t *testing.T, userID string, route func(*gin.Context), request, response interface{}) {
+func request(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}) {
 	requestWithParams(t, userID, route, request, response, nil)
 }
 
-func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params
@@ -737,7 +737,7 @@ func requestWithParams(t *testing.T, userID string, route func(*gin.Context), re
 	assert.NoError(t, err)
 
 	c.Request, err = http.NewRequest("POST", "/", bytes.NewReader(data))
-	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser}))
+	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID.String(), Type: auth.SubjectUser}))
 	assert.NoError(t, err)
 	route(c)
 	assert.Equal(t, http.StatusOK, res.Result().StatusCode)

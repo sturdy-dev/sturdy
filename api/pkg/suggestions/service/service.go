@@ -17,6 +17,7 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/users"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -113,7 +114,7 @@ func (s *Service) RecordActivity(ctx context.Context, workspaceID string) error 
 	return nil
 }
 
-func (s *Service) Create(ctx context.Context, userID string, forWorkspace *workspaces.Workspace) (*suggestions.Suggestion, error) {
+func (s *Service) Create(ctx context.Context, userID users.ID, forWorkspace *workspaces.Workspace) (*suggestions.Suggestion, error) {
 	if forWorkspace.LatestSnapshotID == nil {
 		return nil, fmt.Errorf("workspace has no snapshot")
 	}

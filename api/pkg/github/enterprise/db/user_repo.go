@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -11,7 +12,7 @@ import (
 type GitHubUserRepo interface {
 	Create(user github.GitHubUser) error
 	GetByUsername(username string) (*github.GitHubUser, error)
-	GetByUserID(userID string) (*github.GitHubUser, error)
+	GetByUserID(users.ID) (*github.GitHubUser, error)
 	Update(ouser *github.GitHubUser) error
 }
 
@@ -41,7 +42,7 @@ func (r *gitHubUserRepo) GetByUsername(username string) (*github.GitHubUser, err
 	return &user, nil
 }
 
-func (r *gitHubUserRepo) GetByUserID(userID string) (*github.GitHubUser, error) {
+func (r *gitHubUserRepo) GetByUserID(userID users.ID) (*github.GitHubUser, error) {
 	var user github.GitHubUser
 	err := r.db.Get(&user, "SELECT * FROM github_users WHERE user_id=$1", userID)
 	if err != nil {

@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 
+	"strings"
+
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/events"
 	gq_errors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
-	"strings"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/prometheus/client_golang/prometheus"
@@ -97,7 +98,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 			return nil
 		default:
 			r.logger.Error("dropped subscription event",
-				zap.String("user_id", userID),
+				zap.Stringer("user_id", userID),
 				zap.String("codebase_id", codebaseID),
 				zap.Stringer("event_type", eventType),
 				zap.Int("channel_size", len(c)),

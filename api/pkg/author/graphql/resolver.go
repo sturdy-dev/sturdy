@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/users"
@@ -22,7 +23,7 @@ func NewResolver(userRepo db_user.Repository, logger *zap.Logger) resolvers.Auth
 	return NewDataloader(userRoot, logger)
 }
 
-func (r *AuthorRootResolver) Author(id string) (resolvers.AuthorResolver, error) {
+func (r *AuthorRootResolver) Author(id users.ID) (resolvers.AuthorResolver, error) {
 	uu, err := r.userRepo.Get(id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
+	"getsturdy.com/api/pkg/users"
 )
 
 type inMemoryOrganizationMemberRepository struct {
@@ -16,7 +17,7 @@ func NewInMemoryOrganizationMemberRepository() db_organization.MemberRepository 
 	return &inMemoryOrganizationMemberRepository{users: make([]organization.Member, 0)}
 }
 
-func (r *inMemoryOrganizationMemberRepository) GetByUserIDAndOrganizationID(ctx context.Context, userID, organizationID string) (*organization.Member, error) {
+func (r *inMemoryOrganizationMemberRepository) GetByUserIDAndOrganizationID(ctx context.Context, userID users.ID, organizationID string) (*organization.Member, error) {
 	for _, u := range r.users {
 		if u.UserID == userID && u.OrganizationID == organizationID {
 			return &u, nil
@@ -36,7 +37,7 @@ func (r *inMemoryOrganizationMemberRepository) ListByOrganizationID(ctx context.
 	return res, nil
 }
 
-func (r *inMemoryOrganizationMemberRepository) ListByUserID(ctx context.Context, id string) ([]*organization.Member, error) {
+func (r *inMemoryOrganizationMemberRepository) ListByUserID(ctx context.Context, id users.ID) ([]*organization.Member, error) {
 	var res []*organization.Member
 	for _, u := range r.users {
 		if u.UserID == id {

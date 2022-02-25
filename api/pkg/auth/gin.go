@@ -8,6 +8,7 @@ import (
 	"getsturdy.com/api/pkg/ctxlog"
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -52,8 +53,8 @@ func refreshToken(c *gin.Context, token *jwt.Token, jwtService *service_jwt.Serv
 	return nil
 }
 
-func SetAuthCookieForUser(c *gin.Context, userID string, jwtService *service_jwt.Service) error {
-	token, err := jwtService.IssueToken(c.Request.Context(), userID, oneMonth, jwt.TokenTypeAuth)
+func SetAuthCookieForUser(c *gin.Context, userID users.ID, jwtService *service_jwt.Service) error {
+	token, err := jwtService.IssueToken(c.Request.Context(), userID.String(), oneMonth, jwt.TokenTypeAuth)
 	if err != nil {
 		return fmt.Errorf("failed to issue new token: %w", err)
 	}

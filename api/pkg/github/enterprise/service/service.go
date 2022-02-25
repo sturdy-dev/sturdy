@@ -21,6 +21,7 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_sync "getsturdy.com/api/pkg/sync/service"
+	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
 	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -31,7 +32,7 @@ import (
 )
 
 type ImporterQueue interface {
-	Enqueue(ctx context.Context, codebaseID string, userID string) error
+	Enqueue(ctx context.Context, codebaseID string, userID users.ID) error
 }
 
 type ClonerQueue interface {

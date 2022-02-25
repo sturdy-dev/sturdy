@@ -18,6 +18,7 @@ import (
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/servicetokens"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/version"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -120,7 +121,7 @@ func (h *Server) jwtTokenAuth(c *gin.Context) {
 		return
 	}
 
-	accessAllowed, err := h.codebaseService.CanAccess(c.Request.Context(), userToken.Subject, c.Param("codebaseId"))
+	accessAllowed, err := h.codebaseService.CanAccess(c.Request.Context(), users.ID(userToken.Subject), c.Param("codebaseId"))
 	if err != nil {
 		h.logger.Error("failed to check access", zap.Error(err))
 		c.AbortWithStatus(http.StatusInternalServerError)

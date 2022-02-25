@@ -13,6 +13,7 @@ import (
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	"getsturdy.com/api/pkg/users"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
@@ -22,7 +23,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID, userID string) error {
+func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID string, userID users.ID) error {
 	repo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get github repo: %w", err)
@@ -81,7 +82,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
-func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.PullRequest, ghRepo *github.GitHubRepository, ghInstallation *github.GitHubInstallation, accessToken string) error {
+func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.GitHubRepository, ghInstallation *github.GitHubInstallation, accessToken string) error {
 	// check that this pull request hasn't been imported before
 	if _, err := svc.gitHubPullRequestRepo.GetByGitHubID(gitHubPR.GetID()); err == nil {
 		return ErrAlreadyImported
@@ -232,7 +233,7 @@ func (svc *Service) importPullRequest(codebaseID, userID string, gitHubPR *gh.Pu
 	return nil
 }
 
-func (svc *Service) EnqueueGitHubPullRequestImport(ctx context.Context, codebaseID, userID string) error {
+func (svc *Service) EnqueueGitHubPullRequestImport(ctx context.Context, codebaseID string, userID users.ID) error {
 	if err := (*svc.gitHubPullRequestImporterQueue).Enqueue(ctx, codebaseID, userID); err != nil {
 		return err
 	}

@@ -6,15 +6,16 @@ import (
 
 	"getsturdy.com/api/pkg/change"
 	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/users"
 )
 
 type Workspace struct {
-	ID                     string  `db:"id" json:"id"`
-	UserID                 string  `db:"user_id" json:"user_id"`
-	CodebaseID             string  `db:"codebase_id" json:"codebase_id"`
-	Name                   *string `db:"name" json:"name"`
-	ReadyForReviewChangeID *string `db:"ready_for_review_change" json:"ready_for_review_change"`
-	ApprovedChangeID       *string `db:"approved_change" json:"approved_change"`
+	ID                     string   `db:"id" json:"id"`
+	UserID                 users.ID `db:"user_id" json:"user_id"`
+	CodebaseID             string   `db:"codebase_id" json:"codebase_id"`
+	Name                   *string  `db:"name" json:"name"`
+	ReadyForReviewChangeID *string  `db:"ready_for_review_change" json:"ready_for_review_change"`
+	ApprovedChangeID       *string  `db:"approved_change" json:"approved_change"`
 
 	// These are shadowed by the values in WorkspaceWithMetadataJSON
 	CreatedAt    *time.Time `db:"created_at" json:"-"`

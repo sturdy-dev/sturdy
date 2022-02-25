@@ -36,7 +36,7 @@ func (r *repo) Create(newUser *users.User) error {
 	return nil
 }
 
-func (r *repo) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error) {
+func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT 
 		id,
 		name,
@@ -63,7 +63,7 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...string) ([]*users.User, erro
 	return uu, nil
 }
 
-func (r *repo) Get(id string) (*users.User, error) {
+func (r *repo) Get(id users.ID) (*users.User, error) {
 	var res users.User
 	err := r.db.Get(&res, `SELECT * FROM users WHERE id=$1`, id)
 	if err != nil {

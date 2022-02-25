@@ -7,12 +7,12 @@ import (
 )
 
 type Repository interface {
-	Create(newUser *users.User) error
-	Get(id string) (*users.User, error)
-	GetByIDs(ctx context.Context, ids ...string) ([]*users.User, error)
-	GetByEmail(email string) (*users.User, error)
+	Create(*users.User) error
+	Get(users.ID) (*users.User, error)
+	GetByIDs(context.Context, ...users.ID) ([]*users.User, error)
+	GetByEmail(string) (*users.User, error)
 	Update(*users.User) error
-	UpdatePassword(u *users.User) error
+	UpdatePassword(*users.User) error
 	Count(context.Context) (uint64, error)
 	List(ctx context.Context, limit uint64) ([]*users.User, error)
 }

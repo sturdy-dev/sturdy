@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/activity"
 
 	"github.com/jmoiron/sqlx"
@@ -12,7 +13,7 @@ import (
 type ActivityReadsRepository interface {
 	Create(context.Context, activity.WorkspaceActivityReads) error
 	Update(context.Context, *activity.WorkspaceActivityReads) error
-	GetByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*activity.WorkspaceActivityReads, error)
+	GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.WorkspaceActivityReads, error)
 }
 
 type activityReadsRepo struct {
@@ -44,7 +45,7 @@ func (r *activityReadsRepo) Update(ctx context.Context, entity *activity.Workspa
 	return nil
 }
 
-func (r *activityReadsRepo) GetByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*activity.WorkspaceActivityReads, error) {
+func (r *activityReadsRepo) GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.WorkspaceActivityReads, error) {
 	var res activity.WorkspaceActivityReads
 	if err := r.db.GetContext(ctx, &res, `SELECT id, user_id, workspace_id, last_read_created_at
 		FROM workspace_activity_reads

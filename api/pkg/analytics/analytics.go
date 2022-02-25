@@ -1,5 +1,7 @@
 package analytics
 
+import "getsturdy.com/api/pkg/users"
+
 type CaptureOptions struct {
 	DistinctId string
 	Groups     map[string]interface{}
@@ -14,6 +16,12 @@ func Property(key string, value interface{}) CaptureOption {
 			o.Properties = make(map[string]interface{})
 		}
 		o.Properties[key] = value
+	}
+}
+
+func UserID(id users.ID) CaptureOption {
+	return func(o *CaptureOptions) {
+		o.DistinctId = id.String()
 	}
 }
 

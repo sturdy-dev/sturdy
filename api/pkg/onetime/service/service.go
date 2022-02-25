@@ -20,7 +20,7 @@ func New(repo db_onetime.Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateToken(ctx context.Context, userID string) (*onetime.Token, error) {
+func (s *Service) CreateToken(ctx context.Context, userID users.ID) (*onetime.Token, error) {
 	token := onetime.New(userID)
 
 	if err := s.repo.Create(ctx, token); err != nil {
