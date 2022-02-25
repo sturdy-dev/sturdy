@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"time"
 
-	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 
 	"getsturdy.com/api/pkg/statuses"
 )
 
-func getStatusType(event *gh.StatusEvent) statuses.Type {
+func getStatusType(event *StatusEvent) statuses.Type {
 	state := event.GetState() // "pending", "success", "failure", "error"
 	switch state {
 	case "pending":
@@ -27,14 +26,14 @@ func getStatusType(event *gh.StatusEvent) statuses.Type {
 	}
 }
 
-func getStatusTime(event *gh.StatusEvent) time.Time {
+func getStatusTime(event *StatusEvent) time.Time {
 	if event.UpdatedAt != nil {
 		return event.GetUpdatedAt().Time
 	}
 	return event.GetCreatedAt().Time
 }
 
-func (svc *Service) HandleStatusEvent(event *gh.StatusEvent) error {
+func (svc *Service) HandleStatusEvent(event *StatusEvent) error {
 	ctx := context.Background()
 
 	gitHubRepoID := event.GetRepo().GetID()

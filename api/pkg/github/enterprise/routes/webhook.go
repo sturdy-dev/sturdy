@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"getsturdy.com/api/pkg/github/enterprise/webhooks"
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 			return
 		}
 
-		event, err := gh.ParseWebHook(gh.WebHookType(c.Request), payload)
+		event, err := webhooks.ParseWebHook(gh.WebHookType(c.Request), payload)
 		if err != nil {
 			logger.Warn("failed to parse webhook", zap.Error(err))
 			c.AbortWithStatus(http.StatusBadRequest)
@@ -37,7 +38,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 		logger.Info("github webhook", zap.String("type", fmt.Sprintf("%T", event)))
 
 		switch event := event.(type) {
-		case *gh.InstallationEvent:
+		case *webhooks.InstallationEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				Installation: event,
 			}); err != nil {
@@ -45,7 +46,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.InstallationRepositoriesEvent:
+		case *webhooks.InstallationRepositoriesEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				InstallationRepositories: event,
 			}); err != nil {
@@ -53,8 +54,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.PushEvent:
-			event.Commits = nil // do not send commits to workers, they are too big and we don't need them
+		case *webhooks.PushEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				Push: event,
 			}); err != nil {
@@ -62,7 +62,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.PullRequestEvent:
+		case *webhooks.PullRequestEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				PullRequest: event,
 			}); err != nil {
@@ -70,7 +70,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.StatusEvent:
+		case *webhooks.StatusEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				Status: event,
 			}); err != nil {
@@ -78,7 +78,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.WorkflowJobEvent:
+		case *webhooks.WorkflowJobEvent:
 			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
 				WorkflowJob: event,
 			}); err != nil {
@@ -86,9 +86,8 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
-		case *gh.PullRequestReview:
-			// noop
 		default:
+			logger.Warn("unsupported webhook type")
 			c.Status(http.StatusNotFound)
 			return
 		}

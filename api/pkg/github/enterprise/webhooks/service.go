@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -131,7 +130,7 @@ func New(
 	}
 }
 
-func (svc *Service) HandlePullRequestEvent(event *gh.PullRequestEvent) error {
+func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 	ctx := context.Background()
 
 	apiPR := event.GetPullRequest()
@@ -261,7 +260,7 @@ func (svc *Service) HandlePullRequestEvent(event *gh.PullRequestEvent) error {
 	return nil
 }
 
-func (svc *Service) HandlePushEvent(event *gh.PushEvent) error {
+func (svc *Service) HandlePushEvent(event *PushEvent) error {
 	installationID := event.GetInstallation().GetID()
 	repoID := event.GetRepo().GetID()
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repoID)
@@ -368,10 +367,14 @@ func (svc *Service) accessToken(installationID, repositoryID int64) (string, err
 	return accessToken, nil
 }
 
-func (svc *Service) HandleInstallationEvent(event *gh.InstallationEvent) error {
+func (svc *Service) HandleInstallationEvent(event *InstallationEvent) error {
 	ctx := context.Background()
 
-	svc.analyticsService.IdentifyGitHubInstallation(ctx, event.GetInstallation())
+	svc.analyticsService.IdentifyGitHubInstallation(ctx,
+		event.GetInstallation().GetID(),
+		event.GetInstallation().GetAccount().GetLogin(),
+		event.GetInstallation().GetAccount().GetEmail(),
+	)
 
 	svc.analyticsService.Capture(ctx, fmt.Sprintf("github installation %s", event.GetAction()),
 		analytics.DistinctID(fmt.Sprintf("%d", event.GetInstallation().GetID())),
@@ -438,8 +441,8 @@ func (svc *Service) HandleInstallationEvent(event *gh.InstallationEvent) error {
 	return nil
 }
 
-func (svc *Service) HandleInstallationRepositoriesEvent(event *gh.InstallationRepositoriesEvent) error {
-	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.Installation.GetID())
+func (svc *Service) HandleInstallationRepositoriesEvent(event *InstallationRepositoriesEvent) error {
+	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.GetInstallation().GetID())
 	// If the original InstallationEvent webhook was missed (otherwise user has to remove and re-add app)
 	if errors.Is(err, sql.ErrNoRows) {
 		installation := github.GitHubInstallation{
@@ -496,7 +499,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(event *gh.InstallationRe
 	return nil
 }
 
-func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *gh.Repository) error {
+func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *Repository) error {
 	ctx := context.Background()
 
 	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue
