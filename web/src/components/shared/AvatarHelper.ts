@@ -6,6 +6,7 @@ export const AUTHOR = gql`
   fragment Author on Author {
     id
     name
+    avatarUrl
   }
 `
 

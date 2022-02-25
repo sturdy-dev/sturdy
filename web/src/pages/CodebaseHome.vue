@@ -83,23 +83,12 @@
     </main>
 
     <template #sidebar>
-      <OnboardingStep
-        id="InvitingTeamMembers"
-        :dependencies="['FindingYourCodebase']"
-        :enabled="data.codebase.changes.length > 0"
-      >
-        <template #title> Assemble the Team</template>
-        <template #description>
-          In this section over here you can invite other people to collaborate on this codebase with
-          you.
-        </template>
-
-        <CodebaseMembers
-          :user="user"
-          :members="data.codebase.members"
-          :codebase-id="data.codebase.id"
-        />
-      </OnboardingStep>
+      <AssembleTheTeam
+        :user="user"
+        :members="data.codebase.members"
+        :codebase-id="data.codebase.id"
+        :changes-count="data.codebase.changes.length"
+      />
     </template>
   </PaddedAppRightSidebar>
 </template>
@@ -111,7 +100,6 @@ import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 
 import SetupNewView from '../components/codebase/SetupNewView.vue'
 import Button from '../components/shared/Button.vue'
 import { useHead } from '@vueuse/head'
-import CodebaseMembers from '../components/codebase/CodebaseMembers.vue'
 import { ChevronDownIcon, ChevronUpIcon, CogIcon, ViewListIcon } from '@heroicons/vue/solid'
 import ImportFromGit from '../components/codebase/ImportFromGit.vue'
 import { useUpdatedWorkspaceByCodebase } from '../subscriptions/useUpdatedWorkspace'
@@ -119,7 +107,6 @@ import Directory, { OPEN_DIRECTORY } from '../components/browse/Directory.vue'
 import TopOfChangelogWidget, {
   TOP_OF_CHANGELOG,
 } from '../components/changelog/TopOfChangelogWidget.vue'
-import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
 import CreateViewAndWorkspace from '../components/codebase/CreateViewAndWorkspace.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
@@ -130,10 +117,12 @@ import {
 } from './__generated__/CodebaseHome'
 import { Feature } from '../__generated__/types'
 import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
+import AssembleTheTeam from '../organisms/AssembleTheTeam.vue'
 
 export default defineComponent({
   name: 'CodebaseHome',
   components: {
+    AssembleTheTeam,
     PaddedAppRightSidebar,
     Directory,
     SetupNewView,
@@ -148,8 +137,6 @@ export default defineComponent({
     CreateViewAndWorkspace,
     WorkspaceList,
     RouterLinkButton,
-    CodebaseMembers,
-    OnboardingStep,
   },
   props: ['user'],
   setup() {
