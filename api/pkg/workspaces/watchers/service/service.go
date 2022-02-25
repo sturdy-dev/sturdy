@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 	db_watchers "getsturdy.com/api/pkg/workspaces/watchers/db"
 )
@@ -25,7 +26,7 @@ func New(
 	}
 }
 
-func (s *Service) Watch(ctx context.Context, userID, workspaceID string) (*watchers.Watcher, error) {
+func (s *Service) Watch(ctx context.Context, userID users.ID, workspaceID string) (*watchers.Watcher, error) {
 	watcher := &watchers.Watcher{
 		UserID:      userID,
 		WorkspaceID: workspaceID,
@@ -39,7 +40,7 @@ func (s *Service) Watch(ctx context.Context, userID, workspaceID string) (*watch
 	return watcher, nil
 }
 
-func (s *Service) Unwatch(ctx context.Context, userID, workspaceID string) (*watchers.Watcher, error) {
+func (s *Service) Unwatch(ctx context.Context, userID users.ID, workspaceID string) (*watchers.Watcher, error) {
 	watcher := &watchers.Watcher{
 		UserID:      userID,
 		WorkspaceID: workspaceID,
@@ -63,7 +64,7 @@ func (s *Service) ListWatchers(ctx context.Context, workspaceID string) ([]*watc
 }
 
 // Get returns a watcher for a given workspace and user.
-func (s *Service) Get(ctx context.Context, userID, workspaceID string) (*watchers.Watcher, error) {
+func (s *Service) Get(ctx context.Context, userID users.ID, workspaceID string) (*watchers.Watcher, error) {
 	watcher, err := s.repo.GetByUserIDAndWorkspaceID(ctx, userID, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get watcher: %w", err)

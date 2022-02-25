@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/pki"
 	"getsturdy.com/api/pkg/pki/db"
+	"getsturdy.com/api/pkg/users"
 )
 
 type AddPublicKeyRequest struct {
@@ -58,9 +59,9 @@ func AddPublicKey(repo db.Repo) func(c *gin.Context) {
 }
 
 type VerifyPublicKeyRequest struct {
-	// In what format?
-	PublicKey []byte `json:"public_key" binding:"required"`
-	UserID    string `json:"user_id" binding:"required"`
+	// In what format? it's probably der
+	PublicKey []byte   `json:"public_key" binding:"required"`
+	UserID    users.ID `json:"user_id" binding:"required"`
 }
 
 func Verify(repo db.Repo) func(c *gin.Context) {

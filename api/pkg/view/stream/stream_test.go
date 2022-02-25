@@ -134,9 +134,9 @@ func TestStream(t *testing.T) {
 			err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
 			assert.NoError(t, err)
 
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 
-			err = userRepo.Create(&users.User{ID: userID, Email: userID + "@test.getsturdy.com"})
+			err = userRepo.Create(&users.User{ID: userID, Email: userID.String() + "@test.getsturdy.com"})
 			assert.NoError(t, err)
 
 			err = codebaseRepo.Create(codebase.Codebase{

@@ -26,7 +26,7 @@ func (f *inMemoryUserRepo) Create(newUser *users.User) error {
 	return nil
 }
 
-func (f *inMemoryUserRepo) Get(id string) (*users.User, error) {
+func (f *inMemoryUserRepo) Get(id users.ID) (*users.User, error) {
 	return &users.User{
 		ID:    id,
 		Name:  "Test Testsson",
@@ -34,7 +34,7 @@ func (f *inMemoryUserRepo) Get(id string) (*users.User, error) {
 	}, nil
 }
 
-func (f *inMemoryUserRepo) GetByIDs(_ context.Context, ids ...string) ([]*users.User, error) {
+func (f *inMemoryUserRepo) GetByIDs(_ context.Context, ids ...users.ID) ([]*users.User, error) {
 	return nil, nil
 }
 

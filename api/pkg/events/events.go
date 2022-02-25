@@ -3,6 +3,7 @@ package events
 import (
 	"sync"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -11,12 +12,12 @@ import (
 type EventReader interface {
 	// Introduce event type filtering in the call to SubscribeUser(uesrID string, cb CallbackFunc, eventTypes ...EventType) CancelFunc
 	// Introduce reference filtering in the call to SubscribeUser(uesrID string, cb CallbackFunc, map[EventType][]string) CancelFunc
-	SubscribeUser(userID string, cb CallbackFunc) CancelFunc
+	SubscribeUser(userID users.ID, cb CallbackFunc) CancelFunc
 	SubscribeWorkspace(workspaceID string, cb CallbackFunc) CancelFunc
 }
 
 type eventWriter interface {
-	UserEvent(userID string, eventType EventType, reference string)
+	UserEvent(userID users.ID, eventType EventType, reference string)
 	WorkspaceEvent(workspaceID string, eventType EventType, reference string)
 }
 
@@ -94,7 +95,7 @@ func NewInMemory() EventReadWriter {
 	}
 }
 
-func (i *inMemory) UserEvent(userID string, eventType EventType, reference string) {
+func (i *inMemory) UserEvent(userID users.ID, eventType EventType, reference string) {
 	i.event(Topic(userID), eventType, reference)
 }
 
@@ -158,7 +159,7 @@ func (i *inMemory) SubscribeWorkspace(workspaceID string, cb CallbackFunc) Cance
 	return func() { i.unreg(unregKey) }
 }
 
-func (i *inMemory) SubscribeUser(userID string, cb CallbackFunc) CancelFunc {
+func (i *inMemory) SubscribeUser(userID users.ID, cb CallbackFunc) CancelFunc {
 	userTopic := Topic(userID)
 
 	id := uuid.New().String()

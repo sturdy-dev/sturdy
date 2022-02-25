@@ -2,6 +2,8 @@ package github
 
 import (
 	"time"
+
+	"getsturdy.com/api/pkg/users"
 )
 
 type GitHubInstallation struct {
@@ -39,7 +41,7 @@ type GitHubRepository struct {
 
 type GitHubUser struct {
 	ID                         string    `json:"id" db:"id"`
-	UserID                     string    `json:"user_id" db:"user_id"`
+	UserID                     users.ID  `json:"user_id" db:"user_id"`
 	Username                   string    `json:"username" db:"username"`
 	AccessToken                string    `json:"-" db:"access_token"`
 	AccessTokenLastValidatedAt time.Time `json:"-" db:"access_token_last_validated_at"`
@@ -47,13 +49,13 @@ type GitHubUser struct {
 }
 
 type GitHubPullRequest struct {
-	ID                 string `db:"id"`
-	WorkspaceID        string `db:"workspace_id"`
-	GitHubID           int64  `db:"github_id"`
-	GitHubRepositoryID int64  `db:"github_repository_id"`
-	CreatedBy          string `db:"created_by"`
-	GitHubPRNumber     int    `db:"github_pr_number"`
-	Head               string `db:"head"`
+	ID                 string   `db:"id"`
+	WorkspaceID        string   `db:"workspace_id"`
+	GitHubID           int64    `db:"github_id"`
+	GitHubRepositoryID int64    `db:"github_repository_id"`
+	CreatedBy          users.ID `db:"created_by"`
+	GitHubPRNumber     int      `db:"github_pr_number"`
+	Head               string   `db:"head"`
 	// HeadSHA is empty for older pull requests.
 	HeadSHA    *string    `db:"head_sha"`
 	CodebaseID string     `db:"codebase_id"`
@@ -67,8 +69,8 @@ type GitHubPullRequest struct {
 }
 
 type CloneRepositoryEvent struct {
-	CodebaseID         string `json:"codebase_id"`
-	InstallationID     int64  `json:"installation_id"`
-	GitHubRepositoryID int64  `json:"github_repository_id"`
-	SenderUserID       string `json:"sender_user_id"`
+	CodebaseID         string   `json:"codebase_id"`
+	InstallationID     int64    `json:"installation_id"`
+	GitHubRepositoryID int64    `json:"github_repository_id"`
+	SenderUserID       users.ID `json:"sender_user_id"`
 }

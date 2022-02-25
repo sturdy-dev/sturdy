@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/github"
 	ghappclient "getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/shortid"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/vcs/provider"
 
 	gh "github.com/google/go-github/v39/github"
@@ -34,7 +35,7 @@ func (svc *Service) Clone(
 	codebaseID string,
 	installationID int64,
 	gitHubRepositoryID int64,
-	senderUserID string,
+	senderUserID users.ID,
 ) error {
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(installationID)
 	if err != nil {
@@ -120,7 +121,7 @@ func (svc *Service) Clone(
 	return nil
 }
 
-func strOrNilIfEmpty(str string) *string {
+func strOrNilIfEmpty(str users.ID) *users.ID {
 	if str == "" {
 		return nil
 	}
@@ -135,7 +136,7 @@ type GitHubRepo struct {
 	Name  string
 }
 
-func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID string) ([]GitHubRepo, error) {
+func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID users.ID) ([]GitHubRepo, error) {
 	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get github user: %w", err)
@@ -173,7 +174,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID string) ([]Gi
 	return res, nil
 }
 
-func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID, organizationID string) (*codebase.Codebase, error) {
+func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID users.ID, organizationID string) (*codebase.Codebase, error) {
 	client, _, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get github client: %w", err)
@@ -187,7 +188,7 @@ func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, ins
 	return svc.CreateNonReadyCodebaseAndClone(ctx, repo, installationID, nil, &userID, &organizationID)
 }
 
-func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *gh.Repository, installationID int64, sender *gh.User, addUserID *string, organizationID *string) (*codebase.Codebase, error) {
+func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *gh.Repository, installationID int64, sender *gh.User, addUserID *users.ID, organizationID *string) (*codebase.Codebase, error) {
 	if repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID()); errors.Is(err, sql.ErrNoRows) {
 		// no repo found, set it up!
 	} else if err != nil {
@@ -251,7 +252,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 
 	// Grant access to the initiator right away
 	// Access for other users will be added by the worker
-	var senderUserID string
+	var senderUserID users.ID
 	if sender != nil {
 		if gitHubUser, err := svc.gitHubUserRepo.GetByUsername(sender.GetLogin()); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get github user: %w", err)

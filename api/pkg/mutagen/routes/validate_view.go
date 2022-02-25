@@ -7,6 +7,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
 
 	"github.com/gin-gonic/gin"
@@ -14,10 +15,10 @@ import (
 )
 
 type ValidateViewRequest struct {
-	ViewID          string `json:"view_id" binding:"required"`
-	CodebaseID      string `json:"codebase_id" binding:"required"`
-	UserID          string `json:"user_id" binding:"required"`
-	IsNewConnection bool   `json:"is_new_connection"`
+	ViewID          string   `json:"view_id" binding:"required"`
+	CodebaseID      string   `json:"codebase_id" binding:"required"`
+	UserID          users.ID `json:"user_id" binding:"required"`
+	IsNewConnection bool     `json:"is_new_connection"`
 }
 
 func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsService *service_analytics.Service, eventsSender events.EventSender) func(c *gin.Context) {
@@ -66,7 +67,7 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsServ
 
 		if req.IsNewConnection {
 			analyticsService.Capture(c.Request.Context(), "mutagen connection to view",
-				analytics.DistinctID(req.UserID),
+				analytics.UserID(req.UserID),
 				analytics.CodebaseID(req.CodebaseID),
 				analytics.Property("view_id", req.ViewID),
 				analytics.Property("is_new_connection", req.IsNewConnection), // This is alway true...

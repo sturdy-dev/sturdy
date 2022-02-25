@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/notification"
 	db_notification "getsturdy.com/api/pkg/notification/db"
+	"getsturdy.com/api/pkg/users"
 )
 
 type Preferences struct {
@@ -23,7 +24,7 @@ func NewPreferences(
 // Update updates or creates a preference.
 func (s *Preferences) Update(
 	ctx context.Context,
-	userID string,
+	userID users.ID,
 	typ notification.NotificationType,
 	channel notification.Channel,
 	enabled bool,
@@ -42,7 +43,7 @@ func (s *Preferences) Update(
 
 // ListByUserID returns all existing user preferences from the database + default preferences for all other
 // possible permutation of notification types and channels.
-func (s *Preferences) ListByUserID(ctx context.Context, userID string) ([]*notification.Preference, error) {
+func (s *Preferences) ListByUserID(ctx context.Context, userID users.ID) ([]*notification.Preference, error) {
 	pp, err := s.preferencesRepo.ListByUserID(ctx, userID)
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/graph-gophers/graphql-go"
 )
 
@@ -17,7 +18,7 @@ type NotificationRootResolver interface {
 	UpdatedNotifications(ctx context.Context) (chan NotificationResolver, error)
 
 	// Internal
-	InternalNotificationPreferences(ctx context.Context, userID string) ([]NotificationPreferenceResolver, error)
+	InternalNotificationPreferences(context.Context, users.ID) ([]NotificationPreferenceResolver, error)
 }
 
 type commonNotificationResolver interface {

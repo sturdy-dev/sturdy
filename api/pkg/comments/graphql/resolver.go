@@ -215,7 +215,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 				return nil
 			default:
 				r.logger.Error("dropped subscription event",
-					zap.String("user_id", userID),
+					zap.Stringer("user_id", userID),
 					zap.String("codebase_id", ws.CodebaseID),
 					zap.Stringer("event_type", et),
 					zap.Int("channel_size", len(res)),
@@ -309,7 +309,7 @@ func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebase
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)
 	}
-	userIDs := make([]string, 0, len(codebaseUsers))
+	userIDs := make([]users.ID, 0, len(codebaseUsers))
 	for _, codebaseUser := range codebaseUsers {
 		userIDs = append(userIDs, codebaseUser.UserID)
 	}

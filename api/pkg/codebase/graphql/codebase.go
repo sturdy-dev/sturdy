@@ -24,6 +24,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_organization "getsturdy.com/api/pkg/organization/service"
+	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -230,7 +231,7 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 				return nil
 			default:
 				r.logger.Error("dropped subscription event",
-					zap.String("user_id", userID),
+					zap.Stringer("user_id", userID),
 					zap.Stringer("event_type", et),
 					zap.Int("channel_size", len(c)),
 				)
@@ -322,7 +323,7 @@ func (r *CodebaseRootResolver) RemoveUserFromCodebase(ctx context.Context, args 
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.codebaseService.RemoveUser(ctx, string(args.Input.CodebaseID), string(args.Input.UserID)); err != nil {
+	if err := r.codebaseService.RemoveUser(ctx, string(args.Input.CodebaseID), users.ID(args.Input.UserID)); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -447,7 +448,7 @@ func (r *CodebaseResolver) Workspaces(ctx context.Context) ([]resolvers.Workspac
 }
 
 func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseMembersArgs) (resolvers []resolvers.AuthorResolver, err error) {
-	userIDs := make(map[string]struct{})
+	userIDs := make(map[users.ID]struct{})
 
 	// Get direct members (members of the codebase)
 	if args.FilterDirectAccess == nil || *args.FilterDirectAccess == true {
@@ -474,11 +475,13 @@ func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseM
 	}
 
 	// stable order
-	ids := make([]string, 0, len(userIDs))
+	ids := make([]users.ID, 0, len(userIDs))
 	for userID := range userIDs {
 		ids = append(ids, userID)
 	}
-	sort.Strings(ids)
+	sort.Slice(ids, func(i, j int) bool {
+		return strings.Compare(string(ids[i]), string(ids[j])) < 0
+	})
 
 	for _, userID := range ids {
 		author, err := r.root.authorResolver.Author(ctx, graphql.ID(userID))
@@ -501,7 +504,7 @@ func (r *CodebaseResolver) Views(ctx context.Context, args resolvers.CodebaseVie
 	if args.IncludeOthers != nil && *args.IncludeOthers {
 		views, err = r.root.viewRepo.ListByCodebase(r.c.ID)
 	} else if subj, ok := auth.FromContext(ctx); ok && subj.Type == auth.SubjectUser {
-		views, err = r.root.viewRepo.ListByCodebaseAndUser(r.c.ID, subj.ID)
+		views, err = r.root.viewRepo.ListByCodebaseAndUser(r.c.ID, users.ID(subj.ID))
 	}
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to list views: %w", err))

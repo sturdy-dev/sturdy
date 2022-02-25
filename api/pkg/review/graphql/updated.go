@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )
@@ -36,7 +36,7 @@ func (r *reviewRootResolver) UpdatedReviews(ctx context.Context) (<-chan resolve
 		case c <- resolver:
 		default:
 			r.logger.Named("updatedReviews").Error("dropped event",
-				zap.String("user_id", userID),
+				zap.Stringer("user_id", userID),
 				zap.Stringer("event_type", eventType),
 				zap.Int("channel_size", len(c)),
 			)

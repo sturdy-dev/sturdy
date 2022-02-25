@@ -10,6 +10,7 @@ import (
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/internal/inmemory"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
@@ -54,7 +55,7 @@ func TestCodebaseAccess(t *testing.T) {
 	publicCodebase := codebase.Codebase{ID: uuid.NewString(), ShortCodebaseID: "short-public", IsPublic: true}
 	assert.NoError(t, codebaseRepo.Create(publicCodebase))
 
-	userID := uuid.NewString()
+	userID := users.ID(uuid.NewString())
 
 	// Add member to both codebases
 	assert.NoError(t, codebaseUserRepo.Create(codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: privateCodebase.ID, UserID: userID}))
@@ -80,13 +81,13 @@ func TestCodebaseAccess(t *testing.T) {
 		},
 		{
 			name:         "member-private-codebase",
-			ctx:          auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID}),
+			ctx:          auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID.String()}),
 			codebaseID:   privateCodebase.ID,
 			expectAccess: true,
 		},
 		{
 			name:         "member-public-codebase",
-			ctx:          auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID}),
+			ctx:          auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: userID.String()}),
 			codebaseID:   publicCodebase.ID,
 			expectAccess: true,
 		},

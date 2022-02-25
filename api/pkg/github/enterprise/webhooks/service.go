@@ -229,7 +229,7 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 		}
 
 		svc.analyticsService.Capture(ctx, "pull request merged",
-			analytics.DistinctID(ws.UserID),
+			analytics.DistinctID(ws.UserID.String()),
 			analytics.CodebaseID(ws.CodebaseID),
 			analytics.Property("workspace_id", ws.ID),
 			analytics.Property("github", true),

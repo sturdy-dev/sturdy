@@ -3,13 +3,15 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/presence"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type PresenceRepository interface {
-	GetByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*presence.Presence, error)
+	GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*presence.Presence, error)
 	ListByWorkspace(ctx context.Context, workspaceID string) ([]*presence.Presence, error)
 	Create(ctx context.Context, p presence.Presence) error
 	Update(ctx context.Context, p *presence.Presence) error
@@ -23,7 +25,7 @@ func NewRepo(db *sqlx.DB) PresenceRepository {
 	return &repo{db: db}
 }
 
-func (r *repo) GetByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*presence.Presence, error) {
+func (r *repo) GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*presence.Presence, error) {
 	var p presence.Presence
 	if err := r.db.GetContext(ctx, &p, `SELECT id, user_id, workspace_id, last_active_at, state FROM presence WHERE user_id = $1 AND workspace_id = $2`, userID, workspaceID); err != nil {
 		return nil, fmt.Errorf("could not GetByUserAndWorkspace: %w", err)

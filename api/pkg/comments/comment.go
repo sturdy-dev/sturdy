@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/users"
 )
 
 type ID string
@@ -17,7 +18,7 @@ type Comment struct {
 	ChangeID    *change.ID `db:"change_id"`
 	WorkspaceID *string    `db:"workspace_id"`
 
-	UserID    string     `db:"user_id"`
+	UserID    users.ID   `db:"user_id"`
 	CreatedAt time.Time  `db:"created_at"`
 	DeletedAt *time.Time `db:"deleted_at"`
 	Message   string     `db:"message"`

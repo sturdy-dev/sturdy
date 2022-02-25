@@ -3,22 +3,24 @@ package routes
 import (
 	"database/sql"
 	"errors"
+	"net/http"
+
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase/access"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type MutagenView struct {
-	ID                 string `json:"id"`
-	UserID             string `json:"user_id"`
-	CodebaseID         string `json:"codebase_id"`
-	CodebaseName       string `json:"codebase_name"`
-	CodebaseIsArchived bool   `json:"codebase_is_archived"`
+	ID                 string   `json:"id"`
+	UserID             users.ID `json:"user_id"`
+	CodebaseID         string   `json:"codebase_id"`
+	CodebaseName       string   `json:"codebase_name"`
+	CodebaseIsArchived bool     `json:"codebase_is_archived"`
 }
 
 func GetView(logger *zap.Logger, repo db_view.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseRepo db_codebase.CodebaseRepository) func(c *gin.Context) {

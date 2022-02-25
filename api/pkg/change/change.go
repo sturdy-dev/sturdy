@@ -1,6 +1,10 @@
 package change
 
-import "time"
+import (
+	"time"
+
+	"getsturdy.com/api/pkg/users"
+)
 
 type ID string
 
@@ -9,11 +13,11 @@ func (id ID) String() string {
 }
 
 type Change struct {
-	ID                 ID      `db:"id"`
-	CodebaseID         string  `db:"codebase_id"`
-	Title              *string `db:"title"`
-	UpdatedDescription string  `db:"updated_description"`
-	UserID             *string `db:"user_id"`
+	ID                 ID        `db:"id"`
+	CodebaseID         string    `db:"codebase_id"`
+	Title              *string   `db:"title"`
+	UpdatedDescription string    `db:"updated_description"`
+	UserID             *users.ID `db:"user_id"`
 
 	// For changes created directly through Sturdy, CreatedAt is the time of creation / share / landing.
 	// For changes created with Sturdy via GitHub, CreatedAt is the time when Sturdy imported the Change (via GitHub webhooks)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/activity"
 	db_activity "getsturdy.com/api/pkg/workspaces/activity/db"
 
@@ -26,7 +27,7 @@ func New(workspaceActivityReadsRepo db_activity.ActivityReadsRepository,
 	}
 }
 
-func (svc *Service) MarkAsRead(ctx context.Context, userID string, act *activity.WorkspaceActivity) error {
+func (svc *Service) MarkAsRead(ctx context.Context, userID users.ID, act *activity.WorkspaceActivity) error {
 	lastRead, err := svc.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, act.WorkspaceID)
 	switch {
 	case err == nil:

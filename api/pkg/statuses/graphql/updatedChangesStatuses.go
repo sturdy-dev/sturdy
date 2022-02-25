@@ -76,7 +76,7 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 		default:
 			r.logger.Named("updatedChangesStatuses").Error(
 				"dropped subscription event",
-				zap.String("user_id", userID),
+				zap.Stringer("user_id", userID),
 				zap.Stringer("event_type", eventType),
 				zap.Int("channel_size", len(c)),
 			)

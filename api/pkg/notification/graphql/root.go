@@ -9,13 +9,14 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/notification"
 	db_notification "getsturdy.com/api/pkg/notification/db"
 	service_notification "getsturdy.com/api/pkg/notification/service"
 	"getsturdy.com/api/pkg/suggestions"
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/prometheus/client_golang/prometheus"
@@ -281,7 +282,7 @@ func (r *notificationRootResolver) UpdatedNotifications(ctx context.Context) (ch
 				return nil
 			default:
 				r.logger.Error("dropped subscription event",
-					zap.String("user_id", userID),
+					zap.Stringer("user_id", userID),
 					zap.Stringer("event_type", eventType),
 					zap.Int("channel_size", len(res)),
 				)
@@ -302,7 +303,7 @@ func (r *notificationRootResolver) UpdatedNotifications(ctx context.Context) (ch
 	return res, nil
 }
 
-func (r *notificationRootResolver) InternalNotificationPreferences(ctx context.Context, userID string) ([]resolvers.NotificationPreferenceResolver, error) {
+func (r *notificationRootResolver) InternalNotificationPreferences(ctx context.Context, userID users.ID) ([]resolvers.NotificationPreferenceResolver, error) {
 	pp, err := r.preferencesService.ListByUserID(ctx, userID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

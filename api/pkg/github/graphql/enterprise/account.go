@@ -7,6 +7,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/graph-gophers/graphql-go"
 )
@@ -23,7 +24,7 @@ func NewGitHubAccountRootResolver(
 	}
 }
 
-func (r *GitHubAccountRootResolver) InteralByID(_ context.Context, id string) (resolvers.GitHubAccountResolver, error) {
+func (r *GitHubAccountRootResolver) InteralByID(_ context.Context, id users.ID) (resolvers.GitHubAccountResolver, error) {
 	githubUser, err := r.gitHubUserRepo.GetByUserID(id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

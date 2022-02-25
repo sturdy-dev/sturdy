@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/onetime"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -47,7 +48,7 @@ func (d *database) Update(ctx context.Context, token *onetime.Token) error {
 	return nil
 }
 
-func (m *database) Get(ctx context.Context, userID, key string) (*onetime.Token, error) {
+func (m *database) Get(ctx context.Context, userID users.ID, key string) (*onetime.Token, error) {
 	var token onetime.Token
 	if err := m.db.GetContext(ctx, &token, `
 		SELECT

@@ -12,13 +12,14 @@ import (
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID string, authAsUserID *string) error {
+func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID string, authAsUserID *users.ID) error {
 	var didInviteAny bool
 
 	gitHubRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
@@ -57,7 +58,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 			continue
 		}
 
-		logger = logger.With(zap.String("user_id", gitHubUser.UserID))
+		logger = logger.With(zap.Stringer("user_id", gitHubUser.UserID))
 
 		// If the gitHubUser was created within the last hour, this is a new github connection.
 		// Only send notifications for old connections that have a new github repo imported.
@@ -124,7 +125,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 	return nil
 }
 
-func (svc *Service) authAsUserOrFallbackAsApp(userID *string, installationID int64) (client.RepositoriesClient, error) {
+func (svc *Service) authAsUserOrFallbackAsApp(userID *users.ID, installationID int64) (client.RepositoriesClient, error) {
 	// Prefer user auth
 	if userID != nil {
 		gitHubUser, err := svc.gitHubUserRepo.GetByUserID(*userID)
@@ -178,7 +179,7 @@ func listCollaborators(ctx context.Context, reposClient client.RepositoriesClien
 	return users, rsp.NextPage, nil
 }
 
-func (svc *Service) AddUser(ctx context.Context, codebaseID, userID string) error {
+func (svc *Service) AddUser(ctx context.Context, codebaseID string, userID users.ID) error {
 	// Add access to this user directly
 	t := time.Now()
 	err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
@@ -192,16 +193,16 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID, userID string) erro
 	}
 
 	svc.analyticsService.Capture(ctx, "added user to codebase",
-		analytics.DistinctID(userID),
+		analytics.DistinctID(userID.String()),
 		analytics.CodebaseID(codebaseID),
 		analytics.Property("github", true),
 		analytics.Property("is_github_sender", true),
 	)
 
-	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", userID))
+	svc.logger.Info("adding github sender to the codebase", zap.String("user_id", userID.String()))
 
 	svc.analyticsService.Capture(ctx, "installed github repository",
-		analytics.DistinctID(userID),
+		analytics.DistinctID(userID.String()),
 		analytics.CodebaseID(codebaseID),
 		analytics.Property("github", true),
 		analytics.Property("is_github_sender", false),

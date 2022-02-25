@@ -3,11 +3,12 @@ package routes
 import (
 	"errors"
 	"log"
+	"net/http"
+	"time"
+
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/jwt"
 	"getsturdy.com/api/pkg/users/db"
-	"net/http"
-	"time"
 
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 
@@ -35,7 +36,7 @@ func ClientToken(db db.Repository, jwtService *service_jwt.Service) func(*gin.Co
 			return
 		}
 
-		token, err := jwtService.IssueToken(c.Request.Context(), user.ID, oneMonth, jwt.TokenTypeAuth)
+		token, err := jwtService.IssueToken(c.Request.Context(), user.ID.String(), oneMonth, jwt.TokenTypeAuth)
 		if err != nil {
 			log.Println(err)
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
@@ -84,7 +85,7 @@ func RenewToken(logger *zap.Logger, db db.Repository, jwtService *service_jwt.Se
 
 		// If expires within 25 days, renew it! (original expire duration is 30 days)
 		if token.ExpiresAt.Before(time.Now().Add(time.Hour * 24 * 25)) {
-			newToken, err := jwtService.IssueToken(c.Request.Context(), user.ID, oneMonth, jwt.TokenTypeAuth)
+			newToken, err := jwtService.IssueToken(c.Request.Context(), user.ID.String(), oneMonth, jwt.TokenTypeAuth)
 			if err != nil {
 				logger.Error("failed to renew token for user", zap.Error(err))
 				c.AbortWithStatus(http.StatusBadRequest)

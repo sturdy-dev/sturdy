@@ -7,11 +7,11 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/suggestions"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
-	"getsturdy.com/api/pkg/events"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"go.uber.org/zap"
@@ -199,7 +199,7 @@ func (r *RootResolver) UpdatedSuggestion(ctx context.Context, args resolvers.Upd
 				}
 			default:
 				r.logger.Error("dropped subscription event",
-					zap.String("user_id", userID),
+					zap.Stringer("user_id", userID),
 					zap.Stringer("event_type", eventType),
 					zap.Int("channel_size", len(res)),
 				)

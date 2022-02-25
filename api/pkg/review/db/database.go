@@ -3,8 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"getsturdy.com/api/pkg/review"
 	"time"
+
+	"getsturdy.com/api/pkg/review"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -50,7 +52,7 @@ func (r *database) Get(ctx context.Context, id string) (*review.Review, error) {
 	return &res, nil
 }
 
-func (r *database) GetLatestByUserAndWorkspace(ctx context.Context, userID, workspaceID string) (*review.Review, error) {
+func (r *database) GetLatestByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*review.Review, error) {
 	var res review.Review
 	err := r.db.GetContext(ctx, &res, `SELECT id, codebase_id, workspace_id, user_id, grade, created_at, dismissed_at, is_replaced, requested_by
 		FROM workspace_reviews

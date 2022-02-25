@@ -15,6 +15,7 @@ import (
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/suggestions"
+	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/workspaces"
@@ -79,51 +80,52 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 
 	switch subject.Type {
 	case auth.SubjectUser:
+		subjectID := users.ID(subject.ID)
 		switch object := obj.(type) {
 		case review.Review:
-			return s.canUserAccessReview(ctx, subject.ID, at, &object)
+			return s.canUserAccessReview(ctx, subjectID, at, &object)
 		case *review.Review:
-			return s.canUserAccessReview(ctx, subject.ID, at, object)
+			return s.canUserAccessReview(ctx, subjectID, at, object)
 		case view.View:
-			return s.canUserAccessView(ctx, subject.ID, at, &object)
+			return s.canUserAccessView(ctx, subjectID, at, &object)
 		case *view.View:
-			return s.canUserAccessView(ctx, subject.ID, at, object)
+			return s.canUserAccessView(ctx, subjectID, at, object)
 		case github.GitHubRepository:
-			return s.canUserAccessGitHubRepo(ctx, subject.ID, at, &object)
+			return s.canUserAccessGitHubRepo(ctx, subjectID, at, &object)
 		case *github.GitHubRepository:
-			return s.canUserAccessGitHubRepo(ctx, subject.ID, at, object)
+			return s.canUserAccessGitHubRepo(ctx, subjectID, at, object)
 		case github.GitHubPullRequest:
-			return s.canUserAccessGitHubPullRequest(ctx, subject.ID, at, &object)
+			return s.canUserAccessGitHubPullRequest(ctx, subjectID, at, &object)
 		case *github.GitHubPullRequest:
-			return s.canUserAccessGitHubPullRequest(ctx, subject.ID, at, object)
+			return s.canUserAccessGitHubPullRequest(ctx, subjectID, at, object)
 		case comments.Comment:
-			return s.canUserAccessComment(ctx, subject.ID, at, &object)
+			return s.canUserAccessComment(ctx, subjectID, at, &object)
 		case *comments.Comment:
-			return s.canUserAccessComment(ctx, subject.ID, at, object)
+			return s.canUserAccessComment(ctx, subjectID, at, object)
 		case codebase.Codebase:
-			return s.canUserAccessCodebase(ctx, subject.ID, at, &object)
+			return s.canUserAccessCodebase(ctx, subjectID, at, &object)
 		case *codebase.Codebase:
-			return s.canUserAccessCodebase(ctx, subject.ID, at, object)
+			return s.canUserAccessCodebase(ctx, subjectID, at, object)
 		case change.Change:
-			return s.canUserAccessChange(ctx, subject.ID, at, &object)
+			return s.canUserAccessChange(ctx, subjectID, at, &object)
 		case *change.Change:
-			return s.canUserAccessChange(ctx, subject.ID, at, object)
+			return s.canUserAccessChange(ctx, subjectID, at, object)
 		case activity.WorkspaceActivity:
-			return s.canUserAccessWorkspaceActivity(ctx, subject.ID, at, &object)
+			return s.canUserAccessWorkspaceActivity(ctx, subjectID, at, &object)
 		case *activity.WorkspaceActivity:
-			return s.canUserAccessWorkspaceActivity(ctx, subject.ID, at, object)
+			return s.canUserAccessWorkspaceActivity(ctx, subjectID, at, object)
 		case workspaces.Workspace:
-			return s.canUserAccessWorkspace(ctx, subject.ID, at, &object)
+			return s.canUserAccessWorkspace(ctx, subjectID, at, &object)
 		case *workspaces.Workspace:
-			return s.canUserAccessWorkspace(ctx, subject.ID, at, object)
+			return s.canUserAccessWorkspace(ctx, subjectID, at, object)
 		case suggestions.Suggestion:
-			return s.canUserAccessSuggestion(ctx, subject.ID, at, &object)
+			return s.canUserAccessSuggestion(ctx, subjectID, at, &object)
 		case *suggestions.Suggestion:
-			return s.canUserAccessSuggestion(ctx, subject.ID, at, object)
+			return s.canUserAccessSuggestion(ctx, subjectID, at, object)
 		case organization.Organization:
-			return s.canUserAccessOrganization(ctx, subject.ID, at, &object)
+			return s.canUserAccessOrganization(ctx, subjectID, at, &object)
 		case *organization.Organization:
-			return s.canUserAccessOrganization(ctx, subject.ID, at, object)
+			return s.canUserAccessOrganization(ctx, subjectID, at, object)
 		default:
 			return fmt.Errorf("unsupported object type '%T' for user: %w", obj, auth.ErrForbidden)
 		}
@@ -193,7 +195,7 @@ func (s *Service) canCIAccessChange(ctx context.Context, changeID string, change
 	return nil
 }
 
-func (s *Service) canUserAccessChange(ctx context.Context, userID string, at accessType, change *change.Change) error {
+func (s *Service) canUserAccessChange(ctx context.Context, userID users.ID, at accessType, change *change.Change) error {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
@@ -201,7 +203,7 @@ func (s *Service) canUserAccessChange(ctx context.Context, userID string, at acc
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessComment(ctx context.Context, userID string, at accessType, comment *comments.Comment) error {
+func (s *Service) canUserAccessComment(ctx context.Context, userID users.ID, at accessType, comment *comments.Comment) error {
 	// user can access the comment if he is the author or if he has the read permission on the codebase
 	if comment.UserID == userID {
 		return nil
@@ -218,7 +220,7 @@ func (s *Service) canUserAccessComment(ctx context.Context, userID string, at ac
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessCodebase(ctx context.Context, userID string, at accessType, codebase *codebase.Codebase) error {
+func (s *Service) canUserAccessCodebase(ctx context.Context, userID users.ID, at accessType, codebase *codebase.Codebase) error {
 	// Everyone can read public codebases
 	if at == accessTypeRead && codebase.IsPublic {
 		return nil
@@ -254,7 +256,7 @@ func (s *Service) canAnonymousAccessCodebase(ctx context.Context, at accessType,
 	return fmt.Errorf("anonymous users can only read public codebaes: %w", auth.ErrForbidden)
 }
 
-func (s *Service) canUserAccessSuggestion(ctx context.Context, userID string, at accessType, suggestion *suggestions.Suggestion) error {
+func (s *Service) canUserAccessSuggestion(ctx context.Context, userID users.ID, at accessType, suggestion *suggestions.Suggestion) error {
 	cb, err := s.codebaseService.GetByID(ctx, suggestion.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
@@ -262,7 +264,7 @@ func (s *Service) canUserAccessSuggestion(ctx context.Context, userID string, at
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessWorkspace(ctx context.Context, userID string, at accessType, workspace *workspaces.Workspace) error {
+func (s *Service) canUserAccessWorkspace(ctx context.Context, userID users.ID, at accessType, workspace *workspaces.Workspace) error {
 	// user can access a workspace if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, workspace.CodebaseID)
 	if err != nil {
@@ -342,7 +344,7 @@ func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, c
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID string, at accessType, a *activity.WorkspaceActivity) error {
+func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID users.ID, at accessType, a *activity.WorkspaceActivity) error {
 	// user can access a workspace activity if they can access the workspace it's in
 	ws, err := s.workspaceService.GetByID(ctx, a.WorkspaceID)
 	if err != nil {
@@ -351,7 +353,7 @@ func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID str
 	return s.canUserAccessWorkspace(ctx, userID, at, ws)
 }
 
-func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID string, at accessType, repo *github.GitHubRepository) error {
+func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID users.ID, at accessType, repo *github.GitHubRepository) error {
 	// user can access a github repository if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, repo.CodebaseID)
 	if err != nil {
@@ -360,7 +362,7 @@ func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID string, at
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessGitHubPullRequest(ctx context.Context, userID string, at accessType, pr *github.GitHubPullRequest) error {
+func (s *Service) canUserAccessGitHubPullRequest(ctx context.Context, userID users.ID, at accessType, pr *github.GitHubPullRequest) error {
 	// user can access a github pr if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, pr.CodebaseID)
 	if err != nil {
@@ -393,7 +395,7 @@ func (s *Service) canAnonymousAccessView(ctx context.Context, at accessType, v *
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canUserAccessView(ctx context.Context, userID string, at accessType, v *view.View) error {
+func (s *Service) canUserAccessView(ctx context.Context, userID users.ID, at accessType, v *view.View) error {
 	if at == accessTypeWrite && v.UserID != userID {
 		return fmt.Errorf("only owner can write to a view: %w", auth.ErrForbidden)
 	}
@@ -405,7 +407,7 @@ func (s *Service) canUserAccessView(ctx context.Context, userID string, at acces
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessReview(ctx context.Context, userID string, at accessType, r *review.Review) error {
+func (s *Service) canUserAccessReview(ctx context.Context, userID users.ID, at accessType, r *review.Review) error {
 	// user can access a review if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, r.CodebaseID)
 	if err != nil {
@@ -427,7 +429,7 @@ func (s *Service) canAnonymousAccessReview(ctx context.Context, at accessType, r
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canUserAccessOrganization(ctx context.Context, userID string, at accessType, org *organization.Organization) error {
+func (s *Service) canUserAccessOrganization(ctx context.Context, userID users.ID, at accessType, org *organization.Organization) error {
 	// user can access a organization if they are a member of it
 	_, err := s.organizationService.GetMemberByUserIDAndOrganizationID(ctx, userID, org.ID)
 	if err == nil {

@@ -23,6 +23,7 @@ import (
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
@@ -240,11 +241,11 @@ type test struct {
 
 	codebaseID string
 
-	originalUserID    string
+	originalUserID    users.ID
 	originalViewID    string
 	originalWorkspace *workspaces.Workspace
 
-	suggestingUserID    string
+	suggestingUserID    users.ID
 	suggestingViewID    string
 	suggestingWorkspace *workspaces.Workspace
 	suggestion          *suggestions.Suggestion

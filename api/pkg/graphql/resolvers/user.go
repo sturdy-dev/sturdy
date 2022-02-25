@@ -3,6 +3,7 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/users"
 	"github.com/graph-gophers/graphql-go"
 )
 
@@ -15,7 +16,7 @@ type UserRootResolver interface {
 	VerifyEmail(ctx context.Context, args VerifyEmailArgs) (UserResolver, error)
 
 	// Internal
-	InternalUser(context.Context, string) (UserResolver, error)
+	InternalUser(context.Context, users.ID) (UserResolver, error)
 }
 
 type UpdateUserArgs struct {

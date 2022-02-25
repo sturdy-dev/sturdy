@@ -2,7 +2,9 @@ package inmemory
 
 import (
 	"database/sql"
+
 	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/users"
 )
 
 func NewInMemoryGitHubUserRepo() *inMemoryGitHubUserRepo {
@@ -29,7 +31,7 @@ func (i *inMemoryGitHubUserRepo) GetByUsername(username string) (*github.GitHubU
 	return nil, sql.ErrNoRows
 }
 
-func (i *inMemoryGitHubUserRepo) GetByUserID(userID string) (*github.GitHubUser, error) {
+func (i *inMemoryGitHubUserRepo) GetByUserID(userID users.ID) (*github.GitHubUser, error) {
 	for _, u := range i.users {
 		if u.UserID == userID {
 			return &u, nil

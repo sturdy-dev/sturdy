@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"getsturdy.com/api/pkg/onetime"
+	"getsturdy.com/api/pkg/users"
 )
 
 var _ Repository = &Memory{}
@@ -19,8 +20,8 @@ func NewMemory() *Memory {
 	}
 }
 
-func (m *Memory) Get(_ context.Context, userID, key string) (*onetime.Token, error) {
-	token, ok := m.byKeyUserID[key+userID]
+func (m *Memory) Get(_ context.Context, userID users.ID, key string) (*onetime.Token, error) {
+	token, ok := m.byKeyUserID[key+userID.String()]
 	if !ok {
 		return nil, sql.ErrNoRows
 	}
@@ -28,11 +29,11 @@ func (m *Memory) Get(_ context.Context, userID, key string) (*onetime.Token, err
 }
 
 func (m *Memory) Create(_ context.Context, token *onetime.Token) error {
-	m.byKeyUserID[token.Key+token.UserID] = token
+	m.byKeyUserID[token.Key+token.UserID.String()] = token
 	return nil
 }
 
 func (m *Memory) Update(_ context.Context, token *onetime.Token) error {
-	m.byKeyUserID[token.Key+token.UserID] = token
+	m.byKeyUserID[token.Key+token.UserID.String()] = token
 	return nil
 }

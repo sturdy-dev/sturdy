@@ -92,7 +92,7 @@ func TestListAllows(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			userID := uuid.NewString()
+			userID := users.ID(uuid.NewString())
 			viewID := uuid.NewString()
 			codebaseID := uuid.NewString()
 
@@ -113,7 +113,7 @@ func TestListAllows(t *testing.T) {
 			aclID := uuid.NewString()
 
 			rawPolicy := strings.NewReplacer(
-				"__USER_ID__", userID,
+				"__USER_ID__", userID.String(),
 				"__CODEBASE_ID__", codebaseID,
 				"__RESOURCES__", tc.resources,
 			).Replace(`{
@@ -169,11 +169,11 @@ func TestListAllows(t *testing.T) {
 	}
 }
 
-func request(t *testing.T, userID string, route func(*gin.Context), request, response interface{}) {
+func request(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}) {
 	requestWithParams(t, userID, route, request, response, nil)
 }
 
-func requestWithParams(t *testing.T, userID string, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params
@@ -182,7 +182,7 @@ func requestWithParams(t *testing.T, userID string, route func(*gin.Context), re
 	assert.NoError(t, err)
 
 	c.Request, err = http.NewRequest("POST", "/", bytes.NewReader(data))
-	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser}))
+	c.Request = c.Request.WithContext(auth.NewContext(context.Background(), &auth.Subject{ID: userID.String(), Type: auth.SubjectUser}))
 	assert.NoError(t, err)
 	route(c)
 	assert.Equal(t, http.StatusOK, res.Result().StatusCode)

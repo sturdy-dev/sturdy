@@ -5,15 +5,16 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type CodebaseUserRepository interface {
 	Create(entity codebase.CodebaseUser) error
-	GetByUser(userID string) ([]*codebase.CodebaseUser, error)
+	GetByUser(users.ID) ([]*codebase.CodebaseUser, error)
 	GetByCodebase(codebaseID string) ([]*codebase.CodebaseUser, error)
-	GetByUserAndCodebase(userID, codebaseID string) (*codebase.CodebaseUser, error)
+	GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebase.CodebaseUser, error)
 	DeleteByID(ctx context.Context, id string) error
 }
 
@@ -34,7 +35,7 @@ func (r *codebaseUserRepo) Create(entity codebase.CodebaseUser) error {
 	return nil
 }
 
-func (r *codebaseUserRepo) GetByUser(userID string) ([]*codebase.CodebaseUser, error) {
+func (r *codebaseUserRepo) GetByUser(userID users.ID) ([]*codebase.CodebaseUser, error) {
 	var entities []*codebase.CodebaseUser
 	err := r.db.Select(&entities, "SELECT * FROM codebase_users WHERE user_id=$1", userID)
 	if err != nil {
@@ -52,7 +53,7 @@ func (r *codebaseUserRepo) GetByCodebase(codebaseID string) ([]*codebase.Codebas
 	return entities, nil
 }
 
-func (r *codebaseUserRepo) GetByUserAndCodebase(userID, codebaseID string) (*codebase.CodebaseUser, error) {
+func (r *codebaseUserRepo) GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebase.CodebaseUser, error) {
 	var cb codebase.CodebaseUser
 	err := r.db.Get(&cb, "SELECT * FROM codebase_users WHERE user_id = $1 AND codebase_id = $2 LIMIT 1", userID, codebaseID)
 	if err != nil {

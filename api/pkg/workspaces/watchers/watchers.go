@@ -1,6 +1,10 @@
 package watchers
 
-import "time"
+import (
+	"time"
+
+	"getsturdy.com/api/pkg/users"
+)
 
 type Status string
 
@@ -12,7 +16,7 @@ const (
 
 type Watcher struct {
 	WorkspaceID string    `db:"workspace_id"`
-	UserID      string    `db:"user_id"`
+	UserID      users.ID  `db:"user_id"`
 	Status      Status    `db:"status"`
 	CreatedAt   time.Time `db:"created_at"`
 }

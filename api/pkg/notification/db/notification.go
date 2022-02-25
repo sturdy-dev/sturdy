@@ -2,7 +2,9 @@ package db
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -12,9 +14,9 @@ type Repository interface {
 	Create(notification.Notification) error
 	Update(notification.Notification) error
 	// todo: use id based pagination instead of offset
-	ListByUser(userID string, limit, offset int) ([]notification.Notification, error)
-	ListByUserAndIds(userID string, ids []string) ([]notification.Notification, error)
-	ArchiveByUserAndIds(userID string, ids []string) error
+	ListByUser(userID users.ID, limit, offset int) ([]notification.Notification, error)
+	ListByUserAndIds(userID users.ID, ids []string) ([]notification.Notification, error)
+	ArchiveByUserAndIds(userID users.ID, ids []string) error
 }
 
 type repo struct {
@@ -55,7 +57,7 @@ func (r *repo) Update(notification notification.Notification) error {
 	return nil
 }
 
-func (r *repo) ListByUser(userID string, limit, offset int) ([]notification.Notification, error) {
+func (r *repo) ListByUser(userID users.ID, limit, offset int) ([]notification.Notification, error) {
 	var res []notification.Notification
 	err := r.db.Select(&res, `SELECT id, codebase_id, user_id, type, reference_id, created_at, archived_at
 		FROM notifications
@@ -68,7 +70,7 @@ func (r *repo) ListByUser(userID string, limit, offset int) ([]notification.Noti
 	return res, nil
 }
 
-func (r *repo) ListByUserAndIds(userID string, ids []string) ([]notification.Notification, error) {
+func (r *repo) ListByUserAndIds(userID users.ID, ids []string) ([]notification.Notification, error) {
 	query, args, err := sqlx.In(`SELECT id, codebase_id, user_id, type, reference_id, created_at, archived_at
 	FROM notifications
 	WHERE user_id = ?
@@ -87,7 +89,7 @@ func (r *repo) ListByUserAndIds(userID string, ids []string) ([]notification.Not
 	return entities, nil
 }
 
-func (r *repo) ArchiveByUserAndIds(userID string, ids []string) error {
+func (r *repo) ArchiveByUserAndIds(userID users.ID, ids []string) error {
 	query, args, err := sqlx.In(`UPDATE notifications
 	SET archived_at = NOW()
 	WHERE user_id = ?

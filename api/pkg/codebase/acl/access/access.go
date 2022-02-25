@@ -9,7 +9,7 @@ import (
 )
 
 type userRepository interface {
-	Get(string) (*users.User, error)
+	Get(users.ID) (*users.User, error)
 }
 
 type aclProvider interface {
@@ -30,7 +30,7 @@ func UserCan(
 	}
 
 	allowedByID := aclPolicy.Assert(
-		acl.Identity{Type: acl.Users, ID: userID},
+		acl.Identity{Type: acl.Users, ID: userID.String()},
 		action,
 		resource,
 	)

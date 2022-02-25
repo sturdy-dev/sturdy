@@ -6,6 +6,7 @@ import (
 
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/activity"
 	db_activity "getsturdy.com/api/pkg/workspaces/activity/db"
 	service_activity "getsturdy.com/api/pkg/workspaces/activity/service"
@@ -14,7 +15,7 @@ import (
 )
 
 type ActivitySender interface {
-	Codebase(ctx context.Context, codebaseID, workspaceID, userID string, activityType activity.WorkspaceActivityType, referenceID string) error
+	Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error
 }
 
 type realActivitySender struct {
@@ -38,7 +39,7 @@ func NewActivitySender(
 	}
 }
 
-func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID, userID string, activityType activity.WorkspaceActivityType, referenceID string) error {
+func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error {
 	activityID := uuid.NewString()
 
 	act := activity.WorkspaceActivity{
@@ -73,7 +74,7 @@ func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspace
 
 type noopActivitySender struct{}
 
-func (noopActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID, userID string, activityType activity.WorkspaceActivityType, referenceID string) error {
+func (noopActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error {
 	return nil
 }
 

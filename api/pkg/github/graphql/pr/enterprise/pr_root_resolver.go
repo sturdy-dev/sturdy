@@ -217,7 +217,7 @@ func (r prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resol
 			return nil
 		default:
 			r.logger.Error("dropped subscription event",
-				zap.String("user_id", userID),
+				zap.Stringer("user_id", userID),
 				zap.String("codebase_id", ws.CodebaseID),
 				zap.Stringer("event_type", et),
 				zap.Int("channel_size", len(res)),

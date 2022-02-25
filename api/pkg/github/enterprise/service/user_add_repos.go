@@ -10,6 +10,7 @@ import (
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/users"
 	"golang.org/x/oauth2"
 
 	gh "github.com/google/go-github/v39/github"
@@ -17,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID string) error {
+func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID users.ID) error {
 	githubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
 	if err != nil {
 		return fmt.Errorf("failed to get github user: %w", err)
@@ -48,7 +49,7 @@ func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.GitHu
 	return nil
 }
 
-func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID string, userAuthClient *gh.Client, installationID int64) error {
+func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID users.ID, userAuthClient *gh.Client, installationID int64) error {
 	// Truth from GitHub
 	repos, err := svc.userAccessibleRepoIDs(ctx, userAuthClient, installationID)
 	if err != nil {

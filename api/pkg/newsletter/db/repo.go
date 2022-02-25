@@ -2,13 +2,15 @@ package db
 
 import (
 	"fmt"
+
 	"getsturdy.com/api/pkg/newsletter"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type NotificationSettingsRepository interface {
-	GetByUser(userID string) (*newsletter.NotificationSettings, error)
+	GetByUser(users.ID) (*newsletter.NotificationSettings, error)
 	Insert(newsletter.NotificationSettings) error
 	Update(*newsletter.NotificationSettings) error
 }
@@ -40,7 +42,7 @@ func (r *repo) Update(settings *newsletter.NotificationSettings) error {
 	return nil
 }
 
-func (r *repo) GetByUser(userID string) (*newsletter.NotificationSettings, error) {
+func (r *repo) GetByUser(userID users.ID) (*newsletter.NotificationSettings, error) {
 	var res newsletter.NotificationSettings
 	err := r.db.Get(&res, "SELECT user_id, receive_newsletter FROM notification_settings WHERE user_id = $1", userID)
 	if err != nil {

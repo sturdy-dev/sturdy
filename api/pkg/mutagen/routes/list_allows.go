@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/http"
+
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/ctxlog"
-	"net/http"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase/acl"
@@ -55,7 +56,10 @@ func ListAllows(
 		}
 
 		// TODO: Authenticate internal requests
-		ctx := auth.NewContext(c.Request.Context(), &auth.Subject{ID: viewObj.UserID, Type: auth.SubjectMutagen})
+		ctx := auth.NewContext(c.Request.Context(), &auth.Subject{
+			ID:   viewObj.UserID.String(),
+			Type: auth.SubjectMutagen,
+		})
 
 		allower, err := authService.GetAllower(ctx, &codebase.Codebase{ID: viewObj.CodebaseID})
 		if err != nil {

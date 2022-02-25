@@ -19,7 +19,7 @@ func mentionRegexp(mention string) *regexp.Regexp {
 func ExtractIDMentions(msg string, uu []*users.User) map[string]*users.User {
 	mentions := make(map[string]*users.User)
 	for _, user := range uu {
-		re := mentionRegexp(user.ID)
+		re := mentionRegexp(user.ID.String())
 		match := re.FindString(msg)
 		if match == "" {
 			continue

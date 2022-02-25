@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 
 	"github.com/jmoiron/sqlx"
@@ -12,9 +14,9 @@ type Repository interface {
 	Create(entity view.View) error
 	Get(id string) (*view.View, error)
 	ListByCodebase(codebaseID string) ([]*view.View, error)
-	ListByUser(userID string) ([]*view.View, error)
-	LastUsedByCodebaseAndUser(ctx context.Context, codebaseID, userID string) (*view.View, error)
-	ListByCodebaseAndUser(codebaseID, userID string) ([]*view.View, error)
+	ListByUser(users.ID) ([]*view.View, error)
+	LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string, userID users.ID) (*view.View, error)
+	ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*view.View, error)
 	ListByCodebaseAndWorkspace(codebaseID, workspaceID string) ([]*view.View, error)
 	Update(e *view.View) error
 }
@@ -63,7 +65,7 @@ func (r *repo) ListByCodebase(codebaseID string) ([]*view.View, error) {
 	return views, nil
 }
 
-func (r *repo) ListByUser(userID string) ([]*view.View, error) {
+func (r *repo) ListByUser(userID users.ID) ([]*view.View, error) {
 	var views []*view.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname  FROM views WHERE user_id=$1", userID)
 	if err != nil {
@@ -72,7 +74,7 @@ func (r *repo) ListByUser(userID string) ([]*view.View, error) {
 	return views, nil
 }
 
-func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID, userID string) (*view.View, error) {
+func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string, userID users.ID) (*view.View, error) {
 	var entity view.View
 	err := r.db.GetContext(ctx, &entity, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE user_id=$1 AND codebase_id=$2 ORDER BY last_used_at DESC LIMIT 1", userID, codebaseID)
 	if err != nil {
@@ -81,7 +83,7 @@ func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID, userID
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebaseAndUser(codebaseID, userID string) ([]*view.View, error) {
+func (r *repo) ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*view.View, error) {
 	var views []*view.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE codebase_id=$1 AND user_id=$2", codebaseID, userID)
 	if err != nil {

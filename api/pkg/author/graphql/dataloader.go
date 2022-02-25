@@ -2,8 +2,10 @@ package graphql
 
 import (
 	"context"
+
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/users"
 
 	"github.com/graph-gophers/dataloader/v6"
 	"github.com/graph-gophers/graphql-go"
@@ -45,7 +47,7 @@ func batchFunction(resolver *AuthorRootResolver) dataloader.BatchFunc {
 		)
 
 		for _, key := range keys {
-			res, err := resolver.Author(key.String())
+			res, err := resolver.Author(users.ID(key.String()))
 			if err != nil {
 				results = append(results, &dataloader.Result{Error: err})
 			} else {

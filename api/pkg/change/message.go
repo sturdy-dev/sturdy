@@ -3,16 +3,18 @@ package change
 import (
 	"sort"
 	"strings"
+
+	"getsturdy.com/api/pkg/users"
 )
 
 // ChangeMetadata is change data written to the commit messages
 type ChangeMetadata struct {
-	ChangeID         string `json:"change_id,omitempty"` // Used to keep track of rebases etc.
-	Description      string `json:"description,omitempty"`
-	UserID           string `json:"user_id,omitempty"`
-	ViewID           string `json:"view_id,omitempty"`
-	RevertedChangeID string `json:"reverted_change_id,omitempty"` // If this is a revert, points to the change that was reverted.
-	WorkspaceID      string `json:"workspace_id,omitempty"`
+	ChangeID         string   `json:"change_id,omitempty"` // Used to keep track of rebases etc.
+	Description      string   `json:"description,omitempty"`
+	UserID           users.ID `json:"user_id,omitempty"`
+	ViewID           string   `json:"view_id,omitempty"`
+	RevertedChangeID string   `json:"reverted_change_id,omitempty"` // If this is a revert, points to the change that was reverted.
+	WorkspaceID      string   `json:"workspace_id,omitempty"`
 }
 
 func (c ChangeMetadata) ToCommitMessage() string {
@@ -27,7 +29,7 @@ func (c ChangeMetadata) ToCommitMessage() string {
 	// add all non-empty values
 	for k, v := range map[string]string{
 		"change_id":          c.ChangeID,
-		"user_id":            c.UserID,
+		"user_id":            c.UserID.String(),
 		"view_id":            c.ViewID,
 		"reverted_change_id": c.RevertedChangeID,
 		"workspace_id":       c.WorkspaceID,
@@ -71,7 +73,7 @@ func ParseCommitMessage(input string) ChangeMetadata {
 		case "change_id":
 			res.ChangeID = kv[1]
 		case "user_id":
-			res.UserID = kv[1]
+			res.UserID = users.ID(kv[1])
 		case "view_id":
 			res.ViewID = kv[1]
 		case "reverted_change_id":

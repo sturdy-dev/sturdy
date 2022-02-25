@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sort"
+
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"sort"
 )
 
 type inMemoryViewRepo struct {
@@ -44,7 +46,7 @@ func (f *inMemoryViewRepo) ListByCodebase(codebaseID string) ([]*view.View, erro
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) ListByUser(userID string) ([]*view.View, error) {
+func (f *inMemoryViewRepo) ListByUser(userID users.ID) ([]*view.View, error) {
 	var res []*view.View
 	for _, v := range f.views {
 		if v.UserID == userID {
@@ -55,7 +57,7 @@ func (f *inMemoryViewRepo) ListByUser(userID string) ([]*view.View, error) {
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID, userID string) (*view.View, error) {
+func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string, userID users.ID) (*view.View, error) {
 	views, _ := f.ListByCodebaseAndUser(codebaseID, userID)
 	if len(views) < 1 {
 		return nil, sql.ErrNoRows
@@ -68,7 +70,7 @@ func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codeba
 	return views[0], nil
 }
 
-func (f *inMemoryViewRepo) ListByCodebaseAndUser(codebaseID, userID string) ([]*view.View, error) {
+func (f *inMemoryViewRepo) ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*view.View, error) {
 	var res []*view.View
 	for _, v := range f.views {
 		if v.CodebaseID == codebaseID && v.UserID == userID {

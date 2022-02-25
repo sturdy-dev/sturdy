@@ -169,7 +169,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		zap.String("codebase_id", cb.ID),
 		zap.Int64("github_installation_id", ghInstallation.InstallationID),
 		zap.String("workspace_id", ws.ID),
-		zap.String("user_id", userID),
+		zap.Stringer("user_id", userID),
 	)
 
 	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(ws.ID)

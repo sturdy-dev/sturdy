@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+
 	"getsturdy.com/api/pkg/jwt"
+	"getsturdy.com/api/pkg/users"
 )
 
 type SubjectType string
@@ -58,7 +60,7 @@ func FromContext(ctx context.Context) (*Subject, bool) {
 // UserID returns authenticated user's id from the context.
 //
 // If context if unauthenticated or not user, returns an ErrUnauthenticated.
-func UserID(ctx context.Context) (string, error) {
+func UserID(ctx context.Context) (users.ID, error) {
 	s, ok := FromContext(ctx)
 	if !ok {
 		return "", ErrUnauthenticated
@@ -66,5 +68,5 @@ func UserID(ctx context.Context) (string, error) {
 	if s.Type != SubjectUser {
 		return "", ErrUnauthenticated
 	}
-	return s.ID, nil
+	return users.ID(s.ID), nil
 }

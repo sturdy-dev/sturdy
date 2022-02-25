@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/users"
 )
 
 type inMemoryCodebaseUserRepository struct {
@@ -21,7 +22,7 @@ func (r *inMemoryCodebaseUserRepository) Create(entity codebase.CodebaseUser) er
 	return nil
 }
 
-func (r *inMemoryCodebaseUserRepository) GetByUser(userID string) ([]*codebase.CodebaseUser, error) {
+func (r *inMemoryCodebaseUserRepository) GetByUser(userID users.ID) ([]*codebase.CodebaseUser, error) {
 	var res []*codebase.CodebaseUser
 	for _, u := range r.users {
 		if u.UserID == userID {
@@ -43,7 +44,7 @@ func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*co
 	return res, nil
 }
 
-func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID, codebaseID string) (*codebase.CodebaseUser, error) {
+func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebase.CodebaseUser, error) {
 	for _, u := range r.users {
 		if u.UserID == userID && u.CodebaseID == codebaseID {
 			return &u, nil
