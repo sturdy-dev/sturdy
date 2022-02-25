@@ -10,7 +10,6 @@ import (
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/users"
 
-	"github.com/google/go-github/v39/github"
 	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
@@ -85,12 +84,12 @@ func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
 	}
 }
 
-func (s *Service) IdentifyGitHubInstallation(ctx context.Context, installation *github.Installation) {
+func (s *Service) IdentifyGitHubInstallation(ctx context.Context, installationID int64, accountLogin, accountEmail string) {
 	if err := s.client.Enqueue(posthog.Identify{
-		DistinctId: fmt.Sprintf("%d", installation.GetID()), // Using the installation ID as a person?
+		DistinctId: fmt.Sprintf("%d", installationID), // Using the installation ID as a person?
 		Properties: map[string]interface{}{
-			"installation_org":        installation.GetAccount().GetLogin(),
-			"email":                   installation.GetAccount().GetEmail(),
+			"installation_org":        accountLogin,
+			"email":                   accountEmail,
 			"github_app_installation": true,
 		},
 	}); err != nil {

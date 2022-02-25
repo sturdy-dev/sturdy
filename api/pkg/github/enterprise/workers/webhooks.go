@@ -10,7 +10,6 @@ import (
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
 
-	"github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
 )
 
@@ -31,12 +30,12 @@ func NewWebhooksQueue(logger *zap.Logger, queue queue.Queue, webhooksService *se
 }
 
 type WebhookEvent struct {
-	Installation             *github.InstallationEvent
-	InstallationRepositories *github.InstallationRepositoriesEvent
-	Push                     *github.PushEvent
-	PullRequest              *github.PullRequestEvent
-	Status                   *github.StatusEvent
-	WorkflowJob              *github.WorkflowJobEvent
+	Installation             *service_github_webhooks.InstallationEvent
+	InstallationRepositories *service_github_webhooks.InstallationRepositoriesEvent
+	Push                     *service_github_webhooks.PushEvent
+	PullRequest              *service_github_webhooks.PullRequestEvent
+	Status                   *service_github_webhooks.StatusEvent
+	WorkflowJob              *service_github_webhooks.WorkflowJobEvent
 }
 
 func (q *WebhooksQueue) Enqueue(ctx context.Context, event *WebhookEvent) error {

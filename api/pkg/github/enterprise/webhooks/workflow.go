@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
@@ -36,14 +35,14 @@ var conclusionHealthy = map[string]bool{
 	"success": true,
 }
 
-func getJobTime(job *gh.WorkflowJob) time.Time {
+func getJobTime(job *WorkflowJob) time.Time {
 	if job.CompletedAt != nil {
 		return job.GetCompletedAt().Time
 	}
 	return job.GetStartedAt().Time
 }
 
-func getJobType(job *gh.WorkflowJob) statuses.Type {
+func getJobType(job *WorkflowJob) statuses.Type {
 	status := job.GetStatus()         // queued, in_progress, completed
 	conclution := job.GetConclusion() // success, failure, neutral, cancelled, timed_out, action_required, stale
 	switch {
@@ -65,7 +64,7 @@ func getJobType(job *gh.WorkflowJob) statuses.Type {
 	}
 }
 
-func (svc *Service) HandleWorkflowJobEvent(event *gh.WorkflowJobEvent) error {
+func (svc *Service) HandleWorkflowJobEvent(event *WorkflowJobEvent) error {
 	ctx := context.Background()
 	gitHubRepoID := event.GetRepo().GetID()
 	installationID := event.GetInstallation().GetID()
