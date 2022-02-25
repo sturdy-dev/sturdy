@@ -941,6 +941,7 @@ type Installation {
   needsFirstTimeSetup: Boolean!
   usersCount: Int!
   version: String!
+  distributionType: String! # OSS, Enterprise, or Cloud
 }
 
 # Writeable returns the result of canI Write for the resource itself
