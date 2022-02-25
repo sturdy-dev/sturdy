@@ -25,7 +25,18 @@ Sturdy has 4 main components:
 Local-Syncer ─────────[SSH]────────────► Remote-Syncer
 ```
 
+## Easy development
+
+Sturdy has a Docker container called the "oneliner", which contains all components of Sturdy in a single easy-to-run container.
+This is the easiest way to get a full development environment for all components except for the Electron App (most of the time however, connecting the production build of the Sturdy app is good enough). 
+
+```bash
+./scripts/run-oneliner.sh
+```
+
 ## Development
+
+To support a full development environment, with hot reloading and fast restarts. 
 
 * Run PostgreSQL, LFS, and the SSH servers in Docker: `./up --build`
 * Build and run the API
