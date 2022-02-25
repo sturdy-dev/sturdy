@@ -133,7 +133,7 @@ func (r *WorkspaceRootResolver) Workspace(ctx context.Context, args resolvers.Wo
 	}
 
 	if ws.ArchivedAt != nil && (args.AllowArchived == nil || !*args.AllowArchived) {
-		return nil, gqlerrors.ErrNotFound
+		return nil, gqlerrors.Error(gqlerrors.ErrNotFound)
 	}
 
 	if err := r.authService.CanRead(ctx, ws); err != nil {
