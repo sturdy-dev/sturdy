@@ -37,6 +37,10 @@ func (r *resolver) Version() string {
 	return r.installation.Version
 }
 
+func (r *resolver) DistributionType() string {
+	return r.installation.Type.String()
+}
+
 func (r *resolver) License(ctx context.Context) (resolvers.LicenseResolver, error) {
 	if r.installation.LicenseKey == nil {
 		return nil, gqlerrors.ErrNotFound

@@ -17,6 +17,7 @@ type InstallationsResolver interface {
 	UsersCount(context.Context) (int32, error)
 	NeedsFirstTimeSetup(context.Context) (bool, error)
 	Version() string
+	DistributionType() string
 	License(context.Context) (LicenseResolver, error)
 }
 
