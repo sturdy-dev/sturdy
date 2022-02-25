@@ -104,9 +104,7 @@ import { ChevronDownIcon, ChevronUpIcon, CogIcon, ViewListIcon } from '@heroicon
 import ImportFromGit from '../components/codebase/ImportFromGit.vue'
 import { useUpdatedWorkspaceByCodebase } from '../subscriptions/useUpdatedWorkspace'
 import Directory, { OPEN_DIRECTORY } from '../components/browse/Directory.vue'
-import TopOfChangelogWidget, {
-  TOP_OF_CHANGELOG,
-} from '../components/changelog/TopOfChangelogWidget.vue'
+import TopOfChangelogWidget, { TOP_OF_CHANGELOG } from '../organisms/TopOfChangelogWidget.vue'
 import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
 import CreateViewAndWorkspace from '../components/codebase/CreateViewAndWorkspace.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
