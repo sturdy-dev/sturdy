@@ -40,7 +40,7 @@ To support a full development environment, with hot reloading and fast restarts.
 * Ensure libgit2 is installed - `https://libgit2.org/`
 * Run PostgreSQL, LFS, and the SSH servers in Docker: `./up --build`
 * Build and run the API
-  server: `cd api && go build getsturdy.com/api/cmd/api && ./api --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
+  server: `cd api && go build getsturdy.com/api/cmd/api && ./api --http.addr 127.0.0.1:3000 --analytics.disable`
 * Build and run the web frontend: `cd web && yarn && yarn codegen && yarn dev`
 * Build and run the Electron app: `cd app && yarn && yarn dev`
 
