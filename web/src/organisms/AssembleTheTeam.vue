@@ -17,14 +17,20 @@
 <script lang="ts">
 import { PropType } from 'vue'
 
+import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
+import CodebaseMembers, {
+  CODEBASE_MEMBER_FRAGMENT,
+} from '../components/codebase/CodebaseMembers.vue'
+
 import { AuthorFragment } from '../components/shared/__generated__/Avatar'
 import { CodebaseMemberFragment } from '../components/codebase/__generated__/CodebaseMembers'
 
-import CodebaseMembers from '../components/codebase/CodebaseMembers.vue'
+export { CODEBASE_MEMBER_FRAGMENT }
 
 export default {
   components: {
     CodebaseMembers,
+    OnboardingStep,
   },
   props: {
     user: {
