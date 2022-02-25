@@ -28,31 +28,9 @@
     </router-link>
 
     <div v-if="codebase.changes.length > 1" class="flex flex-col gap-2 flex-1">
-      <router-link
-        v-for="change in codebase.changes.slice(1)"
-        :key="change.id"
-        class="border rounded-md shadow-sm px-4 py-2 hover:bg-gray-50"
-        :to="{
-          name: 'codebaseChangelog',
-          params: { codebaseSlug: codebase.shortID, selectedChangeID: change.id },
-        }"
-      >
-        <div class="flex flex-row gap-2 items-center justify-between">
-          <div class="flex-none">
-            <Avatar :author="change.author" size="6" />
-          </div>
-          <div class="text-sm flex-1">{{ change.title }}</div>
-          <div v-if="change.comments.length > 0" class="flex-none">
-            <ChangeCommentsIndicator :change="change" />
-          </div>
-          <div class="flex text-sm text-gray-500">
-            <div class="mr-1">
-              <StatusBadge :statuses="change.statuses" />
-            </div>
-            {{ timeAgo(change.createdAt) }}
-          </div>
-        </div>
-      </router-link>
+      <template v-for="change in codebase.changes.slice(1)" :key="change.id">
+        <ChangelogChange :codebaseSlug="codebase.shortID" :change="change" />
+      </template>
 
       <router-link
         :to="{ name: 'codebaseChangelog', params: { codebaseSlug: codebase.shortID } }"
@@ -72,45 +50,35 @@ import { defineComponent, PropType, toRefs } from 'vue'
 import gql from 'graphql-tag'
 import { TopOfChangelogFragment } from './__generated__/TopOfChangelogWidget'
 import { ArrowRightIcon } from '@heroicons/vue/outline'
-import Avatar from '../shared/Avatar.vue'
-import time from '../../time'
-import ChangeCommentsIndicator, { CHANGE_COMMENTS } from './ChangeCommentsIndicator.vue'
-import StatusBadge, { STATUS_FRAGMENT } from '../statuses/StatusBadge.vue'
-import { useUpdatedChangesStatuses } from '../../subscriptions/useUpdatedChangesStatuses'
+import Avatar from '../components/shared/Avatar.vue'
+import time from '../time'
+import ChangeCommentsIndicator, {
+  CHANGE_COMMENTS,
+} from '../components/changelog/ChangeCommentsIndicator.vue'
+import StatusBadge, { STATUS_FRAGMENT } from '../components/statuses/StatusBadge.vue'
+import { useUpdatedChangesStatuses } from '../subscriptions/useUpdatedChangesStatuses'
+import ChangelogChange, { CHANGELOG_CHANGE_FRAGMENT } from '../molecules/ChangelogChange.vue'
 
 export const TOP_OF_CHANGELOG = gql`
   fragment TopOfChangelog on Codebase {
     id
     shortID
     changes(input: { limit: 4 }) {
-      id
-      title
-      description
-      createdAt
-      author {
-        id
-        name
-        avatarUrl
-      }
-      ...ChangeComments
-      statuses {
-        ...Status
-      }
+      ...ChangelogChange
     }
   }
-  ${CHANGE_COMMENTS}
-  ${STATUS_FRAGMENT}
+  ${CHANGELOG_CHANGE_FRAGMENT}
 `
 
 type Change = TopOfChangelogFragment['changes'][number]
 
 export default defineComponent({
   name: 'TopOfChangelogWidget',
-  components: { Avatar, ArrowRightIcon, ChangeCommentsIndicator, StatusBadge },
+  components: { Avatar, ArrowRightIcon, ChangeCommentsIndicator, StatusBadge, ChangelogChange },
   props: {
     codebase: {
-      required: true,
       type: Object as PropType<TopOfChangelogFragment>,
+      required: true,
     },
   },
   setup(props) {
