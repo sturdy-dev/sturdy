@@ -37,7 +37,7 @@ func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.GitHu
 	for _, installation := range installations {
 		if err = svc.addUserToInstallationCodebases(
 			ctx,
-			ghUser.ID,
+			ghUser.UserID,
 			githubAPIClient,
 			installation.GetID(),
 		); err != nil {
