@@ -1,5 +1,7 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-screen flex items-center py-12 px-4 sm:px-6 lg:px-8 justify-between flex-col space-y-8"
+  >
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -20,6 +22,8 @@
       <EmailAuth v-if="isEmailAuthEnabled" :ask-name="isLogin" @success="successRedirect" />
       <PasswordAuth v-else :sign-up="!isLogin" @success="successRedirect" />
     </div>
+
+    <ServerInfo :server-info="data?.installation" />
   </div>
 </template>
 
@@ -28,9 +32,11 @@ import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
 import { computed, defineComponent, inject, ref, Ref, PropType, watch } from 'vue'
 import { gql, useQuery } from '@urql/vue'
+import ServerInfo from '../organisms/auth/ServerInfo.vue'
 
 export default defineComponent({
   components: {
+    ServerInfo,
     EmailAuth,
     PasswordAuth,
   },
@@ -55,6 +61,8 @@ export default defineComponent({
           installation @skip(if: $isMultiTenancyEnabled) {
             id
             usersCount
+            version
+            distributionType
           }
         }
       `,
