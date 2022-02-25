@@ -146,12 +146,12 @@ linux.archDownloads.push({
   icon: DownloadIcon,
 })
 
-linux.archDownloads.push({
-  id: 'linux-snapcraft',
-  fullName: 'Download from Snapcraft (beta)',
-  url: 'https://snapcraft.io/sturdy',
-  icon: DownloadIcon,
-})
+// linux.archDownloads.push({
+//   id: 'linux-snapcraft',
+//   fullName: 'Download from Snapcraft (beta)',
+//   url: 'https://snapcraft.io/sturdy',
+//   icon: DownloadIcon,
+// })
 
 operatingSystems.push(linux)
 
