@@ -1,6 +1,6 @@
 <template>
-  <PaddedAppRightSidebar v-if="!fetching">
-    <ChangeList :changes="data.codebase.changes" />
+  <PaddedAppRightSidebar v-if="data" class="bg-white">
+    <ChangeList :changes="data.codebase.changes" :codebase-slug="codebaseSlug" />
 
     <template #sidebar>
       <AssembleTheTeam
@@ -44,7 +44,7 @@ export default {
           codebase(shortID: $codebaseShortId) {
             id
             changes {
-              ...Changelog_Change
+              ...ChangelogChange
             }
             members {
               ...CodebaseMember
@@ -62,6 +62,8 @@ export default {
       data,
       fetching,
       error,
+
+      codebaseSlug,
     }
   },
 }
