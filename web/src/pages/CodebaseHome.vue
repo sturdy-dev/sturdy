@@ -1,113 +1,107 @@
 <template>
-  <PaddedApp v-if="data" class="bg-white">
+  <PaddedAppRightSidebar v-if="data" class="bg-white">
     <main class="relative md:overflow-y-auto focus:outline-none">
-      <div class="">
-        <div class="grid grid-cols-1 xl:grid-cols-4">
-          <div
-            class="block col-start-1 col-span-4 xl:col-span-3 space-y-4 xl:pr-8 xl:border-r xl:border-gray-200"
-          >
-            <div>
-              <div class="flex items-center">
-                <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
-                <CreateViewAndWorkspace
-                  v-if="showAppConnectDirectory"
-                  :codebase-id="data.codebase.id"
-                  :codebase-slug="codebaseSlug"
-                />
-
-                <!-- Spacer to make layout render both in app and in browser -->
-                <div class="flex-1"></div>
-
-                <div class="relative">
-                  <span class="relative z-0 inline-flex space-x-4">
-                    <Button
-                      v-if="showCliSetupToggleButton"
-                      size="wider"
-                      color="lightblue"
-                      class="hidden lg:inline-flex"
-                      @click="showSetupInstructions = !showSetupInstructions"
-                    >
-                      <ChevronUpIcon
-                        v-if="showSetupInstructions"
-                        class="-ml-1 mr-2 h-5 w-5 text-gray-800"
-                        aria-hidden="true"
-                      />
-                      <ChevronDownIcon
-                        v-else
-                        class="-ml-1 mr-2 h-5 w-5 text-gray-800"
-                        aria-hidden="true"
-                      />
-                      <span>Setup</span>
-                    </Button>
-
-                    <RouterLinkButton :to="{ name: 'codebaseChangelog' }" size="wider">
-                      <ViewListIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                      <span>Changelog</span>
-                    </RouterLinkButton>
-
-                    <RouterLinkButton
-                      v-if="isAuthorized"
-                      :to="{ name: 'codebaseSettings' }"
-                      size="wider"
-                    >
-                      <CogIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                      <span>Settings</span>
-                    </RouterLinkButton>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- setup new view instructions for both CLI and app -->
-            <SetupNewView
-              v-if="showSetupNewView"
-              :codebase="data.codebase"
-              :current-user-has-a-view="currentUserHasAView"
+      <div class="block space-y-4">
+        <div>
+          <div class="flex items-center">
+            <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
+            <CreateViewAndWorkspace
+              v-if="showAppConnectDirectory"
+              :codebase-id="data.codebase.id"
               :codebase-slug="codebaseSlug"
             />
 
-            <!-- TODO(gustav): remove or fix -->
-            <ImportFromGit
-              v-if="data.codebase.changes?.length === 0 && data.codebase.workspaces.length === 0"
-              :codebase-id="data.codebase.id"
-            />
+            <!-- Spacer to make layout render both in app and in browser -->
+            <div class="flex-1"></div>
 
-            <TopOfChangelogWidget v-if="data.codebase" :codebase="data.codebase" />
+            <div class="relative">
+              <span class="relative z-0 inline-flex space-x-4">
+                <Button
+                  v-if="showCliSetupToggleButton"
+                  size="wider"
+                  color="lightblue"
+                  class="hidden lg:inline-flex"
+                  @click="showSetupInstructions = !showSetupInstructions"
+                >
+                  <ChevronUpIcon
+                    v-if="showSetupInstructions"
+                    class="-ml-1 mr-2 h-5 w-5 text-gray-800"
+                    aria-hidden="true"
+                  />
+                  <ChevronDownIcon
+                    v-else
+                    class="-ml-1 mr-2 h-5 w-5 text-gray-800"
+                    aria-hidden="true"
+                  />
+                  <span>Setup</span>
+                </Button>
 
-            <Directory
-              v-if="data.codebase?.rootDir?.children.length > 0"
-              :directory="data.codebase.rootDir"
-              :codebase="data.codebase"
-            />
-            <NoFilesCodebase v-else class="pt-24" />
+                <RouterLinkButton :to="{ name: 'codebaseChangelog' }" size="wider">
+                  <ViewListIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <span>Changelog</span>
+                </RouterLinkButton>
 
-            <!-- Workspace list for mobile -->
-            <WorkspaceList :workspaces="data.codebase.workspaces" class="block md:hidden" />
+                <RouterLinkButton
+                  v-if="isAuthorized"
+                  :to="{ name: 'codebaseSettings' }"
+                  size="wider"
+                >
+                  <CogIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <span>Settings</span>
+                </RouterLinkButton>
+              </span>
+            </div>
           </div>
-
-          <aside class="col-start-4 col-span-1 px-4 pl-8 hidden xl:block">
-            <OnboardingStep
-              id="InvitingTeamMembers"
-              :dependencies="['FindingYourCodebase']"
-              :enabled="data.codebase.changes.length > 0"
-            >
-              <template #title> Assemble the Team</template>
-              <template #description>
-                In this section over here you can invite other people to collaborate on this
-                codebase with you.
-              </template>
-
-              <CodebaseMembers
-                :user="user"
-                :members="data.codebase.members"
-                :codebase-id="data.codebase.id"
-              />
-            </OnboardingStep>
-          </aside>
         </div>
+
+        <!-- setup new view instructions for both CLI and app -->
+        <SetupNewView
+          v-if="showSetupNewView"
+          :codebase="data.codebase"
+          :current-user-has-a-view="currentUserHasAView"
+          :codebase-slug="codebaseSlug"
+        />
+
+        <!-- TODO(gustav): remove or fix -->
+        <ImportFromGit
+          v-if="data.codebase.changes?.length === 0 && data.codebase.workspaces.length === 0"
+          :codebase-id="data.codebase.id"
+        />
+
+        <TopOfChangelogWidget v-if="data.codebase" :codebase="data.codebase" />
+
+        <Directory
+          v-if="data.codebase?.rootDir?.children.length > 0"
+          :directory="data.codebase.rootDir"
+          :codebase="data.codebase"
+        />
+        <NoFilesCodebase v-else class="pt-24" />
+
+        <!-- Workspace list for mobile -->
+        <WorkspaceList :workspaces="data.codebase.workspaces" class="block md:hidden" />
       </div>
     </main>
-  </PaddedApp>
+
+    <template #sidebar>
+      <OnboardingStep
+        id="InvitingTeamMembers"
+        :dependencies="['FindingYourCodebase']"
+        :enabled="data.codebase.changes.length > 0"
+      >
+        <template #title> Assemble the Team</template>
+        <template #description>
+          In this section over here you can invite other people to collaborate on this codebase with
+          you.
+        </template>
+
+        <CodebaseMembers
+          :user="user"
+          :members="data.codebase.members"
+          :codebase-id="data.codebase.id"
+        />
+      </OnboardingStep>
+    </template>
+  </PaddedAppRightSidebar>
 </template>
 
 <script lang="ts">
@@ -129,7 +123,7 @@ import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
 import CreateViewAndWorkspace from '../components/codebase/CreateViewAndWorkspace.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
-import PaddedApp from '../layouts/PaddedApp.vue'
+import PaddedAppRightSidebar from '../layouts/PaddedAppRightSidebar.vue'
 import {
   CodebaseHomeCodebaseQuery,
   CodebaseHomeCodebaseQueryVariables,
@@ -140,11 +134,9 @@ import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 export default defineComponent({
   name: 'CodebaseHome',
   components: {
-    PaddedApp,
-    OnboardingStep,
+    PaddedAppRightSidebar,
     Directory,
     SetupNewView,
-    CodebaseMembers,
     Button,
     ViewListIcon,
     CogIcon,
@@ -156,6 +148,8 @@ export default defineComponent({
     CreateViewAndWorkspace,
     WorkspaceList,
     RouterLinkButton,
+    CodebaseMembers,
+    OnboardingStep,
   },
   props: ['user'],
   setup() {
