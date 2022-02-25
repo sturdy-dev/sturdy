@@ -33,7 +33,7 @@ docker run --interactive \
     getsturdy/server
 ```
 
-## Learn more
+## Learn more!
 
 See the [Sturdy Docs](https://getsturdy.com/docs) to learn more about Sturdy and why it's cool!
 
