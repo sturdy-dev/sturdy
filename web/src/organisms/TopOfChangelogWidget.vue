@@ -52,10 +52,8 @@ import { TopOfChangelogFragment } from './__generated__/TopOfChangelogWidget'
 import { ArrowRightIcon } from '@heroicons/vue/outline'
 import Avatar from '../components/shared/Avatar.vue'
 import time from '../time'
-import ChangeCommentsIndicator, {
-  CHANGE_COMMENTS,
-} from '../components/changelog/ChangeCommentsIndicator.vue'
-import StatusBadge, { STATUS_FRAGMENT } from '../components/statuses/StatusBadge.vue'
+import ChangeCommentsIndicator from '../components/changelog/ChangeCommentsIndicator.vue'
+import StatusBadge from '../components/statuses/StatusBadge.vue'
 import { useUpdatedChangesStatuses } from '../subscriptions/useUpdatedChangesStatuses'
 import ChangelogChange, { CHANGELOG_CHANGE_FRAGMENT } from '../molecules/ChangelogChange.vue'
 
