@@ -16,9 +16,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { gql } from '@urql/vue'
+import { PropType } from 'vue'
+
 import Avatar from '../shared/Avatar.vue'
+import { AuthorFragment } from '../shared/__generated__/Avatar'
 import CodebaseInviteCode from './CodebaseInviteCode.vue'
+
+import { CodebaseMemberFragment } from './__generated__/CodebaseMembers'
+
+export const CODEBASE_MEMBER_FRAGMENT = gql`
+  fragment CodebaseMember on Author {
+    id
+    name
+  }
+`
 
 export default {
   components: { Avatar, CodebaseInviteCode },
@@ -28,11 +41,11 @@ export default {
       required: true,
     },
     members: {
-      type: Array,
+      type: Array as PropType<CodebaseMemberFragment[]>,
       required: true,
     },
     user: {
-      type: Object,
+      type: Object as PropType<AuthorFragment>,
     },
   },
   computed: {
