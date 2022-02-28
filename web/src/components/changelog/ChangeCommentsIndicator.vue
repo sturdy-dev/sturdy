@@ -1,5 +1,5 @@
 <template>
-  <div class="text-xs rounded-md bg-gray-100 flex flex-row items-center px-1 py-0.5 gap-0.5">
+  <div class="text-xs rounded-md bg-gray-100 flex items-center px-1 py-0.5 gap-0.5">
     <AnnotationIcon class="h-3 w-3" />
     <span class="font-semibold"> {{ change.comments.length }}</span>
   </div>
