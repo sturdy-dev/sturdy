@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	service_change "getsturdy.com/api/pkg/change/service"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/events"

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/change"
-	service_changes "getsturdy.com/api/pkg/change/service"
+	"getsturdy.com/api/pkg/changes"
+	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -74,7 +74,7 @@ func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Contex
 }
 
 func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateStatusArgs) (resolvers.StatusResolver, error) {
-	ch, err := r.changeService.GetChangeByID(ctx, change.ID(args.Input.ChangeID))
+	ch, err := r.changeService.GetChangeByID(ctx, changes.ID(args.Input.ChangeID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

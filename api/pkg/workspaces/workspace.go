@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 )
@@ -37,8 +37,8 @@ type Workspace struct {
 
 	UpToDateWithTrunk *bool `db:"up_to_date_with_trunk"`
 
-	HeadChangeID       *change.ID `db:"head_change_id" json:"-"`
-	HeadChangeComputed bool       `db:"head_change_computed" json:"-"`
+	HeadChangeID       *changes.ID `db:"head_change_id" json:"-"`
+	HeadChangeComputed bool        `db:"head_change_computed" json:"-"`
 }
 
 func (w *Workspace) SetSnapshot(snapshot *snapshots.Snapshot) {

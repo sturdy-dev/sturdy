@@ -10,10 +10,10 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/change"
-	"getsturdy.com/api/pkg/change/message"
-	service_change "getsturdy.com/api/pkg/change/service"
-	change_vcs "getsturdy.com/api/pkg/change/vcs"
+	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/changes/message"
+	service_change "getsturdy.com/api/pkg/changes/service"
+	change_vcs "getsturdy.com/api/pkg/changes/vcs"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
@@ -45,7 +45,7 @@ type CreateWorkspaceRequest struct {
 	Name             string
 	DraftDescription string
 
-	BaseChangeID *change.ID
+	BaseChangeID *changes.ID
 	Revert       bool
 }
 
@@ -53,7 +53,7 @@ type Service interface {
 	Create(context.Context, CreateWorkspaceRequest) (*workspaces.Workspace, error)
 	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error)
 	GetByID(context.Context, string) (*workspaces.Workspace, error)
-	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*change.Change, error)
+	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*changes.Change, error)
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
@@ -61,7 +61,7 @@ type Service interface {
 	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
 	Archive(context.Context, *workspaces.Workspace) error
 	Unarchive(context.Context, *workspaces.Workspace) error
-	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*change.Change, error)
+	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
 }
 
 type WorkspaceService struct {
@@ -301,7 +301,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 
 func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error) {
 
-	var baseChangeID *change.ID
+	var baseChangeID *changes.ID
 	fromBaseChange, err := s.HeadChange(ctx, from)
 	switch {
 	case errors.Is(err, ErrNotFound):
@@ -435,7 +435,7 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 
 var ErrNotFound = errors.New("not found")
 
-func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Workspace) (*change.Change, error) {
+func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error) {
 	if ws.HeadChangeComputed {
 		if ws.HeadChangeID == nil {
 			return nil, ErrNotFound
@@ -461,7 +461,7 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	if err != nil {
 		return nil, err
 	}
-	var newHeadChangeID *change.ID
+	var newHeadChangeID *changes.ID
 
 	ch, err := s.changeService.GetByCommitAndCodebase(ctx, headCommitID, ws.CodebaseID)
 	switch {
@@ -502,14 +502,14 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	return ch, nil
 }
 
-func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*change.Change, error) {
+func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
 	user, err := s.userRepo.Get(ws.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	// TODO: We can start to remove the metadata from commit messages, it's not used anymore
-	changeMeta := change.ChangeMetadata{
+	changeMeta := changes.ChangeMetadata{
 		Description: message.CommitMessage(ws.DraftDescription),
 		UserID:      user.ID,
 	}
@@ -524,7 +524,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 		When:  time.Now(),
 	}
 
-	var change *change.Change
+	var change *changes.Change
 	creteAndLand := func(viewRepo vcs.RepoWriter) error {
 		createdCommitID, fromViewPushFunc, err := change_vcs.CreateAndLandFromView(
 			viewRepo,

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
@@ -29,7 +29,7 @@ func New(
 	}
 }
 
-func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*change.Change, error) {
+func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
 	gitHubRepository, err := s.gitHubService.GetRepositoryByCodebaseID(ctx, ws.CodebaseID)
 	switch {
 	case err == nil, errors.Is(err, sql.ErrNoRows):

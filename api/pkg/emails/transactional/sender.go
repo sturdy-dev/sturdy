@@ -10,7 +10,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	service_change "getsturdy.com/api/pkg/change/service"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"

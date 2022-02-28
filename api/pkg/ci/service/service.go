@@ -13,7 +13,7 @@ import (
 
 	integrations "getsturdy.com/api/pkg/integrations"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/ci"
 	db_ci "getsturdy.com/api/pkg/ci/db"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
@@ -81,7 +81,7 @@ type sturdyJsonData struct {
 //go:embed download.bash
 var downloadBash string
 
-func (svc *Service) loadSeedFiles(ch *change.Change, seedFiles []string) (map[string][]byte, error) {
+func (svc *Service) loadSeedFiles(ch *changes.Change, seedFiles []string) (map[string][]byte, error) {
 	seedFilesContents := make(map[string][]byte)
 	if err := svc.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		for _, sf := range seedFiles {
@@ -102,7 +102,7 @@ func (svc *Service) loadSeedFiles(ch *change.Change, seedFiles []string) (map[st
 	return seedFilesContents, nil
 }
 
-func (svc *Service) createGit(ctx context.Context, ch *change.Change, seedFiles []string) (string, error) {
+func (svc *Service) createGit(ctx context.Context, ch *changes.Change, seedFiles []string) (string, error) {
 	jwt, err := svc.jwtService.IssueToken(ctx, string(ch.ID), oneDay, jwt.TokenTypeCI)
 	if err != nil {
 		return "", err
@@ -248,7 +248,7 @@ func getTriggerOptions(opts ...TriggerOption) *TriggerOptions {
 }
 
 // Trigger starts a contihuous integration build for the given change.
-func (svc *Service) Trigger(ctx context.Context, ch *change.Change, opts ...TriggerOption) ([]*statuses.Status, error) {
+func (svc *Service) Trigger(ctx context.Context, ch *changes.Change, opts ...TriggerOption) ([]*statuses.Status, error) {
 	ciConfigurations, err := svc.configRepo.ListByCodebaseID(ctx, ch.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list ci configs: %w", err)

@@ -11,8 +11,8 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/change"
-	service_change "getsturdy.com/api/pkg/change/service"
+	"getsturdy.com/api/pkg/changes"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -423,7 +423,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 
 	var codebaseID string
 	var workspaceID *string
-	var changeID *change.ID
+	var changeID *changes.ID
 
 	var optionalContext *string
 	var optionalContextStartsAt *int
@@ -456,7 +456,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 		}
 	} else {
 		// Comment on a change
-		cid := change.ID(*args.Input.ChangeID)
+		cid := changes.ID(*args.Input.ChangeID)
 		ch, err := r.changeService.GetChangeByID(ctx, cid)
 		if err != nil {
 			return nil, err

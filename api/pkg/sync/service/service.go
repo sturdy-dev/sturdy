@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	change_vcs "getsturdy.com/api/pkg/change/vcs"
+	change_vcs "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/sync"

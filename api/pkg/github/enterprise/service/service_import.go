@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/change/message"
+	"getsturdy.com/api/pkg/changes/message"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"

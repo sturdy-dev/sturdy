@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebase"
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
@@ -106,9 +106,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canUserAccessCodebase(ctx, subjectID, at, &object)
 		case *codebase.Codebase:
 			return s.canUserAccessCodebase(ctx, subjectID, at, object)
-		case change.Change:
+		case changes.Change:
 			return s.canUserAccessChange(ctx, subjectID, at, &object)
-		case *change.Change:
+		case *changes.Change:
 			return s.canUserAccessChange(ctx, subjectID, at, object)
 		case activity.WorkspaceActivity:
 			return s.canUserAccessWorkspaceActivity(ctx, subjectID, at, &object)
@@ -131,9 +131,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 		}
 	case auth.SubjectCI:
 		switch object := obj.(type) {
-		case change.Change:
+		case changes.Change:
 			return s.canCIAccessChange(ctx, subject.ID, &object)
-		case *change.Change:
+		case *changes.Change:
 			return s.canCIAccessChange(ctx, subject.ID, object)
 		default:
 			return fmt.Errorf("unsupported object type '%T' for ci: %w", obj, auth.ErrForbidden)
@@ -152,9 +152,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canAnonymousAccessComment(ctx, at, &object)
 		case *comments.Comment:
 			return s.canAnonymousAccessComment(ctx, at, object)
-		case change.Change:
+		case changes.Change:
 			return s.canAnonymousAccessChange(ctx, at, &object)
-		case *change.Change:
+		case *changes.Change:
 			return s.canAnonymousAccessChange(ctx, at, object)
 		case codebase.Codebase:
 			return s.canAnonymousAccessCodebase(ctx, at, &object)
@@ -188,14 +188,14 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 	}
 }
 
-func (s *Service) canCIAccessChange(ctx context.Context, changeID string, change *change.Change) error {
+func (s *Service) canCIAccessChange(ctx context.Context, changeID string, change *changes.Change) error {
 	if changeID != string(change.ID) {
 		return fmt.Errorf("ci doesn't have access to the change: %w", auth.ErrForbidden)
 	}
 	return nil
 }
 
-func (s *Service) canUserAccessChange(ctx context.Context, userID users.ID, at accessType, change *change.Change) error {
+func (s *Service) canUserAccessChange(ctx context.Context, userID users.ID, at accessType, change *changes.Change) error {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
@@ -330,7 +330,7 @@ func (s *Service) canAnonymousAccessComment(ctx context.Context, at accessType, 
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, change *change.Change) error {
+func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, change *changes.Change) error {
 	if at != accessTypeRead {
 		return fmt.Errorf("anonymous users can only read changes: %w", auth.ErrForbidden)
 	}

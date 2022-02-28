@@ -6,8 +6,8 @@ import (
 	"time"
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/change"
-	service_change "getsturdy.com/api/pkg/change/service"
+	"getsturdy.com/api/pkg/changes"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
@@ -157,7 +157,7 @@ func (s *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, instal
 	return s.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
 }
 
-func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *change.Change) error {
+func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *changes.Change) error {
 	installation, err := s.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
 	if err != nil {
 		return fmt.Errorf("failed to get github installation: %w", err)

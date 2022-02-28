@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
@@ -31,7 +31,7 @@ func New(logger *zap.Logger, queue queue.Queue, ciService *service_ci.Service) *
 	}
 }
 
-func (r *BuildQueue) EnqueueChange(ctx context.Context, ch *change.Change) error {
+func (r *BuildQueue) EnqueueChange(ctx context.Context, ch *changes.Change) error {
 	if err := r.queue.Publish(ctx, r.name, ch); err != nil {
 		return fmt.Errorf("failed to publish to queue: %w", err)
 	}
@@ -48,7 +48,7 @@ func (r *BuildQueue) Start(ctx context.Context) error {
 			}
 		}()
 		for msg := range messages {
-			ch := &change.Change{}
+			ch := &changes.Change{}
 			if err := msg.As(ch); err != nil {
 				r.logger.Error("failed to decode message", zap.Error(err), zap.Any("message", msg))
 				continue
@@ -75,7 +75,7 @@ func (r *BuildQueue) Start(ctx context.Context) error {
 	return nil
 }
 
-func (r *BuildQueue) trigger(ctx context.Context, ch *change.Change) error {
+func (r *BuildQueue) trigger(ctx context.Context, ch *changes.Change) error {
 	r.logger.Info(
 		"trigger ci build",
 		zap.String("change_id", string(ch.ID)),

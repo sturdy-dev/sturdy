@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/codebase/acl"
 	"getsturdy.com/api/pkg/suggestions"
@@ -49,9 +49,9 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 			return s.getUserCodebaseAllower(ctx, subjectID, object)
 		case codebase.Codebase:
 			return s.getUserCodebaseAllower(ctx, subjectID, &object)
-		case change.Change:
+		case changes.Change:
 			return s.getUserChangeAllower(ctx, subjectID, &object)
-		case *change.Change:
+		case *changes.Change:
 			return s.getUserChangeAllower(ctx, subjectID, object)
 		case workspaces.Workspace:
 			return s.getUserWorkspaceAllower(ctx, subjectID, &object)
@@ -65,17 +65,17 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 
 	case auth.SubjectCI:
 		switch object := obj.(type) {
-		case *change.Change:
+		case *changes.Change:
 			return s.getCIChangeAllower(ctx, subject.ID, object)
-		case change.Change:
+		case changes.Change:
 			return s.getCIChangeAllower(ctx, subject.ID, &object)
 		}
 
 	case auth.SubjectAnonymous:
 		switch object := obj.(type) {
-		case *change.Change:
+		case *changes.Change:
 			return s.getAnonymousChangeAllower(ctx, object)
-		case change.Change:
+		case changes.Change:
 			return s.getAnonymousChangeAllower(ctx, &object)
 		case workspaces.Workspace:
 			return s.getAnonymousWorkspaceAllower(ctx, &object)
@@ -91,7 +91,7 @@ func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.All
 	return noneAllowed, nil
 }
 
-func (s *Service) getUserChangeAllower(ctx context.Context, userID users.ID, change *change.Change) (*unidiff.Allower, error) {
+func (s *Service) getUserChangeAllower(ctx context.Context, userID users.ID, change *changes.Change) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
@@ -145,7 +145,7 @@ func (s *Service) getUserCodebaseAllower(ctx context.Context, userID users.ID, c
 	return unidiff.NewAllower(append(allowedByEmail, allowedByID...)...)
 }
 
-func (s *Service) getCIChangeAllower(ctx context.Context, changeID string, change *change.Change) (*unidiff.Allower, error) {
+func (s *Service) getCIChangeAllower(ctx context.Context, changeID string, change *changes.Change) (*unidiff.Allower, error) {
 	if changeID != string(change.ID) {
 		return noneAllowed, nil
 	}
@@ -159,7 +159,7 @@ func (s *Service) getAnonymousWorkspaceAllower(ctx context.Context, workspace *w
 	}
 	return s.getAnonymousCodebaseAllower(ctx, cb)
 }
-func (s *Service) getAnonymousChangeAllower(ctx context.Context, change *change.Change) (*unidiff.Allower, error) {
+func (s *Service) getAnonymousChangeAllower(ctx context.Context, change *changes.Change) (*unidiff.Allower, error) {
 	cb, err := s.codebaseService.GetByID(ctx, change.CodebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase: %w", err)
