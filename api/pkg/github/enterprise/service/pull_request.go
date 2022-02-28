@@ -9,9 +9,9 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
-	"getsturdy.com/api/pkg/change/message"
-	vcs_change "getsturdy.com/api/pkg/change/vcs"
+	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/changes/message"
+	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
@@ -185,7 +185,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		remoteBranchName = prs[0].Head
 	}
 
-	meta := change.ChangeMetadata{
+	meta := changes.ChangeMetadata{
 		Description: message.CommitMessage(ws.DraftDescription),
 		UserID:      userID,
 		WorkspaceID: ws.ID,

@@ -15,7 +15,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	service_change "getsturdy.com/api/pkg/change/service"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"

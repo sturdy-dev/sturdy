@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
@@ -69,7 +69,7 @@ type NotificationCommentTemplateData struct {
 	Author    *users.User
 	Codebase  *codebase.Codebase
 	Workspace *workspaces.Workspace
-	Change    *change.Change
+	Change    *changes.Change
 
 	Parent *NotificationCommentTemplateData
 }

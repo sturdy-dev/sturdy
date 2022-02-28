@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	vcs_change "getsturdy.com/api/pkg/change/vcs"
+	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"

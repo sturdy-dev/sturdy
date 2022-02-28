@@ -13,7 +13,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	service_change "getsturdy.com/api/pkg/change/service"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"

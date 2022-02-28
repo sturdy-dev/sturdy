@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	service_change "getsturdy.com/api/pkg/change/service"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/integrations"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/ci/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -43,7 +43,7 @@ func NewRootResolver(
 }
 
 func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resolvers.TriggerInstantIntegrationArgs) ([]resolvers.StatusResolver, error) {
-	ch, err := r.changeService.GetChangeByID(ctx, change.ID(args.Input.ChangeID))
+	ch, err := r.changeService.GetChangeByID(ctx, changes.ID(args.Input.ChangeID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

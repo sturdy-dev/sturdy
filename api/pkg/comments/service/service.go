@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 )
 
@@ -18,7 +18,7 @@ func New(commentRepo db_comments.Repository) *Service {
 	}
 }
 
-func (s *Service) MoveCommentsFromWorkspaceToChange(ctx context.Context, workspaceID string, changeID change.ID) error {
+func (s *Service) MoveCommentsFromWorkspaceToChange(ctx context.Context, workspaceID string, changeID changes.ID) error {
 	// Move all live comments on this workspace to the new change
 	comments, err := s.commentRepo.GetByWorkspace(workspaceID)
 	if err != nil {

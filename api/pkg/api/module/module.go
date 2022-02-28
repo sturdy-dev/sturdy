@@ -6,7 +6,7 @@ import (
 	module_author "getsturdy.com/api/pkg/author/module"
 	module_aws "getsturdy.com/api/pkg/aws/module"
 	module_blobs "getsturdy.com/api/pkg/blobs/module"
-	module_change "getsturdy.com/api/pkg/change/module"
+	module_change "getsturdy.com/api/pkg/changes/module"
 	module_ci "getsturdy.com/api/pkg/ci/module"
 	module_codebase_acl "getsturdy.com/api/pkg/codebase/acl/module"
 	module_codebase "getsturdy.com/api/pkg/codebase/module"

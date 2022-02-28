@@ -3,7 +3,7 @@ package comments
 import (
 	"time"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -15,8 +15,8 @@ type Comment struct {
 
 	// Either ChangeID is set, and the comment belongs to a change
 	// or WorkspaceID is set (when the comment belongs to a live change)
-	ChangeID    *change.ID `db:"change_id"`
-	WorkspaceID *string    `db:"workspace_id"`
+	ChangeID    *changes.ID `db:"change_id"`
+	WorkspaceID *string     `db:"workspace_id"`
 
 	UserID    users.ID   `db:"user_id"`
 	CreatedAt time.Time  `db:"created_at"`

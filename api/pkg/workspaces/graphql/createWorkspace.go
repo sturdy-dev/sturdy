@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/workspaces/service"
@@ -56,11 +56,11 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 		}
 
 		if args.Input.OnTopOfChange != nil {
-			id := change.ID(*args.Input.OnTopOfChange)
+			id := changes.ID(*args.Input.OnTopOfChange)
 			req.BaseChangeID = &id
 			req.Name = "On " + ch.Title() // TODO: Use changeService, not resolver
 		} else if args.Input.OnTopOfChangeWithRevert != nil {
-			id := change.ID(*args.Input.OnTopOfChangeWithRevert)
+			id := changes.ID(*args.Input.OnTopOfChangeWithRevert)
 			req.BaseChangeID = &id
 			req.Revert = true
 			req.Name = "Revert " + ch.Title()

@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -21,9 +21,9 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 
-	changeIDs := make([]change.ID, 0, len(args.ChangeIDs))
+	changeIDs := make([]changes.ID, 0, len(args.ChangeIDs))
 	for _, id := range args.ChangeIDs {
-		changeIDs = append(changeIDs, change.ID(id))
+		changeIDs = append(changeIDs, changes.ID(id))
 	}
 
 	changes, err := r.changeService.ListChanges(ctx, changeIDs...)

@@ -3,7 +3,7 @@ package cloud
 import (
 	"getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog"
 	aws "getsturdy.com/api/pkg/aws/enterprise/cloud"
-	service_change_downloads "getsturdy.com/api/pkg/change/downloads/enterprise/cloud/service"
+	service_change_downloads "getsturdy.com/api/pkg/changes/downloads/enterprise/cloud/service"
 	"getsturdy.com/api/pkg/configuration"
 	emails "getsturdy.com/api/pkg/emails/enterprise/cloud"
 	"getsturdy.com/api/pkg/github/enterprise/config"

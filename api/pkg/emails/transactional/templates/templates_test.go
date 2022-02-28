@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"getsturdy.com/api/pkg/change"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
@@ -84,7 +84,7 @@ func TestRenderNotificationComment_commented_on_change(t *testing.T) {
 		Comment: &comments.Comment{
 			Message: "This is my comment message",
 		},
-		Change: &change.Change{
+		Change: &changes.Change{
 			ID:    "change-id",
 			Title: strPointer("make tests pass"),
 		},
@@ -288,7 +288,7 @@ func TestRenderNotificationComment_replied_on_change(t *testing.T) {
 				ID:   "2",
 				Name: "User two",
 			},
-			Change: &change.Change{
+			Change: &changes.Change{
 				ID:    "change-id",
 				Title: strPointer("change"),
 			},
@@ -323,7 +323,7 @@ func TestRenderNotificationComment_replied_your_on_change(t *testing.T) {
 		},
 		Parent: &NotificationCommentTemplateData{
 			Author: usr,
-			Change: &change.Change{
+			Change: &changes.Change{
 				ID:    "change-id",
 				Title: strPointer("change"),
 			},
