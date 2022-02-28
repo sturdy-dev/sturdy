@@ -3,7 +3,7 @@
     <router-link
       v-if="data.workspace.headChange"
       :to="{
-        name: 'codebaseChangelog',
+        name: 'codebaseChange',
         params: {
           codebaseSlug: codebaseSlug,
           selectedChangeID: data.workspace.headChange.id,

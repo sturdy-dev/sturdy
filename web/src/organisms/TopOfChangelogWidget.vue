@@ -12,7 +12,7 @@
       </template>
 
       <router-link
-        :to="{ name: 'codebaseChangelog', params: { codebaseSlug: codebase.shortID } }"
+        :to="{ name: 'codebaseChanges', params: { codebaseSlug: codebase.shortID } }"
         class="text-sm flex flex-row items-center gap-1 text-gray-500 hover:bg-gray-100 self-end px-2 py-1 rounded-md"
       >
         Older Changes

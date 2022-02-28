@@ -62,7 +62,7 @@
           <router-link
             class="font-medium text-black"
             :to="{
-              name: 'codebaseChangelog',
+              name: 'codebaseChange',
               params: { id: codebaseId, initialSelectedChangeID: data.codebase.changes[0].id },
             }"
           >

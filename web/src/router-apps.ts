@@ -102,14 +102,14 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'codebaseSettingsEditBuildkite',
   },
   {
-    path: '/:codebaseSlug/changelog',
+    path: '/:codebaseSlug/changes',
     component: () => import('./pages/changelog/Index.vue'),
-    name: 'changesListv2',
+    name: 'codebaseChanges',
   },
   {
-    path: '/:codebaseSlug/changes/:selectedChangeID?',
+    path: '/:codebaseSlug/changes/:selectedChangeID',
     component: () => import('./pages/Changelog.vue'),
-    name: 'codebaseChangelog',
+    name: 'codebaseChange',
   },
   {
     path: '/auth/:email?',
