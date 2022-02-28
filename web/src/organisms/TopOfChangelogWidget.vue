@@ -29,7 +29,7 @@
 
     <div v-if="codebase.changes.length > 1" class="flex flex-col gap-2 flex-1">
       <template v-for="change in codebase.changes.slice(1)" :key="change.id">
-        <ChangelogChange :codebaseSlug="codebase.shortID" :change="change" />
+        <ChangelogChange :codebase-slug="codebase.shortID" :change="change" />
       </template>
 
       <router-link
