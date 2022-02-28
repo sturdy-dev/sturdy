@@ -451,7 +451,7 @@ func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseM
 	userIDs := make(map[users.ID]struct{})
 
 	// Get direct members (members of the codebase)
-	if args.FilterDirectAccess == nil || *args.FilterDirectAccess == true {
+	if args.FilterDirectAccess == nil || *args.FilterDirectAccess {
 		codebaseUsers, err := r.root.codebaseUserRepo.GetByCodebase(r.c.ID)
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to get codebase members: %w", err))
@@ -462,7 +462,7 @@ func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseM
 	}
 
 	// Get indirect members (members of the organization)
-	if args.FilterDirectAccess == nil || *args.FilterDirectAccess == false {
+	if args.FilterDirectAccess == nil || !*args.FilterDirectAccess {
 		if r.c.OrganizationID != nil {
 			members, err := r.root.organizationService.Members(ctx, *r.c.OrganizationID)
 			if err != nil {
@@ -562,32 +562,19 @@ func (r *CodebaseResolver) ACL(ctx context.Context) (resolvers.ACLResolver, erro
 }
 
 func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.CodebaseChangesArgs) ([]resolvers.ChangeResolver, error) {
-	var limit = 100
-	if args != nil && args.Input != nil && args.Input.Limit != nil && *args.Input.Limit <= 100 {
-		limit = int(*args.Input.Limit)
-	}
-
-	changes, err := r.root.changeService.Changelog(ctx, r.c.ID, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: pass down full change object instead of id
-	var res []resolvers.ChangeResolver
-	for _, change := range changes {
-		id := graphql.ID(change.ID)
-		r, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{ID: &id})
-		switch {
-		case err == nil:
-			res = append(res, r)
-		case errors.Is(err, sql.ErrNoRows):
-			continue
-		default:
-			return nil, gqlerrors.Error(fmt.Errorf("failed to get change by id: %w", err))
+	const defaultLimit int = 100
+	var (
+		limit  = defaultLimit
+		before *graphql.ID
+	)
+	if args != nil && args.Input != nil {
+		if args.Input.Limit != nil && *args.Input.Limit <= 100 {
+			limit = int(*args.Input.Limit)
 		}
-	}
 
-	return res, nil
+		before = args.Input.Before
+	}
+	return r.root.changeRootResolver.IntenralListChanges(ctx, r.c.ID, limit, before)
 }
 
 func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {

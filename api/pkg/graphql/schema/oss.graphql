@@ -343,6 +343,9 @@ type Codebase implements Writeable {
 }
 
 input CodebaseChangesInput {
+  # return staring from this change ID instead of the head
+  before: ID
+  # max number of changes to return
   limit: Int
 }
 
@@ -651,7 +654,6 @@ input CreateCommentInput {
   # as they can only be set on TopComments
   path: String
   oldPath: String # Required to be set when commenting on _deleted_ lines of a _moved_ file.
-
   lineStart: Int
   lineEnd: Int
   lineIsNew: Boolean

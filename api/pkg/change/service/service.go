@@ -142,8 +142,25 @@ func (svc *Service) head(ctx context.Context, codebaseID string) (*change.Change
 	}
 }
 
-func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int) ([]*change.Change, error) {
-	headChange, err := svc.head(ctx, codebaseID)
+// Changelog returns a list of changes for the given codebaesID in the descending order.
+//
+// limit - the maximum number of changes to return
+// before - if set, used as a change id to start the list from
+//          if not set, list will start from the head
+func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int, before *change.ID) ([]*change.Change, error) {
+	var (
+		startFrom *change.Change
+		err       error
+		res       []*change.Change
+	)
+
+	if before == nil {
+		startFrom, err = svc.head(ctx, codebaseID)
+		res = append(res, startFrom)
+	} else {
+		startFrom, err = svc.changeRepo.Get(ctx, *before)
+	}
+
 	switch {
 	case errors.Is(err, ErrNotFound):
 		return nil, nil
@@ -151,20 +168,12 @@ func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int)
 		return nil, fmt.Errorf("could not get head change: %w", err)
 	}
 
-	var res []*change.Change
-	res = append(res, headChange)
-	nextChange := headChange
-
-findChanges:
-	for {
-		if len(res) >= limit {
-			break
-		}
-
+	nextChange := startFrom
+	for len(res) < limit {
 		next, err := svc.parentChange(ctx, nextChange)
 		switch {
 		case errors.Is(err, ErrNotFound):
-			break findChanges
+			return res, nil
 		case err != nil:
 			return nil, err
 		case err == nil:

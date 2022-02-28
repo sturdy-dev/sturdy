@@ -56,8 +56,6 @@ func TestChangelog(t *testing.T) {
 
 	svc := service.New(changeRepo, d.Logger, d.ExecutorProvider)
 
-	d.ExecutorProvider.New()
-
 	barePath := d.RepoProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(barePath)
 	assert.NoError(t, err)
@@ -84,7 +82,7 @@ func TestChangelog(t *testing.T) {
 
 	ctx := context.Background()
 
-	log, err := svc.Changelog(ctx, codebaseID, 10)
+	log1, err := svc.Changelog(ctx, codebaseID, 3, nil)
 	assert.NoError(t, err)
 
 	expected := []struct {
@@ -98,13 +96,18 @@ func TestChangelog(t *testing.T) {
 		{"1"},
 	}
 
-	if assert.Len(t, log, len(expected)) {
-		for k, v := range log {
+	if assert.Len(t, log1, 3) {
+		for k, v := range log1 {
 			assert.Equal(t, expected[k].message, v.UpdatedDescription, "pos=%d", k)
 		}
-	} else {
-		for k, v := range log {
-			t.Logf("got: k=%d v=%+v", k, v)
+	}
+
+	log2, err := svc.Changelog(ctx, codebaseID, 10, &log1[len(log1)-1].ID)
+	assert.NoError(t, err)
+
+	if assert.Len(t, log2, 3) {
+		for k, v := range log2 {
+			assert.Equal(t, expected[k+3].message, v.UpdatedDescription, "pos=%d", k)
 		}
 	}
 }

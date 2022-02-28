@@ -83,7 +83,8 @@ type CodebaseChangesArgs struct {
 }
 
 type CodebaseChangesInput struct {
-	Limit *int32
+	Before *graphql.ID
+	Limit  *int32
 }
 
 type CodebaseFileArgs struct {
