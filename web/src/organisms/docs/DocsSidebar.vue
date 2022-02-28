@@ -86,7 +86,7 @@ const groups = [
     name: 'Learn',
     links: [
       { route: 'resourcesMigrateFromGitHub', title: 'Migrate from GitHub' },
-      { route: 'resourcesHelpSturdyCommandLine', title: 'Sturdy for Servers and Linux (CLI)' },
+      { route: 'resourcesHelpSturdyCommandLine', title: 'Sturdy for Servers (CLI)' },
       { route: 'resourcesApi', title: 'GraphQL API' },
     ],
   },

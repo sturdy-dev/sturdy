@@ -487,4 +487,10 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'handbookReleases',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
+  {
+    path: '/docs/cli/install',
+    component: () => import('./pages/docs/cli/Install.vue'),
+    name: 'docsCliInstall',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
 ]

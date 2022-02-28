@@ -41,6 +41,11 @@ export default defineComponent({
         current: route.name === 'codebaseSettingsAcls',
       },
       {
+        name: 'Developers',
+        linkName: 'codebaseSettingsDevelopers',
+        current: route.name === 'codebaseSettingsDevelopers',
+      },
+      {
         name: 'Restore Workspaces',
         linkName: 'codebaseSettingsWorkspaces',
         current: route.name === 'codebaseSettingsWorkspaces',
