@@ -202,7 +202,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, "This is my first change", changes[0].Description())
 		author, err := changes[0].Author(authenticatedUserContext)
 		assert.NoError(t, err)
-		assert.Equal(t, createUser.ID, string(author.ID()))
+		assert.Equal(t, createUser.ID, users.ID(author.ID()))
 	}
 
 	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nz\n"), 0o666)
