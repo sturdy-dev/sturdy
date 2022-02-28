@@ -1,6 +1,11 @@
 <template>
   <PaddedAppRightSidebar v-if="data" class="bg-white">
-    <ChangeList :changes="data.codebase.changes" :codebase-slug="codebaseSlug" />
+    <ChangeList
+      :changes="data.codebase.changes.slice(0, -1)"
+      :codebase-slug="codebaseSlug"
+      :hasNextPage="hasNextPage"
+      @next-page="onNextPage"
+    />
 
     <template #sidebar>
       <AssembleTheTeam
@@ -16,7 +21,7 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { PropType } from 'vue'
+import { PropType, ref, watch } from 'vue'
 
 import { IdFromSlug } from '../../slug'
 
@@ -27,6 +32,22 @@ import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import { ChangelogV2Query, ChangelogV2QueryVariables } from './__generated__/Index'
 import { User } from '../../__generated__/types'
 
+const PAGE_QUERY = gql`
+  query ChangelogV2($codebaseShortId: ID!, $before: ID, $limit: Int!) {
+    codebase(shortID: $codebaseShortId) {
+      id
+      changes(input: { limit: $limit, before: $before }) {
+        ...ChangelogChange
+      }
+      members {
+        ...Author
+      }
+    }
+  }
+  ${CHANGELOG_CHANGE_FRAGMENT}
+  ${CODEBASE_MEMBER_FRAGMENT}
+`
+
 export default {
   components: { ChangeList, PaddedAppRightSidebar, AssembleTheTeam },
   props: {
@@ -36,35 +57,53 @@ export default {
   },
   setup() {
     const route = useRoute()
+
     const codebaseSlug = route.params.codebaseSlug as string
     const codebaseShortId = IdFromSlug(codebaseSlug)
-    const { data, fetching, error } = useQuery<ChangelogV2Query, ChangelogV2QueryVariables>({
-      query: gql`
-        query ChangelogV2($codebaseShortId: ID!) {
-          codebase(shortID: $codebaseShortId) {
-            id
-            changes(input: { limit: 10 }) {
-              ...ChangelogChange
-            }
-            members {
-              ...Author
-            }
-          }
-        }
-        ${CHANGELOG_CHANGE_FRAGMENT}
-        ${CODEBASE_MEMBER_FRAGMENT}
-      `,
+    // fetch one more element than we actually show to know if there are more pages
+    const limit = 11
+
+    // store before state in the query
+    const before = ref(route.query.before)
+    watch(route, (newRoute) => {
+      before.value = newRoute.query.before
+    })
+
+    const result = useQuery<ChangelogV2Query, ChangelogV2QueryVariables>({
+      query: PAGE_QUERY,
       variables: {
         codebaseShortId: codebaseShortId,
+        before,
+        limit,
       },
     })
     return {
-      data,
-      fetching,
-      error,
+      result,
+      limit,
+
+      data: result.data,
+      fetching: result.fetching,
+      error: result.error,
 
       codebaseSlug,
     }
+  },
+  computed: {
+    hasNextPage() {
+      return this.data?.codebase?.changes.length === this.limit
+    },
+    lastChangeId() {
+      return this.data?.codebase?.changes.slice(-2)[0]?.id
+    },
+  },
+  methods: {
+    onNextPage() {
+      this.$router.push({
+        query: {
+          before: this.lastChangeId,
+        },
+      })
+    },
   },
 }
 </script>
