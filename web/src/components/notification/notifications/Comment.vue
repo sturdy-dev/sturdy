@@ -62,7 +62,7 @@
         <router-link
           class="underline"
           :to="{
-            name: 'codebaseChangelog',
+            name: 'codebaseChange',
             params: {
               codebaseSlug: codebase_slug,
               selectedChangeID: data.comment.parent.change.id,
@@ -80,7 +80,7 @@
         <router-link
           class="underline"
           :to="{
-            name: 'codebaseChangelog',
+            name: 'codebaseChange',
             params: {
               codebaseSlug: codebase_slug,
               selectedChangeID: data.comment.change.id,

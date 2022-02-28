@@ -16,7 +16,7 @@
         {{ ' ' }}
         <router-link
           :to="{
-            name: 'codebaseChangelog',
+            name: 'codebaseChange',
             params: {
               codebaseSlug: codebaseSlug,
               selectedChangeID: item.change.id,

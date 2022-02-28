@@ -59,15 +59,14 @@
                 <Button
                   @click="
                     $router.push({
-                      to: 'codebaseChangelog',
+                      to: 'codebaseChanges',
                       params: {
                         codebaseSlug: codebase_slug,
-                        selectedChangeID: null,
                       },
                     })
                   "
                 >
-                  Go to latest
+                  Go to changes list
                 </Button>
               </div>
             </div>
@@ -362,7 +361,7 @@ export default {
   methods: {
     onSelectCodebaseChange(ev) {
       this.$router.push({
-        name: 'codebaseChangelog',
+        name: 'codebaseChange',
         params: {
           codebaseSlug: this.codebase_slug,
           selectedChangeID: ev.commit_id,

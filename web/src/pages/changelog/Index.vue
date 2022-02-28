@@ -21,7 +21,8 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { PropType, ref, watch } from 'vue'
+import { PropType, ref, watch, computed } from 'vue'
+import { useHead } from '@vueuse/head'
 
 import { IdFromSlug } from '../../slug'
 
@@ -36,6 +37,7 @@ const PAGE_QUERY = gql`
   query ChangelogV2($codebaseShortId: ID!, $before: ID, $limit: Int!) {
     codebase(shortID: $codebaseShortId) {
       id
+      name
       changes(input: { limit: $limit, before: $before }) {
         ...ChangelogChange
       }
@@ -77,6 +79,14 @@ export default {
         limit,
       },
     })
+
+    useHead({
+      title: computed(() => {
+        const name = result.data.value?.codebase?.name
+        return name ? `${name} - changes` : 'Sturdy'
+      }),
+    })
+
     return {
       result,
       limit,

@@ -2,7 +2,7 @@
   <router-link
     class="border rounded-md shadow-sm px-4 py-2 hover:bg-gray-50"
     :to="{
-      name: 'codebaseChangelog',
+      name: 'codebaseChange',
       params: { codebaseSlug, selectedChangeID: change.id },
     }"
   >
