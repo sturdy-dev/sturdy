@@ -3,7 +3,7 @@
 set -euo pipefail
 set -x
 
-STURDY_SYNC_VERSION=""
+STURDY_SYNC_VERSION="v0.9.0"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

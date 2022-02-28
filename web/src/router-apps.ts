@@ -82,6 +82,11 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'codebaseSettingsWorkspaces',
   },
   {
+    path: '/:codebaseSlug/settings/developers',
+    component: () => import('./pages/settings/developers/SettingsDevelopers.vue'),
+    name: 'codebaseSettingsDevelopers',
+  },
+  {
     path: '/:codebaseSlug/settings/integrations',
     component: () => import('./pages/settings/integrations/ListIntegrations.vue'),
     name: 'codebaseSettingsIntegrations',
@@ -135,17 +140,17 @@ export const RoutesApps: RouteRecordRaw[] = [
   },
 
   { path: '/user', component: () => import('./pages/User.vue'), name: 'user' },
+
   {
     path: '/install/:codebaseSlug?',
     component: () => import('./pages/install/InstallClient.vue'),
     name: 'installClient',
-    meta: { neverElectron: true },
   },
+
   {
     path: '/install/token',
     component: () => import('./pages/install/InstallToken.vue'),
     name: 'installToken',
-    meta: { neverElectron: true },
   },
 
   {

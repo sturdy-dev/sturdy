@@ -1,29 +1,50 @@
 <template>
   <StaticPage
-    title="The Sturdy command line application"
+    title="Sturdy for Servers"
     metadescription="Learn how to use the Sturdy command line application (CLI)"
-    category="help"
-    image="https://images.unsplash.com/photo-1531403009284-440f080d1e12?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
   >
     <div class="text-base max-w-prose mx-auto lg:max-w-none">
       <p class="text-lg text-gray-500">
-        The Sturdy command line application ("sturdy") manages a directory on your computer and
-        connects it to Sturdy.
+        Similarly to the Sturdy app (for macOS, Windows, and Linux), the Sturdy command line
+        application (<code>sturdy</code>) manages a directory on your computer and connects it to
+        Sturdy.
       </p>
     </div>
     <div
       class="mt-5 prose prose-yellow text-gray-500 mx-auto lg:max-w-none lg:row-start-1 lg:col-start-1"
     >
-      <h2>Installation</h2>
-      <p>
-        Detailed installation instructions for macOS, Linux and Windows are available
-        <a href="https://getsturdy.com/install">here</a> <i>(login required)</i>.
-      </p>
+      <h2>Installation and getting started</h2>
+
+      <p>The Sturdy CLI is currently only available for Sturdy in the Cloud.</p>
+
+      <ol>
+        <li>
+          <a href="https://getsturdy.com/login">Login to Sturdy in the browser</a>
+        </li>
+        <li>
+          Download and install the
+          <router-link :to="{ name: 'docsCliInstall' }">Sturdy CLI</router-link>
+        </li>
+        <li>
+          Find the
+          <code>ID</code>
+          of the codebase that you want to setup. In Sturdy: Go to the codebase &gt; Settings &gt;
+          Developers, and copy the ID
+        </li>
+        <li>
+          Run <code>sturdy init $ID $PATH</code> to setup a new connection of the codebase to
+          <code>$PATH</code>
+        </li>
+        <li>
+          If you're asked to authenticate yourself, get your token from
+          <a href="https://getsturdy.com/install/token">here</a>
+        </li>
+      </ol>
 
       <h2>Setup a new directory</h2>
       <p>
-        Run <code>sturdy init $TOKEN $PATH</code> to setup Sturdy in a new directory. There are
-        detailed instructions available on the Codebase page on the Sturdy website. The
+        Run <code>sturdy init ID $PATH</code> to setup Sturdy in a new directory. There are detailed
+        instructions available on the Codebase page on the Sturdy website. The
         <code>$PATH</code> must point to a empty or non-existant directory on your computer.
       </p>
 
