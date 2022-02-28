@@ -47,7 +47,7 @@ export default {
               ...ChangelogChange
             }
             members {
-              ...CodebaseMember
+              ...Author
             }
           }
         }
