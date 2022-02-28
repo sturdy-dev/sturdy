@@ -43,7 +43,7 @@ export default {
         query ChangelogV2($codebaseShortId: ID!) {
           codebase(shortID: $codebaseShortId) {
             id
-            changes {
+            changes(input: { limit: 10 }) {
               ...ChangelogChange
             }
             members {

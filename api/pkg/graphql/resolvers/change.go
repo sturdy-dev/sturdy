@@ -10,6 +10,8 @@ import (
 )
 
 type ChangeRootResolver interface {
+	IntenralListChanges(ctx context.Context, codebaseID string, limit int, before *graphql.ID) ([]ChangeResolver, error)
+
 	Change(ctx context.Context, args ChangeArgs) (ChangeResolver, error)
 }
 
