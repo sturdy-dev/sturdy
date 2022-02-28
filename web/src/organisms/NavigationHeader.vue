@@ -50,17 +50,7 @@
                   Blog
                 </router-link>
 
-                <router-link
-                  :to="{ name: 'download' }"
-                  :class="[
-                    light
-                      ? 'hover:bg-amber-400 text-slate-800'
-                      : 'hover:text-amber-500 hover:bg-transparent',
-                  ]"
-                  class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
-                >
-                  Get started
-                </router-link>
+                <GitHubButton :is-light="light" />
 
                 <ClientOnly>
                   <router-link
@@ -74,6 +64,18 @@
                     class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
                   >
                     Go to codebases
+                  </router-link>
+                  <router-link
+                    v-else
+                    :to="{ name: 'download' }"
+                    :class="[
+                      light
+                        ? 'hover:bg-amber-400 text-slate-800'
+                        : 'hover:text-amber-500 hover:bg-transparent',
+                    ]"
+                    class="text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+                  >
+                    Get started
                   </router-link>
                 </ClientOnly>
               </div>
@@ -103,7 +105,7 @@
               ? 'hover:bg-amber-400 text-slate-800'
               : 'hover:text-amber-500 hover:bg-transparent',
           ]"
-          class="block text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
+          class="mx-3 block text-slate-900 bg-amber-500 border border-transparent hover:border-amber-500 font-semibold h-9 px-3 rounded flex items-center justify-center sm:w-auto highlight-white/20 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 focus:outline-none focus:ring-2"
         >
           Get started
         </router-link>
@@ -141,6 +143,17 @@
         >
           Blog
         </router-link>
+        <a
+          href="https://github.com/sturdy-dev/sturdy"
+          :class="[
+            light
+              ? 'text-gray-800 hover:text-gray-500'
+              : 'text-gray-300 hover:bg-slate-800/50 hover:text-white',
+          ]"
+          class="block mx-3 py-4 text-base font-medium border-b border-slate-700"
+        >
+          GitHub Repository
+        </a>
       </div>
     </DisclosurePanel>
   </Disclosure>
@@ -150,6 +163,7 @@
 import { defineProps, inject, withDefaults } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
+import GitHubButton from '../molecules/GitHubButton.vue'
 
 interface Props {
   light?: boolean
