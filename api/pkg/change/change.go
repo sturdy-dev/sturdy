@@ -19,6 +19,10 @@ type Change struct {
 	UpdatedDescription string    `db:"updated_description"`
 	UserID             *users.ID `db:"user_id"`
 
+	// Contains id of the workspace that the chage was created in
+	// For imported changes, WorkspaceID is nil.
+	WorkspaceID *string `db:"workspace_id"`
+
 	// For changes created directly through Sturdy, CreatedAt is the time of creation / share / landing.
 	// For changes created with Sturdy via GitHub, CreatedAt is the time when Sturdy imported the Change (via GitHub webhooks)
 	// For changes created outside of Sturdy, CreatedAt is null
