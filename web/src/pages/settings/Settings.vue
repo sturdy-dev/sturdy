@@ -25,7 +25,7 @@ import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import SettingsDeveloperCodebaseID from '../../components/codebase/settings/SettingsDeveloperCodebaseID.vue'
 import { defineComponent } from 'vue'
-import {SettingsQuery, SettingsQueryVariables} from "./__generated__/Settings";
+import { SettingsQuery, SettingsQueryVariables } from './__generated__/Settings'
 
 export default defineComponent({
   components: {
