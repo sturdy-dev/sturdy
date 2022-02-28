@@ -6,26 +6,30 @@
       params: { codebaseSlug, selectedChangeID: change.id },
     }"
   >
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 h-full">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Avatar :author="change.author" size="6" />
           <span class="font-semibold text-sm text-black">{{ change.author.name }}</span>
         </div>
 
-        <span class="flex items-center text-xs text-gray-500 gap-1">
-          <StatusBadge :statuses="change.statuses" />
-          <RelativeTime :date="createdAt" />
-        </span>
+        <RelativeTime class="text-sm text-gray-500" :date="createdAt" />
       </div>
 
-      <span v-if="showDescription" class="text-sm prose line-clamp-6" v-html="change.description" />
-      <span v-else class="text-sm flex-1 line-clamp-1">
-        {{ change.title }}
-      </span>
+      <div class="flex w-full h-full">
+        <span
+          v-if="showDescription"
+          class="flex-1 text-sm line-clamp-6"
+          v-html="change.description"
+        />
+        <span v-else class="flex-1 text-sm line-clamp-1">
+          {{ change.title }}
+        </span>
 
-      <div v-if="change.comments.length > 0" class="flex-none">
-        <ChangeCommentsIndicator :change="change" />
+        <div class="flex h-5 items-center gap-1">
+          <ChangeCommentsIndicator v-if="change.comments.length > 0" :change="change" />
+          <StatusBadge :statuses="change.statuses" />
+        </div>
       </div>
     </div>
   </router-link>
