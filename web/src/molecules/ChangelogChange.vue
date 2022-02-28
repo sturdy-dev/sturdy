@@ -6,19 +6,26 @@
       params: { codebaseSlug, selectedChangeID: change.id },
     }"
   >
-    <div class="flex flex-row gap-2 items-center justify-between">
-      <div class="flex-none">
-        <Avatar :author="change.author" size="6" />
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <Avatar :author="change.author" size="6" />
+          <span class="font-semibold text-sm text-black">{{ change.author.name }}</span>
+        </div>
+
+        <span class="flex items-center text-xs text-gray-500 gap-1">
+          <StatusBadge :statuses="change.statuses" />
+          <RelativeTime :date="createdAt" />
+        </span>
       </div>
-      <div class="text-sm flex-1">{{ change.title }}</div>
+
+      <span v-if="showDescription" class="text-sm prose line-clamp-6" v-html="change.description" />
+      <span v-else class="text-sm flex-1 line-clamp-1">
+        {{ change.title }}
+      </span>
+
       <div v-if="change.comments.length > 0" class="flex-none">
         <ChangeCommentsIndicator :change="change" />
-      </div>
-      <div class="flex text-sm text-gray-500">
-        <div class="mr-1">
-          <StatusBadge :statuses="change.statuses" />
-        </div>
-        {{ timeAgo }}
       </div>
     </div>
   </router-link>
@@ -34,10 +41,9 @@ import StatusBadge, { STATUS_FRAGMENT } from '../components/statuses/StatusBadge
 import ChangeCommentsIndicator, {
   CHANGE_COMMENTS,
 } from '../components/changelog/ChangeCommentsIndicator.vue'
+import RelativeTime from '../atoms/RelativeTime.vue'
 
 import { ChangelogChangeFragment } from './__generated__/ChangelogChange'
-
-import time from '../time'
 
 export const CHANGELOG_CHANGE_FRAGMENT = gql`
   fragment ChangelogChange on Change {
@@ -59,7 +65,7 @@ export const CHANGELOG_CHANGE_FRAGMENT = gql`
 `
 
 export default {
-  components: { Avatar, StatusBadge, ChangeCommentsIndicator },
+  components: { Avatar, StatusBadge, ChangeCommentsIndicator, RelativeTime },
   props: {
     change: {
       type: Object as PropType<ChangelogChangeFragment>,
@@ -69,10 +75,14 @@ export default {
       type: String,
       required: true,
     },
+    showDescription: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
-    timeAgo() {
-      return time.getRelativeTime(new Date(this.change.createdAt * 1000))
+    createdAt() {
+      return new Date(this.change.createdAt * 1000)
     },
   },
 }
