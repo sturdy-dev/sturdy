@@ -109,6 +109,7 @@ func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspaces
 		CreatedAt:          &t,
 		CommitID:           &commitID,
 		ParentChangeID:     parentChangeID,
+		WorkspaceID:        &ws.ID,
 	}
 
 	if err := svc.changeRepo.Insert(ctx, changeChange); err != nil {
@@ -299,6 +300,7 @@ func (svc *Service) importCommitToChange(ctx context.Context, codebaseID, commit
 		GitCreatorEmail:    &details.Author.Email,
 		CommitID:           &commitID,
 		ParentChangeID:     nil, // Parent is starts out as nil. If/when the parent commit is imported, this value will be set.
+		WorkspaceID:        nil, // WorkspaceID is nil, since this is an imported change.
 	}
 
 	if err := svc.changeRepo.Insert(ctx, ch); err != nil {
