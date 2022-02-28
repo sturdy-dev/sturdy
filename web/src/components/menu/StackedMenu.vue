@@ -48,7 +48,12 @@
             you'll find a way to invite team members to collaborate.
           </template>
 
-          <div
+          <router-link
+            :to="{
+              name: 'codebaseHome',
+              params: { codebaseSlug: codebase.slug },
+            }"
+            :aria-current="codebase.isCurrent ? 'page' : undefined"
             :class="[
               codebase.isCurrent
                 ? 'bg-warmgray-50  hover:text-gray-900'
@@ -57,19 +62,9 @@
               'flex items-center pl-3 pr-1 py-2 text-sm font-medium rounded-md mx-1 justify-between transition whitespace-nowrap space-x-2 h-10 cursor-pointer text-gray-700 my-0.5',
             ]"
           >
-            <router-link
-              :to="{
-                name: 'codebaseHome',
-                params: { codebaseSlug: codebase.slug },
-              }"
-              :href="codebase.href"
-              :aria-current="codebase.isCurrent ? 'page' : undefined"
-              class="flex-1 overflow-hidden text-ellipsis flex-shrink-0"
-            >
-              <span>
-                {{ codebase.name }}
-              </span>
-            </router-link>
+            <span class="flex-1 overflow-hidden text-ellipsis flex-shrink-0">
+              {{ codebase.name }}
+            </span>
             <OnboardingStep
               v-if="authenticated && codebase.isMember"
               id="CreatingANewWorkspace"
@@ -94,7 +89,7 @@
                 </button>
               </Tooltip>
             </OnboardingStep>
-          </div>
+          </router-link>
         </OnboardingStep>
         <div
           v-if="codebase.workspaces.length > 0"
