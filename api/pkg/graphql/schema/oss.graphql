@@ -671,6 +671,7 @@ input UpdateACLInput {
 # Change
 type Change {
   id: ID!
+  codebase: Codebase!
   comments: [TopComment!]!
   title: String!
   description: String!

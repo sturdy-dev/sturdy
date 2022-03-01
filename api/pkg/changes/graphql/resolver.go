@@ -127,3 +127,10 @@ func (r *ChangeResolver) Workspace(ctx context.Context) (resolvers.WorkspaceReso
 		AllowArchived: &yes,
 	})
 }
+
+func (r *ChangeResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
+	id := graphql.ID(r.ch.CodebaseID)
+	return (*r.root.codebaseResolver).Codebase(ctx, resolvers.CodebaseArgs{
+		ID: &id,
+	})
+}
