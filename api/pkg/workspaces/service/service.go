@@ -596,7 +596,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 	}
 
 	if ws.ViewID != nil {
-		if err := s.snapshotterQueue.Enqueue(ctx, ws.CodebaseID, *ws.ViewID, ws.ID, []string{"."}, snapshots.ActionChangeLand); err != nil {
+		if err := s.snapshotterQueue.Enqueue(ctx, ws.CodebaseID, *ws.ViewID, ws.ID, snapshots.ActionChangeLand); err != nil {
 			return nil, fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 

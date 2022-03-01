@@ -28,7 +28,7 @@ func NewViewUpdatedFunc(
 		}
 
 		// Add to snapshotter queue
-		if err := snapshotterQueue.Enqueue(ctx, view.CodebaseID, view.ID, view.WorkspaceID, []string{"."}, action); err != nil {
+		if err := snapshotterQueue.Enqueue(ctx, view.CodebaseID, view.ID, view.WorkspaceID, action); err != nil {
 			return fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 

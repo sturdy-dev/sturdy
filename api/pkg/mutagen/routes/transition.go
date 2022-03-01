@@ -4,19 +4,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/presence"
 	serivce_presence "getsturdy.com/api/pkg/presence/service"
 	"getsturdy.com/api/pkg/snapshots"
-	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/events"
-	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
-
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 type SyncTransitionsRequest struct {
@@ -32,8 +30,6 @@ func SyncTransitions(
 	viewRepo db_view.Repository,
 	gcQueue *worker.Queue,
 	presenceService serivce_presence.Service,
-	snapshotRepo db_snapshots.Repository,
-	workspaceRepo db_workspaces.WorkspaceReader,
 	suggestionsService *service_suggestion.Service,
 	eventSender events.EventSender,
 ) func(c *gin.Context) {
@@ -79,7 +75,7 @@ func SyncTransitions(
 		}
 
 		// Make a snapshot
-		if err := snapshotterQueue.Enqueue(c, req.CodebaseID, req.ViewID, view.WorkspaceID, req.Paths, snapshots.ActionViewSync); err != nil {
+		if err := snapshotterQueue.Enqueue(c, req.CodebaseID, req.ViewID, view.WorkspaceID, snapshots.ActionViewSync); err != nil {
 			logger.Error("failed to snapshot", zap.Error(err))
 			// Don't fail
 		}

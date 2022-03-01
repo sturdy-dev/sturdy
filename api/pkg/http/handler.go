@@ -188,16 +188,16 @@ func ProvideHandler(
 	auth.POST("/v3/workspaces", routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo))                  // Used by the command line client
 	// Used by LBS to check for health
 	publ.GET("/readyz", func(c *gin.Context) { c.Status(http.StatusOK) })
-	publ.POST("/v3/waitinglist", waitinglist.Insert(logger, analyticsService, waitingListRepo))                                                                                                               // Used by the web (2021-10-04)
-	publ.POST("/v3/acl-request-enterprise", acl.Insert(logger, analyticsService, aclInterestRepo))                                                                                                            // Used by the web (2021-10-04)
-	publ.POST("/v3/instant-integration", instantintegration.Insert(logger, analyticsService, instantIntegrationInterestRepo))                                                                                 // Used by the web (2021-10-27)
-	auth.POST("/v3/pki/add-public-key", routes_v3_pki.AddPublicKey(userPublicKeyRepo))                                                                                                                        // Used by the command line client
-	publ.POST("/v3/pki/verify", routes_v3_pki.Verify(userPublicKeyRepo))                                                                                                                                      // Used by the command line client
-	publ.POST("/v3/mutagen/validate-view", routes_v3_mutagen.ValidateView(logger, viewRepo, analyticsService, eventSender))                                                                                   // Called from server-side mutagen
-	publ.POST("/v3/mutagen/sync-transitions", routes_v3_mutagen.SyncTransitions(logger, snapshotterQueue, viewRepo, gcQueue, presenceService, snapshotRepo, workspaceReader, suggestionService, eventSender)) // Called from server-side mutagen
-	publ.GET("/v3/mutagen/views/:id/allows", routes_v3_mutagen.ListAllows(logger, viewRepo, authService))                                                                                                     // Called form server-side mutagen
-	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                                                     // Called from client-side mutagen
-	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                                                         // Called from client-side sturdy-cli
+	publ.POST("/v3/waitinglist", waitinglist.Insert(logger, analyticsService, waitingListRepo))                                                                                // Used by the web (2021-10-04)
+	publ.POST("/v3/acl-request-enterprise", acl.Insert(logger, analyticsService, aclInterestRepo))                                                                             // Used by the web (2021-10-04)
+	publ.POST("/v3/instant-integration", instantintegration.Insert(logger, analyticsService, instantIntegrationInterestRepo))                                                  // Used by the web (2021-10-27)
+	auth.POST("/v3/pki/add-public-key", routes_v3_pki.AddPublicKey(userPublicKeyRepo))                                                                                         // Used by the command line client
+	publ.POST("/v3/pki/verify", routes_v3_pki.Verify(userPublicKeyRepo))                                                                                                       // Used by the command line client
+	publ.POST("/v3/mutagen/validate-view", routes_v3_mutagen.ValidateView(logger, viewRepo, analyticsService, eventSender))                                                    // Called from server-side mutagen
+	publ.POST("/v3/mutagen/sync-transitions", routes_v3_mutagen.SyncTransitions(logger, snapshotterQueue, viewRepo, gcQueue, presenceService, suggestionService, eventSender)) // Called from server-side mutagen
+	publ.GET("/v3/mutagen/views/:id/allows", routes_v3_mutagen.ListAllows(logger, viewRepo, authService))                                                                      // Called form server-side mutagen
+	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSender))                                                      // Called from client-side mutagen
+	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                          // Called from client-side sturdy-cli
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
 
 	routes_blobs.Register(publ.Group("/v3/blobs"), logger, blobsService)
