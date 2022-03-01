@@ -56,16 +56,26 @@
 
 <script lang="ts">
 import { PropType } from 'vue'
+import { gql } from '@urql/vue'
 
 import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
 import Avatar from '../components/shared/Avatar.vue'
-import TextareaAutosize from '../components/shared/TextareaAutosize.vue'
+import TextareaAutosize, { MEMBER_FRAGMENT } from '../components/shared/TextareaAutosize.vue'
 import { Banner } from '../atoms'
 import { ConvertEmojiToColons } from '../components/emoji/emoji'
 
 import { AuthorFragment } from '../components/shared/__generated__/AvatarHelper'
 
 import { useCreateComment } from '../mutations/useCreateComment'
+
+export const CODEBASE_FRAGMENT = gql`
+  fragment NewComment on Codebase {
+    members {
+      ...Member
+    }
+  }
+  ${MEMBER_FRAGMENT}
+`
 
 export default {
   components: {

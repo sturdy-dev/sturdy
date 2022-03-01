@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { InformationCircleIcon, ThumbUpIcon, UserCircleIcon } from '@heroicons/vue/solid'
-import time from '../../../time'
+import time from '../../time'
 import { PropType } from 'vue'
 import { gql } from '@urql/vue'
 import { WorkspaceReviewedActivityFragment } from './__generated__/WorkspaceActivityReviewed'
