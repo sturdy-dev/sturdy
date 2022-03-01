@@ -31,8 +31,8 @@ func NewRepo(db *sqlx.DB) Repository {
 
 func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 	_, err := r.db.NamedExec(`INSERT INTO snapshots
-		(id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id , action, diffs_count)
-		VALUES(:id, :view_id, :created_at, :new_files, :changed_files, :deleted_files, :previous_snapshot_id, :codebase_id, :commit_id, :workspace_id, :action, :diffs_count)
+		(id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id , action, diffs_count)
+		VALUES(:id, :view_id, :created_at, :previous_snapshot_id, :codebase_id, :commit_id, :workspace_id, :action, :diffs_count)
     	`, &snapshot)
 	if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
@@ -44,7 +44,7 @@ var ErrNotFound = fmt.Errorf("not found")
 
 func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	if err := r.db.Get(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	if err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE id=$1
 		AND deleted_at IS NULL`, id); errors.Is(err, sql.ErrNoRows) {
@@ -57,7 +57,7 @@ func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 
 func (r *dbrepo) LatestInView(viewID string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE view_id=$1
 		AND deleted_at IS NULL
@@ -71,7 +71,7 @@ func (r *dbrepo) LatestInView(viewID string) (*snapshots.Snapshot, error) {
 
 func (r *dbrepo) LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE view_id=$1
 	    AND workspace_id=$2
@@ -86,7 +86,7 @@ func (r *dbrepo) LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshot
 
 func (r *dbrepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
 	var res []*snapshots.Snapshot
-	err := r.db.Select(&res, `SELECT id, view_id, created_at, new_files, changed_files, deleted_files, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	err := r.db.Select(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE view_id=$1
 		  AND deleted_at IS NULL
@@ -105,9 +105,6 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string, threshold time.Time)
 			id,
 			view_id,
 			created_at,
-			new_files,
-			changed_files,
-			deleted_files,
 			previous_snapshot_id,
 			codebase_id,
 			commit_id,

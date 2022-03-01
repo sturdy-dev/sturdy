@@ -15,8 +15,8 @@ func NewSync(snapshotter snapshotter.Snapshotter) Queue {
 	return &inProcessPublisher{snapshotter: snapshotter}
 }
 
-func (p *inProcessPublisher) Enqueue(_ context.Context, codebaseID, viewID, workspaceID string, paths []string, action snapshots.Action) error {
-	_, err := p.snapshotter.Snapshot(codebaseID, workspaceID, action, snapshotter.WithPaths(paths), snapshotter.WithOnView(viewID))
+func (p *inProcessPublisher) Enqueue(_ context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error {
+	_, err := p.snapshotter.Snapshot(codebaseID, workspaceID, action, snapshotter.WithOnView(viewID))
 	if err != nil {
 		return err
 	}

@@ -296,14 +296,13 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	snap := &snapshots.Snapshot{
-		ID:           snapshotID,
-		CommitID:     snapshotCommitID,
-		CreatedAt:    time.Now(),
-		WorkspaceID:  &workspaceID,
-		CodebaseID:   codebaseID,
-		ChangedFiles: options.paths,
-		Action:       action,
-		DiffsCount:   &diffsCount,
+		ID:          snapshotID,
+		CommitID:    snapshotCommitID,
+		CreatedAt:   time.Now(),
+		WorkspaceID: &workspaceID,
+		CodebaseID:  codebaseID,
+		Action:      action,
+		DiffsCount:  &diffsCount,
 	}
 
 	if options.onView != nil {

@@ -15,7 +15,7 @@ import (
 )
 
 type Queue interface {
-	Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, paths []string, action snapshots.Action) error
+	Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error
 	Start(ctx context.Context) error
 }
 
@@ -40,13 +40,12 @@ func New(
 	}
 }
 
-func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, paths []string, action snapshots.Action) error {
+func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error {
 	if err := q.queue.Publish(ctx, q.name, &SnapshotQueueEntry{
-		CodebaseID:   codebaseID,
-		ViewID:       viewID,
-		WorkspaceID:  workspaceID,
-		ChangedFiles: paths,
-		Action:       action,
+		CodebaseID:  codebaseID,
+		ViewID:      viewID,
+		WorkspaceID: workspaceID,
+		Action:      action,
 	}); err != nil {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
@@ -54,11 +53,10 @@ func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string,
 }
 
 type SnapshotQueueEntry struct {
-	CodebaseID   string           `json:"codebase_id"`
-	ViewID       string           `json:"view_id"`
-	WorkspaceID  string           `json:"workspace_id"`
-	ChangedFiles []string         `json:"changed_files"`
-	Action       snapshots.Action `json:"action"`
+	CodebaseID  string           `json:"codebase_id"`
+	ViewID      string           `json:"view_id"`
+	WorkspaceID string           `json:"workspace_id"`
+	Action      snapshots.Action `json:"action"`
 }
 
 func (q *q) Start(ctx context.Context) error {
@@ -90,7 +88,6 @@ func (q *q) Start(ctx context.Context) error {
 				m.CodebaseID,
 				m.WorkspaceID,
 				m.Action,
-				snapshotter.WithPaths(m.ChangedFiles),
 				snapshotter.WithOnView(m.ViewID),
 			); errors.Is(err, snapshotter.ErrCantSnapshotRebasing) {
 				logger.Warn("failed to make snapshot", zap.Error(err))
