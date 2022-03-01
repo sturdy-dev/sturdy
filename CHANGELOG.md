@@ -8,7 +8,7 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
-# Server v1.2.2 (2022-03-01)
+# Server v1.3.0 (2022-03-01)
 
 * [Improvement] Improved reliability when starting the oneliner for the first time. Reduced number of timeouts related to setting up the bundled PostgreSQL server.
 * [Improvement] Added a new changelog overview for codebases.
