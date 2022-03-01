@@ -37,14 +37,14 @@
 </template>
 
 <script lang="ts">
-import Avatar from '../../shared/Avatar.vue'
-import time from '../../../time'
+import Avatar from '../../components/shared/Avatar.vue'
+import time from '../../time'
 import { defineComponent, PropType, toRef } from 'vue'
 import { WorkspaceCreatedChangeActivityFragment } from './__generated__/ActivityCreatedChange'
-import { STATUS_FRAGMENT } from '../../statuses/StatusBadge.vue'
+import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { gql } from '@urql/vue'
-import { useUpdatedChangesStatuses } from '../../../subscriptions/useUpdatedChangesStatuses'
-import StatusDetails from '../../statuses/StatusDetails.vue'
+import { useUpdatedChangesStatuses } from '../../subscriptions/useUpdatedChangesStatuses'
+import StatusDetails from '../../components/statuses/StatusDetails.vue'
 
 export const WORKSPACE_ACTIVITY_CREATED_CHANGE_FRAGMENT = gql`
   fragment WorkspaceCreatedChangeActivity on WorkspaceCreatedChangeActivity {

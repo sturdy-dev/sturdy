@@ -26,7 +26,7 @@
 <script lang="ts">
 import { UserCircleIcon } from '@heroicons/vue/solid'
 import { PropType } from 'vue'
-import time from '../../../time'
+import time from '../../time'
 import { gql } from '@urql/vue'
 import { WorkspaceActivityRequestedReviewFragment } from './__generated__/WorkspaceActivityRequestedReview'
 

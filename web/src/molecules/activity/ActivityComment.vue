@@ -75,16 +75,16 @@
 </template>
 
 <script lang="ts">
-import Avatar from '../../shared/Avatar.vue'
+import Avatar from '../../components/shared/Avatar.vue'
 import { ChatAltIcon, ReplyIcon } from '@heroicons/vue/solid'
-import time from '../../../time'
-import CommentCodeContext from '../CommentCodeContext.vue'
-import CommentMessage, { User } from '../../shared/CommentMessage.vue'
+import time from '../../time'
+import CommentCodeContext from '../../components/workspace/CommentCodeContext.vue'
+import CommentMessage, { User } from '../../components/shared/CommentMessage.vue'
 import { gql } from '@urql/vue'
 import { PropType, defineComponent } from 'vue'
 import { WorkspaceCommentActivityFragment } from './__generated__/WorkspaceActivityComment'
-import Button from '../../shared/Button.vue'
-import CommentReply from '../../comments/CommentReply.vue'
+import Button from '../../components/shared/Button.vue'
+import CommentReply from '../../components/comments/CommentReply.vue'
 
 export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
   fragment WorkspaceCommentActivity on WorkspaceCommentActivity {

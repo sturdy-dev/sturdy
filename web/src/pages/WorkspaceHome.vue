@@ -490,29 +490,15 @@
             />
           </div>
 
-          <div v-if="showActivity" class="mt-6 py-6 space-y-8">
-            <div>
-              <div class="divide-y divide-gray-200">
-                <div class="pb-4">
-                  <h2 id="activity-title" class="text-lg font-medium text-gray-900">Activity</h2>
-                </div>
-                <div class="pt-6">
-                  <NewComment
-                    v-if="isAuthorized"
-                    :user="user"
-                    :members="data.workspace.codebase.members"
-                    :workspace-id="data.workspace.id"
-                  />
-                  <WorkspaceActivity
-                    :activity="data.workspace.activity"
-                    :codebase-slug="codebaseSlug"
-                    :user="user"
-                    :members="data.workspace.codebase.members"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <WorkspaceActivitySidebar
+            v-if="showActivity"
+            class="mt-6 py-6 space-y-8"
+            :workspace-id="data.workspace.id"
+            :codebase-slug="codebaseSlug"
+            :activity="data.workspace.activity"
+            :user="user"
+            :members="data.workspace.codebase.members"
+          />
         </aside>
       </div>
     </div>
@@ -528,7 +514,6 @@ import {
 } from '@heroicons/vue/solid'
 import { FolderAddIcon } from '@heroicons/vue/outline'
 import LiveDetails, { LIVE_DETAILS_WORKSPACE } from '../components/workspace/LiveDetails.vue'
-import { MEMBER_FRAGMENT } from '../components/shared/TextareaMentions.vue'
 import http from '../http'
 import { Banner } from '../atoms'
 import ResolveConflict from '../components/workspace/ResolveConflict.vue'
@@ -549,10 +534,9 @@ import {
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
 import Avatar from '../components/shared/Avatar.vue'
-import WorkspaceActivity, {
-  WORKSPACE_ACTIVITY_FRAGMENT,
-} from '../components/workspace/activity/Activity.vue'
-import NewComment from '../organisms/NewComment.vue'
+import WorkspaceActivitySidebar, {
+  WORKSPACE_FRAGMENT as WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT,
+} from '../organisms/WorkspaceActivitySidebar.vue'
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
 import Presence, { PRESENCE_FRAGMENT_QUERY } from '../components/workspace/Presence.vue'
@@ -593,8 +577,7 @@ export default defineComponent({
     OnboardingStep,
     WorkspaceApproval,
     Watching,
-    NewComment,
-    WorkspaceActivity,
+    WorkspaceActivitySidebar,
     Avatar,
     Spinner,
     Button,
@@ -711,9 +694,6 @@ export default defineComponent({
                 avatarUrl
               }
             }
-            activity {
-              ...WorkspaceActivity
-            }
             view {
               id
               mountPath
@@ -760,9 +740,6 @@ export default defineComponent({
               gitHubIntegration @include(if: $isGitHubEnabled) {
                 ...CodebaseGitHubIntegration
               }
-              members {
-                ...Member
-              }
 
               workspaces {
                 id
@@ -800,17 +777,17 @@ export default defineComponent({
             }
             ...LiveDetailsWorkspace
             ...ShareButton
+            ...WorkspaceActivity_Workspace
           }
         }
 
         ${ViewFragment}
         ${PRESENCE_FRAGMENT_QUERY}
-        ${WORKSPACE_ACTIVITY_FRAGMENT}
+        ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
         ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
         ${GITHUB_PULL_REQUEST_FRAGMENT}
         ${VIEW_STATUS_INDICATOR}
         ${LIVE_DETAILS_WORKSPACE}
-        ${MEMBER_FRAGMENT}
         ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
       `,

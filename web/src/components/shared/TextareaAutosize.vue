@@ -8,8 +8,12 @@
     @focus="resize"
   ></TextareaMentions>
 </template>
+
 <script>
-import TextareaMentions from './TextareaMentions.vue'
+import TextareaMentions, { MEMBER_FRAGMENT } from './TextareaMentions.vue'
+
+export { MEMBER_FRAGMENT }
+
 export default {
   name: 'TextareaAutosize',
   components: { TextareaMentions },
