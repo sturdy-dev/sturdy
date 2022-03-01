@@ -8,20 +8,18 @@
       <ChangelogDetails v-if="data" :change="data.change" />
 
       <div class="mt-10 py-6 space-y-8">
-        <div>
-          <div class="divide-y divide-gray-200">
-            <div class="pb-4">
-              <h2 id="activity-title" class="text-lg font-medium text-gray-900">More changes</h2>
-            </div>
-            <div class="pt-6">
-              <ChangelogSidebar
-                v-if="data"
-                :codebase-id="data.change.codebase.id"
-                :changes="data.change.codebase.changes"
-                :selected-change-id="selectedChangeID"
-                @selectCodebaseChange="onSelectCodebaseChange"
-              />
-            </div>
+        <div class="divide-y divide-gray-200">
+          <div class="pb-4">
+            <h2 id="activity-title" class="text-lg font-medium text-gray-900">More changes</h2>
+          </div>
+          <div class="pt-6">
+            <ChangelogSidebar
+              v-if="data"
+              :codebase-id="data.change.codebase.id"
+              :changes="data.change.codebase.changes"
+              :selected-change-id="selectedChangeID"
+              @selectCodebaseChange="onSelectCodebaseChange"
+            />
           </div>
         </div>
       </div>
@@ -79,6 +77,7 @@
 </template>
 
 <script lang="ts">
+import { ref, watch } from 'vue'
 import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
@@ -215,8 +214,11 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const selectedChangeID = route.params.selectedChangeID as string
     const codebaseSlug = route.params.codebaseSlug as string
+    const selectedChangeID = ref(route.params.selectedChangeID as string)
+    watch(route, (newRoute) => {
+      selectedChangeID.value = newRoute.params.selectedChangeID as string
+    })
 
     const { data, fetching, error } = useQuery<ChangePageQuery, ChangePageQueryVariables>({
       query: PAGE_QUERY,
@@ -245,9 +247,7 @@ export default {
   methods: {
     onSelectCodebaseChange(event: { commit_id: string }) {
       this.$router.push({
-        name: 'codebaseChange',
         params: {
-          codebaseSlug: this.codebaseSlug,
           selectedChangeID: event.commit_id,
         },
       })
