@@ -8,7 +8,7 @@ type Configuration struct {
 }
 
 type GitLFSConfiguration struct {
-	Addr flags.Addr `long:"addr" description:"Git LFS server address" required:"true" default:"localhost:8080"`
+	Addr flags.Addr `long:"addr" description:"Git LFS server address" required:"true" default:"localhost:8888"`
 }
 
 func FromConfiguration(cfg *Configuration) RepoProvider {
