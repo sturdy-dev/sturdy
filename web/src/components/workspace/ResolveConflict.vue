@@ -1,9 +1,6 @@
 <template>
   <HorizontalDivider bg="bg-white">
     <template #default>Resolve Conflicts</template>
-    <template #right>
-      Step {{ rebasing.progress_current + 1 }} of {{ rebasing.progress_total }}
-    </template>
   </HorizontalDivider>
 
   <p class="text-sm text-gray-500 pb-4 text-center">

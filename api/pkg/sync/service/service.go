@@ -258,18 +258,6 @@ func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codeba
 		return fmt.Errorf("failed to send event: %w", err)
 	}
 
-	/*err = postHogClient.Enqueue(posthog.Capture{
-		Event:      "completed sync",
-		DistinctId: syncer.UserID,
-		Properties: posthog.NewProperties().
-			Set("codebase_id", syncer.CodebaseID).
-			Set("workspace_id", syncer.WorkspaceID),
-	})
-	if err != nil {
-		logger.Error("posthog failed", zap.Error(err))
-	}
-	*/
-
 	return nil
 }
 
@@ -322,7 +310,5 @@ func Status(logger *zap.Logger, rebasing *vcsvcs.SturdyRebase) (*sync.RebaseStat
 		IsRebasing:       true,
 		HaveConflicts:    true,
 		ConflictingFiles: cf,
-		ProgressCurrent:  1, // TODO: Remove from API
-		ProgressTotal:    1, // TODO: Remove from API
 	}, nil
 }

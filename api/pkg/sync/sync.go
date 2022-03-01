@@ -1,8 +1,9 @@
 package sync
 
 import (
-	"getsturdy.com/api/pkg/unidiff"
 	"time"
+
+	"getsturdy.com/api/pkg/unidiff"
 )
 
 type Sync struct {
@@ -27,9 +28,6 @@ type RebaseStatusResponse struct {
 	HaveConflicts    bool              `json:"have_conflicts"`
 	ConflictingFiles []ConflictingFile `json:"conflicting_files"`
 	CanContinue      bool              `json:"can_continue"`
-
-	ProgressCurrent uint `json:"progress_current"`
-	ProgressTotal   uint `json:"progress_total"`
 }
 
 type ConflictingFile struct {
