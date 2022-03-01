@@ -8,6 +8,12 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.2.2 (2022-03-01)
+
+* [Improvement] Improved reliability when starting the oneliner for the first time. Reduced number of timeouts related to setting up the bundled PostgreSQL server.
+* [Improvement] Added a new changelog overview for codebases.
+* [Fix] Fixed a bug in the app sidebar navigation where clicking a codebase would sometimes not navigate you to the codebase.
+
 # Server v1.2.1 (2022-02-25)
 
 * [Improvement] Make sure that a connected directory always is connected to a workspace. If a workspace connected to a directory is archived, a new workspace will be created and connected to that directory.
