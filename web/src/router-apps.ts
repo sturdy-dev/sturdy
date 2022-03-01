@@ -103,12 +103,12 @@ export const RoutesApps: RouteRecordRaw[] = [
   },
   {
     path: '/:codebaseSlug/changes',
-    component: () => import('./pages/changelog/Index.vue'),
+    component: () => import('./pages/changes/List.vue'),
     name: 'codebaseChanges',
   },
   {
     path: '/:codebaseSlug/changes/:selectedChangeID',
-    component: () => import('./pages/Changelog.vue'),
+    component: () => import('./pages/changes/Change.vue'),
     name: 'codebaseChange',
   },
   {

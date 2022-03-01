@@ -1,6 +1,8 @@
 <template>
   <PaddedAppRightSidebar v-if="data" class="bg-white">
+    <ChangeListEmpty v-if="data.codebase.changes.length == 0" :codebase-slug="codebaseSlug" />
     <ChangeList
+      v-else
       :changes="data.codebase.changes.slice(0, -1)"
       :codebase-slug="codebaseSlug"
       :hasNextPage="hasNextPage"
@@ -27,6 +29,7 @@ import { useHead } from '@vueuse/head'
 import { IdFromSlug } from '../../slug'
 
 import ChangeList, { CHANGELOG_CHANGE_FRAGMENT } from '../../organisms/changelog/ChangeList.vue'
+import ChangeListEmpty from '../../organisms/changelog/ChangeList.empty.vue'
 import AssembleTheTeam, { CODEBASE_MEMBER_FRAGMENT } from '../../organisms/AssembleTheTeam.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 
@@ -51,7 +54,7 @@ const PAGE_QUERY = gql`
 `
 
 export default {
-  components: { ChangeList, PaddedAppRightSidebar, AssembleTheTeam },
+  components: { ChangeList, ChangeListEmpty, PaddedAppRightSidebar, AssembleTheTeam },
   props: {
     user: {
       type: Object as PropType<User>,

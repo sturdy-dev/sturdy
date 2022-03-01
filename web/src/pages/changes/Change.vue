@@ -4,87 +4,6 @@
       <SearchToolbar />
     </template>
 
-    <template #default>
-      <ChangelogEmpty
-        v-if="codebaseEmpty"
-        :codebase-slug="codebase_slug"
-        class="px-4 sm:px-6 lg:px-8"
-      />
-      <div v-else>
-        <div class="md:flex md:items-center md:justify-between md:space-x-4">
-          <div v-if="changeData?.change && data" class="min-h-16 flex-1">
-            <h1 class="text-2xl font-bold text-gray-900">
-              {{ changeData?.change?.title }}
-            </h1>
-            <p class="mt-2 text-sm text-gray-500">
-              By
-              {{ ' ' }}
-              <span class="font-medium text-gray-900">
-                {{ changeData?.change?.author?.name }}
-              </span>
-              {{ ' ' }}
-              in
-              {{ ' ' }}
-              <router-link
-                :to="{
-                  name: 'codebaseHome',
-                  params: { codebaseSlug: codebase_slug },
-                }"
-                class="font-medium text-gray-900"
-              >
-                {{ data.codebase.name }}
-              </router-link>
-            </p>
-          </div>
-          <div v-else class="h-16 flex-1">
-            <!-- Loading -->
-            <div class="h-6 w-1/2 bg-gray-300 animate-pulse rounded-md"></div>
-          </div>
-        </div>
-
-        <aside v-if="changeData" class="mt-8 xl:hidden">
-          <ChangelogDetails
-            :change-data="changeData"
-            :github-integration="data?.codebase?.gitHubIntegration"
-          />
-        </aside>
-      </div>
-
-      <section>
-        <div class="flex-grow pt-4 z-10 relative min-w-0">
-          <div class="pl-1">
-            <div v-if="showChangeError" class="text-center text-gray-500 flex flex-col space-y-4">
-              <div>This change does not exist.</div>
-              <div>
-                <Button
-                  @click="
-                    $router.push({
-                      to: 'codebaseChanges',
-                      params: {
-                        codebaseSlug: codebase_slug,
-                      },
-                    })
-                  "
-                >
-                  Go to changes list
-                </Button>
-              </div>
-            </div>
-            <ChangeDetails
-              v-else-if="selectedChangeID && changeData && data"
-              :codebase-id="data.codebase.id"
-              :change-id="selectedChangeID"
-              :codebase-slug="codebase_slug"
-              :change="changeData.change"
-              :user="user"
-              :members="data.codebase.members"
-              @commented="refreshChange"
-            />
-          </div>
-        </div>
-      </section>
-    </template>
-
     <template #sidebar>
       <ChangelogDetails
         :change-data="changeData"
@@ -110,24 +29,97 @@
         </div>
       </div>
     </template>
+
+    <div>
+      <div class="md:flex md:items-center md:justify-between md:space-x-4">
+        <div v-if="changeData?.change && data" class="min-h-16 flex-1">
+          <h1 class="text-2xl font-bold text-gray-900">
+            {{ changeData?.change?.title }}
+          </h1>
+          <p class="mt-2 text-sm text-gray-500">
+            By
+            {{ ' ' }}
+            <span class="font-medium text-gray-900">
+              {{ changeData?.change?.author?.name }}
+            </span>
+            {{ ' ' }}
+            in
+            {{ ' ' }}
+            <router-link
+              :to="{
+                name: 'codebaseHome',
+                params: { codebaseSlug: codebase_slug },
+              }"
+              class="font-medium text-gray-900"
+            >
+              {{ data.codebase.name }}
+            </router-link>
+          </p>
+        </div>
+        <div v-else class="h-16 flex-1">
+          <!-- Loading -->
+          <div class="h-6 w-1/2 bg-gray-300 animate-pulse rounded-md"></div>
+        </div>
+      </div>
+
+      <aside v-if="changeData" class="mt-8 xl:hidden">
+        <ChangelogDetails
+          :change-data="changeData"
+          :github-integration="data?.codebase?.gitHubIntegration"
+        />
+      </aside>
+    </div>
+
+    <section>
+      <div class="flex-grow pt-4 z-10 relative min-w-0">
+        <div class="pl-1">
+          <div v-if="showChangeError" class="text-center text-gray-500 flex flex-col space-y-4">
+            <div>This change does not exist.</div>
+            <div>
+              <Button
+                @click="
+                  $router.push({
+                    to: 'codebaseChanges',
+                    params: {
+                      codebaseSlug: codebase_slug,
+                    },
+                  })
+                "
+              >
+                Go to changes list
+              </Button>
+            </div>
+          </div>
+          <ChangeDetails
+            v-else-if="selectedChangeID && changeData && data"
+            :codebase-id="data.codebase.id"
+            :change-id="selectedChangeID"
+            :codebase-slug="codebase_slug"
+            :change="changeData.change"
+            :user="user"
+            :members="data.codebase.members"
+            @commented="refreshChange"
+          />
+        </div>
+      </div>
+    </section>
   </PaddedAppRightSidebar>
 </template>
 
 <script>
-import ChangeDetails from '../components/changelog/ChangeDetails.vue'
-import { Slug } from '../slug'
-import ChangelogSidebar from '../components/changelog/ChangelogSidebar.vue'
-import ChangelogEmpty from '../components/changelog/ChangelogEmpty.vue'
+import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
+import { Slug } from '../../slug'
+import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import Button from '../components/shared/Button.vue'
+import Button from '../../components/shared/Button.vue'
 import { ref, watch, computed } from 'vue'
-import ChangelogDetails from '../components/changelog/ChangelogDetails.vue'
-import time from '../time'
-import { STATUS_FRAGMENT } from '../components/statuses/StatusBadge.vue'
-import { MEMBER_FRAGMENT } from '../components/shared/TextareaMentions.vue'
-import SearchToolbar from '../components/workspace/SearchToolbar.vue'
-import PaddedAppRightSidebar from '../layouts/PaddedAppRightSidebar.vue'
+import ChangelogDetails from '../../components/changelog/ChangelogDetails.vue'
+import time from '../../time'
+import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
+import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
+import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
+import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 
 export default {
   components: {
@@ -136,7 +128,6 @@ export default {
     ChangeDetails,
     ChangelogSidebar,
     Button,
-    ChangelogEmpty,
     SearchToolbar,
   },
   props: {
