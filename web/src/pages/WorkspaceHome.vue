@@ -497,7 +497,7 @@
                   <h2 id="activity-title" class="text-lg font-medium text-gray-900">Activity</h2>
                 </div>
                 <div class="pt-6">
-                  <WorkspaceNewComment
+                  <NewComment
                     v-if="isAuthorized"
                     :user="user"
                     :members="data.workspace.codebase.members"
@@ -542,7 +542,6 @@ import {
   onUnmounted,
   ref,
   watch,
-  toRefs,
   defineComponent,
   inject,
   Ref,
@@ -553,7 +552,7 @@ import Avatar from '../components/shared/Avatar.vue'
 import WorkspaceActivity, {
   WORKSPACE_ACTIVITY_FRAGMENT,
 } from '../components/workspace/activity/Activity.vue'
-import WorkspaceNewComment from '../components/workspace/WorkspaceNewComment.vue'
+import NewComment from '../organisms/NewComment.vue'
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
 import Presence, { PRESENCE_FRAGMENT_QUERY } from '../components/workspace/Presence.vue'
@@ -594,7 +593,7 @@ export default defineComponent({
     OnboardingStep,
     WorkspaceApproval,
     Watching,
-    WorkspaceNewComment,
+    NewComment,
     WorkspaceActivity,
     Avatar,
     Spinner,

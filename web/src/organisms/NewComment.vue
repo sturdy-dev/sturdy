@@ -11,7 +11,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <Banner
-          v-if="show_fail_message"
+          v-if="failing"
           class="mb-4"
           status="error"
           message="Could not submit your comment right now. Please try again later."
@@ -53,16 +53,21 @@
     </div>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import { PropType } from 'vue'
+
 import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
-import Avatar from '../shared/Avatar.vue'
-import TextareaAutosize from '../shared/TextareaAutosize.vue'
-import { Banner } from '../../atoms'
-import { useCreateComment } from '../../mutations/useCreateComment'
-import { ConvertEmojiToColons } from '../emoji/emoji'
+import Avatar from '../components/shared/Avatar.vue'
+import TextareaAutosize from '../components/shared/TextareaAutosize.vue'
+import { Banner } from '../atoms'
+import { ConvertEmojiToColons } from '../components/emoji/emoji'
+
+import { AuthorFragment } from '../components/shared/__generated__/AvatarHelper'
+
+import { useCreateComment } from '../mutations/useCreateComment'
 
 export default {
-  name: 'WorkspaceNewComment',
   components: {
     ChatAltIcon,
     CheckCircleIcon,
@@ -72,33 +77,41 @@ export default {
   },
   props: {
     user: {
-      type: Object,
+      type: Object as PropType<AuthorFragment>,
+    },
+    members: {
+      type: Array as PropType<AuthorFragment[]>,
+      required: true,
     },
     workspaceId: {
       type: String,
-      required: true,
+      required: false,
     },
-    members: {
-      type: Array,
-      required: true,
+    changeId: {
+      type: String,
+      required: false,
     },
   },
   setup() {
     const createCommentResult = useCreateComment()
-
     return {
-      async createComment(message, workspaceID) {
+      async createComment(
+        message: string,
+        workspaceID: string | undefined,
+        changeID: string | undefined
+      ) {
         return createCommentResult({
           message: ConvertEmojiToColons(message),
           workspaceID,
+          changeID,
         })
       },
     }
   },
-  data: function () {
+  data() {
     return {
       message: '',
-      show_fail_message: false,
+      failing: false,
 
       // <TextareaAutosize> doesn't respond well to message getting reset from outside of the component.
       // Bump counter to re-create the component from scratch when message is reset.
@@ -106,7 +119,7 @@ export default {
     }
   },
   methods: {
-    onkey(e) {
+    onkey(e: KeyboardEvent) {
       // Escape cancels if there is no message
       if (e.keyCode === 27 && !this.message) {
         e.stopPropagation()
@@ -130,17 +143,16 @@ export default {
         return
       }
 
-      this.show_fail_message = false
-
-      this.createComment(this.message, this.workspaceId)
+      this.failing = false
+      this.createComment(this.message, this.workspaceId, this.changeId)
         .then(() => {
           this.emitter.emit('local-new-comment')
-          this.message = null
+          this.message = ''
           this.counter++
         })
         .catch((err) => {
           console.error(err)
-          this.show_fail_message = true
+          this.failing = true
         })
     },
   },
