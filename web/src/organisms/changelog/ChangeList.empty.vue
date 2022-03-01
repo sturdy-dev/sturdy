@@ -30,13 +30,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { PlusIcon } from '@heroicons/vue/solid'
 
 export default {
   components: {
     PlusIcon,
   },
-  props: ['codebaseSlug'],
+  props: {
+    codebaseSlug: {
+      type: String,
+      required: true,
+    },
+  },
 }
 </script>
