@@ -13,4 +13,11 @@ exec reproxy \
 	--static.rule='*,^/api/(.*),http://127.0.0.1:3000/$1,' \
 	--gzip \
 	--logger.stdout \
+  --timeout.read-header=60s \
+  --timeout.write=60s \
+  --timeout.idle=60s \
+  --timeout.dial=60s \
+  --timeout.keep-alive=60s \
+  --timeout.resp-header=60s \
+  --timeout.idle-conn=90s \
 	--listen="127.0.0.1:8080"
