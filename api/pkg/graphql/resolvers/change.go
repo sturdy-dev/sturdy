@@ -32,6 +32,7 @@ type ChangeResolver interface {
 	Diffs(context.Context) ([]FileDiffResolver, error)
 	Statuses(context.Context) ([]StatusResolver, error)
 	Workspace(context.Context) (WorkspaceResolver, error)
+	Codebase(context.Context) (CodebaseResolver, error)
 
 	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
 	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
