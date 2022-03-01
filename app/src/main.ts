@@ -143,7 +143,7 @@ async function main() {
     menu.append(new MenuItem({ type: 'separator' }))
     menu.append(
       new MenuItem({
-        label: 'Open Sturdy',
+        label: 'Open ' + app.getName(),
         click: () => application.open(),
       })
     )
@@ -169,7 +169,7 @@ async function main() {
     }
     menu.append(
       new MenuItem({
-        label: 'Quit Sturdy',
+        label: 'Quit ' + app.getName(),
         click: async () => {
           try {
             await manager.cleanup()
