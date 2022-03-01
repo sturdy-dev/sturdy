@@ -257,8 +257,6 @@ func (e *executor) ExecTrunk(codebaseID, actionName string) error {
 }
 
 func (e *executor) exec(codebaseID string, viewID *string, actionName string) (err error) {
-	defer getMeterFunc(actionName)()
-
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("recovered call in vcs executor: %v\nStacktrace: %s", r, string(debug.Stack()))
@@ -271,8 +269,11 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	}
 
 	t0 := time.Now()
+	execT0 := time.Now() // is overwritten when the exec starts
 	defer func() {
-		logger.Info("git executor completed", zap.Duration("duration", time.Since(t0)))
+		logger.Info("git executor completed",
+			zap.Duration("duration", time.Since(t0)),
+			zap.Duration("exec_duration", time.Since(execT0)))
 	}()
 
 	if !e.allowRebasing {
@@ -332,6 +333,10 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 			}
 		}()
 	}
+
+	defer getMeterFunc(actionName)()
+
+	execT0 = time.Now()
 
 	onceRepo := openOnce(e.repoProvider, codebaseID, viewID)
 	for _, fn := range e.funs {
