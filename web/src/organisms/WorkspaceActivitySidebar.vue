@@ -4,7 +4,13 @@
       <h2 id="activity-title" class="text-lg font-medium text-gray-900">Activity</h2>
     </div>
     <div class="pt-6">
-      <NewComment v-if="isAuthorized" :user="user" :members="members" :workspace-id="workspaceId" />
+      <NewComment
+        v-if="isAuthorized"
+        :user="user"
+        :members="members"
+        :workspace-id="workspaceId"
+        :change-id="changeId"
+      />
       <WorkspaceActivity
         :activity="activity"
         :codebase-slug="codebaseSlug"
@@ -41,7 +47,8 @@ export const WORKSPACE_FRAGMENT = gql`
 export default {
   components: { NewComment, WorkspaceActivity },
   props: {
-    workspaceId: { type: String, required: true },
+    workspaceId: { type: String },
+    changeId: { type: String },
     codebaseSlug: { type: String, required: true },
     activity: { type: Array as PropType<Activity[]>, required: true },
     user: { type: Object as PropType<Member> },
