@@ -6,7 +6,7 @@
 
     <template #sidebar>
       <ChangelogDetails
-        :change-data="changeData"
+        :change-data="data"
         :github-integration="data?.codebase?.gitHubIntegration"
       />
 
@@ -32,15 +32,15 @@
 
     <div>
       <div class="md:flex md:items-center md:justify-between md:space-x-4">
-        <div v-if="changeData?.change && data" class="min-h-16 flex-1">
+        <div v-if="data?.change && data" class="min-h-16 flex-1">
           <h1 class="text-2xl font-bold text-gray-900">
-            {{ changeData?.change?.title }}
+            {{ data?.change?.title }}
           </h1>
           <p class="mt-2 text-sm text-gray-500">
             By
             {{ ' ' }}
             <span class="font-medium text-gray-900">
-              {{ changeData?.change?.author?.name }}
+              {{ data?.change?.author?.name }}
             </span>
             {{ ' ' }}
             in
@@ -48,7 +48,7 @@
             <router-link
               :to="{
                 name: 'codebaseHome',
-                params: { codebaseSlug: codebase_slug },
+                params: { codebaseSlug: codebaseSlug },
               }"
               class="font-medium text-gray-900"
             >
@@ -62,9 +62,9 @@
         </div>
       </div>
 
-      <aside v-if="changeData" class="mt-8 xl:hidden">
+      <aside v-if="data" class="mt-8 xl:hidden">
         <ChangelogDetails
-          :change-data="changeData"
+          :change-data="data"
           :github-integration="data?.codebase?.gitHubIntegration"
         />
       </aside>
@@ -81,7 +81,7 @@
                   $router.push({
                     to: 'codebaseChanges',
                     params: {
-                      codebaseSlug: codebase_slug,
+                      codebaseSlug: codebaseSlug,
                     },
                   })
                 "
@@ -91,14 +91,13 @@
             </div>
           </div>
           <ChangeDetails
-            v-else-if="selectedChangeID && changeData && data"
+            v-else-if="data"
             :codebase-id="data.codebase.id"
             :change-id="selectedChangeID"
-            :codebase-slug="codebase_slug"
-            :change="changeData.change"
+            :codebase-slug="codebaseSlug"
+            :change="data.change"
             :user="user"
             :members="data.codebase.members"
-            @commented="refreshChange"
           />
         </div>
       </div>
@@ -106,201 +105,167 @@
   </PaddedAppRightSidebar>
 </template>
 
-<script>
+<script lang="ts">
 import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
-import { Slug } from '../../slug'
-import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import Button from '../../components/shared/Button.vue'
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import ChangelogDetails from '../../components/changelog/ChangelogDetails.vue'
-import time from '../../time'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
+import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
+
+import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
+
+const PAGE_QUERY = gql`
+  query ChangePage($id: ID, $shortID: ID, $changeID: ID!) {
+    change(id: $changeID) {
+      id
+
+      title
+      description
+      createdAt
+      trunkCommitID
+
+      statuses {
+        ...Status
+      }
+
+      author {
+        id
+        name
+        avatarUrl
+      }
+
+      diffs {
+        id
+        origName
+        newName
+        preferredName
+
+        isDeleted
+        isNew
+        isMoved
+
+        isLarge
+        largeFileInfo {
+          id
+          size
+        }
+
+        isHidden
+
+        hunks {
+          id
+          patch
+        }
+      }
+
+      comments {
+        id
+        message
+        codeContext {
+          id
+          path
+          lineEnd
+          lineStart
+          lineIsNew
+        }
+        createdAt
+        deletedAt
+        author {
+          id
+          name
+          avatarUrl
+        }
+        replies {
+          id
+          message
+          createdAt
+          author {
+            id
+            name
+            avatarUrl
+          }
+        }
+      }
+    }
+
+    codebase(id: $id, shortID: $shortID) {
+      id
+      shortID
+      name
+
+      gitHubIntegration {
+        id
+        owner
+        name
+        enabled
+        gitHubIsSourceOfTruth
+      }
+
+      members {
+        ...Member
+      }
+
+      changes {
+        id
+        title
+        createdAt
+        author {
+          id
+          name
+          avatarUrl
+        }
+        comments {
+          id
+        }
+        statuses {
+          ...Status
+        }
+      }
+    }
+  }
+
+  ${STATUS_FRAGMENT}
+  ${MEMBER_FRAGMENT}
+`
 
 export default {
   components: {
     PaddedAppRightSidebar,
     ChangelogDetails,
     ChangeDetails,
-    ChangelogSidebar,
     Button,
     SearchToolbar,
+    ChangelogSidebar,
   },
   props: {
     user: {
       type: Object,
+      required: false,
     },
   },
   setup() {
     const route = useRoute()
+    const selectedChangeID = route.params.selectedChangeID as string
+    const codebaseSlug = route.params.codebaseSlug as string
 
-    let { data, fetching, error } = useQuery({
-      query: gql`
-        query ChangelogCodebase($id: ID, $shortID: ID) {
-          codebase(id: $id, shortID: $shortID) {
-            id
-            shortID
-            name
-
-            gitHubIntegration {
-              id
-              owner
-              name
-              enabled
-              gitHubIsSourceOfTruth
-            }
-
-            members {
-              ...Member
-            }
-
-            changes {
-              id
-              title
-              createdAt
-              author {
-                id
-                name
-                avatarUrl
-              }
-              comments {
-                id
-              }
-              statuses {
-                ...Status
-              }
-            }
-          }
-        }
-        ${STATUS_FRAGMENT}
-        ${MEMBER_FRAGMENT}
-      `,
+    const { data, fetching, error } = useQuery<ChangePageQuery, ChangePageQueryVariables>({
+      query: PAGE_QUERY,
       variables: {
-        shortID: route.params.codebaseSlug,
+        shortID: codebaseSlug,
+        changeID: selectedChangeID,
       },
-      requestPolicy: 'cache-and-network',
     })
 
-    let selectedChangeID = ref(null)
-    let codebaseEmpty = ref(false)
-
-    const calcChangeToShow = () => {
-      codebaseEmpty.value = data.value?.codebase?.changes?.length === 0
-
-      if (route.params.selectedChangeID) {
-        selectedChangeID.value = route.params.selectedChangeID
-      } else if (data.value?.codebase?.changes?.length > 0) {
-        selectedChangeID.value = data.value.codebase.changes[0].id
-      } else {
-        selectedChangeID.value = null
-      }
-    }
-
-    calcChangeToShow()
-    watch(data, () => {
-      calcChangeToShow()
-    })
-    watch(route, () => {
-      calcChangeToShow()
-    })
-
-    let {
-      data: changeData,
-      fetching: fetchingChange,
-      refresh: refreshChange,
-      error: changeError,
-    } = useQuery({
-      query: gql`
-        query Changelog($changeID: ID!) {
-          change(id: $changeID) {
-            id
-
-            title
-            description
-            createdAt
-            trunkCommitID
-
-            statuses {
-              ...Status
-            }
-
-            author {
-              id
-              name
-              avatarUrl
-            }
-
-            diffs {
-              id
-              origName
-              newName
-              preferredName
-
-              isDeleted
-              isNew
-              isMoved
-
-              isLarge
-              largeFileInfo {
-                id
-                size
-              }
-
-              isHidden
-
-              hunks {
-                id
-                patch
-              }
-            }
-
-            comments {
-              id
-              message
-              codeContext {
-                id
-                path
-                lineEnd
-                lineStart
-                lineIsNew
-              }
-              createdAt
-              deletedAt
-              author {
-                id
-                name
-                avatarUrl
-              }
-              replies {
-                id
-                message
-                createdAt
-                author {
-                  id
-                  name
-                  avatarUrl
-                }
-              }
-            }
-          }
-        }
-        ${STATUS_FRAGMENT}
-      `,
-      requestPolicy: 'cache-and-network',
-      pause: computed(() => !selectedChangeID.value),
-      variables: { changeID: selectedChangeID },
-    })
-
-    let showChangeError = ref(false)
-    watch(changeError, (newErr) => {
-      if (
-        newErr?.graphQLErrors?.length > 0 &&
-        newErr.graphQLErrors[0].message === 'NotFoundError'
-      ) {
+    const showChangeError = ref(false)
+    watch(error, (newErr) => {
+      if (!newErr) return
+      if (newErr.graphQLErrors?.length > 0 && newErr.graphQLErrors[0].message === 'NotFoundError') {
         showChangeError.value = true
       } else {
         showChangeError.value = false
@@ -308,59 +273,30 @@ export default {
     })
 
     return {
+      selectedChangeID,
+      codebaseSlug,
+
       data,
       fetching,
       error,
-      selectedChangeID,
-      changeData,
-      fetchingChange,
-      refreshChange,
-      showChangeError,
-      codebaseEmpty,
 
-      ipc: window.ipc,
+      showChangeError,
     }
-  },
-  data() {
-    return {
-      reactive_changes_cancel_func: null,
-    }
-  },
-  computed: {
-    codebase_slug() {
-      if (this.data) {
-        return Slug(this.data.codebase.name, this.data.codebase.shortID)
-      }
-      return null
-    },
   },
   watch: {
     'data.codebase.id': function (id) {
       if (id) this.emitter.emit('codebase', id)
     },
   },
-  created() {
-    this.emitter.on('select-codebase-changelog-change', this.selectedCodebaseChange)
-  },
-  unmounted() {
-    this.emitter.off('select-codebase-changelog-change', this.selectedCodebaseChange)
-
-    if (this.reactive_changes_cancel_func) {
-      this.reactive_changes_cancel_func()
-    }
-  },
   methods: {
-    onSelectCodebaseChange(ev) {
+    onSelectCodebaseChange(event: { commit_id: string }) {
       this.$router.push({
         name: 'codebaseChange',
         params: {
-          codebaseSlug: this.codebase_slug,
-          selectedChangeID: ev.commit_id,
+          codebaseSlug: this.codebaseSlug,
+          selectedChangeID: event.commit_id,
         },
       })
-    },
-    friendly_ago(ts) {
-      return time.getRelativeTime(new Date(ts * 1000))
     },
   },
 }
