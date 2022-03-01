@@ -40,9 +40,9 @@ To support a full development environment, with hot reloading and fast restarts.
 
 * Run PostgreSQL, LFS, and the SSH servers in Docker: `./up --build`
 * Build and run the API
-  server: `cd api && go build getsturdy.com/api/cmd/api && ./api --http-listen-addr 127.0.0.1:3000 --analytics.enabled=false`
-* Build and run the web frontend: `cd web && yarn && yarn codegen && yarn dev`
-* Build and run the Electron app: `cd app && yarn && yarn dev`
+  server: `./scripts/build-run-api.sh`
+* Build and run the web frontend: `./scripts/build-run-web.sh`
+* Build and run the Electron app: `./scripts/build-run-app.sh`
 
 ## Use the GraphQL API
 
