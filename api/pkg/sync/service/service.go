@@ -57,10 +57,10 @@ func New(
 //
 // The current work in progress will be added to a commit, that is rebased on top of the trunk.
 // After the syncing is done, the commit is "git reset --mixed HEAD^1"-ed, to restore it to the WIP.
-func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatusResponse, error) {
+func (svc *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatusResponse, error) {
 	syncID := uuid.NewString()
 
-	view, err := s.viewRepo.Get(viewID)
+	view, err := svc.viewRepo.Get(viewID)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 			if err != nil {
 				return fmt.Errorf("failed to open previous rebase: %w", err)
 			}
-			rebaseStatusResponse, err = Status(s.logger, rb)
+			rebaseStatusResponse, err = Status(svc.logger, rb)
 			if err != nil {
 				return fmt.Errorf("failed to get conflict status: %w", err)
 			}
@@ -105,7 +105,11 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 			return fmt.Errorf("failed to safely checkout new branch during Syncer start: %w", err)
 		}
 
-		treeID, err := change_vcs.CreateChangesTreeFromPatches(s.logger, repo, view.CodebaseID, nil)
+		if err := svc.logFiles(view.WorkspaceID, "before", repo); err != nil {
+			return fmt.Errorf("failed to log changed files before sync: %w", err)
+		}
+
+		treeID, err := change_vcs.CreateChangesTreeFromPatches(svc.logger, repo, view.CodebaseID, nil)
 		if err != nil {
 			return fmt.Errorf("failed to create tree from patches during sync: %w", err)
 		}
@@ -118,7 +122,7 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 			if err := repo.CheckoutBranchWithForce(branchName); err != nil {
 				return fmt.Errorf("failed to checkout branch in early return: %w", err)
 			}
-			if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, nil, nil); err != nil {
+			if err := svc.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, nil, nil); err != nil {
 				return fmt.Errorf("failed to complete in early return: %w", err)
 			}
 			rebaseStatusResponse = &sync.RebaseStatusResponse{HaveConflicts: false}
@@ -161,10 +165,10 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 			// Restore large files
 			if err := repo.LargeFilesPull(); err != nil {
 				// don't fail
-				s.logger.Error("failed to restore large files", zap.Error(err))
+				svc.logger.Error("failed to restore large files", zap.Error(err))
 			}
 
-			rebaseStatusResponse, err = Status(s.logger, rb)
+			rebaseStatusResponse, err = Status(svc.logger, rb)
 			if err != nil {
 				return fmt.Errorf("failed to get conflict status: %w", err)
 			}
@@ -178,7 +182,7 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 			return fmt.Errorf("branch to head failed: %w", err)
 		}
 
-		if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &unsavedCommitID, rebasedCommits); err != nil {
+		if err := svc.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &unsavedCommitID, rebasedCommits); err != nil {
 			return err
 		}
 
@@ -186,7 +190,7 @@ func (s *Service) OnTrunk(ctx context.Context, viewID string) (*sync.RebaseStatu
 		return nil
 	}
 
-	err = s.executorProvider.New().
+	err = svc.executorProvider.New().
 		AssertBranchName(view.WorkspaceID).
 		AllowRebasingState(). // allowed to get the state of existing conflicts
 		Schedule(startSyncFunc).
@@ -240,6 +244,10 @@ func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codeba
 
 	if err := repo.ForcePush(svc.logger, workspaceID); err != nil {
 		return fmt.Errorf("failed to push result: %w", err)
+	}
+
+	if err := svc.logFiles(workspaceID, "complete", repo); err != nil {
+		return fmt.Errorf("failed to log changed files before sync: %w", err)
 	}
 
 	// Make a snapshot (right away)
@@ -311,4 +319,19 @@ func Status(logger *zap.Logger, rebasing *vcsvcs.SturdyRebase) (*sync.RebaseStat
 		HaveConflicts:    true,
 		ConflictingFiles: cf,
 	}, nil
+}
+
+func (svc *Service) logFiles(workspaceID, state string, repo vcsvcs.RepoGitReader) error {
+	preSyncDiff, err := repo.CurrentDiffNoIndex()
+	if err != nil {
+		return fmt.Errorf("could not get diffs: %w", err)
+	}
+	err = preSyncDiff.ForEach(func(delta git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
+		svc.logger.Info("debug-sync-diff", zap.String("state", state), zap.String("workspace_id", workspaceID), zap.String("new_file_path", delta.NewFile.Path), zap.String("old_file_path", delta.OldFile.Path))
+		return nil, nil
+	}, git.DiffDetailFiles)
+	if err != nil {
+		return fmt.Errorf("could log diffs: %w", err)
+	}
+	return nil
 }
