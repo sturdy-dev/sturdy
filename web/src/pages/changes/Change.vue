@@ -5,11 +5,7 @@
     </template>
 
     <template #sidebar>
-      <ChangelogDetails
-        v-if="!isChangeNotFound"
-        :change-data="data"
-        :github-integration="data?.codebase?.gitHubIntegration"
-      />
+      <ChangelogDetails v-if="data" :change="data.change" />
 
       <div class="mt-10 py-6 space-y-8">
         <div>
@@ -20,8 +16,8 @@
             <div class="pt-6">
               <ChangelogSidebar
                 v-if="data"
-                :codebase-id="data.codebase.id"
-                :changes="data.codebase.changes"
+                :codebase-id="data.change.codebase.id"
+                :changes="data.change.codebase.changes"
                 :selected-change-id="selectedChangeID"
                 @selectCodebaseChange="onSelectCodebaseChange"
               />
@@ -53,21 +49,14 @@
               }"
               class="font-medium text-gray-900"
             >
-              {{ data.codebase.name }}
+              {{ data.change.codebase.name }}
             </router-link>
           </p>
-        </div>
-        <div v-else-if="!isChangeNotFound" class="h-16 flex-1">
-          <!-- Loading -->
-          <div class="h-6 w-1/2 bg-gray-300 animate-pulse rounded-md"></div>
         </div>
       </div>
 
       <aside v-if="data" class="mt-8 xl:hidden">
-        <ChangelogDetails
-          :change-data="data"
-          :github-integration="data?.codebase?.gitHubIntegration"
-        />
+        <ChangelogDetails :change="data.change" />
       </aside>
     </div>
 
@@ -75,13 +64,13 @@
       <div class="flex-grow pt-4 z-10 relative min-w-0">
         <div class="pl-1">
           <ChangeDetails
-            v-if="data && data?.change"
-            :codebase-id="data?.codebase.id"
+            v-if="data"
+            :codebase-id="data.change.codebase.id"
             :change-id="selectedChangeID"
             :codebase-slug="codebaseSlug"
-            :change="data?.change"
+            :change="data.change"
             :user="user"
-            :members="data?.codebase.members"
+            :members="data.change.codebase.members"
           />
         </div>
       </div>
@@ -93,7 +82,7 @@
 import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import ChangelogDetails from '../../components/changelog/ChangelogDetails.vue'
+import ChangelogDetails, { CHANGE_FRAGMENT } from '../../components/changelog/ChangelogDetails.vue'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
@@ -103,7 +92,7 @@ import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
 import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
 
 const PAGE_QUERY = gql`
-  query ChangePage($id: ID, $shortID: ID, $changeID: ID!) {
+  query ChangePage($changeID: ID!) {
     change(id: $changeID) {
       id
 
@@ -174,44 +163,38 @@ const PAGE_QUERY = gql`
           }
         }
       }
-    }
 
-    codebase(id: $id, shortID: $shortID) {
-      id
-      shortID
-      name
-
-      gitHubIntegration {
+      codebase {
         id
-        owner
+        shortID
         name
-        enabled
-        gitHubIsSourceOfTruth
-      }
 
-      members {
-        ...Member
-      }
+        members {
+          ...Member
+        }
 
-      changes {
-        id
-        title
-        createdAt
-        author {
+        changes {
           id
-          name
-          avatarUrl
-        }
-        comments {
-          id
-        }
-        statuses {
-          ...Status
+          title
+          createdAt
+          author {
+            id
+            name
+            avatarUrl
+          }
+          comments {
+            id
+          }
+          statuses {
+            ...Status
+          }
         }
       }
+      ...ChangelogDetails_Change
     }
   }
 
+  ${CHANGE_FRAGMENT}
   ${STATUS_FRAGMENT}
   ${MEMBER_FRAGMENT}
 `
@@ -238,7 +221,6 @@ export default {
     const { data, fetching, error } = useQuery<ChangePageQuery, ChangePageQueryVariables>({
       query: PAGE_QUERY,
       variables: {
-        shortID: codebaseSlug,
         changeID: selectedChangeID,
       },
     })
@@ -251,15 +233,6 @@ export default {
       fetching,
       error,
     }
-  },
-  computed: {
-    isChangeNotFound: function () {
-      if (!this.error) return
-      return (
-        this.error.graphQLErrors?.length > 0 &&
-        this.error.graphQLErrors[0].message === 'NotFoundError'
-      )
-    },
   },
   watch: {
     'data.codebase.id': function (id) {
