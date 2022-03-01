@@ -52,9 +52,11 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { StatusType } from '../../__generated__/types'
-import StatusBadge from './StatusBadge.vue'
+import StatusBadge, { STATUS_FRAGMENT } from './StatusBadge.vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { StatusFragment } from './__generated__/StatusBadge'
+
+export { STATUS_FRAGMENT }
 
 export default defineComponent({
   components: { StatusBadge, Menu, MenuButton, MenuItem, MenuItems },
