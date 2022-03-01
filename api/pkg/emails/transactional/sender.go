@@ -361,7 +361,7 @@ func (e *Sender) sendCommentNotification(ctx context.Context, usr *users.User, c
 			}
 			data.Parent.Change = change
 			title := fmt.Sprintf(
-				"[Strudy] %s repied to %s's comment on %s",
+				"[Sturdy] %s repied to %s's comment on %s",
 				author.Name, parentAuthor.Name, *change.Title)
 			return e.Send(ctx, usr, title, templates.NotificationCommentTemplate, data)
 		case parentComment.WorkspaceID != nil:
