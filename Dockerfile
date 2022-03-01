@@ -122,7 +122,7 @@ RUN apk update \
     git-lfs=3.0.2-r0 \
     libgit2=1.3.0-r0 \
     openssh-keygen=8.8_p1-r1 \
-    ca-certificates=20211220-r0 
+    ca-certificates=20211220-r0
 COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
@@ -174,7 +174,7 @@ ENV LANG="en_US.UTF-8" \
     LC_ALL="C" \
     S6_KILL_GRACETIME=0 \
     S6_SERVICES_GRACETIME=0 \
-    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=30000 \
+    S6_CMD_WAIT_FOR_SERVICES_MAXTIME=300000 \
     STURDY_GITHUB_APP_ID=0 \
     STURDY_GITHUB_APP_CLIENT_ID= \
     STURDY_GITHUB_APP_SECRET= \
