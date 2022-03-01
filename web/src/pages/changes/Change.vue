@@ -6,6 +6,7 @@
 
     <template #sidebar>
       <ChangelogDetails
+        v-if="!isChangeNotFound"
         :change-data="data"
         :github-integration="data?.codebase?.gitHubIntegration"
       />
@@ -19,7 +20,7 @@
             <div class="pt-6">
               <ChangelogSidebar
                 v-if="data"
-                :codebase-i-d="data.codebase.id"
+                :codebase-id="data.codebase.id"
                 :changes="data.codebase.changes"
                 :selected-change-id="selectedChangeID"
                 @selectCodebaseChange="onSelectCodebaseChange"
@@ -32,15 +33,15 @@
 
     <div>
       <div class="md:flex md:items-center md:justify-between md:space-x-4">
-        <div v-if="data?.change && data" class="min-h-16 flex-1">
+        <div v-if="data && data?.change" class="min-h-16 flex-1">
           <h1 class="text-2xl font-bold text-gray-900">
-            {{ data?.change?.title }}
+            {{ data.change.title }}
           </h1>
           <p class="mt-2 text-sm text-gray-500">
             By
             {{ ' ' }}
             <span class="font-medium text-gray-900">
-              {{ data?.change?.author?.name }}
+              {{ data.change.author?.name }}
             </span>
             {{ ' ' }}
             in
@@ -56,7 +57,7 @@
             </router-link>
           </p>
         </div>
-        <div v-else class="h-16 flex-1">
+        <div v-else-if="!isChangeNotFound" class="h-16 flex-1">
           <!-- Loading -->
           <div class="h-6 w-1/2 bg-gray-300 animate-pulse rounded-md"></div>
         </div>
@@ -73,31 +74,14 @@
     <section>
       <div class="flex-grow pt-4 z-10 relative min-w-0">
         <div class="pl-1">
-          <div v-if="showChangeError" class="text-center text-gray-500 flex flex-col space-y-4">
-            <div>This change does not exist.</div>
-            <div>
-              <Button
-                @click="
-                  $router.push({
-                    to: 'codebaseChanges',
-                    params: {
-                      codebaseSlug: codebaseSlug,
-                    },
-                  })
-                "
-              >
-                Go to changes list
-              </Button>
-            </div>
-          </div>
           <ChangeDetails
-            v-else-if="data"
-            :codebase-id="data.codebase.id"
+            v-if="data && data?.change"
+            :codebase-id="data?.codebase.id"
             :change-id="selectedChangeID"
             :codebase-slug="codebaseSlug"
-            :change="data.change"
+            :change="data?.change"
             :user="user"
-            :members="data.codebase.members"
+            :members="data?.codebase.members"
           />
         </div>
       </div>
@@ -109,8 +93,6 @@
 import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import Button from '../../components/shared/Button.vue'
-import { ref, watch } from 'vue'
 import ChangelogDetails from '../../components/changelog/ChangelogDetails.vue'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
@@ -239,7 +221,6 @@ export default {
     PaddedAppRightSidebar,
     ChangelogDetails,
     ChangeDetails,
-    Button,
     SearchToolbar,
     ChangelogSidebar,
   },
@@ -262,16 +243,6 @@ export default {
       },
     })
 
-    const showChangeError = ref(false)
-    watch(error, (newErr) => {
-      if (!newErr) return
-      if (newErr.graphQLErrors?.length > 0 && newErr.graphQLErrors[0].message === 'NotFoundError') {
-        showChangeError.value = true
-      } else {
-        showChangeError.value = false
-      }
-    })
-
     return {
       selectedChangeID,
       codebaseSlug,
@@ -279,13 +250,23 @@ export default {
       data,
       fetching,
       error,
-
-      showChangeError,
     }
+  },
+  computed: {
+    isChangeNotFound: function () {
+      if (!this.error) return
+      return (
+        this.error.graphQLErrors?.length > 0 &&
+        this.error.graphQLErrors[0].message === 'NotFoundError'
+      )
+    },
   },
   watch: {
     'data.codebase.id': function (id) {
       if (id) this.emitter.emit('codebase', id)
+    },
+    error: function (error) {
+      throw error
     },
   },
   methods: {

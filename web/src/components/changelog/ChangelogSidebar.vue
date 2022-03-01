@@ -31,7 +31,7 @@ export default {
   name: 'CodebaseChangelogSidebar',
   components: { ChangelogEntry },
   props: {
-    codebaseID: {
+    codebaseId: {
       type: String,
       required: true,
     },
