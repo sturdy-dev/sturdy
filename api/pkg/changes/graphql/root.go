@@ -27,6 +27,7 @@ type ChangeRootResolver struct {
 	authorResolver    resolvers.AuthorRootResolver
 	statusResovler    *resolvers.StatusesRootResolver
 	downloadsResovler resolvers.ContentsDownloadUrlRootResolver
+	workspaceResolver *resolvers.WorkspaceRootResolver
 
 	executorProvider executor.Provider
 
@@ -44,6 +45,7 @@ func NewResolver(
 	authorResolver resolvers.AuthorRootResolver,
 	statusResovler *resolvers.StatusesRootResolver,
 	downloadsResovler resolvers.ContentsDownloadUrlRootResolver,
+	workspaceResolver *resolvers.WorkspaceRootResolver,
 
 	executorProvider executor.Provider,
 
@@ -60,6 +62,7 @@ func NewResolver(
 		authorResolver:    authorResolver,
 		statusResovler:    statusResovler,
 		downloadsResovler: downloadsResovler,
+		workspaceResolver: workspaceResolver,
 
 		executorProvider: executorProvider,
 

@@ -686,6 +686,10 @@ type Change {
 
   # A list of associated statuses from the ci.
   statuses: [Status!]!
+
+  # A workspace from which this change was created.
+  # It is null if this change was imported.
+  workspace: Workspace
 }
 
 type FileDiff {

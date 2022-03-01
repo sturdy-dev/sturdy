@@ -116,3 +116,14 @@ func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsD
 func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
 	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, r.ch)
 }
+
+func (r *ChangeResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
+	if r.ch.WorkspaceID == nil {
+		return nil, nil
+	}
+	yes := true
+	return (*r.root.workspaceResolver).Workspace(ctx, resolvers.WorkspaceArgs{
+		ID:            graphql.ID(*r.ch.WorkspaceID),
+		AllowArchived: &yes,
+	})
+}
