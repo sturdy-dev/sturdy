@@ -14,8 +14,8 @@ import (
 // * use the version from trunk
 // * use the version from the workspace
 // * use the current version of the file on disk (called "custom")
-func (s *Service) Resolve(ctx context.Context, viewID string, resolves []vcsvcs.SturdyRebaseResolve) (*sync.RebaseStatusResponse, error) {
-	view, err := s.viewRepo.Get(viewID)
+func (svc *Service) Resolve(ctx context.Context, viewID string, resolves []vcsvcs.SturdyRebaseResolve) (*sync.RebaseStatusResponse, error) {
+	view, err := svc.viewRepo.Get(viewID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (s *Service) Resolve(ctx context.Context, viewID string, resolves []vcsvcs.
 
 		// No conflicts
 
-		if err := s.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &rebasedCommits[0].OldCommitID, rebasedCommits); err != nil {
+		if err := svc.complete(ctx, repo, view.CodebaseID, view.WorkspaceID, view.ID, &rebasedCommits[0].OldCommitID, rebasedCommits); err != nil {
 			return err
 		}
 
@@ -53,7 +53,7 @@ func (s *Service) Resolve(ctx context.Context, viewID string, resolves []vcsvcs.
 		return nil
 	}
 
-	err = s.executorProvider.New().
+	err = svc.executorProvider.New().
 		AllowRebasingState(). // allowed to get the state of existing conflicts
 		Write(resolveSyncFunc).
 		ExecView(view.CodebaseID, view.ID, "syncResolve2")
