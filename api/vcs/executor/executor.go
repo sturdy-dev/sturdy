@@ -7,9 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
-	"github.com/google/uuid"
 
 	"go.uber.org/zap"
 )
@@ -254,6 +257,8 @@ func (e *executor) ExecTrunk(codebaseID, actionName string) error {
 }
 
 func (e *executor) exec(codebaseID string, viewID *string, actionName string) (err error) {
+	defer getMeterFunc(actionName)()
+
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("recovered call in vcs executor: %v\nStacktrace: %s", r, string(debug.Stack()))
@@ -266,7 +271,9 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 	}
 
 	t0 := time.Now()
-	defer logger.Info("git executor completed", zap.Duration("duration", time.Since(t0)))
+	defer func() {
+		logger.Info("git executor completed", zap.Duration("duration", time.Since(t0)))
+	}()
 
 	if !e.allowRebasing {
 		e.gitFirst(func(repo vcs.RepoGitReader) error {
@@ -365,4 +372,27 @@ func (or *onceRepo) Get() (vcs.RepoWriter, error) {
 		}
 	})
 	return or.repo, or.err
+}
+
+var (
+	meteredMethod = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{Name: "sturdy_executor_call_millis",
+			Buckets: []float64{
+				.01, .025, .05,
+				.1, .25, .5,
+				1, 2.5, 5,
+				10, 25, 50,
+				100, 250, 500,
+				1000, 2500, 5000,
+				10000, 25000, 50000,
+				100000, 250000, 500000,
+			},
+		}, []string{"action"})
+)
+
+func getMeterFunc(action string) func() {
+	t0 := time.Now()
+	return func() {
+		meteredMethod.With(prometheus.Labels{"action": action}).Observe(float64(time.Since(t0).Milliseconds()))
+	}
 }
