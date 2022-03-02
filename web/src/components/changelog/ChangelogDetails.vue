@@ -43,24 +43,7 @@
       <StatusDetails :statuses="change.statuses" />
     </div>
 
-    <div v-if="isDownloadAvailable" class="flex items-center space-x-2">
-      <Button v-if="fetchingZipDownload" size="wider" disabled>
-        <Spinner class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-        <span>Preparing</span>
-      </Button>
-      <Button
-        v-else-if="!fetchingZipDownload && generateZipData && didTriggerDownload"
-        size="wider"
-        disabled
-      >
-        <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-        <span>Opened download in new tab</span>
-      </Button>
-      <Button v-else size="wider" @click="zipDownload">
-        <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-        <span>Download as Zip</span>
-      </Button>
-    </div>
+    <DownloadChangeButton :change-id="change.id" v-if="isDownloadAvailable" />
 
     <div class="flex gap-2 cols-span-2 text-sm">
       <router-link v-if="!!change.parent" :to="{ params: { selectedChangeID: change.parent.id } }">
@@ -89,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { ref, toRefs, watch, inject, computed, Ref, defineComponent, PropType } from 'vue'
+import { ref, inject, computed, Ref, defineComponent, PropType } from 'vue'
 
 import RelativeTime from '../../atoms/RelativeTime.vue'
 import Avatar from '../shared/Avatar.vue'
@@ -100,11 +83,10 @@ import {
   ArrowSmRightIcon as ArrowRightIcon,
   ArrowSmLeftIcon as ArrowLeftIcon,
 } from '@heroicons/vue/solid'
+import DownloadChangeButton from '../../molecules/DownloadChangeButton.vue'
 import StatusDetails, { STATUS_FRAGMENT } from '../statuses/StatusDetails.vue'
-import Spinner from '../shared/Spinner.vue'
-import DownloadIcon from '@heroicons/vue/outline/DownloadIcon'
 import Button from '../shared/Button.vue'
-import { gql, useQuery } from '@urql/vue'
+import { gql } from '@urql/vue'
 import { Feature } from '../../__generated__/types'
 
 import { AUTHOR } from '../shared/AvatarHelper'
@@ -131,6 +113,7 @@ export const CHANGE_FRAGMENT = gql`
         gitHubIsSourceOfTruth
       }
     }
+
     statuses {
       ...Status
     }
@@ -149,13 +132,12 @@ export const CHANGE_FRAGMENT = gql`
 export default defineComponent({
   components: {
     RelativeTime,
+    DownloadChangeButton,
     Avatar,
     CalendarIcon,
     ChatAltIcon,
     CheckCircleIcon,
     StatusDetails,
-    Spinner,
-    DownloadIcon,
     Button,
     ArrowLeftIcon,
     ArrowRightIcon,
@@ -166,50 +148,11 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isDownloadAvailable = computed(() => features?.value?.includes(Feature.DownloadChanges))
-
-    const { change } = toRefs(props)
-
-    const pauseGenerateZip = ref(true)
-    const { data: generateZipData, fetching: fetchingZipDownload } = useQuery({
-      query: gql`
-        query ChangeDetailsDownloadZip($changeID: ID!) {
-          change(id: $changeID) {
-            id
-            downloadZip {
-              id
-              url
-            }
-          }
-        }
-      `,
-      pause: pauseGenerateZip,
-      variables: {
-        changeID: change.value.id,
-      },
-    })
-
-    const didTriggerDownload = ref(false)
-    watch(generateZipData, () => {
-      let url = generateZipData.value?.change?.downloadZip?.url
-      if (url && !didTriggerDownload.value) {
-        didTriggerDownload.value = true // only once
-        window.open(url, '_blank')?.focus()
-      }
-    })
-
     return {
-      generateZipData,
-      fetchingZipDownload,
-      didTriggerDownload,
-
       isDownloadAvailable,
-
-      zipDownload() {
-        pauseGenerateZip.value = false
-      },
     }
   },
   computed: {
