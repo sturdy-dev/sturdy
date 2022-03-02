@@ -171,7 +171,7 @@ func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int,
 
 	nextChange := startFrom
 	for len(res) < limit {
-		next, err := svc.parentChange(ctx, nextChange)
+		next, err := svc.ParentChange(ctx, nextChange)
 		switch {
 		case errors.Is(err, ErrNotFound):
 			return res, nil
@@ -188,7 +188,19 @@ func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int,
 
 var ErrNotFound = errors.New("not found")
 
-func (svc *Service) parentChange(ctx context.Context, ch *changes.Change) (*changes.Change, error) {
+// ChildChange return the first child change of the given change.
+func (svc *Service) ChildChange(ctx context.Context, ch *changes.Change) (*changes.Change, error) {
+	if child, err := svc.changeRepo.GetByParentChangeID(ctx, ch.ID); errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, fmt.Errorf("could not get child change: %w", err)
+	} else {
+		return child, nil
+	}
+}
+
+// ParentChange returns the parent change of the given change.
+func (svc *Service) ParentChange(ctx context.Context, ch *changes.Change) (*changes.Change, error) {
 	if ch.ParentChangeID != nil {
 		// get from db
 		next, err := svc.changeRepo.Get(ctx, *ch.ParentChangeID)
@@ -319,7 +331,7 @@ func firstLine(in string) string {
 }
 
 func (svc *Service) Diffs(ctx context.Context, ch *changes.Change, allower *unidiff.Allower) ([]unidiff.FileDiff, error) {
-	parent, err := svc.parentChange(ctx, ch)
+	parent, err := svc.ParentChange(ctx, ch)
 	switch {
 	case errors.Is(err, ErrNotFound):
 		// use diffToRoot

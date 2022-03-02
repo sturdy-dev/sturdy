@@ -2,8 +2,10 @@ package graphql
 
 import (
 	"context"
+	"errors"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/changes/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
@@ -133,4 +135,30 @@ func (r *ChangeResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolv
 	return (*r.root.codebaseResolver).Codebase(ctx, resolvers.CodebaseArgs{
 		ID: &id,
 	})
+}
+
+func (r *ChangeResolver) Child(ctx context.Context) (resolvers.ChangeResolver, error) {
+	if child, err := r.root.svc.ChildChange(ctx, r.ch); errors.Is(err, service.ErrNotFound) {
+		return nil, nil
+	} else if err != nil {
+		return nil, gqlerrors.Error(err)
+	} else {
+		return &ChangeResolver{
+			ch:   child,
+			root: r.root,
+		}, nil
+	}
+}
+
+func (r *ChangeResolver) Parent(ctx context.Context) (resolvers.ChangeResolver, error) {
+	if parent, err := r.root.svc.ParentChange(ctx, r.ch); errors.Is(err, service.ErrNotFound) {
+		return nil, nil
+	} else if err != nil {
+		return nil, gqlerrors.Error(err)
+	} else {
+		return &ChangeResolver{
+			ch:   parent,
+			root: r.root,
+		}, nil
+	}
 }
