@@ -493,9 +493,8 @@
           <WorkspaceActivitySidebar
             v-if="showActivity"
             class="mt-6 py-6 space-y-8"
-            :workspace-id="data.workspace.id"
+            :workspace="data.workspace"
             :codebase-slug="codebaseSlug"
-            :activity="data.workspace.activity"
             :user="user"
           />
         </aside>
