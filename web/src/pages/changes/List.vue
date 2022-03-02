@@ -25,6 +25,7 @@ import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import { PropType, ref, watch, computed } from 'vue'
 import { useHead } from '@vueuse/head'
+import { DeepMaybeRef } from '@vueuse/core'
 
 import { IdFromSlug } from '../../slug'
 
@@ -69,12 +70,12 @@ export default {
     const limit = 11
 
     // store before state in the query
-    const before = ref(route.query.before)
+    const before = ref(route.query.before as string)
     watch(route, (newRoute) => {
-      before.value = newRoute.query.before
+      before.value = newRoute.query.before as string
     })
 
-    const result = useQuery<ChangelogV2Query, ChangelogV2QueryVariables>({
+    const result = useQuery<ChangelogV2Query, DeepMaybeRef<ChangelogV2QueryVariables>>({
       query: PAGE_QUERY,
       variables: {
         codebaseShortId: codebaseShortId,
