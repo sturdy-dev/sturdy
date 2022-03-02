@@ -3,7 +3,7 @@
     <ChangelogChange
       :codebase-slug="codebase.shortID"
       :change="latestChange"
-      :showDescription="true"
+      :show-description="true"
     />
 
     <div v-if="codebase.changes.length > 1" class="flex flex-col gap-2 flex-1">

@@ -26,17 +26,25 @@
           <Button
             color="blue"
             size="wider"
-            :disabled="creatingOrUpdatingPR"
-            :class="[creatingOrUpdatingPR ? 'cursor-default' : '']"
+            :disabled="creatingOrUpdatingPR || disabled"
+            :class="[creatingOrUpdatingPR || disabled ? 'cursor-default' : '']"
+            :show-tooltip="disabled"
+            :tooltip-right="true"
             @click="createOrUpdatePR"
           >
-            <div v-if="creatingOrUpdatingPR" class="flex items-center">
-              <Spinner class="mr-1" />
-              <span v-if="!hasOpenGitHubPR">Creating pull request</span>
-              <span v-else> Updating pull request </span>
-            </div>
-            <span v-else-if="!hasOpenGitHubPR">Create pull request</span>
-            <span v-else> Update pull request </span>
+            <template #default>
+              <div v-if="creatingOrUpdatingPR" class="flex items-center">
+                <Spinner class="mr-1" />
+                <span v-if="!hasOpenGitHubPR">Creating pull request</span>
+                <span v-else> Updating pull request </span>
+              </div>
+              <span v-else-if="!hasOpenGitHubPR">Create pull request</span>
+              <span v-else> Update pull request </span>
+            </template>
+
+            <template #tooltip>
+              {{ cantSubmitTooltipMessage }}
+            </template>
           </Button>
 
           <Button
@@ -66,15 +74,21 @@
       </template>
       <Button
         color="blue"
-        :disabled="landing"
-        :class="[landing ? 'cursor-default' : '']"
+        :disabled="landing || disabled"
+        :class="[landing || disabled ? 'cursor-default' : '']"
+        :show-tooltip="disabled"
+        :tooltip-right="true"
         @click="shareChange"
       >
-        <div v-if="landing" class="flex items-center">
-          <Spinner class="mr-1" />
-          <span>Sharing</span>
-        </div>
-        <span v-else>Share</span>
+        <template #default>
+          <div v-if="landing" class="flex items-center">
+            <Spinner class="mr-1" />
+            <span>Sharing</span>
+          </div>
+          <span v-else>Share</span>
+        </template>
+
+        <template #tooltip>{{ cantSubmitTooltipMessage }} </template>
       </Button>
     </OnboardingStep>
   </div>
@@ -113,8 +127,14 @@ export const SHARE_BUTTON = gql`
   }
 `
 
+export enum CANT_SUBMIT_REASON {
+  WORKSPACE_NOT_FOUND,
+  NO_DIFFS,
+  EMPTY_DESCRIPTION,
+  HAVE_SELECTED_HUNKS,
+}
+
 export default defineComponent({
-  name: 'ShareButton',
   components: { Spinner, Button, OnboardingStep, ExternalLinkIcon },
   props: {
     workspace: {
@@ -126,8 +146,13 @@ export default defineComponent({
       default: () => [],
     },
     cantSubmitReason: {
-      type: String as PropType<string | undefined>,
-      default: undefined,
+      type: Object as PropType<CANT_SUBMIT_REASON>,
+      default: null,
+      required: false,
+    },
+    disabled: {
+      type: Boolean,
+      required: true,
     },
   },
   emits: {
@@ -170,6 +195,20 @@ export default defineComponent({
       const { owner, name } = this.workspace.codebase.gitHubIntegration ?? {}
       const { pullRequestNumber } = this.workspace.gitHubPullRequest ?? {}
       return `https://github.com/${owner}/${name}/pull/${pullRequestNumber}`
+    },
+    cantSubmitTooltipMessage(): string {
+      switch (this.cantSubmitReason) {
+        case CANT_SUBMIT_REASON.WORKSPACE_NOT_FOUND:
+          return 'Error, no workspace found'
+        case CANT_SUBMIT_REASON.NO_DIFFS:
+          return 'This workspace has no changes.'
+        case CANT_SUBMIT_REASON.EMPTY_DESCRIPTION:
+          return 'The change must be described before it can be shared.'
+        case CANT_SUBMIT_REASON.HAVE_SELECTED_HUNKS:
+          return "It's not possible to share a partial change. Deselect all changes before continuing."
+        default:
+          return 'This change can not be shared.'
+      }
     },
   },
   methods: {
