@@ -24,10 +24,6 @@
 
     <div v-if="justSaved" class="text-gray-400 text-sm my-2">Saved!</div>
 
-    <div v-if="change?.is_landed" class="mt-2 text-sm text-gray-500 flex items-center italic">
-      This change is landed.
-    </div>
-
     <Change
       :change="change"
       :comments="nonArchivedComments"
@@ -39,19 +35,90 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import http from '../../http'
 import Change from '../differ/Change.vue'
-import time from '../../time'
-import { IsFocusChildOfElementWithClass } from '../../focus'
 import debounce from '../../debounce'
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, PropType } from 'vue'
 import Button from '../shared/Button.vue'
 import { MinusIcon, PlusIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 
+import { gql } from '@urql/vue'
+import { ChangeDetails_ChangeFragment } from './__generated__/ChangeDetails'
+import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
+
+export const CHANGE_DETAILS_CHANGE_FRAGMENT = gql`
+  fragment ChangeDetails_Change on Change {
+    id
+    description
+
+    codebase {
+      id
+      members {
+        ...Member
+      }
+    }
+
+    diffs {
+      id
+      origName
+      newName
+      preferredName
+
+      isDeleted
+      isNew
+      isMoved
+
+      isLarge
+      largeFileInfo {
+        id
+        size
+      }
+
+      isHidden
+
+      hunks {
+        id
+        patch
+      }
+    }
+
+    comments {
+      id
+      message
+      codeContext {
+        id
+        path
+        lineEnd
+        lineStart
+        lineIsNew
+      }
+      createdAt
+      deletedAt
+      author {
+        id
+        name
+        avatarUrl
+      }
+      replies {
+        id
+        message
+        createdAt
+        author {
+          id
+          name
+          avatarUrl
+        }
+      }
+    }
+  }
+  ${MEMBER_FRAGMENT}
+`
+
+type Member = ChangeDetails_ChangeFragment['codebase']['members'][number]
+
 export default {
-  name: 'ChangeDetails',
   components: {
     Change,
     Button,
@@ -68,12 +135,15 @@ export default {
       type: String,
       required: true,
     },
-    change: {},
+    change: {
+      type: Object as PropType<ChangeDetails_ChangeFragment>,
+      required: true,
+    },
     user: {
-      type: Object,
+      type: Object as PropType<Member>,
     },
     members: {
-      type: Array,
+      type: Array as PropType<Member[]>,
       required: true,
     },
   },
@@ -82,7 +152,11 @@ export default {
     const createWorkspaceResult = useCreateWorkspace()
 
     return {
-      createWorkspace(codebaseID, onTopOfChange, onTopOfChangeWithRevert) {
+      createWorkspace(
+        codebaseID: string,
+        onTopOfChange?: string,
+        onTopOfChangeWithRevert?: string
+      ) {
         return createWorkspaceResult({
           codebaseID,
           onTopOfChange,
@@ -93,11 +167,11 @@ export default {
   },
   data() {
     return {
-      description: null,
+      description: null as string | null,
       editingDescription: false,
       justSaved: false,
-      unsetJustSavedFunc: null,
-      updateDescriptionDebounceFunc: null,
+      unsetJustSavedFunc: null as (() => void) | null,
+      updateDescriptionDebounceFunc: null as (() => void) | null,
     }
   },
   computed: {
@@ -123,28 +197,17 @@ export default {
       this.justSaved = false
     }, 4000)
 
-    window.addEventListener('keydown', this.onkey)
-
     this.description = this.change?.description
   },
   methods: {
-    onUpdatedDescription(ev) {
+    onUpdatedDescription(ev: { content: string }) {
       this.description = ev.content
-      this.updateDescriptionDebounceFunc()
+      if (this.updateDescriptionDebounceFunc) this.updateDescriptionDebounceFunc()
     },
 
-    friendly_ago(ts) {
-      return time.getRelativeTime(new Date(ts * 1000))
-    },
-    async createWorkspaceHandler(withRevert) {
-      let onTopOfChange = null
-      let onTopOfChangeWithRevert = null
-
-      if (withRevert) {
-        onTopOfChangeWithRevert = this.change.id
-      } else {
-        onTopOfChange = this.change.id
-      }
+    async createWorkspaceHandler(withRevert: boolean) {
+      const onTopOfChangeWithRevert = withRevert ? this.change.id : undefined
+      const onTopOfChange = withRevert ? undefined : this.change.id
 
       await this.createWorkspace(this.codebaseId, onTopOfChange, onTopOfChangeWithRevert).then(
         (result) => {
@@ -168,13 +231,10 @@ export default {
         .then((response) => response.json())
         .then(() => {
           this.justSaved = true
-          this.unsetJustSavedFunc()
-        })
-        .catch((e) => {
-          console.log(e)
+          if (this.unsetJustSavedFunc) this.unsetJustSavedFunc()
         })
     },
-    descriptionKeydown(e) {
+    descriptionKeydown(e: KeyboardEvent) {
       // Cmd + Enter
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
         this.editingDescription = false
@@ -192,27 +252,12 @@ export default {
 
       // Focus the input field
       this.$nextTick(() => {
-        this.$refs.changeDescription.focus()
+        this.focusEdit()
       })
     },
-    descriptionBlur(event) {
-      // Don't blur here if clicked the edit button (which does the same action)
-      if (IsFocusChildOfElementWithClass(event, 'change-details-edit-button')) {
-        return
-      }
-
-      this.editingDescription = false
-    },
-    onkey(e) {
-      // Cmd + Z
-      if ((e.metaKey || e.ctrlKey) && e.keyCode === 90) {
-        if (this.canUndo) {
-          this.$emit('undo', this.commitID)
-        }
-      }
-    },
     focusEdit() {
-      this.$refs.editor.editor.view.dom.focus()
+      const editor = this.$refs['editor'] as HTMLElement
+      editor.focus()
     },
     onSubmittedNewComment() {
       this.$emit('commented')

@@ -91,7 +91,9 @@
 <script lang="ts">
 import { ref, watch } from 'vue'
 import { DeepMaybeRef } from '@vueuse/core'
-import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
+import ChangeDetails, {
+  CHANGE_DETAILS_CHANGE_FRAGMENT,
+} from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import ChangelogDetails, { CHANGE_FRAGMENT } from '../../components/changelog/ChangelogDetails.vue'
@@ -124,59 +126,6 @@ const PAGE_QUERY = gql`
         avatarUrl
       }
 
-      diffs {
-        id
-        origName
-        newName
-        preferredName
-
-        isDeleted
-        isNew
-        isMoved
-
-        isLarge
-        largeFileInfo {
-          id
-          size
-        }
-
-        isHidden
-
-        hunks {
-          id
-          patch
-        }
-      }
-
-      comments {
-        id
-        message
-        codeContext {
-          id
-          path
-          lineEnd
-          lineStart
-          lineIsNew
-        }
-        createdAt
-        deletedAt
-        author {
-          id
-          name
-          avatarUrl
-        }
-        replies {
-          id
-          message
-          createdAt
-          author {
-            id
-            name
-            avatarUrl
-          }
-        }
-      }
-
       codebase {
         id
         shortID
@@ -204,12 +153,14 @@ const PAGE_QUERY = gql`
         }
       }
       ...ChangelogDetails_Change
+      ...ChangeDetails_Change
     }
   }
 
   ${CHANGE_FRAGMENT}
   ${STATUS_FRAGMENT}
   ${MEMBER_FRAGMENT}
+  ${CHANGE_DETAILS_CHANGE_FRAGMENT}
 `
 
 export default {
