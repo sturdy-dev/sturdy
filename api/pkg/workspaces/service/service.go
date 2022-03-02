@@ -10,6 +10,7 @@ import (
 
 	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/activity/sender"
+	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes"
@@ -74,8 +75,9 @@ type WorkspaceService struct {
 	userRepo   user_db.Repository
 	reviewRepo db_review.ReviewRepository
 
-	commentService *service_comments.Service
-	changeService  *service_change.Service
+	commentService  *service_comments.Service
+	changeService   *service_change.Service
+	activityService *service_activity.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -97,6 +99,7 @@ func New(
 
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
+	activityService *service_activity.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -115,8 +118,9 @@ func New(
 		userRepo:   userRepo,
 		reviewRepo: reviewRepo,
 
-		commentService: commentsService,
-		changeService:  changeService,
+		commentService:  commentsService,
+		changeService:   changeService,
+		activityService: activityService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -639,6 +643,11 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 	// Create activity
 	if err := s.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(change.ID)); err != nil {
 		return nil, fmt.Errorf("failed to create workspace activity: %w", err)
+	}
+
+	// Make activity list available for the change
+	if err := s.activityService.SetChange(ctx, ws.ID, change.ID); err != nil {
+		return nil, fmt.Errorf("failed to set change activity: %w", err)
 	}
 
 	// Update codebase cache
