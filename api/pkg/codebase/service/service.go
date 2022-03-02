@@ -13,6 +13,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
+	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/codebase/vcs"
@@ -36,6 +37,7 @@ type Service struct {
 	executorProvider executor.Provider
 	eventsSender     events.EventSender
 	analyticsService *service_analytics.Service
+	changeService    *service_changes.Service
 }
 
 func New(
@@ -48,7 +50,8 @@ func New(
 	logger *zap.Logger,
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
-	analyticsServcie *service_analytics.Service,
+	analyticsService *service_analytics.Service,
+	changeService *service_changes.Service,
 ) *Service {
 	return &Service{
 		repo:             repo,
@@ -60,7 +63,8 @@ func New(
 		logger:           logger,
 		executorProvider: executorProvider,
 		eventsSender:     eventsSender,
-		analyticsService: analyticsServcie,
+		analyticsService: analyticsService,
+		changeService:    changeService,
 	}
 }
 

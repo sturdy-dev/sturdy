@@ -60,7 +60,7 @@ type CodebaseResolver interface {
 	InviteCode() *string
 	CreatedAt() int32
 	ArchivedAt() *int32
-	LastUpdatedAt() *int32
+	LastUpdatedAt(ctx context.Context) *int32
 	Workspaces(ctx context.Context) ([]WorkspaceResolver, error)
 	Members(ctx context.Context, args CodebaseMembersArgs) ([]AuthorResolver, error)
 	Views(ctx context.Context, args CodebaseViewsArgs) ([]ViewResolver, error)

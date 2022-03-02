@@ -3,20 +3,15 @@ package routes
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
-	"time"
+
+	"go.uber.org/zap"
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/codebase/access"
 	"getsturdy.com/api/pkg/codebase/db"
-	"getsturdy.com/api/pkg/codebase/vcs"
 	service_user "getsturdy.com/api/pkg/users/service"
-	vcsvcs "getsturdy.com/api/vcs"
-	"getsturdy.com/api/vcs/executor"
-
-	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,23 +21,7 @@ func Get(
 	codebaseUserRepo db.CodebaseUserRepository,
 	logger *zap.Logger,
 	userService service_user.Service,
-	executorProvider executor.Provider,
 ) gin.HandlerFunc {
-	lastUpdatedAt := func(codebaseID string) time.Time {
-		var gitTime time.Time
-		if err := executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-			changes, err := vcs.ListChanges(repo, 1)
-			if err != nil || len(changes) == 0 {
-				return fmt.Errorf("failed to list changes: %w", err)
-			}
-			gitTime = changes[0].Time
-			return nil
-		}).ExecTrunk(codebaseID, "codebase.LastUpdatedAt"); err != nil {
-			return time.Unix(0, 0)
-		}
-
-		return gitTime
-	}
 	return func(c *gin.Context) {
 		id := c.Param("id")
 
@@ -86,9 +65,8 @@ func Get(
 		}
 
 		c.JSON(http.StatusOK, codebase.CodebaseWithMetadata{
-			Codebase:          *cb,
-			LastUpdatedAtUnix: lastUpdatedAt(cb.ID).Unix(),
-			Members:           memberAuthors,
+			Codebase: *cb,
+			Members:  memberAuthors,
 		})
 	}
 }

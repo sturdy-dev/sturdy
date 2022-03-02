@@ -311,6 +311,11 @@ func (svc *Service) HandlePushEvent(event *PushEvent) error {
 		return fmt.Errorf("failed to update github repository in db: %w", err)
 	}
 
+	// Unset codebase head change cache
+	if err := svc.changeService.UnsetHeadChangeCache(repo.CodebaseID); err != nil {
+		return fmt.Errorf("failed to unset head change cache: %w", err)
+	}
+
 	// Allow all workspaces to be rebased/synced on the latest head
 	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(repo.CodebaseID); err != nil {
 		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)

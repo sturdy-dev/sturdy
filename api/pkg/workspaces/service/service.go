@@ -641,6 +641,11 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 		return nil, fmt.Errorf("failed to create workspace activity: %w", err)
 	}
 
+	// Update codebase cache
+	if err := s.changeService.SetAsHeadChange(change); err != nil {
+		return nil, fmt.Errorf("failed to set as head change: %w", err)
+	}
+
 	// Send events that the codebase has been updated
 	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
 		s.logger.Error("failed to send codebase event", zap.Error(err))

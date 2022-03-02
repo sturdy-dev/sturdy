@@ -19,7 +19,6 @@ import (
 	"getsturdy.com/api/pkg/codebase"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
-	"getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -29,7 +28,6 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
-	vcsvcs "getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/graph-gophers/graphql-go"
@@ -380,25 +378,18 @@ func (r *CodebaseResolver) ArchivedAt() *int32 {
 	return &t
 }
 
-func (r *CodebaseResolver) calculateLastUpdatedAt() *int32 {
+func (r *CodebaseResolver) calculateLastUpdatedAt(ctx context.Context) *int32 {
 	var largestTime int32
+	var zero int32 = 0
 
-	var gitTime time.Time
-	if err := r.root.executorProvider.New().GitRead(func(repo vcsvcs.RepoGitReader) error {
-		changes, err := vcs.ListChanges(repo, 1)
-		if err != nil || len(changes) == 0 {
-			return fmt.Errorf("failed to list changes: %w", err)
-		}
-		gitTime = changes[0].Time
-		return nil
-	}).ExecTrunk(r.c.ID, "codebase.LastUpdatedAt"); err != nil {
-		var zero int32 = 0
+	headChange, err := r.root.changeService.HeadChange(ctx, r.c)
+	if err != nil {
 		return &zero
 	}
 
 	maybeTime := []*time.Time{
-		&gitTime,
-		r.c.CreatedAt,
+		headChange.CreatedAt,
+		headChange.GitCreatedAt,
 	}
 
 	for _, t := range maybeTime {
@@ -418,9 +409,9 @@ func (r *CodebaseResolver) calculateLastUpdatedAt() *int32 {
 	return nil
 }
 
-func (r *CodebaseResolver) LastUpdatedAt() *int32 {
+func (r *CodebaseResolver) LastUpdatedAt(ctx context.Context) *int32 {
 	r.lastUpdatedAtOnce.Do(func() {
-		r.lastUpdatedAt = r.calculateLastUpdatedAt()
+		r.lastUpdatedAt = r.calculateLastUpdatedAt(ctx)
 	})
 	return r.lastUpdatedAt
 }
