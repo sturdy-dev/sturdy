@@ -5,16 +5,16 @@
     </template>
 
     <template #sidebar>
-      <ChangelogDetails v-if="data" :change="data.change" />
+      <ChangelogDetailsFetching v-if="fetching" />
+      <ChangelogDetails v-else :change="data.change" />
 
-      <div class="mt-10 py-6 space-y-8">
+      <div v-if="data?.change" class="mt-10 py-6 space-y-8">
         <div class="divide-y divide-gray-200">
           <div class="pb-4">
             <h2 id="activity-title" class="text-lg font-medium text-gray-900">More changes</h2>
           </div>
           <div class="pt-6">
             <ChangelogSidebar
-              v-if="data"
               :codebase-id="data.change.codebase.id"
               :changes="data.change.codebase.changes"
               :selected-change-id="selectedChangeID"
@@ -27,28 +27,40 @@
 
     <div>
       <div class="md:flex md:items-center md:justify-between md:space-x-4">
-        <div v-if="data && data?.change" class="min-h-16 flex-1">
+        <div class="min-h-16 flex-1">
           <h1 class="text-2xl font-bold text-gray-900">
-            {{ data.change.title }}
+            <template v-if="fetching">
+              <div class="h-6 w-1/2 bg-gray-300 animate-pulse rounded-md" />
+            </template>
+            <template v-else>
+              {{ data.change.title }}
+            </template>
           </h1>
+
           <p class="mt-2 text-sm text-gray-500">
-            By
-            {{ ' ' }}
-            <span class="font-medium text-gray-900">
-              {{ data.change.author?.name }}
-            </span>
-            {{ ' ' }}
-            in
-            {{ ' ' }}
-            <router-link
-              :to="{
-                name: 'codebaseHome',
-                params: { codebaseSlug: codebaseSlug },
-              }"
-              class="font-medium text-gray-900"
-            >
-              {{ data.change.codebase.name }}
-            </router-link>
+            <template v-if="fetching">
+              <div class="h-3 w-1/4 bg-gray-300 animate-pulse rounded-md" />
+            </template>
+
+            <template v-else>
+              By
+              {{ ' ' }}
+              <span class="font-medium text-gray-900">
+                {{ data.change.author?.name }}
+              </span>
+              {{ ' ' }}
+              in
+              {{ ' ' }}
+              <router-link
+                :to="{
+                  name: 'codebaseHome',
+                  params: { codebaseSlug: codebaseSlug },
+                }"
+                class="font-medium text-gray-900"
+              >
+                {{ data.change.codebase.name }}
+              </router-link>
+            </template>
           </p>
         </div>
       </div>
@@ -82,6 +94,7 @@ import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import ChangelogDetails, { CHANGE_FRAGMENT } from '../../components/changelog/ChangelogDetails.vue'
+import ChangelogDetailsFetching from '../../components/changelog/ChangelogDetails.fetching.vue'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
@@ -202,6 +215,7 @@ export default {
   components: {
     PaddedAppRightSidebar,
     ChangelogDetails,
+    ChangelogDetailsFetching,
     ChangeDetails,
     SearchToolbar,
     ChangelogSidebar,
