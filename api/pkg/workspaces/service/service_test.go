@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	db_activity "getsturdy.com/api/pkg/activity/db"
+	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
@@ -42,6 +44,8 @@ func setup(t *testing.T) *testCollaborators {
 	userRepo := db_users.NewMemory()
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
+	activityRepo := db_activity.NewInMemoryRepo()
+	activityService := service_activity.New(nil, activityRepo, eventsSender)
 
 	service := New(
 		logger,
@@ -55,6 +59,7 @@ func setup(t *testing.T) *testCollaborators {
 
 		nil, // commentService
 		nil, // changeService
+		activityService,
 
 		nil, // activitySender
 		executorProvider,

@@ -8,10 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"getsturdy.com/api/pkg/view/stream"
-	"getsturdy.com/api/pkg/view/vcs"
-	"getsturdy.com/api/vcs/provider"
-
+	db_activity "getsturdy.com/api/pkg/activity/db"
+	service_activity "getsturdy.com/api/pkg/activity/service"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase"
 	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
@@ -29,11 +27,14 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/view/stream"
+	"getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -83,6 +84,8 @@ func TestStream(t *testing.T) {
 	aclProvider := acl_provider.New(aclRepo, codebaseUserRepo, userRepo)
 	userService := service_user.New(zap.NewNop(), userRepo, nil)
 	suggestionsDB := db_suggestion.New(d)
+	activityRepo := db_activity.NewInMemoryRepo()
+	activityService := service_activity.New(nil, activityRepo, nil)
 
 	workspaceService := service_workspace.New(
 		logger,
@@ -95,6 +98,7 @@ func TestStream(t *testing.T) {
 
 		nil,
 		nil,
+		activityService,
 
 		nil,
 		executorProvider,

@@ -13,6 +13,7 @@ import (
 
 	"getsturdy.com/api/pkg/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
+	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
@@ -60,6 +61,7 @@ type Service struct {
 	syncService      *service_sync.Service
 	workspaceService service_workspace.Service
 	commentsService  *service_comments.Service
+	activityService  *service_activity.Service
 	changeService    *service_change.Service
 	statusService    *service_statuses.Service
 
@@ -92,6 +94,7 @@ func New(
 	syncService *service_sync.Service,
 	workspaceService service_workspace.Service,
 	commentsService *service_comments.Service,
+	activityService *service_activity.Service,
 	changeService *service_change.Service,
 	statusService *service_statuses.Service,
 
@@ -123,6 +126,7 @@ func New(
 		syncService:      syncService,
 		workspaceService: workspaceService,
 		commentsService:  commentsService,
+		activityService:  activityService,
 		changeService:    changeService,
 		statusService:    statusService,
 
@@ -224,6 +228,9 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 			return fmt.Errorf("failed to migrate comments: %w", err)
 		}
 
+		if err := svc.activityService.SetChange(ctx, ws.ID, ch.ID); err != nil {
+			return fmt.Errorf("failed to set change: %w", err)
+		}
 		if err := svc.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
 			return fmt.Errorf("failed to dissmiss reviews: %w", err)
 		}
