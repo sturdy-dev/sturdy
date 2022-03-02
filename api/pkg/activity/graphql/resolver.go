@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"errors"
 
+	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/auth"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/workspaces/activity"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type resolver struct {
 	root     *root
-	activity *activity.WorkspaceActivity
+	activity *activity.Activity
 }
 
 func (r *resolver) ID() graphql.ID {
@@ -62,28 +62,28 @@ func (r *resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, 
 }
 
 func (r *resolver) ToWorkspaceCommentActivity() (resolvers.WorkspaceCommentActivityResolver, bool) {
-	if r.activity.ActivityType != activity.WorkspaceActivityTypeComment {
+	if r.activity.ActivityType != activity.TypeComment {
 		return nil, false
 	}
 	return r, true
 }
 
 func (r *resolver) ToWorkspaceCreatedChangeActivity() (resolvers.WorkspaceCreatedChangeActivityResolver, bool) {
-	if r.activity.ActivityType != activity.WorkspaceActivityTypeCreatedChange {
+	if r.activity.ActivityType != activity.TypeCreatedChange {
 		return nil, false
 	}
 	return r, true
 }
 
 func (r *resolver) ToWorkspaceRequestedReviewActivity() (resolvers.WorkspaceRequestedReviewActivityResolver, bool) {
-	if r.activity.ActivityType != activity.WorkspaceActivityTypeRequestedReview {
+	if r.activity.ActivityType != activity.TypeRequestedReview {
 		return nil, false
 	}
 	return r, true
 }
 
 func (r *resolver) ToWorkspaceReviewedActivity() (resolvers.WorkspaceReviewedActivityResolver, bool) {
-	if r.activity.ActivityType != activity.WorkspaceActivityTypeReviewed {
+	if r.activity.ActivityType != activity.TypeReviewed {
 		return nil, false
 	}
 	return r, true

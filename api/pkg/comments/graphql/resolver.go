@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/activity"
+	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
@@ -29,8 +31,6 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 	"getsturdy.com/api/vcs/executor"
@@ -391,7 +391,7 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 	}
 
 	// Create workspace activity
-	if err := r.activitySender.Codebase(ctx, comment.CodebaseID, *comment.WorkspaceID, comment.UserID, activity.WorkspaceActivityTypeComment, string(comment.ID)); err != nil {
+	if err := r.activitySender.Codebase(ctx, comment.CodebaseID, *comment.WorkspaceID, comment.UserID, activity.TypeComment, string(comment.ID)); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

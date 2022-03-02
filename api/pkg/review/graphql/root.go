@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/activity"
+	activity_sender "getsturdy.com/api/pkg/activity/sender"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
@@ -19,8 +21,6 @@ import (
 	"getsturdy.com/api/pkg/review"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	activity_sender "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 
@@ -175,7 +175,7 @@ func (r *reviewRootResolver) CreateOrUpdateReview(ctx context.Context, args reso
 		return nil, gqlerrors.Error(fmt.Errorf("failed to create review: %w", err))
 	}
 
-	if err := r.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, userID, activity.WorkspaceActivityTypeReviewed, rev.ID); err != nil {
+	if err := r.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, userID, activity.TypeReviewed, rev.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to create activity: %w", err))
 	}
 
@@ -263,7 +263,7 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, userID, activity.WorkspaceActivityTypeRequestedReview, rev.ID); err != nil {
+	if err := r.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, userID, activity.TypeRequestedReview, rev.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to create activity: %w", err))
 	}
 

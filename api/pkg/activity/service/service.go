@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 
+	"getsturdy.com/api/pkg/activity"
+	db_activity "getsturdy.com/api/pkg/activity/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	db_activity "getsturdy.com/api/pkg/workspaces/activity/db"
 
 	"github.com/google/uuid"
 )
@@ -27,12 +27,12 @@ func New(workspaceActivityReadsRepo db_activity.ActivityReadsRepository,
 	}
 }
 
-func (svc *Service) MarkAsRead(ctx context.Context, userID users.ID, act *activity.WorkspaceActivity) error {
+func (svc *Service) MarkAsRead(ctx context.Context, userID users.ID, act *activity.Activity) error {
 	lastRead, err := svc.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, act.WorkspaceID)
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
-		lastRead = &activity.WorkspaceActivityReads{
+		lastRead = &activity.ActivityReads{
 			ID:                uuid.NewString(),
 			UserID:            userID,
 			WorkspaceID:       act.WorkspaceID,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebase"
@@ -19,7 +20,6 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/workspaces"
-	"getsturdy.com/api/pkg/workspaces/activity"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 )
 
@@ -110,9 +110,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canUserAccessChange(ctx, subjectID, at, &object)
 		case *changes.Change:
 			return s.canUserAccessChange(ctx, subjectID, at, object)
-		case activity.WorkspaceActivity:
+		case activity.Activity:
 			return s.canUserAccessWorkspaceActivity(ctx, subjectID, at, &object)
-		case *activity.WorkspaceActivity:
+		case *activity.Activity:
 			return s.canUserAccessWorkspaceActivity(ctx, subjectID, at, object)
 		case workspaces.Workspace:
 			return s.canUserAccessWorkspace(ctx, subjectID, at, &object)
@@ -164,9 +164,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{})
 			return s.canAnonymousAccessWorkspace(ctx, at, &object)
 		case *workspaces.Workspace:
 			return s.canAnonymousAccessWorkspace(ctx, at, object)
-		case activity.WorkspaceActivity:
+		case activity.Activity:
 			return s.canAnonymousAccessActivity(ctx, at, &object)
-		case *activity.WorkspaceActivity:
+		case *activity.Activity:
 			return s.canAnonymousAccessActivity(ctx, at, object)
 		case view.View:
 			return s.canAnonymousAccessView(ctx, at, &object)
@@ -302,7 +302,7 @@ func (s *Service) canAnonymousAccessWorkspace(ctx context.Context, at accessType
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canAnonymousAccessActivity(ctx context.Context, at accessType, activity *activity.WorkspaceActivity) error {
+func (s *Service) canAnonymousAccessActivity(ctx context.Context, at accessType, activity *activity.Activity) error {
 	if at != accessTypeRead {
 		return fmt.Errorf("anonymous users can only read activities: %w", auth.ErrForbidden)
 	}
@@ -344,7 +344,7 @@ func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, c
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID users.ID, at accessType, a *activity.WorkspaceActivity) error {
+func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID users.ID, at accessType, a *activity.Activity) error {
 	// user can access a workspace activity if they can access the workspace it's in
 	ws, err := s.workspaceService.GetByID(ctx, a.WorkspaceID)
 	if err != nil {

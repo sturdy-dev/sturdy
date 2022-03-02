@@ -4,18 +4,18 @@ import (
 	"context"
 	"time"
 
+	"getsturdy.com/api/pkg/activity"
+	db_activity "getsturdy.com/api/pkg/activity/db"
+	service_activity "getsturdy.com/api/pkg/activity/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	db_activity "getsturdy.com/api/pkg/workspaces/activity/db"
-	service_activity "getsturdy.com/api/pkg/workspaces/activity/service"
 
 	"github.com/google/uuid"
 )
 
 type ActivitySender interface {
-	Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error
+	Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error
 }
 
 type realActivitySender struct {
@@ -39,10 +39,10 @@ func NewActivitySender(
 	}
 }
 
-func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error {
+func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
 	activityID := uuid.NewString()
 
-	act := activity.WorkspaceActivity{
+	act := activity.Activity{
 		ID:           activityID,
 		UserID:       userID,
 		WorkspaceID:  workspaceID,
@@ -74,7 +74,7 @@ func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspace
 
 type noopActivitySender struct{}
 
-func (noopActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.WorkspaceActivityType, referenceID string) error {
+func (noopActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
 	return nil
 }
 
