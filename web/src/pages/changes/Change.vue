@@ -8,6 +8,14 @@
       <ChangelogDetailsFetching v-if="fetching" />
       <ChangelogDetails v-else :change="data.change" />
 
+      <WorkspaceActivitySidebar
+        v-if="false"
+        class="mt-6 py-6 space-y-8"
+        :workspace="data.change.workspace"
+        :codebase-slug="codebaseSlug"
+        :user="user"
+      />
+
       <div v-if="data?.change" class="mt-10 py-6 space-y-8">
         <div class="divide-y divide-gray-200">
           <div class="pb-4">
@@ -91,6 +99,9 @@ import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
+import WorkspaceActivitySidebar, {
+  WORKSPACE_FRAGMENT as WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT,
+} from '../../organisms/WorkspaceActivitySidebar.vue'
 
 import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
 
@@ -136,6 +147,12 @@ const PAGE_QUERY = gql`
           }
         }
       }
+
+      workspace {
+        id
+        ...WorkspaceActivity_Workspace
+      }
+
       ...ChangelogDetails_Change
       ...ChangeDetails_Change
     }
@@ -145,6 +162,7 @@ const PAGE_QUERY = gql`
   ${STATUS_FRAGMENT}
   ${MEMBER_FRAGMENT}
   ${CHANGE_DETAILS_CHANGE_FRAGMENT}
+  ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
 `
 
 export default {
@@ -155,6 +173,7 @@ export default {
     ChangeDetails,
     SearchToolbar,
     ChangelogSidebar,
+    WorkspaceActivitySidebar,
   },
   props: {
     user: {

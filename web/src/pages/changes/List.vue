@@ -3,7 +3,7 @@
     <ChangeListEmpty v-if="data.codebase.changes.length == 0" :codebase-slug="codebaseSlug" />
     <ChangeList
       v-else
-      :changes="data.codebase.changes.slice(0, -1)"
+      :changes="changes"
       :codebase-slug="codebaseSlug"
       :hasNextPage="hasNextPage"
       @next-page="onNextPage"
@@ -108,6 +108,10 @@ export default {
     },
     lastChangeId() {
       return this.data?.codebase?.changes.slice(-2)[0]?.id
+    },
+    changes() {
+      const changes = this.data?.codebase?.changes || []
+      return changes.length < this.limit ? changes : changes.slice(0, -1)
     },
   },
   methods: {
