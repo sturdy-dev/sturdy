@@ -72,17 +72,15 @@
 
     <section>
       <div class="flex-grow pt-4 z-10 relative min-w-0">
-        <div class="pl-1">
-          <ChangeDetails
-            v-if="data"
-            :codebase-id="data.change.codebase.id"
-            :change-id="selectedChangeID"
-            :codebase-slug="codebaseSlug"
-            :change="data.change"
-            :user="user"
-            :members="data.change.codebase.members"
-          />
-        </div>
+        <ChangeDetails
+          v-if="data"
+          :codebase-id="data.change.codebase.id"
+          :change-id="selectedChangeID"
+          :codebase-slug="codebaseSlug"
+          :change="data.change"
+          :user="user"
+          :members="data.change.codebase.members"
+        />
       </div>
     </section>
   </PaddedAppRightSidebar>

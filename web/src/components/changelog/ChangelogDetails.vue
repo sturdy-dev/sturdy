@@ -1,77 +1,89 @@
 <template>
   <div
-    class="xl:space-y-5 flex xl:block justify-between md:justify-start md:space-x-12 xl:space-x-0"
+    class="grid auto-rows-min auto-cols-min grid-flow-row-dense grid-cols-3 xl:grid-cols-1 gap-4"
   >
-    <div class="space-y-5">
-      <div>
-        <ul role="list" class="xl:mt-3 space-y-3">
-          <li class="flex justify-start">
-            <a class="flex items-center space-x-3">
-              <div class="flex-shrink-0">
-                <Avatar :author="change.author" size="5" />
-              </div>
-              <div v-if="change.author?.name" class="text-sm font-medium text-gray-900">
-                {{ change.author.name }}
-              </div>
-              <div v-else class="h-4 rounded-md bg-gray-300 w-3/4 animate-pulse"></div>
-            </a>
-          </li>
-        </ul>
+    <div class="flex items-center space-x-3">
+      <div class="flex-shrink-0">
+        <Avatar :author="change.author" size="5" />
       </div>
-      <div class="flex items-center space-x-2">
-        <ChatAltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-        <span v-if="change.comments.length === 0" class="text-gray-900 text-sm font-medium">
-          No comments
-        </span>
-        <span v-else class="text-gray-900 text-sm font-medium">
-          {{ change.comments.length }}
-          {{ change.comments.length === 1 ? 'comment' : 'comments' }}
-        </span>
+      <div v-if="change.author?.name" class="text-sm font-medium text-gray-900">
+        {{ change.author.name }}
       </div>
+      <div v-else class="h-4 rounded-md bg-gray-300 w-3/4 animate-pulse"></div>
     </div>
 
-    <div class="space-y-5">
-      <div v-if="change.createdAt > 0" class="flex items-center space-x-2">
-        <CalendarIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-        <RelativeTime class="text-gray-900 text-sm font-medium" :date="createdAt" />
-      </div>
-      <a v-if="github_link" :href="github_link" class="flex items-center space-x-2">
-        <CheckCircleIcon class="h-5 w-5 text-green-300" aria-hidden="true" />
-        <span
-          v-if="gitHubIntegration?.gitHubIsSourceOfTruth"
-          class="text-gray-900 text-sm font-medium"
-        >
-          Synced from GitHub
-        </span>
-        <span v-else class="text-gray-900 text-sm font-medium">Synced to GitHub</span>
-      </a>
+    <div class="flex items-center space-x-2">
+      <ChatAltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      <span v-if="change.comments.length === 0" class="text-gray-900 text-sm font-medium">
+        No comments
+      </span>
+      <span v-else class="text-gray-900 text-sm font-medium">
+        {{ change.comments.length }}
+        {{ change.comments.length === 1 ? 'comment' : 'comments' }}
+      </span>
     </div>
 
-    <div class="space-y-5">
-      <div class="flex items-center space-x-2">
-        <StatusDetails :statuses="change.statuses" />
-      </div>
+    <div v-if="change.createdAt > 0" class="flex items-center space-x-2">
+      <CalendarIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      <RelativeTime class="text-gray-900 text-sm font-medium" :date="createdAt" />
     </div>
 
-    <div v-if="isDownloadAvailable">
-      <div class="flex items-center space-x-2">
-        <Button v-if="fetchingZipDownload" size="wider" disabled>
-          <Spinner class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>Preparing</span>
+    <a v-if="github_link" :href="github_link" class="flex items-center space-x-2">
+      <CheckCircleIcon class="h-5 w-5 text-green-300" aria-hidden="true" />
+      <span
+        v-if="gitHubIntegration?.gitHubIsSourceOfTruth"
+        class="text-gray-900 text-sm font-medium"
+      >
+        Synced from GitHub
+      </span>
+      <span v-else class="text-gray-900 text-sm font-medium">Synced to GitHub</span>
+    </a>
+
+    <div class="flex items-center space-x-2">
+      <StatusDetails :statuses="change.statuses" />
+    </div>
+
+    <div v-if="isDownloadAvailable" class="flex items-center space-x-2">
+      <Button v-if="fetchingZipDownload" size="wider" disabled>
+        <Spinner class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+        <span>Preparing</span>
+      </Button>
+      <Button
+        v-else-if="!fetchingZipDownload && generateZipData && didTriggerDownload"
+        size="wider"
+        disabled
+      >
+        <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+        <span>Opened download in new tab</span>
+      </Button>
+      <Button v-else size="wider" @click="zipDownload">
+        <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+        <span>Download as Zip</span>
+      </Button>
+    </div>
+
+    <div class="flex gap-2 cols-span-2 text-sm">
+      <router-link v-if="!!change.parent" :to="{ params: { selectedChangeID: change.parent.id } }">
+        <Button class="flex gap-2" size="small">
+          <ArrowLeftIcon class="h-4 w-4" />
+          Previous
         </Button>
-        <Button
-          v-else-if="!fetchingZipDownload && generateZipData && didTriggerDownload"
-          size="wider"
-          disabled
-        >
-          <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>Opened download in new tab</span>
+      </router-link>
+      <Button v-else :disabled="true" class="flex gap-2" size="small">
+        <ArrowLeftIcon class="h-4 w-4" />
+        Previous
+      </Button>
+
+      <router-link v-if="!!change.child" :to="{ params: { selectedChangeID: change.child.id } }">
+        <Button class="flex gap-2" size="small">
+          Next
+          <ArrowRightIcon class="h-4 w-4" />
         </Button>
-        <Button v-else size="wider" @click="zipDownload">
-          <DownloadIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>Download as Zip</span>
-        </Button>
-      </div>
+      </router-link>
+      <Button v-else :disabled="true" class="flex gap-2" size="small">
+        Next
+        <ArrowRightIcon class="h-4 w-4" />
+      </Button>
     </div>
   </div>
 </template>
@@ -81,7 +93,13 @@ import { ref, toRefs, watch, inject, computed, Ref, defineComponent, PropType } 
 
 import RelativeTime from '../../atoms/RelativeTime.vue'
 import Avatar from '../shared/Avatar.vue'
-import { CalendarIcon, ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
+import {
+  CalendarIcon,
+  ChatAltIcon,
+  CheckCircleIcon,
+  ArrowSmRightIcon as ArrowRightIcon,
+  ArrowSmLeftIcon as ArrowLeftIcon,
+} from '@heroicons/vue/solid'
 import StatusDetails, { STATUS_FRAGMENT } from '../statuses/StatusDetails.vue'
 import Spinner from '../shared/Spinner.vue'
 import DownloadIcon from '@heroicons/vue/outline/DownloadIcon'
@@ -116,6 +134,13 @@ export const CHANGE_FRAGMENT = gql`
     statuses {
       ...Status
     }
+
+    parent {
+      id
+    }
+    child {
+      id
+    }
   }
   ${AUTHOR}
   ${STATUS_FRAGMENT}
@@ -132,6 +157,8 @@ export default defineComponent({
     Spinner,
     DownloadIcon,
     Button,
+    ArrowLeftIcon,
+    ArrowRightIcon,
   },
   props: {
     change: {
