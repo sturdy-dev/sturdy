@@ -15,6 +15,7 @@ import (
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/installations"
+	"getsturdy.com/api/pkg/internal/inmemory"
 	module_logger "getsturdy.com/api/pkg/logger/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -37,6 +38,7 @@ func module(c *di.Container) {
 	c.Import(module_configuration.TestingModule)
 	c.Import(module_change_db.TestModule)
 	c.Import(service.Module)
+	c.Import(inmemory.TestModule)
 }
 
 func TestChangelog(t *testing.T) {
