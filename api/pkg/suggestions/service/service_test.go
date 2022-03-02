@@ -10,6 +10,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	db_changes "getsturdy.com/api/pkg/changes/db"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
@@ -263,7 +264,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
-	changeRepo := inmemory.NewInMemoryChangeRepo()
+	changeRepo := db_changes.NewInMemoryRepo()
 
 	changeService := service_change.New(changeRepo, zap.NewNop(), executorProvider)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
