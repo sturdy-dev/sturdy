@@ -3,6 +3,7 @@ package activity
 import (
 	"time"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -13,6 +14,9 @@ type Activity struct {
 	CreatedAt    time.Time `db:"created_at"`
 	ActivityType Type      `db:"activity_type"`
 	Reference    string    `db:"reference"`
+
+	// If change_id is set, this is a change activity
+	ChangeID *changes.ID `db:"change_id"`
 }
 
 type Type string
