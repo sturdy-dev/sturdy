@@ -6,7 +6,7 @@ import (
 	"getsturdy.com/api/pkg/users"
 )
 
-type WorkspaceActivityReads struct {
+type ActivityReads struct {
 	ID                string    `db:"id"`
 	UserID            users.ID  `db:"user_id"`
 	WorkspaceID       string    `db:"workspace_id"`

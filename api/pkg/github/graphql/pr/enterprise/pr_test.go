@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	activity_sender "getsturdy.com/api/pkg/activity/sender"
 	analytics_service "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
@@ -54,7 +55,6 @@ import (
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
-	activity_sender "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"

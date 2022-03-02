@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/activity"
+	"getsturdy.com/api/pkg/activity/sender"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes"
@@ -27,8 +29,6 @@ import (
 	user_db "getsturdy.com/api/pkg/users/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	"getsturdy.com/api/pkg/workspaces/activity/sender"
 	"getsturdy.com/api/pkg/workspaces/db"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs"
@@ -637,7 +637,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 	}
 
 	// Create activity
-	if err := s.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.WorkspaceActivityTypeCreatedChange, string(change.ID)); err != nil {
+	if err := s.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(change.ID)); err != nil {
 		return nil, fmt.Errorf("failed to create workspace activity: %w", err)
 	}
 

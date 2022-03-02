@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/workspaces/activity"
+	"getsturdy.com/api/pkg/activity"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type ActivityRepository interface {
-	Create(context.Context, activity.WorkspaceActivity) error
-	Get(ctx context.Context, id string) (*activity.WorkspaceActivity, error)
-	ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.WorkspaceActivity, error)
-	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.WorkspaceActivity, error)
+	Create(context.Context, activity.Activity) error
+	Get(ctx context.Context, id string) (*activity.Activity, error)
+	ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error)
+	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error)
 }
 
 type activityRepo struct {
@@ -25,7 +25,7 @@ func NewActivityRepo(db *sqlx.DB) ActivityRepository {
 	return &activityRepo{db: db}
 }
 
-func (r *activityRepo) Create(ctx context.Context, entity activity.WorkspaceActivity) error {
+func (r *activityRepo) Create(ctx context.Context, entity activity.Activity) error {
 	_, err := r.db.NamedExecContext(ctx, `INSERT INTO workspace_activity
 		(id, user_id, workspace_id, created_at, activity_type, reference)
 		VALUES
@@ -36,8 +36,8 @@ func (r *activityRepo) Create(ctx context.Context, entity activity.WorkspaceActi
 	return nil
 }
 
-func (r *activityRepo) Get(ctx context.Context, id string) (*activity.WorkspaceActivity, error) {
-	var res activity.WorkspaceActivity
+func (r *activityRepo) Get(ctx context.Context, id string) (*activity.Activity, error) {
+	var res activity.Activity
 	if err := r.db.GetContext(ctx, &res, `SELECT id, user_id, workspace_id, created_at, activity_type, reference
 		FROM workspace_activity
 		WHERE id = $1`, id); err != nil {
@@ -46,8 +46,8 @@ func (r *activityRepo) Get(ctx context.Context, id string) (*activity.WorkspaceA
 	return &res, nil
 }
 
-func (r *activityRepo) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.WorkspaceActivity, error) {
-	var activities []*activity.WorkspaceActivity
+func (r *activityRepo) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error) {
+	var activities []*activity.Activity
 	if err := r.db.SelectContext(ctx, &activities, `SELECT id, user_id, workspace_id, created_at, activity_type, reference
 		FROM workspace_activity
 		WHERE workspace_id = $1
@@ -57,8 +57,8 @@ func (r *activityRepo) ListByWorkspaceID(ctx context.Context, workspaceID string
 	return activities, nil
 }
 
-func (r *activityRepo) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.WorkspaceActivity, error) {
-	var activities []*activity.WorkspaceActivity
+func (r *activityRepo) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error) {
+	var activities []*activity.Activity
 	if err := r.db.SelectContext(ctx, &activities, `SELECT id, user_id, workspace_id, created_at, activity_type, reference
 		FROM workspace_activity
 		WHERE workspace_id = $1

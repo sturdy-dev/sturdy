@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/workspaces/activity"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type ActivityReadsRepository interface {
-	Create(context.Context, activity.WorkspaceActivityReads) error
-	Update(context.Context, *activity.WorkspaceActivityReads) error
-	GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.WorkspaceActivityReads, error)
+	Create(context.Context, activity.ActivityReads) error
+	Update(context.Context, *activity.ActivityReads) error
+	GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.ActivityReads, error)
 }
 
 type activityReadsRepo struct {
@@ -24,7 +24,7 @@ func NewActivityReadsRepo(db *sqlx.DB) ActivityReadsRepository {
 	return &activityReadsRepo{db: db}
 }
 
-func (r *activityReadsRepo) Create(ctx context.Context, entity activity.WorkspaceActivityReads) error {
+func (r *activityReadsRepo) Create(ctx context.Context, entity activity.ActivityReads) error {
 	_, err := r.db.NamedExecContext(ctx, `INSERT INTO workspace_activity_reads
 		(id, user_id, workspace_id, last_read_created_at)
 		VALUES
@@ -35,7 +35,7 @@ func (r *activityReadsRepo) Create(ctx context.Context, entity activity.Workspac
 	return nil
 }
 
-func (r *activityReadsRepo) Update(ctx context.Context, entity *activity.WorkspaceActivityReads) error {
+func (r *activityReadsRepo) Update(ctx context.Context, entity *activity.ActivityReads) error {
 	_, err := r.db.NamedExecContext(ctx, `UPDATE workspace_activity_reads
 		SET last_read_created_at = :last_read_created_at
 		WHERE id = :id`, &entity)
@@ -45,8 +45,8 @@ func (r *activityReadsRepo) Update(ctx context.Context, entity *activity.Workspa
 	return nil
 }
 
-func (r *activityReadsRepo) GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.WorkspaceActivityReads, error) {
-	var res activity.WorkspaceActivityReads
+func (r *activityReadsRepo) GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*activity.ActivityReads, error) {
+	var res activity.ActivityReads
 	if err := r.db.GetContext(ctx, &res, `SELECT id, user_id, workspace_id, last_read_created_at
 		FROM workspace_activity_reads
 		WHERE workspace_id = $1

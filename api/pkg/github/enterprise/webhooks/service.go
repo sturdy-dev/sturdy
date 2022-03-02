@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/activity"
+	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
@@ -26,8 +28,6 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
-	"getsturdy.com/api/pkg/workspaces/activity"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
@@ -236,7 +236,7 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 		)
 
 		// Create workspace activity
-		if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.WorkspaceActivityTypeCreatedChange, string(ch.ID)); err != nil {
+		if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
 			return fmt.Errorf("failed to create workspace activity: %w", err)
 		}
 

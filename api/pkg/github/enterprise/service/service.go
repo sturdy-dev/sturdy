@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
@@ -23,7 +24,6 @@ import (
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
-	sender_workspace_activity "getsturdy.com/api/pkg/workspaces/activity/sender"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
