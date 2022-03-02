@@ -10,11 +10,11 @@ import (
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 
+	module_change_db "getsturdy.com/api/pkg/changes/db"
 	"getsturdy.com/api/pkg/changes/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/installations"
-	"getsturdy.com/api/pkg/internal/inmemory"
 	module_logger "getsturdy.com/api/pkg/logger/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -35,16 +35,17 @@ func module(c *di.Container) {
 	c.Import(module_logger.Module)
 	c.Import(module_vcs.Module)
 	c.Import(module_configuration.TestingModule)
+	c.Import(module_change_db.TestModule)
+	c.Import(service.Module)
 }
 
 func TestChangelog(t *testing.T) {
-	changeRepo := inmemory.NewInMemoryChangeRepo()
-
 	type deps struct {
 		dig.In
 		ExecutorProvider executor.Provider
 		RepoProvider     provider.RepoProvider
 		Logger           *zap.Logger
+		Service          *service.Service
 	}
 
 	var d deps
@@ -52,9 +53,8 @@ func TestChangelog(t *testing.T) {
 		t.FailNow()
 	}
 
+	svc := d.Service
 	codebaseID := uuid.NewString()
-
-	svc := service.New(changeRepo, d.Logger, d.ExecutorProvider)
 
 	barePath := d.RepoProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(barePath)
@@ -110,4 +110,73 @@ func TestChangelog(t *testing.T) {
 			assert.Equal(t, expected[k+3].message, v.UpdatedDescription, "pos=%d", k)
 		}
 	}
+}
+
+func Test_Parent_Child_navigation(t *testing.T) {
+	type deps struct {
+		dig.In
+		ExecutorProvider executor.Provider
+		RepoProvider     provider.RepoProvider
+		Logger           *zap.Logger
+		Service          *service.Service
+	}
+
+	var d deps
+	if !assert.NoError(t, di.Init(&d, module)) {
+		t.FailNow()
+	}
+
+	svc := d.Service
+	codebaseID := uuid.NewString()
+
+	barePath := d.RepoProvider.TrunkPath(codebaseID)
+	_, err := vcs.CreateBareRepoWithRootCommit(barePath)
+	assert.NoError(t, err)
+
+	viewID := uuid.NewString()
+	viewPath := d.RepoProvider.ViewPath(codebaseID, viewID)
+
+	t.Log("viewPath", viewPath)
+
+	_, err = vcs.CloneRepo(barePath, viewPath)
+	assert.NoError(t, err)
+
+	output, err := exec.Command("bash", "testdata/generate-repo.sh", viewPath).CombinedOutput()
+	if !assert.NoError(t, err) {
+		t.Logf("output: %s", string(output))
+	}
+
+	assert.NoError(t, d.ExecutorProvider.New().Write(func(writer vcs.RepoWriter) error {
+		assert.NoError(t, writer.ForcePush(d.Logger, "sturdytrunk"))
+		return nil
+	}).AllowRebasingState().ExecView(codebaseID, viewID, "test"))
+
+	ctx := context.Background()
+
+	changes, err := svc.Changelog(ctx, codebaseID, 100, nil)
+	assert.NoError(t, err)
+
+	if !assert.Len(t, changes, 6) {
+		t.FailNow()
+	}
+
+	secondChange := changes[1]
+
+	secondChangeParent, err := svc.ParentChange(ctx, secondChange)
+	assert.NoError(t, err)
+	assert.Equal(t, secondChangeParent.ID, *secondChange.ParentChangeID)
+	assert.Equal(t, secondChangeParent.ID, changes[2].ID)
+
+	secondChangeChild, err := svc.ChildChange(ctx, secondChange)
+	assert.NoError(t, err)
+	assert.Equal(t, *secondChangeChild.ParentChangeID, secondChange.ID)
+	assert.Equal(t, secondChangeChild.ID, changes[0].ID)
+
+	lastChange := changes[len(changes)-1]
+	_, lastChangeParentErr := svc.ParentChange(ctx, lastChange)
+	assert.Equal(t, lastChangeParentErr, service.ErrNotFound)
+
+	firstChange := changes[0]
+	_, firstChangeChildErr := svc.ChildChange(ctx, firstChange)
+	assert.Equal(t, firstChangeChildErr, service.ErrNotFound)
 }

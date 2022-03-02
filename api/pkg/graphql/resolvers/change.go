@@ -34,6 +34,9 @@ type ChangeResolver interface {
 	Workspace(context.Context) (WorkspaceResolver, error)
 	Codebase(context.Context) (CodebaseResolver, error)
 
+	Parent(context.Context) (ChangeResolver, error)
+	Child(context.Context) (ChangeResolver, error)
+
 	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
 	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
 }

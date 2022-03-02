@@ -12,4 +12,5 @@ type Repository interface {
 	GetByCommitID(ctx context.Context, commitID, codebaseID string) (*changes.Change, error)
 	Insert(ctx context.Context, ch changes.Change) error
 	Update(ctx context.Context, ch changes.Change) error
+	GetByParentChangeID(context.Context, changes.ID) (*changes.Change, error)
 }

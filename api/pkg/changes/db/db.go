@@ -85,3 +85,15 @@ func (r *repo) ListByIDs(ctx context.Context, ids ...changes.ID) ([]*changes.Cha
 	}
 	return res, nil
 }
+
+func (r *repo) GetByParentChangeID(ctx context.Context, parentChangeID changes.ID) (*changes.Change, error) {
+	res := &changes.Change{}
+	if err := r.db.GetContext(ctx, res, `
+		SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id, parent_change_id, workspace_id
+		FROM changes
+		WHERE parent_change_id = $1
+	`, parentChangeID); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
