@@ -138,7 +138,10 @@ export const updatedWorkspaceActivityUpdateResolver: UpdateResolver<
       for (const cb of data.codebases) {
         for (const ws of cb.workspaces) {
           if (ws.id === result.updatedWorkspaceActivity.workspace.id) {
-            ws.activity = [updatedActivity]
+            ws.activity = [
+              updatedActivity,
+              ...ws.activity.filter((activity) => activity.id != updatedActivity.id),
+            ]
           }
         }
       }
@@ -156,15 +159,6 @@ export const updatedWorkspaceActivityUpdateResolver: UpdateResolver<
       variables: { id: updatedActivity.workspace.id },
     },
     (data) => {
-      if (!data) {
-        return {
-          workspace: {
-            __typename: 'Workspace',
-            id: updatedActivity.workspace.id,
-            activity: [updatedActivity],
-          },
-        }
-      }
       if (!data) return data
       data.workspace.activity = [
         updatedActivity,
