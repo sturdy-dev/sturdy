@@ -90,6 +90,7 @@
 
 <script lang="ts">
 import { ref, watch } from 'vue'
+import { DeepMaybeRef } from '@vueuse/core'
 import ChangeDetails from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
@@ -234,7 +235,10 @@ export default {
       selectedChangeID.value = newRoute.params.selectedChangeID as string
     })
 
-    const { data, fetching, error } = useQuery<ChangePageQuery, ChangePageQueryVariables>({
+    const { data, fetching, error } = useQuery<
+      ChangePageQuery,
+      DeepMaybeRef<ChangePageQueryVariables>
+    >({
       query: PAGE_QUERY,
       variables: {
         changeID: selectedChangeID,
