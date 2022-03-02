@@ -70,18 +70,8 @@
       </aside>
     </div>
 
-    <section>
-      <div class="flex-grow pt-4 z-10 relative min-w-0">
-        <ChangeDetails
-          v-if="data"
-          :codebase-id="data.change.codebase.id"
-          :change-id="selectedChangeID"
-          :codebase-slug="codebaseSlug"
-          :change="data.change"
-          :user="user"
-          :members="data.change.codebase.members"
-        />
-      </div>
+    <section class="flex-grow pt-4 z-10 relative min-w-0">
+      <ChangeDetails v-if="data" :change="data.change" :user="user" />
     </section>
   </PaddedAppRightSidebar>
 </template>
@@ -128,10 +118,6 @@ const PAGE_QUERY = gql`
         id
         shortID
         name
-
-        members {
-          ...Member
-        }
 
         changes {
           id

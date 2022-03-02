@@ -28,9 +28,8 @@
       :change="change"
       :comments="nonArchivedComments"
       :user="user"
-      :members="members"
+      :members="change.codebase.members"
       :show-full-file-button="true"
-      @submittedNewComment="onSubmittedNewComment"
     />
   </div>
 </template>
@@ -43,7 +42,6 @@ import { defineAsyncComponent, PropType } from 'vue'
 import Button from '../shared/Button.vue'
 import { MinusIcon, PlusIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
-
 import { gql } from '@urql/vue'
 import { ChangeDetails_ChangeFragment } from './__generated__/ChangeDetails'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
@@ -127,24 +125,12 @@ export default {
     Editor: defineAsyncComponent(() => import('../workspace/Editor.vue')),
   },
   props: {
-    codebaseSlug: {
-      type: String,
-      required: true,
-    },
-    codebaseId: {
-      type: String,
-      required: true,
-    },
     change: {
       type: Object as PropType<ChangeDetails_ChangeFragment>,
       required: true,
     },
     user: {
       type: Object as PropType<Member>,
-    },
-    members: {
-      type: Array as PropType<Member[]>,
-      required: true,
     },
   },
   emits: ['ready', 'approve', 'land', 'drop', 'revert', 'undo', 'commented'],
@@ -179,7 +165,7 @@ export default {
       return !!this.user
     },
     isAuthorized() {
-      const isMember = this.members.some(({ id }) => id === this.user?.id)
+      const isMember = this.change.codebase.members.some(({ id }) => id === this.user?.id)
       return this.isAuthenticated && isMember
     },
     nonArchivedComments() {
@@ -209,14 +195,16 @@ export default {
       const onTopOfChangeWithRevert = withRevert ? this.change.id : undefined
       const onTopOfChange = withRevert ? undefined : this.change.id
 
-      await this.createWorkspace(this.codebaseId, onTopOfChange, onTopOfChangeWithRevert).then(
-        (result) => {
-          this.$router.push({
-            name: 'workspaceHome',
-            params: { id: result.createWorkspace.id },
-          })
-        }
-      )
+      await this.createWorkspace(
+        this.change.codebase.id,
+        onTopOfChange,
+        onTopOfChangeWithRevert
+      ).then((result) => {
+        this.$router.push({
+          name: 'workspaceHome',
+          params: { id: result.createWorkspace.id },
+        })
+      })
     },
     save() {
       fetch(http.url('v3/changes/' + this.change.id + '/update'), {
@@ -258,9 +246,6 @@ export default {
     focusEdit() {
       const editor = this.$refs['editor'] as HTMLElement
       editor.focus()
-    },
-    onSubmittedNewComment() {
-      this.$emit('commented')
     },
   },
 }

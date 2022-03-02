@@ -497,7 +497,6 @@
             :codebase-slug="codebaseSlug"
             :activity="data.workspace.activity"
             :user="user"
-            :members="data.workspace.codebase.members"
           />
         </aside>
       </div>
