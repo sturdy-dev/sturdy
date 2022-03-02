@@ -266,7 +266,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
 	changeRepo := db_changes.NewInMemoryRepo()
 
-	changeService := service_change.New(changeRepo, zap.NewNop(), executorProvider)
+	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, nil, executorProvider, zap.NewNop())
 	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, nil, changeService, nil, executorProvider, nil, nil, gitSnapshotter, nil)

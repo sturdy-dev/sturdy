@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
@@ -14,7 +16,6 @@ import (
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
-	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -64,7 +65,7 @@ func TestCanWrite_codebase(t *testing.T) {
 
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil, nil)
 
 	authService := service_auth.New(
 		codebaseService,
@@ -159,7 +160,7 @@ func TestCanRead_codebase(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil)
 
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
@@ -261,7 +262,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil)
 
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
