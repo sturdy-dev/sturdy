@@ -21,18 +21,18 @@ import (
 type Service struct {
 	organizationRepository       db_organization.Repository
 	organizationMemberRepository db_organization.MemberRepository
-	analyticsServcie             *service_analytics.Service
+	analyticsService             *service_analytics.Service
 }
 
 func New(
 	organizationRepository db_organization.Repository,
 	organizationMemberRepository db_organization.MemberRepository,
-	analyticsServcie *service_analytics.Service,
+	analyticsService *service_analytics.Service,
 ) *Service {
 	return &Service{
 		organizationRepository:       organizationRepository,
 		organizationMemberRepository: organizationMemberRepository,
-		analyticsServcie:             analyticsServcie,
+		analyticsService:             analyticsService,
 	}
 }
 
@@ -106,10 +106,26 @@ func (svc *Service) Create(ctx context.Context, name string) (*organization.Orga
 		return nil, fmt.Errorf("failed to invite creator to organization: %w", err)
 	}
 
-	svc.analyticsServcie.IdentifyOrganization(ctx, &org)
-	svc.analyticsServcie.Capture(ctx, "create organization", analytics.OrganizationID(org.ID))
+	svc.analyticsService.IdentifyOrganization(ctx, &org)
+	svc.analyticsService.Capture(ctx, "create organization", analytics.OrganizationID(org.ID))
 
 	return &org, nil
+}
+
+func (svc *Service) Update(ctx context.Context, organizationID string, newName string) (*organization.Organization, error) {
+
+	org, err := svc.organizationRepository.Get(ctx, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get organization by this ID: %w", err)
+	}
+
+	org.Name = newName
+
+	err = svc.organizationRepository.Update(ctx, org)
+	if err != nil {
+		return nil, fmt.Errorf("could not update organization: %w", err)
+	}
+	return org, nil
 }
 
 func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedByUserID users.ID) (*organization.Member, error) {
@@ -125,7 +141,7 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
-	svc.analyticsServcie.Capture(ctx, "add member to organization",
+	svc.analyticsService.Capture(ctx, "add member to organization",
 		analytics.OrganizationID(orgID),
 		analytics.Property("user_id", userID),
 	)
@@ -147,7 +163,7 @@ func (svc *Service) RemoveMember(ctx context.Context, orgID string, userID users
 		return fmt.Errorf("could not update member: %w", err)
 	}
 
-	svc.analyticsServcie.Capture(ctx, "remove member from organization",
+	svc.analyticsService.Capture(ctx, "remove member from organization",
 		analytics.OrganizationID(orgID),
 		analytics.Property("user_id", userID),
 	)

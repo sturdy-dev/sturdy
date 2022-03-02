@@ -146,6 +146,23 @@ func (r *organizationRootResolver) CreateOrganization(ctx context.Context, args 
 	return &organizationResolver{root: r, org: org}, nil
 }
 
+func (r *organizationRootResolver) UpdateOrganization(ctx context.Context, args resolvers.UpdateOrganizationArgs) (resolvers.OrganizationResolver, error) {
+	org, err := r.service.GetByID(ctx, args.Input.Name)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if authErr := r.authService.CanWrite(ctx, org); authErr != nil {
+		return nil, gqlerrors.Error(authErr)
+	}
+
+	org, err = r.service.Update(ctx, string(args.Input.ID), args.Input.Name)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	return &organizationResolver{root: r, org: org}, nil
+}
+
 func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, args resolvers.AddUserToOrganizationArgs) (resolvers.OrganizationResolver, error) {
 	org, err := r.service.GetByID(ctx, string(args.Input.OrganizationID))
 	if err != nil {
