@@ -154,6 +154,7 @@ type Mutation {
 
   # Organizations
   createOrganization(input: CreateOrganizationInput!): Organization!
+  updateOrganization(input: UpdateOrganizationInput!): Organization!
   addUserToOrganization(input: AddUserToOrganizationInput!): Organization!
   removeUserFromOrganization(
     input: RemoveUserFromOrganizationInput!
@@ -957,6 +958,11 @@ interface Writeable {
 }
 
 input CreateOrganizationInput {
+  name: String!
+}
+
+input UpdateOrganizationInput {
+  id: ID!
   name: String!
 }
 

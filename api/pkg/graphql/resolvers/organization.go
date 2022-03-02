@@ -12,6 +12,7 @@ type OrganizationRootResolver interface {
 
 	// Mutations
 	CreateOrganization(context.Context, CreateOrganizationArgs) (OrganizationResolver, error)
+	UpdateOrganization(context.Context, UpdateOrganizationArgs) (OrganizationResolver, error)
 	AddUserToOrganization(context.Context, AddUserToOrganizationArgs) (OrganizationResolver, error)
 	RemoveUserFromOrganization(context.Context, RemoveUserFromOrganizationArgs) (OrganizationResolver, error)
 }
@@ -43,6 +44,15 @@ type AddUserToOrganizationArgs struct {
 type AddUserToOrganizationInput struct {
 	OrganizationID graphql.ID
 	Email          string
+}
+
+type UpdateOrganizationArgs struct {
+	Input UpdateOrganizationInput
+}
+
+type UpdateOrganizationInput struct {
+	ID   graphql.ID
+	Name string
 }
 
 type OrganizationArgs struct {
