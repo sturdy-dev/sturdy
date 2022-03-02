@@ -1,6 +1,6 @@
 <template>
   <div v-if="change">
-    <div class="flex xl:justify-between xl:space-x-4 items-start flex-col-reverse xl:flex-row mb-4">
+    <div class="flex flex-1 items-start flex-col-reverse md:flex-row gap-2 mb-4">
       <Editor
         v-if="description"
         ref="editor"
@@ -9,15 +9,15 @@
         @updated="onUpdatedDescription"
       />
 
-      <div v-if="isAuthorized" class="flex space-x-4 flex-shrink-0 mb-4">
-        <Button size="wider" @click="createWorkspaceHandler(true)">
-          <MinusIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>Revert</span>
-        </Button>
-
+      <div v-if="isAuthorized" class="flex md:flex-col flex-shrink-0 gap-2">
         <Button size="wider" @click="createWorkspaceHandler(false)">
           <PlusIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
           <span>Create Workspace</span>
+        </Button>
+
+        <Button size="wider" @click="createWorkspaceHandler(true)">
+          <MinusIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+          <span>Revert</span>
         </Button>
       </div>
     </div>
