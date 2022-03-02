@@ -25,11 +25,13 @@
         :change="change"
         :comments-state="commentsState"
         :show-add-button="showAddButton"
+        :differ-state="getDifferState(fileKey)"
         @fileSelectedHunks="updateSelectedHunks"
         @applyHunkedSuggestion="onApplyHunkedSuggestion"
         @dismissHunkedSuggestion="onDismissHunkedSuggestion"
         @set-comment-expanded="onSetCommentExpanded"
         @set-comment-composing-reply="onSetCommentComposingReply"
+        @set-is-hidden="onSetFileIsHidden"
       />
     </div>
   </div>
@@ -49,6 +51,7 @@ import {
   SetCommentExpandedEvent,
 } from '../comments/CommentState'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
+import { DifferState, SetFileIsHiddenEvent } from './DifferState'
 
 const getIndicesOf = function (searchStr: string, str: string, caseSensitive: boolean): number[] {
   let searchStrLen = searchStr.length
@@ -127,6 +130,8 @@ export default defineComponent({
       // Which comments that are expanded, and which ones that we're currently replying to (and with their contents)
       // This makes commenting resume-able if a child component is re-mounted
       commentsState: new Map<string, CommentState>(),
+
+      differState: new Map<string, DifferState>(),
     }
   },
   computed: {
@@ -259,6 +264,26 @@ export default defineComponent({
         composingReply: e.composingReply,
       }
       this.commentsState.set(e.commentId, state)
+    },
+    onSetFileIsHidden(e: SetFileIsHiddenEvent) {
+      const current = this.differState.get(e.fileKey)
+      if (current) {
+        current.isHidden = e.isHidden
+        return
+      }
+      const state = {
+        isHidden: e.isHidden,
+      }
+      this.differState.set(e.fileKey, state)
+    },
+    getDifferState(fileKey: string): DifferState {
+      const current = this.differState.get(fileKey)
+      if (current) {
+        return current
+      }
+      return {
+        isHidden: false,
+      }
     },
   },
 })

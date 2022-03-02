@@ -23,10 +23,10 @@
       @ignore="ignoreFile"
       @showdropdown="fileDropdownOpen = true"
       @hidedropdown="fileDropdownOpen = false"
-      @unhide="isHidden = false"
+      @unhide="emitIsHidden(false)"
       @showSuggestionsByUser="onSuggestionsAvatarClick"
     />
-    <div v-if="isHidden && isHiddenTooManyChanges">
+    <div v-if="differState.isHidden && isHiddenTooManyChanges">
       <div class="bg-white">
         <div class="px-4 py-5 sm:px-6">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <template v-if="!isHidden && showSuggestions && !diffs.is_large && !diffs.isLarge">
+    <template v-if="!differState.isHidden && showSuggestions && !diffs.is_large && !diffs.isLarge">
       <template v-for="suggestion in suggestions">
         <template v-if="suggestion.author.id === showingSuggestionsByUser">
           <DiffTable
@@ -87,7 +87,13 @@
     </template>
 
     <div
-      v-if="isReadyToDisplay && !isHidden && !showSuggestions && !diffs.is_large && !diffs.isLarge"
+      v-if="
+        isReadyToDisplay &&
+        !differState.isHidden &&
+        !showSuggestions &&
+        !diffs.is_large &&
+        !diffs.isLarge
+      "
     >
       <div class="d2h-code-wrapper">
         <table
@@ -100,7 +106,7 @@
             :class="[
               'd2h-diff-tbody d2h-file-diff z-0',
               checkedHunks.get(diffs.hunks[hunkIndex].id) ? 'opacity-70' : '',
-              isHidden ? 'hidden' : '',
+              differState.isHidden ? 'hidden' : '',
             ]"
           >
             <template
@@ -280,9 +286,9 @@ import {
   ReviewNewCommentWorkspaceFragment,
 } from './__generated__/ReviewNewComment'
 import { CommentState } from '../comments/CommentState'
+import { DifferState, SetFileIsHiddenEvent } from './DifferState'
 
 interface Data {
-  isHidden: boolean
   isHiddenTooManyChanges: boolean
   isReadyToDisplay: boolean
   isAdded: boolean
@@ -335,10 +341,10 @@ export default defineComponent({
     'dismissHunkedSuggestion',
     'set-comment-expanded',
     'set-comment-composing-reply',
+    'set-is-hidden',
   ],
   data(): Data {
     return {
-      isHidden: false,
       isHiddenTooManyChanges: false,
       isReadyToDisplay: false,
       isAdded: false,
@@ -357,7 +363,10 @@ export default defineComponent({
   },
   props: {
     isSuggesting: Boolean,
-    fileKey: String,
+    fileKey: {
+      type: String,
+      required: true,
+    },
     extraClasses: String,
     diffs: {
       type: Object as PropType<FileDiff>,
@@ -403,6 +412,11 @@ export default defineComponent({
 
     showAddButton: {
       type: Boolean,
+      required: true,
+    },
+
+    differState: {
+      type: Object as PropType<DifferState>,
       required: true,
     },
   },
@@ -555,7 +569,7 @@ export default defineComponent({
       if (sumPatchLength > 20000) {
         this.isHiddenTooManyChanges = true
         this.isReadyToDisplay = true
-        this.isHidden = true
+        this.emitIsHidden(true)
         this.parsedHunks = []
         return
       }
@@ -579,12 +593,14 @@ export default defineComponent({
       this.updatedSelection()
 
       // Show!
-      this.isHidden = false
+      if (this.differState.isHidden) {
+        // this.emitIsHidden(false)
+      }
       this.isHiddenTooManyChanges = false
       this.isReadyToDisplay = true
     },
     forceShow() {
-      this.isHidden = false
+      this.emitIsHidden(false)
       this.isHiddenTooManyChanges = false
       this.isReadyToDisplay = false
       this.parse()
@@ -703,13 +719,13 @@ export default defineComponent({
       return false
     },
     toggleHideFile() {
-      this.isHidden = !this.isHidden
+      this.emitIsHidden(!this.differState.isHidden)
     },
     toggleAdd() {
       this.isAdded = !this.isAdded
 
       // Hidden follows added
-      this.isHidden = this.isAdded
+      this.emitIsHidden(this.isAdded)
 
       // Set all hunks as added / un-added
       this.setAllHunks(this.isAdded)
@@ -847,6 +863,14 @@ export default defineComponent({
         isExpanded: false,
         composingReply: undefined,
       }
+    },
+
+    emitIsHidden(val: boolean) {
+      const ev: SetFileIsHiddenEvent = {
+        fileKey: this.fileKey,
+        isHidden: val,
+      }
+      this.$emit('set-is-hidden', ev)
     },
   },
 })
