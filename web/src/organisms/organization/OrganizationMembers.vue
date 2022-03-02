@@ -46,7 +46,7 @@
     </div>
 
     <div v-if="!organization.writeable">
-      <p class="text-sm tetx-gray-500">
+      <p class="text-sm text-gray-500">
         You don't have permissions to invite users to this organization, ask an admin for help if
         you want to invite someone.
       </p>

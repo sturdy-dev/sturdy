@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/author"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/users"
 
 	"github.com/gosimple/slug"
@@ -24,6 +25,10 @@ type Codebase struct {
 
 	IsReady  bool `json:"is_ready" db:"is_ready"`
 	IsPublic bool `json:"is_public" db:"is_public"`
+
+	// Use through ChangeService.HeadChange()
+	CalculatedHeadChangeID bool        `json:"-" db:"calculated_head_change_id"`
+	CachedHeadChangeID     *changes.ID `json:"-" db:"cached_head_change_id"`
 }
 
 type CodebaseUser struct {
@@ -35,8 +40,7 @@ type CodebaseUser struct {
 
 type CodebaseWithMetadata struct {
 	Codebase
-	LastUpdatedAtUnix int64           `json:"last_updated_at_unix"`
-	Members           []author.Author `json:"members"`
+	Members []author.Author `json:"members"`
 }
 
 func (c Codebase) Slug() string {

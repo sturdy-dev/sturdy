@@ -14,6 +14,8 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	db_change "getsturdy.com/api/pkg/changes/db"
 	"getsturdy.com/api/pkg/changes/message"
+	"getsturdy.com/api/pkg/codebase"
+	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
@@ -24,17 +26,20 @@ import (
 
 type Service struct {
 	changeRepo       db_change.Repository
+	codebaseRepo     db_codebase.CodebaseRepository
 	logger           *zap.Logger
 	executorProvider executor.Provider
 }
 
 func New(
 	changeRepo db_change.Repository,
+	codebaseRepo db_codebase.CodebaseRepository,
 	logger *zap.Logger,
 	executorProvider executor.Provider,
 ) *Service {
 	return &Service{
 		changeRepo:       changeRepo,
+		codebaseRepo:     codebaseRepo,
 		logger:           logger.Named("changeService"),
 		executorProvider: executorProvider,
 	}
@@ -377,4 +382,68 @@ func (svc *Service) Diffs(ctx context.Context, ch *changes.Change, allower *unid
 	}
 
 	return decoratedDiff, nil
+}
+
+func (svc *Service) HeadChange(ctx context.Context, cb *codebase.Codebase) (*changes.Change, error) {
+	if cb.CalculatedHeadChangeID && cb.CachedHeadChangeID == nil {
+		return nil, ErrNotFound
+	}
+
+	if cb.CalculatedHeadChangeID && cb.CachedHeadChangeID != nil {
+		return svc.GetChangeByID(ctx, *cb.CachedHeadChangeID)
+	}
+
+	headChange, err := svc.head(ctx, cb.ID)
+	switch {
+	case errors.Is(err, ErrNotFound):
+		cb.CalculatedHeadChangeID = true
+		cb.CachedHeadChangeID = nil
+	case err != nil:
+		return nil, fmt.Errorf("failed to get changelog: %w", err)
+	default:
+		cb.CalculatedHeadChangeID = true
+		cb.CachedHeadChangeID = &headChange.ID
+	}
+
+	if err := svc.codebaseRepo.Update(cb); err != nil {
+		return nil, fmt.Errorf("failed to update codebase head change: %w", err)
+	}
+
+	if headChange == nil {
+		return nil, ErrNotFound
+	}
+
+	return headChange, nil
+}
+
+func (svc *Service) UnsetHeadChangeCache(codebaseID string) error {
+	cb, err := svc.codebaseRepo.Get(codebaseID)
+	if err != nil {
+		return fmt.Errorf("failed to get codebase: %w", err)
+	}
+
+	cb.CalculatedHeadChangeID = false
+	cb.CachedHeadChangeID = nil
+
+	if err := svc.codebaseRepo.Update(cb); err != nil {
+		return fmt.Errorf("failed to set codebase head change: %w", err)
+	}
+
+	return nil
+}
+
+func (svc *Service) SetAsHeadChange(ch *changes.Change) error {
+	cb, err := svc.codebaseRepo.Get(ch.CodebaseID)
+	if err != nil {
+		return fmt.Errorf("failed to get codebase: %w", err)
+	}
+
+	cb.CalculatedHeadChangeID = true
+	cb.CachedHeadChangeID = &ch.ID
+
+	if err := svc.codebaseRepo.Update(cb); err != nil {
+		return fmt.Errorf("failed to set codebase head change: %w", err)
+	}
+
+	return nil
 }
