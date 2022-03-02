@@ -335,9 +335,11 @@
                       leave-to-class="opacity-0 scale-75"
                     >
                       <ShareButton
-                        v-if="data.workspace && canSubmitChange"
+                        v-if="data.workspace"
                         :workspace="data.workspace"
                         :all-hunk-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.id))"
+                        :disabled="!canSubmitChange"
+                        :cant-submit-reason="cantSubmitChangeReason"
                         @pre-create-change="preCreateChange"
                       />
                     </transition>
@@ -522,12 +524,12 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   computed,
   defineAsyncComponent,
-  onUnmounted,
-  ref,
-  watch,
   defineComponent,
   inject,
+  onUnmounted,
+  ref,
   Ref,
+  watch,
 } from 'vue'
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
@@ -553,16 +555,18 @@ import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import ViewStatusIndicator, { VIEW_STATUS_INDICATOR } from '../components/ViewStatusIndicator.vue'
 import ButtonWithDropdown from '../components/shared/ButtonWithDropdown.vue'
 import { MenuItem } from '@headlessui/vue'
-import { ViewStatusState } from '../__generated__/types'
+import { Feature, ViewStatusState } from '../__generated__/types'
 import { useOpenWorkspaceOnView } from '../mutations/useOpenWorkspaceOnView'
 import Tooltip from '../components/shared/Tooltip.vue'
 import { useUpdatedWorkspaceWatchers } from '../subscriptions/useUpdatedWorkspaceWathcers'
 import { useCreateSuggestion } from '../mutations/useCreateSuggestion'
 import SelectedHunksToolbar from '../components/workspace/SelectedHunksToolbar.vue'
 import SearchToolbar from '../components/workspace/SearchToolbar.vue'
-import ShareButton, { SHARE_BUTTON } from '../components/workspace/ShareButton.vue'
+import ShareButton, {
+  CANT_SUBMIT_REASON,
+  SHARE_BUTTON,
+} from '../components/workspace/ShareButton.vue'
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
-import { Feature } from '../__generated__/types'
 
 export default defineComponent({
   components: {
@@ -980,27 +984,29 @@ export default defineComponent({
         return 'others'
       }
     },
-    canSubmitChange() {
+    cantSubmitChangeReason(): CANT_SUBMIT_REASON | null {
       if (this.data?.workspace == null) {
-        return false
+        return CANT_SUBMIT_REASON.WORKSPACE_NOT_FOUND
       }
       if (this.diffs.length === 0) {
-        return false
+        return CANT_SUBMIT_REASON.NO_DIFFS
       }
       // Have to have a change description before sharing
       if (this.data.workspace.draftDescription.length === 0) {
-        return false
+        return CANT_SUBMIT_REASON.EMPTY_DESCRIPTION
       }
       // Disallow users from sharing when they have selected hunks
       // (since it might lead them to think they're doing a partial share)
       if (this.selectedHunkIDs.size > 0) {
-        return false
+        return CANT_SUBMIT_REASON.HAVE_SELECTED_HUNKS
       }
-      // If the workspace is up to date, we know for a fact that it doesn't conflict (it's a cheaper check, so mark as shareable right away)
-      if (this.data.workspace.upToDateWithTrunk) {
+      return null
+    },
+    canSubmitChange(): boolean {
+      if (this.cantSubmitChangeReason === null) {
         return true
       }
-      return true
+      return false
     },
   },
   watch: {

@@ -5,7 +5,7 @@
       v-else
       :changes="changes"
       :codebase-slug="codebaseSlug"
-      :hasNextPage="hasNextPage"
+      :has-next-page="hasNextPage"
       @next-page="onNextPage"
     />
 

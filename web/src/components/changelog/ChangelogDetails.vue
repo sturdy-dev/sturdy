@@ -43,7 +43,7 @@
       <StatusDetails :statuses="change.statuses" />
     </div>
 
-    <DownloadChangeButton :change-id="change.id" v-if="isDownloadAvailable" />
+    <DownloadChangeButton v-if="isDownloadAvailable" :change-id="change.id" />
 
     <div class="flex gap-2 cols-span-2 text-sm">
       <router-link v-if="!!change.parent" :to="{ params: { selectedChangeID: change.parent.id } }">
