@@ -1,9 +1,7 @@
 <template>
-  <div class="divide-y divide-gray-200">
-    <div class="pb-4">
-      <h2 id="activity-title" class="text-lg font-medium text-gray-900">Activity</h2>
-    </div>
-    <div class="pt-6">
+  <div class="flex flex-col gap-4 divide-y divide-gray-200">
+    <h2 id="activity-title" class="text-lg font-medium text-gray-900">Activity</h2>
+    <div class="pt-4">
       <NewComment
         v-if="isAuthorized"
         :user="user"
