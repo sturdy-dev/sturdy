@@ -63,52 +63,380 @@
       </div>
     </div>
 
-    <section id="features">
+    <section id="how-it-works">
       <div
         class="-mt-28 border-t border-slate-700/30 block top-0 inset-x-0 bg-gradient-to-b from-[#0c1322] top-0 xl:top-8"
       >
-        <div class="mt-48 mb-12 max-w-6xl px-6 md:px-8 mx-auto lg:gap-8 space-y-6">
-          <h1
-            class="mb-12 sm:text-center mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-50"
-          >
-            Ship faster and focus on your code
+        <div class="relative pt-40 max-w-6xl px-6 mx-auto lg:gap-8 space-y-4">
+          <h1 class="pb-6 text-center text-slate-50 uppercase text-sm font-bold tracking-widest">
+            How it works
           </h1>
-          <div class="flex flex-col md:flex-row md:space-x-20 space-y-10 md:space-y-0">
-            <MiniUsp class="md:w-1/3" title="Expressive" accent="text-amber-500">
-              <template #icon>
-                <FireIcon />
-              </template>
-              <span>
-                <span class="text-amber-500">Ship your code to production &mdash;</span> <br />
-                instead of creating branches, staging and committing files, pushing, and merging.
-              </span>
-            </MiniUsp>
 
-            <MiniUsp class="md:w-1/3" title="Collaborative" accent="text-purple-400">
-              <template #icon>
-                <CogIcon />
-              </template>
-              <span>
-                <span class="text-purple-400">Try each other's code &mdash;</span> <br />
-                instead of guessing what a pull request does and LGTM-ing anyway.
-              </span>
-            </MiniUsp>
+          <HowItWorksStep
+            step-number="1"
+            title="Connect"
+            sub-title="Automate your workflow"
+            bg-color="bg-amber-500"
+            md-bg-color="md:bg-amber-500"
+            border-color="border-amber-500"
+            text-accent-color="text-amber-500"
+            from-color="from-amber-500/10"
+            from-color-start="from-amber-500/10"
+            to-color="to-amber-500"
+            from-color-end="from-amber-500"
+            to-color-next="to-purple-400"
+            glow="shadow-[0_0px_1.0rem_4px_rgba(245,158,11,0.24)]"
+          >
+            <template #step-top-text>
+              Think in terms of
 
-            <MiniUsp class="md:w-1/3" title="Streamlined" accent="text-green-500">
-              <template #icon>
-                <RefreshIcon />
-              </template>
-              <span>
-                <span class="text-green-500">Ship small, incremental changes &mdash;</span><br />
-                instead of reminding yourself to "push often" and "keep the PR small".
-              </span>
-            </MiniUsp>
+              <router-link
+                class="underline text-amber-500"
+                :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }"
+                >"Ship this code to production"</router-link
+              >
+              instead of "Create a branch, stage files, make a commit, push to remote, merge". All
+              of this, while maintaining
+              <router-link
+                class="underline text-amber-500"
+                :to="{ name: 'v2DocsHowSturdyInteractsWithGit' }"
+                >compatibility</router-link
+              >
+              with the Git ecosystem.
+            </template>
+            <template #1-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Connect a GitHub repo
+                </div>
+                <div class="text-center md:text-left">
+                  Add your existing repository. Sturdy will stay
+                  <a class="text-amber-500 font-bold">up to date</a> with changes happening on
+                  GitHub.
+                </div>
+              </div>
+            </template>
+            <template #1-left>
+              <MockWindow window-title="Sturdy">
+                <template #default>
+                  <div class="text-xs">
+                    <p class="text-sm font-semibold text-slate-400">Repository access</p>
+                    <ul role="list" class="w-60 divide-y divide-slate-300 text-slate-50">
+                      <li class="py-4 flex justify-between items-center">
+                        <div class="flex flex-col">
+                          <span class="font-medium">krlvi/fizz-buzz</span
+                          ><span class="text-xs text-slate-500"> Connected to Sturdy</span>
+                        </div>
+                        <div>
+                          <div
+                            class="rounded-md text-green-800 bg-green-100 border-transparent border px-3 py-0.5 leading-4 relative inline-flex items-center text-xs font-medium flex-shrink-0 focus:z-10 group leading-5"
+                          >
+                            Open
+                          </div>
+                        </div>
+                      </li>
+                      <li class="py-4 flex justify-between items-center">
+                        <div class="flex flex-col">
+                          <span class="font-medium">krlvi/algorithms</span>
+                        </div>
+                        <div>
+                          <div
+                            class="rounded-md text-gray-700 bg-white hover:bg-gray-50 border-gray-300 border px-3 py-0.5 leading-4 disabled:opacity-50 relative inline-flex items-center text-xs font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5"
+                          >
+                            Setup
+                          </div>
+                        </div>
+                      </li>
+                      <li class="py-4 flex justify-between items-center">
+                        <div class="flex flex-col">
+                          <span class="font-medium">krlvi/java-rdeps</span>
+                        </div>
+                        <div>
+                          <div
+                            class="rounded-md text-gray-700 bg-white hover:bg-gray-50 border-gray-300 border px-3 py-0.5 leading-4 disabled:opacity-50 relative inline-flex items-center text-xs font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5"
+                          >
+                            Setup
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </template>
+              </MockWindow>
+            </template>
+            <template #2-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Connect a directory
+                </div>
+                <div class="text-center md:text-left">
+                  Connect Sturdy to a directory on your computer, where files will be automatically
+                  <a class="text-amber-500 font-bold">synced</a>. Edit the code with any IDE or
+                  editor.
+                </div>
+              </div>
+            </template>
+            <template #2-left>
+              <IndexInteractiveEditor></IndexInteractiveEditor>
+            </template>
+          </HowItWorksStep>
+
+          <HowItWorksStep
+            step-number="2"
+            title="Code"
+            sub-title="Skip the Git overhead"
+            bg-color="bg-purple-400"
+            md-bg-color="md:bg-purple-400"
+            border-color="border-purple-400"
+            text-accent-color="text-purple-400"
+            from-color="from-purple-400/10"
+            from-color-start="md:from-purple-400"
+            to-color="to-purple-400"
+            from-color-end="from-purple-400"
+            to-color-next="to-sky-400"
+            glow="shadow-[0_0px_1.0rem_4px_rgba(192,132,252,0.24)]"
+          >
+            <template #step-top-text>
+              Focus on your code with a simple,
+              <router-link
+                class="underline text-purple-400"
+                :to="{ name: 'v2DocsHowToSwitchBetweenTasks' }"
+                >highly automated workflow</router-link
+              >
+              . No cryptic commands, just you and your code.
+            </template>
+            <template #1-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Stay in your flow
+                </div>
+                <div class="text-center md:text-left">
+                  As you code, your changes are saved in a
+                  <a class="text-purple-400 font-bold">draft</a>. No need to worry about branches,
+                  commits, rebasing or pushing. There is also no CLI &mdash; the simplest interface
+                  is the absence of one.
+                </div>
+              </div>
+            </template>
+            <template #1-left>
+              <img
+                alt="Sturdy drafts"
+                src="./assets/draft-purple.png"
+                class="m-auto w-full rounded-lg border-2 border-purple-400"
+              />
+            </template>
+            <template #2-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Discover code by others
+                </div>
+                <div class="text-center md:text-left">
+                  Your code drafts are like
+                  <a class="text-purple-400 font-bold">live pull requests</a>. Within your team, you
+                  see each other's code in real-time. Explore and discuss each other's code early.
+                </div>
+              </div>
+            </template>
+            <template #2-left>
+              <img
+                alt="Explore drafts"
+                src="./assets/explore-workspaces.png"
+                class="m-auto w-full rounded-lg border-2 border-purple-400"
+              />
+            </template>
+          </HowItWorksStep>
+
+          <HowItWorksStep
+            step-number="3"
+            title="Collaborate"
+            sub-title="Give feedback, not reviews"
+            bg-color="bg-sky-400"
+            md-bg-color="md:bg-sky-400"
+            border-color="border-sky-400"
+            text-accent-color="text-sky-400"
+            from-color="from-sky-400/10"
+            from-color-start="md:from-sky-400"
+            to-color="to-sky-400"
+            from-color-end="from-sky-400"
+            to-color-next="to-sky-400/10"
+            glow="shadow-[0_0px_1.0rem_4px_rgba(56,189,248,0.24)]"
+          >
+            <template #step-top-text>
+              Velocity and early feedback are crucial for any team.
+              <router-link class="underline text-sky-400" :to="{ hash: '#collaborative' }"
+                >Try each other's code</router-link
+              >
+              &mdash; instead of guessing what a pull request does and LGTM-ing anyway.
+            </template>
+            <template #1-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Try someone's draft
+                </div>
+                <div class="text-center md:text-left">
+                  Get a copy of someone else's draft code to your computer, to explore in your IDE.
+                  Edit the code to automatically create
+                  <router-link class="underline text-sky-400" :to="{ name: 'docsSuggestions' }"
+                    >code suggestions</router-link
+                  >
+                </div>
+              </div>
+            </template>
+            <template #1-left>
+              <div class="border border-sky-400 w-full rounded-md px-4 py-4">
+                <div class="md:flex md:items-center md:justify-between md:space-x-4">
+                  <div class="min-h-16">
+                    <h1 class="text-lg font-bold text-slate-300">Update change page</h1>
+                    <p class="mt-2 text-xs text-slate-200">
+                      By <span class="font-medium text-slate-400">Nikita Galaiko</span> in
+                      <span class="font-medium text-slate-300">Sturdy 🐥</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-5">
+                  <div class="contents">
+                    <div class="relative inline-block z-20">
+                      <div
+                        class="rounded-md border leading-4 relative inline-flex items-center font-medium flex-shrink-0 group leading-5 items-stretch divide-x divide-green-200 bg-green-100 border-green-200"
+                      >
+                        <div class="px-2 py-2 rounded-l-md">
+                          <span class="text-sm font-medium contents text-green-700"
+                            ><div class="flex">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                                class="-ml-1 mr-2 h-5 w-5 text-green-700"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
+                                  clip-rule="evenodd"
+                                ></path>
+                              </svg>
+                              Connect ~/src/sturdy for suggesting
+                            </div></span
+                          >
+                        </div>
+                        <div class="px-1.5 py-2 rounded-r-md">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            class="w-5 h-5 text-green-700"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clip-rule="evenodd"
+                            ></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template #2-right>
+              <div class="space-y-2">
+                <div
+                  class="text-slate-50 text-xl font-bold tracking-tight text-center md:text-left"
+                >
+                  Ship it
+                </div>
+                <div class="text-center md:text-left">
+                  When you are happy with the code, create and merge a pull request
+                  <a class="text-sky-400 font-bold">directly</a> from your draft.
+                </div>
+              </div>
+            </template>
+            <template #2-left>
+              <div class="-mt-14">
+                <div
+                  class="border border-sky-400 w-full rounded-md shadow-sm flex flex-row overflow-hidden"
+                >
+                  <div class="flex-1 px-4 py-2">
+                    <div
+                      class="text-slate-200 ProseMirror prose text-xs max-w-full focus:outline-none"
+                      tabindex="0"
+                      style="min-height: 60px"
+                    >
+                      <p>
+                        web/index: Describe how Sturdy works
+                        <span class="animate-ping text-sky-400 font-bold">|</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex-none px-4 py-2 flex flex-col justify-end">
+                    <div>
+                      <div>
+                        <div class="contents">
+                          <div class="flex flex-col gap-2 items-end">
+                            <div class="flex items-center text-xs text-blue-400">
+                              <span>Go to pull request</span
+                              ><svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="w-4 h-4 ml-1"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                ></path>
+                              </svg>
+                            </div>
+                            <div class="gap-2 flex">
+                              <div
+                                class="rounded-md text-white bg-blue-600 border-blue-700 border px-2 py-1 leading-4 relative inline-flex items-center text-xs font-medium flex-shrink-0 group leading-5"
+                              >
+                                <span> Update pull request </span>
+                              </div>
+                              <div
+                                class="rounded-md text-green-800 bg-green-100 border-green-200 border px-2 py-1 leading-4 relative inline-flex items-center text-xs font-medium flex-shrink-0 group leading-5"
+                              >
+                                <span>Merge</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </HowItWorksStep>
+
+          <div class="pt-20 space-y-6">
+            <p class="md:w-2/3 mx-auto text-center text-xl text-slate-50">
+              With a tight development loop
+              <a class="text-amber-500 font-bold">shipping small, incremental changes</a>
+              become the intuitive default.
+            </p>
           </div>
         </div>
-        <div class="mt-48">
-          <h1
-            class="pb-6 text-center text-slate-200/80 uppercase text-sm font-bold tracking-widest"
-          >
+
+        <div class="mt-32">
+          <h1 class="pb-6 text-center text-slate-50 uppercase text-sm font-bold tracking-widest">
             What developers are saying
           </h1>
           <div class="mt-6 flex gap-6 overflow-x-auto fade max-w-6xl px-6 mx-auto">
@@ -149,40 +477,11 @@
         </div>
       </div>
     </section>
+
     <div class="mb-20 space-y-20 overflow-hidden sm:mb-32 sm:space-y-32 md:mb-40 md:space-y-40">
       <Usp
-        title="Expressive"
-        subtitle="Don't hand-hold your version control."
-        link="v2DocsHowToEditCode"
-        accent="amber-500"
-      >
-        <template #icon>
-          <IconDevelop class="border-amber-500/80 border-2 rounded-full w-20 h-20" />
-        </template>
-        <template #left>
-          <p>
-            Sturdy maps developer
-            <span class="text-amber-500">intent</span>
-            to
-            <span class="text-amber-500">concrete actions</span>. It allows you to focus on your
-            code and the problems you are solving, rather than manipulating Git data structures.
-          </p>
-          <p>
-            Think "Ship this code to production" instead of "Create a branch, stage files, make a
-            commit, push to remote, merge" etc.
-          </p>
-        </template>
-        <template #right>
-          <Video
-            :src="videoCollaborate"
-            style="filter: drop-shadow(0 0 1.5rem rgba(245, 158, 11, 0.14))"
-          ></Video>
-        </template>
-      </Usp>
-
-      <Usp
         title="Collaborative"
-        subtitle="Collaborative everything."
+        subtitle="Share feedback."
         link="v2DocsHowToCollaborateWithOthers"
         accent="purple-400"
         :bigger-right-side="true"
@@ -340,6 +639,36 @@
         <template #right>
           <Video
             :src="videoCreatePr"
+            style="filter: drop-shadow(0 0 1.5rem rgba(245, 158, 11, 0.14))"
+          ></Video>
+        </template>
+      </Usp>
+
+      <Usp
+        title="Expressive"
+        subtitle="Don't hand-hold your version control."
+        link="v2DocsHowToEditCode"
+        accent="amber-500"
+      >
+        <template #icon>
+          <IconDevelop class="border-amber-500/80 border-2 rounded-full w-20 h-20" />
+        </template>
+        <template #left>
+          <p>
+            Sturdy maps developer
+            <span class="text-amber-500">intent</span>
+            to
+            <span class="text-amber-500">concrete actions</span>. It allows you to focus on your
+            code and the problems you are solving, rather than manipulating Git data structures.
+          </p>
+          <p>
+            Think "Ship this code to production" instead of "Create a branch, stage files, make a
+            commit, push to remote, merge" etc.
+          </p>
+        </template>
+        <template #right>
+          <Video
+            :src="videoCollaborate"
             style="filter: drop-shadow(0 0 1.5rem rgba(245, 158, 11, 0.14))"
           ></Video>
         </template>
@@ -505,7 +834,6 @@
 <script lang="ts">
 import Video from '../../molecules/landing/Video.vue'
 import Usp from '../../organisms/landing/Usp.vue'
-import MiniUsp from '../../organisms/landing/MiniUsp.vue'
 import Testimonial from '../../organisms/landing/Testimonial.vue'
 import ThingsYouAreNotDoing from '../../organisms/landing/ThingsYouAreNotDoing.vue'
 import IconDevelop from '../../molecules/landing/IconDevelop.vue'
@@ -518,12 +846,9 @@ import { useHead } from '@vueuse/head'
 import {
   CheckCircleIcon,
   ChevronRightIcon,
-  CogIcon,
   DownloadIcon,
-  FireIcon,
   LightBulbIcon,
   PlayIcon,
-  RefreshIcon,
 } from '@heroicons/vue/outline'
 import CommandLineCopy from '../../molecules/CommandLineCopy.vue'
 import DocumentationStickyHeader from '../../layouts/DocumentationStickyHeader.vue'
@@ -535,13 +860,18 @@ import videoGiveSuggestion from './assets/give-suggestion.mp4'
 import videoTryCode from './assets/try-code.mp4'
 import videoCollaborate from './assets/collaborate.mp4'
 import { DOCKER_ONELINER } from '../../docker'
+import HowItWorksStep from '../../molecules/landing/HowItWorksStep.vue'
+import MockWindow from '../../molecules/MockWindow.vue'
+import IndexInteractiveEditor from '../../components/IndexInteractiveEditor.vue'
 
 export default defineComponent({
   components: {
+    IndexInteractiveEditor,
+    MockWindow,
+    HowItWorksStep,
     DocumentationStickyHeader,
     Video,
     Usp,
-    MiniUsp,
     Testimonial,
     ThingsYouAreNotDoing,
     IconDevelop,
@@ -554,9 +884,6 @@ export default defineComponent({
     CheckCircleIcon,
     PlayIcon,
     LightBulbIcon,
-    FireIcon,
-    CogIcon,
-    RefreshIcon,
     CommandLineCopy,
   },
 
@@ -607,6 +934,7 @@ export default defineComponent({
       year: new Date().getFullYear(),
       dockerOneliner: DOCKER_ONELINER,
 
+      videoGiveSuggestion,
       videoWorkflow,
       videoCreatePr,
       videoCollaborate,

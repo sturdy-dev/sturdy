@@ -1,16 +1,14 @@
 <template>
-  <div class="relative">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl flex items-center">
-      <LightIndexPageDifferFile v-if="diffs" :diffs="diffs" class="w-full md:w-auto" />
+  <div ref="editorTarget" class="relative">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl flex flex-col items-center">
+      <LightIndexPageDifferFile v-if="diffs" :diffs="diffs" class="w-full w-auto" />
 
-      <div
-        class="ml-0 md:-ml-64 lg:-ml-8 relative md:px-8 lg:px-0 self-center pt-8 lg:pt-0 hidden md:block"
-      >
+      <div class="ml-0 -mt-28 relative md:px-8 lg:px-0 self-center pt-8 lg:pt-0 md:block">
         <div class="mx-auto lg:max-w-2xl xl:max-w-none">
           <div
-            class="relative overflow-hidden rounded-xl shadow-2xl flex bg-light-blue-500 pb-6 md:pb-0"
+            class="relative border border-slate-500/80 overflow-hidden rounded-xl shadow-2xl flex bg-light-blue-500 pb-6 md:pb-0"
           >
-            <div class="absolute inset-0 bg-black bg-opacity-90" />
+            <div class="absolute inset-0 bg-slate-800 bg-opacity-80 backdrop-blur-[5px]" />
             <div class="relative w-full flex flex-col">
               <div class="flex-none h-11 flex items-center px-4">
                 <div class="flex space-x-1.5">
@@ -23,14 +21,14 @@
                 class="relative border-t border-white border-opacity-10 min-h-0 flex-auto flex flex-col"
               >
                 <div
-                  class="hidden md:block absolute inset-y-0 left-0 bg-black bg-opacity-25"
+                  class="hidden md:block absolute inset-y-0 left-0 bg-slate-900 bg-opacity-25 backdrop-blur-[5px]"
                   style="width: 50px"
                 />
                 <div class="w-full flex-auto flex min-h-0 overflow-auto">
                   <div class="w-full relative flex-auto">
                     <pre class="flex min-h-full text-xs md:text-sm"><div
                         aria-hidden="true"
-                        class="hidden md:block text-white text-opacity-50 flex-none py-4 pr-4 text-right select-none"
+                        class="hidden md:block text-white text-opacity-50 text-xs tracking-tight flex-none py-4 pr-4 text-right select-none"
                         style="width:50px"
                     >1
 2
@@ -51,12 +49,10 @@
 17
 18
 19
-20
-21
 </div>
                     <code
                         contenteditable
-                        class="flex-auto relative block text-white pt-4 pb-4 px-4 overflow-auto outline-none"
+                        class="flex-auto relative block text-slate-200 text-xs tracking-tight pt-4 pb-4 px-4 overflow-auto outline-none"
                         @input="editorupdate"
                     >{{
                         automatedEditorValue
@@ -74,8 +70,9 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent, ref } from 'vue'
 import Diff from '../diff/diff.js'
+import { useElementVisibility } from '@vueuse/core'
 
 export default defineComponent({
   name: 'IndexInteractiveEditor',
@@ -84,10 +81,20 @@ export default defineComponent({
       () => import('./differ/LightIndexPageDifferFile.vue')
     ),
   },
+  setup() {
+    const editorTarget = ref(null)
+    const targetIsVisible = useElementVisibility(editorTarget)
+
+    return {
+      editorTarget,
+      targetIsVisible,
+    }
+  },
   data: function () {
     return {
       diffs: null,
 
+      seen: false,
       automatedEditorValue: '',
       defaultEditorValue:
         "const http = require('http');\r\n" +
@@ -102,14 +109,22 @@ export default defineComponent({
         '});\r\n' +
         '\r\n' +
         'server.listen(port, hostname, () => {\r\n' +
-        '  console.log(`Server running at http://${hostname}:${port}/`);\r\n' +
+        '  console.log(`http://${hostname}:${port}/`);\r\n' +
         '});\r\n',
     }
+  },
+  watch: {
+    targetIsVisible() {
+      if (this.targetIsVisible && !this.seen) {
+        this.seen = true
+        this.animate()
+      }
+    },
   },
   mounted() {
     this.automatedEditorValue = this.defaultEditorValue
     this.updateDiffPreview(this.defaultEditorValue)
-    this.animate()
+    // this.animate()
   },
   methods: {
     animate() {
