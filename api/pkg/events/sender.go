@@ -25,10 +25,9 @@ type EventSender interface {
 }
 
 type eventsSender struct {
-	codebaseUserRepo db_codebase.CodebaseUserRepository
-	workspaceRepo    db_workspaces.WorkspaceReader
-	organizationRepo db_organization.Repository
-	memberRepo       db_organization.MemberRepository
+	codebaseUserRepo       db_codebase.CodebaseUserRepository
+	workspaceRepo          db_workspaces.WorkspaceReader
+	organizationMemberRepo db_organization.MemberRepository
 
 	events eventWriter
 }
@@ -36,16 +35,14 @@ type eventsSender struct {
 func NewSender(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceRepo db_workspaces.WorkspaceReader,
-	organizationRepo db_organization.Repository,
-	memberRepo db_organization.MemberRepository,
+	organizationMemberRepo db_organization.MemberRepository,
 	events EventReadWriter,
 ) EventSender {
 	return &eventsSender{
-		codebaseUserRepo: codebaseUserRepo,
-		workspaceRepo:    workspaceRepo,
-		organizationRepo: organizationRepo,
-		memberRepo:       memberRepo,
-		events:           events,
+		codebaseUserRepo:       codebaseUserRepo,
+		workspaceRepo:          workspaceRepo,
+		organizationMemberRepo: organizationMemberRepo,
+		events:                 events,
 	}
 }
 
@@ -77,12 +74,7 @@ func (s *eventsSender) Workspace(id string, eventType EventType, reference strin
 }
 
 func (s *eventsSender) Organization(ctx context.Context, id string, eventType EventType, reference string) error {
-	og, err := s.organizationRepo.Get(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	members, err := s.memberRepo.ListByOrganizationID(ctx, og.ID)
+	members, err := s.organizationMemberRepo.ListByOrganizationID(ctx, id)
 	if err != nil {
 		return err
 	}
