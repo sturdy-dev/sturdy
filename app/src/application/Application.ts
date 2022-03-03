@@ -10,6 +10,7 @@ import { Logger } from '../Logger'
 import { File } from '../config'
 import { AppIPC, MutagenIPC, sharedAppIpc, sharedMutagenIpc } from '../ipc'
 import { TypedEventEmitter } from '../TypedEventEmitter'
+import ElectronWindowState from 'electron-window-state'
 
 interface ApplicationEvents {
   openPreferences: []
@@ -174,9 +175,17 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     this.#logger.log('creating new window')
     app.dock?.show()
 
+    const mainWindowState = ElectronWindowState({
+      defaultHeight: 1200,
+      defaultWidth: 1800,
+    })
+
     this.#window = new BrowserWindow({
-      height: 1200,
-      width: 1800,
+      x: mainWindowState.x,
+      y: mainWindowState.y,
+      height: mainWindowState.height,
+      width: mainWindowState.width,
+
       minWidth: 680,
       minHeight: 400,
       webPreferences: {
@@ -191,6 +200,8 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       },
       trafficLightPosition: { x: 16, y: 16 },
     })
+
+    mainWindowState.manage(this.#window)
 
     // Create base IPC
     this.#addFallbackMutagenIpc()
