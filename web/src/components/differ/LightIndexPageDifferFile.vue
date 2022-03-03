@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d2h-file-wrapper bg-white shadow rounded-lg my-4 z-0 relative overflow-y-hidden overflow-x-auto"
+    class="d2h-file-wrapper border-2 border-amber-500 bg-slate-50 shadow rounded-lg my-4 z-0 relative overflow-y-hidden overflow-x-auto"
     :class="extraClasses"
   >
     <DiffHeader
@@ -19,25 +19,23 @@
       <div class="d2h-code-wrapper">
         <table
           class="d2h-diff-table leading-4 z-0"
-          style="border-collapse: separate; border-spacing: 0"
+          style="border-collapse: separate; border-spacing: 0; font-size: 10px"
         >
           <tbody
             v-for="(hunk, hunkIndex) in parsedHunks"
             :key="hunkIndex"
-            :class="['d2h-diff-tbody d2h-file-diff z-0']"
+            :class="['d2h-diff-tbody d2h-file-diff bg-slate-50 z-0']"
           >
             <template
               v-for="block in highlightedBlocks(hunk.blocks, hunk.language)"
               :key="block.header"
             >
               <tr class="h-full overflow-hidden z-0">
-                <td
-                  class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
-                ></td>
+                <td class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-slate-50"></td>
                 <td class="bg-blue-50" />
                 <td class="d2h-info h-full bg-blue-50 left-0 z-0 w-full">
                   <div class="flex items-center sticky left-0">
-                    <div class="d2h-code-line d2h-info text-gray-500">
+                    <div class="d2h-code-line d2h-info text-gray-600">
                       &nbsp;&nbsp;{{ block.header }}
                     </div>
                   </div>
@@ -47,21 +45,21 @@
               <template v-for="(row, rowIndex) in block.lines" :key="rowIndex">
                 <tr
                   :data-row-index="rowIndex"
-                  class="z-0"
+                  class="z-0 text-gray-500 tracking-tight"
                   :data-preferred-name="diffs.preferred_name"
                   :data-line-oldnum="row.oldNumber"
                   :data-line-newnum="row.newNumber"
                 >
                   <td
                     :class="[
-                      'd2h-code-linenumber bg-white sticky left-0 z-20',
+                      'd2h-code-linenumber bg-slate-50 sticky left-0 z-20',
                       row.type === 'insert' ? 'border-r border-l border-green-500' : '',
                       row.type === 'delete' ? 'border-r border-l border-red-500' : '',
                     ]"
                   >
                     <div class="select-none text-gray-600 flex">
-                      <div class="line-num">{{ row.oldNumber }}</div>
-                      <div class="line-num">{{ row.newNumber }}</div>
+                      <div class="line-num" style="width: 2.2em">{{ row.oldNumber }}</div>
+                      <div class="line-num" style="width: 2.2em">{{ row.newNumber }}</div>
                     </div>
                   </td>
 
