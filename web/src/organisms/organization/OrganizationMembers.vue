@@ -60,7 +60,6 @@
             <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
             <span class="text-sm text-gray-500">{{ member.email }}</span>
           </div>
-
           <template v-if="organization.writeable">
             <Button v-if="member.id === user.id" @click="removeUser(member)">
               <UserRemoveIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />

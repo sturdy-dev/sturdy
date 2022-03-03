@@ -9,11 +9,11 @@
     </template>
 
     <template #default>
-      <div class="max-w-7xl">
+      <div class="max-w-3xl space-y-4">
         <Header>
           <span>Settings</span>
         </Header>
-
+        <OrganizationUpdate :organization="data.organization" />
         <OrganizationMembers :organization="data.organization" :user="data.user" />
       </div>
     </template>
@@ -33,9 +33,11 @@ import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
+import OrganizationUpdate from '../../organisms/organization/OrganizationUpdate.vue'
 
 export default defineComponent({
   components: {
+    OrganizationUpdate,
     PaddedAppLeftSidebar,
     OrganizationMembers,
     Header,
