@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
+	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -43,12 +44,6 @@ type SnapshotOptions struct {
 }
 
 type SnapshotOption func(*SnapshotOptions)
-
-func WithPaths(paths []string) SnapshotOption {
-	return func(opts *SnapshotOptions) {
-		opts.paths = append(opts.paths, paths...)
-	}
-}
 
 func WithPatchIDsFilter(patchIDs []string) SnapshotOption {
 	return func(opts *SnapshotOptions) {
@@ -96,10 +91,12 @@ func WithMarkAsLatestInWorkspace() SnapshotOption {
 }
 
 type snap struct {
-	snapshotsRepo    db_snapshots.Repository
-	workspaceReader  db_workspaces.WorkspaceReader
-	workspaceWriter  db_workspaces.WorkspaceWriter
-	viewRepo         db_view.Repository
+	snapshotsRepo   db_snapshots.Repository
+	workspaceReader db_workspaces.WorkspaceReader
+	workspaceWriter db_workspaces.WorkspaceWriter
+	viewRepo        db_view.Repository
+	suggestionsRepo db_suggestions.Repository
+
 	eventsSender     events.EventSender
 	executorProvider executor.Provider
 	logger           *zap.Logger
@@ -110,15 +107,19 @@ func NewGitSnapshotter(
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewRepo db_view.Repository,
+	suggestionsRepo db_suggestions.Repository,
+
 	eventSender events.EventSender,
 	executorProvider executor.Provider,
 	logger *zap.Logger,
 ) Snapshotter {
 	return &snap{
-		snapshotsRepo:    snapshotsRepo,
-		workspaceReader:  workspaceReader,
-		workspaceWriter:  workspaceWriter,
-		viewRepo:         viewRepo,
+		snapshotsRepo:   snapshotsRepo,
+		workspaceReader: workspaceReader,
+		workspaceWriter: workspaceWriter,
+		viewRepo:        viewRepo,
+		suggestionsRepo: suggestionsRepo,
+
 		eventsSender:     eventSender,
 		executorProvider: executorProvider,
 		logger:           logger.Named("GitSnapshotter"),
@@ -177,9 +178,16 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 			return nil, err
 		}
 
+		_, err = s.suggestionsRepo.GetByWorkspaceID(context.Background(), workspaceID)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+		isSuggesting := err == nil
+
 		// Throttle view sync snapshots, at most once per 10s
-		// The throttling does not apply to views that are suggesting
+		// The throttling does not apply to workspaces that are suggesting
 		if latest != nil &&
+			!isSuggesting &&
 			action == snapshots.ActionViewSync &&
 			latest.Action == snapshots.ActionViewSync &&
 			latest.CreatedAt.After(time.Now().Add(-10*time.Second)) {
