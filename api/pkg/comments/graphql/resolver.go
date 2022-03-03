@@ -356,6 +356,33 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 		return nil, gqlerrors.Error(err)
 	}
 
+	if comment.ChangeID != nil {
+		sendNotificationsTo := map[users.ID]struct{}{}
+
+		// Notify change author
+		change, err := r.changeService.GetChangeByID(ctx, *comment.ChangeID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		if change.UserID != nil && comment.UserID != *change.UserID {
+			sendNotificationsTo[*change.UserID] = struct{}{}
+		}
+
+		// Notify mentioned users
+		for _, mentionedUser := range mentions {
+			if mentionedUser.ID == comment.UserID {
+				continue
+			}
+			sendNotificationsTo[mentionedUser.ID] = struct{}{}
+		}
+		for userID := range sendNotificationsTo {
+			if err := r.notificationSender.User(ctx, userID, comment.CodebaseID, notification.CommentNotificationType, string(comment.ID)); err != nil {
+				r.logger.Error("failed to send comment notification", zap.Error(err))
+				// do not fail
+			}
+		}
+	}
+
 	if comment.WorkspaceID == nil {
 		return &CommentResolver{root: r, comment: *comment}, nil
 	}

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex items-start space-x-3">
+  <div :id="item.comment.id" class="relative flex items-start space-x-3">
     <div class="relative">
       <Avatar :author="item.author" size="10" />
       <span class="absolute -bottom-2 -right-2 bg-white rounded-tl px-0.5 py-px">
