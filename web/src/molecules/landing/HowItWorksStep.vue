@@ -19,37 +19,37 @@
         {{ subTitle }}
       </h1>
 
-      <p class="md:w-2/3 text-center">
+      <p class="lg:w-2/3 text-center">
         <slot name="step-top-text"></slot>
       </p>
     </div>
 
     <div class="mt-24 flex flex-col">
-      <div class="flex flex-col md:flex-row space-y-8 md:space-y-0">
-        <div class="md:h-[30rem] md:py-0 md:-my-4 grow-0 px-20 flex flex-col items-center">
-          <div :class="[fromColor, toColor]" class="bg-gradient-to-b w-px h-24 md:h-1/3"></div>
+      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0">
+        <div class="lg:h-[30rem] lg:py-0 lg:-my-4 grow-0 px-20 flex flex-col items-center">
+          <div :class="[fromColor, toColor]" class="bg-gradient-to-b w-px h-24 lg:h-1/3"></div>
           <div
             :class="[borderColor, glow]"
             class="bg-slate-900 rounded-full border-2 w-3 h-3"
           ></div>
-          <div :class="[bgColor]" class="w-px h-0 md:h-2/3"></div>
+          <div :class="[bgColor]" class="w-px h-0 lg:h-2/3"></div>
         </div>
-        <div class="md:grow md:w-1/3 flex items-left justify-center md:justify-start md:flex-col">
+        <div class="lg:grow lg:w-1/3 flex items-left justify-center lg:justify-start lg:flex-col">
           <div class="h-1/3"></div>
           <div class="-my-4 h-2/3">
             <slot name="1-right"></slot>
           </div>
         </div>
-        <div class="md:grow md:w-1/3 md:order-first">
+        <div class="lg:grow lg:w-1/3 lg:order-first">
           <slot name="1-left"></slot>
         </div>
       </div>
 
-      <div class="flex flex-col md:flex-row space-y-8 md:space-y-0">
-        <div class="md:py-0 md:-my-4 grow-0 px-20 flex flex-col items-center">
+      <div class="flex flex-col lg:flex-row space-y-8 lg:space-y-0">
+        <div class="lg:py-0 lg:-my-4 grow-0 px-20 flex flex-col items-center">
           <div
             :class="[mdBgColor, fromColor, toColor]"
-            class="w-px h-24 md:h-1/3 bg-gradient-to-b"
+            class="w-px h-24 lg:h-1/3 bg-gradient-to-b"
           ></div>
           <div
             :class="[borderColor, glow]"
@@ -57,16 +57,16 @@
           ></div>
           <div
             :class="[fromColorEnd, toColorNext]"
-            class="bg-gradient-to-b w-px h-0 md:h-2/3"
+            class="bg-gradient-to-b w-px h-0 lg:h-2/3"
           ></div>
         </div>
-        <div class="md:grow md:w-1/3 flex items-left justify-center md:justify-start md:flex-col">
+        <div class="lg:grow lg:w-1/3 flex items-left justify-center lg:justify-start lg:flex-col">
           <div class="h-1/3"></div>
           <div class="-my-4 h-2/3">
             <slot name="2-right"></slot>
           </div>
         </div>
-        <div class="md:grow md:w-1/3 md:order-first">
+        <div class="lg:grow lg:w-1/3 lg:order-first">
           <slot name="2-left"></slot>
         </div>
       </div>
