@@ -114,7 +114,9 @@ func NewInMemoryRepo() ActivityRepository {
 
 func (i *inmemory) Create(ctx context.Context, activity activity.Activity) error {
 	i.byID[activity.ID] = &activity
-	i.byWorkspaceID[activity.WorkspaceID] = append(i.byWorkspaceID[activity.WorkspaceID], &activity)
+	if activity.WorkspaceID != nil {
+		i.byWorkspaceID[*activity.WorkspaceID] = append(i.byWorkspaceID[*activity.WorkspaceID], &activity)
+	}
 	if activity.ChangeID != nil {
 		i.byChangeID[*activity.ChangeID] = append(i.byChangeID[*activity.ChangeID], &activity)
 	}

@@ -10,12 +10,13 @@ import (
 type Activity struct {
 	ID           string    `db:"id"`
 	UserID       users.ID  `db:"user_id"`
-	WorkspaceID  string    `db:"workspace_id"`
 	CreatedAt    time.Time `db:"created_at"`
 	ActivityType Type      `db:"activity_type"`
 	Reference    string    `db:"reference"`
 
-	// If change_id is set, this is a change activity
+	// if WorkspaceID is set, then the activity is for a workspace
+	WorkspaceID *string `db:"workspace_id"`
+	// if ChangeID is set, then the activity is for a change
 	ChangeID *changes.ID `db:"change_id"`
 }
 

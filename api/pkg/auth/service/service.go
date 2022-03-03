@@ -7,6 +7,7 @@ import (
 	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
+	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebase"
 	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
@@ -25,6 +26,7 @@ import (
 
 type Service struct {
 	codebaseService     *service_codebase.Service
+	changeService       *service_changes.Service
 	userService         service_user.Service
 	workspaceService    service_workspace.Service
 	aclProvider         *provider_acl.Provider
@@ -33,6 +35,7 @@ type Service struct {
 
 func New(
 	codebaseService *service_codebase.Service,
+	changeService *service_changes.Service,
 	userService service_user.Service,
 	workspaceService service_workspace.Service,
 	aclProvider *provider_acl.Provider,
@@ -40,6 +43,7 @@ func New(
 ) *Service {
 	return &Service{
 		codebaseService:     codebaseService,
+		changeService:       changeService,
 		userService:         userService,
 		workspaceService:    workspaceService,
 		aclProvider:         aclProvider,
@@ -307,13 +311,24 @@ func (s *Service) canAnonymousAccessActivity(ctx context.Context, at accessType,
 		return fmt.Errorf("anonymous users can only read activities: %w", auth.ErrForbidden)
 	}
 
-	// user can access an activity if they can access the workspace it's from
-	ws, err := s.workspaceService.GetByID(ctx, activity.WorkspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to get workspace: %w", err)
+	if activity.WorkspaceID != nil {
+		// user can access an activity if they can access the workspace it's from
+		ws, err := s.workspaceService.GetByID(ctx, *activity.WorkspaceID)
+		if err != nil {
+			return fmt.Errorf("failed to get workspace: %w", err)
+		}
+		return s.canAnonymousAccessWorkspace(ctx, at, ws)
 	}
 
-	return s.canAnonymousAccessWorkspace(ctx, at, ws)
+	if activity.ChangeID != nil {
+		change, err := s.changeService.GetChangeByID(ctx, *activity.ChangeID)
+		if err != nil {
+			return fmt.Errorf("failed to get change: %w", err)
+		}
+		return s.canAnonymousAccessChange(ctx, at, change)
+	}
+
+	return fmt.Errorf("activity doesn't have workspace_id or change_id set: %w", auth.ErrForbidden)
 }
 
 func (s *Service) canAnonymousAccessComment(ctx context.Context, at accessType, comment *comments.Comment) error {
@@ -345,12 +360,22 @@ func (s *Service) canAnonymousAccessChange(ctx context.Context, at accessType, c
 }
 
 func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID users.ID, at accessType, a *activity.Activity) error {
-	// user can access a workspace activity if they can access the workspace it's in
-	ws, err := s.workspaceService.GetByID(ctx, a.WorkspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to get workspace: %w", err)
+	if a.WorkspaceID != nil {
+		// user can access a workspace activity if they can access the workspace it's in
+		ws, err := s.workspaceService.GetByID(ctx, *a.WorkspaceID)
+		if err != nil {
+			return fmt.Errorf("failed to get workspace: %w", err)
+		}
+		return s.canUserAccessWorkspace(ctx, userID, at, ws)
 	}
-	return s.canUserAccessWorkspace(ctx, userID, at, ws)
+	if a.ChangeID != nil {
+		change, err := s.changeService.GetChangeByID(ctx, *a.ChangeID)
+		if err != nil {
+			return fmt.Errorf("failed to get change: %w", err)
+		}
+		return s.canUserAccessChange(ctx, userID, at, change)
+	}
+	return fmt.Errorf("activity doesn't have workspace_id or change_id set: %w", auth.ErrForbidden)
 }
 
 func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID users.ID, at accessType, repo *github.GitHubRepository) error {

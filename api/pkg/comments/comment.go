@@ -9,6 +9,10 @@ import (
 
 type ID string
 
+func (id ID) String() string {
+	return string(id)
+}
+
 type Comment struct {
 	ID         ID     `db:"id"`
 	CodebaseID string `db:"codebase_id"`

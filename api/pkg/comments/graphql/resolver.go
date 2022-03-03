@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"getsturdy.com/api/pkg/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
@@ -353,6 +352,10 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 		return nil, gqlerrors.Error(err)
 	}
 
+	if err := r.activitySender.Comment(ctx, comment); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	if comment.WorkspaceID == nil {
 		return &CommentResolver{root: r, comment: *comment}, nil
 	}
@@ -388,11 +391,6 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 			r.logger.Error("failed to send comment notification", zap.Error(err))
 			// do not fail
 		}
-	}
-
-	// Create workspace activity
-	if err := r.activitySender.Codebase(ctx, comment.CodebaseID, *comment.WorkspaceID, comment.UserID, activity.TypeComment, string(comment.ID)); err != nil {
-		return nil, gqlerrors.Error(err)
 	}
 
 	return &CommentResolver{root: r, comment: *comment}, nil
