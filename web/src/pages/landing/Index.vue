@@ -7,17 +7,12 @@
         <h1
           class="font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center text-slate-50"
         >
-          Simple & efficient source control
+          Simple &amp; efficient code collaboration
         </h1>
         <p class="mt-6 text-lg text-slate-400 text-center max-w-3xl mx-auto">
-          Sturdy is an
-          <code class="font-mono font-semibold text-amber-500"
-            ><a class="underline" href="https://github.com/sturdy-dev/sturdy">open-source</a> coding
-            platform</code
-          >
-          that eliminates the overhead of versioning while maintaining
-          <router-link class="underline" :to="{ hash: '#compatible' }">compatibility</router-link>
-          with the Git ecosystem.
+          Sturdy is a low overhead
+          <code class="font-mono font-semibold text-amber-500">version control platform</code>
+          for fast moving teams.
         </p>
         <div
           class="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-6 sm:justify-center mt-10 mx-6 text-sm"
@@ -896,22 +891,20 @@ export default defineComponent({
 
   setup() {
     useHead({
-      title: 'Sturdy - Simple & efficient source control',
+      title: 'Sturdy - Simple & efficient code collaboration',
       meta: [
         {
           name: 'description',
-          content:
-            'Sturdy is an open-source coding platform which eliminates the overhead of versioning, while maintaining compatibility with the Git ecosystem.',
+          content: 'Sturdy is a low overhead version control platform for fast moving teams.',
         },
         {
           name: 'keywords',
           content: 'study code source collaboration git vcs',
         },
-        { property: 'og:title', content: 'Simple & efficient source control' },
+        { property: 'og:title', content: 'Sturdy - Simple & efficient code collaboration' },
         {
           property: 'og:description',
-          content:
-            'Sturdy is an open-source coding platform which eliminates the overhead of versioning, while maintaining compatibility with the Git ecosystem.',
+          content: 'Sturdy is a low overhead version control platform for fast moving teams.',
         },
         // { property: 'og:image', content: '' },
       ],
