@@ -109,7 +109,7 @@ func TestStream(t *testing.T) {
 	)
 
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, nil, nil)
-	authService := service_auth.New(codebaseService, userService, nil, aclProvider, nil /*organizationService*/)
+	authService := service_auth.New(codebaseService, nil, userService, nil, aclProvider, nil /*organizationService*/)
 
 	suggestionsService := service_suggestion.New(
 		logger,

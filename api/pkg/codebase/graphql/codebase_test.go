@@ -22,7 +22,7 @@ func TestCodebaseAccess(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil, nil)
-	authService := service_auth.New(codebaseService, nil, nil, nil, nil)
+	authService := service_auth.New(codebaseService, nil, nil, nil, nil, nil)
 	resolver := NewCodebaseRootResolver(
 		codebaseRepo,
 		codebaseUserRepo,

@@ -73,6 +73,7 @@ func TestCanWrite_codebase(t *testing.T) {
 		nil,
 		nil,
 		nil,
+		nil,
 	)
 
 	for _, tc := range cases {
@@ -168,6 +169,7 @@ func TestCanRead_codebase(t *testing.T) {
 
 	authService := service_auth.New(
 		codebaseService,
+		nil,
 		nil,
 		nil,
 		nil,
@@ -271,6 +273,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 
 	authService := service_auth.New(
 		codebaseService,
+		nil,
 		nil,
 		nil,
 		nil,
