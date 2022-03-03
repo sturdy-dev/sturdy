@@ -119,7 +119,7 @@
               </div>
             </template>
             <template #1-left>
-              <MockWindow window-title="Sturdy">
+              <MockWindow window-title="Sturdy" class="mx-2">
                 <template #default>
                   <div class="text-xs">
                     <p class="text-sm font-semibold text-slate-400">Repository access</p>
