@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-2">
+  <div v-if="organization.writeable" class="space-y-2">
     <div class="space-y-1">
       <label class="block text-sm font-medium text-gray-700"> Organization name </label>
       <div class="flex justify-between gap-4">
