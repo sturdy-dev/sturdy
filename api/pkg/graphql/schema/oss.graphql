@@ -821,6 +821,7 @@ interface WorkspaceActivity {
   author: Author!
   isRead: Boolean!
   workspace: Workspace
+  change: Change
 }
 
 type WorkspaceCommentActivity implements WorkspaceActivity {
@@ -828,7 +829,8 @@ type WorkspaceCommentActivity implements WorkspaceActivity {
   createdAt: Int!
   author: Author!
   isRead: Boolean!
-  workspace: Workspace!
+  workspace: Workspace
+  change: Change
 
   comment: Comment!
 }
@@ -838,9 +840,8 @@ type WorkspaceCreatedChangeActivity implements WorkspaceActivity {
   createdAt: Int!
   author: Author!
   isRead: Boolean!
-  workspace: Workspace!
-
-  change: Change!
+  workspace: Workspace
+  change: Change
 }
 
 type WorkspaceRequestedReviewActivity implements WorkspaceActivity {
@@ -848,7 +849,8 @@ type WorkspaceRequestedReviewActivity implements WorkspaceActivity {
   createdAt: Int!
   author: Author!
   isRead: Boolean!
-  workspace: Workspace!
+  workspace: Workspace
+  change: Change
 
   review: Review!
 }
@@ -858,7 +860,8 @@ type WorkspaceReviewedActivity implements WorkspaceActivity {
   createdAt: Int!
   author: Author!
   isRead: Boolean!
-  workspace: Workspace!
+  workspace: Workspace
+  change: Change
 
   review: Review!
 }

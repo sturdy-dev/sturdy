@@ -34,16 +34,12 @@ type ActivityInput struct {
 }
 
 type ActivityResolver interface {
+	common
+
 	ToWorkspaceCommentActivity() (CommentActivityResolver, bool)
 	ToWorkspaceCreatedChangeActivity() (CreatedChangeActivityResolver, bool)
 	ToWorkspaceRequestedReviewActivity() (RequestedReviewActivityResolver, bool)
 	ToWorkspaceReviewedActivity() (ReviewedActivityResolver, bool)
-
-	ID() graphql.ID
-	Author(context.Context) (AuthorResolver, error)
-	CreatedAt() int32
-	IsRead(ctx context.Context) (bool, error)
-	Workspace(ctx context.Context) (WorkspaceResolver, error)
 }
 
 type common interface {
@@ -52,6 +48,7 @@ type common interface {
 	CreatedAt() int32
 	IsRead(ctx context.Context) (bool, error)
 	Workspace(ctx context.Context) (WorkspaceResolver, error)
+	Change(context.Context) (ChangeResolver, error)
 }
 
 type CommentActivityResolver interface {

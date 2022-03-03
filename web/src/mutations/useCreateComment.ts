@@ -59,7 +59,6 @@ export function useCreateComment(): (input: DeepMaybeRef<CreateCommentInput>) =>
     if (result.error) {
       throw result.error
     }
-    console.log('create comment', result)
   }
 }
 

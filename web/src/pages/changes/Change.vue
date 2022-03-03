@@ -8,29 +8,13 @@
       <ChangelogDetailsFetching v-if="fetching" />
       <ChangelogDetails v-else :change="data.change" />
 
-      <WorkspaceActivitySidebar
-        v-if="false"
+      <ChangeActivitySidebar
+        v-if="!fetching"
         class="mt-6 py-6 space-y-8"
-        :workspace="data.change.workspace"
+        :change="data.change"
         :codebase-slug="codebaseSlug"
         :user="user"
       />
-
-      <div v-if="data?.change" class="mt-10 py-6 space-y-8">
-        <div class="divide-y divide-gray-200">
-          <div class="pb-4">
-            <h2 id="activity-title" class="text-lg font-medium text-gray-900">More changes</h2>
-          </div>
-          <div class="pt-6">
-            <ChangelogSidebar
-              :codebase-id="data.change.codebase.id"
-              :changes="data.change.codebase.changes"
-              :selected-change-id="selectedChangeID"
-              @selectCodebaseChange="onSelectCodebaseChange"
-            />
-          </div>
-        </div>
-      </div>
     </template>
 
     <div>
@@ -98,10 +82,9 @@ import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
-import ChangelogSidebar from '../../components/changelog/ChangelogSidebar.vue'
-import WorkspaceActivitySidebar, {
-  WORKSPACE_FRAGMENT as WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT,
-} from '../../organisms/WorkspaceActivitySidebar.vue'
+import ChangeActivitySidebar, {
+  CHANGE_FRAGMENT as CHANGE_ACTIVITY_CHANGE_FRAGMENT,
+} from '../../organisms/ChangeActivitySidebar.vue'
 
 import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
 
@@ -127,32 +110,10 @@ const PAGE_QUERY = gql`
 
       codebase {
         id
-        shortID
         name
-
-        changes {
-          id
-          title
-          createdAt
-          author {
-            id
-            name
-            avatarUrl
-          }
-          comments {
-            id
-          }
-          statuses {
-            ...Status
-          }
-        }
       }
 
-      workspace {
-        id
-        ...WorkspaceActivity_Workspace
-      }
-
+      ...ChangeActivity_Change
       ...ChangelogDetails_Change
       ...ChangeDetails_Change
     }
@@ -162,7 +123,7 @@ const PAGE_QUERY = gql`
   ${STATUS_FRAGMENT}
   ${MEMBER_FRAGMENT}
   ${CHANGE_DETAILS_CHANGE_FRAGMENT}
-  ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
+  ${CHANGE_ACTIVITY_CHANGE_FRAGMENT}
 `
 
 export default {
@@ -172,8 +133,7 @@ export default {
     ChangelogDetailsFetching,
     ChangeDetails,
     SearchToolbar,
-    ChangelogSidebar,
-    WorkspaceActivitySidebar,
+    ChangeActivitySidebar,
   },
   props: {
     user: {
