@@ -10,7 +10,7 @@
 
       <ChangeActivitySidebar
         v-if="!fetching"
-        class="mt-6 py-6 space-y-8"
+        class="mt-6"
         :change="data.change"
         :codebase-slug="codebaseSlug"
         :user="user"

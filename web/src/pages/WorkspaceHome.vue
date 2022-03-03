@@ -494,7 +494,7 @@
 
           <WorkspaceActivitySidebar
             v-if="showActivity"
-            class="mt-6 py-6 space-y-8"
+            class="mt-6"
             :workspace="data.workspace"
             :codebase-slug="codebaseSlug"
             :user="user"
