@@ -26,6 +26,7 @@ import { addUserToOrganizationUpdateResolver } from './useAddUserToOrganization'
 import { addUserToCodebaseUpdateResolver } from './useAddUserToCodebase'
 import { removeUserFromCodebaseUpdateResolver } from './useRemoveUserFromCodebase'
 import { updateInstallationUpdateResolver } from './useUpdateInstallation'
+import { updateOrganizationResolver } from './useUpdateOrganization'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,
@@ -52,6 +53,7 @@ export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   addUserToCodebase: addUserToCodebaseUpdateResolver,
   removeUserFromCodebase: removeUserFromCodebaseUpdateResolver,
   updateInstallation: updateInstallationUpdateResolver,
+  updateOrganization: updateOrganizationResolver,
 }
 
 export const optimisticMutationResolvers: Record<string, OptimisticMutationResolver> = {

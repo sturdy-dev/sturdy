@@ -147,7 +147,11 @@ func (r *organizationRootResolver) CreateOrganization(ctx context.Context, args 
 }
 
 func (r *organizationRootResolver) UpdateOrganization(ctx context.Context, args resolvers.UpdateOrganizationArgs) (resolvers.OrganizationResolver, error) {
-	org, err := r.service.GetByID(ctx, args.Input.Name)
+	if len(strings.TrimSpace(args.Input.Name)) == 0 {
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "name", "can't be empty")
+	}
+
+	org, err := r.service.GetByID(ctx, string(args.Input.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

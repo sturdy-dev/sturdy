@@ -40,7 +40,7 @@ linux:
   maintainer: Sturdy
   executableName: sturdy
   description: |
-     # Sturdy - Real-Time Version Control
+    # Sturdy - Real-Time Version Control
 
   desktop:
     Name: Sturdy
