@@ -240,6 +240,8 @@ type Subscription {
   completedOnboardingStep: OnboardingStep!
 
   updatedWorkspaceWatchers(workspaceID: ID!): WorkspaceWatcher!
+
+  updatedOrganization(organizationID: ID): Organization!
 }
 
 # Authors represents the author of a change.

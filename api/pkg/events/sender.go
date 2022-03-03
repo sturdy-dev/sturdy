@@ -1,7 +1,10 @@
 package events
 
 import (
+	"context"
+
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )
@@ -16,11 +19,16 @@ type EventSender interface {
 
 	// Workspace sends this event to all members of the codebase of this workspace
 	Workspace(id string, eventType EventType, reference string) error
+
+	// Organization sends this event to all members of this Organization
+	Organization(ctx context.Context, id string, eventType EventType, reference string) error
 }
 
 type eventsSender struct {
 	codebaseUserRepo db_codebase.CodebaseUserRepository
 	workspaceRepo    db_workspaces.WorkspaceReader
+	organizationRepo db_organization.Repository
+	memberRepo       db_organization.MemberRepository
 
 	events eventWriter
 }
@@ -28,11 +36,15 @@ type eventsSender struct {
 func NewSender(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	workspaceRepo db_workspaces.WorkspaceReader,
+	organizationRepo db_organization.Repository,
+	memberRepo db_organization.MemberRepository,
 	events EventReadWriter,
 ) EventSender {
 	return &eventsSender{
 		codebaseUserRepo: codebaseUserRepo,
 		workspaceRepo:    workspaceRepo,
+		organizationRepo: organizationRepo,
+		memberRepo:       memberRepo,
 		events:           events,
 	}
 }
@@ -62,4 +74,22 @@ func (s *eventsSender) Workspace(id string, eventType EventType, reference strin
 		return err
 	}
 	return s.Codebase(ws.CodebaseID, eventType, reference)
+}
+
+func (s *eventsSender) Organization(ctx context.Context, id string, eventType EventType, reference string) error {
+	og, err := s.organizationRepo.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	members, err := s.memberRepo.ListByOrganizationID(ctx, og.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, m := range members {
+		s.User(m.UserID, eventType, reference)
+	}
+
+	return nil
 }
