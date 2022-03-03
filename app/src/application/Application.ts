@@ -180,6 +180,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       minWidth: 680,
       minHeight: 400,
       webPreferences: {
+        spellcheck: true,
         preload: path.join(__dirname, 'preload.js'),
         devTools: !this.#isAppPackaged,
       },
