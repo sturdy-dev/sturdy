@@ -58,6 +58,7 @@ func TestFileResolver(t *testing.T) {
 
 	authService := service_auth.New(
 		nil,
+		nil,
 		userService,
 		nil,
 		aclProvider,

@@ -47,6 +47,7 @@ func TestListAllows(t *testing.T) {
 
 	authService := service_auth.New(
 		nil,
+		nil,
 		userService,
 		nil,
 		aclProvider,
