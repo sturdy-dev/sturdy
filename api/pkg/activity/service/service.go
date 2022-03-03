@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"getsturdy.com/api/pkg/activity"
 	db_activity "getsturdy.com/api/pkg/activity/db"
@@ -39,20 +40,27 @@ func (svc *Service) SetChange(ctx context.Context, workspaceID string, changeID 
 	return svc.repo.SetChangeID(ctx, workspaceID, changeID)
 }
 
-func (svc *Service) ListByChangeID(ctx context.Context, changeID changes.ID, limit *int32) ([]*activity.Activity, error) {
+func safeLimit(limit *int32) int32 {
 	const maxLimit = 100
 	const defaultLimit = 25
 	if limit == nil {
-		return svc.repo.ListByChangeID(ctx, changeID, defaultLimit)
+		return defaultLimit
 	}
 	if *limit > maxLimit {
-		return svc.repo.ListByChangeID(ctx, changeID, maxLimit)
+		return maxLimit
 	}
-	return svc.repo.ListByChangeID(ctx, changeID, *limit)
+	return *limit
 }
 
-func (svc *Service) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error) {
-	return svc.repo.ListByWorkspaceID(ctx, workspaceID)
+func (svc *Service) ListByChangeID(ctx context.Context, changeID changes.ID, limit *int32) ([]*activity.Activity, error) {
+	return svc.repo.ListByChangeID(ctx, changeID, safeLimit(limit))
+}
+
+func (svc *Service) ListByWorkspaceID(ctx context.Context, workspaceID string, limit *int32, after *time.Time) ([]*activity.Activity, error) {
+	if after == nil {
+		return svc.repo.ListByWorkspaceID(ctx, workspaceID, safeLimit(limit))
+	}
+	return svc.repo.ListByWorkspaceIDNewerThan(ctx, workspaceID, *after, safeLimit(limit))
 }
 
 func (svc *Service) MarkAsRead(ctx context.Context, userID users.ID, act *activity.Activity) error {

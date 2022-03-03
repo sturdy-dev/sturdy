@@ -15,8 +15,8 @@ import (
 type ActivityRepository interface {
 	Create(context.Context, activity.Activity) error
 	Get(ctx context.Context, id string) (*activity.Activity, error)
-	ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error)
-	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error)
+	ListByWorkspaceID(ctx context.Context, workspaceID string, limit int32) ([]*activity.Activity, error)
+	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time, limit int32) ([]*activity.Activity, error)
 
 	SetChangeID(ctx context.Context, workspaceID string, changeID changes.ID) error
 	ListByChangeID(context.Context, changes.ID, int32) ([]*activity.Activity, error)
@@ -51,24 +51,26 @@ func (r *activityRepo) Get(ctx context.Context, id string) (*activity.Activity, 
 	return &res, nil
 }
 
-func (r *activityRepo) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error) {
+func (r *activityRepo) ListByWorkspaceID(ctx context.Context, workspaceID string, limit int32) ([]*activity.Activity, error) {
 	var activities []*activity.Activity
 	if err := r.db.SelectContext(ctx, &activities, `SELECT id, user_id, workspace_id, created_at, activity_type, reference, change_id
 		FROM workspace_activity
 		WHERE workspace_id = $1
-		ORDER BY created_at DESC`, workspaceID); err != nil {
+		ORDER BY created_at DESC
+		LIMIT $2`, workspaceID, limit); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return activities, nil
 }
 
-func (r *activityRepo) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error) {
+func (r *activityRepo) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time, limit int32) ([]*activity.Activity, error) {
 	var activities []*activity.Activity
 	if err := r.db.SelectContext(ctx, &activities, `SELECT id, user_id, workspace_id, created_at, activity_type, reference, change_id
 		FROM workspace_activity
 		WHERE workspace_id = $1
 		AND created_at > $2
-		ORDER BY created_at DESC`, workspaceID, newerThan); err != nil {
+		ORDER BY created_at DESC
+		LIMIT $3`, workspaceID, newerThan, limit); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return activities, nil
@@ -127,16 +129,23 @@ func (i *inmemory) Get(ctx context.Context, id string) (*activity.Activity, erro
 	return activity, nil
 }
 
-func (i *inmemory) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error) {
-	return i.byWorkspaceID[workspaceID], nil
+func (i *inmemory) ListByWorkspaceID(ctx context.Context, workspaceID string, limit int32) ([]*activity.Activity, error) {
+	activities := i.byWorkspaceID[workspaceID]
+	if len(activities) > int(limit) {
+		return activities[:limit], nil
+	}
+	return activities, nil
 }
 
-func (i *inmemory) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error) {
+func (i *inmemory) ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time, limit int32) ([]*activity.Activity, error) {
 	var activities []*activity.Activity
 	for _, activity := range i.byWorkspaceID[workspaceID] {
 		if activity.CreatedAt.After(newerThan) {
 			activities = append(activities, activity)
 		}
+	}
+	if len(activities) > int(limit) {
+		return activities[:limit], nil
 	}
 	return activities, nil
 }

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	"getsturdy.com/api/pkg/activity"
 	db_activity "getsturdy.com/api/pkg/activity/db"
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/auth"
@@ -93,7 +92,7 @@ func (r *root) InternalActivityByChangeID(ctx context.Context, changeID changes.
 
 func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID string, args resolvers.ActivityArgs) ([]resolvers.ActivityResolver, error) {
 	unreadOnly := args.Input != nil && args.Input.UnreadOnly != nil && *args.Input.UnreadOnly
-	var newerThan time.Time
+	var newerThan *time.Time
 
 	if unreadOnly {
 		userID, err := auth.UserID(ctx)
@@ -101,21 +100,19 @@ func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID stri
 			// can't filter by unread if not logged in
 		} else {
 			if read, err := r.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, workspaceID); err == nil {
-				newerThan = read.LastReadCreatedAt
+				newerThan = &read.LastReadCreatedAt
 			} else if !errors.Is(err, sql.ErrNoRows) {
 				return nil, gqlerrors.Error(err)
 			}
 		}
 	}
 
-	var activities []*activity.Activity
-	var err error
-
-	if newerThan.IsZero() {
-		activities, err = r.workspaceActivityRepo.ListByWorkspaceID(ctx, workspaceID)
-	} else {
-		activities, err = r.workspaceActivityRepo.ListByWorkspaceIDNewerThan(ctx, workspaceID, newerThan)
+	var limit *int32
+	if args.Input != nil {
+		limit = args.Input.Limit
 	}
+
+	activities, err := r.activityService.ListByWorkspaceID(ctx, workspaceID, limit, newerThan)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
