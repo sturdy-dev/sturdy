@@ -121,10 +121,17 @@ func (svc *Service) userAccessibleRepoIDs(ctx context.Context, userAuthClient *g
 			PerPage: 30,
 		})
 		// Track rate limiting
-		svc.logger.Info("github rate limit", zap.Int64("installation_id", installationID), zap.Int("limit", response.Rate.Limit), zap.Int("remaining", response.Rate.Remaining), zap.Time("reset", response.Rate.Reset.Time))
 		if err != nil {
 			return nil, fmt.Errorf("failed to ListUserRepos: %w", err)
 		}
+
+		svc.logger.Info("github rate limit",
+			zap.Int64("installation_id", installationID),
+			zap.Int("limit", response.Rate.Limit),
+			zap.Int("remaining", response.Rate.Remaining),
+			zap.Time("reset", response.Rate.Reset.Time),
+		)
+
 		for _, r := range repos.Repositories {
 			res = append(res, accessibleRepo{
 				id:   r.GetID(),
