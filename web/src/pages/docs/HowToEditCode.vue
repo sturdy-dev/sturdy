@@ -7,8 +7,8 @@
       <div class="prose p-4 max-w-[800px]">
         <h1 id="how-to-edit-code">How to edit code</h1>
         <p>
-          With Sturdy, you access and edit your code with your choice of local IDE or text editor
-          &mdash; no different from what you are used.
+          With Sturdy, you access and edit your code with any local IDE or text editor &mdash; no
+          different from what you are already used to.
         </p>
 
         <p>After you have created, imported or joined an existing codebase:</p>
