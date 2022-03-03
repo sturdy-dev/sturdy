@@ -148,19 +148,6 @@ export default defineComponent({
       isReplying: false,
     }
   },
-  methods: {
-    friendly_ago(ts: number) {
-      return time.getRelativeTime(new Date(ts * 1000))
-    },
-    newReply() {
-      this.isReplying = true
-      this.$nextTick(() => {
-        this.$nextTick(() => {
-          this.$refs.commentReply.$refs.replyComment.$el.focus()
-        })
-      })
-    },
-  },
   computed: {
     members() {
       return this.item.workspace
@@ -186,6 +173,19 @@ export default defineComponent({
             name: 'codebase',
             params: { codebaseSlug: this.codebaseSlug },
           }
+    },
+  },
+  methods: {
+    friendly_ago(ts: number) {
+      return time.getRelativeTime(new Date(ts * 1000))
+    },
+    newReply() {
+      this.isReplying = true
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          this.$refs.commentReply.$refs.replyComment.$el.focus()
+        })
+      })
     },
   },
 })
