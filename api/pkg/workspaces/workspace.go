@@ -10,12 +10,10 @@ import (
 )
 
 type Workspace struct {
-	ID                     string   `db:"id" json:"id"`
-	UserID                 users.ID `db:"user_id" json:"user_id"`
-	CodebaseID             string   `db:"codebase_id" json:"codebase_id"`
-	Name                   *string  `db:"name" json:"name"`
-	ReadyForReviewChangeID *string  `db:"ready_for_review_change" json:"ready_for_review_change"`
-	ApprovedChangeID       *string  `db:"approved_change" json:"approved_change"`
+	ID         string   `db:"id" json:"id"`
+	UserID     users.ID `db:"user_id" json:"user_id"`
+	CodebaseID string   `db:"codebase_id" json:"codebase_id"`
+	Name       *string  `db:"name" json:"name"`
 
 	// These are shadowed by the values in WorkspaceWithMetadataJSON
 	CreatedAt    *time.Time `db:"created_at" json:"-"`
