@@ -1,9 +1,9 @@
 <template>
   <div ref="editorTarget" class="relative">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl flex flex-col items-center">
+    <div class="mx-auto sm:px-6 lg:px-8 lg:max-w-7xl flex flex-col items-center">
       <LightIndexPageDifferFile v-if="diffs" :diffs="diffs" class="w-full w-auto" />
 
-      <div class="ml-0 -mt-28 relative md:px-8 lg:px-0 self-center pt-8 lg:pt-0 md:block">
+      <div class="-mt-28 relative md:px-8 lg:px-0 self-center pt-8 lg:pt-0 md:block">
         <div class="mx-auto lg:max-w-2xl xl:max-w-none">
           <div
             class="relative border border-slate-500/80 overflow-hidden rounded-xl shadow-2xl flex bg-light-blue-500 pb-6 md:pb-0"
@@ -144,11 +144,11 @@ export default defineComponent({
       let frames = [].concat(
         stringAnimation(8, "  res.end('Hello ", 'Sturdy!', "');"),
         { row: 5, newRow: true },
-        stringAnimation(5, '// ', 'In Sturdy, all changes are streamed live back to', ''),
+        stringAnimation(5, '// ', 'In Sturdy, all changes are streamed live back', ''),
         { row: 6, newRow: true },
-        stringAnimation(6, '// ', 'the cloud. And are ready to review and merge in ', ''),
+        stringAnimation(6, '// ', 'to the cloud. And are ready to review and', ''),
         { row: 7, newRow: true },
-        stringAnimation(7, '// ', 'less than 1 second!', ''),
+        stringAnimation(7, '// ', 'merge in less than 1 second!', ''),
         { sleep: 3000 },
         { row: 0, newRow: true },
         stringAnimation(0, '// ', 'Psst! This is an interactive editor!', '')

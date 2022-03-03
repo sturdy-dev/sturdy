@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d2h-file-wrapper border-2 border-amber-500 bg-slate-50 shadow rounded-lg my-4 z-0 relative overflow-y-hidden overflow-x-auto"
+    class="d2h-file-wrapper border-2 border-amber-500/70 bg-slate-50 shadow rounded-lg my-4 z-0 relative overflow-y-hidden overflow-x-auto"
     :class="extraClasses"
   >
     <DiffHeader
@@ -19,7 +19,7 @@
       <div class="d2h-code-wrapper">
         <table
           class="d2h-diff-table leading-4 z-0"
-          style="border-collapse: separate; border-spacing: 0; font-size: 10px"
+          style="border-collapse: separate; border-spacing: 0; font-size: 9px"
         >
           <tbody
             v-for="(hunk, hunkIndex) in parsedHunks"
