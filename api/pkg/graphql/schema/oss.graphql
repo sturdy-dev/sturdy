@@ -820,7 +820,7 @@ interface WorkspaceActivity {
   createdAt: Int!
   author: Author!
   isRead: Boolean!
-  workspace: Workspace!
+  workspace: Workspace
 }
 
 type WorkspaceCommentActivity implements WorkspaceActivity {

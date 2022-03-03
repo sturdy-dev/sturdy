@@ -37,7 +37,11 @@ func (r *resolver) IsRead(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
-	read, err := r.root.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, r.activity.WorkspaceID)
+	if r.activity.WorkspaceID == nil {
+		return true, nil
+	}
+
+	read, err := r.root.workspaceActivityReadsRepo.GetByUserAndWorkspace(ctx, userID, *r.activity.WorkspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	} else if err != nil {
@@ -51,8 +55,11 @@ func (r *resolver) IsRead(ctx context.Context) (bool, error) {
 }
 
 func (r *resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
+	if r.activity.WorkspaceID == nil {
+		return nil, nil
+	}
 	t := true
-	res, err := (*r.root.workspaceRootResolver).Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(r.activity.WorkspaceID), AllowArchived: &t})
+	res, err := (*r.root.workspaceRootResolver).Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(*r.activity.WorkspaceID), AllowArchived: &t})
 	if errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	} else if err != nil {
