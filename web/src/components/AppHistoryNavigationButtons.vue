@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowRightIcon, ArrowLeftIcon } from '@heroicons/vue/solid'
 
@@ -60,13 +60,13 @@ export default defineComponent({
   methods: {
     async back() {
       await this.ipc.goBack()
-      this.canGoForward = true
+      this.canGoForward = await this.ipc.canGoForward()
       this.canGoBack = await this.ipc.canGoBack()
     },
     async forward() {
       await this.ipc.goForward()
       this.canGoForward = await this.ipc.canGoForward()
-      this.canGoBack = true
+      this.canGoBack = await this.ipc.canGoBack()
     },
   },
 })
