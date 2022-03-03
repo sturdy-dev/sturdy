@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
@@ -40,17 +38,14 @@ func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 	return nil
 }
 
-var ErrNotFound = fmt.Errorf("not found")
-
 func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	if err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE id=$1
-		AND deleted_at IS NULL`, id); errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrNotFound
-	} else if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		AND deleted_at IS NULL`, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get: %w", err)
 	}
 	return &res, nil
 }
@@ -64,7 +59,7 @@ func (r *dbrepo) LatestInView(viewID string) (*snapshots.Snapshot, error) {
 		ORDER BY created_at DESC
 		LIMIT 1`, viewID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to get latest in view: %w", err)
 	}
 	return &res, nil
 }
@@ -79,7 +74,7 @@ func (r *dbrepo) LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshot
 		ORDER BY created_at DESC
 		LIMIT 1`, viewID, workspaceID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to get latest in view and workspace: %w", err)
 	}
 	return &res, nil
 }
@@ -93,14 +88,14 @@ func (r *dbrepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
 		ORDER BY created_at DESC
 		LIMIT 100`, viewID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to list by view: %w", err)
 	}
 	return res, nil
 }
 
 func (r *dbrepo) ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error) {
 	var res []*snapshots.Snapshot
-	if err := r.db.Select(&res, `
+	err := r.db.Select(&res, `
 		SELECT 
 			id,
 			view_id,
@@ -119,8 +114,9 @@ func (r *dbrepo) ListUndeletedInCodebase(codebaseID string, threshold time.Time)
 		ORDER BY 
 		  created_at DESC
 		LIMIT 1000
-		`, codebaseID, threshold); err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		`, codebaseID, threshold)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list undeleted in codebase: %w", err)
 	}
 	return res, nil
 }

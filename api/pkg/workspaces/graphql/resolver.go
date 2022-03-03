@@ -13,7 +13,6 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
-	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/pkg/workspaces/vcs"
@@ -333,7 +332,7 @@ func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusRes
 			return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
 		}
 		return nil, nil
-	case errors.Is(err, db_snapshots.ErrNotFound):
+	case errors.Is(err, sql.ErrNoRows):
 		return nil, nil
 	default:
 		return nil, gqlerrors.Error(err)
