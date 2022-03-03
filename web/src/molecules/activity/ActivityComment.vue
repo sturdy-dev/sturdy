@@ -15,27 +15,13 @@
           </Button>
         </div>
         <p v-if="item.comment.codeContext" class="mt-0.5 text-sm text-gray-500">
-          <router-link
-            :to="{
-              name: 'workspaceHome',
-              params: { codebaseSlug: codebaseSlug, id: item.workspace.id },
-              hash: `#${item.comment.id}`,
-            }"
-            class="underline"
-          >
+          <router-link :to="selfRoute" class="underline">
             Commented on {{ item.comment.codeContext.path }}
           </router-link>
           {{ friendly_ago(item.createdAt) }}
         </p>
         <p v-else-if="item.comment.parent" class="mt-0.5 text-sm text-gray-500">
-          <router-link
-            :to="{
-              name: 'workspaceHome',
-              params: { codebaseSlug: codebaseSlug, id: item.workspace.id },
-              hash: `#${item.comment.id}`,
-            }"
-            class="underline"
-          >
+          <router-link :to="selfRoute" class="underline">
             Replied to {{ item.comment.parent.author.name }}
           </router-link>
           {{ friendly_ago(item.createdAt) }}
@@ -47,17 +33,9 @@
       <div class="mt-2 text-sm text-gray-700">
         <CommentCodeContext v-if="item.comment.codeContext" :context="item.comment.codeContext" />
         <div v-if="item.comment.parent" class="border-l-4 border-gray-400 text-gray-600 px-2">
-          <CommentMessage
-            :message="item.comment.parent.message"
-            :user="user"
-            :members="item.workspace.codebase.members"
-          />
+          <CommentMessage :message="item.comment.parent.message" :user="user" :members="members" />
         </div>
-        <CommentMessage
-          :message="item.comment.message"
-          :user="user"
-          :members="item.workspace.codebase.members"
-        />
+        <CommentMessage :message="item.comment.message" :user="user" :members="members" />
       </div>
 
       <div v-if="isReplying" class="mt-2">
@@ -65,7 +43,7 @@
           ref="commentReply"
           :reply-to="item.comment.parent ?? item.comment"
           :user="user"
-          :members="item.workspace.codebase.members"
+          :members="members"
           :start-expanded="true"
           @replied="isReplying = false"
         />
@@ -82,7 +60,7 @@ import CommentCodeContext from '../../components/workspace/CommentCodeContext.vu
 import CommentMessage, { User } from '../../components/shared/CommentMessage.vue'
 import { gql } from '@urql/vue'
 import { PropType, defineComponent } from 'vue'
-import { WorkspaceCommentActivityFragment } from './__generated__/WorkspaceActivityComment'
+import { WorkspaceCommentActivityFragment } from './__generated__/ActivityComment'
 import Button from '../../components/shared/Button.vue'
 import CommentReply from '../../components/comments/CommentReply.vue'
 
@@ -94,6 +72,16 @@ export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
       avatarUrl
     }
     createdAt
+    change {
+      id
+      codebase {
+        id
+        members {
+          id
+          name
+        }
+      }
+    }
     workspace {
       id
       codebase {
@@ -171,6 +159,33 @@ export default defineComponent({
           this.$refs.commentReply.$refs.replyComment.$el.focus()
         })
       })
+    },
+  },
+  computed: {
+    members() {
+      return this.item.workspace
+        ? this.item.workspace.codebase.members
+        : this.item.change
+        ? this.item.change.codebase.members
+        : []
+    },
+    selfRoute() {
+      return this.item.workspace
+        ? {
+            name: 'workspaceHome',
+            params: { codebaseSlug: this.codebaseSlug, id: this.item.workspace.id },
+            hash: `#${this.item.comment.id}`,
+          }
+        : this.item.change
+        ? {
+            name: 'codebaseChange',
+            params: { codebaseSlug: this.codebaseSlug, selectedChangeId: this.item.change.id },
+            hash: `#${this.item.comment.id}`,
+          }
+        : {
+            name: 'codebase',
+            params: { codebaseSlug: this.codebaseSlug },
+          }
     },
   },
 })

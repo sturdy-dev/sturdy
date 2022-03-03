@@ -101,7 +101,15 @@ func (r *resolver) Comment(ctx context.Context) (resolvers.CommentResolver, erro
 }
 
 func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
-	id := graphql.ID(r.activity.Reference)
+	if r.activity.ActivityType == activity.TypeCreatedChange {
+		id := graphql.ID(r.activity.Reference)
+		return (*r.root.changeRootResolver).Change(ctx, resolvers.ChangeArgs{ID: &id})
+	}
+
+	if r.activity.ChangeID == nil {
+		return nil, nil
+	}
+	id := graphql.ID(*r.activity.ChangeID)
 	return (*r.root.changeRootResolver).Change(ctx, resolvers.ChangeArgs{ID: &id})
 }
 

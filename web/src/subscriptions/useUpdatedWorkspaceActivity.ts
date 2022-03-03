@@ -1,12 +1,8 @@
 import { gql, useSubscription } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import { Entity, UpdateResolver } from '@urql/exchange-graphcache'
 import {
-  UpdatedWorkspaceActivityLatestActivityQuery,
-  UpdatedWorkspaceActivityLatestActivityQueryVariables,
   UpdatedWorkspaceActivitySubscription,
   UpdatedWorkspaceActivitySubscriptionVariables,
-  UpdatedWorkspaceActivityWorkspaceAllActivityQuery,
-  UpdatedWorkspaceActivityWorkspaceAllActivityQueryVariables,
 } from './__generated__/useUpdatedWorkspaceActivity'
 import { DeepMaybeRef } from '@vueuse/core'
 
@@ -17,6 +13,10 @@ const UPDATED_WORKSPACE_ACTIVITY = gql`
 
       isRead
       workspace {
+        id
+      }
+
+      change {
         id
       }
 
@@ -39,6 +39,16 @@ const UPDATED_WORKSPACE_ACTIVITY = gql`
               context
               contextStartsAtLine
               path
+            }
+          }
+          ... on ReplyComment {
+            parent {
+              id
+              message
+              author {
+                id
+                name
+              }
             }
           }
         }
@@ -82,33 +92,6 @@ const UPDATED_WORKSPACE_ACTIVITY = gql`
   }
 `
 
-const UPDATED_WORKSPACE_ACTIVITY_LATEST_ACTIVITY = gql`
-  query UpdatedWorkspaceActivityLatestActivity {
-    codebases {
-      id
-      workspaces {
-        id
-        activity(input: { unreadOnly: true, limit: 1 }) {
-          id
-          isRead
-        }
-      }
-    }
-  }
-`
-
-const UPDATED_WORKSPACE_ACTIVITY_WORKSPACE_ALL_ACTIVITY = gql`
-  query UpdatedWorkspaceActivityWorkspaceAllActivity($id: ID!) {
-    workspace(id: $id) {
-      id
-      activity {
-        id
-        isRead
-      }
-    }
-  }
-`
-
 export function useUpdatedWorkspaceActivity() {
   useSubscription<
     UpdatedWorkspaceActivitySubscription,
@@ -123,48 +106,41 @@ export const updatedWorkspaceActivityUpdateResolver: UpdateResolver<
   UpdatedWorkspaceActivitySubscription,
   UpdatedWorkspaceActivitySubscriptionVariables
 > = (result, args, cache, info) => {
-  const updatedActivity = result.updatedWorkspaceActivity
+  if (result && result.updatedWorkspaceActivity.workspace) {
+    const activityList = cache.resolve(
+      { __typename: 'Workspace', id: result.updatedWorkspaceActivity.workspace.id },
+      'activity'
+    ) as Array<string>
+    const selfKey = cache.keyOfEntity(result.updatedWorkspaceActivity as Entity)
 
-  // Add as latest activity
-  cache.updateQuery<
-    UpdatedWorkspaceActivityLatestActivityQuery,
-    UpdatedWorkspaceActivityLatestActivityQueryVariables
-  >(
-    {
-      query: UPDATED_WORKSPACE_ACTIVITY_LATEST_ACTIVITY,
-    },
-    (data) => {
-      if (!data) return data
-      for (const cb of data.codebases) {
-        for (const ws of cb.workspaces) {
-          if (ws.id === result.updatedWorkspaceActivity.workspace.id) {
-            ws.activity = [
-              updatedActivity,
-              ...ws.activity.filter((activity) => activity.id != updatedActivity.id),
-            ]
-          }
-        }
+    if (activityList && selfKey) {
+      if (!activityList.includes(selfKey)) {
+        activityList.push(selfKey)
+        cache.link(
+          { __typename: 'Workspace', id: result.updatedWorkspaceActivity.workspace.id },
+          'activity',
+          activityList
+        )
       }
-      return data
     }
-  )
+  }
 
-  // Add to workspace list of activity
-  cache.updateQuery<
-    UpdatedWorkspaceActivityWorkspaceAllActivityQuery,
-    UpdatedWorkspaceActivityWorkspaceAllActivityQueryVariables
-  >(
-    {
-      query: UPDATED_WORKSPACE_ACTIVITY_WORKSPACE_ALL_ACTIVITY,
-      variables: { id: updatedActivity.workspace.id },
-    },
-    (data) => {
-      if (!data) return data
-      data.workspace.activity = [
-        updatedActivity,
-        ...data.workspace.activity.filter((activity) => activity.id != updatedActivity.id),
-      ]
-      return data
+  if (result && result.updatedWorkspaceActivity.change) {
+    const activityList = cache.resolve(
+      { __typename: 'Change', id: result.updatedWorkspaceActivity.change.id },
+      'activity'
+    ) as Array<string>
+    const selfKey = cache.keyOfEntity(result.updatedWorkspaceActivity as Entity)
+
+    if (activityList && selfKey) {
+      if (!activityList.includes(selfKey)) {
+        activityList.push(selfKey)
+        cache.link(
+          { __typename: 'Change', id: result.updatedWorkspaceActivity.change.id },
+          'activity',
+          activityList
+        )
+      }
     }
-  )
+  }
 }

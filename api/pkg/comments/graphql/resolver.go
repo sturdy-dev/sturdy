@@ -529,6 +529,7 @@ func (r *CommentRootResolver) prepareReplyComment(ctx context.Context, args reso
 		ParentComment: &parentID,
 		CodebaseID:    parent.CodebaseID,  // Not exposed on the API for reply comments
 		WorkspaceID:   parent.WorkspaceID, // Not exposed on the API for reply comments, but is used to generate/route events
+		ChangeID:      parent.ChangeID,
 	}
 
 	if err := r.authService.CanWrite(ctx, comment); err != nil {
