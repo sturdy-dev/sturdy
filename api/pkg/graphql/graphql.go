@@ -55,7 +55,7 @@ type RootResolver struct {
 	resolvers.SuggestionRootResolver
 	resolvers.UserRootResolver
 	resolvers.ViewRootResolver
-	resolvers.WorkspaceActivityRootResolver
+	resolvers.ActivityRootResolver
 	resolvers.WorkspaceRootResolver
 	resolvers.WorkspaceWatcherRootResolver
 
@@ -93,7 +93,7 @@ func NewRootResolver(
 	suggestionResolver resolvers.SuggestionRootResolver,
 	userResolver resolvers.UserRootResolver,
 	viewResolver resolvers.ViewRootResolver,
-	workspaceActivityResolver resolvers.WorkspaceActivityRootResolver,
+	activityResolver resolvers.ActivityRootResolver,
 	workspaceResolver resolvers.WorkspaceRootResolver,
 	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
 ) *RootResolver {
@@ -126,7 +126,7 @@ func NewRootResolver(
 		SuggestionRootResolver:                  suggestionResolver,
 		UserRootResolver:                        userResolver,
 		ViewRootResolver:                        viewResolver,
-		WorkspaceActivityRootResolver:           workspaceActivityResolver,
+		ActivityRootResolver:                    activityResolver,
 		WorkspaceRootResolver:                   workspaceResolver,
 		WorkspaceWatcherRootResolver:            workspaceWatcherRootResolver,
 	}

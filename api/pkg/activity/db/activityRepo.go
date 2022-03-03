@@ -19,7 +19,7 @@ type ActivityRepository interface {
 	ListByWorkspaceIDNewerThan(ctx context.Context, workspaceID string, newerThan time.Time) ([]*activity.Activity, error)
 
 	SetChangeID(ctx context.Context, workspaceID string, changeID changes.ID) error
-	ListByChangeID(context.Context, changes.ID) ([]*activity.Activity, error)
+	ListByChangeID(context.Context, changes.ID, int32) ([]*activity.Activity, error)
 }
 
 type activityRepo struct {
@@ -84,12 +84,13 @@ func (r *activityRepo) SetChangeID(ctx context.Context, workspaceID string, chan
 	return nil
 }
 
-func (r *activityRepo) ListByChangeID(ctx context.Context, changeID changes.ID) ([]*activity.Activity, error) {
+func (r *activityRepo) ListByChangeID(ctx context.Context, changeID changes.ID, limit int32) ([]*activity.Activity, error) {
 	var activities []*activity.Activity
 	if err := r.db.SelectContext(ctx, &activities, `SELECT id, user_id, workspace_id, created_at, activity_type, reference, change_id
 		FROM workspace_activity
 		WHERE change_id = $1
-		ORDER BY created_at DESC`, changeID); err != nil {
+		ORDER BY created_at DESC
+		LIMIT $2`, changeID, limit); err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return activities, nil
@@ -150,6 +151,10 @@ func (i *inmemory) SetChangeID(ctx context.Context, workspaceID string, changeID
 	return nil
 }
 
-func (i *inmemory) ListByChangeID(ctx context.Context, changeID changes.ID) ([]*activity.Activity, error) {
-	return i.byChangeID[changeID], nil
+func (i *inmemory) ListByChangeID(ctx context.Context, changeID changes.ID, limit int32) ([]*activity.Activity, error) {
+	activities := i.byChangeID[changeID]
+	if len(activities) > int(limit) {
+		return activities[:limit], nil
+	}
+	return activities, nil
 }

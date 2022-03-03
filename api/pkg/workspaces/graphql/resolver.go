@@ -259,7 +259,7 @@ func (r *WorkspaceResolver) HeadChange(ctx context.Context) (resolvers.ChangeRes
 	}
 }
 
-func (r *WorkspaceResolver) Activity(ctx context.Context, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {
+func (r *WorkspaceResolver) Activity(ctx context.Context, args resolvers.ActivityArgs) ([]resolvers.ActivityResolver, error) {
 	return r.root.workspaceActivityRootResolver.InternalActivityByWorkspace(ctx, r.w.ID, args)
 }
 
