@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"getsturdy.com/api/pkg/events"
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
@@ -19,17 +20,20 @@ import (
 )
 
 type Service struct {
+	eventsSender                 events.EventSender
 	organizationRepository       db_organization.Repository
 	organizationMemberRepository db_organization.MemberRepository
 	analyticsService             *service_analytics.Service
 }
 
 func New(
+	eventsSender events.EventSender,
 	organizationRepository db_organization.Repository,
 	organizationMemberRepository db_organization.MemberRepository,
 	analyticsService *service_analytics.Service,
 ) *Service {
 	return &Service{
+		eventsSender:                 eventsSender,
 		organizationRepository:       organizationRepository,
 		organizationMemberRepository: organizationMemberRepository,
 		analyticsService:             analyticsService,
@@ -125,6 +129,12 @@ func (svc *Service) Update(ctx context.Context, organizationID string, newName s
 	if err != nil {
 		return nil, fmt.Errorf("could not update organization: %w", err)
 	}
+
+	err = svc.eventsSender.Organization(ctx, organizationID, events.OrganizationUpdated, organizationID)
+	if err != nil {
+		return nil, fmt.Errorf("could not update organization: %w", err)
+	}
+
 	return org, nil
 }
 

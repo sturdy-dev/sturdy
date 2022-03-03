@@ -3,10 +3,11 @@ package events
 import (
 	"sync"
 
-	"getsturdy.com/api/pkg/users"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+
+	"getsturdy.com/api/pkg/users"
 )
 
 type EventReader interface {
@@ -50,6 +51,7 @@ const (
 	StatusUpdated
 	CompletedOnboardingStep
 	WorkspaceWatchingStatusUpdated
+	OrganizationUpdated
 )
 
 var eventTypeString = map[EventType]string{
@@ -69,6 +71,7 @@ var eventTypeString = map[EventType]string{
 	StatusUpdated:                  "StatusUpdated",
 	CompletedOnboardingStep:        "CompletedOnboardingStep",
 	WorkspaceWatchingStatusUpdated: "WorkspaceWatchingStatusUpdated",
+	OrganizationUpdated:            "OrganizationUpdated",
 }
 
 type CallbackFunc func(eventType EventType, reference string) error

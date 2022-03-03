@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"getsturdy.com/api/pkg/events"
+	"go.uber.org/zap"
 	"strings"
 
 	"github.com/gosimple/slug"
@@ -30,6 +32,10 @@ type organizationRootResolver struct {
 	authorRootResolver    resolvers.AuthorRootResolver
 	licensesRootResolver  resolvers.LicenseRootResolver
 	codebasesRootResolver resolvers.CodebaseRootResolver
+
+	viewEvents   events.EventReader
+	eventsSender events.EventSender
+	logger       *zap.Logger
 }
 
 func New(
@@ -42,6 +48,10 @@ func New(
 	licensesRootResolver resolvers.LicenseRootResolver,
 	codebasesRootResolver resolvers.CodebaseRootResolver,
 
+	viewEvents events.EventReader,
+	eventsSender events.EventSender,
+	logger *zap.Logger,
+
 ) resolvers.OrganizationRootResolver {
 	return &organizationRootResolver{
 		service:         service,
@@ -52,6 +62,10 @@ func New(
 		authorRootResolver:    authorRootResolver,
 		licensesRootResolver:  licensesRootResolver,
 		codebasesRootResolver: codebasesRootResolver,
+
+		viewEvents:   viewEvents,
+		eventsSender: eventsSender,
+		logger:       logger.Named("OrganizationRootResolver"),
 	}
 }
 
@@ -214,6 +228,55 @@ func (r *organizationRootResolver) RemoveUserFromOrganization(ctx context.Contex
 	}
 
 	return &organizationResolver{root: r, org: org}, nil
+}
+
+func (r *organizationRootResolver) UpdatedOrganization(ctx context.Context, args resolvers.UpdatedOrganizationArgs) (<-chan resolvers.OrganizationResolver, error) {
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	c := make(chan resolvers.OrganizationResolver, 100)
+	didErrorOut := false
+
+	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		if et == events.OrganizationUpdated {
+			id := graphql.ID(reference)
+			if args.OrganizationID != nil && id != *args.OrganizationID {
+				return nil
+			}
+			resolver, err := r.Organization(ctx, resolvers.OrganizationArgs{ID: &id})
+			if err != nil {
+				return err
+			}
+			select {
+			case <-ctx.Done():
+				return errors.New("disconnected")
+			case c <- resolver:
+				if didErrorOut {
+					didErrorOut = false
+				}
+				return nil
+			default:
+				r.logger.Error("dropped subscription event",
+					zap.Stringer("user_id", userID),
+					zap.Stringer("event_type", et),
+					zap.Int("channel_size", len(c)),
+				)
+				didErrorOut = true
+				return nil
+			}
+		}
+		return nil
+	})
+
+	go func() {
+		<-ctx.Done()
+		cancelFunc()
+		close(c)
+	}()
+
+	return c, nil
 }
 
 type organizationResolver struct {

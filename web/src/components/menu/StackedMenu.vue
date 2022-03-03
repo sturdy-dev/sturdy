@@ -291,6 +291,7 @@ import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
 import NavigationOrganizationPickerMenu, {
   ORGANIZATION_FRAGMENT as NAVIGATION_ORGANIZATION_FRAGMENT,
 } from '../../molecules/NavigationOrganizationPickerMenu.vue'
+import { useUpdatedOrganization } from '../../subscriptions/useUpdatedOrganization'
 
 const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   fragment StackedMenu_WorkspaceActivity on WorkspaceActivity {
@@ -589,6 +590,7 @@ export default defineComponent({
     useUpdatedCodebase()
     useUpdatedReviews()
     useUpdatedViews()
+    useUpdatedOrganization()
 
     // Reload data every 15s
     const reload = () => {

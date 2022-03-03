@@ -15,6 +15,9 @@ type OrganizationRootResolver interface {
 	UpdateOrganization(context.Context, UpdateOrganizationArgs) (OrganizationResolver, error)
 	AddUserToOrganization(context.Context, AddUserToOrganizationArgs) (OrganizationResolver, error)
 	RemoveUserFromOrganization(context.Context, RemoveUserFromOrganizationArgs) (OrganizationResolver, error)
+
+	// Subscription
+	UpdatedOrganization(context.Context, UpdatedOrganizationArgs) (<-chan OrganizationResolver, error)
 }
 
 type OrganizationResolver interface {
@@ -48,6 +51,10 @@ type AddUserToOrganizationInput struct {
 
 type UpdateOrganizationArgs struct {
 	Input UpdateOrganizationInput
+}
+
+type UpdatedOrganizationArgs struct {
+	OrganizationID *graphql.ID
 }
 
 type UpdateOrganizationInput struct {
