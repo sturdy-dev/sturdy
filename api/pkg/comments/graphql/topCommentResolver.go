@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -62,6 +63,10 @@ func (r *TopCommentResolver) Replies() ([]resolvers.ReplyCommentResolver, error)
 }
 
 func (r *TopCommentResolver) CodeContext() resolvers.CommentCodeContext {
+
+	fmt.Printf("r: %v\n", r)
+	fmt.Printf("r.comment: %v\n", r.comment)
+
 	if r.comment.Path == "" {
 		return nil
 	}

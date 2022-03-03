@@ -472,7 +472,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 		// Comment on code
 		if args.Input.Path != nil {
 			// Build context
-			context, contextStartsAt, err := vcs.GetContext(int(*args.Input.LineStart), *args.Input.LineIsNew, *args.Input.Path, args.Input.OldPath, ws, r.executorProvider, r.snapshotRepo)
+			context, contextStartsAt, err := vcs.GetWorkspaceContext(int(*args.Input.LineStart), *args.Input.LineIsNew, *args.Input.Path, args.Input.OldPath, ws, r.executorProvider, r.snapshotRepo)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create context: %w", err)
 			}
@@ -493,6 +493,17 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 
 		changeID = &cid
 		codebaseID = ch.CodebaseID
+
+		// Comment on code
+		if args.Input.Path != nil {
+			// Build context
+			context, contextStartsAt, err := vcs.GetChangeContext(int(*args.Input.LineStart), *args.Input.LineIsNew, *args.Input.Path, args.Input.OldPath, ch, r.executorProvider)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create context: %w", err)
+			}
+			optionalContext = &context
+			optionalContextStartsAt = &contextStartsAt
+		}
 	}
 
 	id := comments.ID(uuid.NewString())

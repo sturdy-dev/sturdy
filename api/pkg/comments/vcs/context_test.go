@@ -192,7 +192,7 @@ func TestContext(t *testing.T) {
 				ws.LatestSnapshotID = &snapshot.ID
 			}
 
-			res, contextStartsAt, err := GetContext(tc.lineNumber, tc.lineIsNew, "file.txt", nil, ws, executorProvider, snapshotRepo)
+			res, contextStartsAt, err := GetWorkspaceContext(tc.lineNumber, tc.lineIsNew, "file.txt", nil, ws, executorProvider, snapshotRepo)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, res)
 			assert.Equal(t, tc.expectedContextStartsAt, contextStartsAt)

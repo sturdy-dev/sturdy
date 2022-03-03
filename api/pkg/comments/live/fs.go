@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
@@ -36,6 +37,45 @@ func WorkspaceFS(
 		return snapshotFS(executorProvider, snapshot, newLines), nil
 	}
 	return nil, ErrNoFiles
+}
+
+func ChangeFS(executorProvider executor.Provider, change *changes.Change, newLines bool) (fs.FS, error) {
+	return &changeFS{
+		executorProvider: executorProvider,
+		change:           change,
+		newLines:         newLines,
+	}, nil
+}
+
+type changeFS struct {
+	executorProvider executor.Provider
+	change           *changes.Change
+	// newLines directly links to comment.LineIsNew
+	newLines bool
+}
+
+func (cfs *changeFS) Open(path string) (fs.File, error) {
+	if cfs.change.CommitID == nil {
+		return nil, fmt.Errorf("commit id is nil")
+	}
+	var file fs.File
+	return file, cfs.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
+		if cfs.newLines {
+			var err error
+			file, err = fileFromCommit(repo, *cfs.change.CommitID, path)
+			return err
+		}
+
+		parents, err := repo.GetCommitParents(*cfs.change.CommitID)
+		if err != nil {
+			return fmt.Errorf("failed to get commit parents: %w", err)
+		}
+		if len(parents) != 1 {
+			return fmt.Errorf("expected 1 parent, got %d", len(parents))
+		}
+		file, err = fileFromCommit(repo, parents[0], path)
+		return err
+	}).ExecTrunk(cfs.change.CodebaseID, fmt.Sprintf("open %s", path))
 }
 
 type SnapshotsFS struct {

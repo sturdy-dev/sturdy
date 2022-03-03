@@ -5,29 +5,41 @@ import (
 	"io/fs"
 	"strings"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/comments/live"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs/executor"
 )
 
-func GetContext(lineNumber int, lineIsNew bool, filePath string, oldFilePath *string, ws *workspaces.Workspace, executorProvider executor.Provider, snapshotRepo db_snapshots.Repository) (context string, startsAtLine int, err error) {
+func GetChangeContext(lineNumber int, lineIsNew bool, filePath string, oldFilePath *string, change *changes.Change, executorProvider executor.Provider) (context string, startsAtLine int, err error) {
+	changeFs, err := live.ChangeFS(executorProvider, change, lineIsNew)
+	if err != nil {
+		return "", -1, err
+	}
+	return getFSContext(lineNumber, lineIsNew, filePath, oldFilePath, changeFs)
+}
+
+func GetWorkspaceContext(lineNumber int, lineIsNew bool, filePath string, oldFilePath *string, ws *workspaces.Workspace, executorProvider executor.Provider, snapshotRepo db_snapshots.Repository) (context string, startsAtLine int, err error) {
 	workspaceFS, err := live.WorkspaceFS(executorProvider, snapshotRepo, ws, lineIsNew)
 	if err != nil {
 		return "", -1, err
 	}
+	return getFSContext(lineNumber, lineIsNew, filePath, oldFilePath, workspaceFS)
+}
 
+func getFSContext(lineNumber int, lineIsNew bool, filePath string, oldFilePath *string, filesystem fs.FS) (context string, startsAtLine int, err error) {
 	var file fs.File
 	if lineIsNew {
 		// New lines, always use the new file name
-		file, err = workspaceFS.Open(filePath)
+		file, err = filesystem.Open(filePath)
 	} else {
 		if oldFilePath != nil {
 			// Comment on old line, and oldFilePath is set
-			file, err = workspaceFS.Open(*oldFilePath)
+			file, err = filesystem.Open(*oldFilePath)
 		} else {
 			// Comment on old line, and oldFilePath is not set
-			file, err = workspaceFS.Open(filePath)
+			file, err = filesystem.Open(filePath)
 		}
 	}
 	if err != nil {
