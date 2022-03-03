@@ -76,6 +76,14 @@ const runAutoUpdater =
   !process.env.STURDY_DISABLE_AUTO_UPDATER &&
   (process.platform === 'darwin' || process.platform === 'win32')
 
+const contextMenu = require('electron-context-menu')
+
+contextMenu({
+  showSaveImageAs: true,
+  showInspectElement: false,
+  showSearchWithGoogle: false,
+})
+
 const status = new Status(logger)
 
 const manager = new ApplicationManager(
