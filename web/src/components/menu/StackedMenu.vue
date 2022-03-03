@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="bg-gray-200 border-r border-gray-300 h-screen fixed space-y-1 h-screen flex flex-col z-20"
+    class="bg-gray-200 border-r border-gray-300 h-screen fixed space-y-1 h-screen flex flex-col z-20 select-none"
     aria-label="Sidebar"
   >
     <AppTitleBarSpacer v-slot="{ ipc }" pad-left="1rem" class="flex-none">
