@@ -1,7 +1,7 @@
 <template>
   <div
     ref="target"
-    class="relative text-center my-8 mx-auto overflow-hidden tracking-tight text-2xl text-slate-100"
+    class="relative text-center my-8 mx-auto overflow-hidden tracking-tight text-xl md:text-2xl text-slate-100"
   >
     <div>Have an idea</div>
     <div>
