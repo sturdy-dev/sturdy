@@ -265,14 +265,14 @@ func newTest(t *testing.T, operations []*operation) *test {
 	workspaceDB := db_workspaces.NewMemory()
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, events.NewInMemory())
+	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory())
 	changeRepo := db_changes.NewInMemoryRepo()
 	activityRepo := db_activity.NewInMemoryRepo()
 
 	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider)
 	activityService := service_activity.New(nil, activityRepo, eventsSender)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, nil, executorProvider, zap.NewNop())
+	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, nil, executorProvider, zap.NewNop())
 	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, nil, changeService, activityService, nil, executorProvider, nil, nil, gitSnapshotter, nil)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)
 	return &test{

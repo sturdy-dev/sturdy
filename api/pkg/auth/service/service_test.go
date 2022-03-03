@@ -165,7 +165,7 @@ func TestCanRead_codebase(t *testing.T) {
 
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
-	organizationService := service_organization.New(organizationRepo, organizationMemberRepo, analyticsService)
+	organizationService := service_organization.New(nil, organizationRepo, organizationMemberRepo, analyticsService)
 
 	authService := service_auth.New(
 		codebaseService,
@@ -269,7 +269,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
 
-	organizationService := service_organization.New(organizationRepo, organizationMemberRepo, analyticsService)
+	organizationService := service_organization.New(nil, organizationRepo, organizationMemberRepo, analyticsService)
 
 	authService := service_auth.New(
 		codebaseService,
