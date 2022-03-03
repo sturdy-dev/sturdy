@@ -77,7 +77,7 @@
             title="Connect"
             sub-title="Automate your workflow"
             bg-color="bg-amber-500"
-            md-bg-color="md:bg-amber-500"
+            md-bg-color="lg:bg-amber-500"
             border-color="border-amber-500"
             text-accent-color="text-amber-500"
             from-color="from-amber-500/10"
@@ -190,11 +190,11 @@
             title="Code"
             sub-title="Skip the Git overhead"
             bg-color="bg-purple-400"
-            md-bg-color="md:bg-purple-400"
+            md-bg-color="lg:bg-purple-400"
             border-color="border-purple-400"
             text-accent-color="text-purple-400"
             from-color="from-purple-400/10"
-            from-color-start="md:from-purple-400"
+            from-color-start="lg:from-purple-400"
             to-color="to-purple-400"
             from-color-end="from-purple-400"
             to-color-next="to-sky-400"
@@ -259,11 +259,11 @@
             title="Collaborate"
             sub-title="Give feedback, not reviews"
             bg-color="bg-sky-400"
-            md-bg-color="md:bg-sky-400"
+            md-bg-color="lg:bg-sky-400"
             border-color="border-sky-400"
             text-accent-color="text-sky-400"
             from-color="from-sky-400/10"
-            from-color-start="md:from-sky-400"
+            from-color-start="lg:from-sky-400"
             to-color="to-sky-400"
             from-color-end="from-sky-400"
             to-color-next="to-sky-400/10"
@@ -365,7 +365,7 @@
               </div>
             </template>
             <template #2-left>
-              <div class="-mt-14">
+              <div class="">
                 <div
                   class="border border-sky-400 w-full rounded-md shadow-sm flex flex-row overflow-hidden"
                 >
