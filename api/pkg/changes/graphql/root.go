@@ -29,6 +29,7 @@ type ChangeRootResolver struct {
 	downloadsResovler resolvers.ContentsDownloadUrlRootResolver
 	workspaceResolver *resolvers.WorkspaceRootResolver
 	codebaseResolver  *resolvers.CodebaseRootResolver
+	activityResovler  resolvers.ActivityRootResolver
 
 	executorProvider executor.Provider
 
@@ -48,6 +49,7 @@ func NewResolver(
 	downloadsResovler resolvers.ContentsDownloadUrlRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	codebaseResolver *resolvers.CodebaseRootResolver,
+	activityResovler resolvers.ActivityRootResolver,
 
 	executorProvider executor.Provider,
 
@@ -66,6 +68,7 @@ func NewResolver(
 		downloadsResovler: downloadsResovler,
 		workspaceResolver: workspaceResolver,
 		codebaseResolver:  codebaseResolver,
+		activityResovler:  activityResovler,
 
 		executorProvider: executorProvider,
 

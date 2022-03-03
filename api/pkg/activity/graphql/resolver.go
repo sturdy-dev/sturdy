@@ -61,28 +61,28 @@ func (r *resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, 
 	return res, nil
 }
 
-func (r *resolver) ToWorkspaceCommentActivity() (resolvers.WorkspaceCommentActivityResolver, bool) {
+func (r *resolver) ToWorkspaceCommentActivity() (resolvers.CommentActivityResolver, bool) {
 	if r.activity.ActivityType != activity.TypeComment {
 		return nil, false
 	}
 	return r, true
 }
 
-func (r *resolver) ToWorkspaceCreatedChangeActivity() (resolvers.WorkspaceCreatedChangeActivityResolver, bool) {
+func (r *resolver) ToWorkspaceCreatedChangeActivity() (resolvers.CreatedChangeActivityResolver, bool) {
 	if r.activity.ActivityType != activity.TypeCreatedChange {
 		return nil, false
 	}
 	return r, true
 }
 
-func (r *resolver) ToWorkspaceRequestedReviewActivity() (resolvers.WorkspaceRequestedReviewActivityResolver, bool) {
+func (r *resolver) ToWorkspaceRequestedReviewActivity() (resolvers.RequestedReviewActivityResolver, bool) {
 	if r.activity.ActivityType != activity.TypeRequestedReview {
 		return nil, false
 	}
 	return r, true
 }
 
-func (r *resolver) ToWorkspaceReviewedActivity() (resolvers.WorkspaceReviewedActivityResolver, bool) {
+func (r *resolver) ToWorkspaceReviewedActivity() (resolvers.ReviewedActivityResolver, bool) {
 	if r.activity.ActivityType != activity.TypeReviewed {
 		return nil, false
 	}

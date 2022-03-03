@@ -73,23 +73,6 @@ type CreateWorkspaceInput struct {
 	OnTopOfChangeWithRevert *graphql.ID
 }
 
-type WorkspaceActivityArgs struct {
-	Input *WorkspaceActivityInput
-}
-
-type WorkspaceActivityInput struct {
-	UnreadOnly *bool
-	Limit      *int32
-}
-
-type WorkspaceActivityReadArgs struct {
-	Input WorkspaceActivityReadInput
-}
-
-type WorkspaceActivityReadInput struct {
-	ID graphql.ID
-}
-
 type RemovePatchesArgs struct {
 	Input RemovePatchesInput
 }
@@ -138,7 +121,7 @@ type WorkspaceResolver interface {
 	UpToDateWithTrunk(context.Context) (bool, error)
 	Conflicts(context.Context) (bool, error)
 	HeadChange(ctx context.Context) (ChangeResolver, error)
-	Activity(ctx context.Context, args WorkspaceActivityArgs) ([]WorkspaceActivityResolver, error)
+	Activity(ctx context.Context, args ActivityArgs) ([]ActivityResolver, error)
 	Reviews(ctx context.Context) ([]ReviewResolver, error)
 	Presence(ctx context.Context) ([]PresenceResolver, error)
 	Suggestions(context.Context) ([]SuggestionResolver, error)

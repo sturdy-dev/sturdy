@@ -38,7 +38,7 @@ type WorkspaceRootResolver struct {
 	commentResolver               resolvers.CommentRootResolver
 	prResolver                    resolvers.GitHubPullRequestRootResolver
 	changeResolver                resolvers.ChangeRootResolver
-	workspaceActivityRootResolver resolvers.WorkspaceActivityRootResolver
+	workspaceActivityRootResolver resolvers.ActivityRootResolver
 	reviewRootResolver            resolvers.ReviewRootResolver
 	presenceRootResolver          resolvers.PresenceRootResolver
 	suggestionRootResolver        resolvers.SuggestionRootResolver
@@ -71,7 +71,7 @@ func NewResolver(
 	commentResolver resolvers.CommentRootResolver,
 	prResolver resolvers.GitHubPullRequestRootResolver,
 	changeResolver resolvers.ChangeRootResolver,
-	workspaceActivityRootResolver resolvers.WorkspaceActivityRootResolver,
+	workspaceActivityRootResolver resolvers.ActivityRootResolver,
 	reviewRootResolver resolvers.ReviewRootResolver,
 	presenceRootResolver resolvers.PresenceRootResolver,
 	suggestionRootResolver resolvers.SuggestionRootResolver,

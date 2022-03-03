@@ -33,6 +33,7 @@ type ChangeResolver interface {
 	Statuses(context.Context) ([]StatusResolver, error)
 	Workspace(context.Context) (WorkspaceResolver, error)
 	Codebase(context.Context) (CodebaseResolver, error)
+	Activity(context.Context, ActivityArgs) ([]ActivityResolver, error)
 
 	Parent(context.Context) (ChangeResolver, error)
 	Child(context.Context) (ChangeResolver, error)

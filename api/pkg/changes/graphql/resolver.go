@@ -162,3 +162,7 @@ func (r *ChangeResolver) Parent(ctx context.Context) (resolvers.ChangeResolver, 
 		}, nil
 	}
 }
+
+func (r *ChangeResolver) Activity(ctx context.Context, args resolvers.ActivityArgs) ([]resolvers.ActivityResolver, error) {
+	return r.root.activityResovler.InternalActivityByChangeID(ctx, r.ch.ID, args)
+}

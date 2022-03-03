@@ -39,8 +39,16 @@ func (svc *Service) SetChange(ctx context.Context, workspaceID string, changeID 
 	return svc.repo.SetChangeID(ctx, workspaceID, changeID)
 }
 
-func (svc *Service) ListByChangeID(ctx context.Context, changeID changes.ID) ([]*activity.Activity, error) {
-	return svc.repo.ListByChangeID(ctx, changeID)
+func (svc *Service) ListByChangeID(ctx context.Context, changeID changes.ID, limit *int32) ([]*activity.Activity, error) {
+	const maxLimit = 100
+	const defaultLimit = 25
+	if limit == nil {
+		return svc.repo.ListByChangeID(ctx, changeID, defaultLimit)
+	}
+	if *limit > maxLimit {
+		return svc.repo.ListByChangeID(ctx, changeID, maxLimit)
+	}
+	return svc.repo.ListByChangeID(ctx, changeID, *limit)
 }
 
 func (svc *Service) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*activity.Activity, error) {

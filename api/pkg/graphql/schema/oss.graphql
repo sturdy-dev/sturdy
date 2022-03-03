@@ -693,6 +693,9 @@ type Change {
   # It is null if this change was imported.
   workspace: Workspace
 
+  # Activity
+  activity(input: WorkspaceActivityInput): [WorkspaceActivity!]!
+
   # child is the next change in the change list. last change's child is null
   child: Change
   # parent is the previous change in the change list. first change's parent is null
@@ -811,6 +814,7 @@ input UpdateNotificationPreferenceInput {
   enabled: Boolean!
 }
 
+# WorkspaceActivity represent the activity of a workspace OR a change.
 interface WorkspaceActivity {
   id: ID!
   createdAt: Int!

@@ -11,6 +11,7 @@ import (
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -52,7 +53,7 @@ func New(
 	eventsSender events.EventSender,
 	eventsReader events.EventReader,
 	logger *zap.Logger,
-) resolvers.WorkspaceActivityRootResolver {
+) resolvers.ActivityRootResolver {
 	return &root{
 		workspaceActivityRepo:      workspaceActivityRepo,
 		workspaceActivityReadsRepo: workspaceActivityReadsRepo,
@@ -68,11 +69,29 @@ func New(
 
 		eventsSender: eventsSender,
 		eventsReader: eventsReader,
-		logger:       logger.Named("workspaceActivityRootResolver"),
+		logger:       logger.Named("activityRootResolver"),
 	}
 }
 
-func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID string, args resolvers.WorkspaceActivityArgs) ([]resolvers.WorkspaceActivityResolver, error) {
+func (r *root) InternalActivityByChangeID(ctx context.Context, changeID changes.ID, args resolvers.ActivityArgs) ([]resolvers.ActivityResolver, error) {
+	var limit *int32
+	if args.Input != nil {
+		limit = args.Input.Limit
+	}
+
+	activities, err := r.activityService.ListByChangeID(ctx, changeID, limit)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	var res []resolvers.ActivityResolver
+	for _, activity := range activities {
+		res = append(res, &resolver{root: r, activity: activity})
+	}
+	return res, nil
+}
+
+func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID string, args resolvers.ActivityArgs) ([]resolvers.ActivityResolver, error) {
 	unreadOnly := args.Input != nil && args.Input.UnreadOnly != nil && *args.Input.UnreadOnly
 	var newerThan time.Time
 
@@ -101,14 +120,14 @@ func (r *root) InternalActivityByWorkspace(ctx context.Context, workspaceID stri
 		return nil, gqlerrors.Error(err)
 	}
 
-	var res []resolvers.WorkspaceActivityResolver
+	var res []resolvers.ActivityResolver
 	for _, activity := range activities {
 		res = append(res, &resolver{root: r, activity: activity})
 	}
 	return res, nil
 }
 
-func (r *root) InternalActivity(ctx context.Context, activityID string) (resolvers.WorkspaceActivityResolver, error) {
+func (r *root) InternalActivity(ctx context.Context, activityID string) (resolvers.ActivityResolver, error) {
 	activity, err := r.workspaceActivityRepo.Get(ctx, activityID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -116,7 +135,7 @@ func (r *root) InternalActivity(ctx context.Context, activityID string) (resolve
 	return &resolver{activity: activity, root: r}, nil
 }
 
-func (r *root) ReadWorkspaceActivity(ctx context.Context, args resolvers.WorkspaceActivityReadArgs) (resolvers.WorkspaceActivityResolver, error) {
+func (r *root) ReadWorkspaceActivity(ctx context.Context, args resolvers.ActivityReadArgs) (resolvers.ActivityResolver, error) {
 	act, err := r.workspaceActivityRepo.Get(ctx, string(args.Input.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -138,13 +157,13 @@ func (r *root) ReadWorkspaceActivity(ctx context.Context, args resolvers.Workspa
 	return &resolver{root: r, activity: act}, nil
 }
 
-func (r *root) UpdatedWorkspaceActivity(ctx context.Context) (chan resolvers.WorkspaceActivityResolver, error) {
+func (r *root) UpdatedWorkspaceActivity(ctx context.Context) (chan resolvers.ActivityResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
-	c := make(chan resolvers.WorkspaceActivityResolver, 100)
+	c := make(chan resolvers.ActivityResolver, 100)
 	didErrorOut := false
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(et events.EventType, reference string) error {
