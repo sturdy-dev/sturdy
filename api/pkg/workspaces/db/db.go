@@ -3,7 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
+	"runtime/debug"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/jmoiron/sqlx"
@@ -83,7 +85,19 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 	return views, nil
 }
 
+func (r *repo) SetUpToDateWithTrunk(ctx context.Context, workspaceID string, upToDateWithTrunk bool) error {
+	if _, err := r.db.ExecContext(ctx, `UPDATE workspaces
+		SET up_to_date_with_trunk = $1
+		WHERE id = $2`, upToDateWithTrunk, workspaceID); err != nil {
+		return fmt.Errorf("failed to perform update: %w", err)
+	}
+	return nil
+}
+
 func (r *repo) Update(ctx context.Context, entity *workspaces.Workspace) error {
+
+	fmt.Printf("\nnikitag: %+v %s\n\n", entity.ChangeID, string(debug.Stack()))
+
 	if _, err := r.db.NamedExecContext(ctx, `UPDATE workspaces
 		SET name = :name,
 		    last_landed_at = :last_landed_at,
@@ -96,7 +110,8 @@ func (r *repo) Update(ctx context.Context, entity *workspaces.Workspace) error {
 		    latest_snapshot_id = :latest_snapshot_id,
 		    head_change_id = :head_change_id,
 		    head_change_computed = :head_change_computed,
-			diffs_count = :diffs_count
+			diffs_count = :diffs_count,
+			change_id = :change_id
 		WHERE id = :id`, &entity); err != nil {
 		return fmt.Errorf("failed to perform update: %w", err)
 	}
@@ -156,4 +171,14 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 	return &entity, nil
+}
+
+func (r *repo) SetHeadChange(ctx context.Context, workspaceID string, changeID changes.ID) error {
+	if _, err := r.db.ExecContext(ctx, `UPDATE workspaces
+		SET head_change_id = $1,
+			head_change_computed = TRUE
+		WHERE id = $2`, changeID, workspaceID); err != nil {
+		return fmt.Errorf("failed to perform update: %w", err)
+	}
+	return nil
 }

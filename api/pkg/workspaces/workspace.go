@@ -37,6 +37,9 @@ type Workspace struct {
 
 	HeadChangeID       *changes.ID `db:"head_change_id" json:"-"`
 	HeadChangeComputed bool        `db:"head_change_computed" json:"-"`
+
+	// ChangeID is the last change id that was landed from this workspace.
+	ChangeID *changes.ID `db:"change_id" json:"-"`
 }
 
 func (w *Workspace) SetSnapshot(snapshot *snapshots.Snapshot) {
