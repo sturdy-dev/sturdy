@@ -146,7 +146,7 @@ export default defineComponent({
       default: () => [],
     },
     cantSubmitReason: {
-      type: Object as PropType<CANT_SUBMIT_REASON>,
+      type: Number as PropType<CANT_SUBMIT_REASON>,
       default: null,
       required: false,
     },
