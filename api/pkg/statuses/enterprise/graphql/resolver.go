@@ -95,7 +95,7 @@ func (r *RootResolver) UpdatedGitHubPullRequestStatuses(ctx context.Context, arg
 		resolver := r.InternalStatus(status)
 		select {
 		case <-ctx.Done():
-			return errors.New("disconneted")
+			return events.ErrClientDisconnected
 		case c <- resolver:
 			if didErrorOut {
 				didErrorOut = false

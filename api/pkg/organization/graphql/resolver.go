@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"getsturdy.com/api/pkg/events"
-	"go.uber.org/zap"
 	"strings"
+
+	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/events"
 
 	"github.com/gosimple/slug"
 	"github.com/graph-gophers/graphql-go"
@@ -251,7 +253,7 @@ func (r *organizationRootResolver) UpdatedOrganization(ctx context.Context, args
 			}
 			select {
 			case <-ctx.Done():
-				return errors.New("disconnected")
+				return events.ErrClientDisconnected
 			case c <- resolver:
 				if didErrorOut {
 					didErrorOut = false

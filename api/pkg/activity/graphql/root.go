@@ -175,7 +175,7 @@ func (r *root) UpdatedWorkspaceActivity(ctx context.Context) (chan resolvers.Act
 
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case c <- resolver:
 			if didErrorOut {
 				didErrorOut = false

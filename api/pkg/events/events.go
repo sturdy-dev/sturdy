@@ -1,11 +1,13 @@
 package events
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"go.uber.org/zap"
 
 	"getsturdy.com/api/pkg/users"
 )
@@ -90,12 +92,21 @@ var (
 type inMemory struct {
 	mx          sync.RWMutex
 	subscribers map[Topic]map[string]CallbackFunc
+	q           chan payload
+
+	logger *zap.Logger
 }
 
-func NewInMemory() EventReadWriter {
-	return &inMemory{
+func NewInMemory(logger *zap.Logger) EventReadWriter {
+	m := &inMemory{
 		subscribers: make(map[Topic]map[string]CallbackFunc),
+		q:           make(chan payload, 1024),
+		logger:      logger.Named("EventReadWriter"),
 	}
+
+	go m.work()
+
+	return m
 }
 
 func (i *inMemory) UserEvent(userID users.ID, eventType EventType, reference string) {
@@ -113,31 +124,48 @@ type TopicSubscriber struct {
 	SubscriberKey string
 }
 
+type payload struct {
+	topic     Topic
+	eventType EventType
+	reference string
+}
+
 func (i *inMemory) event(topic Topic, eventType EventType, reference string) {
-	sentEventCounterMetric.WithLabelValues(eventTypeString[eventType]).Inc()
+	i.q <- payload{topic, eventType, reference}
+}
 
-	subs := make(map[TopicSubscriber]CallbackFunc, len(i.subscribers[topic]))
+var ErrClientDisconnected = errors.New("client disconnected")
 
-	i.mx.RLock()
-	// Copy over all subscribers
-	for subId, cb := range i.subscribers[topic] {
-		subs[TopicSubscriber{Topic: topic, SubscriberKey: subId}] = cb
-	}
-	i.mx.RUnlock()
+func (i *inMemory) work() {
+	for event := range i.q {
+		sentEventCounterMetric.WithLabelValues(eventTypeString[event.eventType]).Inc()
 
-	var unregKeys []TopicSubscriber
-	for ts, cb := range subs {
-		if err := cb(eventType, reference); err != nil {
-			receivedEventCounterMetric.WithLabelValues(eventTypeString[eventType], "no").Inc()
-			// TODO: Log errors here (if they are not of some specific ClientDisconnected-type)
-			unregKeys = append(unregKeys, ts)
-		} else {
-			receivedEventCounterMetric.WithLabelValues(eventTypeString[eventType], "yes").Inc()
+		subs := make(map[TopicSubscriber]CallbackFunc, len(i.subscribers[event.topic]))
+
+		i.mx.RLock()
+		// Copy over all subscribers
+		for subId, cb := range i.subscribers[event.topic] {
+			subs[TopicSubscriber{Topic: event.topic, SubscriberKey: subId}] = cb
 		}
-	}
+		i.mx.RUnlock()
 
-	if len(unregKeys) > 0 {
-		i.unreg(unregKeys...)
+		var unregKeys []TopicSubscriber
+		for ts, cb := range subs {
+			err := cb(event.eventType, event.reference)
+			switch {
+			case errors.Is(err, ErrClientDisconnected):
+				receivedEventCounterMetric.WithLabelValues(eventTypeString[event.eventType], "no").Inc()
+				unregKeys = append(unregKeys, ts)
+			case err != nil:
+				i.logger.Error("failed to send message", zap.Error(err))
+			default:
+				receivedEventCounterMetric.WithLabelValues(eventTypeString[event.eventType], "yes").Inc()
+			}
+		}
+
+		if len(unregKeys) > 0 {
+			i.unreg(unregKeys...)
+		}
 	}
 }
 

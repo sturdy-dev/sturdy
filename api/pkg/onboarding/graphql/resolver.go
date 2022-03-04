@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"getsturdy.com/api/pkg/auth"
@@ -73,7 +72,7 @@ func (r *onboardingRootResolver) CompletedOnboardingStep(ctx context.Context) (c
 		if eventType == events.CompletedOnboardingStep {
 			select {
 			case <-ctx.Done():
-				return errors.New("disconnected")
+				return events.ErrClientDisconnected
 			case res <- &onboardingStepResolver{
 				step: &onboarding.Step{
 					ID:        reference,
