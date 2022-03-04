@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"fmt"
-	"runtime/debug"
 
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/workspaces"
@@ -95,9 +94,6 @@ func (r *repo) SetUpToDateWithTrunk(ctx context.Context, workspaceID string, upT
 }
 
 func (r *repo) Update(ctx context.Context, entity *workspaces.Workspace) error {
-
-	fmt.Printf("\nnikitag: %+v %s\n\n", entity.ChangeID, string(debug.Stack()))
-
 	if _, err := r.db.NamedExecContext(ctx, `UPDATE workspaces
 		SET name = :name,
 		    last_landed_at = :last_landed_at,
@@ -173,7 +169,7 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 	return &entity, nil
 }
 
-func (r *repo) SetHeadChange(ctx context.Context, workspaceID string, changeID changes.ID) error {
+func (r *repo) SetHeadChange(ctx context.Context, workspaceID string, changeID *changes.ID) error {
 	if _, err := r.db.ExecContext(ctx, `UPDATE workspaces
 		SET head_change_id = $1,
 			head_change_computed = TRUE

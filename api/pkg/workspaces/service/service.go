@@ -479,7 +479,7 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	}
 
 	// Save updated cache
-	if err := s.workspaceWriter.SetHeadChange(ctx, ws.ID, *newHeadChangeID); err != nil {
+	if err := s.workspaceWriter.SetHeadChange(ctx, ws.ID, newHeadChangeID); err != nil {
 		return nil, err
 	}
 
