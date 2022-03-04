@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/db"
@@ -37,34 +36,8 @@ func (w *writerWithEvents) Create(workspace workspaces.Workspace) error {
 	return nil
 }
 
-func (w *writerWithEvents) Update(ctx context.Context, workspace *workspaces.Workspace) error {
-	if err := w.workspaceRepo.Update(ctx, workspace); err != nil {
-		return err
-	}
-	if err := w.eventSender.Codebase(workspace.CodebaseID, events.WorkspaceUpdated, workspace.ID); err != nil {
-		w.logger.Error("failed to send event: %v", zap.Error(err))
-		// do not fail
-	}
-	return nil
-}
-
-func (w *writerWithEvents) SetUpToDateWithTrunk(ctx context.Context, workspaceID string, upToDateWithTrunk bool) error {
-	if err := w.workspaceRepo.SetUpToDateWithTrunk(ctx, workspaceID, upToDateWithTrunk); err != nil {
-		return err
-	}
-	ws, err := w.workspaceRepo.Get(workspaceID)
-	if err != nil {
-		return err
-	}
-	if err := w.eventSender.Codebase(ws.CodebaseID, events.WorkspaceUpdated, ws.ID); err != nil {
-		w.logger.Error("failed to send event: %v", zap.Error(err))
-		// do not fail
-	}
-	return nil
-}
-
-func (w *writerWithEvents) SetHeadChange(ctx context.Context, workspaceID string, changeID *changes.ID) error {
-	if err := w.workspaceRepo.SetHeadChange(ctx, workspaceID, changeID); err != nil {
+func (w *writerWithEvents) UpdateFields(ctx context.Context, workspaceID string, fields ...db.UpdateOption) error {
+	if err := w.workspaceRepo.UpdateFields(ctx, workspaceID, fields...); err != nil {
 		return err
 	}
 	ws, err := w.workspaceRepo.Get(workspaceID)
@@ -98,19 +71,14 @@ func (w *writerWithEvents) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID str
 
 // Updated sets UpdatedAt, and resets Behind and Ahead counters
 func Updated(ctx context.Context, workspaceReader db.WorkspaceReader, workspaceWriter db.WorkspaceWriter, workspaceID string) error {
-	ws, err := workspaceReader.Get(workspaceID)
-	if err != nil {
-		return err
-	}
-	t := time.Now()
-	ws.UpdatedAt = &t
-
-	// Is recalculated on next get/list
-	ws.UpToDateWithTrunk = nil
-	ws.HeadChangeID = nil
-	ws.HeadChangeComputed = false
-
-	if err := workspaceWriter.Update(ctx, ws); err != nil {
+	now := time.Now()
+	if err := workspaceWriter.UpdateFields(ctx, workspaceID,
+		db.SetUpdatedAt(&now),
+		// Is recalculated on next get/list
+		db.SetUpToDateWithTrunk(nil),
+		db.SetHeadChangeID(nil),
+		db.SetHeadChangeComputed(false),
+	); err != nil {
 		return err
 	}
 	return nil

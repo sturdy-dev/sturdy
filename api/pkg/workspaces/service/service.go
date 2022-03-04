@@ -265,6 +265,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	}
 
 	options := getCopyPatchOptions(opts...)
+	fields := []db.UpdateOption{}
 	if src.ViewID != nil {
 		// if workspace has a view, snapshot changes from it
 		snapshotterOptions := []snapshotter.SnapshotOption{snapshotter.WithOnView(*src.ViewID)}
@@ -275,7 +276,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 		if err != nil {
 			return fmt.Errorf("failed to create snapshot: %w", err)
 		}
-		dist.SetSnapshot(snapshot)
+		fields = append(fields, db.SetLatestSnapshotID(&snapshot.ID), db.SetDiffsCount(snapshot.DiffsCount))
 	} else if options.PatchIDs != nil {
 		// if workspace doesn't have a view, copy patches from it's latest snapshot
 		if src.LatestSnapshotID == nil {
@@ -289,14 +290,13 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 		if err != nil {
 			return fmt.Errorf("failed to copy snapshot: %w", err)
 		}
-		dist.SetSnapshot(snapshot)
+		fields = append(fields, db.SetLatestSnapshotID(&snapshot.ID), db.SetDiffsCount(snapshot.DiffsCount))
 	} else {
 		// if we don't need to copy patches, re-use the existing snapshot
-		dist.LatestSnapshotID = src.LatestSnapshotID
-		dist.DiffsCount = src.DiffsCount
+		fields = append(fields, db.SetLatestSnapshotID(src.LatestSnapshotID), db.SetDiffsCount(src.DiffsCount))
 	}
 
-	if err := s.workspaceWriter.Update(ctx, dist); err != nil {
+	if err := s.workspaceWriter.UpdateFields(ctx, dist.ID, fields...); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
 
@@ -479,7 +479,10 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	}
 
 	// Save updated cache
-	if err := s.workspaceWriter.SetHeadChange(ctx, ws.ID, newHeadChangeID); err != nil {
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
+		db.SetHeadChangeID(newHeadChangeID),
+		db.SetHeadChangeComputed(true),
+	); err != nil {
 		return nil, err
 	}
 
@@ -601,13 +604,14 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 
 	// Update workspace
 	now := time.Now()
-	ws.LastLandedAt = &now
-	ws.ChangeID = &change.ID
-	ws.UpdatedAt = &now
-	ws.DraftDescription = ""
-	ws.HeadChangeID = nil // TODO: Set this directly
-	ws.HeadChangeComputed = false
-	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
+		db.SetHeadChangeID(nil), // TODO: Set this directly
+		db.SetHeadChangeComputed(false),
+		db.SetUpdatedAt(&now),
+		db.SetDraftDescription(""),
+		db.SetChangeID(&change.ID),
+		db.SetLastLandedAt(&now),
+	); err != nil {
 		return nil, fmt.Errorf("failed to update workspace: %w", err)
 	}
 
@@ -844,7 +848,12 @@ func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace
 	t := time.Now()
 	ws.ArchivedAt = &t
 	ws.UnarchivedAt = nil
-	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
+	if err := s.workspaceWriter.UpdateFields(
+		ctx,
+		ws.ID,
+		db.SetArchivedAt(&t),
+		db.SetUnarchivedAt(nil),
+	); err != nil {
 		return fmt.Errorf("failed to archive workspace: %w", err)
 	}
 	s.analyticsService.Capture(ctx, "workspace archived", analytics.CodebaseID(ws.CodebaseID),
@@ -858,7 +867,11 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	ws.ArchivedAt = nil
 	ws.UnarchivedAt = &t
 	ws.ViewID = nil
-	if err := s.workspaceWriter.Update(ctx, ws); err != nil {
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
+		db.SetArchivedAt(nil),
+		db.SetUnarchivedAt(&t),
+		db.SetViewID(nil),
+	); err != nil {
 		return fmt.Errorf("failed to unarchive workspace: %w", err)
 	}
 	s.analyticsService.Capture(ctx, "workspace unarchived", analytics.CodebaseID(ws.CodebaseID),

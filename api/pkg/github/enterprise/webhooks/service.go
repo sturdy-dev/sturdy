@@ -194,7 +194,8 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 		// unset the draft description
 		ws.DraftDescription = ""
 		ws.ChangeID = &ch.ID
-		if err := svc.workspaceWriter.Update(ctx, ws); err != nil {
+		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID, db_workspaces.SetDraftDescription(""),
+			db_workspaces.SetChangeID(&ch.ID)); err != nil {
 			return fmt.Errorf("failed to update workspace: %w", err)
 		}
 

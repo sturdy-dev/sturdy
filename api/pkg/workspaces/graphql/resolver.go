@@ -15,6 +15,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/workspaces"
+	"getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/pkg/workspaces/vcs"
 	vcsvcs "getsturdy.com/api/vcs"
@@ -207,7 +208,7 @@ func (r *WorkspaceResolver) updateIsUpToDateWithTrunk(ctx context.Context) error
 	}
 
 	// Save updated cache
-	if err := r.root.workspaceWriter.SetUpToDateWithTrunk(ctx, r.w.ID, upToDate); err != nil {
+	if err := r.root.workspaceWriter.UpdateFields(ctx, r.w.ID, db.SetUpToDateWithTrunk(&upToDate)); err != nil {
 		return err
 	}
 

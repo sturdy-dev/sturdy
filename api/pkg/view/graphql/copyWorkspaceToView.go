@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/workspaces/db"
 
 	"go.uber.org/zap"
 )
@@ -50,9 +51,10 @@ func (r *ViewRootResolver) CopyWorkspaceToView(ctx context.Context, args resolve
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to snapshot: %w", err))
 		}
-		currentWorkspaceOnView.LatestSnapshotID = &snapshot.ID
-		currentWorkspaceOnView.ViewID = nil // The workspace no longer has any view open
-		if err := r.workspaceWriter.Update(ctx, currentWorkspaceOnView); err != nil {
+		if err := r.workspaceWriter.UpdateFields(ctx, currentWorkspaceOnView.ID,
+			db.SetViewID(nil), // The workspace no longer has any view open
+			db.SetLatestSnapshotID(&snapshot.ID),
+		); err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to finalize previous workspace on view: %w", err))
 		}
 	}

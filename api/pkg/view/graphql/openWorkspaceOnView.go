@@ -48,6 +48,5 @@ func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolve
 			return nil, gqlerrors.Error(err)
 		}
 	}
-
 	return r.resolveView(ctx, args.Input.ViewID)
 }
