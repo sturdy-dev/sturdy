@@ -38,7 +38,7 @@ func setup(t *testing.T) *testCollaborators {
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(logger))
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
 	viewRepo := inmemory.NewInMemoryViewRepo()
-	viewEvents := events.NewInMemory()
+	viewEvents := events.NewInMemory(logger)
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)
 	suggestionsRepo := db_suggestions.NewMemory()

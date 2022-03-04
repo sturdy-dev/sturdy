@@ -264,7 +264,8 @@ func newTest(t *testing.T, operations []*operation) *test {
 	workspaceDB := db_workspaces.NewMemory()
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory())
+	logger := zap.NewNop()
+	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory(logger))
 	changeRepo := db_changes.NewInMemoryRepo()
 	activityRepo := db_activity.NewInMemoryRepo()
 
