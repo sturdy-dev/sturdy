@@ -65,7 +65,7 @@ func TestStream(t *testing.T) {
 	repoProvider := newRepoProvider(t)
 	logger, _ := zap.NewDevelopment()
 	executorProvider := executor.NewProvider(logger, repoProvider)
-	viewUpdates := events.NewInMemory()
+	viewUpdates := events.NewInMemory(logger)
 
 	d, err := db.Setup(
 		sturdytest.PsqlDbSourceForTesting(),
@@ -76,7 +76,6 @@ func TestStream(t *testing.T) {
 
 	viewRepo := db_view.NewRepo(d)
 	workspaceRepo := db_workspaces.NewRepo(d)
-	// snapshotRepo := db_snapshots.NewRepo(d)
 	userRepo := db_user.NewRepo(d)
 	codebaseRepo := db_codebase.NewRepo(d)
 	aclRepo := db_acl.NewACLRepository(d)
