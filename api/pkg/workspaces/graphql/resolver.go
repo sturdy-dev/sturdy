@@ -379,3 +379,14 @@ func (r *WorkspaceResolver) diffs(ctx context.Context) ([]unidiff.FileDiff, erro
 		return nil, fmt.Errorf("failed to get suggestion: %w", err)
 	}
 }
+
+func (r *WorkspaceResolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
+
+	if r.w.ChangeID == nil {
+		return nil, nil
+	}
+	chID := graphql.ID(*r.w.ChangeID)
+	return r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{
+		ID: &chID,
+	})
+}

@@ -136,4 +136,5 @@ type WorkspaceResolver interface {
 	SuggestingViews() []ViewResolver
 	DiffsCount(context.Context) *int32
 	Diffs(context.Context) ([]FileDiffResolver, error)
+	Change(context.Context) (ChangeResolver, error)
 }

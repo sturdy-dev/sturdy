@@ -31,7 +31,7 @@ func (r *repo) Create(entity workspaces.Workspace) error {
 
 func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 	var entity workspaces.Workspace
-	err := r.db.Get(&entity, `SELECT id, user_id, codebase_id, name,  created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
+	err := r.db.Get(&entity, `SELECT id, user_id, codebase_id, name,  created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count, change_id
 	FROM workspaces
 	WHERE id=$1`, id)
 	if err != nil {
@@ -41,7 +41,7 @@ func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 }
 
 func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]*workspaces.Workspace, error) {
-	q := `SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
+	q := `SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count, change_id
 	FROM workspaces
 	WHERE codebase_id IN(?)`
 
@@ -64,7 +64,7 @@ func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]
 }
 
 func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) ([]*workspaces.Workspace, error) {
-	query, args, err := sqlx.In(`SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, diffs_count
+	query, args, err := sqlx.In(`SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, diffs_count, change_id
 	FROM workspaces
 	WHERE codebase_id IN(?)
 	  AND user_id = ?
@@ -125,7 +125,7 @@ func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
 func (r *repo) GetByViewID(viewID string, includeArchived bool) (*workspaces.Workspace, error) {
 	var entity workspaces.Workspace
 
-	q := `SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count
+	q := `SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count, change_id
 		FROM workspaces
 		WHERE view_id=$1`
 
@@ -158,7 +158,8 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 			up_to_date_with_trunk,
 			head_change_id,
 			head_change_computed,
-			diffs_count
+			diffs_count,
+			change_id
 		FROM 
 			workspaces
 		WHERE
