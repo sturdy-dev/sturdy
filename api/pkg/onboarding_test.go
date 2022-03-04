@@ -342,6 +342,7 @@ func TestCreate(t *testing.T) {
 		WorkspaceID: graphql.ID(secondWorkspaceRes.ID),
 		ViewID:      graphql.ID(viewRes.ID),
 	}})
+
 	assert.NoError(t, err)
 
 	// make changes in the second workspace and try to land it

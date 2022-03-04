@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"github.com/graph-gophers/graphql-go"
 )
@@ -20,17 +21,18 @@ func (r *WorkspaceRootResolver) UpdateWorkspace(ctx context.Context, args resolv
 		return nil, errors.Error(err)
 	}
 
+	t := time.Now()
+	fields := []db_workspaces.UpdateOption{
+		db_workspaces.SetUpdatedAt(&t),
+	}
 	if args.Input.DraftDescription != nil {
-		ws.DraftDescription = *args.Input.DraftDescription
+		fields = append(fields, db_workspaces.SetDraftDescription(*args.Input.DraftDescription))
 	}
 	if args.Input.Name != nil {
-		ws.Name = args.Input.Name
+		fields = append(fields, db_workspaces.SetName(args.Input.Name))
 	}
 
-	t := time.Now()
-	ws.UpdatedAt = &t
-
-	if err := r.workspaceWriter.Update(ctx, ws); err != nil {
+	if err := r.workspaceWriter.UpdateFields(ctx, ws.ID, fields...); err != nil {
 		return nil, errors.Error(err)
 	}
 

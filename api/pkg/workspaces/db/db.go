@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/jmoiron/sqlx"
@@ -84,36 +84,6 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 	return views, nil
 }
 
-func (r *repo) SetUpToDateWithTrunk(ctx context.Context, workspaceID string, upToDateWithTrunk bool) error {
-	if _, err := r.db.ExecContext(ctx, `UPDATE workspaces
-		SET up_to_date_with_trunk = $1
-		WHERE id = $2`, upToDateWithTrunk, workspaceID); err != nil {
-		return fmt.Errorf("failed to perform update: %w", err)
-	}
-	return nil
-}
-
-func (r *repo) Update(ctx context.Context, entity *workspaces.Workspace) error {
-	if _, err := r.db.NamedExecContext(ctx, `UPDATE workspaces
-		SET name = :name,
-		    last_landed_at = :last_landed_at,
-		    archived_at = :archived_at,
-		    unarchived_at = :unarchived_at,
-			up_to_date_with_trunk = :up_to_date_with_trunk,
-		    updated_at = :updated_at,
-		    draft_description = :draft_description,
-		    view_id = :view_id,
-		    latest_snapshot_id = :latest_snapshot_id,
-		    head_change_id = :head_change_id,
-		    head_change_computed = :head_change_computed,
-			diffs_count = :diffs_count,
-			change_id = :change_id
-		WHERE id = :id`, &entity); err != nil {
-		return fmt.Errorf("failed to perform update: %w", err)
-	}
-	return nil
-}
-
 func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
 	_, err := r.db.Exec("UPDATE workspaces SET up_to_date_with_trunk = NULL WHERE codebase_id = $1 AND archived_at IS NULL", codebaseID)
 	if err != nil {
@@ -170,11 +140,86 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 	return &entity, nil
 }
 
-func (r *repo) SetHeadChange(ctx context.Context, workspaceID string, changeID *changes.ID) error {
-	if _, err := r.db.ExecContext(ctx, `UPDATE workspaces
-		SET head_change_id = $1,
-			head_change_computed = TRUE
-		WHERE id = $2`, changeID, workspaceID); err != nil {
+type updateQuery struct {
+	raw  strings.Builder
+	args map[string]interface{}
+}
+
+func newQuery() *updateQuery {
+	return &updateQuery{
+		raw:  strings.Builder{},
+		args: make(map[string]interface{}),
+	}
+}
+
+func (u *updateQuery) String(workspaceID string) string {
+	u.args["workspace_id"] = workspaceID
+	return strings.Join([]string{
+		`UPDATE workspaces SET`,
+		u.raw.String(),
+		`WHERE id = :workspace_id`,
+	}, " ")
+}
+
+func (u *updateQuery) Set(field string, value interface{}) *updateQuery {
+	if len(u.args) == 0 {
+		u.raw.WriteString(fmt.Sprintf("%s = :%s", field, field))
+	} else {
+		u.raw.WriteString(fmt.Sprintf(", %s = :%s", field, field))
+	}
+	u.args[field] = value
+	return u
+}
+
+func (r *repo) UpdateFields(ctx context.Context, workspaceID string, fields ...UpdateOption) error {
+	if len(fields) == 0 {
+		return nil
+	}
+
+	opts := Options(fields).Parse()
+	query := newQuery()
+
+	if opts.updatedAtSet {
+		query.Set("updated_at", opts.updatedAt)
+	}
+	if opts.upToDateWithTrunkSet {
+		query.Set("up_to_date_with_trunk", opts.upToDateWithTrunk)
+	}
+	if opts.headChangeIDSet {
+		query.Set("head_change_id", opts.headChangeID)
+	}
+	if opts.headChangeComputedSet {
+		query.Set("head_change_computed", opts.headChangeComputed)
+	}
+	if opts.latestSnapshotIDSet {
+		query.Set("latest_snapshot_id", opts.latestSnapshotID)
+	}
+	if opts.diffsCountSet {
+		query.Set("diffs_count", opts.diffsCount)
+	}
+	if opts.viewIDSet {
+		query.Set("view_id", opts.viewID)
+	}
+	if opts.lastLandedAtSet {
+		query.Set("last_landed_at", opts.lastLandedAt)
+	}
+	if opts.changeIDSet {
+		query.Set("change_id", opts.changeID)
+	}
+	if opts.draftDescriptionSet {
+		query.Set("draft_description", opts.draftDescription)
+	}
+	if opts.archivedAtSet {
+		query.Set("archived_at", opts.archivedAt)
+	}
+	if opts.unarchivedAtSet {
+		query.Set("unarchived_at", opts.unarchivedAt)
+	}
+	if opts.nameSet {
+		query.Set("name", opts.name)
+	}
+
+	if _, err := r.db.NamedExecContext(ctx, query.String(workspaceID), query.args); err != nil {
 		return fmt.Errorf("failed to perform update: %w", err)
 	}
 	return nil

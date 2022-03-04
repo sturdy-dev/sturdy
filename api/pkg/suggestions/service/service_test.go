@@ -115,8 +115,7 @@ func (o *operation) openSuggestion(t *testing.T, test *test) {
 		UserID:     test.suggestingUserID,
 		CodebaseID: test.codebaseID,
 	}))
-	suggestingWorkspace.ViewID = &test.suggestingViewID
-	assert.NoError(t, test.workspaceDB.Update(context.TODO(), suggestingWorkspace))
+	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), suggestingWorkspace.ID, db_workspaces.SetViewID(&test.suggestingViewID)))
 	assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
 }
 
@@ -135,14 +134,14 @@ func (o *operation) snapshotSuggesting(t *testing.T, test *test) {
 	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
 	assert.NoError(t, err)
 	test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
-	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.suggestingWorkspace))
+	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.suggestingWorkspace.ID, db_workspaces.SetLatestSnapshotID(&suggestingSnapshot.ID)))
 }
 
 func (o *operation) snapshotOriginal(t *testing.T, test *test) {
 	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, snapshotter.WithOnView(test.originalViewID))
 	assert.NoError(t, err)
 	test.originalWorkspace.LatestSnapshotID = &snapshot.ID
-	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
+	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.originalWorkspace.ID, db_workspaces.SetLatestSnapshotID(&snapshot.ID)))
 }
 
 func (o *operation) setupOriginal(t *testing.T, test *test) {
@@ -173,7 +172,7 @@ func (o *operation) setupOriginalView(t *testing.T, test *test) {
 		CodebaseID: test.codebaseID,
 	}))
 	test.originalWorkspace.ViewID = &test.originalViewID
-	assert.NoError(t, test.workspaceDB.Update(context.TODO(), test.originalWorkspace))
+	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.originalWorkspace.ID, db_workspaces.SetViewID(&test.originalViewID)))
 	vcs_view.Create(test.repoProvider, test.codebaseID, test.originalWorkspace.ID, test.originalViewID)
 }
 
