@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
 
 	"go.uber.org/zap"
 )
@@ -43,7 +43,7 @@ func (r *rootResolver) UpdatedWorkspaceWatchers(ctx context.Context, args resolv
 		resolver := &watcherResolver{Watcher: watcher, Root: r}
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("disconnected")
+			return events.ErrClientDisconnected
 		case c <- resolver:
 			if didErorrOut {
 				didErorrOut = false

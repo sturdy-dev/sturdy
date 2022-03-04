@@ -209,7 +209,7 @@ func (r prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resol
 		}
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case res <- resolver:
 			if didErrorOut {
 				didErrorOut = false

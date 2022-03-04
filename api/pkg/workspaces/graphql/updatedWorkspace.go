@@ -2,8 +2,6 @@ package graphql
 
 import (
 	"context"
-	"errors"
-
 	"strings"
 
 	"getsturdy.com/api/pkg/auth"
@@ -90,7 +88,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 		}
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case c <- resolver:
 			if didErrorOut {
 				didErrorOut = false

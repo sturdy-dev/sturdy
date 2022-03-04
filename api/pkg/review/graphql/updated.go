@@ -32,7 +32,7 @@ func (r *reviewRootResolver) UpdatedReviews(ctx context.Context) (<-chan resolve
 
 		select {
 		case <-ctx.Done():
-			return nil
+			return events.ErrClientDisconnected
 		case c <- resolver:
 		default:
 			r.logger.Named("updatedReviews").Error("dropped event",

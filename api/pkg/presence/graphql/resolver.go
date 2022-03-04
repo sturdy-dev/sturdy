@@ -108,7 +108,7 @@ func (r *presenceRootResolver) UpdatedWorkspacePresence(ctx context.Context, arg
 				r2 := resolver
 				select {
 				case <-ctx.Done():
-					return errors.New("disconnected")
+					return events.ErrClientDisconnected
 				case res <- r2:
 					if didErrorOut {
 						didErrorOut = false

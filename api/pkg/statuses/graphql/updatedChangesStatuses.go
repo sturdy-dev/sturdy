@@ -67,7 +67,7 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 		resolver := &resolver{status: status, root: r}
 		select {
 		case <-ctx.Done():
-			return errors.New("disconneted")
+			return events.ErrClientDisconnected
 		case c <- resolver:
 			if didErrorOut {
 				didErrorOut = false

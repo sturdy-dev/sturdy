@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"context"
-	"errors"
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/events"
@@ -52,7 +51,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case c <- diffs:
 			if didErrorOut {
 				didErrorOut = false

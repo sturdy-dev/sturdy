@@ -192,7 +192,7 @@ func (r *RootResolver) UpdatedSuggestion(ctx context.Context, args resolvers.Upd
 
 			select {
 			case <-ctx.Done():
-				return errors.New("disconnected")
+				return events.ErrClientDisconnected
 			case res <- resolver:
 				if didErrorOut {
 					didErrorOut = false

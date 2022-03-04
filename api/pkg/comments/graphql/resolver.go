@@ -206,7 +206,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 		for _, resolver := range allResolvers {
 			select {
 			case <-ctx.Done():
-				return errors.New("disconnected")
+				return events.ErrClientDisconnected
 			case res <- resolver:
 				if didErrorOut {
 					didErrorOut = false

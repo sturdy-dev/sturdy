@@ -10,10 +10,10 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/ctxlog"
+	"getsturdy.com/api/pkg/events"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
@@ -109,7 +109,7 @@ func Stream(
 	callbackFunc := func(eventType events.EventType, reference string) error {
 		// This can be racy, but that's OK.
 		if disconnected {
-			return fmt.Errorf("user is disconnected")
+			return events.ErrClientDisconnected
 		}
 
 		workspaceUpdated := eventType == events.WorkspaceUpdated && reference == ws.ID

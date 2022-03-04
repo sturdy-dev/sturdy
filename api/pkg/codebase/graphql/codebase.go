@@ -221,7 +221,7 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 			}
 			select {
 			case <-ctx.Done():
-				return errors.New("disconnected")
+				return events.ErrClientDisconnected
 			case c <- resolver:
 				if didErrorOut {
 					didErrorOut = false

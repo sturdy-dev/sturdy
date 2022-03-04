@@ -170,7 +170,7 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 		resolver := &Resolver{v: view, root: r}
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case res <- resolver:
 			return nil
 		default:
@@ -222,7 +222,7 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 
 		select {
 		case <-ctx.Done():
-			return errors.New("disconnected")
+			return events.ErrClientDisconnected
 		case res <- resolver:
 			return nil
 		default:
