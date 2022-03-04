@@ -205,22 +205,13 @@ func (r *WorkspaceResolver) updateIsUpToDateWithTrunk(ctx context.Context) error
 		return err
 	}
 
-	// Fetch a new version of the workspace, and perform the update
-	// TODO: Wrap all workspace mutations in a lock?
-	wsForUpdates, err := r.root.workspaceReader.Get(r.w.ID)
-	if err != nil {
-		return err
-	}
-
-	wsForUpdates.UpToDateWithTrunk = &upToDate
-
 	// Save updated cache
-	if err := r.root.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
+	if err := r.root.workspaceWriter.SetUpToDateWithTrunk(ctx, r.w.ID, upToDate); err != nil {
 		return err
 	}
 
 	// Also update the cached version of the workspace that we have in memory
-	r.w.UpToDateWithTrunk = wsForUpdates.UpToDateWithTrunk
+	r.w.UpToDateWithTrunk = &upToDate
 
 	return nil
 }

@@ -478,23 +478,13 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 		newHeadChangeID = &ch.ID
 	}
 
-	// Fetch a new version of the workspace, and perform the update
-	// TODO: Wrap all workspace mutations in a lock?
-	wsForUpdates, err := s.workspaceReader.Get(ws.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	wsForUpdates.HeadChangeComputed = true
-	wsForUpdates.HeadChangeID = newHeadChangeID
-
 	// Save updated cache
-	if err := s.workspaceWriter.Update(ctx, wsForUpdates); err != nil {
+	if err := s.workspaceWriter.SetHeadChange(ctx, ws.ID, *newHeadChangeID); err != nil {
 		return nil, err
 	}
 
 	// Also update the cached version of the workspace that we have in memory
-	ws.HeadChangeComputed = wsForUpdates.HeadChangeComputed
+	ws.HeadChangeComputed = true
 	ws.HeadChangeID = newHeadChangeID
 
 	s.logger.Info("recalculated head change", zap.String("workspace_id", ws.ID), zap.Stringer("head", ws.HeadChangeID))
@@ -612,6 +602,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 	// Update workspace
 	now := time.Now()
 	ws.LastLandedAt = &now
+	ws.ChangeID = &change.ID
 	ws.UpdatedAt = &now
 	ws.DraftDescription = ""
 	ws.HeadChangeID = nil // TODO: Set this directly

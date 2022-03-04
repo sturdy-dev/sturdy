@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/db"
@@ -41,6 +42,36 @@ func (w *writerWithEvents) Update(ctx context.Context, workspace *workspaces.Wor
 		return err
 	}
 	if err := w.eventSender.Codebase(workspace.CodebaseID, events.WorkspaceUpdated, workspace.ID); err != nil {
+		w.logger.Error("failed to send event: %v", zap.Error(err))
+		// do not fail
+	}
+	return nil
+}
+
+func (w *writerWithEvents) SetUpToDateWithTrunk(ctx context.Context, workspaceID string, upToDateWithTrunk bool) error {
+	if err := w.workspaceRepo.SetUpToDateWithTrunk(ctx, workspaceID, upToDateWithTrunk); err != nil {
+		return err
+	}
+	ws, err := w.workspaceRepo.Get(workspaceID)
+	if err != nil {
+		return err
+	}
+	if err := w.eventSender.Codebase(ws.CodebaseID, events.WorkspaceUpdated, ws.ID); err != nil {
+		w.logger.Error("failed to send event: %v", zap.Error(err))
+		// do not fail
+	}
+	return nil
+}
+
+func (w *writerWithEvents) SetHeadChange(ctx context.Context, workspaceID string, changeID changes.ID) error {
+	if err := w.workspaceRepo.SetHeadChange(ctx, workspaceID, changeID); err != nil {
+		return err
+	}
+	ws, err := w.workspaceRepo.Get(workspaceID)
+	if err != nil {
+		return err
+	}
+	if err := w.eventSender.Codebase(ws.CodebaseID, events.WorkspaceUpdated, ws.ID); err != nil {
 		w.logger.Error("failed to send event: %v", zap.Error(err))
 		// do not fail
 	}

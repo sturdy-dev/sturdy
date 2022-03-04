@@ -29,7 +29,7 @@
         {{ ' ' }}
         <span class="flex whitespace-nowrap mr-1">
           <StatusDetails :statuses="item.change.statuses" :show-text="false" />
-          {{ friendly_ago(item.createdAt) }}
+          <RelativeTime :date="createdAt" />
         </span>
       </div>
     </div>
@@ -38,8 +38,8 @@
 
 <script lang="ts">
 import Avatar from '../../components/shared/Avatar.vue'
-import time from '../../time'
-import { defineComponent, PropType, toRef } from 'vue'
+import RelativeTime from '../../atoms/RelativeTime.vue'
+import { PropType, toRef } from 'vue'
 import { WorkspaceCreatedChangeActivityFragment } from './__generated__/ActivityCreatedChange'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { gql } from '@urql/vue'
@@ -66,9 +66,9 @@ export const WORKSPACE_ACTIVITY_CREATED_CHANGE_FRAGMENT = gql`
   ${STATUS_FRAGMENT}
 `
 
-export default defineComponent({
+export default {
   name: 'WorkspaceActivityCreatedChange',
-  components: { Avatar, StatusDetails },
+  components: { Avatar, StatusDetails, RelativeTime },
   props: {
     item: {
       type: Object as PropType<WorkspaceCreatedChangeActivityFragment>,
@@ -80,13 +80,13 @@ export default defineComponent({
     },
   },
   setup(props) {
-    let item = toRef(props, 'item')
-    useUpdatedChangesStatuses([item.value.change.id])
+    const item = toRef(props, 'item')
+    if (item.value.change) useUpdatedChangesStatuses([item.value.change.id])
   },
-  methods: {
-    friendly_ago(ts: number) {
-      return time.getRelativeTime(new Date(ts * 1000))
+  computed: {
+    createdAt() {
+      return new Date(this.item.createdAt * 1000)
     },
   },
-})
+}
 </script>

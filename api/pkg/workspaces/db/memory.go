@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -66,6 +67,27 @@ func (f *memory) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error
 	for idx, ws := range f.workspaces {
 		if ws.CodebaseID == codebaseID {
 			f.workspaces[idx].UpToDateWithTrunk = nil
+		}
+	}
+	return nil
+}
+
+func (f *memory) SetUpToDateWithTrunk(_ context.Context, workspaceID string, upToDateWithTrunk bool) error {
+	for _, ws := range f.workspaces {
+		if ws.ID == workspaceID {
+			ws.UpToDateWithTrunk = &upToDateWithTrunk
+			return nil
+		}
+	}
+	return nil
+}
+
+func (f *memory) SetHeadChange(_ context.Context, workspaceID string, changeID changes.ID) error {
+	for _, ws := range f.workspaces {
+		if ws.ID == workspaceID {
+			ws.HeadChangeComputed = true
+			ws.HeadChangeID = &changeID
+			return nil
 		}
 	}
 	return nil

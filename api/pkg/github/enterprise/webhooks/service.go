@@ -179,11 +179,10 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 		}
 
 		// pull from github if sturdy doesn't have the commits
-		err = svc.pullFromGitHubIfCommitNotExists(ws.CodebaseID, []string{
+		if err := svc.pullFromGitHubIfCommitNotExists(ws.CodebaseID, []string{
 			apiPR.GetMergeCommitSHA(),
 			event.GetPullRequest().GetBase().GetSHA(),
-		}, accessToken, repo.TrackedBranch)
-		if err != nil {
+		}, accessToken, repo.TrackedBranch); err != nil {
 			return fmt.Errorf("failed to pullFromGitHubIfCommitNotExists: %w", err)
 		}
 
@@ -194,6 +193,7 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 
 		// unset the draft description
 		ws.DraftDescription = ""
+		ws.ChangeID = &ch.ID
 		if err := svc.workspaceWriter.Update(ctx, ws); err != nil {
 			return fmt.Errorf("failed to update workspace: %w", err)
 		}
