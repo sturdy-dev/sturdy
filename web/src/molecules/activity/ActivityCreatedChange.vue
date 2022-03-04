@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex items-start space-x-3">
+  <div v-if="item.change" class="relative flex items-start space-x-3">
     <div>
       <div class="relative px-1">
         <Avatar :author="item.author" size="8" />
