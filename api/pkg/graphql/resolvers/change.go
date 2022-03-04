@@ -44,7 +44,7 @@ type ChangeResolver interface {
 
 type FileDiffRootResolver interface {
 	// Internal
-	InternalFileDiff(*unidiff.FileDiff) FileDiffResolver
+	InternalFileDiff(prefix string, diff *unidiff.FileDiff) FileDiffResolver
 }
 
 type FileDiffResolver interface {

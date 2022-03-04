@@ -347,7 +347,7 @@ func (r *WorkspaceResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffReso
 	}
 	res := make([]resolvers.FileDiffResolver, len(diffs), len(diffs))
 	for k, diff := range diffs {
-		res[k] = r.root.fileDiffRootResolver.InternalFileDiff(&diff)
+		res[k] = r.root.fileDiffRootResolver.InternalFileDiff(r.w.ID, &diff)
 	}
 	return res, nil
 }
