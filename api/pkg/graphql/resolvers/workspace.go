@@ -82,6 +82,10 @@ type RemovePatchesInput struct {
 	HunkIDs     []string
 }
 
+type UpdatedWorkspaceDiffsArgs struct {
+	WorkspaceID graphql.ID
+}
+
 type WorkspaceRootResolver interface {
 	// internal
 	InternalWorkspace(*workspaces.Workspace) WorkspaceResolver
@@ -100,6 +104,7 @@ type WorkspaceRootResolver interface {
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)
+	UpdatedWorkspaceDiffs(ctx context.Context, args UpdatedWorkspaceDiffsArgs) (<-chan []FileDiffResolver, error)
 }
 
 type WorkspaceResolver interface {
@@ -130,4 +135,5 @@ type WorkspaceResolver interface {
 	Suggestion(context.Context) (SuggestionResolver, error)
 	SuggestingViews() []ViewResolver
 	DiffsCount(context.Context) *int32
+	Diffs(context.Context) ([]FileDiffResolver, error)
 }

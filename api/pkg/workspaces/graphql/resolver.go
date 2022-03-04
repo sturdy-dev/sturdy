@@ -13,6 +13,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
+	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/pkg/workspaces/vcs"
@@ -336,4 +337,45 @@ func (r *WorkspaceResolver) Watchers(ctx context.Context) ([]resolvers.Workspace
 
 func (r *WorkspaceResolver) SuggestingViews() []resolvers.ViewResolver {
 	return nil
+}
+
+func (r *WorkspaceResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolver, error) {
+	diffs, err := r.diffs(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	res := make([]resolvers.FileDiffResolver, len(diffs), len(diffs))
+	for k, diff := range diffs {
+		res[k] = r.root.fileDiffRootResolver.InternalFileDiff(&diff)
+	}
+	return res, nil
+}
+
+func (r *WorkspaceResolver) diffs(ctx context.Context) ([]unidiff.FileDiff, error) {
+	allower, err := r.root.authService.GetAllower(ctx, r.w)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get allowed patterns: %w", err)
+	}
+
+	suggestion, err := r.root.suggestionsService.GetByWorkspaceID(ctx, r.w.ID)
+	switch {
+	case err == nil:
+		diffs, err := r.root.suggestionsService.Diffs(ctx, suggestion, unidiff.WithAllower(allower))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get diffs from suggestion: %w", err)
+		}
+		return diffs, nil
+	case errors.Is(err, sql.ErrNoRows):
+		diffs, isConflicting, err := r.root.workspaceService.Diffs(ctx, r.w.ID, service_workspace.WithAllower(allower))
+		if err != nil {
+			return nil, fmt.Errorf("failed to get diffs from workspace: %w", err)
+		}
+		if isConflicting {
+			// TODO
+			return diffs, nil
+		}
+		return diffs, nil
+	default:
+		return nil, fmt.Errorf("failed to get suggestion: %w", err)
+	}
 }

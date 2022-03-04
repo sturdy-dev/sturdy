@@ -44,6 +44,7 @@ type WorkspaceRootResolver struct {
 	suggestionRootResolver        resolvers.SuggestionRootResolver
 	statusRootResolver            resolvers.StatusesRootResolver
 	workspaceWatcherRootResolver  resolvers.WorkspaceWatcherRootResolver
+	fileDiffRootResolver          resolvers.FileDiffRootResolver
 
 	suggestionsService *service_suggestions.Service
 	workspaceService   service_workspace.Service
@@ -77,6 +78,7 @@ func NewResolver(
 	suggestionRootResolver resolvers.SuggestionRootResolver,
 	statusRootResolver resolvers.StatusesRootResolver,
 	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
+	fileDiffRootResolver resolvers.FileDiffRootResolver,
 
 	suggestionsService *service_suggestions.Service,
 	workspaceService service_workspace.Service,
@@ -109,6 +111,7 @@ func NewResolver(
 		suggestionRootResolver:        suggestionRootResolver,
 		statusRootResolver:            statusRootResolver,
 		workspaceWatcherRootResolver:  workspaceWatcherRootResolver,
+		fileDiffRootResolver:          fileDiffRootResolver,
 
 		suggestionsService: suggestionsService,
 		workspaceService:   workspaceService,
