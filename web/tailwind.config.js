@@ -15,6 +15,9 @@ module.exports = {
         yellow: colors.amber,
         purple: colors.violet,
       },
+      lineClamp:{
+        12: '12'
+      }
     },
   },
   plugins: [
