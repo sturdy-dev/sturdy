@@ -217,6 +217,8 @@ type Subscription {
     workspaceID: ID
   ): Workspace!
 
+  updatedWorkspaceDiffs(workspaceID: ID!): [FileDiff!]!
+
   updatedComment(workspaceID: ID!, viewID: ID): Comment!
 
   updatedCodebase: Codebase!
@@ -457,6 +459,8 @@ type Workspace {
   watchers: [WorkspaceWatcher!]!
 
   diffsCount: Int
+
+  diffs: [FileDiff!]!
 }
 
 input WatchWorkspaceInput {
