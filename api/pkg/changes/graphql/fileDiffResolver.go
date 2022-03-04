@@ -13,16 +13,20 @@ func NewFileDiffRootResolver() resolvers.FileDiffRootResolver {
 	return &FileDiffRootResolver{}
 }
 
-func (r *FileDiffRootResolver) InternalFileDiff(diff *unidiff.FileDiff) resolvers.FileDiffResolver {
-	return &fileDiffResolver{diff: *diff}
+func (r *FileDiffRootResolver) InternalFileDiff(keyPrefix string, diff *unidiff.FileDiff) resolvers.FileDiffResolver {
+	return &fileDiffResolver{
+		keyPrefix: keyPrefix,
+		diff:      *diff,
+	}
 }
 
 type fileDiffResolver struct {
-	diff unidiff.FileDiff
+	keyPrefix string
+	diff      unidiff.FileDiff
 }
 
 func (f *fileDiffResolver) ID() graphql.ID {
-	return graphql.ID(f.diff.PreferredName)
+	return graphql.ID(f.keyPrefix + "_" + f.diff.PreferredName)
 }
 
 func (f *fileDiffResolver) OrigName() string {

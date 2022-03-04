@@ -66,7 +66,7 @@ func (r *Resolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolver, err
 
 	rr := make([]resolvers.FileDiffResolver, 0, len(diffs))
 	for _, diff := range diffs {
-		rr = append(rr, r.root.fileDiffResolver.InternalFileDiff(&diff))
+		rr = append(rr, r.root.fileDiffResolver.InternalFileDiff(string(r.suggestion.ID), &diff))
 	}
 	return rr, nil
 }
