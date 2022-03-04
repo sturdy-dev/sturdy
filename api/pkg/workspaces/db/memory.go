@@ -82,11 +82,11 @@ func (f *memory) SetUpToDateWithTrunk(_ context.Context, workspaceID string, upT
 	return nil
 }
 
-func (f *memory) SetHeadChange(_ context.Context, workspaceID string, changeID changes.ID) error {
+func (f *memory) SetHeadChange(_ context.Context, workspaceID string, changeID *changes.ID) error {
 	for _, ws := range f.workspaces {
 		if ws.ID == workspaceID {
 			ws.HeadChangeComputed = true
-			ws.HeadChangeID = &changeID
+			ws.HeadChangeID = changeID
 			return nil
 		}
 	}

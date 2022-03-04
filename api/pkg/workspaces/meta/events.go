@@ -63,7 +63,7 @@ func (w *writerWithEvents) SetUpToDateWithTrunk(ctx context.Context, workspaceID
 	return nil
 }
 
-func (w *writerWithEvents) SetHeadChange(ctx context.Context, workspaceID string, changeID changes.ID) error {
+func (w *writerWithEvents) SetHeadChange(ctx context.Context, workspaceID string, changeID *changes.ID) error {
 	if err := w.workspaceRepo.SetHeadChange(ctx, workspaceID, changeID); err != nil {
 		return err
 	}
