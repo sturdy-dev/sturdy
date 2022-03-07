@@ -182,7 +182,7 @@ func ProvideHandler(
 	rebase := auth.Group("/v3/rebase/")
 	rebase.Use(view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
 	rebase.GET(":viewID", routes_v3_sync.Status(viewRepo, executorProvider, logger))                                     // Used by the web (2021-10-04)
-	rebase.POST(":viewID/start", routes_v3_sync.StartV2(logger, syncService))                                            // Used by the web (2021-10-25)
+	rebase.POST(":viewID/start", routes_v3_sync.StartV2(logger, syncService, workspaceService))                          // Used by the web (2021-10-25)
 	rebase.POST(":viewID/resolve", routes_v3_sync.ResolveV2(logger, syncService))                                        // Used by the web (2021-10-25)
 	auth.POST("/v3/changes/:id/update", routes_v3_change.Update(logger, codebaseUserRepo, analyticsService, changeRepo)) // Used by the web (2021-10-04)
 	auth.POST("/v3/workspaces", routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo))                  // Used by the command line client

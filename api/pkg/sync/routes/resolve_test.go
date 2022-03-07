@@ -377,7 +377,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	codebaseRepo := d.CodebaseRepo
 
 	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
-	startRoutev2 := routes_v3_sync.StartV2(d.Logger, d.SyncService)
+	startRoutev2 := routes_v3_sync.StartV2(d.Logger, d.SyncService, d.WorkspaceService)
 	resolveRoutev2 := routes_v3_sync.ResolveV2(d.Logger, d.SyncService)
 	statusRoute := routes_v3_sync.Status(d.ViewRepo, d.ExecutorProvider, d.Logger)
 
