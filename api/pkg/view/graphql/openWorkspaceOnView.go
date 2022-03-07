@@ -42,7 +42,7 @@ func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolve
 		}})
 	} else {
 		if err := open.OpenWorkspaceOnView(ctx, r.logger, view, ws, r.viewRepo, r.workspaceReader,
-			r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSender); errors.Is(err, open.ErrRebasing) {
+			r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSenderV2); errors.Is(err, open.ErrRebasing) {
 			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
 		} else if err != nil {
 			return nil, gqlerrors.Error(err)

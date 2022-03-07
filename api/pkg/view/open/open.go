@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/vcs"
 
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/snapshots"
 	db3 "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -36,7 +36,7 @@ func OpenWorkspaceOnView(
 	snapshotRepo db3.Repository,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
-	eventSender events.EventSender,
+	eventSender *eventsv2.Publisher,
 ) error {
 	if ws.ArchivedAt != nil {
 		return fmt.Errorf("the workspace is archived")
@@ -105,9 +105,6 @@ func OpenWorkspaceOnView(
 	// Update workspace object
 	ws.ViewID = &view.ID
 	if err := workspaceWriter.UpdateFields(ctx, ws.ID, db_workspaces.SetViewID(&view.ID)); err != nil {
-
-		fmt.Printf("\nnikitag: %+v\n\n", 11)
-
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
 
@@ -117,7 +114,7 @@ func OpenWorkspaceOnView(
 		return fmt.Errorf("failed to update view obj: %w", err)
 	}
 
-	if err := eventSender.Workspace(ws.ID, events.ViewUpdated, view.ID); err != nil {
+	if err := eventSender.Workspace(ctx, ws.ID).ViewUpdated(view); err != nil {
 		logger.Error("failed to send view updated event: %w", zap.Error(err))
 		// do not fail
 	}

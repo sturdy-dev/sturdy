@@ -21,6 +21,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
@@ -29,6 +30,7 @@ import (
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
+	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
@@ -46,6 +48,7 @@ type Service struct {
 	workspaceReader db_workspaces.WorkspaceReader
 	reviewRepo      db_review.ReviewRepository
 	codebaseRepo    db_codebase.CodebaseRepository
+	viewRepo        db_view.Repository
 
 	gitHubAppConfig                  *config_github.GitHubAppConfig
 	gitHubInstallationClientProvider github_client.InstallationClientProvider
@@ -55,6 +58,7 @@ type Service struct {
 	executorProvider executor.Provider
 
 	eventsSender     events.EventSender
+	eventsSenderV2   *eventsv2.Publisher
 	analyticsService *service_analytics.Service
 	activitySender   sender_workspace_activity.ActivitySender
 
@@ -79,6 +83,7 @@ func New(
 	workspaceReader db_workspaces.WorkspaceReader,
 	reviewRepo db_review.ReviewRepository,
 	codebaseRepo db_codebase.CodebaseRepository,
+	viewRepo db_view.Repository,
 
 	gitHubAppConfig *config_github.GitHubAppConfig,
 	gitHubInstallationClientProvider github_client.InstallationClientProvider,
@@ -88,6 +93,7 @@ func New(
 	executorProvider executor.Provider,
 
 	eventsSender events.EventSender,
+	eventsSenderV2 *eventsv2.Publisher,
 	analyticsService *service_analytics.Service,
 	activitySender sender_workspace_activity.ActivitySender,
 
@@ -111,6 +117,7 @@ func New(
 		workspaceReader: workspaceReader,
 		reviewRepo:      reviewRepo,
 		codebaseRepo:    codebaseRepo,
+		viewRepo:        viewRepo,
 
 		gitHubAppConfig:                  gitHubAppConfig,
 		gitHubInstallationClientProvider: gitHubInstallationClientProvider,
@@ -120,6 +127,7 @@ func New(
 		executorProvider: executorProvider,
 
 		eventsSender:     eventsSender,
+		eventsSenderV2:   eventsSenderV2,
 		analyticsService: analyticsService,
 		activitySender:   activitySender,
 
@@ -207,7 +215,12 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 				return fmt.Errorf("failed to sync workspace: %w", err)
 			}
 
-			if err := svc.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {
+			vw, err := svc.viewRepo.Get(*ws.ViewID)
+			if err != nil {
+				return fmt.Errorf("failed to get view: %w", err)
+			}
+
+			if err := svc.eventsSenderV2.Codebase(ctx, ws.CodebaseID).ViewUpdated(vw); err != nil {
 				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
 				// do not fail
 			}

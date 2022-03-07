@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/presence"
 	serivce_presence "getsturdy.com/api/pkg/presence/service"
@@ -31,10 +31,12 @@ func SyncTransitions(
 	gcQueue *worker.Queue,
 	presenceService serivce_presence.Service,
 	suggestionsService *service_suggestion.Service,
-	eventSender events.EventSender,
+	eventSender *eventsv2.Publisher,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// TODO: Authenticate internal requests
+
+		ctx := c.Request.Context()
 
 		var req SyncTransitionsRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -50,28 +52,25 @@ func SyncTransitions(
 			return
 		}
 
-		if err := eventSender.Codebase(req.CodebaseID, events.ViewUpdated, req.ViewID); err != nil {
-			logger.Error("failed to send view updated event", zap.Error(err))
-			// do not fail
-		}
-
-		// Set LastUsedAt
 		view, err := viewRepo.Get(req.ViewID)
 		if err != nil {
 			logger.Error("could not get view", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
+
+		if err := eventSender.Codebase(ctx, req.CodebaseID).ViewUpdated(view); err != nil {
+			logger.Error("failed to send view updated event", zap.Error(err))
+			// do not fail
+		}
+
+		// Set LastUsedAt
 		t := time.Now()
 		view.LastUsedAt = &t
 		if err := viewRepo.Update(view); err != nil {
 			logger.Error("could not get view", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
-		}
-
-		if err := eventSender.Workspace(view.WorkspaceID, events.WorkspaceUpdated, view.WorkspaceID); err != nil {
-			logger.Error("failed to send workspace updated event", zap.Error(err))
 		}
 
 		// Make a snapshot

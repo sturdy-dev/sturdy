@@ -36,8 +36,6 @@ func (e EventType) String() string {
 const (
 	CodebaseEvent EventType = iota
 	CodebaseUpdated
-	ViewUpdated
-	ViewStatusUpdated
 	WorkspaceUpdated
 	WorkspaceUpdatedComments
 	WorkspaceUpdatedReviews
@@ -57,8 +55,6 @@ const (
 var eventTypeString = map[EventType]string{
 	CodebaseEvent:                  "CodebaseEvent",
 	CodebaseUpdated:                "CodebaseUpdated",
-	ViewUpdated:                    "ViewUpdated",
-	ViewStatusUpdated:              "ViewStatusUpdated",
 	WorkspaceUpdated:               "WorkspaceUpdated",
 	WorkspaceUpdatedComments:       "WorkspaceUpdatedComments",
 	WorkspaceUpdatedReviews:        "WorkspaceUpdatedReviews",

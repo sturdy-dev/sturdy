@@ -41,21 +41,21 @@ func NewPublisher(
 	}
 }
 
-func (s *Publisher) User(ctx context.Context, userID ...users.ID) publisher {
+func (s *Publisher) User(ctx context.Context, userID ...users.ID) *publisher {
 	topics := []Topic{}
 	for _, id := range userID {
 		topics = append(topics, User(id))
 	}
-	return publisher{
+	return &publisher{
 		topics: topics,
 		pubSub: s.pubsub,
 	}
 }
 
-func (s *Publisher) Codebase(ctx context.Context, id string) publisher {
+func (s *Publisher) Codebase(ctx context.Context, id string) *publisher {
 	members, err := s.codebaseUserRepo.GetByCodebase(id)
 	if err != nil {
-		return publisher{
+		return &publisher{
 			err: err,
 		}
 	}
@@ -66,22 +66,20 @@ func (s *Publisher) Codebase(ctx context.Context, id string) publisher {
 	return s.User(ctx, userIDs...)
 }
 
-func (s *Publisher) Workspace(ctx context.Context, id string) publisher {
+func (s *Publisher) Workspace(ctx context.Context, id string) *publisher {
 	ws, err := s.workspaceRepo.Get(id)
 	if err != nil {
-		return publisher{
+		return &publisher{
 			err: err,
 		}
 	}
-	publisher := s.Codebase(ctx, ws.CodebaseID)
-	publisher.topics = append(publisher.topics, Workspace(ws.ID))
-	return publisher
+	return s.Codebase(ctx, ws.CodebaseID)
 }
 
-func (s *Publisher) Organization(ctx context.Context, id string) publisher {
+func (s *Publisher) Organization(ctx context.Context, id string) *publisher {
 	members, err := s.organizationMemberRepo.ListByOrganizationID(ctx, id)
 	if err != nil {
-		return publisher{
+		return &publisher{
 			err: err,
 		}
 	}

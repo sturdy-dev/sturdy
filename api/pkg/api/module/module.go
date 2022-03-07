@@ -1,6 +1,8 @@
 package module
 
 import (
+	module_events_v2 "getsturdy.com/api/pkg/events/v2"
+
 	module_workspace_activity "getsturdy.com/api/pkg/activity/module"
 	module_analytics "getsturdy.com/api/pkg/analytics/module"
 	module_auth "getsturdy.com/api/pkg/auth/module"
@@ -102,4 +104,5 @@ func common(c *di.Container) {
 	c.Import(module_workspace_activity.Module)
 	c.Import(module_workspace_watchers.Module)
 	c.Import(module_vcs.Module)
+	c.Import(module_events_v2.Module)
 }

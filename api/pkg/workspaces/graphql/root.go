@@ -9,6 +9,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -55,6 +56,7 @@ type WorkspaceRootResolver struct {
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	executorProvider executor.Provider
 	eventsSender     events.EventSender
+	eventsSubscriber *eventsv2.Subscriber
 	gitSnapshotter   snapshotter.Snapshotter
 }
 
@@ -89,6 +91,7 @@ func NewResolver(
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
+	eventsSubscriber *eventsv2.Subscriber,
 	gitSnapshotter snapshotter.Snapshotter,
 ) resolvers.WorkspaceRootResolver {
 	return &WorkspaceRootResolver{
@@ -122,6 +125,7 @@ func NewResolver(
 		workspaceWriter:  workspaceWriter,
 		executorProvider: executorProvider,
 		eventsSender:     eventsSender,
+		eventsSubscriber: eventsSubscriber,
 
 		gitSnapshotter: gitSnapshotter,
 	}
