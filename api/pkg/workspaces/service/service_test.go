@@ -42,7 +42,7 @@ func setup(t *testing.T) *testCollaborators {
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)
 	suggestionsRepo := db_suggestions.NewMemory()
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, executorProvider, logger)
+	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, nil, executorProvider, logger)
 	userRepo := db_users.NewMemory()
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
@@ -67,6 +67,7 @@ func setup(t *testing.T) *testCollaborators {
 		nil, // activitySender
 		executorProvider,
 		eventsSender,
+		nil,
 		nil, // snapshotterQueue
 		gitSnapshotter,
 		buildQueue,

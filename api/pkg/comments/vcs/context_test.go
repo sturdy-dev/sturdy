@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	events2 "getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -175,12 +176,17 @@ func TestContext(t *testing.T) {
 			workspaceRepo := db_workspaces.NewMemory()
 			viewRepo := inmemory.NewInMemoryViewRepo()
 			logger := zap.NewNop()
-			events := events2.NewInMemory(logger)
 			executorProvider := executor.NewProvider(logger, repoProvider)
 			codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
+
+			events := events2.NewInMemory(logger)
 			eventsSender := events2.NewSender(codebaseUserRepo, workspaceRepo, nil, events)
+
+			pubsub := eventsv2.New(logger)
+			eventsSenderv2 := eventsv2.NewPublisher(pubsub, codebaseUserRepo, nil, nil)
+
 			suggestionsRepo := db_suggestions.NewMemory()
-			gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, executorProvider, logger)
+			gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, eventsSenderv2, executorProvider, logger)
 
 			err = workspaceRepo.Create(*ws)
 			assert.NoError(t, err)

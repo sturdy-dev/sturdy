@@ -21,7 +21,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	module_github "getsturdy.com/api/pkg/github/module"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -356,7 +356,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		ViewRepo              db_view.Repository
 		SnapshotRepo          db_snapshots.Repository
 		ExecutorProvider      executor.Provider
-		EventsSender          events.EventSender
+		EventsSender          *eventsv2.Publisher
 		Logger                *zap.Logger
 		AnalyticsService      *service_analytics.Service
 		CodebaseRepo          db_codebase.CodebaseRepository
@@ -541,9 +541,9 @@ func TestResolveHighLevelV2(t *testing.T) {
 						assert.NoError(t, err)
 						// Compare len instead of full file, to be able to make sense of errors
 						if !assert.Equal(t, len(expected), len(d)) {
-							if len(d) < 1000 {
-								t.Logf("contents: %s", string(d))
-							}
+							// >if len(d) < 1000 {
+							// >	t.Logf("contents: %s", string(d))
+							// >}
 						}
 
 					} else {
