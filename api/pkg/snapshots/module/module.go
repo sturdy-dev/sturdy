@@ -18,3 +18,9 @@ func TestingModule(c *di.Container) {
 	c.Import(snapshotter.Module)
 	c.Import(worker.TestingModule)
 }
+
+func InMemoryTestingModule(c *di.Container) {
+	// database is provided elsewhere
+	c.Import(snapshotter.Module)
+	c.Import(worker.TestingModule)
+}

@@ -51,10 +51,15 @@ func TestingModule(c *di.Container) {
 			panic(err)
 		}
 
+		tmpPath, err := os.MkdirTemp("", "sturdy_test")
+		if err != nil {
+			panic(err)
+		}
+
 		return configuration.Configuration{
 			Base: configuration.Base{
 				Provider: &provider.Configuration{
-					ReposPath: os.TempDir(),
+					ReposPath: tmpPath,
 					LFS:       &provider.GitLFSConfiguration{Addr: lfsAddr},
 				},
 				DB: &db.Configuration{

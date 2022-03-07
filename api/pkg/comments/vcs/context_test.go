@@ -3,17 +3,16 @@ package vcs
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 	"testing"
 
-	events2 "getsturdy.com/api/pkg/events"
-	eventsv2 "getsturdy.com/api/pkg/events/v2"
-	"getsturdy.com/api/pkg/internal/inmemory"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/internal/testmodule"
 	"getsturdy.com/api/pkg/snapshots"
+	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/view"
+	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
@@ -22,23 +21,31 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 )
 
 func TestContext(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
-
-	repoProvider := provider.New(tmpBase, "")
+	type deps struct {
+		di.In
+		GitSnapshotter   snapshotter.Snapshotter
+		WorkspaceRepo    db_workspaces.Repository
+		SnapshotRepo     db_snapshots.Repository
+		ViewRepo         db_view.Repository
+		ExecutorProvider executor.Provider
+		RepoProvider     provider.RepoProvider
+	}
+	var d deps
+	if err := di.Init(&d, testmodule.TestModule); err != nil {
+		t.Fatal(err)
+	}
 
 	codebaseID := uuid.NewString()
 	workspaceID := uuid.NewString()
 	viewID := uuid.NewString()
 
-	trunkPath := repoProvider.TrunkPath(codebaseID)
-	viewPath := repoProvider.ViewPath(codebaseID, viewID)
+	trunkPath := d.RepoProvider.TrunkPath(codebaseID)
+	viewPath := d.RepoProvider.ViewPath(codebaseID, viewID)
 
-	_, err = vcs.CreateBareRepoWithRootCommit(trunkPath)
+	_, err := vcs.CreateBareRepoWithRootCommit(trunkPath)
 	if err != nil {
 		panic(err)
 	}
@@ -50,6 +57,22 @@ func TestContext(t *testing.T) {
 	err = viewGitRepo.CreateNewBranchOnHEAD(workspaceID)
 	assert.NoError(t, err)
 	err = viewGitRepo.CheckoutBranchWithForce(workspaceID)
+	assert.NoError(t, err)
+
+	ws := &workspaces.Workspace{
+		ID:         workspaceID,
+		CodebaseID: codebaseID,
+		ViewID:     &viewID,
+	}
+	vw := &view.View{
+		ID:          viewID,
+		CodebaseID:  codebaseID,
+		WorkspaceID: workspaceID,
+	}
+
+	err = d.WorkspaceRepo.Create(*ws)
+	assert.NoError(t, err)
+	err = d.ViewRepo.Create(*vw)
 	assert.NoError(t, err)
 
 	// write file with line numbers
@@ -160,47 +183,17 @@ func TestContext(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("%d-%v", tc.lineNumber, tc.lineIsNew), func(t *testing.T) {
-
-			ws := &workspaces.Workspace{
-				ID:         workspaceID,
-				CodebaseID: codebaseID,
-				ViewID:     &viewID,
-			}
-			vw := &view.View{
-				ID:          viewID,
-				CodebaseID:  codebaseID,
-				WorkspaceID: workspaceID,
-			}
-
-			snapshotRepo := inmemory.NewInMemorySnapshotRepo()
-			workspaceRepo := db_workspaces.NewMemory()
-			viewRepo := inmemory.NewInMemoryViewRepo()
-			logger := zap.NewNop()
-			executorProvider := executor.NewProvider(logger, repoProvider)
-			codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-
-			events := events2.NewInMemory(logger)
-			eventsSender := events2.NewSender(codebaseUserRepo, workspaceRepo, nil, events)
-
-			pubsub := eventsv2.New(logger)
-			eventsSenderv2 := eventsv2.NewPublisher(pubsub, codebaseUserRepo, nil, nil)
-
-			suggestionsRepo := db_suggestions.NewMemory()
-			gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, eventsSenderv2, executorProvider, logger)
-
-			err = workspaceRepo.Create(*ws)
-			assert.NoError(t, err)
-			err = viewRepo.Create(*vw)
-			assert.NoError(t, err)
-
 			if tc.useSnapshot {
 				// make a snapshot
-				snapshot, err := gitSnapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionViewSync, snapshotter.WithOnView(viewID))
-				assert.NoError(t, err)
-				ws.LatestSnapshotID = &snapshot.ID
+				snapshot, err := d.GitSnapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionViewSync, snapshotter.WithOnView(viewID), snapshotter.WithNoThrottle())
+				if assert.NoError(t, err) && assert.NotNil(t, snapshot) {
+					ws.LatestSnapshotID = &snapshot.ID
+				}
+			} else {
+				ws.LatestSnapshotID = nil
 			}
 
-			res, contextStartsAt, err := GetWorkspaceContext(tc.lineNumber, tc.lineIsNew, "file.txt", nil, ws, executorProvider, snapshotRepo)
+			res, contextStartsAt, err := GetWorkspaceContext(tc.lineNumber, tc.lineIsNew, "file.txt", nil, ws, d.ExecutorProvider, d.SnapshotRepo)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, res)
 			assert.Equal(t, tc.expectedContextStartsAt, contextStartsAt)

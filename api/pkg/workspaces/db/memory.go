@@ -7,13 +7,11 @@ import (
 	"getsturdy.com/api/pkg/workspaces"
 )
 
-var _ Repository = &memory{}
-
 type memory struct {
 	workspaces []*workspaces.Workspace
 }
 
-func NewMemory() *memory {
+func NewMemory() Repository {
 	return &memory{workspaces: make([]*workspaces.Workspace, 0)}
 }
 

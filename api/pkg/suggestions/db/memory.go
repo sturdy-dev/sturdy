@@ -10,8 +10,6 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 )
 
-var _ Repository = &memory{}
-
 type memory struct {
 	byID             map[suggestions.ID]*suggestions.Suggestion
 	byWorkspaceID    map[string]*suggestions.Suggestion
@@ -19,7 +17,7 @@ type memory struct {
 	byForSnapshotID  map[string][]*suggestions.Suggestion
 }
 
-func NewMemory() *memory {
+func NewMemory() Repository {
 	return &memory{
 		byID:             make(map[suggestions.ID]*suggestions.Suggestion),
 		byWorkspaceID:    make(map[string]*suggestions.Suggestion),
