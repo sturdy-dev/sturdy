@@ -287,6 +287,8 @@ import {
 } from './__generated__/ReviewNewComment'
 import { CommentState } from '../comments/CommentState'
 import { DifferState, SetFileIsHiddenEvent } from './DifferState'
+import { gql } from '@urql/vue'
+import { DifferFileCommentFragment, DifferFileDiffFragment } from './__generated__/DifferFile'
 
 interface Data {
   isHiddenTooManyChanges: boolean
@@ -296,8 +298,8 @@ interface Data {
 
   fileDropdownOpen: boolean // TODO: Set and update
 
-  showMakeNewCommentPillPos: Pos | null
-  newCommentComposePos: Pos | null
+  showMakeNewCommentPillPos: Pos | undefined
+  newCommentComposePos: Pos | undefined
 
   showingSuggestionsByUser: string | null
 
@@ -312,17 +314,61 @@ interface Pos {
   rowIndex: number
 }
 
-export interface FileDiff {
-  // unidiff.FileDiff
-  orig_name: string
-  new_name: string
-  hunks: Array<Hunk>
-}
+export const DIFFER_FILE_DIFF = gql`
+  fragment DifferFileDiff on FileDiff {
+    id
 
-export interface Hunk {
-  id: string
-  patch: string
-}
+    origName
+    newName
+    preferredName
+
+    isDeleted
+    isNew
+    isMoved
+
+    hunks {
+      id
+      patch
+
+      isOutdated
+      isApplied
+      isDismissed
+    }
+  }
+`
+
+export const DIFFER_FILE_COMMENT = gql`
+  fragment DifferFileComment on TopComment {
+    id
+    message
+    codeContext {
+      id
+      lineStart
+      lineEnd
+      lineIsNew
+      context
+      contextStartsAtLine
+      path
+    }
+    createdAt
+    deletedAt
+    author {
+      id
+      name
+      avatarUrl
+    }
+    replies {
+      id
+      message
+      createdAt
+      author {
+        id
+        name
+        avatarUrl
+      }
+    }
+  }
+`
 
 export default defineComponent({
   components: {
@@ -351,8 +397,8 @@ export default defineComponent({
       checkedHunks: reactive(new Map<string, boolean>()),
       fileDropdownOpen: false,
 
-      newCommentComposePos: null,
-      showMakeNewCommentPillPos: null,
+      newCommentComposePos: undefined,
+      showMakeNewCommentPillPos: undefined,
 
       showingSuggestionsByUser: null,
 
@@ -369,10 +415,15 @@ export default defineComponent({
     },
     extraClasses: String,
     diffs: {
-      type: Object as PropType<FileDiff>,
+      type: Object as PropType<DifferFileDiffFragment>,
       required: true,
     },
-    comments: Object,
+
+    comments: {
+      type: Object as PropType<Array<DifferFileCommentFragment>>,
+      required: true,
+    },
+
     newCommentAvatarUrl: String,
     canComment: Boolean,
     suggestions: Object,
@@ -382,12 +433,21 @@ export default defineComponent({
 
     searchResult: {
       type: Object as PropType<Map<string, number[]>>,
+      required: false,
+      default: undefined,
     },
-    searchCurrentSelectedId: String,
+
+    searchCurrentSelectedId: {
+      type: String,
+      required: false,
+      default: '',
+    },
 
     // The logged in user
     user: {
       type: Object as PropType<UserFragment>,
+      required: false,
+      default: undefined,
     },
     // members of the selected codebase
     members: {
@@ -397,12 +457,18 @@ export default defineComponent({
 
     workspace: {
       type: Object as PropType<ReviewNewCommentWorkspaceFragment>,
+      required: false,
+      default: undefined,
     },
     view: {
       type: Object as PropType<ReviewNewCommentViewFragment>,
+      required: false,
+      default: undefined,
     },
     change: {
       type: Object as PropType<ReviewNewCommentChangeFragment>,
+      required: false,
+      default: undefined,
     },
 
     commentsState: {
@@ -457,7 +523,7 @@ export default defineComponent({
       let res = new Set()
       if (this.comments) {
         for (const comment of this.comments) {
-          if (comment.codeContext.lineIsNew && comment.codeContext.lineStart > 0) {
+          if (comment.codeContext?.lineIsNew && comment.codeContext.lineStart > 0) {
             res.add(comment.codeContext.lineStart)
           }
         }
@@ -468,7 +534,11 @@ export default defineComponent({
       let res = new Set()
       if (this.comments) {
         for (const comment of this.comments) {
-          if (!comment.codeContext.lineIsNew && comment.lineStart > 0) {
+          if (
+            comment.codeContext &&
+            !comment.codeContext.lineIsNew &&
+            comment.codeContext.lineStart > 0
+          ) {
             res.add(comment.codeContext.lineStart)
           }
         }
@@ -608,7 +678,7 @@ export default defineComponent({
     onDifferSetHunksWithPrefix(event: DifferSetHunksWithPrefix) {
       // If prefix is provided, and this file does not match the prefix
       if (event.prefix) {
-        if (!this.diffs.preferred_name.startsWith(event.prefix)) {
+        if (!this.diffs.preferredName.startsWith(event.prefix)) {
           return
         }
       }
@@ -666,26 +736,29 @@ export default defineComponent({
       )
     },
     hideMakeNewCommentPill() {
-      this.showMakeNewCommentPillPos = null
+      this.showMakeNewCommentPillPos = undefined
     },
-    commentsOnRow(oldRow: number, newRow: number) {
-      let res = []
+    commentsOnRow(oldRow: number, newRow: number): Array<DifferFileCommentFragment> {
+      let res = Array<DifferFileCommentFragment>()
 
       if (!this.comments) {
         return res
       }
 
       for (const comment of this.comments) {
+        if (!comment.codeContext) {
+          continue
+        }
         if (
           newRow !== undefined &&
-          comment.codeContext.lineIsNew === true &&
+          comment.codeContext.lineIsNew &&
           comment.codeContext.lineStart === newRow
         ) {
           res.push(comment)
         }
         if (
           oldRow !== undefined &&
-          comment.codeContext.lineIsNew === false &&
+          !comment.codeContext.lineIsNew &&
           comment.codeContext.lineStart === oldRow
         ) {
           res.push(comment)
@@ -699,6 +772,9 @@ export default defineComponent({
         return false
       }
       for (const comment of this.comments) {
+        if (!comment.codeContext) {
+          continue
+        }
         if (
           newRow !== undefined &&
           comment.codeContext.lineIsNew === true &&
@@ -843,7 +919,10 @@ export default defineComponent({
         return false
       }
       let r = this.searchResult.get(hunkID)
-      return r && r.length > 0
+      if (r && r.length > 0) {
+        return true
+      }
+      return false
     },
     hasMatchingSearchOnRow(hunkID: string, rowIndex: number): boolean {
       let matchingRows = this.rowsWithSearchMatches

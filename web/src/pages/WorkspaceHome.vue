@@ -392,8 +392,8 @@
                 <div v-if="rebasing?.is_rebasing && rebasing.conflicting_files">
                   <ResolveConflict
                     :rebasing="rebasing"
-                    :conflict-diffs="conflictDiffs"
-                    @resolveConflict="resolveConflict"
+                    :conflict-diffs="diffs"
+                    @resolve-conflict="resolveConflict"
                   />
                   <div class="my-8">
                     <p
@@ -434,7 +434,8 @@
                   :user="user"
                   :members="data.workspace.codebase.members"
                   :is-on-authoritative-view="isOnAuthoritativeView"
-                  :loaded-diffs="loadedDiffs"
+                  :is-stale="diffsStale"
+                  :is-fetching="diffsFetching"
                   @codebase-updated="refresh"
                   @pre-create-change="preCreateChange"
                 />
@@ -513,7 +514,10 @@ import {
   PencilIcon,
 } from '@heroicons/vue/solid'
 import { FolderAddIcon } from '@heroicons/vue/outline'
-import LiveDetails, { LIVE_DETAILS_WORKSPACE } from '../components/workspace/LiveDetails.vue'
+import LiveDetails, {
+  LIVE_DETAILS_DIFFS,
+  LIVE_DETAILS_WORKSPACE,
+} from '../components/workspace/LiveDetails.vue'
 import http from '../http'
 import { Banner } from '../atoms'
 import ResolveConflict from '../components/workspace/ResolveConflict.vue'
@@ -567,6 +571,15 @@ import ShareButton, {
   SHARE_BUTTON,
 } from '../components/workspace/ShareButton.vue'
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
+import {
+  WorkspaceHomeDiffsQuery,
+  WorkspaceHomeDiffsQueryVariables,
+  WorkspaceHomeQuery,
+  WorkspaceHomeQueryVariables,
+  WorkspaceHomeUpdateMutation,
+  WorkspaceHomeUpdateMutationVariables,
+} from './__generated__/WorkspaceHome'
+import { useUpdatedWorkspaceDiffs } from '../subscriptions/useUpdatedWorkspaceDiffs'
 
 export default defineComponent({
   components: {
@@ -614,20 +627,9 @@ export default defineComponent({
 
     let route = useRoute()
     const router = useRouter()
-    let workspaceID = ref(route.params.id)
-    let shortCodebaseID = ref(route.params.codebaseSlug)
-    watch(
-      () => route.params.id,
-      (slug) => {
-        workspaceID.value = slug
-      }
-    )
-    watch(
-      () => route.params.codebaseSlug,
-      (slug) => {
-        shortCodebaseID.value = slug
-      }
-    )
+
+    let workspaceID = computed(() => route.params.id as string)
+    let shortCodebaseID = computed(() => route.params.codebaseSlug as string)
 
     const ViewFragment = gql`
       fragment ViewParts on View {
@@ -646,7 +648,10 @@ export default defineComponent({
       }
     `
 
-    let { data, fetching, error, executeQuery } = useQuery({
+    let { data, fetching, error, executeQuery } = useQuery<
+      WorkspaceHomeQuery,
+      WorkspaceHomeQueryVariables
+    >({
       query: gql`
         query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID) {
@@ -793,7 +798,26 @@ export default defineComponent({
         ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
       `,
-      variables: { workspaceID: workspaceID, isGitHubEnabled },
+      variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
+    })
+
+    let {
+      data: diffsData,
+      fetching: diffsFetching,
+      stale: diffsStale,
+    } = useQuery<WorkspaceHomeDiffsQuery, WorkspaceHomeDiffsQueryVariables>({
+      query: gql`
+        query WorkspaceHomeDiffs($workspaceID: ID!) {
+          workspace(id: $workspaceID) {
+            id
+            ...LiveDetailsDiffs
+          }
+
+          ${LIVE_DETAILS_DIFFS}
+        }
+      `,
+      variables: { workspaceID: workspaceID },
+      requestPolicy: 'cache-and-network',
     })
 
     useHead({
@@ -810,9 +834,17 @@ export default defineComponent({
       pause: computed(() => !shortCodebaseID.value || !workspaceID.value),
     })
 
+    useUpdatedWorkspaceDiffs(
+      workspaceID.value,
+      computed(() => !workspaceID.value)
+    )
+
     const openWorkspaceOnViewResult = useOpenWorkspaceOnView()
 
-    const { executeMutation: updateWorkspaceResult } = useMutation(gql`
+    const { executeMutation: updateWorkspaceResult } = useMutation<
+      WorkspaceHomeUpdateMutation,
+      WorkspaceHomeUpdateMutationVariables
+    >(gql`
       mutation WorkspaceHomeUpdate($workspaceID: ID!, $name: String, $draftDescription: String) {
         updateWorkspace(
           input: { id: $workspaceID, name: $name, draftDescription: $draftDescription }
@@ -872,6 +904,10 @@ export default defineComponent({
       displayView,
       loadingNewWorkspace,
 
+      diffsData,
+      diffsFetching,
+      diffsStale,
+
       openWorkspaceOnViewResult,
 
       mutagenIpc: window.mutagenIpc,
@@ -885,7 +921,7 @@ export default defineComponent({
         })
       },
 
-      async createSuggestion(workspaceID, viewID) {
+      async createSuggestion(workspaceID: string, viewID: string) {
         const suggestion = await createSuggestionResult({
           workspaceID: workspaceID,
         })
@@ -904,7 +940,11 @@ export default defineComponent({
         loadingNewWorkspace.value = false
       },
 
-      async updateWorkspace(workspaceID, name = null, draftDescription = null) {
+      async updateWorkspace(
+        workspaceID: string,
+        name: string | null = null,
+        draftDescription: string | null = null
+      ) {
         const variables = { workspaceID, name, draftDescription }
         await updateWorkspaceResult(variables).then((result) => {
           console.log('update workspace', result)
@@ -916,6 +956,19 @@ export default defineComponent({
     return this.initialState()
   },
   computed: {
+    diffs() {
+      let diffws = this.diffsData?.workspace?.id
+      let wsID = this.data?.workspace?.id
+      if (wsID && wsID !== diffws) {
+        return []
+      }
+
+      let d = this.diffsData?.workspace?.diffs
+      if (d) {
+        return d
+      }
+      return []
+    },
     showApproval() {
       return !this.isSuggesting
     },
@@ -1018,27 +1071,16 @@ export default defineComponent({
     'data.workspace.codebase.id': function (n) {
       if (n) this.emitter.emit('codebase', n)
     },
-    'data.workspace.id': function (n) {
-      if (n) {
-        this.subscribe()
-      }
-    },
-    'data.workspace.draftDescription': function () {
-      this.setDraftDescription()
-    },
     'displayView.id': function () {
-      this.subscribe()
       if (this.displayView && this.displayView.id) {
         this.fetchRebasingStatus(this.displayView.id)
       }
     },
   },
   unmounted() {
-    this.unsubscribe()
     this.emitter.off('differ-selected-hunk-ids', this.onSelectedHunkIDs)
   },
   mounted() {
-    this.subscribe()
     this.setDraftDescription()
     this.emitter.on('differ-selected-hunk-ids', this.onSelectedHunkIDs)
   },
@@ -1063,16 +1105,6 @@ export default defineComponent({
         rebasing_working: false,
         rebasing_conflict_resolutions: new Map(),
 
-        eventStream: null,
-        eventPingTimeout: null,
-        diffs: [],
-        loadedDiffs: false,
-
-        conflictDiffs: [],
-
-        changes: [],
-        reactive_changes_cancel_func: null,
-
         editingName: false, // if the name is being edited
         userEditingName: '', // model for the new name
 
@@ -1081,7 +1113,7 @@ export default defineComponent({
         archiveWorkspaceActive: false,
       }
     },
-    openWorkspaceOnView(workspaceID, viewID) {
+    openWorkspaceOnView(workspaceID: string, viewID: string) {
       const variables = { workspaceID, viewID }
       this.loadingNewWorkspace = true
       this.openWorkspaceOnViewResult(variables)
@@ -1109,92 +1141,12 @@ export default defineComponent({
       this.selectedHunkIDs = hunkIDs
     },
     reset() {
-      this.unsubscribe()
       Object.assign(this.$data, this.initialState())
-      this.subscribe()
-
       this.setDraftDescription()
     },
 
     setDraftDescription() {
       this.workspace_draft_description = this.data?.workspace?.draftDescription
-    },
-
-    subscribe() {
-      // Disconnect before starting a new connection
-      if (this.eventStream) {
-        this.unsubscribe()
-      }
-
-      if (!this.data?.workspace?.id) {
-        return
-      }
-
-      const params = new URLSearchParams({
-        workspace_id: this.data.workspace.id,
-      })
-      if (this.displayView && this.displayView.id) {
-        params.append('view_id', this.displayView.id)
-      }
-
-      // Including the workspaceId in the URL to make sure that this view is using this workspace
-      // If not, don't return any diff.
-      let es = new EventSource(http.url('v3/stream?' + params.toString()), {
-        withCredentials: true,
-      })
-
-      // Register timeout
-      this.eventPingTimeout = setTimeout(this.eventTimeoutHandler, 25000)
-
-      es.addEventListener(
-        'error',
-        (event) => {
-          if (event.readyState === EventSource.CLOSED) {
-            console.log('Event was closed')
-            console.log(EventSource)
-          }
-        },
-        false
-      )
-
-      // Ping
-      // Diffs
-      // CodebaseUpdated
-      // ConflictDiffs
-      // WorkspaceComments
-      // WorkspaceUpdated
-
-      es.addEventListener('Ping', (event) => {
-        // reset timeout handler
-        if (this.eventPingTimeout) {
-          clearTimeout(this.eventPingTimeout)
-        }
-        // set a new timeout
-        this.eventPingTimeout = setTimeout(this.eventTimeoutHandler, 25000) // The server sends a ping every 10s. Reconnect if one hasn't been received in 25s.
-      })
-
-      es.addEventListener('CodebaseUpdated', this.$emit('codebase-updated', {}))
-      es.addEventListener('Diffs', (event) => this.handleDiffsEvent(JSON.parse(event.data)))
-      es.addEventListener('ConflictDiffs', (event) =>
-        this.handleConflictDiffsEvent(JSON.parse(event.data))
-      )
-
-      this.eventStream = es
-    },
-    unsubscribe() {
-      clearTimeout(this.eventPingTimeout)
-      if (this.eventStream) {
-        this.eventStream.close()
-        this.eventStream = null
-      }
-      // reset data
-      this.diffs = []
-      this.loadedDiffs = false
-      this.conflictDiffs = []
-    },
-    eventTimeoutHandler() {
-      this.unsubscribe()
-      this.subscribe()
     },
 
     async saveName() {
@@ -1260,7 +1212,7 @@ export default defineComponent({
         })
     },
 
-    fetchRebasingStatus(viewID) {
+    fetchRebasingStatus(viewID: string) {
       fetch(http.url('v3/rebase/' + viewID), {
         credentials: 'include',
       })
@@ -1369,23 +1321,6 @@ export default defineComponent({
       } else {
         this.updatedWorkspaceDescriptionDebounce(ev.isInteractiveUpdate)
       }
-    },
-    handleDiffsEvent(ev) {
-      this.loadedDiffs = true
-
-      if (ev.diffs == null) {
-        this.diffs = []
-        return
-      }
-
-      this.diffs = ev.diffs
-    },
-    handleConflictDiffsEvent(ev) {
-      if (ev.diffs == null) {
-        this.conflictDiffs = []
-        return
-      }
-      this.conflictDiffs = ev.diffs.filter((diff) => !diff.is_hidden)
     },
 
     async preCreateChange() {

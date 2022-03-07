@@ -10,9 +10,9 @@
   <div v-for="cf in rebasing.conflicting_files" :key="cf.path">
     <DiffConflict
       :conflict="cf"
-      :live-diffs="conflictDiffs.filter((d) => d.orig_name === cf.path)"
+      :live-diffs="conflictDiffs.filter((d) => d.origName === cf.path)"
       :file-path="cf.path"
-      @resolveConflict="resolveConflict"
+      @resolve-conflict="resolveConflict"
     />
   </div>
 </template>
@@ -21,20 +21,43 @@
 import { defineComponent, PropType } from 'vue'
 import DiffConflict from '../differ/DiffConflict.vue'
 import HorizontalDivider from '../shared/HorizontalDivider.vue'
+import { gql } from '@urql/vue'
+import { ResolveConflictDiffFragment } from './__generated__/ResolveConflict'
+
+export const RESOLVE_CONFLICT_DIFF = gql`
+  fragment ResolveConflictDiff on FileDiff {
+    id
+
+    origName
+    newName
+    preferredName
+
+    isDeleted
+    isNew
+    isMoved
+
+    hunks {
+      id
+      patch
+
+      isOutdated
+      isApplied
+      isDismissed
+    }
+  }
+`
 
 export default defineComponent({
   components: { HorizontalDivider, DiffConflict },
-  emits: ['resolveConflict'],
-  data() {
-    return {}
-  },
+  emits: ['resolve-conflict'],
   props: {
     rebasing: {
       type: Object as PropType<any>,
       required: true,
     },
     conflictDiffs: {
-      required: false,
+      type: Object as PropType<Array<ResolveConflictDiffFragment>>,
+      required: true,
     },
   },
   methods: {
@@ -42,7 +65,7 @@ export default defineComponent({
       let conflict = event.conflictingFile
       let version = event.version
 
-      this.$emit('resolveConflict', {
+      this.$emit('resolve-conflict', {
         conflictingFile: conflict,
         version: version,
       })
