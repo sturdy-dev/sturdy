@@ -28,6 +28,7 @@ import (
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
 	user_db "getsturdy.com/api/pkg/users/db"
+	service_view "getsturdy.com/api/pkg/view/service"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/db"
@@ -78,6 +79,7 @@ type WorkspaceService struct {
 	commentService  *service_comments.Service
 	changeService   *service_change.Service
 	activityService *service_activity.Service
+	viewService     *service_view.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -100,6 +102,7 @@ func New(
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
 	activityService *service_activity.Service,
+	viewService *service_view.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -121,6 +124,7 @@ func New(
 		commentService:  commentsService,
 		changeService:   changeService,
 		activityService: activityService,
+		viewService:     viewService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -859,6 +863,30 @@ func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace
 	s.analyticsService.Capture(ctx, "workspace archived", analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("workspace_id", ws.ID),
 	)
+
+	if ws.ViewID == nil {
+		return nil
+	}
+
+	// if there is a view connected, move it to a new workspace
+
+	view, err := s.viewService.GetByID(ctx, *ws.ViewID)
+	if err != nil {
+		return fmt.Errorf("failed to get view: %w", err)
+	}
+
+	newWorkspace, err := s.Create(ctx, CreateWorkspaceRequest{
+		CodebaseID: ws.CodebaseID,
+		UserID:     ws.UserID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create new workspace: %w", err)
+	}
+
+	if err := s.viewService.OpenWorkspace(ctx, view, newWorkspace); err != nil {
+		return fmt.Errorf("failed to open workspace on view: %w", err)
+	}
+
 	return nil
 }
 
