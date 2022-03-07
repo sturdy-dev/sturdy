@@ -19,7 +19,7 @@
             name: 'codebaseChange',
             params: {
               codebaseSlug: codebaseSlug,
-              selectedChangeID: item.change.id,
+              id: item.change.id,
             },
           }"
           class="font-medium text-gray-900"

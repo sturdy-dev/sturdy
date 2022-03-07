@@ -65,7 +65,7 @@
             name: 'codebaseChange',
             params: {
               codebaseSlug: codebase_slug,
-              selectedChangeID: data.comment.parent.change.id,
+              id: data.comment.parent.change.id,
             },
             hash: `#${data.comment.id}`,
           }"
@@ -83,7 +83,7 @@
             name: 'codebaseChange',
             params: {
               codebaseSlug: codebase_slug,
-              selectedChangeID: data.comment.change.id,
+              id: data.comment.change.id,
             },
             hash: `#${data.comment.id}`,
           }"

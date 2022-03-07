@@ -166,7 +166,7 @@ export default defineComponent({
         : this.item.change
         ? {
             name: 'codebaseChange',
-            params: { codebaseSlug: this.codebaseSlug, selectedChangeId: this.item.change.id },
+            params: { codebaseSlug: this.codebaseSlug, id: this.item.change.id },
             hash: `#${this.item.comment.id}`,
           }
         : {
