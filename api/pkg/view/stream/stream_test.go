@@ -100,11 +100,13 @@ func TestStream(t *testing.T) {
 		activityService,
 
 		nil,
+		nil,
 		executorProvider,
 		nil,
 		nil,
 		nil,
 		nil,
+
 	)
 
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, workspaceService, nil, logger, executorProvider, nil, nil, nil)
