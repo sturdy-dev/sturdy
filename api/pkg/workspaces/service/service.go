@@ -20,6 +20,7 @@ import (
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -84,6 +85,7 @@ type WorkspaceService struct {
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
+	eventsSenderV2   *eventsv2.Publisher
 	snapshotterQueue worker_snapshots.Queue
 	executorProvider executor.Provider
 	snap             snapshotter.Snapshotter
@@ -108,6 +110,7 @@ func New(
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
+	eventsSenderV2 *eventsv2.Publisher,
 	snapshotterQueue worker_snapshots.Queue,
 	snap snapshotter.Snapshotter,
 	buildQueue *workers_ci.BuildQueue,
@@ -130,6 +133,7 @@ func New(
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
 		eventsSender:     eventsSender,
+		eventsSenderV2:   eventsSenderV2,
 		snapshotterQueue: snapshotterQueue,
 		snap:             snap,
 		buildQueue:       buildQueue,
@@ -606,7 +610,12 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 			return nil, fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 
-		if err := s.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {
+		vw, err := s.viewService.GetByID(ctx, *ws.ViewID)
+		if err != nil {
+			return nil, fmt.Errorf("could not get view: %w", err)
+		}
+
+		if err := s.eventsSenderV2.Codebase(ctx, ws.CodebaseID).ViewUpdated(vw); err != nil {
 			return nil, fmt.Errorf("failed to send view updated event: %w", err)
 		}
 	}

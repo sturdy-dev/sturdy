@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
@@ -98,6 +99,7 @@ type snap struct {
 	suggestionsRepo db_suggestions.Repository
 
 	eventsSender     events.EventSender
+	eventsSenderV2   *eventsv2.Publisher
 	executorProvider executor.Provider
 	logger           *zap.Logger
 }
@@ -110,6 +112,7 @@ func NewGitSnapshotter(
 	suggestionsRepo db_suggestions.Repository,
 
 	eventSender events.EventSender,
+	eventsSenderV2 *eventsv2.Publisher,
 	executorProvider executor.Provider,
 	logger *zap.Logger,
 ) Snapshotter {
@@ -121,6 +124,7 @@ func NewGitSnapshotter(
 		suggestionsRepo: suggestionsRepo,
 
 		eventsSender:     eventSender,
+		eventsSenderV2:   eventsSenderV2,
 		executorProvider: executorProvider,
 		logger:           logger.Named("GitSnapshotter"),
 	}
@@ -389,8 +393,9 @@ func (s *snap) sendEvents(workspaceID, viewID string) error {
 		if ownerView.WorkspaceID != workspaceID {
 			continue
 		}
-		// TODO: this function must be called only once, it makes a db call
-		if err := s.eventsSender.Codebase(ownerView.CodebaseID, events.ViewUpdated, ownerView.ID); err != nil {
+
+		ctx := context.Background()
+		if err := s.eventsSenderV2.Codebase(ctx, ownerView.CodebaseID).ViewUpdated(ownerView); err != nil {
 			s.logger.Error("failed to send codebase event", zap.Error(err))
 			// do not fail
 		}

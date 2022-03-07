@@ -9,7 +9,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase/access"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
@@ -43,7 +43,7 @@ func Create(
 	snapshotRepo db_snapshots.Repository,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
-	eventSender events.EventSender,
+	eventSender *eventsv2.Publisher,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req CreateRequest

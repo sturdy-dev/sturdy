@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
@@ -57,6 +58,7 @@ type ViewRootResolver struct {
 	workspaceWriter          db_workspaces.WorkspaceWriter
 	viewEvents               events.EventReader
 	eventSender              events.EventSender
+	eventSenderV2            *eventsv2.Publisher
 	executorProvider         executor.Provider
 	logger                   *zap.Logger
 	viewStatusRootResolver   resolvers.ViewStatusRootResolver
@@ -64,6 +66,7 @@ type ViewRootResolver struct {
 	codebaseResolver         resolvers.CodebaseRootResolver
 	authService              *service_auth.Service
 	analyticsService         *service_analytics.Service
+	eventsSubscriber         *eventsv2.Subscriber
 }
 
 func NewResolver(
@@ -76,6 +79,7 @@ func NewResolver(
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewEvents events.EventReader,
 	eventSender events.EventSender,
+	eventSenderV2 *eventsv2.Publisher,
 	executorProvider executor.Provider,
 	logger *zap.Logger,
 	viewStatusRootResolver resolvers.ViewStatusRootResolver,
@@ -83,6 +87,7 @@ func NewResolver(
 	analyticsService *service_analytics.Service,
 	codebaseResolver resolvers.CodebaseRootResolver,
 	authService *service_auth.Service,
+	eventsSubscriber *eventsv2.Subscriber,
 ) resolvers.ViewRootResolver {
 	return &ViewRootResolver{
 		viewRepo:                 viewRepo,
@@ -94,6 +99,7 @@ func NewResolver(
 		workspaceWriter:          workspaceWriter,
 		viewEvents:               viewEvents,
 		eventSender:              eventSender,
+		eventSenderV2:            eventSenderV2,
 		executorProvider:         executorProvider,
 		logger:                   logger,
 		viewStatusRootResolver:   viewStatusRootResolver,
@@ -101,6 +107,7 @@ func NewResolver(
 		analyticsService:         analyticsService,
 		codebaseResolver:         codebaseResolver,
 		authService:              authService,
+		eventsSubscriber:         eventsSubscriber,
 	}
 }
 
@@ -144,6 +151,14 @@ func (r *ViewRootResolver) resolveView(ctx context.Context, id graphql.ID) (reso
 	return &Resolver{v, r}, nil
 }
 
+func (r *ViewRootResolver) resolveViewObj(ctx context.Context, v *view.View) (resolvers.ViewResolver, error) {
+	if err := r.authService.CanRead(ctx, v); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &Resolver{v, r}, nil
+}
+
 func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.ViewResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
@@ -152,37 +167,24 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 
 	res := make(chan resolvers.ViewResolver, 100)
 
-	listenTo := map[events.EventType]bool{
-		events.ViewUpdated:       true,
-		events.ViewStatusUpdated: true,
+	callback := func(_ context.Context, eventView *view.View) error {
+		resolver, err := r.resolveViewObj(ctx, eventView)
+		if err != nil {
+			return err
+		}
+		select {
+		case res <- resolver:
+		default:
+			r.logger.Error("dropped updatedView event")
+		}
+		return nil
 	}
 
-	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
-		if !listenTo[et] {
-			return nil
-		}
-
-		view, err := r.viewRepo.Get(reference)
-		if err != nil {
-			return gqlerrors.Error(err)
-		}
-
-		resolver := &Resolver{v: view, root: r}
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		case res <- resolver:
-			return nil
-		default:
-			// Dropped event
-			r.logger.Error("dropped updatedViews event")
-			return nil
-		}
-	})
+	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, callback)
+	r.eventsSubscriber.User(ctx, userID).OnViewStatusUpdated(ctx, callback)
 
 	go func() {
 		<-ctx.Done()
-		cancelFunc()
 		close(res)
 	}()
 
@@ -208,33 +210,28 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 
 	concurrentUpdatedViewConnections.Inc()
 
-	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
-		if et != events.ViewUpdated && et != events.ViewStatusUpdated {
+	callback := func(_ context.Context, eventView *view.View) error {
+		if v.ID != eventView.ID {
 			return nil
 		}
-		if reference != v.ID {
-			return nil
-		}
-		resolver, err := r.resolveView(ctx, args.ID)
+		resolver, err := r.resolveViewObj(ctx, eventView)
 		if err != nil {
 			return err
 		}
-
 		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
 		case res <- resolver:
-			return nil
 		default:
-			// Dropped event
 			r.logger.Error("dropped updatedView event")
-			return nil
 		}
-	})
+
+		return nil
+	}
+
+	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, callback)
+	r.eventsSubscriber.User(ctx, userID).OnViewStatusUpdated(ctx, callback)
 
 	go func() {
 		<-ctx.Done()
-		cancelFunc()
 		close(res)
 		concurrentUpdatedViewConnections.Dec()
 	}()
@@ -325,7 +322,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	}
 
 	// Use workspace on view
-	if err := open.OpenWorkspaceOnView(ctx, r.logger, &e, ws, r.viewRepo, r.workspaceReader, r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSender); errors.Is(err, open.ErrRebasing) {
+	if err := open.OpenWorkspaceOnView(ctx, r.logger, &e, ws, r.viewRepo, r.workspaceReader, r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSenderV2); errors.Is(err, open.ErrRebasing) {
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
 	} else if err != nil {
 		return nil, gqlerrors.Error(err)

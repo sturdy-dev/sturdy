@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
 
@@ -21,8 +21,10 @@ type ValidateViewRequest struct {
 	IsNewConnection bool     `json:"is_new_connection"`
 }
 
-func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsService *service_analytics.Service, eventsSender events.EventSender) func(c *gin.Context) {
+func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsService *service_analytics.Service, eventsSender *eventsv2.Publisher) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
+
 		var req ValidateViewRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			logger.Error("failed to parse request", zap.Error(err))
@@ -60,7 +62,7 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsServ
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		if err := eventsSender.Codebase(viewObj.CodebaseID, events.ViewUpdated, viewObj.ID); err != nil {
+		if err := eventsSender.Codebase(ctx, viewObj.CodebaseID).ViewUpdated(viewObj); err != nil {
 			logger.Error("could not send event", zap.Error(err))
 			// do not fail
 		}

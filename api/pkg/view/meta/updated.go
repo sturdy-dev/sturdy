@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/view"
@@ -18,7 +18,7 @@ type ViewUpdatedFunc func(ctx context.Context, view *view.View, action snapshots
 func NewViewUpdatedFunc(
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
-	eventsSender events.EventSender,
+	eventsSender *eventsv2.Publisher,
 	snapshotterQueue worker_snapshotter.Queue,
 ) ViewUpdatedFunc {
 	return func(ctx context.Context, view *view.View, action snapshots.Action) error {
@@ -32,7 +32,7 @@ func NewViewUpdatedFunc(
 			return fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 
-		if err := eventsSender.Codebase(view.CodebaseID, events.ViewUpdated, view.ID); err != nil {
+		if err := eventsSender.Codebase(ctx, view.CodebaseID).ViewUpdated(view); err != nil {
 			return fmt.Errorf("failed to send view updated event: %w", err)
 		}
 

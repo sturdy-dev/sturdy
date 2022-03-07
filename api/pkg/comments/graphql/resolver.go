@@ -21,6 +21,7 @@ import (
 	"getsturdy.com/api/pkg/comments/live"
 	"getsturdy.com/api/pkg/comments/vcs"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/notification"
@@ -28,6 +29,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
+	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -62,6 +64,7 @@ type CommentRootResolver struct {
 	changeService            *service_change.Service
 
 	eventsReader       events.EventReader
+	eventsSubscriber   *eventsv2.Subscriber
 	eventsSender       events.EventSender
 	notificationSender notification_sender.NotificationSender
 	activitySender     sender_workspace_activity.ActivitySender
@@ -86,6 +89,7 @@ func NewResolver(
 	changeService *service_change.Service,
 
 	eventsSender events.EventSender,
+	eventsSubscriber *eventsv2.Subscriber,
 	eventsReader events.EventReader,
 	notificationSender notification_sender.NotificationSender,
 	activitySender sender_workspace_activity.ActivitySender,
@@ -112,6 +116,7 @@ func NewResolver(
 		changeService:            changeService,
 
 		eventsSender:       eventsSender,
+		eventsSubscriber:   eventsSubscriber,
 		eventsReader:       eventsReader,
 		notificationSender: notificationSender,
 		activitySender:     activitySender,
@@ -188,8 +193,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 		// Get all comments if there is a new comment, or if the diffs have changed
 		// This is a rather expensive operation, so ideally it should only be done for the comments that are updated, and not all of them
 		workspaceCommentUpdated := et == events.WorkspaceUpdatedComments && reference != ws.ID
-		viewUpdated := et == events.ViewUpdated && viewID != nil && reference != *viewID
-		if !workspaceCommentUpdated && !viewUpdated {
+		if !workspaceCommentUpdated {
 			return nil
 		}
 
@@ -211,7 +215,6 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 				if didErrorOut {
 					didErrorOut = false
 				}
-				return nil
 			default:
 				r.logger.Error("dropped subscription event",
 					zap.Stringer("user_id", userID),
@@ -220,11 +223,46 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 					zap.Int("channel_size", len(res)),
 				)
 				didErrorOut = true
-				return nil
 			}
 		}
 		return nil
 	})
+
+	onViewUpdated := func(ctx context.Context, view *view.View) error {
+		if viewID == nil || *viewID != view.ID {
+			return nil
+		}
+
+		reloadedWs, err := r.workspaceReader.Get(string(args.WorkspaceID))
+		if err != nil {
+			return gqlerrors.Error(err)
+		}
+
+		allResolvers, err := r.InternalWorkspaceComments(reloadedWs)
+		if err != nil {
+			return err
+		}
+
+		for _, resolver := range allResolvers {
+			select {
+			case res <- resolver:
+				if didErrorOut {
+					didErrorOut = false
+				}
+			default:
+				r.logger.Error("dropped subscription event",
+					zap.Stringer("user_id", userID),
+					zap.String("codebase_id", ws.CodebaseID),
+					zap.Int("channel_size", len(res)),
+				)
+				didErrorOut = true
+			}
+		}
+
+		return nil
+	}
+
+	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, onViewUpdated)
 
 	go func() {
 		<-ctx.Done()

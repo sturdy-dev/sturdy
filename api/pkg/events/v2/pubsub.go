@@ -5,12 +5,19 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"getsturdy.com/api/pkg/users"
 
 	"go.uber.org/zap"
 )
 
-type subscriber func(context.Context, *event) error
+type subscriber struct {
+	ctx      context.Context
+	callback callback
+}
+
+type callback func(context.Context, *event) error
 
 type Topic string
 
@@ -18,22 +25,20 @@ func User(userID users.ID) Topic {
 	return Topic(fmt.Sprintf("user:%s", userID))
 }
 
-func Workspace(id string) Topic {
-	return Topic(fmt.Sprintf("workspace:%s", id))
-}
+type subscriptionID string
 
 type PubSub struct {
 	logger *zap.Logger
 
 	subscribersGuard *sync.RWMutex
-	subscribers      map[Topic]map[Type][]subscriber
+	subscribers      map[Topic]map[Type]map[subscriptionID]subscriber
 }
 
 func New(logger *zap.Logger) *PubSub {
 	return &PubSub{
 		logger:           logger.Named("events_pubsub"),
 		subscribersGuard: &sync.RWMutex{},
-		subscribers:      map[Topic]map[Type][]subscriber{},
+		subscribers:      map[Topic]map[Type]map[subscriptionID]subscriber{},
 	}
 }
 
@@ -42,21 +47,37 @@ func (r *PubSub) pub(topic Topic, evt *event) {
 	handlers := r.subscribers[topic][evt.Type]
 	r.subscribersGuard.RUnlock()
 
-	ctx := context.Background()
-	for _, fn := range handlers {
-		fn := fn
+	for _, handler := range handlers {
+		handler := handler
 		go func() {
-			if err := fn(ctx, evt); err != nil {
+			if err := handler.callback(handler.ctx, evt); err != nil {
 				r.logger.Error("failed to publish event", zap.Error(err))
 			}
 		}()
 	}
 }
 
-func (r *PubSub) sub(fn subscriber, topic Topic, tt ...Type) {
+func (r *PubSub) sub(ctx context.Context, fn callback, topic Topic, tt ...Type) {
+	id := subscriptionID(uuid.NewString())
+
 	r.subscribersGuard.Lock()
 	for _, t := range tt {
-		r.subscribers[topic][t] = append(r.subscribers[topic][t], fn)
+		if r.subscribers[topic] == nil {
+			r.subscribers[topic] = make(map[Type]map[subscriptionID]subscriber)
+		}
+		if r.subscribers[topic][t] == nil {
+			r.subscribers[topic][t] = make(map[subscriptionID]subscriber)
+		}
+		r.subscribers[topic][t][id] = subscriber{ctx: ctx, callback: fn}
 	}
 	r.subscribersGuard.Unlock()
+
+	go func() {
+		<-ctx.Done()
+		r.subscribersGuard.Lock()
+		for _, t := range tt {
+			delete(r.subscribers[topic][t], id)
+		}
+		r.subscribersGuard.Unlock()
+	}()
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
@@ -25,7 +25,7 @@ type Service struct {
 	snapshotRepo     db_snapshots.Repository
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	executorProvider executor.Provider
-	eventSender      events.EventSender
+	eventSender      *eventsv2.Publisher
 }
 
 func New(
@@ -36,7 +36,7 @@ func New(
 	snapshotRepo db_snapshots.Repository,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
-	eventSender events.EventSender,
+	eventSender *eventsv2.Publisher,
 ) *Service {
 	return &Service{
 		logger:           logger.Named("views_service"),

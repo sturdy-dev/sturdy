@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/mutagen"
 	"getsturdy.com/api/pkg/mutagen/db"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -44,8 +44,9 @@ type receiverStatus struct {
 
 // This endpoint is unauthenticated
 // TODO: Find a way to propagate the auth context to the mutagen client
-func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, viewRepo db_view.Repository, eventsSender events.EventSender) func(*gin.Context) {
+func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, viewRepo db_view.Repository, eventsSender *eventsv2.Publisher) func(*gin.Context) {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 
 		var input stateStatus
 		if err := c.BindJSON(&input); err != nil {
@@ -98,7 +99,7 @@ func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, vi
 			return
 		}
 
-		if err := eventsSender.Codebase(vw.CodebaseID, events.ViewStatusUpdated, vw.ID); err != nil {
+		if err := eventsSender.Codebase(ctx, vw.CodebaseID).ViewStatusUpdated(vw); err != nil {
 			logger.Error("failed to send event", zap.Error(err))
 			// do not fail
 		}
