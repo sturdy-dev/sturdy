@@ -206,7 +206,7 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 		} else if err == nil {
 			// sync workspace with head if possible
 			if !hasConflicts && ws.ViewID != nil {
-				if _, err := svc.syncService.OnTrunk(ctx, *ws.ViewID); err != nil {
+				if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
 					return fmt.Errorf("failed to sync workspace: %w", err)
 				}
 				if err := svc.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {

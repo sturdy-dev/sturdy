@@ -55,6 +55,7 @@ type Service interface {
 	Create(context.Context, CreateWorkspaceRequest) (*workspaces.Workspace, error)
 	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error)
 	GetByID(context.Context, string) (*workspaces.Workspace, error)
+	GetByViewID(context.Context, string) (*workspaces.Workspace, error)
 	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*changes.Change, error)
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
@@ -160,6 +161,10 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 		opt(options)
 	}
 	return options
+}
+
+func (s *WorkspaceService) GetByViewID(_ context.Context, viewID string) (*workspaces.Workspace, error) {
+	return s.workspaceReader.GetByViewID(viewID, true)
 }
 
 func (s *WorkspaceService) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
