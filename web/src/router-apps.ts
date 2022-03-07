@@ -107,7 +107,7 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'codebaseChanges',
   },
   {
-    path: '/:codebaseSlug/changes/:selectedChangeID',
+    path: '/:codebaseSlug/changes/:id',
     component: () => import('./pages/changes/Change.vue'),
     name: 'codebaseChange',
   },

@@ -46,7 +46,7 @@
     <DownloadChangeButton v-if="isDownloadAvailable" :change-id="change.id" />
 
     <div class="flex gap-2 cols-span-2 text-sm">
-      <router-link v-if="!!change.parent" :to="{ params: { selectedChangeID: change.parent.id } }">
+      <router-link v-if="!!change.parent" :to="{ params: { id: change.parent.id } }">
         <Button class="flex gap-2" size="small">
           <ArrowLeftIcon class="h-4 w-4" />
           Previous
@@ -57,7 +57,7 @@
         Previous
       </Button>
 
-      <router-link v-if="!!change.child" :to="{ params: { selectedChangeID: change.child.id } }">
+      <router-link v-if="!!change.child" :to="{ params: { id: change.child.id } }">
         <Button class="flex gap-2" size="small">
           Next
           <ArrowRightIcon class="h-4 w-4" />

@@ -6,7 +6,7 @@
         name: 'codebaseChange',
         params: {
           codebaseSlug: codebaseSlug,
-          selectedChangeID: data.workspace.headChange.id,
+          id: data.workspace.headChange.id,
         },
       }"
       class="flex items-center space-x-2"

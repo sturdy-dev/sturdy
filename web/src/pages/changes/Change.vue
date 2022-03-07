@@ -144,9 +144,9 @@ export default {
   setup() {
     const route = useRoute()
     const codebaseSlug = route.params.codebaseSlug as string
-    const selectedChangeID = ref(route.params.selectedChangeID as string)
+    const changeId = ref(route.params.id as string)
     watch(route, (newRoute) => {
-      selectedChangeID.value = newRoute.params.selectedChangeID as string
+      changeId.value = newRoute.params.id as string
     })
 
     const { data, fetching, error } = useQuery<
@@ -155,12 +155,11 @@ export default {
     >({
       query: PAGE_QUERY,
       variables: {
-        changeID: selectedChangeID,
+        changeID: changeId,
       },
     })
 
     return {
-      selectedChangeID,
       codebaseSlug,
 
       data,
@@ -180,7 +179,7 @@ export default {
     onSelectCodebaseChange(event: { commit_id: string }) {
       this.$router.push({
         params: {
-          selectedChangeID: event.commit_id,
+          id: event.commit_id,
         },
       })
     },

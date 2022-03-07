@@ -3,7 +3,7 @@
     class="border rounded-md shadow-sm px-4 py-2 hover:bg-gray-50"
     :to="{
       name: 'codebaseChange',
-      params: { codebaseSlug, selectedChangeID: change.id },
+      params: { codebaseSlug, id: change.id },
     }"
   >
     <div class="flex flex-col gap-2 h-full">
