@@ -71,7 +71,7 @@ func module(c *di.Container) {
 
 func TestCreate(t *testing.T) {
 	if os.Getenv("E2E_TEST") == "" {
-		// t.SkipNow()
+		t.SkipNow()
 	}
 
 	type deps struct {
@@ -543,7 +543,7 @@ func gid(in graphql.ID) *graphql.ID {
 
 func TestLargeFiles(t *testing.T) {
 	if os.Getenv("E2E_TEST") == "" {
-		// t.SkipNow()
+		t.SkipNow()
 	}
 
 	type deps struct {
