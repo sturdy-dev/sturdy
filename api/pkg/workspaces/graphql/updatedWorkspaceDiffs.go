@@ -32,8 +32,6 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 	c := make(chan []resolvers.FileDiffResolver, 100)
 	didErrorOut := false
 
-	// TODO: Support reloading the workspace.ViewID
-
 	cancelFunc := r.viewEvents.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
 		workspaceUpdated := eventType == events.WorkspaceUpdated && reference == ws.ID
 		viewUpdated := eventType == events.ViewUpdated && ws.ViewID != nil && reference == *ws.ViewID
