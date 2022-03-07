@@ -6,6 +6,7 @@
       class="cursor-pointer"
       :conflict-selection="selected"
       :diffs="trunkDiff"
+      :show-add-button="false"
       @click="toggleExpand"
     />
     <div v-if="expanded">
@@ -42,7 +43,6 @@
         <div class="flex flex-col flex-grow w-1/2 overflow-x-auto">
           <DiffTable
             :class="selected === 'workspace' ? 'opacity-30' : ''"
-            class=""
             :unparsed-diff="trunkDiff.hunks[0]"
           />
         </div>
@@ -50,7 +50,6 @@
         <div class="ml-4 flex flex-col flex-grow w-1/2 overflow-x-auto">
           <DiffTable
             :class="selected === 'trunk' ? 'opacity-30' : ''"
-            class=""
             :unparsed-diff="workspaceDiff.hunks[0]"
           />
         </div>
@@ -81,26 +80,59 @@
 <script lang="ts">
 import DiffHeader from './DiffHeader.vue'
 import Button from '../shared/Button.vue'
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, defineComponent, PropType } from 'vue'
+import { gql } from '@urql/vue'
+import { DiffConflictDiffFragment } from './__generated__/DiffConflict'
 
 interface Data {
   selected: string | null
   expanded: boolean
 }
 
-export default {
-  name: 'DiffConflict',
+export const DIFF_CONFLICT_DIFF = gql`
+  fragment DiffConflictDiff on FileDiff {
+    id
+
+    origName
+    newName
+    preferredName
+
+    isDeleted
+    isNew
+    isMoved
+
+    hunks {
+      id
+      patch
+
+      isOutdated
+      isApplied
+      isDismissed
+    }
+  }
+`
+
+export default defineComponent({
   components: {
     Button,
     DiffHeader,
     DiffTable: defineAsyncComponent(() => import('../differ/DiffTable.vue')),
   },
   props: {
-    conflict: Object,
-    liveDiffs: Object,
-    filePath: String,
+    conflict: {
+      type: Object,
+      required: true,
+    },
+    liveDiffs: {
+      type: Object as PropType<Array<DiffConflictDiffFragment>>,
+      required: true,
+    },
+    filePath: {
+      type: String,
+      required: true,
+    },
   },
-  emits: ['resolveConflict'],
+  emits: ['resolve-conflict'],
   data(): Data {
     return {
       selected: 'todo',
@@ -127,13 +159,11 @@ export default {
       this.expanded = !this.expanded
     },
     resolveConflict(conflictingFile: any, version: string) {
-      this.$emit('resolveConflict', {
+      this.$emit('resolve-conflict', {
         conflictingFile: conflictingFile,
         version: version,
       })
     },
   },
-}
+})
 </script>
-
-<style scoped></style>

@@ -12,6 +12,8 @@ generates:
   src/__generated__/types.ts:
     plugins:
       - "typescript"
+      - typescript-vue-urql
+      - typescript-urql-graphcache
 
   src/:
     preset: near-operation-file
@@ -21,6 +23,7 @@ generates:
       extension: ".ts"
     plugins:
       - typescript-operations
+      - typescript-vue-urql
 
   schema.json:
     plugins:

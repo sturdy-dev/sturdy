@@ -13,6 +13,7 @@ import { updatedWorkspaceWatchersResolver } from './useUpdatedWorkspaceWathcers'
 import { updatedReviewsResolver } from './useUpdatedReviews'
 import { updatedViewsUpdateResolver } from './useUpdatedViews'
 import { updatedOrganizationUpdateResolver } from './useUpdatedOrganization'
+import { updateWorkspaceDiffsResolver } from './useUpdatedWorkspaceDiffs'
 
 export const subscriptionUpdateResolvers: Record<string, UpdateResolver> = {
   updatedComment: updatedCommentUpdateResolver,
@@ -29,4 +30,5 @@ export const subscriptionUpdateResolvers: Record<string, UpdateResolver> = {
   updatedWorkspaceWatchers: updatedWorkspaceWatchersResolver,
   updatedReviews: updatedReviewsResolver,
   updatedOrganization: updatedOrganizationUpdateResolver,
+  updatedWorkspaceDiffs: updateWorkspaceDiffsResolver,
 }

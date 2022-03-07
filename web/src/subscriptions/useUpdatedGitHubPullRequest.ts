@@ -22,7 +22,7 @@ const UPDATED_GIT_HUB_PULL_REQUEST = gql`
   }
 `
 
-export function useUpdatedGitHubPullRequest(workspaceID: MaybeRef<string>) {
+export function useUpdatedGitHubPullRequest(workspaceID: DeepMaybeRef<string>) {
   useSubscription<
     UpdatedGitHubPullRequestSubscription,
     UpdatedGitHubPullRequestSubscription,

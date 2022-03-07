@@ -28,7 +28,7 @@
       message="This workspace has more changes, but you don't have access to see them."
     />
 
-    <div v-if="hasLiveChanges && mutable" class="relative ml-3">
+    <div v-if="hasLiveChanges && mutable" class="relative ml-3 flex space-x-4">
       <label class="inline-flex items-center gap-1.5 text-sm font-medium">
         <input
           type="checkbox"
@@ -39,6 +39,8 @@
 
         Select All
       </label>
+
+      <Spinner v-if="isStale" />
     </div>
 
     <template v-if="!isSuggesting">
@@ -119,7 +121,7 @@
     <div class="z-10 relative">
       <TooManyFilesChanged v-if="hideDiffs" :count="diffs.length" />
 
-      <div v-else-if="!loadedDiffs" class="space-y-8 mt-4">
+      <div v-else-if="isFetching" class="space-y-8 mt-4">
         <div
           v-for="k in [1, 2, 3]"
           :key="k"
@@ -152,6 +154,10 @@
           class="mt-8"
         >
           <NoChangesOthersWorkspace :workspace="workspace" />
+        </div>
+
+        <div class="flex items-center flex-col mt-8">
+          <Spinner v-if="isStale" />
         </div>
       </template>
 
@@ -202,7 +208,7 @@ import Avatar from '../shared/Avatar.vue'
 import Button from '../shared/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { computed, ref, watch, defineComponent, inject, Ref } from 'vue'
+import { computed, ref, watch, defineComponent, inject, Ref, PropType } from 'vue'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -216,6 +222,8 @@ import { useUpdatedSuggestion } from '../../subscriptions/useUpdatedSuggestion'
 import { useDismissSuggestion } from '../../mutations/useDismissSuggestion'
 import { useRemovePatches } from '../../mutations/useRemovePatches'
 import { Feature } from '../../__generated__/types'
+import { LiveDetailsDiffsFragment } from './__generated__/LiveDetails'
+import Spinner from '../shared/Spinner.vue'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {
@@ -227,8 +235,34 @@ export const LIVE_DETAILS_WORKSPACE = gql`
   ${NO_CHANGES_OTHERS_WORKSPACE}
 `
 
+export const LIVE_DETAILS_DIFFS = gql`
+  fragment LiveDetailsDiffs on Workspace {
+    diffs {
+      id
+
+      origName
+      newName
+      preferredName
+
+      isDeleted
+      isNew
+      isMoved
+
+      hunks {
+        id
+        patch
+
+        isOutdated
+        isApplied
+        isDismissed
+      }
+    }
+  }
+`
+
 export default defineComponent({
   components: {
+    Spinner,
     XIcon,
     NoChangesOthersWorkspace,
     NoChangesOwnWorkspace,
@@ -269,15 +303,23 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+
     diffs: {
-      type: Array,
+      type: Object as PropType<LiveDetailsDiffsFragment>,
       required: true,
     },
+
     comments: {
       type: Array,
       required: true,
     },
-    loadedDiffs: {
+
+    isStale: {
+      type: Boolean,
+      required: true,
+    },
+
+    isFetching: {
       type: Boolean,
       required: true,
     },
@@ -467,8 +509,11 @@ export default defineComponent({
     }
   },
   computed: {
+    loadedDiffs() {
+      return !!this.diffs
+    },
     hideDiffs() {
-      return this.diffs.length > 250
+      return this.diffs && this.diffs.length > 250
     },
     filesWithDiffs() {
       const set = new Set()
@@ -488,9 +533,16 @@ export default defineComponent({
       return this.isAuthenticated && isMember
     },
     visible_diffs() {
+      if (!this.diffs) {
+        return []
+      }
+      console.log(this.diffs)
       return this.diffs.filter((d) => !d.is_hidden)
     },
     hasHiddenChanges() {
+      if (!this.diffs) {
+        return false
+      }
       return this.diffs.length > this.visible_diffs.length
     },
     hasLiveChanges() {
@@ -523,15 +575,6 @@ export default defineComponent({
         '/pull/' +
         this.data?.workspace?.gitHubPullRequest?.pullRequestNumber
       )
-    },
-    allHunkIDs() {
-      let idsByDiff = this.diffs.map((diff) => {
-        return diff.hunks.map((hunk) => {
-          return hunk.id
-        })
-      })
-      // merge
-      return [].concat.apply([], idsByDiff)
     },
 
     showPullRequestMergedBanner() {
@@ -656,7 +699,7 @@ export default defineComponent({
   methods: {
     copySelected() {
       const selectedHunkIDs = Array.from(this.selectedHunkIDs)
-      if (selectedHunkIDs === 0) return
+      if (selectedHunkIDs.length === 0) return
 
       this.extractWorkspace(this.workspace.id, selectedHunkIDs).then((result) => {
         this.emitter.emit('notification', {
