@@ -13,7 +13,6 @@ generates:
     plugins:
       - "typescript"
       - typescript-vue-urql
-      - typescript-urql-graphcache
 
   src/:
     preset: near-operation-file
