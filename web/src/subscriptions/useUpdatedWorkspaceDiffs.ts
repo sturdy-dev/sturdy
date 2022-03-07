@@ -1,6 +1,6 @@
 import { gql, useSubscription } from '@urql/vue'
 import { Entity, UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
+import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
 import {
   UpdatedWorkspaceDiffsSubscription,
   UpdatedWorkspaceDiffsSubscriptionVariables,
@@ -21,7 +21,7 @@ const UPDATED_WORKSPACE_DIFFS = gql`
 `
 
 export function useUpdatedWorkspaceDiffs(
-  workspaceID: string,
+  workspaceID: MaybeRef<string>,
   pause: Ref<boolean> | boolean | undefined
 ) {
   useSubscription<
