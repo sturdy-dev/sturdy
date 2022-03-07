@@ -1,5 +1,5 @@
 <template>
-  <LinkButton v-if="!gitHubAccount" :href="github_oauth_url" :color="color">
+  <LinkButton v-if="!gitHubAccount || !gitHubAccount.isValid" :href="github_oauth_url" :color="color">
     {{ notConnectedText }}
   </LinkButton>
   <div v-else class="space-x-2">
@@ -28,6 +28,7 @@ export const GITHUB_ACCOUNT_FRAGMENT = gql`
   fragment GitHubAccount on GitHubAccount {
     id
     login
+    isValid
   }
 `
 

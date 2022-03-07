@@ -29,7 +29,7 @@ type userRootResolver struct {
 	viewRootResolver          resolvers.ViewRootResolver
 	notificationRootResolver  resolvers.NotificationRootResolver
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver
-	analyticsServcie          *service_analytics.Service
+	analyticsService          *service_analytics.Service
 }
 
 func NewResolver(
@@ -43,7 +43,7 @@ func NewResolver(
 	githubAccountRootResolver resolvers.GitHubAccountRootResolver,
 
 	logger *zap.Logger,
-	analyticsServcie *service_analytics.Service,
+	analyticsService *service_analytics.Service,
 ) *UserDataloader {
 	return NewDataloader(&userRootResolver{
 		userRepo:                 userRepo,
@@ -54,11 +54,11 @@ func NewResolver(
 		viewRootResolver:          viewRootResolver,
 		notificationRootResolver:  notificationRootResolver,
 		githubAccountRootResolver: githubAccountRootResolver,
-		analyticsServcie:          analyticsServcie,
+		analyticsService:          analyticsService,
 	}, logger)
 }
 
-func (r *userRootResolver) InternalUser(ctx context.Context, id users.ID) (resolvers.UserResolver, error) {
+func (r *userRootResolver) InternalUser(_ context.Context, id users.ID) (resolvers.UserResolver, error) {
 	user, err := r.userRepo.Get(id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -90,7 +90,7 @@ func (r *userRootResolver) UpdateUser(ctx context.Context, args resolvers.Update
 		return nil, gqlerrors.Error(err)
 	}
 
-	r.analyticsServcie.IdentifyUser(ctx, user)
+	r.analyticsService.IdentifyUser(ctx, user)
 
 	// User password is updated by a separate method
 	if args.Input.Password != nil && len(*args.Input.Password) >= 8 {
@@ -137,7 +137,7 @@ func (r *userRootResolver) UpdateUser(ctx context.Context, args resolvers.Update
 	return &userResolver{root: r, u: user}, nil
 }
 
-func (r *userRootResolver) VerifyEmail(ctx context.Context, args resolvers.VerifyEmailArgs) (resolvers.UserResolver, error) {
+func (r *userRootResolver) VerifyEmail(_ context.Context, _ resolvers.VerifyEmailArgs) (resolvers.UserResolver, error) {
 	return nil, gqlerrors.Error(gqlerrors.ErrNotImplemented)
 }
 
@@ -192,14 +192,14 @@ func (r *userResolver) GitHubAccount(ctx context.Context) (resolvers.GitHubAccou
 }
 
 func (r *userResolver) Views() ([]resolvers.ViewResolver, error) {
-	resolvers, err := r.root.viewRootResolver.InternalViewsByUser(r.u.ID)
+	viewsByUser, err := r.root.viewRootResolver.InternalViewsByUser(r.u.ID)
 	if errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	return resolvers, err
+	return viewsByUser, err
 }
 
 func (r *userResolver) LastUsedView(ctx context.Context, args resolvers.LastUsedViewArgs) (resolvers.ViewResolver, error) {

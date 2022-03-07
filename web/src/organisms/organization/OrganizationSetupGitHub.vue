@@ -152,6 +152,7 @@ export const GITHUB_ACCOUNT_FRAGMENT = gql`
   fragment GitHubAccount on GitHubAccount {
     id
     login
+    isValid
   }
 `
 

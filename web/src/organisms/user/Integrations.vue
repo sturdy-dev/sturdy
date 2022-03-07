@@ -8,7 +8,7 @@
       <li class="py-4 flex items-center justify-between">
         <div class="flex flex-col">
           <p class="text-sm font-medium text-gray-900">GitHub</p>
-          <p v-if="user.gitHubAccount" class="text-sm text-gray-500">
+          <p v-if="user.gitHubAccount && user.gitHubAccount.isValid" class="text-sm text-gray-500">
             You're connected to GitHub as
             <a :href="'https://github.com/' + user.gitHubAccount.login">
               {{ user.gitHubAccount.login }}
@@ -55,6 +55,7 @@ export const INTEGRATIONS_USER_FRAGMENT = gql`
     gitHubAccount {
       id
       login
+      isValid
       ...GitHubAccount
     }
   }

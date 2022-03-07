@@ -87,6 +87,7 @@ type CodebaseGitHubIntegration {
 type GitHubAccount {
     id: ID!
     login: String!
+    isValid: Boolean!
 }
 
 enum IntegrationProvider {
