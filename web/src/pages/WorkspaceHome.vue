@@ -654,7 +654,7 @@ export default defineComponent({
     >({
       query: gql`
         query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
-          workspace(id: $workspaceID) {
+          workspace(id: $workspaceID, allowArchived: true) {
             id
             name
             createdAt
@@ -670,6 +670,9 @@ export default defineComponent({
             }
             watchers {
               ...WorkspaceWatcher
+            }
+            change {
+              id
             }
             suggestion {
               id
@@ -1067,6 +1070,19 @@ export default defineComponent({
       if (this.$route.params.id) {
         this.reset()
       }
+    },
+    'data.workspace.change.id': function (changeId) {
+      if (!changeId) return
+      this.$router.push({
+        name: 'codebaseChange',
+        params: {
+          id: changeId,
+          codebaseSlug: this.$route.params.codebaseSlug,
+        },
+        query: {
+          new: true,
+        },
+      })
     },
     'data.workspace.codebase.id': function (n) {
       if (n) this.emitter.emit('codebase', n)

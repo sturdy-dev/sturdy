@@ -168,6 +168,16 @@ export default {
     }
   },
   watch: {
+    'data.change.title': function (title) {
+      const isNew = this.$route.query.new === 'true'
+      if (!isNew) return
+      this.emitter.emit('notification', {
+        type: 'success',
+        title: 'Change landed',
+        message: `${title} is now available on the codebase`,
+      })
+      this.$router.push({ query: {} })
+    },
     'data.codebase.id': function (id) {
       if (id) this.emitter.emit('codebase', id)
     },

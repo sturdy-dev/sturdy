@@ -31,6 +31,7 @@ type Query {
   workspace(
     # The id of the Workspace to find
     id: ID!
+    allowArchived: Boolean
   ): Workspace!
 
   # View

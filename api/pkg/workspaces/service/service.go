@@ -672,6 +672,10 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 		s.logger.Error("failed to enqueue change", zap.Error(err))
 	}
 
+	if err := s.Archive(ctx, ws); err != nil {
+		return nil, fmt.Errorf("failed to archive workspace: %w", err)
+	}
+
 	return change, nil
 }
 

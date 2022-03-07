@@ -124,6 +124,9 @@ export default defineComponent({
           workspaces(codebaseID: $codebaseID, includeArchived: true) {
             id
             name
+            change {
+              id
+            }
             author {
               id
               name
@@ -170,12 +173,12 @@ export default defineComponent({
   },
   computed: {
     sortedWorkspaces() {
-      if (this.data?.workspaces) {
-        let ws = this.data.workspaces.filter((w) => w.archivedAt || w.unarchivedAt)
-        ws.sort((a, b) => this.sortVal(b) - this.sortVal(a))
-        return ws
-      }
-      return []
+      return this.data?.workspaces
+        ? this.data.workspaces
+            .filter(({ change }) => !change)
+            .filter(({ archivedAt, unarchivedAt }) => archivedAt || unarchivedAt)
+            .sort((a, b) => this.sortVal(b) - this.sortVal(a))
+        : []
     },
   },
   methods: {
