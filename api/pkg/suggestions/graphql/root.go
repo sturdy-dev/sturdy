@@ -163,6 +163,12 @@ func (r *RootResolver) UpdatedSuggestion(ctx context.Context, args resolvers.Upd
 	}
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if !listeningTo[eventType] {
 			return nil
 		}

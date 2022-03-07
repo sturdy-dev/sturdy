@@ -73,6 +73,12 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 	}
 
 	cancelFunc := r.viewEvents.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if !listenTo[eventType] {
 			return nil
 		}

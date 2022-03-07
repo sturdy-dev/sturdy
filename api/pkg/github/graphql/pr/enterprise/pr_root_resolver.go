@@ -194,6 +194,12 @@ func (r prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resol
 	concurrentUpdatedPullRequestConnections.Inc()
 
 	cancelFunc := r.events.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if et != events.GitHubPRUpdated {
 			return nil
 		}

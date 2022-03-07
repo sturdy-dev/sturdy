@@ -21,6 +21,12 @@ func (r *reviewRootResolver) UpdatedReviews(ctx context.Context) (<-chan resolve
 	c := make(chan resolvers.ReviewResolver, 100)
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reviewID string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType != events.ReviewUpdated {
 			return nil
 		}

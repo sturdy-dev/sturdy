@@ -93,6 +93,12 @@ func (r *presenceRootResolver) UpdatedWorkspacePresence(ctx context.Context, arg
 	didErrorOut := false
 
 	cancelFunc := r.eventsReadWriter.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType == events.WorkspaceUpdatedPresence &&
 			(args.WorkspaceID == nil || // Subscribed to all workspaces
 				reference == string(*args.WorkspaceID)) { // Subscribed to a specific workspace

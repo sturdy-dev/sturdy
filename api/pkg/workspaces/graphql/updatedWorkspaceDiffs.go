@@ -35,6 +35,12 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 
 	// TODO: Migrate all to the new subscriber
 	cancelFunc := r.viewEvents.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		workspaceUpdated := eventType == events.WorkspaceUpdated && reference == ws.ID
 		workspaceSnapshotUpdated := eventType == events.WorkspaceUpdatedSnapshot && reference == ws.ID
 		diffsUpdated := workspaceUpdated || workspaceSnapshotUpdated
@@ -54,12 +60,6 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 		diffs, err := wsResolver.Diffs(ctx)
 		if err != nil {
 			return err
-		}
-
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		default:
 		}
 
 		select {

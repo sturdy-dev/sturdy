@@ -31,6 +31,12 @@ func (r *rootResolver) UpdatedWorkspaceWatchers(ctx context.Context, args resolv
 	didErorrOut := false
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType != events.WorkspaceWatchingStatusUpdated {
 			return nil
 		}

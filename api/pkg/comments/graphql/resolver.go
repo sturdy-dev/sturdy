@@ -190,6 +190,12 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 	concurrentUpdatedCommentConnections.Inc()
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		// Get all comments if there is a new comment, or if the diffs have changed
 		// This is a rather expensive operation, so ideally it should only be done for the comments that are updated, and not all of them
 		workspaceCommentUpdated := et == events.WorkspaceUpdatedComments && reference != ws.ID
