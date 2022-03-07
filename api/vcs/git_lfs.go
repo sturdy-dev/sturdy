@@ -110,10 +110,6 @@ func (r *repository) LargeFilesPull() error {
 		return fmt.Errorf("git-lfs pull failed ('%s'): %w", string(output), err)
 	}
 
-	if err := r.CleanStaged(); err != nil {
-		return fmt.Errorf("failed to clean index after lfs pull: %w", err)
-	}
-
 	return nil
 }
 

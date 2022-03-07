@@ -459,7 +459,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 					}
 				}
 
-				// Land the changes in the first workspace
+				// Land the changes
 				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: workspaceID,
 					PatchIDs:    patchIds,
@@ -467,9 +467,17 @@ func TestResolveHighLevelV2(t *testing.T) {
 				return err
 			}
 
+			getCurrentWorkspaceID := func() graphql.ID {
+				viewResolver, err := d.ViewRootResolver.View(authenticatedUserContext, resolvers.ViewArgs{ID: graphql.ID(viewRes.ID)})
+				assert.NoError(t, err)
+				workspaceResolver, err := viewResolver.Workspace(authenticatedUserContext)
+				assert.NoError(t, err)
+				return workspaceResolver.ID()
+			}
+
 			// Create common history (if any)
 			if len(tc.commonHistoryFiles) > 0 {
-				err = makeAndLandChanges(tc.commonHistoryFiles, firstWorkspaceResolver.ID())
+				err = makeAndLandChanges(tc.commonHistoryFiles, getCurrentWorkspaceID())
 				assert.NoError(t, err)
 			}
 
@@ -483,7 +491,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			assert.NoError(t, err)
 
 			// Create change in workspace
-			err = makeAndLandChanges(tc.trunkFiles, firstWorkspaceResolver.ID())
+			err = makeAndLandChanges(tc.trunkFiles, getCurrentWorkspaceID())
 			assert.NoError(t, err)
 
 			// Open the second workspace
@@ -518,7 +526,6 @@ func TestResolveHighLevelV2(t *testing.T) {
 				viewIDParams := []gin.Param{{"viewID", viewRes.ID}}
 				var startRebaseRes sync.RebaseStatusResponse
 				requestWithParams(t, userID, startRoutev2, routes_v3_sync.InitSyncRequest{WorkspaceID: string(secondWorkspaceResolver.ID())}, &startRebaseRes, viewIDParams)
-				// assert.Equal(t, tc.expectedConflicts, startRebaseRes.HaveConflicts)
 			}
 
 			// Conflict resolution if we had a conflict
@@ -533,7 +540,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 					if f.contents != nil {
 						assert.NoError(t, err)
 						if !assert.Regexp(t, *f.contents, string(d)) {
-							assert.Equal(t, *f.contents, string(d))
+							// assert.Equal(t, *f.contents, string(d))
 						}
 					} else if f.copyFrom != nil {
 						assert.NoError(t, err)
@@ -602,7 +609,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				if f.contents != nil {
 					assert.NoError(t, err)
 					if !assert.Regexp(t, *f.contents, string(d)) {
-						assert.Equal(t, *f.contents, string(d))
+						// assert.Equal(t, *f.contents, string(d))
 					}
 				} else if f.copyFrom != nil {
 					assert.NoError(t, err)

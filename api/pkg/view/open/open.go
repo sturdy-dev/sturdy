@@ -97,6 +97,9 @@ func OpenWorkspaceOnView(
 				if err := repo.LargeFilesPull(); err != nil {
 					logger.Warn("failed to pull large files", zap.Error(err))
 				}
+				if err := repo.CleanStaged(); err != nil {
+					return fmt.Errorf("failed to clean index: %w", err)
+				}
 			}
 			return nil
 		}).ExecView(ws.CodebaseID, view.ID, "OpenWorkspaceOnView"); err != nil {

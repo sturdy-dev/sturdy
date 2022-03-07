@@ -552,7 +552,7 @@ func TestPRHighLevel(t *testing.T) {
 			assert.Empty(t, ws.DraftDescription) // draft message is reset after push event
 
 			// The workspace should no longer have any comments
-			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID})
+			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: b(true)})
 			assert.NoError(t, err)
 			workspaceComments, err = wsResolver.Comments()
 			assert.NoError(t, err)
