@@ -10,6 +10,8 @@ import (
 
 type Out = dig.Out
 
+type In = dig.In
+
 type Module func(*Container)
 
 type Container struct {
@@ -82,7 +84,7 @@ func (c *Container) Register(provider interface{}, as ...interface{}) {
 			return []reflect.Value{cycleValPtr}
 		}).Interface()
 		if err := c.container.Provide(provideNullFun); err != nil {
-			panic(fmt.Sprintf("%+v", err))
+			panic(fmt.Sprintf("failed to provide %s: %+v", fullType(cycleType), err))
 		}
 
 		setNullFuncType := reflect.FuncOf([]reflect.Type{cycleType}, nil, false)
@@ -94,6 +96,10 @@ func (c *Container) Register(provider interface{}, as ...interface{}) {
 		invokes = append(invokes, setNullFunc)
 	}
 	c.invokes = append(invokes, c.invokes...)
+}
+
+func fullType(in reflect.Type) string {
+	return in.PkgPath() + "." + in.String()
 }
 
 // Import can be used to combine multiple modules into one.
