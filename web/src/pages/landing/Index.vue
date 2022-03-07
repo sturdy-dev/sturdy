@@ -68,7 +68,7 @@
           </h1>
 
           <HowItWorksStep
-            step-number="1"
+            :step-number="1"
             title="Connect"
             sub-title="Automate your workflow"
             bg-color="bg-amber-500"
@@ -181,7 +181,7 @@
           </HowItWorksStep>
 
           <HowItWorksStep
-            step-number="2"
+            :step-number="2"
             title="Code"
             sub-title="Skip the Git overhead"
             bg-color="bg-purple-400"
@@ -250,7 +250,7 @@
           </HowItWorksStep>
 
           <HowItWorksStep
-            step-number="3"
+            :step-number="3"
             title="Collaborate"
             sub-title="Give feedback, not reviews"
             bg-color="bg-sky-400"
