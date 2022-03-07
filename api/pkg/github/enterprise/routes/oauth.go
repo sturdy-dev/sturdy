@@ -53,22 +53,6 @@ func Oauth(
 
 		logger = logger.With(zap.Stringer("user_id", userID))
 
-		if ghUser, err := gitHubUserRepo.GetByUserID(userID); errors.Is(err, sql.ErrNoRows) {
-			// This user doesn't have a github connected yet, connect it.
-		} else if err != nil {
-			logger.Error("failed to get user", zap.Error(err))
-			c.AbortWithStatus(http.StatusInternalServerError)
-			return
-		} else {
-			// If user has a github connected already, refresh permissions without asking for a new token
-			if err := gitHubService.AddUserToCodebases(c.Request.Context(), ghUser); err != nil {
-				logger.Error("failed to add user to codebases", zap.Error(err))
-				c.AbortWithStatus(http.StatusInternalServerError)
-				return
-			}
-			return
-		}
-
 		user, err := userRepo.Get(userID)
 		if err != nil {
 			logger.Error("failed to get user by ID provided in the state query param", zap.Error(err))
@@ -114,6 +98,13 @@ func Oauth(
 		} else if ghUser.UserID != user.ID {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", user.Email)})
 			return
+		} else {
+			ghUser.AccessToken = token.AccessToken
+			if err := gitHubUserRepo.Update(ghUser); err != nil {
+				logger.Error("failed to update github user repo in db", zap.Error(err))
+				c.Status(http.StatusInternalServerError)
+				return
+			}
 		}
 
 		if err := gitHubService.AddUserToCodebases(c.Request.Context(), ghUser); err != nil {

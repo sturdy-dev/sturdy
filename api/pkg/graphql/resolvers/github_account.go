@@ -15,4 +15,5 @@ type GitHubAccountRootResolver interface {
 type GitHubAccountResolver interface {
 	ID() graphql.ID
 	Login() string
+	IsValid(ctx context.Context) bool
 }

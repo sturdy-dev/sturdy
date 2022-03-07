@@ -20,6 +20,7 @@ type AppClientProvider func(gitHubAppConfig *config.GitHubAppConfig) (appsClient
 type GitHubClients struct {
 	Repositories RepositoriesClient
 	PullRequests PullRequestsClient
+	Users        UsersClient
 }
 
 type RepositoriesClient interface {
@@ -41,6 +42,10 @@ type PullRequestsClient interface {
 	Edit(ctx context.Context, owner string, repo string, number int, pull *github.PullRequest) (*github.PullRequest, *github.Response, error)
 }
 
+type UsersClient interface {
+	Get(ctx context.Context, user string) (*github.User, *github.Response, error)
+}
+
 // NewInstallationClient creates a client for installationID that's acting on behalf of the app
 func NewInstallationClient(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *GitHubClients, appsClient AppsClient, err error) {
 	jwtTransport, err := ghinstallation.NewAppsTransportKeyFromFile(http.DefaultTransport, gitHubAppConfig.ID, gitHubAppConfig.PrivateKeyPath)
@@ -56,6 +61,7 @@ func NewInstallationClient(gitHubAppConfig *config.GitHubAppConfig, installation
 	return &GitHubClients{
 			Repositories: ghClient.Repositories,
 			PullRequests: ghClient.PullRequests,
+			Users:        ghClient.Users,
 		},
 		appsGhClient.Apps, nil
 }
@@ -73,6 +79,7 @@ func NewPersonalClient(personalOauthToken string) (personalClient *GitHubClients
 	return &GitHubClients{
 		Repositories: client.Repositories,
 		PullRequests: client.PullRequests,
+		Users:        client.Users,
 	}, nil
 }
 

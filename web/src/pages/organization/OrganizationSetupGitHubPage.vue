@@ -75,6 +75,7 @@ export default defineComponent({
             gitHubAccount @include(if: $isGitHubEnabled) {
               id
               login
+              isValid
             }
           }
         }
