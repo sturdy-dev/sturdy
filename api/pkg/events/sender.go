@@ -64,8 +64,6 @@ func (s *eventsSender) Codebase(id string, eventType EventType, reference string
 }
 
 func (s *eventsSender) Workspace(id string, eventType EventType, reference string) error {
-	s.events.WorkspaceEvent(id, eventType, reference)
-
 	ws, err := s.workspaceRepo.Get(id)
 	if err != nil {
 		return err

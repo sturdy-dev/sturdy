@@ -34,7 +34,6 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
-	"getsturdy.com/api/pkg/stream/routes"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -91,7 +90,6 @@ func ProvideHandler(
 	snapshotterQueue worker_snapshots.Queue,
 	snapshotRepo db_snapshots.Repository,
 	changeRepo db_change.Repository,
-	codebaseViewEvents events.EventReadWriter,
 	gcQueue *worker_gc.Queue,
 	gitSnapshotter snapshotter.Snapshotter,
 	workspaceWriter db_workspaces.WorkspaceWriter,
@@ -175,10 +173,9 @@ func ProvideHandler(
 	auth.POST("/v3/join/codebase/:code", routes_v3_codebase.JoinCodebase(logger, codebaseRepo, codebaseUserRepo, eventSender))                                                                         // Used by the web (2021-10-04)
 	auth.POST("/v3/views", routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsService, workspaceReader, gitSnapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender)) // Used by the command line client
 	authedViews := auth.Group("/v3/views/:viewID", view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
-	authedViews.GET("", routes_v3_view.Get(viewRepo, workspaceReader, logger, userService))                                                        // Used by the command line client
-	authedViews.POST("/ignore-file", routes_v3_change.IgnoreFile(logger, viewRepo, codebaseUserRepo, executorProvider, viewUpdatedFunc))           // Used by the web (2021-10-04)
-	authedViews.GET("/ignores", routes_v3_view.Ignores(logger, executorProvider, viewRepo))                                                        // Called from client-side sturdy-cli
-	auth.GET("/v3/stream", routes.Stream(logger, viewRepo, codebaseViewEvents, workspaceReader, authService, workspaceService, suggestionService)) // Used by the web (2021-10-04)
+	authedViews.GET("", routes_v3_view.Get(viewRepo, workspaceReader, logger, userService))                                              // Used by the command line client
+	authedViews.POST("/ignore-file", routes_v3_change.IgnoreFile(logger, viewRepo, codebaseUserRepo, executorProvider, viewUpdatedFunc)) // Used by the web (2021-10-04)
+	authedViews.GET("/ignores", routes_v3_view.Ignores(logger, executorProvider, viewRepo))                                              // Called from client-side sturdy-cli
 	rebase := auth.Group("/v3/rebase/")
 	rebase.Use(view_auth.ValidateViewAccessMiddleware(authService, viewRepo))
 	rebase.GET(":viewID", routes_v3_sync.Status(viewRepo, executorProvider, logger))                                     // Used by the web (2021-10-04)
