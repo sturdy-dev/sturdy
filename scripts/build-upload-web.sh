@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 BUCKET="gustav-staging.driva.dev"
 DISTRIBUTION_ID="E1S00JE3I1WHG2"
 BUILD=1
@@ -31,6 +33,8 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+pushd "$CWD/../web"
 
 if ((BUILD)); then
   yarn install
