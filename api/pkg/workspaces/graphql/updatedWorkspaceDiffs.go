@@ -40,6 +40,14 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 		workspaceSnapshotUpdated := eventType == events.WorkspaceUpdatedSnapshot && reference == ws.ID
 		diffsUpdated := workspaceUpdated || viewUpdated || workspaceSnapshotUpdated
 
+		if workspaceUpdated {
+			// reload the WS, to support streaming diffs if the view ID changes, etc
+			ws, err = r.workspaceReader.Get(string(args.WorkspaceID))
+			if err != nil {
+				return err
+			}
+		}
+
 		if !diffsUpdated {
 			return nil
 		}
