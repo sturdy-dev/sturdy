@@ -64,8 +64,7 @@ func getJobType(job *WorkflowJob) statuses.Type {
 	}
 }
 
-func (svc *Service) HandleWorkflowJobEvent(event *WorkflowJobEvent) error {
-	ctx := context.Background()
+func (svc *Service) HandleWorkflowJobEvent(ctx context.Context, event *WorkflowJobEvent) error {
 	gitHubRepoID := event.GetRepo().GetID()
 	installationID := event.GetInstallation().GetID()
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)

@@ -64,7 +64,8 @@ func (q *WebhooksQueue) Start(ctx context.Context) error {
 			logger := q.getLogger(event)
 			logger.Info("processing")
 
-			if err := q.work(event); errors.Is(err, errUnknownType) {
+			ctx := context.Background()
+			if err := q.work(ctx, event); errors.Is(err, errUnknownType) {
 				logger.Error("failed to process event", zap.Error(err), zap.Bool("will retry", false))
 				// No return, ack message
 			} else if err != nil {
@@ -135,19 +136,19 @@ func (q *WebhooksQueue) getLogger(event *WebhookEvent) *zap.Logger {
 
 var errUnknownType = fmt.Errorf("unknown event type")
 
-func (q *WebhooksQueue) work(event *WebhookEvent) error {
+func (q *WebhooksQueue) work(ctx context.Context, event *WebhookEvent) error {
 	if event.Installation != nil {
-		return q.webhooksService.HandleInstallationEvent(event.Installation)
+		return q.webhooksService.HandleInstallationEvent(ctx, event.Installation)
 	} else if event.InstallationRepositories != nil {
-		return q.webhooksService.HandleInstallationRepositoriesEvent(event.InstallationRepositories)
+		return q.webhooksService.HandleInstallationRepositoriesEvent(ctx, event.InstallationRepositories)
 	} else if event.Push != nil {
-		return q.webhooksService.HandlePushEvent(event.Push)
+		return q.webhooksService.HandlePushEvent(ctx, event.Push)
 	} else if event.PullRequest != nil {
-		return q.webhooksService.HandlePullRequestEvent(event.PullRequest)
+		return q.webhooksService.HandlePullRequestEvent(ctx, event.PullRequest)
 	} else if event.Status != nil {
-		return q.webhooksService.HandleStatusEvent(event.Status)
+		return q.webhooksService.HandleStatusEvent(ctx, event.Status)
 	} else if event.WorkflowJob != nil {
-		return q.webhooksService.HandleWorkflowJobEvent(event.WorkflowJob)
+		return q.webhooksService.HandleWorkflowJobEvent(ctx, event.WorkflowJob)
 	} else {
 		return errUnknownType
 	}

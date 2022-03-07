@@ -229,5 +229,5 @@ func (r *WorkspaceRootResolver) LandWorkspaceChange(ctx context.Context, args re
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
 	}
 
-	return r.Workspace(ctx, resolvers.WorkspaceArgs{ID: args.Input.WorkspaceID})
+	return &WorkspaceResolver{w: ws, root: r}, nil
 }

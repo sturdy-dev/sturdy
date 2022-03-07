@@ -134,9 +134,7 @@ func New(
 	}
 }
 
-func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
-	ctx := context.Background()
-
+func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullRequestEvent) error {
 	apiPR := event.GetPullRequest()
 	pr, err := svc.gitHubPullRequestRepo.GetByGitHubID(apiPR.GetID())
 	if errors.Is(err, sql.ErrNoRows) {
@@ -199,19 +197,28 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 			return fmt.Errorf("failed to update workspace: %w", err)
 		}
 
+		// sync workspace with head if it has no conflicts
 		hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
 		if err != nil {
 			svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
 			// do not fail
-		} else if err == nil {
-			// sync workspace with head if possible
-			if !hasConflicts && ws.ViewID != nil {
-				if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
-					return fmt.Errorf("failed to sync workspace: %w", err)
-				}
-				if err := svc.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {
-					svc.logger.Error("failed to send workspace updated event", zap.Error(err))
-					// do not fail
+		} else if !hasConflicts {
+			if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
+				return fmt.Errorf("failed to sync workspace: %w", err)
+			}
+
+			if err := svc.eventsSender.Codebase(ws.CodebaseID, events.ViewUpdated, *ws.ViewID); err != nil {
+				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
+				// do not fail
+			}
+
+			// if workspace has no diffs, archive it
+			diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
+			if err != nil {
+				svc.logger.Error("failed to get diffs", zap.Error(err))
+			} else if len(diffs) == 0 {
+				if err := svc.workspaceService.Archive(ctx, ws); err != nil {
+					return fmt.Errorf("failed to archive workspace: %w", err)
 				}
 			}
 		}
@@ -268,7 +275,7 @@ func (svc *Service) HandlePullRequestEvent(event *PullRequestEvent) error {
 	return nil
 }
 
-func (svc *Service) HandlePushEvent(event *PushEvent) error {
+func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error {
 	installationID := event.GetInstallation().GetID()
 	repoID := event.GetRepo().GetID()
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repoID)
@@ -380,9 +387,7 @@ func (svc *Service) accessToken(installationID, repositoryID int64) (string, err
 	return accessToken, nil
 }
 
-func (svc *Service) HandleInstallationEvent(event *InstallationEvent) error {
-	ctx := context.Background()
-
+func (svc *Service) HandleInstallationEvent(ctx context.Context, event *InstallationEvent) error {
 	svc.analyticsService.IdentifyGitHubInstallation(ctx,
 		event.GetInstallation().GetID(),
 		event.GetInstallation().GetAccount().GetLogin(),
@@ -454,7 +459,7 @@ func (svc *Service) HandleInstallationEvent(event *InstallationEvent) error {
 	return nil
 }
 
-func (svc *Service) HandleInstallationRepositoriesEvent(event *InstallationRepositoriesEvent) error {
+func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, event *InstallationRepositoriesEvent) error {
 	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.GetInstallation().GetID())
 	// If the original InstallationEvent webhook was missed (otherwise user has to remove and re-add app)
 	if errors.Is(err, sql.ErrNoRows) {

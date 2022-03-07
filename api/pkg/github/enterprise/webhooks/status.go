@@ -33,9 +33,7 @@ func getStatusTime(event *StatusEvent) time.Time {
 	return event.GetCreatedAt().Time
 }
 
-func (svc *Service) HandleStatusEvent(event *StatusEvent) error {
-	ctx := context.Background()
-
+func (svc *Service) HandleStatusEvent(ctx context.Context, event *StatusEvent) error {
 	gitHubRepoID := event.GetRepo().GetID()
 	installationID := event.GetInstallation().GetID()
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, gitHubRepoID)
