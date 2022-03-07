@@ -16,7 +16,7 @@
         <RelativeTime class="text-sm text-gray-500" :date="createdAt" />
       </div>
 
-      <div class="flex-1 w-full h-full">
+      <div class="flex w-full h-full">
         <span
           v-if="showDescription"
           class="flex-1 text-sm line-clamp-12"
