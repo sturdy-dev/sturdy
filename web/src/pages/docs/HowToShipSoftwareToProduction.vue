@@ -74,8 +74,7 @@
             workspaces to be based on top of your code
           </li>
           <li>
-            After the change is shared, the workspace will be rebased to the latest version of the
-            codebase automatically
+            After the change is shared, the workspace will be reset and ready for the next change
           </li>
         </ol>
 
@@ -124,7 +123,7 @@
           </li>
           <li>
             Click “Merge” to merge the PR. After a few seconds the PR will be merged, and the
-            workspace will be rebased to the latest version of the codebase automatically.
+            workspace will be reset and ready for the next change automatically.
           </li>
         </ol>
 

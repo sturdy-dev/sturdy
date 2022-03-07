@@ -207,8 +207,8 @@
             alt="Managing a GitHub Pull Request from Sturdy"
           />
           <li>
-            After a few seconds the PR will be merged, and the workspace will be synced (rebased) to
-            the latest version of the codebase automatically
+            After a few seconds the PR will be merged, you will see the change you've just created
+            and your workspace will reset be ready for the next change
           </li>
         </ol>
         <DocsInfoBox>
@@ -223,8 +223,8 @@
             Navigate to the codebase overview by clicking on the codebase in the sidebar on the left
           </li>
           <li>The panel with recent changes now contains the change that you just created</li>
-          <li>Click on the latest change</li>
-          <li>You can see the diffs and description of the change as you created it</li>
+          <li>Click on the Changelog</li>
+          <li>You can see the list of changes, including the one you've just created</li>
           <img
             src="./images/Previous_changes.png"
             height="837"
