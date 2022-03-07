@@ -40,7 +40,7 @@ type sub struct {
 func (s *sub) OnCodebaseEvent(ctx context.Context, callback func(context.Context, *codebase.Codebase) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Codebase)
-	}, s.topic, CodebaseUpdated)
+	}, s.topic, CodebaseEvent)
 }
 
 func (s *sub) OnCodebaseUpdated(ctx context.Context, callback func(context.Context, *codebase.Codebase) error) {
