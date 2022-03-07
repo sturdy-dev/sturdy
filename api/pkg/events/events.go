@@ -16,12 +16,10 @@ type EventReader interface {
 	// Introduce event type filtering in the call to SubscribeUser(uesrID string, cb CallbackFunc, eventTypes ...EventType) CancelFunc
 	// Introduce reference filtering in the call to SubscribeUser(uesrID string, cb CallbackFunc, map[EventType][]string) CancelFunc
 	SubscribeUser(userID users.ID, cb CallbackFunc) CancelFunc
-	SubscribeWorkspace(workspaceID string, cb CallbackFunc) CancelFunc
 }
 
 type eventWriter interface {
 	UserEvent(userID users.ID, eventType EventType, reference string)
-	WorkspaceEvent(workspaceID string, eventType EventType, reference string)
 }
 
 type EventReadWriter interface {
@@ -167,27 +165,6 @@ func (i *inMemory) work() {
 			i.unreg(unregKeys...)
 		}
 	}
-}
-
-func (i *inMemory) SubscribeWorkspace(workspaceID string, cb CallbackFunc) CancelFunc {
-	workspaceTopic := Topic(workspaceID)
-
-	id := uuid.New().String()
-
-	i.mx.Lock()
-	_, ok := i.subscribers[workspaceTopic]
-	if !ok {
-		i.subscribers[workspaceTopic] = make(map[string]CallbackFunc)
-	}
-	i.subscribers[workspaceTopic][id] = cb
-
-	unregKey := TopicSubscriber{
-		Topic:         workspaceTopic,
-		SubscriberKey: id,
-	}
-	i.mx.Unlock()
-
-	return func() { i.unreg(unregKey) }
 }
 
 func (i *inMemory) SubscribeUser(userID users.ID, cb CallbackFunc) CancelFunc {
