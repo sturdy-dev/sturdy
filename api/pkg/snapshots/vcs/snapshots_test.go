@@ -1,15 +1,16 @@
 package vcs
 
 import (
+	"io/ioutil"
+	"os"
+	"path"
+	"testing"
+
 	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view/vcs"
 	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"
-	"io/ioutil"
-	"os"
-	"path"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/sourcegraph/go-diff/diff"
@@ -17,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestTimelineSnapshot(t *testing.T) {
+func TestSnapshot(t *testing.T) {
 	reposBasePath, repoProvider := reposBasePath(t)
 	codebaseID := "codebaseID"
 	err := codebasevcs.Create(repoProvider, codebaseID)
