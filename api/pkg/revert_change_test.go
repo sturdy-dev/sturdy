@@ -17,7 +17,7 @@ import (
 	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -61,7 +61,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
-		EventsSender     events.EventSender
+		EventsSender     *eventsv2.Publisher
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
@@ -242,7 +242,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
-		EventsSender     events.EventSender
+		EventsSender     *eventsv2.Publisher
 
 		Logger           *zap.Logger
 		AnalyticsSerivce *service_analytics.Service

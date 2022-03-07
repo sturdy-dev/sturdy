@@ -24,7 +24,7 @@ import (
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	service_gc "getsturdy.com/api/pkg/gc/service"
 	module_github "getsturdy.com/api/pkg/github/module"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
@@ -92,7 +92,7 @@ func TestCreate(t *testing.T) {
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
-		EventsSender     events.EventSender
+		EventsSender     *eventsv2.Publisher
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
@@ -528,7 +528,7 @@ func TestLargeFiles(t *testing.T) {
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
-		EventsSender     events.EventSender
+		EventsSender     *eventsv2.Publisher
 		WorkspaceWriter  db_workspaces.WorkspaceWriter
 
 		Logger           *zap.Logger
