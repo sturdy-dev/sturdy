@@ -164,6 +164,12 @@ func (r *root) UpdatedWorkspaceActivity(ctx context.Context) (chan resolvers.Act
 	didErrorOut := false
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if et != events.WorkspaceUpdatedActivity {
 			return nil
 		}

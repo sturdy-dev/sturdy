@@ -242,6 +242,12 @@ func (r *organizationRootResolver) UpdatedOrganization(ctx context.Context, args
 	didErrorOut := false
 
 	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if et == events.OrganizationUpdated {
 			id := graphql.ID(reference)
 			if args.OrganizationID != nil && id != *args.OrganizationID {

@@ -69,6 +69,12 @@ func (r *onboardingRootResolver) CompletedOnboardingStep(ctx context.Context) (c
 	res := make(chan resolvers.OnboardingStepResolver, 100)
 
 	cancelFunc := r.eventReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType == events.CompletedOnboardingStep {
 			select {
 			case <-ctx.Done():

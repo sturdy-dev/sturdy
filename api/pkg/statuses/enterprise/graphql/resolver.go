@@ -71,6 +71,12 @@ func (r *RootResolver) UpdatedGitHubPullRequestStatuses(ctx context.Context, arg
 	didErrorOut := false
 
 	callbackFunc := func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType != events.StatusUpdated {
 			return nil
 		}

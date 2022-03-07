@@ -213,6 +213,12 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 	didErrorOut := false
 
 	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if et == events.CodebaseUpdated {
 			id := graphql.ID(reference)
 			resolver, err := r.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})

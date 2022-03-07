@@ -267,6 +267,12 @@ func (r *notificationRootResolver) UpdatedNotifications(ctx context.Context) (ch
 	concurrentUpdatedNotificationsConnections.Inc()
 
 	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+		select {
+		case <-ctx.Done():
+			return events.ErrClientDisconnected
+		default:
+		}
+
 		if eventType == events.NotificationEvent {
 			resolver, err := r.internalNotification(ctx, reference)
 			if err != nil {
