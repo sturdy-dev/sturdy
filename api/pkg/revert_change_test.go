@@ -50,6 +50,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		UserRepo              db_user.Repository
 		CodebaseRootResolver  resolvers.CodebaseRootResolver
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		ViewRootResolver      resolvers.ViewRootResolver
 
 		CodebaseService  *service_codebase.Service
 		WorkspaceService service_workspace.Service
@@ -116,6 +117,16 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	viewPath := repoProvider.ViewPath(codebaseRes.ID, viewRes.ID)
 
+	getWorkspaceID := func() string {
+		viewResolver, err := d.ViewRootResolver.View(authenticatedUserContext, resolvers.ViewArgs{ID: graphql.ID(viewRes.ID)})
+		assert.NoError(t, err)
+
+		wsResolver, err := viewResolver.Workspace(authenticatedUserContext)
+		assert.NoError(t, err)
+
+		return string(wsResolver.ID())
+	}
+
 	t.Logf("viewPath=%s", viewPath)
 
 	changes := []struct {
@@ -132,19 +143,21 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		err := ioutil.WriteFile(path.Join(viewPath, ch.file), []byte(ch.contents), 0o666)
 		assert.NoError(t, err)
 
+		workspaceID := getWorkspaceID()
+
 		// Get diff
-		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID)
+		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID)
 		assert.NoError(t, err)
 
 		// Set workspace draft description
 		_, err = workspaceRootResolver.UpdateWorkspace(authenticatedUserContext, resolvers.UpdateWorkspaceArgs{Input: resolvers.UpdateWorkspaceInput{
-			ID:               graphql.ID(workspaceRes.ID),
+			ID:               graphql.ID(workspaceID),
 			DraftDescription: &ch.file,
 		}})
 		assert.NoError(t, err)
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-			WorkspaceID: graphql.ID(workspaceRes.ID),
+			WorkspaceID: graphql.ID(workspaceID),
 			PatchIDs:    []string{diffs[0].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
@@ -299,6 +312,16 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	t.Logf("viewPath=%s", viewPath)
 
+	getWorkspaceID := func() string {
+		viewResolver, err := d.ViewRootResolver.View(authenticatedUserContext, resolvers.ViewArgs{ID: graphql.ID(viewRes.ID)})
+		assert.NoError(t, err)
+
+		wsResolver, err := viewResolver.Workspace(authenticatedUserContext)
+		assert.NoError(t, err)
+
+		return string(wsResolver.ID())
+	}
+
 	changes := []struct {
 		file     string
 		contents string
@@ -313,19 +336,21 @@ func TestRevertChangeFromView(t *testing.T) {
 		err := ioutil.WriteFile(path.Join(viewPath, ch.file), []byte(ch.contents), 0o666)
 		assert.NoError(t, err)
 
+		workspaceID := getWorkspaceID()
+
 		// Get diff
-		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID)
+		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID)
 		assert.NoError(t, err)
 
 		// Set workspace draft description
 		_, err = workspaceRootResolver.UpdateWorkspace(authenticatedUserContext, resolvers.UpdateWorkspaceArgs{Input: resolvers.UpdateWorkspaceInput{
-			ID:               graphql.ID(workspaceRes.ID),
+			ID:               graphql.ID(workspaceID),
 			DraftDescription: &ch.file,
 		}})
 		assert.NoError(t, err)
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-			WorkspaceID: graphql.ID(workspaceRes.ID),
+			WorkspaceID: graphql.ID(workspaceID),
 			PatchIDs:    []string{diffs[0].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
