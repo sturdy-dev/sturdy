@@ -835,7 +835,7 @@ export default defineComponent({
     })
 
     useUpdatedWorkspaceDiffs(
-      workspaceID.value,
+      workspaceID,
       computed(() => !workspaceID.value)
     )
 
