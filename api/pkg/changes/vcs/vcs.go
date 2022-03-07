@@ -63,6 +63,10 @@ func CreateAndLandFromView(
 		if err := viewRepo.CheckoutBranchSafely(workspaceID); err != nil {
 			logger.Error("failed to checkout the workspace branch", zap.Error(err))
 		}
+		if err := viewRepo.LargeFilesPull(); err != nil {
+			// Log and continue (repo can have LFS files from outside of Sturdy)
+			logger.Warn("failed to pull large files", zap.Error(err))
+		}
 
 		logger.Info("successfully restored view after failed landing")
 	}()

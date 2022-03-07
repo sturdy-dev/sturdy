@@ -51,6 +51,10 @@ func (r *ViewRootResolver) CopyWorkspaceToView(ctx context.Context, args resolve
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to snapshot: %w", err))
 		}
+
+		ws.ViewID = nil
+		ws.SetSnapshot(snapshot)
+
 		if err := r.workspaceWriter.UpdateFields(ctx, currentWorkspaceOnView.ID,
 			db.SetViewID(nil), // The workspace no longer has any view open
 			db.SetLatestSnapshotID(&snapshot.ID),

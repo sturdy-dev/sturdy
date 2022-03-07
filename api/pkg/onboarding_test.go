@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -35,6 +36,7 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
@@ -69,12 +71,13 @@ func module(c *di.Container) {
 
 func TestCreate(t *testing.T) {
 	if os.Getenv("E2E_TEST") == "" {
-		t.SkipNow()
+		// t.SkipNow()
 	}
 
 	type deps struct {
 		dig.In
 		UserRepo              db_user.Repository
+		UserService           service_users.Service
 		CodebaseRootResolver  resolvers.CodebaseRootResolver
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
 		UserRootResolver      resolvers.UserRootResolver
@@ -141,17 +144,18 @@ func TestCreate(t *testing.T) {
 	assert.True(t, codebaseRes.IsReady, "codebase is ready")
 
 	// Create a workspace
-	var workspaceRes workspaces.Workspace
+	var workspaceResult workspaces.Workspace
 	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
 		CodebaseID: codebaseRes.ID,
-	}, &workspaceRes)
-	assert.Len(t, workspaceRes.ID, 36)
+	}, &workspaceResult)
+	assert.Len(t, workspaceResult.ID, 36)
+	workspaceID := workspaceResult.ID
 
 	// Create a view
 	var viewRes view.View
 	request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
 		CodebaseID:    codebaseRes.ID,
-		WorkspaceID:   workspaceRes.ID,
+		WorkspaceID:   workspaceID,
 		MountPath:     "~/testing",
 		MountHostname: "testing.ftw",
 	}, &viewRes)
@@ -168,7 +172,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err := workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err := workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs := []unidiff.FileDiff{{OrigName: "/dev/null", NewName: "test.txt", PreferredName: "test.txt", IsNew: true, Hunks: []unidiff.Hunk{
 		{
@@ -180,17 +184,27 @@ func TestCreate(t *testing.T) {
 
 	// Set workspace draft description
 	_, err = workspaceRootResolver.UpdateWorkspace(authenticatedUserContext, resolvers.UpdateWorkspaceArgs{Input: resolvers.UpdateWorkspaceInput{
-		ID:               graphql.ID(workspaceRes.ID),
+		ID:               graphql.ID(workspaceID),
 		DraftDescription: str("This is my first change"),
 	}})
 	assert.NoError(t, err)
 
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+
+	viewResolver, err := viewRootResolver.View(authenticatedUserContext, resolvers.ViewArgs{
+		ID: graphql.ID(viewRes.ID),
+	})
+	assert.NoError(t, err)
+
+	// get a reference to the new workspace after the change has been applied
+	newWorkspace, err := viewResolver.Workspace(authenticatedUserContext)
+	assert.NoError(t, err)
+	workspaceID = string(newWorkspace.ID())
 
 	// Get changelog in codebase
 	cid := graphql.ID(codebaseRes.ID)
@@ -209,7 +223,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt", Hunks: []unidiff.Hunk{
 		{
@@ -221,10 +235,14 @@ func TestCreate(t *testing.T) {
 
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+
+	newWorkspace, err = viewResolver.Workspace(authenticatedUserContext)
+	assert.NoError(t, err)
+	workspaceID = string(newWorkspace.ID())
 
 	// Make changes to two parts of the file (early and late), expect two hunks
 	// The row "d" is deleted, and "t" is replaced with "ttt"
@@ -232,7 +250,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
 		Hunks: []unidiff.Hunk{
@@ -243,13 +261,13 @@ func TestCreate(t *testing.T) {
 
 	// Undo the second hunk
 	_, err = workspaceRootResolver.RemovePatches(authenticatedUserContext, resolvers.RemovePatchesArgs{Input: resolvers.RemovePatchesInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		HunkIDs:     []string{diffs[0].Hunks[1].ID},
 	}})
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
 		Hunks: []unidiff.Hunk{
@@ -261,7 +279,7 @@ func TestCreate(t *testing.T) {
 	err = ioutil.WriteFile(path.Join(viewPath, "test.txt"), []byte("aaaa\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nlll\nm\nn\no\np\nq\nr\ns\nt\nu\nv\nw\nx\ny\nzzz\n"), 0o666)
 	assert.NoError(t, err)
 
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test.txt", PreferredName: "test.txt",
 		Hunks: []unidiff.Hunk{
@@ -276,7 +294,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test.txt", NewName: "test-2.txt", PreferredName: "test-2.txt", IsMoved: true,
 		Hunks: []unidiff.Hunk{
@@ -288,16 +306,20 @@ func TestCreate(t *testing.T) {
 
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		PatchIDs:    []string{diffs[0].Hunks[0].ID, diffs[0].Hunks[1].ID, diffs[0].Hunks[2].ID},
 	}})
 	assert.NoError(t, err)
+
+	newWorkspace, err = viewResolver.Workspace(authenticatedUserContext)
+	assert.NoError(t, err)
+	workspaceID = string(newWorkspace.ID())
 
 	// Move file without edits
 	err = os.Rename(path.Join(viewPath, "test-2.txt"), path.Join(viewPath, "test-3.txt"))
 	assert.NoError(t, err)
 
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	expectedDiffs = []unidiff.FileDiff{{OrigName: "test-2.txt", NewName: "test-3.txt", PreferredName: "test-3.txt", IsMoved: true,
 		Hunks: []unidiff.Hunk{
@@ -307,10 +329,14 @@ func TestCreate(t *testing.T) {
 
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+
+	newWorkspace, err = viewResolver.Workspace(authenticatedUserContext)
+	assert.NoError(t, err)
+	workspaceID = string(newWorkspace.ID())
 
 	// Make changes with conflicts, attempting to land should fail gracefully
 	// Create a workspace
@@ -325,24 +351,27 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Get diff
-	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+	diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 	assert.NoError(t, err)
 	assert.Len(t, diffs, 1)
 	assert.Len(t, diffs[0].Hunks, 1)
 
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
+
+	newWorkspace, err = viewResolver.Workspace(authenticatedUserContext)
+	assert.NoError(t, err)
+	workspaceID = string(newWorkspace.ID())
 
 	// Checkout the new workspace
 	_, err = viewRootResolver.OpenWorkspaceOnView(authenticatedUserContext, resolvers.OpenViewArgs{Input: resolvers.OpenWorkspaceOnViewInput{
 		WorkspaceID: graphql.ID(secondWorkspaceRes.ID),
 		ViewID:      graphql.ID(viewRes.ID),
 	}})
-
 	assert.NoError(t, err)
 
 	// make changes in the second workspace and try to land it
@@ -369,10 +398,10 @@ func TestCreate(t *testing.T) {
 
 	// Switch to the original workspace
 	_, err = viewRootResolver.OpenWorkspaceOnView(authenticatedUserContext, resolvers.OpenViewArgs{Input: resolvers.OpenWorkspaceOnViewInput{
-		WorkspaceID: graphql.ID(workspaceRes.ID),
+		WorkspaceID: graphql.ID(workspaceID),
 		ViewID:      graphql.ID(viewRes.ID),
 	}})
-	assert.NoError(t, err)
+	assert.NoError(t, err, errors.Unwrap(err))
 
 	var contents = []string{
 		"this\nis\na\nfile\naaaaaa",
@@ -391,7 +420,7 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Get diff
-		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 		assert.NoError(t, err)
 		t.Logf("diffs=%+v", diffs)
 		assert.Len(t, diffs, 1)
@@ -399,10 +428,14 @@ func TestCreate(t *testing.T) {
 
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-			WorkspaceID: graphql.ID(workspaceRes.ID),
+			WorkspaceID: graphql.ID(workspaceID),
 			PatchIDs:    []string{diffs[0].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
+
+		newWorkspace, err = viewResolver.Workspace(authenticatedUserContext)
+		assert.NoError(t, err)
+		workspaceID = string(newWorkspace.ID())
 	}
 
 	// List views for user
@@ -424,7 +457,7 @@ func TestCreate(t *testing.T) {
 		LineEnd:     i(1),
 		LineIsNew:   b(true),
 		ChangeID:    nil,
-		WorkspaceID: gid(graphql.ID(workspaceRes.ID)),
+		WorkspaceID: gid(graphql.ID(workspaceID)),
 		ViewID:      gid(graphql.ID(viewRes.ID)),
 	}})
 	assert.NoError(t, err)
@@ -432,7 +465,7 @@ func TestCreate(t *testing.T) {
 
 	// Get comment from workspace
 	{
-		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceRes.ID)})
+		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceID)})
 		assert.NoError(t, err)
 		topComments, err := getWorkspaceResolver.Comments()
 		assert.NoError(t, err)
@@ -455,7 +488,7 @@ func TestCreate(t *testing.T) {
 
 	// Get comments again
 	{
-		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceRes.ID)})
+		getWorkspaceResolver, err := workspaceRootResolver.Workspace(authenticatedUserContext, resolvers.WorkspaceArgs{ID: graphql.ID(workspaceID)})
 		assert.NoError(t, err)
 		topComments, err := getWorkspaceResolver.Comments()
 		assert.NoError(t, err)
@@ -481,7 +514,7 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Get diff
-		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceRes.ID)
+		diffs, _, err = workspaceService.Diffs(context.Background(), workspaceID)
 		assert.NoError(t, err)
 		t.Logf("diffs=%+v", diffs)
 		assert.Len(t, diffs, 2)
@@ -489,7 +522,7 @@ func TestCreate(t *testing.T) {
 
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-			WorkspaceID: graphql.ID(workspaceRes.ID),
+			WorkspaceID: graphql.ID(workspaceID),
 			PatchIDs:    []string{diffs[0].Hunks[0].ID, diffs[1].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
@@ -510,13 +543,14 @@ func gid(in graphql.ID) *graphql.ID {
 
 func TestLargeFiles(t *testing.T) {
 	if os.Getenv("E2E_TEST") == "" {
-		t.SkipNow()
+		// t.SkipNow()
 	}
 
 	type deps struct {
 		dig.In
 		UserRepo              db_user.Repository
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		ViewRootResolver      resolvers.ViewRootResolver
 		CodebaseService       *service_codebase.Service
 		WorkspaceService      service_workspace.Service
 		GitSnapshotter        snapshotter.Snapshotter
@@ -562,7 +596,7 @@ func TestLargeFiles(t *testing.T) {
 			name:          "low_max_size", // By default, files larger than 50MB have special treatment (are always treated as binary files), lower this to 500kb to make it easier to test
 			opts:          []vcsvcs.DiffOption{vcsvcs.WithGitMaxSize(500_000)},
 			gitMaxSize:    500_000,
-			largeFileName: "large-img.jpg",
+			largeFileName: "large-img-low-max.jpg",
 		},
 		{
 			name:          "low_max_spaces",
@@ -588,17 +622,21 @@ func TestLargeFiles(t *testing.T) {
 			assert.True(t, codebaseRes.IsReady, "codebase is ready")
 
 			// Create a workspace
-			var workspaceRes workspaces.Workspace
+			var workspaceResult workspaces.Workspace
 			request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
 				CodebaseID: codebaseRes.ID,
-			}, &workspaceRes)
-			assert.Len(t, workspaceRes.ID, 36)
+			}, &workspaceResult)
+			assert.Len(t, workspaceResult.ID, 36)
+
+			workspaceID := workspaceResult.ID
+
+			t.Log("workspaceID", workspaceID)
 
 			// Create a view
 			var viewRes view.View
 			request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
 				CodebaseID:    codebaseRes.ID,
-				WorkspaceID:   workspaceRes.ID,
+				WorkspaceID:   workspaceID,
 				MountPath:     "~/testing",
 				MountHostname: "testing.ftw",
 			}, &viewRes)
@@ -612,26 +650,43 @@ func TestLargeFiles(t *testing.T) {
 			assert.NoError(t, err)
 
 			// Test large files
-			copy(t, "testdata/large-img.jpg", path.Join(viewPath, tc.largeFileName))
+			{
+				copy(t, "testdata/large-img.jpg", path.Join(viewPath, tc.largeFileName))
 
-			// Get diff and apply
-			diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
-			assert.NoError(t, err)
-			assert.Len(t, diffs, 1)
-			assert.Len(t, diffs[0].Hunks, 1)
-			t.Logf("diff: %+v", diffs[0])
-			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-				WorkspaceID: graphql.ID(workspaceRes.ID),
-				PatchIDs:    []string{diffs[0].Hunks[0].ID},
+				// Get diff and apply
+				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID, service_workspace.WithVCSDiffOptions(tc.opts...))
+				assert.NoError(t, err)
+				assert.Len(t, diffs, 1)
+				assert.Len(t, diffs[0].Hunks, 1)
+				t.Logf("diff: %+v", diffs[0])
+				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+					WorkspaceID: graphql.ID(workspaceID),
+					PatchIDs:    []string{diffs[0].Hunks[0].ID},
 
-				DiffMaxSize: tc.gitMaxSize,
-			}})
-			assert.NoError(t, err)
+					DiffMaxSize: tc.gitMaxSize,
+				}})
+				assert.NoError(t, err)
+			}
+
+			getWorkspaceID := func() string {
+				viewResolver, err := d.ViewRootResolver.View(authenticatedUserContext, resolvers.ViewArgs{ID: graphql.ID(viewRes.ID)})
+				assert.NoError(t, err)
+
+				newWorkspace, err := viewResolver.Workspace(authenticatedUserContext)
+				assert.NoError(t, err)
+				return string(newWorkspace.ID())
+			}
+
+			workspaceID = getWorkspaceID()
+
+			t.Log("workspaceID", workspaceID)
 
 			// Original file should be in the checkout, not the LFS pointer
-			stat, err := os.Stat(path.Join(viewPath, tc.largeFileName))
-			assert.NoError(t, err)
-			assert.True(t, stat.Size() > 1_000_000, "size=%d", stat.Size())
+			{
+				stat, err := os.Stat(path.Join(viewPath, tc.largeFileName))
+				assert.NoError(t, err)
+				assert.True(t, stat.Size() > 1_000_000, "size=%d", stat.Size())
+			}
 
 			// LFS pointer should be in the latest commit
 			headCommit, err := gitViewRepo.HeadCommit()
@@ -646,15 +701,15 @@ func TestLargeFiles(t *testing.T) {
 				copy(t, "testdata/large-img.jpg", nameWithSpaces)
 
 				// Get diff and apply
-				diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
+				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID, service_workspace.WithVCSDiffOptions(tc.opts...))
 				assert.NoError(t, err)
 				assert.Len(t, diffs, 1)
 				assert.Len(t, diffs[0].Hunks, 1)
 				t.Logf("diff: %+v", diffs[0])
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-					WorkspaceID: graphql.ID(workspaceRes.ID),
-					PatchIDs:    []string{diffs[0].Hunks[0].ID},
 
+				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+					WorkspaceID: graphql.ID(workspaceID),
+					PatchIDs:    []string{diffs[0].Hunks[0].ID},
 					DiffMaxSize: tc.gitMaxSize,
 				}})
 				assert.NoError(t, err)
@@ -667,50 +722,64 @@ func TestLargeFiles(t *testing.T) {
 				assert.True(t, finfo.Size() > 1_000_000, "size=%d", finfo.Size())
 			}
 
+			workspaceID = getWorkspaceID()
+
+			t.Log("workspaceID", workspaceID)
+
 			// Update the large file
-			copy(t, "testdata/large-img-2.jpg", path.Join(viewPath, tc.largeFileName))
-			// Get diff and apply
-			diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
-			assert.NoError(t, err)
-			assert.Len(t, diffs, 1)
-			assert.Len(t, diffs[0].Hunks, 1)
-			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-				WorkspaceID: graphql.ID(workspaceRes.ID),
-				PatchIDs:    []string{diffs[0].Hunks[0].ID},
-				DiffMaxSize: tc.gitMaxSize,
-			}})
-			assert.NoError(t, err)
+			{
+				copy(t, "testdata/large-img-2.jpg", path.Join(viewPath, tc.largeFileName))
+				// Get diff and apply
+				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID, service_workspace.WithVCSDiffOptions(tc.opts...))
+				assert.NoError(t, err)
+				assert.Len(t, diffs, 1)
+				assert.Len(t, diffs[0].Hunks, 1)
+				t.Logf("diffs: %+v", diffs)
+
+				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+					WorkspaceID: graphql.ID(workspaceID),
+					PatchIDs:    []string{diffs[0].Hunks[0].ID},
+					DiffMaxSize: tc.gitMaxSize,
+				}})
+				assert.NoError(t, err, errors.Unwrap(err))
+			}
+
+			// return
+			workspaceID = getWorkspaceID()
 
 			// LFS pointer should be updated
-			headCommit, err = gitViewRepo.HeadCommit()
-			assert.NoError(t, err)
-			ptrContents2, err := gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
-			assert.NoError(t, err)
-			assert.True(t, len(ptrContents2) < 500, "len=%d", len(ptrContents2))
-			assert.NotEqual(t, string(ptrContents2), string(ptrContents))
+			{
+				headCommit, err := gitViewRepo.HeadCommit()
+				assert.NoError(t, err)
+				ptrContents2, err := gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
+				assert.NoError(t, err)
+				assert.True(t, len(ptrContents2) < 500, "len=%d", len(ptrContents2))
+				assert.NotEqual(t, string(ptrContents2), string(ptrContents))
+			}
 
 			// Delete the large file
-			err = os.Remove(path.Join(viewPath, tc.largeFileName))
-			assert.NoError(t, err)
+			{
+				err = os.Remove(path.Join(viewPath, tc.largeFileName))
+				assert.NoError(t, err)
 
-			// Get diff and apply
-			diffs, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceRes.ID, service_workspace.WithVCSDiffOptions(tc.opts...))
-			assert.NoError(t, err)
-			assert.Len(t, diffs, 1)
-			assert.Len(t, diffs[0].Hunks, 1)
-			_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
-				WorkspaceID: graphql.ID(workspaceRes.ID),
-				PatchIDs:    []string{diffs[0].Hunks[0].ID},
-				DiffMaxSize: tc.gitMaxSize,
-			}})
-			assert.NoError(t, err)
+				// Get diff and apply
+				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID, service_workspace.WithVCSDiffOptions(tc.opts...))
+				assert.NoError(t, err)
+				assert.Len(t, diffs, 1)
+				assert.Len(t, diffs[0].Hunks, 1)
+				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+					WorkspaceID: graphql.ID(workspaceID),
+					PatchIDs:    []string{diffs[0].Hunks[0].ID},
+					DiffMaxSize: tc.gitMaxSize,
+				}})
+				assert.NoError(t, err)
 
-			// LFS pointer should not exist
-			headCommit, err = gitViewRepo.HeadCommit()
-			assert.NoError(t, err)
-			_, err = gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
-			assert.Error(t, err)
-
+				// LFS pointer should not exist
+				headCommit, err = gitViewRepo.HeadCommit()
+				assert.NoError(t, err)
+				_, err = gitViewRepo.FileContentsAtCommit(headCommit.Id().String(), tc.largeFileName)
+				assert.Error(t, err)
+			}
 		})
 	}
 }

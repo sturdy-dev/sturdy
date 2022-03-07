@@ -57,7 +57,7 @@ func (r *repository) CurrentDiff(opts ...DiffOption) (*git.Diff, error) {
 	return r.workdirDiffAgainstTree(headTree, opts...)
 }
 
-func (r *repository) CurrentDiffNoIndex() (*git.Diff, error) {
+func (r *repository) CurrentDiffNoIndex(opts ...DiffOption) (*git.Diff, error) {
 	defer getMeterFunc("CurrentDiffNoIndex")()
 
 	headTree, err := r.getHead()
@@ -66,7 +66,7 @@ func (r *repository) CurrentDiffNoIndex() (*git.Diff, error) {
 	}
 	defer headTree.Free()
 
-	return r.workdirDiffAgainstTree(headTree)
+	return r.workdirDiffAgainstTree(headTree, opts...)
 }
 
 func (r *repository) workdirDiffAgainstTree(diffAgainst *git.Tree, opts ...DiffOption) (*git.Diff, error) {

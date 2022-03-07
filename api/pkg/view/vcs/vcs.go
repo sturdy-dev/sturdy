@@ -47,6 +47,9 @@ func checkoutBranch(repo vcs.RepoWriter, branchName string) error {
 	if err := repo.CheckoutBranchWithForce(branchName); err != nil {
 		return fmt.Errorf("failed to checkout branch '%s': %w", branchName, err)
 	}
+	if err := repo.CleanStaged(); err != nil {
+		return fmt.Errorf("failed to clean index after checkout '%s': %w", branchName, err)
+	}
 	return nil
 }
 
