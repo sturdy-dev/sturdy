@@ -42,6 +42,7 @@ type SnapshotOptions struct {
 	onRepo                  vcs.RepoReaderGitWriter
 	onExistingCommit        *string
 	markAsLatestInWorkspace bool
+	withNoThrottle          bool
 }
 
 type SnapshotOption func(*SnapshotOptions)
@@ -88,6 +89,12 @@ func WithOnExistingCommit(commit string) SnapshotOption {
 func WithMarkAsLatestInWorkspace() SnapshotOption {
 	return func(opts *SnapshotOptions) {
 		opts.markAsLatestInWorkspace = true
+	}
+}
+
+func WithNoThrottle() SnapshotOption {
+	return func(opts *SnapshotOptions) {
+		opts.withNoThrottle = true
 	}
 }
 
@@ -192,6 +199,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		// The throttling does not apply to workspaces that are suggesting
 		if latest != nil &&
 			!isSuggesting &&
+			!options.withNoThrottle &&
 			action == snapshots.ActionViewSync &&
 			latest.Action == snapshots.ActionViewSync &&
 			latest.CreatedAt.After(time.Now().Add(-10*time.Second)) {

@@ -150,7 +150,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 			}
 			file = osFile
 			return nil
-		}).ExecView(viewFS.codebaseID, viewFS.viewID, fmt.Sprintf("open %s", path))
+		}).ExecView(viewFS.codebaseID, viewFS.viewID, "viewFsFromDisk")
 	}
 
 	var file fs.File
@@ -162,7 +162,7 @@ func (viewFS *ViewFS) Open(path string) (fs.File, error) {
 		defer headCommit.Free()
 		file, err = fileFromCommit(repo, headCommit.Id().String(), path)
 		return err
-	}).ExecView(viewFS.codebaseID, viewFS.viewID, fmt.Sprintf("open %s", path))
+	}).ExecView(viewFS.codebaseID, viewFS.viewID, "viewFsFromCommit")
 }
 
 func fileFromCommit(repo vcs.RepoGitReader, commitSHA string, path string) (fs.File, error) {
