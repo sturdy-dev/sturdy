@@ -62,6 +62,7 @@ func OpenWorkspaceOnView(
 			return fmt.Errorf("failed to snapshot: %w", err)
 		}
 
+		ws.ViewID = nil
 		if err := workspaceWriter.UpdateFields(ctx, currentWorkspaceOnView.ID, db_workspaces.SetViewID(nil)); err != nil {
 			return fmt.Errorf("failed to finalize previous workspace on view: %w", err)
 		}

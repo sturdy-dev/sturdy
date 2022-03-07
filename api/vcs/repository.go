@@ -12,7 +12,7 @@ type RepoGitReader interface {
 	ViewID() *string
 	IsRebasing() bool
 
-	CurrentDiffNoIndex() (*git.Diff, error)
+	CurrentDiffNoIndex(opts ...DiffOption) (*git.Diff, error)
 	DiffCommits(firstCommitID, secondCommitID string) (*git.Diff, error)
 	DiffCommitToRoot(commitID string) (*git.Diff, error)
 	DiffRootToCommit(commitID string) (*git.Diff, error)
