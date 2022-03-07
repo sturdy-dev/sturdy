@@ -15,7 +15,6 @@ import (
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/open"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -188,41 +187,6 @@ func (r *WorkspaceRootResolver) ArchiveWorkspace(ctx context.Context, args resol
 	}
 
 	if err := r.workspaceService.Archive(ctx, ws); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if ws.ViewID == nil {
-		return &WorkspaceResolver{w: ws, root: r}, nil
-	}
-
-	view, err := r.viewRepo.Get(*ws.ViewID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	// if the workspace had a view, move it to a new workspace to make sure it is always connected to a workspace
-
-	newWorkspace, err := r.workspaceService.Create(ctx, service_workspace.CreateWorkspaceRequest{
-		CodebaseID: ws.CodebaseID,
-		UserID:     ws.UserID,
-	})
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if err := open.OpenWorkspaceOnView(
-		ctx,
-		r.logger,
-		view,
-		newWorkspace,
-		r.viewRepo,
-		r.workspaceReader,
-		r.gitSnapshotter,
-		r.snapshotsRepo,
-		r.workspaceWriter,
-		r.executorProvider,
-		r.eventsSender,
-	); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

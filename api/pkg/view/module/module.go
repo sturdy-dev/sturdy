@@ -5,10 +5,12 @@ import (
 	"getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/graphql"
 	"getsturdy.com/api/pkg/view/meta"
+	"getsturdy.com/api/pkg/view/service"
 )
 
 func Module(c *di.Container) {
 	c.Import(db.Module)
 	c.Import(graphql.Module)
 	c.Import(meta.Module)
+	c.Import(service.Module)
 }
