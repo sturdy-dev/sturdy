@@ -9,7 +9,7 @@
         :file-key="fileKey"
         :diffs="fileDiffs"
         :extra-classes="extraClasses"
-        :comments="commentsByFile[fileDiffs.new_name || fileDiffs.newName]"
+        :comments="commentsByFile[fileDiffs.new_name || fileDiffs.newName] ?? []"
         :suggestions="suggestionsForFile(fileDiffs)"
         :new-comment-avatar-url="newCommentAvatarUrl"
         :can-comment="canComment"
