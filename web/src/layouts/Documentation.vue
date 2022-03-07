@@ -1,10 +1,8 @@
 <template>
-  <div>
+  <div class="">
     <NavigationHeader :light="true" />
 
-    <div class="max-w-6xl mx-auto">
-      <slot></slot>
-    </div>
+    <slot></slot>
 
     <NavigationFooter :light="true" />
   </div>
