@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 import NewComment, { CODEBASE_FRAGMENT } from '../molecules/NewComment.vue'
 import Activity, { WORKSPACE_ACTIVITY_FRAGMENT } from '../molecules/activity/Activity.vue'
@@ -47,7 +47,7 @@ export const CHANGE_FRAGMENT = gql`
   ${WORKSPACE_ACTIVITY_FRAGMENT}
 `
 
-export default {
+export default defineComponent({
   components: { NewComment, Activity },
   props: {
     change: {
@@ -66,5 +66,5 @@ export default {
       return this.isAuthenticated && isMember
     },
   },
-}
+})
 </script>

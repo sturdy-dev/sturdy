@@ -31,7 +31,7 @@
 
           <p class="mt-2 text-sm text-gray-500">
             <template v-if="fetching">
-              <div class="h-3 w-1/4 bg-gray-300 animate-pulse rounded-md" />
+              <div class="h-3 w-1/4 bg-gray-300 animate-pulse rounded-md"></div>
             </template>
 
             <template v-else>
@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { DeepMaybeRef } from '@vueuse/core'
 import ChangeDetails, {
   CHANGE_DETAILS_CHANGE_FRAGMENT,
@@ -126,7 +126,7 @@ const PAGE_QUERY = gql`
   ${CHANGE_ACTIVITY_CHANGE_FRAGMENT}
 `
 
-export default {
+export default defineComponent({
   components: {
     PaddedAppRightSidebar,
     ChangelogDetails,
@@ -154,6 +154,7 @@ export default {
       DeepMaybeRef<ChangePageQueryVariables>
     >({
       query: PAGE_QUERY,
+      requestPolicy: 'cache-and-network',
       variables: {
         changeID: changeId,
       },
@@ -176,7 +177,7 @@ export default {
         title: 'Change landed',
         message: `${title} is now available on the codebase`,
       })
-      this.$router.push({ query: {} })
+      this.$router.replace({ query: {} })
     },
     'data.codebase.id': function (id) {
       if (id) this.emitter.emit('codebase', id)
@@ -194,5 +195,5 @@ export default {
       })
     },
   },
-}
+})
 </script>
