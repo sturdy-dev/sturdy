@@ -185,7 +185,6 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 
 	go func() {
 		<-ctx.Done()
-		close(res)
 	}()
 
 	return res, nil
@@ -232,7 +231,6 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 
 	go func() {
 		<-ctx.Done()
-		close(res)
 		concurrentUpdatedViewConnections.Dec()
 	}()
 

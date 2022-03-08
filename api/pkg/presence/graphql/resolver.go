@@ -135,7 +135,6 @@ func (r *presenceRootResolver) UpdatedWorkspacePresence(ctx context.Context, arg
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(res)
 	}()
 
 	return res, nil

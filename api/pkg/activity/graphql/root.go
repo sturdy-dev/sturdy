@@ -201,7 +201,6 @@ func (r *root) UpdatedWorkspaceActivity(ctx context.Context) (chan resolvers.Act
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil

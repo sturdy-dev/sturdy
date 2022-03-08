@@ -273,7 +273,6 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(res)
 		concurrentUpdatedCommentConnections.Dec()
 	}()
 

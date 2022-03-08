@@ -62,6 +62,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 	}
 
 	c := make(chan resolvers.WorkspaceResolver, 100)
+
 	didErrorOut := false
 
 	concurrentUpdatedWorkspaceConnections.Inc()
@@ -115,7 +116,6 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 		concurrentUpdatedWorkspaceConnections.Dec()
 	}()
 

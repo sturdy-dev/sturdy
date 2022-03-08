@@ -94,7 +94,6 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil

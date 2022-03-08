@@ -111,7 +111,6 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil

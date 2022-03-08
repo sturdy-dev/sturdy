@@ -302,7 +302,6 @@ func (r *notificationRootResolver) UpdatedNotifications(ctx context.Context) (ch
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(res)
 		concurrentUpdatedNotificationsConnections.Dec()
 	}()
 

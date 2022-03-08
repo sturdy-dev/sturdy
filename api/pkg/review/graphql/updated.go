@@ -54,7 +54,6 @@ func (r *reviewRootResolver) UpdatedReviews(ctx context.Context) (<-chan resolve
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil
