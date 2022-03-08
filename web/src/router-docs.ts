@@ -172,7 +172,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'docsCICD',
     meta: {
       nonApp: true,
-      documentation: { title: 'CI/CD', group: 'Documentation' },
+      selfContainedLayout: true,
+      neverElectron: true,
     },
   },
   {
