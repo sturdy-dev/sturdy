@@ -259,16 +259,6 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 				return fmt.Errorf("failed to sync workspace: %w", err)
 			}
 
-			vw, err := svc.viewRepo.Get(*ws.ViewID)
-			if err != nil {
-				return fmt.Errorf("failed to get view: %w", err)
-			}
-
-			if err := svc.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(vw.CodebaseID), vw); err != nil {
-				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
-				// do not fail
-			}
-
 			// if workspace has no diffs, archive it
 			diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
 			if err != nil {

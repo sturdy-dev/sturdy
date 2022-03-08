@@ -6,12 +6,14 @@ import (
 	"time"
 
 	change_vcs "getsturdy.com/api/pkg/changes/vcs"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/sync"
 	"getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
+	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	ws_meta "getsturdy.com/api/pkg/workspaces/meta"
@@ -30,6 +32,8 @@ type Service struct {
 	workspaceReader  db_workspaces.WorkspaceReader
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	snap             snapshotter.Snapshotter
+
+	eventsPublisher *events.Publisher
 }
 
 func New(
@@ -39,6 +43,7 @@ func New(
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	snap snapshotter.Snapshotter,
+	eventsPublisher *events.Publisher,
 ) *Service {
 	return &Service{
 		logger:           logger.Named("syncService"),
@@ -47,6 +52,7 @@ func New(
 		workspaceReader:  workspaceReader,
 		workspaceWriter:  workspaceWriter,
 		snap:             snap,
+		eventsPublisher:  eventsPublisher,
 	}
 }
 
@@ -63,129 +69,142 @@ func (svc *Service) OnTrunk(ctx context.Context, ws *workspaces.Workspace) (*syn
 
 	var rebaseStatusResponse *sync.RebaseStatusResponse
 
-	executor := svc.executorProvider.New().
-		AssertBranchName(ws.ID).
-		AllowRebasingState(). // allowed to get the state of existing conflicts
-		Write(func(repo vcsvcs.RepoWriter) error {
-			// Already rebasing, exit
-			if repo.IsRebasing() {
-				rb, err := repo.OpenRebase()
-				if err != nil {
-					return fmt.Errorf("failed to open previous rebase: %w", err)
-				}
-				rebaseStatusResponse, err = Status(svc.logger, rb)
-				if err != nil {
-					return fmt.Errorf("failed to get conflict status: %w", err)
-				}
-				return nil
-			}
-
-			if err := repo.FetchBranch("sturdytrunk"); err != nil {
-				return err
-			}
-
-			trunkHeadCommit, err := repo.RemoteBranchCommit("origin", "sturdytrunk")
+	rebaseFunc := func(repo vcsvcs.RepoWriter) error {
+		// Already rebasing, exit
+		if repo.IsRebasing() {
+			rb, err := repo.OpenRebase()
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to open previous rebase: %w", err)
 			}
-
-			if err := repo.CreateNewBranchOnHEAD(branchName + "_withunsaved"); err != nil {
-				return fmt.Errorf("failed to create new branch during Syncer start: %w", err)
-			}
-
-			if err := repo.CheckoutBranchSafely(branchName + "_withunsaved"); err != nil {
-				return fmt.Errorf("failed to safely checkout new branch during Syncer start: %w", err)
-			}
-
-			if err := svc.logFiles(ws.ID, "before", repo); err != nil {
-				return fmt.Errorf("failed to log changed files before sync: %w", err)
-			}
-
-			treeID, err := change_vcs.CreateChangesTreeFromPatches(svc.logger, repo, ws.CodebaseID, nil)
+			rebaseStatusResponse, err = Status(svc.logger, rb)
 			if err != nil {
-				return fmt.Errorf("failed to create tree from patches during sync: %w", err)
+				return fmt.Errorf("failed to get conflict status: %w", err)
 			}
+			return nil
+		}
 
-			// no changes, early return
-			if treeID == nil {
-				if err := repo.MoveBranchToCommit(branchName, trunkHeadCommit.Id().String()); err != nil {
-					return fmt.Errorf("failed to move branch to commit in early return: %w", err)
-				}
-				if err := repo.CheckoutBranchWithForce(branchName); err != nil {
-					return fmt.Errorf("failed to checkout branch in early return: %w", err)
-				}
-				if err := svc.complete(ctx, repo, ws.CodebaseID, ws.ID, *repo.ViewID(), nil, nil); err != nil {
-					return fmt.Errorf("failed to complete in early return: %w", err)
-				}
-				rebaseStatusResponse = &sync.RebaseStatusResponse{HaveConflicts: false}
-				return nil
+		if err := repo.FetchBranch("sturdytrunk"); err != nil {
+			return err
+		}
+
+		trunkHeadCommit, err := repo.RemoteBranchCommit("origin", "sturdytrunk")
+		if err != nil {
+			return err
+		}
+
+		if err := repo.CreateNewBranchOnHEAD(branchName + "_withunsaved"); err != nil {
+			return fmt.Errorf("failed to create new branch during Syncer start: %w", err)
+		}
+
+		if err := repo.CheckoutBranchSafely(branchName + "_withunsaved"); err != nil {
+			return fmt.Errorf("failed to safely checkout new branch during Syncer start: %w", err)
+		}
+
+		if err := svc.logFiles(ws.ID, "before", repo); err != nil {
+			return fmt.Errorf("failed to log changed files before sync: %w", err)
+		}
+
+		treeID, err := change_vcs.CreateChangesTreeFromPatches(svc.logger, repo, ws.CodebaseID, nil)
+		if err != nil {
+			return fmt.Errorf("failed to create tree from patches during sync: %w", err)
+		}
+
+		// no changes, early return
+		if treeID == nil {
+			if err := repo.MoveBranchToCommit(branchName, trunkHeadCommit.Id().String()); err != nil {
+				return fmt.Errorf("failed to move branch to commit in early return: %w", err)
 			}
-
-			sig := git.Signature{
-				Name:  "Sturdy",
-				Email: "support@getsturdy.com",
-				When:  time.Now(),
+			if err := repo.CheckoutBranchWithForce(branchName); err != nil {
+				return fmt.Errorf("failed to checkout branch in early return: %w", err)
 			}
-
-			unsavedCommitID, err := repo.CommitIndexTree(treeID, vcs.UnsavedCommitMessage, sig)
-			if err != nil {
-				return fmt.Errorf("failed to create commit with unsave changes: %w", err)
+			if err := svc.complete(ctx, repo, ws.CodebaseID, ws.ID, *repo.ViewID(), nil, nil); err != nil {
+				return fmt.Errorf("failed to complete in early return: %w", err)
 			}
-
-			if err := repo.CreateAndCheckoutBranchAtCommit(trunkHeadCommit.Id().String(), branchName); err != nil {
-				return fmt.Errorf("create and checkout branch failed: %w", err)
-			}
-
-			// Apply our unsaved changes
-			rb, rebasedCommits, err := repo.InitRebaseRaw(
-				unsavedCommitID,
-				trunkHeadCommit.Id().String(),
-			)
-			if err != nil {
-				return err
-			}
-
-			rebaseStatus, err := rb.Status()
-			if err != nil {
-				return err
-			}
-
-			// We have conflicts, require resolution from user
-			if rebaseStatus == vcsvcs.RebaseHaveConflicts {
-				// Restore large files
-				if err := repo.LargeFilesPull(); err != nil {
-					// don't fail
-					svc.logger.Error("failed to restore large files", zap.Error(err))
-				}
-
-				rebaseStatusResponse, err = Status(svc.logger, rb)
-				if err != nil {
-					return fmt.Errorf("failed to get conflict status: %w", err)
-				}
-
-				return nil
-			}
-
-			// No conflicts
-
-			if err := repo.MoveBranchToHEAD(branchName); err != nil {
-				return fmt.Errorf("branch to head failed: %w", err)
-			}
-
-			if err := svc.complete(ctx, repo, ws.CodebaseID, ws.ID, *repo.ViewID(), &unsavedCommitID, rebasedCommits); err != nil {
-				return err
-			}
-
 			rebaseStatusResponse = &sync.RebaseStatusResponse{HaveConflicts: false}
 			return nil
-		})
+		}
+
+		sig := git.Signature{
+			Name:  "Sturdy",
+			Email: "support@getsturdy.com",
+			When:  time.Now(),
+		}
+
+		unsavedCommitID, err := repo.CommitIndexTree(treeID, vcs.UnsavedCommitMessage, sig)
+		if err != nil {
+			return fmt.Errorf("failed to create commit with unsave changes: %w", err)
+		}
+
+		if err := repo.CreateAndCheckoutBranchAtCommit(trunkHeadCommit.Id().String(), branchName); err != nil {
+			return fmt.Errorf("create and checkout branch failed: %w", err)
+		}
+
+		// Apply our unsaved changes
+		rb, rebasedCommits, err := repo.InitRebaseRaw(
+			unsavedCommitID,
+			trunkHeadCommit.Id().String(),
+		)
+		if err != nil {
+			return err
+		}
+
+		rebaseStatus, err := rb.Status()
+		if err != nil {
+			return err
+		}
+
+		// We have conflicts, require resolution from user
+		if rebaseStatus == vcsvcs.RebaseHaveConflicts {
+			// Restore large files
+			if err := repo.LargeFilesPull(); err != nil {
+				// don't fail
+				svc.logger.Error("failed to restore large files", zap.Error(err))
+			}
+
+			rebaseStatusResponse, err = Status(svc.logger, rb)
+			if err != nil {
+				return fmt.Errorf("failed to get conflict status: %w", err)
+			}
+
+			return nil
+		}
+
+		// No conflicts
+
+		if err := repo.MoveBranchToHEAD(branchName); err != nil {
+			return fmt.Errorf("branch to head failed: %w", err)
+		}
+
+		if err := svc.complete(ctx, repo, ws.CodebaseID, ws.ID, *repo.ViewID(), &unsavedCommitID, rebasedCommits); err != nil {
+			return err
+		}
+
+		rebaseStatusResponse = &sync.RebaseStatusResponse{HaveConflicts: false}
+		return nil
+	}
 
 	if ws.ViewID != nil {
-		if err := executor.ExecView(ws.CodebaseID, *ws.ViewID, "syncOnTrunk"); err != nil {
+		if err := svc.executorProvider.New().
+			AssertBranchName(ws.ID).
+			AllowRebasingState(). // allowed to get the state of existing conflicts
+			Write(rebaseFunc).
+			ExecView(ws.CodebaseID, *ws.ViewID, "syncOnTrunk"); err != nil {
 			return nil, err
 		}
+		vw, err := svc.viewRepo.Get(*ws.ViewID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get view: %w", err)
+		}
+
+		if err := svc.eventsPublisher.ViewUpdated(ctx, events.Codebase(vw.CodebaseID), vw); err != nil {
+			svc.logger.Error("failed to send workspace updated event", zap.Error(err))
+			// do not fail
+		}
 	} else {
-		if err := executor.ExecTemporaryView(ws.CodebaseID, "syncOnTrunk"); err != nil {
+		if err := svc.executorProvider.New().
+			Write(vcs_view.CheckoutBranch(ws.ID)).
+			Write(rebaseFunc).
+			ExecTemporaryView(ws.CodebaseID, "syncOnTrunk"); err != nil {
 			return nil, err
 		}
 	}
