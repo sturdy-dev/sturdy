@@ -44,7 +44,7 @@
     "linkify-string": "~3.0.3",
     "linkifyjs": "~3.0.3",
     "mitt": "~2.1.0",
-    "posthog-js": "~1.16.0",
+    "posthog-js": "~1.17.9",
     "prismjs": "^1.27.0",
     "subscriptions-transport-ws": "~0.9.19",
     "tributejs": "~5.1.3",
