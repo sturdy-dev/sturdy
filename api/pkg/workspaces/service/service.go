@@ -167,8 +167,12 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 	return options
 }
 
-func (s *WorkspaceService) GetByViewID(_ context.Context, viewID string) (*workspaces.Workspace, error) {
-	return s.workspaceReader.GetByViewID(viewID, true)
+func (s *WorkspaceService) GetByViewID(ctx context.Context, viewID string) (*workspaces.Workspace, error) {
+	ws, err := s.workspaceReader.GetByViewID(viewID, true)
+	if err != nil {
+		return nil, err
+	}
+	return s.ensureArchivedState(ctx, ws)
 }
 
 func (s *WorkspaceService) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
@@ -241,7 +245,24 @@ func (s *WorkspaceService) diffsFromView(ctx context.Context, ws *workspaces.Wor
 }
 
 func (s *WorkspaceService) GetByID(ctx context.Context, id string) (*workspaces.Workspace, error) {
-	return s.workspaceReader.Get(id)
+	ws, err := s.workspaceReader.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	return s.ensureArchivedState(ctx, ws)
+}
+
+func (s *WorkspaceService) ensureArchivedState(ctx context.Context, ws *workspaces.Workspace) (*workspaces.Workspace, error) {
+	changeWasShared := ws.ChangeID != nil
+	isArchived := ws.ArchivedAt != nil
+	shoudBeArchived := changeWasShared && !isArchived
+	if !shoudBeArchived {
+		return ws, nil
+	}
+	if err := s.Archive(ctx, ws); err != nil {
+		return nil, fmt.Errorf("failed to archive workspace: %w", err)
+	}
+	return ws, nil
 }
 
 type CopyPatchesOptions struct {
