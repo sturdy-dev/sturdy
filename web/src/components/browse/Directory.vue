@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white border overflow-hidden sm:rounded-lg flex flex-col">
+  <div class="bg-white border overflow-hidden sm:rounded-lg flex flex-col ph-no-capture">
     <div class="px-4 py-2 bg-gray-50 space-y-1">
       <DirectoryBreadcrumb :path="directory?.path" :codebase="codebase" />
       <div class="text-sm text-gray-500">{{ directory.children.length }} files</div>

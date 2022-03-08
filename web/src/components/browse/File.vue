@@ -1,5 +1,5 @@
 <template>
-  <div class="border sm:rounded-lg flex flex-col overflow-hidden">
+  <div class="border sm:rounded-lg flex flex-col overflow-hidden ph-no-capture">
     <div class="px-4 py-2 bg-gray-50 space-y-1 border-b border-gray-200">
       <span v-if="hideBreadcrumb">{{ file.path }}</span>
       <DirectoryBreadcrumb v-else :path="file.path" :codebase="codebase" />
