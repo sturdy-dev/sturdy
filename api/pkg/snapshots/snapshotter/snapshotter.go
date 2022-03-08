@@ -355,10 +355,16 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 			); err != nil {
 				return nil, fmt.Errorf("failed to update workspace: %w", err)
 			}
+
+			// workspace updated
+			if err := s.eventsSender.Workspace(ws.ID, events.WorkspaceUpdated, ws.ID); err != nil {
+				s.logger.Error("failed to workspace updated event", zap.Error(err))
+				// do not fail
+			}
 		}
 
 		if isAuthoritativeView {
-			if err := s.sendEvents(workspaceID, *options.onView); err != nil {
+			if err := s.sendViewEvents(workspaceID, *options.onView); err != nil {
 				return nil, err
 			}
 		}
@@ -367,7 +373,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	return snap, nil
 }
 
-func (s *snap) sendEvents(workspaceID, viewID string) error {
+func (s *snap) sendViewEvents(workspaceID, viewID string) error {
 	// If this is a _suggestion_, send events to the view it's making suggestions to
 	ws, err := s.workspaceReader.Get(workspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -403,8 +409,9 @@ func (s *snap) sendEvents(workspaceID, viewID string) error {
 		}
 
 		ctx := context.Background()
+
 		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ownerView.CodebaseID), ownerView); err != nil {
-			s.logger.Error("failed to send codebase event", zap.Error(err))
+			s.logger.Error("failed to send view updated event", zap.Error(err))
 			// do not fail
 		}
 	}
