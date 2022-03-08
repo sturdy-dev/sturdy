@@ -59,7 +59,7 @@ func SyncTransitions(
 			return
 		}
 
-		if err := eventSender.Codebase(ctx, req.CodebaseID).ViewUpdated(view); err != nil {
+		if err := eventSender.ViewUpdated(ctx, eventsv2.Codebase(req.CodebaseID), view); err != nil {
 			logger.Error("failed to send view updated event", zap.Error(err))
 			// do not fail
 		}

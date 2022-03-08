@@ -28,7 +28,7 @@ func NewSubscriber(pubsub *PubSub) *Subscriber {
 func (s *Subscriber) User(ctx context.Context, userID users.ID) *sub {
 	return &sub{
 		pubsub: s.pubsub,
-		topic:  User(userID),
+		topic:  user(userID),
 	}
 }
 

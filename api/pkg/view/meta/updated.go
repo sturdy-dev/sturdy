@@ -32,7 +32,7 @@ func NewViewUpdatedFunc(
 			return fmt.Errorf("failed to enqueue snapshot: %w", err)
 		}
 
-		if err := eventsSender.Codebase(ctx, view.CodebaseID).ViewUpdated(view); err != nil {
+		if err := eventsSender.ViewUpdated(ctx, eventsv2.Codebase(view.CodebaseID), view); err != nil {
 			return fmt.Errorf("failed to send view updated event: %w", err)
 		}
 

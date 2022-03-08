@@ -221,7 +221,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 				return fmt.Errorf("failed to get view: %w", err)
 			}
 
-			if err := svc.eventsSenderV2.Codebase(ctx, ws.CodebaseID).ViewUpdated(vw); err != nil {
+			if err := svc.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(vw.CodebaseID), vw); err != nil {
 				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
 				// do not fail
 			}
