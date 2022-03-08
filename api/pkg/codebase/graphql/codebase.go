@@ -249,7 +249,6 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil

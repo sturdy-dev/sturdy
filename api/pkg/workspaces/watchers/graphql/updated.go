@@ -65,7 +65,6 @@ func (r *rootResolver) UpdatedWorkspaceWatchers(ctx context.Context, args resolv
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(c)
 	}()
 
 	return c, nil

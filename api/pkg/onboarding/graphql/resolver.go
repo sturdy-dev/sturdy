@@ -97,7 +97,6 @@ func (r *onboardingRootResolver) CompletedOnboardingStep(ctx context.Context) (c
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(res)
 	}()
 
 	return res, nil

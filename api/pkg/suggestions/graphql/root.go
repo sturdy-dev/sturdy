@@ -219,7 +219,6 @@ func (r *RootResolver) UpdatedSuggestion(ctx context.Context, args resolvers.Upd
 	go func() {
 		<-ctx.Done()
 		cancelFunc()
-		close(res)
 	}()
 
 	return res, nil
