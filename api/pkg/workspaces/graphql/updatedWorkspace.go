@@ -58,7 +58,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 		}
 		codebaseID = cb.ID
 	} else {
-		return nil, gq_errors.Error(gq_errors.ErrBadRequest, "mesasge", "one of shortCodebaseID or workspaceID must be set")
+		return nil, gq_errors.Error(gq_errors.ErrBadRequest, "message", "one of shortCodebaseID or workspaceID must be set")
 	}
 
 	c := make(chan resolvers.WorkspaceResolver, 100)
