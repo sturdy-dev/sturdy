@@ -206,37 +206,6 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 			return fmt.Errorf("failed to update workspace: %w", err)
 		}
 
-		// sync workspace with head if it has no conflicts
-		hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
-		if err != nil {
-			svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
-			// do not fail
-		} else if !hasConflicts {
-			if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
-				return fmt.Errorf("failed to sync workspace: %w", err)
-			}
-
-			vw, err := svc.viewRepo.Get(*ws.ViewID)
-			if err != nil {
-				return fmt.Errorf("failed to get view: %w", err)
-			}
-
-			if err := svc.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(vw.CodebaseID), vw); err != nil {
-				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
-				// do not fail
-			}
-
-			// if workspace has no diffs, archive it
-			diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
-			if err != nil {
-				svc.logger.Error("failed to get diffs", zap.Error(err))
-			} else if len(diffs) == 0 {
-				if err := svc.workspaceService.Archive(ctx, ws); err != nil {
-					return fmt.Errorf("failed to archive workspace: %w", err)
-				}
-			}
-		}
-
 		if err := svc.eventsSender.Workspace(ws.ID, events.WorkspaceUpdated, ws.ID); err != nil {
 			svc.logger.Error("failed to send workspace updated event", zap.Error(err))
 			// do not fail
@@ -278,6 +247,37 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		if err := svc.buildQueue.EnqueueChange(ctx, ch); err != nil {
 			svc.logger.Error("failed to enqueue change", zap.Error(err))
 			// do not fail
+		}
+
+		// sync workspace with head if it has no conflicts
+		hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
+		if err != nil {
+			svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
+			// do not fail
+		} else if !hasConflicts {
+			if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
+				return fmt.Errorf("failed to sync workspace: %w", err)
+			}
+
+			vw, err := svc.viewRepo.Get(*ws.ViewID)
+			if err != nil {
+				return fmt.Errorf("failed to get view: %w", err)
+			}
+
+			if err := svc.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(vw.CodebaseID), vw); err != nil {
+				svc.logger.Error("failed to send workspace updated event", zap.Error(err))
+				// do not fail
+			}
+
+			// if workspace has no diffs, archive it
+			diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
+			if err != nil {
+				svc.logger.Error("failed to get diffs", zap.Error(err))
+			} else if len(diffs) == 0 {
+				if err := svc.workspaceService.Archive(ctx, ws); err != nil {
+					return fmt.Errorf("failed to archive workspace: %w", err)
+				}
+			}
 		}
 	}
 
