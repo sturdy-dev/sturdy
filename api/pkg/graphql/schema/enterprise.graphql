@@ -175,6 +175,13 @@ type GitHubApp {
     _id: ID! # Always "sturdy"
     name: String!
     clientID: String!
+    validation: GithubValidationApp!
+}
+
+type GithubValidationApp{
+    ok: Boolean!
+    missingPermissions: [String!]!
+    missingEvents: [String!]!
 }
 
 input CreateOrUpdateBuildkiteIntegrationInput {

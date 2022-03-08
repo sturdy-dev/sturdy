@@ -225,3 +225,60 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 
 	return nil
 }
+
+func (s *Service) CheckPermissions(ctx context.Context) (bool, []string, []string, error) {
+	provider, err := s.gitHubAppClientProvider(s.gitHubAppConfig)
+	if err != nil {
+		return false, nil, nil, fmt.Errorf("failed to get github app client provider: %w", err)
+	}
+
+	get, _, err := provider.Get(ctx, "")
+	if err != nil {
+		return false, nil, nil, fmt.Errorf("failed to get github app: %w", err)
+	}
+
+	var missingPermissions []string
+	insertMissingPermission := func(key string) {
+		missingPermissions = append(missingPermissions, key)
+	}
+
+	permissions := get.Permissions
+	if permissions.GetContents() != "write" {
+		insertMissingPermission("Content")
+	}
+	if permissions.GetMetadata() != "read" {
+		insertMissingPermission("Metadata")
+	}
+	if permissions.GetPullRequests() != "write" {
+		insertMissingPermission("Pull Request")
+	}
+	if permissions.GetStatuses() != "read" {
+		insertMissingPermission("Status")
+	}
+	if permissions.GetWorkflows() != "write" {
+		insertMissingPermission("Workflows")
+	}
+
+	eventsMap := make(map[string]string)
+	eventsMap["pull_request"] = "Pull Request"
+	eventsMap["pull_request_review"] = "Pull Request Review"
+	eventsMap["push"] = "Push"
+	eventsMap["status"] = "Status"
+	eventsMap["workflow_job"] = "Workflow Job"
+
+	eventsEnabled := make(map[string]bool)
+	for _, e := range get.Events {
+		eventsEnabled[e] = true
+	}
+
+	var missingEvents []string
+	for key, element := range eventsMap {
+		if !eventsEnabled[key] {
+			missingEvents = append(missingEvents, element)
+		}
+	}
+
+	hasErrors := len(missingPermissions) > 0 || len(missingEvents) > 0
+
+	return !hasErrors, missingPermissions, missingEvents, nil
+}
