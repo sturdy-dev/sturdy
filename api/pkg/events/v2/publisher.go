@@ -43,8 +43,6 @@ func NewPublisher(
 }
 
 type receiver struct {
-	publisher *Publisher
-
 	UserIDs         []users.ID
 	WorkspaceIDs    []string
 	CodebaseIDs     []string
@@ -75,14 +73,14 @@ func Organization(organizationID string) *receiver {
 	}
 }
 
-func (r *receiver) Topics(ctx context.Context) (map[Topic]bool, error) {
+func (r *receiver) Topics(ctx context.Context, publisher *Publisher) (map[Topic]bool, error) {
 	topics := map[Topic]bool{}
 	for _, userID := range r.UserIDs {
 		topics[user(userID)] = true
 	}
 
 	for _, workspaceID := range r.WorkspaceIDs {
-		ws, err := r.publisher.workspaceRepo.Get(workspaceID)
+		ws, err := publisher.workspaceRepo.Get(workspaceID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get workspace %s: %w", workspaceID, err)
 		}
@@ -90,7 +88,7 @@ func (r *receiver) Topics(ctx context.Context) (map[Topic]bool, error) {
 	}
 
 	for _, codebaseID := range r.CodebaseIDs {
-		members, err := r.publisher.codebaseUserRepo.GetByCodebase(codebaseID)
+		members, err := publisher.codebaseUserRepo.GetByCodebase(codebaseID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get codebase members: %w", err)
 		}
@@ -100,7 +98,7 @@ func (r *receiver) Topics(ctx context.Context) (map[Topic]bool, error) {
 	}
 
 	for _, organizationID := range r.OrganizationIDs {
-		members, err := r.publisher.organizationMemberRepo.ListByOrganizationID(ctx, organizationID)
+		members, err := publisher.organizationMemberRepo.ListByOrganizationID(ctx, organizationID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get organization members: %w", err)
 		}
@@ -113,7 +111,7 @@ func (r *receiver) Topics(ctx context.Context) (map[Topic]bool, error) {
 }
 
 func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -127,7 +125,7 @@ func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codeb
 }
 
 func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -141,7 +139,7 @@ func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, cod
 }
 
 func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -155,7 +153,7 @@ func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *v
 }
 
 func (p *Publisher) ViewStatusUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -169,7 +167,7 @@ func (p *Publisher) ViewStatusUpdated(ctx context.Context, receiver *receiver, v
 }
 
 func (p *Publisher) WorkspaceUpdated(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -183,7 +181,7 @@ func (p *Publisher) WorkspaceUpdated(ctx context.Context, receiver *receiver, wo
 }
 
 func (p *Publisher) WorkspaceUpdatedComments(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -197,7 +195,7 @@ func (p *Publisher) WorkspaceUpdatedComments(ctx context.Context, receiver *rece
 }
 
 func (p *Publisher) WorkspaceUpdatedReviews(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -211,7 +209,7 @@ func (p *Publisher) WorkspaceUpdatedReviews(ctx context.Context, receiver *recei
 }
 
 func (p *Publisher) WorkspaceUpdatedActivity(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -225,7 +223,7 @@ func (p *Publisher) WorkspaceUpdatedActivity(ctx context.Context, receiver *rece
 }
 
 func (p *Publisher) WorkspaceUpdatedSnapshot(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -239,7 +237,7 @@ func (p *Publisher) WorkspaceUpdatedSnapshot(ctx context.Context, receiver *rece
 }
 
 func (p *Publisher) WorkspaceUpdatedPresence(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -253,7 +251,7 @@ func (p *Publisher) WorkspaceUpdatedPresence(ctx context.Context, receiver *rece
 }
 
 func (p *Publisher) WorkspaceUpdatedSuggestion(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -267,7 +265,7 @@ func (p *Publisher) WorkspaceUpdatedSuggestion(ctx context.Context, receiver *re
 }
 
 func (p *Publisher) WorkspaceWatchingStatusUpdated(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -281,7 +279,7 @@ func (p *Publisher) WorkspaceWatchingStatusUpdated(ctx context.Context, receiver
 }
 
 func (p *Publisher) ReviewUpdated(ctx context.Context, receiver *receiver, review *review.Review) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -295,7 +293,7 @@ func (p *Publisher) ReviewUpdated(ctx context.Context, receiver *receiver, revie
 }
 
 func (p *Publisher) GitHubPRUpdated(ctx context.Context, receiver *receiver, pr *github.GitHubPullRequest) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -309,7 +307,7 @@ func (p *Publisher) GitHubPRUpdated(ctx context.Context, receiver *receiver, pr 
 }
 
 func (p *Publisher) NotificationEvent(ctx context.Context, receiver *receiver, notification *notification.Notification) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -323,7 +321,7 @@ func (p *Publisher) NotificationEvent(ctx context.Context, receiver *receiver, n
 }
 
 func (p *Publisher) StatusUpdated(ctx context.Context, receiver *receiver, status *statuses.Status) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -337,7 +335,7 @@ func (p *Publisher) StatusUpdated(ctx context.Context, receiver *receiver, statu
 }
 
 func (p *Publisher) CompletedOnboardingStep(ctx context.Context, receiver *receiver, step *onboarding.Step) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -351,7 +349,7 @@ func (p *Publisher) CompletedOnboardingStep(ctx context.Context, receiver *recei
 }
 
 func (p *Publisher) OrganizationUpdated(ctx context.Context, receiver *receiver, organization *organization.Organization) error {
-	topics, err := receiver.Topics(ctx)
+	topics, err := receiver.Topics(ctx, p)
 	if err != nil {
 		return err
 	}
