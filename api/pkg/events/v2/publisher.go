@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"fmt"
 
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/github"
@@ -20,7 +21,7 @@ import (
 )
 
 type Publisher struct {
-	pubsub *PubSub
+	pubSub *PubSub
 
 	codebaseUserRepo       db_codebase.CodebaseUserRepository
 	organizationMemberRepo db_organization.MemberRepository
@@ -34,73 +35,89 @@ func NewPublisher(
 	organizationMemberRepo db_organization.MemberRepository,
 ) *Publisher {
 	return &Publisher{
-		pubsub:                 pubsub,
+		pubSub:                 pubsub,
 		codebaseUserRepo:       codebaseUserRepo,
 		workspaceRepo:          workspaceRepo,
 		organizationMemberRepo: organizationMemberRepo,
 	}
 }
 
-func (s *Publisher) User(ctx context.Context, userID ...users.ID) *publisher {
-	topics := []Topic{}
-	for _, id := range userID {
-		topics = append(topics, User(id))
-	}
-	return &publisher{
-		topics: topics,
-		pubSub: s.pubsub,
+type receiver struct {
+	publisher *Publisher
+
+	UserIDs         []users.ID
+	WorkspaceIDs    []string
+	CodebaseIDs     []string
+	OrganizationIDs []string
+}
+
+func Workspace(workspaceID string) *receiver {
+	return &receiver{
+		WorkspaceIDs: []string{workspaceID},
 	}
 }
 
-func (s *Publisher) Codebase(ctx context.Context, id string) *publisher {
-	members, err := s.codebaseUserRepo.GetByCodebase(id)
-	if err != nil {
-		return &publisher{
-			err: err,
+func User(userID users.ID) *receiver {
+	return &receiver{
+		UserIDs: []users.ID{userID},
+	}
+}
+
+func Codebase(codebaseID string) *receiver {
+	return &receiver{
+		CodebaseIDs: []string{codebaseID},
+	}
+}
+
+func Organization(organizationID string) *receiver {
+	return &receiver{
+		OrganizationIDs: []string{organizationID},
+	}
+}
+
+func (r *receiver) Topics(ctx context.Context) (map[Topic]bool, error) {
+	topics := map[Topic]bool{}
+	for _, userID := range r.UserIDs {
+		topics[user(userID)] = true
+	}
+
+	for _, workspaceID := range r.WorkspaceIDs {
+		ws, err := r.publisher.workspaceRepo.Get(workspaceID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get workspace %s: %w", workspaceID, err)
+		}
+		r.CodebaseIDs = append(r.CodebaseIDs, ws.CodebaseID)
+	}
+
+	for _, codebaseID := range r.CodebaseIDs {
+		members, err := r.publisher.codebaseUserRepo.GetByCodebase(codebaseID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get codebase members: %w", err)
+		}
+		for _, member := range members {
+			topics[user(member.UserID)] = true
 		}
 	}
-	userIDs := []users.ID{}
-	for _, member := range members {
-		userIDs = append(userIDs, member.UserID)
-	}
-	return s.User(ctx, userIDs...)
-}
 
-func (s *Publisher) Workspace(ctx context.Context, id string) *publisher {
-	ws, err := s.workspaceRepo.Get(id)
-	if err != nil {
-		return &publisher{
-			err: err,
+	for _, organizationID := range r.OrganizationIDs {
+		members, err := r.publisher.organizationMemberRepo.ListByOrganizationID(ctx, organizationID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get organization members: %w", err)
+		}
+		for _, member := range members {
+			topics[user(member.UserID)] = true
 		}
 	}
-	return s.Codebase(ctx, ws.CodebaseID)
+
+	return topics, nil
 }
 
-func (s *Publisher) Organization(ctx context.Context, id string) *publisher {
-	members, err := s.organizationMemberRepo.ListByOrganizationID(ctx, id)
+func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
+	topics, err := receiver.Topics(ctx)
 	if err != nil {
-		return &publisher{
-			err: err,
-		}
+		return err
 	}
-	userIDs := []users.ID{}
-	for _, member := range members {
-		userIDs = append(userIDs, member.UserID)
-	}
-	return s.User(ctx, userIDs...)
-}
-
-type publisher struct {
-	err    error
-	topics []Topic
-	pubSub *PubSub
-}
-
-func (p *publisher) CodebaseEvent(codebase *codebase.Codebase) error {
-	if p.err != nil {
-		return p.err
-	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:     CodebaseEvent,
 			Codebase: codebase,
@@ -109,11 +126,12 @@ func (p *publisher) CodebaseEvent(codebase *codebase.Codebase) error {
 	return nil
 }
 
-func (p *publisher) CodebaseUpdated(codebase *codebase.Codebase) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:     CodebaseUpdated,
 			Codebase: codebase,
@@ -122,11 +140,12 @@ func (p *publisher) CodebaseUpdated(codebase *codebase.Codebase) error {
 	return nil
 }
 
-func (p *publisher) ViewUpdated(view *view.View) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type: ViewUpdated,
 			View: view,
@@ -135,11 +154,12 @@ func (p *publisher) ViewUpdated(view *view.View) error {
 	return nil
 }
 
-func (p *publisher) ViewStatusUpdated(view *view.View) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) ViewStatusUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type: ViewStatusUpdated,
 			View: view,
@@ -148,11 +168,12 @@ func (p *publisher) ViewStatusUpdated(view *view.View) error {
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdated(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdated(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdated,
 			Workspace: workspace,
@@ -161,11 +182,12 @@ func (p *publisher) WorkspaceUpdated(workspace *workspaces.Workspace) error {
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedComments(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedComments(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedComments,
 			Workspace: workspace,
@@ -174,11 +196,12 @@ func (p *publisher) WorkspaceUpdatedComments(workspace *workspaces.Workspace) er
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedReviews(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedReviews(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedReviews,
 			Workspace: workspace,
@@ -187,11 +210,12 @@ func (p *publisher) WorkspaceUpdatedReviews(workspace *workspaces.Workspace) err
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedActivity(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedActivity(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedActivity,
 			Workspace: workspace,
@@ -200,11 +224,12 @@ func (p *publisher) WorkspaceUpdatedActivity(workspace *workspaces.Workspace) er
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedSnapshot(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedSnapshot(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedSnapshot,
 			Workspace: workspace,
@@ -213,11 +238,12 @@ func (p *publisher) WorkspaceUpdatedSnapshot(workspace *workspaces.Workspace) er
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedPresence(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedPresence(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedPresence,
 			Workspace: workspace,
@@ -226,11 +252,12 @@ func (p *publisher) WorkspaceUpdatedPresence(workspace *workspaces.Workspace) er
 	return nil
 }
 
-func (p *publisher) WorkspaceUpdatedSuggestion(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceUpdatedSuggestion(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceUpdatedSuggestion,
 			Workspace: workspace,
@@ -239,11 +266,12 @@ func (p *publisher) WorkspaceUpdatedSuggestion(workspace *workspaces.Workspace) 
 	return nil
 }
 
-func (p *publisher) WorkspaceWatchingStatusUpdated(workspace *workspaces.Workspace) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) WorkspaceWatchingStatusUpdated(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:      WorkspaceWatchingStatusUpdated,
 			Workspace: workspace,
@@ -252,11 +280,12 @@ func (p *publisher) WorkspaceWatchingStatusUpdated(workspace *workspaces.Workspa
 	return nil
 }
 
-func (p *publisher) ReviewUpdated(review *review.Review) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) ReviewUpdated(ctx context.Context, receiver *receiver, review *review.Review) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:   ReviewUpdated,
 			Review: review,
@@ -265,11 +294,12 @@ func (p *publisher) ReviewUpdated(review *review.Review) error {
 	return nil
 }
 
-func (p *publisher) GitHubPRUpdated(pr *github.GitHubPullRequest) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) GitHubPRUpdated(ctx context.Context, receiver *receiver, pr *github.GitHubPullRequest) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:              GitHubPRUpdated,
 			GitHubPullRequest: pr,
@@ -278,11 +308,12 @@ func (p *publisher) GitHubPRUpdated(pr *github.GitHubPullRequest) error {
 	return nil
 }
 
-func (p *publisher) NotificationEvent(notification *notification.Notification) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) NotificationEvent(ctx context.Context, receiver *receiver, notification *notification.Notification) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:         NotificationEvent,
 			Notification: notification,
@@ -291,11 +322,12 @@ func (p *publisher) NotificationEvent(notification *notification.Notification) e
 	return nil
 }
 
-func (p *publisher) StatusUpdated(status *statuses.Status) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) StatusUpdated(ctx context.Context, receiver *receiver, status *statuses.Status) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:   StatusUpdated,
 			Status: status,
@@ -304,11 +336,12 @@ func (p *publisher) StatusUpdated(status *statuses.Status) error {
 	return nil
 }
 
-func (p *publisher) CompletedOnboardingStep(step *onboarding.Step) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) CompletedOnboardingStep(ctx context.Context, receiver *receiver, step *onboarding.Step) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:           CompletedOnboardingStep,
 			OnboardingStep: step,
@@ -317,11 +350,12 @@ func (p *publisher) CompletedOnboardingStep(step *onboarding.Step) error {
 	return nil
 }
 
-func (p *publisher) OrganizationUpdated(organization *organization.Organization) error {
-	if p.err != nil {
-		return p.err
+func (p *Publisher) OrganizationUpdated(ctx context.Context, receiver *receiver, organization *organization.Organization) error {
+	topics, err := receiver.Topics(ctx)
+	if err != nil {
+		return err
 	}
-	for _, topic := range p.topics {
+	for topic := range topics {
 		p.pubSub.pub(topic, &event{
 			Type:         OrganizationUpdated,
 			Organization: organization,

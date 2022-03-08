@@ -62,7 +62,7 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsServ
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		if err := eventsSender.Codebase(ctx, viewObj.CodebaseID).ViewUpdated(viewObj); err != nil {
+		if err := eventsSender.ViewUpdated(ctx, eventsv2.Codebase(viewObj.CodebaseID), viewObj); err != nil {
 			logger.Error("could not send event", zap.Error(err))
 			// do not fail
 		}

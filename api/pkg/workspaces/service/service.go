@@ -615,7 +615,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 			return nil, fmt.Errorf("could not get view: %w", err)
 		}
 
-		if err := s.eventsSenderV2.Codebase(ctx, ws.CodebaseID).ViewUpdated(vw); err != nil {
+		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ws.CodebaseID), vw); err != nil {
 			return nil, fmt.Errorf("failed to send view updated event: %w", err)
 		}
 	}

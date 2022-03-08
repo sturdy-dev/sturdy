@@ -21,7 +21,7 @@ type callback func(context.Context, *event) error
 
 type Topic string
 
-func User(userID users.ID) Topic {
+func user(userID users.ID) Topic {
 	return Topic(fmt.Sprintf("user:%s", userID))
 }
 

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"getsturdy.com/api/pkg/events/v2"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/vcs"
 
@@ -118,7 +119,7 @@ func OpenWorkspaceOnView(
 		return fmt.Errorf("failed to update view obj: %w", err)
 	}
 
-	if err := eventSender.Workspace(ctx, ws.ID).ViewUpdated(view); err != nil {
+	if err := eventSender.ViewUpdated(ctx, events.Workspace(ws.ID), view); err != nil {
 		logger.Error("failed to send view updated event: %w", zap.Error(err))
 		// do not fail
 	}

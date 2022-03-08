@@ -403,7 +403,7 @@ func (s *snap) sendEvents(workspaceID, viewID string) error {
 		}
 
 		ctx := context.Background()
-		if err := s.eventsSenderV2.Codebase(ctx, ownerView.CodebaseID).ViewUpdated(ownerView); err != nil {
+		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ownerView.CodebaseID), ownerView); err != nil {
 			s.logger.Error("failed to send codebase event", zap.Error(err))
 			// do not fail
 		}

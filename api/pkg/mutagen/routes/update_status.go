@@ -99,7 +99,7 @@ func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, vi
 			return
 		}
 
-		if err := eventsSender.Codebase(ctx, vw.CodebaseID).ViewStatusUpdated(vw); err != nil {
+		if err := eventsSender.ViewStatusUpdated(ctx, eventsv2.Codebase(vw.CodebaseID), vw); err != nil {
 			logger.Error("failed to send event", zap.Error(err))
 			// do not fail
 		}
