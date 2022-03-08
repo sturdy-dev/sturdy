@@ -158,7 +158,9 @@ export default defineComponent({
   },
   beforeUnmount() {
     const textarea = this.$refs['textarea'] as Element
-    this.tribute?.detach(textarea)
+    try {
+      this.tribute?.detach(textarea)
+    } catch {}
   },
 })
 </script>
