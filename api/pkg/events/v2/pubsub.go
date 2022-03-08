@@ -52,7 +52,7 @@ func (r *PubSub) pub(topic Topic, evt *event) {
 		go func() {
 			defer func() {
 				if rec := recover(); rec != nil {
-					r.logger.Error("panic in events v2 publisher", zap.Any("recover", rec))
+					r.logger.Error("panic in events v2 publisher", zap.Any("recover", rec), zap.Stack("stack"))
 				}
 			}()
 
