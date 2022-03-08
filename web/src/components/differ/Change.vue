@@ -42,12 +42,12 @@ export default {
     hasHiddenChanges() {
       return this.change.diffs.length > this.diffs.length
     },
-    authenticaetd() {
+    authenticated() {
       return !!this.user
     },
     authorized() {
       const isMember = this.members.some(({ id }) => id == this.user?.id)
-      return this.authenticaetd && isMember
+      return this.authenticated && isMember
     },
   },
 }

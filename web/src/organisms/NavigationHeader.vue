@@ -67,7 +67,7 @@
                   </router-link>
                   <router-link
                     v-else
-                    :to="{ name: 'download' }"
+                    :to="{ name: 'v2download' }"
                     :class="[
                       light
                         ? 'hover:bg-amber-400 text-slate-800'
