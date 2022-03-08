@@ -50,6 +50,12 @@ func (r *PubSub) pub(topic Topic, evt *event) {
 	for _, handler := range handlers {
 		handler := handler
 		go func() {
+			defer func() {
+				if rec := recover(); rec != nil {
+					r.logger.Error("panic in events v2 publisher", zap.Any("recover", rec))
+				}
+			}()
+
 			if err := handler.callback(handler.ctx, evt); err != nil {
 				r.logger.Error("failed to publish event", zap.Error(err))
 			}
