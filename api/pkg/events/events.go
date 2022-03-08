@@ -150,7 +150,7 @@ func (i *inMemory) work() {
 			do := func() (err error) {
 				defer func() {
 					if r := recover(); r != nil {
-						i.logger.Error("panic in events worker (unsubscribing)", zap.Any("recover", r))
+						i.logger.Error("panic in events worker (unsubscribing)", zap.Any("recover", r), zap.Stack("stack"))
 						err = ErrClientDisconnected
 					}
 				}()
