@@ -49,12 +49,16 @@ import WorkspaceActivityComment, {
 import WorkspaceActivityReviewed, {
   WORKSPACE_ACTIVITY_REVIEWED_FRAGMENT,
 } from './ActivityReviewed.vue'
-import { onUnmounted, toRefs, watch, PropType } from 'vue'
+import { defineComponent, onUnmounted, PropType, toRefs, watch } from 'vue'
 import { gql, useMutation } from '@urql/vue'
-import { WorkspaceActivity, User } from '../../__generated__/types'
+import {
+  WorkspaceActivityCodebaseMemberFragment,
+  WorkspaceActivityFragment,
+} from './__generated__/Activity'
 
 export const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   fragment WorkspaceActivity on WorkspaceActivity {
+    __typename
     id
     createdAt
     author {
@@ -81,8 +85,15 @@ export const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   ${WORKSPACE_ACTIVITY_COMMENT_FRAGMENT}
 `
 
-export default {
-  name: 'WorkspaceActivity',
+export const WORKSPACE_ACTIVITY_CODEBASE_MEMBER_FRAGMENT = gql`
+  fragment WorkspaceActivityCodebaseMember on User {
+    id
+    name
+    avatarUrl
+  }
+`
+
+export default defineComponent({
   components: {
     WorkspaceActivityComment,
     WorkspaceActivityCreatedChange,
@@ -94,7 +105,7 @@ export default {
       type: Object,
     },
     activity: {
-      type: Object as PropType<WorkspaceActivity[]>,
+      type: Object as PropType<Array<WorkspaceActivityFragment>>,
       required: true,
     },
     codebaseSlug: {
@@ -102,7 +113,7 @@ export default {
       required: true,
     },
     members: {
-      type: Array as PropType<User[]>,
+      type: Array as PropType<Array<WorkspaceActivityCodebaseMemberFragment>>,
       required: true,
     },
   },
@@ -176,5 +187,5 @@ export default {
 
     return {}
   },
-}
+})
 </script>
