@@ -145,7 +145,21 @@ func (i *inMemory) work() {
 
 		var unregKeys []TopicSubscriber
 		for ts, cb := range subs {
-			err := cb(event.eventType, event.reference)
+
+			// run in a function to be able to recover from panics
+			do := func() (err error) {
+				defer func() {
+					if r := recover(); r != nil {
+						i.logger.Error("panic in events worker (unsubscribing)", zap.Error(err))
+						err = ErrClientDisconnected
+					}
+				}()
+				err = cb(event.eventType, event.reference)
+				return
+			}
+
+			err := do()
+
 			switch {
 			case errors.Is(err, ErrClientDisconnected):
 				receivedEventCounterMetric.WithLabelValues(eventTypeString[event.eventType], "no").Inc()
