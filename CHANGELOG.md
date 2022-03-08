@@ -8,6 +8,16 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.4.0 (2022-03-08)
+
+* [Improvement] Improvements to the workflow. When sharing a change to trunk, you're now redirected to the change that you created. A workspace (to be renamed to "Draft Changes" in an upcoming release) can now only be used once. After sharing a change Sturdy will automatically create a new workspace on trunk and connect it to your computer.
+* [Improvement] Allow to rename a organization
+* [Improvement] Notifications for comments on changes are now sent
+* [Improvement] See the activity feed for changes
+* [Fix] Snapshots are now more reliable
+* [Fix] Improved reliability and fixed a panic in the Events Sender (powering GraphQL Subscriptions)
+* [Fix] Real-time diff streaming is now more reliable
+
 # Server v1.3.0 (2022-03-01)
 
 * [Improvement] Improved reliability when starting the oneliner for the first time. Reduced number of timeouts related to setting up the bundled PostgreSQL server.
