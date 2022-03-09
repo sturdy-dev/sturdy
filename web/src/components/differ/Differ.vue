@@ -9,7 +9,7 @@
         :file-key="fileKey"
         :diffs="fileDiffs"
         :extra-classes="extraClasses"
-        :comments="commentsByFile[fileDiffs.new_name || fileDiffs.newName] ?? []"
+        :comments="commentsByFile[fileDiffs.newName] ?? []"
         :suggestions="suggestionsForFile(fileDiffs)"
         :new-comment-avatar-url="newCommentAvatarUrl"
         :can-comment="canComment"
@@ -27,8 +27,8 @@
         :show-add-button="showAddButton"
         :differ-state="getDifferState(fileKey)"
         @fileSelectedHunks="updateSelectedHunks"
-        @applyHunkedSuggestion="onApplyHunkedSuggestion"
-        @dismissHunkedSuggestion="onDismissHunkedSuggestion"
+        @applyHunkedSuggestion="(e) => $emit('applyHunkedSuggestion', e)"
+        @dismissHunkedSuggestion="(e) => $emit('dismissHunkedSuggestion', e)"
         @set-comment-expanded="onSetCommentExpanded"
         @set-comment-composing-reply="onSetCommentComposingReply"
         @set-is-hidden="onSetFileIsHidden"
@@ -52,6 +52,41 @@ import {
 } from '../comments/CommentState'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
 import { DifferState, SetFileIsHiddenEvent } from './DifferState'
+import { gql } from '@urql/vue'
+import {
+  DIFFER_FILE_TOP_COMMENT,
+  DIFFER_FILE_FILE_DIFF,
+  DIFFER_FILE_SUGGESTION,
+} from './DifferFile.vue'
+import type {
+  Differ_TopCommentFragment,
+  Differ_FileDiffFragment,
+  Differ_SuggestionFragment,
+} from './__generated__/Differ'
+
+export const DIFFER_TOP_COMMENT_FRAGMENT = gql`
+  fragment Differ_TopComment on TopComment {
+    id
+    ...DifferFile_TopComment
+  }
+  ${DIFFER_FILE_TOP_COMMENT}
+`
+
+export const DIFFER_FILE_DIFF = gql`
+  fragment Differ_FileDiff on FileDiff {
+    id
+    ...DifferFile_FileDiff
+  }
+  ${DIFFER_FILE_FILE_DIFF}
+`
+
+export const DIFFER_SUGGESTION = gql`
+  fragment Differ_Suggestion on Suggestion {
+    id
+    ...DifferFile_Suggestion
+  }
+  ${DIFFER_FILE_SUGGESTION}
+`
 
 const getIndicesOf = function (searchStr: string, str: string, caseSensitive: boolean): number[] {
   let searchStrLen = searchStr.length
@@ -80,29 +115,40 @@ export default defineComponent({
   props: {
     isSuggesting: Boolean,
     diffs: {
-      type: Array, // []unidiff.FileDiff
+      type: Array as PropType<Differ_FileDiffFragment[]>,
       required: true,
     },
-    comments: Object,
+    comments: {
+      type: Array as PropType<Differ_TopCommentFragment[]>,
+      required: true,
+    },
     extraClasses: String,
     newCommentAvatarUrl: String,
     canComment: Boolean,
 
     workspace: {
       type: Object as PropType<ReviewNewCommentWorkspaceFragment>,
+      required: false,
     },
     view: {
       type: Object as PropType<ReviewNewCommentViewFragment>,
+      required: false,
     },
     change: {
       type: Object as PropType<ReviewNewCommentChangeFragment>,
     },
-
-    suggestionsByFile: Object,
-    initShowSuggestionsByUser: String,
+    suggestionsByFile: {
+      type: Object as PropType<{ [key: string]: Differ_SuggestionFragment[] }>,
+      required: false,
+    },
+    initShowSuggestionsByUser: {
+      type: String,
+      required: false,
+    },
     // The logged in user
     user: {
       type: Object as PropType<UserFragment>,
+      required: false,
     },
     // members of the selected codebase
     members: {
@@ -123,8 +169,8 @@ export default defineComponent({
       hoveringCommentID: null,
       showComments: false,
 
-      searchQuery: null,
-      searchCurrentSelectedId: null,
+      searchQuery: null as string | null,
+      searchCurrentSelectedId: null as string | null,
 
       // Client side state of comments is stored here
       // Which comments that are expanded, and which ones that we're currently replying to (and with their contents)
@@ -161,36 +207,23 @@ export default defineComponent({
       return result
     },
     commentsByFile() {
+      const result = {} as Record<string, Differ_TopCommentFragment[]>
       if (!this.comments) {
-        return {}
+        return result
       }
-
-      let res = {}
-
-      this.comments.forEach((val) => {
-        if (!val.codeContext) {
-          return true // continue
-        }
-        if (!res[val.codeContext.path]) {
-          res[val.codeContext.path] = []
-        }
-        res[val.codeContext.path].push(val)
-      })
-
-      return res
+      return this.comments.reduce((acc, comment) => {
+        if (!comment.codeContext) return acc
+        if (!acc[comment.codeContext.path]) acc[comment.codeContext.path] = []
+        acc[comment.codeContext.path].push(comment)
+        return acc
+      }, result)
     },
     diffsByFile() {
-      let res = {}
-      this.diffs.forEach((diff) => {
-        let fileKey
-        if (diff.orig_name) {
-          fileKey = diff.orig_name + '//' + diff.new_name
-        } else {
-          fileKey = diff.origName + '//' + diff.newName
-        }
-        res[fileKey] = diff
-      })
-      return res
+      return this.diffs.reduce((acc, diff) => {
+        const fileKey = `${diff.origName}//${diff.newName}`
+        acc[fileKey] = diff
+        return acc
+      }, {} as Record<string, Differ_FileDiffFragment>)
     },
   },
   mounted() {
@@ -202,7 +235,7 @@ export default defineComponent({
     this.emitter.off('search', this.onSearch)
   },
   methods: {
-    updateSelectedHunks(event) {
+    updateSelectedHunks(event: { fileKey: string; patchIDs: string[] }) {
       this.selectedHunksIDsByFile.set(event.fileKey, event.patchIDs)
 
       // Forward upwards!
@@ -224,19 +257,11 @@ export default defineComponent({
         selected: true,
       })
     },
-    onDismissHunkedSuggestion(e) {
-      this.$emit('dismissHunkedSuggestion', e)
-    },
-    onApplyHunkedSuggestion(e) {
-      this.$emit('applyHunkedSuggestion', e)
-    },
-    suggestionsForFile(diff) {
+    suggestionsForFile(diff: Differ_FileDiffFragment) {
       if (!this.suggestionsByFile) return []
-      const suggestions = this.suggestionsByFile[diff.preferredName || diff.preferred_name]
-      if (!suggestions) return []
-      return suggestions
+      return this.suggestionsByFile[diff.preferredName] ?? []
     },
-    onSearch(event) {
+    onSearch(event: { searchQuery: string; searchCurrentSelectedId: string }) {
       this.searchQuery = event.searchQuery
       this.searchCurrentSelectedId = event.searchCurrentSelectedId
     },

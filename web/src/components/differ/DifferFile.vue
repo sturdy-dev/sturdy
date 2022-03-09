@@ -286,14 +286,14 @@ import { CommentState } from '../comments/CommentState'
 import { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
 import {
-  DifferFileCommentFragment,
-  DifferFileDiffFragment,
+  DifferFile_TopCommentFragment,
+  DifferFile_FileDiffFragment,
   DifferFile_SuggestionFragment,
 } from './__generated__/DifferFile'
 
 type SuggestionHunk = DifferFile_SuggestionFragment['diffs'][number]['hunks'][number]
 
-export const SUGGESTION_FRAGMENT = gql`
+export const DIFFER_FILE_SUGGESTION = gql`
   fragment DifferFile_Suggestion on Suggestion {
     id
     author {
@@ -313,8 +313,8 @@ export const SUGGESTION_FRAGMENT = gql`
   ${DIFF_TABLE_HUNK_FRAGMENT}
 `
 
-export const DIFFER_FILE_DIFF = gql`
-  fragment DifferFileDiff on FileDiff {
+export const DIFFER_FILE_FILE_DIFF = gql`
+  fragment DifferFile_FileDiff on FileDiff {
     id
 
     origName
@@ -336,8 +336,8 @@ export const DIFFER_FILE_DIFF = gql`
   }
 `
 
-export const DIFFER_FILE_COMMENT = gql`
-  fragment DifferFileComment on TopComment {
+export const DIFFER_FILE_TOP_COMMENT = gql`
+  fragment DifferFile_TopComment on TopComment {
     id
     message
     codeContext {
@@ -421,12 +421,12 @@ export default defineComponent({
     },
     extraClasses: String,
     diffs: {
-      type: Object as PropType<DifferFileDiffFragment>,
+      type: Object as PropType<DifferFile_FileDiffFragment>,
       required: true,
     },
 
     comments: {
-      type: Object as PropType<DifferFileCommentFragment[]>,
+      type: Object as PropType<DifferFile_TopCommentFragment[]>,
       required: true,
     },
 
@@ -438,7 +438,10 @@ export default defineComponent({
     },
     initShowSuggestionsByUser: String,
     hoveringCommentID: String,
-    showFullFileButton: Boolean,
+    showFullFileButton: {
+      type: Boolean,
+      default: false,
+    },
 
     searchResult: {
       type: Object as PropType<Map<string, number[]>>,
@@ -709,8 +712,8 @@ export default defineComponent({
     hideMakeNewCommentPill() {
       this.showMakeNewCommentPillPos = undefined
     },
-    commentsOnRow(oldRow: number, newRow: number): Array<DifferFileCommentFragment> {
-      let res = Array<DifferFileCommentFragment>()
+    commentsOnRow(oldRow: number, newRow: number): Array<DifferFile_TopCommentFragment> {
+      let res = Array<DifferFile_TopCommentFragment>()
 
       if (!this.comments) {
         return res
