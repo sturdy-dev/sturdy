@@ -13,6 +13,7 @@ function wsWithName(name: string): NavigationWorkspace {
     currentView: undefined,
     isOwnedByUser: false,
     suggestingWorkspaces: [],
+    renderNameItalics: false,
   }
 }
 
@@ -51,7 +52,7 @@ describe('MenuHelper', () => {
   })
 
   it('real world data', () => {
-    const workspaces = [
+    const workspaces: NavigationWorkspace[] = [
       {
         id: 'bb1e2ed4-1369-4b1b-89fa-26faf541c312',
         name: "Fo ofooo's Workspace",
@@ -68,6 +69,7 @@ describe('MenuHelper', () => {
         currentView: undefined,
         isOwnedByUser: true,
         suggestingWorkspaces: [],
+        renderNameItalics: false,
       },
       {
         id: 'b9006ec0-9e85-4f20-b30f-550f4d47131f',
@@ -86,6 +88,7 @@ describe('MenuHelper', () => {
         currentView: undefined,
         isOwnedByUser: true,
         suggestingWorkspaces: [],
+        renderNameItalics: false,
       },
       {
         id: '17116e47-8310-4af9-a70f-3cd2fa8ea333',
@@ -115,6 +118,7 @@ describe('MenuHelper', () => {
             createdAt: 0,
           },
         ],
+        renderNameItalics: false,
       },
       {
         id: '5b79fb33-20fd-494a-a7af-87f8af5995e4',
@@ -132,6 +136,7 @@ describe('MenuHelper', () => {
         currentView: undefined,
         isOwnedByUser: true,
         suggestingWorkspaces: [],
+        renderNameItalics: false,
       },
       {
         id: 'fad0199b-ac3c-4846-beb9-d686633cb3ce',
@@ -148,6 +153,7 @@ describe('MenuHelper', () => {
         isAuthorCoding: false,
         isOwnedByUser: true,
         suggestingWorkspaces: [],
+        renderNameItalics: false,
       },
       {
         id: '16e7fe6d-7187-46bd-bfc1-a63c0f8611bd',
@@ -164,6 +170,7 @@ describe('MenuHelper', () => {
         isAuthorCoding: false,
         isOwnedByUser: true,
         suggestingWorkspaces: [],
+        renderNameItalics: false,
       },
     ]
 

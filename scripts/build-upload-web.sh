@@ -38,6 +38,7 @@ pushd "$CWD/../web"
 
 if ((BUILD)); then
   yarn install
+  find . -type d -name __generated__ | xargs rm -r
   yarn codegen
 fi
 
