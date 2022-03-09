@@ -33,8 +33,8 @@
 import { gql, useMutation } from '@urql/vue'
 import { PropType } from 'vue'
 import GitHubConnectButton, {
-  GITHUB_ACCOUNT_FRAGMENT,
-  GITHUB_APP_FRAGMENT,
+  GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT,
+  GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
 } from '../../molecules/GitHubConnectButton.vue'
 import Button from '../../components/shared/Button.vue'
 import {
@@ -44,9 +44,9 @@ import {
 
 export const INTEGRATIONS_GITHUB_APP_FRAGMENT = gql`
   fragment IntegrationsGitHubApp on GitHubApp {
-    ...GitHubApp
+    ...GitHubConnectButton_GitHubApp
   }
-  ${GITHUB_APP_FRAGMENT}
+  ${GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT}
 `
 
 export const INTEGRATIONS_USER_FRAGMENT = gql`
@@ -56,10 +56,10 @@ export const INTEGRATIONS_USER_FRAGMENT = gql`
       id
       login
       isValid
-      ...GitHubAccount
+      ...GitHubConnectButton_GitHubAccount
     }
   }
-  ${GITHUB_ACCOUNT_FRAGMENT}
+  ${GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT}
 `
 
 export default {

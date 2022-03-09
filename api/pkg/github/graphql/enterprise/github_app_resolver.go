@@ -57,6 +57,10 @@ type GithubAppValidationResolver struct {
 	err                error
 }
 
+func (s *GithubAppValidationResolver) ID() graphql.ID {
+	return "sturdy"
+}
+
 func (s *GithubAppValidationResolver) fetch(ctx context.Context) {
 	valid, permissions, events, err := s.service.CheckPermissions(ctx)
 	s.valid = valid

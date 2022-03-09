@@ -17,6 +17,7 @@ type GitHubApp interface {
 }
 
 type GithubValidationApp interface {
+	ID() graphql.ID
 	Ok(ctx context.Context) (bool, error)
 	MissingPermissions(ctx context.Context) ([]string, error)
 	MissingEvents(ctx context.Context) ([]string, error)

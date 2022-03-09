@@ -4,7 +4,8 @@
   </LinkButton>
   <div v-else class="space-x-2">
     <slot></slot>
-    <LinkButton :href="github_manage_installation_url" :color="color">
+    <GitHubAppErrorsBanner :git-hub-app-validation="gitHubApp.validation" />
+    <LinkButton v-if="gitHubApp.validation.ok" :href="github_manage_installation_url" :color="color">
       {{ alreadyInstalledText }}
     </LinkButton>
   </div>
@@ -14,18 +15,27 @@
 import { defineComponent, PropType } from 'vue'
 import { gql } from '@urql/vue'
 import LinkButton from '../components/shared/LinkButton.vue'
-import { GitHubAccountFragment, GitHubAppFragment } from './__generated__/GitHubConnectButton'
+import { GitHubConnectButton_GitHubAccountFragment, GitHubConnectButton_GitHubAppFragment } from './__generated__/GitHubConnectButton'
+import GitHubAppErrorsBanner, {
+  GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT
+} from "./GitHubAppErrorsBanner.vue";
 
-export const GITHUB_APP_FRAGMENT = gql`
-  fragment GitHubApp on GitHubApp {
+export const GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT = gql`
+  fragment GitHubConnectButton_GitHubApp on GitHubApp {
     _id
     name
     clientID
+    validation {
+        _id
+        ok
+        ...GitHubAppErrorsBanner_GithubValidationApp
+    }
   }
+  ${GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT}
 `
 
-export const GITHUB_ACCOUNT_FRAGMENT = gql`
-  fragment GitHubAccount on GitHubAccount {
+export const GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT = gql`
+  fragment GitHubConnectButton_GitHubAccount on GitHubAccount {
     id
     login
     isValid
@@ -33,14 +43,14 @@ export const GITHUB_ACCOUNT_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { LinkButton },
+  components: {GitHubAppErrorsBanner, LinkButton },
   props: {
     gitHubApp: {
-      type: Object as PropType<GitHubAppFragment>,
+      type: Object as PropType<GitHubConnectButton_GitHubAppFragment>,
       required: true,
     },
     gitHubAccount: {
-      type: Object as PropType<GitHubAccountFragment>,
+      type: Object as PropType<GitHubConnectButton_GitHubAccountFragment>,
       default: null,
     },
     alreadyInstalledText: {
