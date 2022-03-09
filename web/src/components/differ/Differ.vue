@@ -231,9 +231,9 @@ export default defineComponent({
       this.$emit('applyHunkedSuggestion', e)
     },
     suggestionsForFile(diff) {
-      if (!this.suggestionsByFile) return null
+      if (!this.suggestionsByFile) return []
       const suggestions = this.suggestionsByFile[diff.preferredName || diff.preferred_name]
-      if (!suggestions) return null
+      if (!suggestions) return []
       return suggestions
     },
     onSearch(event) {

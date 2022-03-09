@@ -44,8 +44,8 @@
       <template v-for="suggestion in suggestions">
         <template v-if="suggestion.author.id === showingSuggestionsByUser">
           <DiffTable
-            v-for="(hunk, hunkIndex) in suggestion.diff.hunks"
-            :key="hunkIndex"
+            v-for="hunk in suggestion.diff.hunks"
+            :key="hunk.id"
             :unparsed-diff="hunk"
             :grayed-out="hunk.isApplied || hunk.isOutdated || hunk.isDismissed"
           >
@@ -268,7 +268,7 @@
 import { CheckIcon, PlusIcon, XIcon } from '@heroicons/vue/solid'
 import { defineComponent, PropType, reactive } from 'vue'
 import { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
-import DiffTable from './DiffTable.vue'
+import DiffTable, { HUNK_FRAGMENT as DIFF_TABLE_HUNK_FRAGMENT } from './DiffTable.vue'
 import Button from '../shared/Button.vue'
 import * as Diff2Html from 'diff2html'
 import DiffHeader from './DiffHeader.vue'
@@ -285,31 +285,31 @@ import {
 import { CommentState } from '../comments/CommentState'
 import { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
-import { DifferFileCommentFragment, DifferFileDiffFragment } from './__generated__/DifferFile'
+import {
+  DifferFileCommentFragment,
+  DifferFileDiffFragment,
+  DifferFile_SuggestionFragment,
+} from './__generated__/DifferFile'
 
-interface Data {
-  isHiddenTooManyChanges: boolean
-  isReadyToDisplay: boolean
-  isAdded: boolean
-  checkedHunks: Map<string, boolean>
-
-  fileDropdownOpen: boolean // TODO: Set and update
-
-  showMakeNewCommentPillPos: Pos | undefined
-  newCommentComposePos: Pos | undefined
-
-  showingSuggestionsByUser: string | null
-
-  parsedHunks: any
-
-  enableSyntaxHighlight: boolean
-}
-
-interface Pos {
-  hunkIndex: number
-  blockIndex: number
-  rowIndex: number
-}
+export const SUGGESTION_FRAGMENT = gql`
+  fragment DifferFile_Suggestion on Suggestion {
+    id
+    author {
+      id
+    }
+    diffs {
+      id
+      hunks {
+        id
+        ...DiffTable_Hunk
+        isApplied
+        isOutdated
+        isDismissed
+      }
+    }
+  }
+  ${DIFF_TABLE_HUNK_FRAGMENT}
+`
 
 export const DIFFER_FILE_DIFF = gql`
   fragment DifferFileDiff on FileDiff {
@@ -367,6 +367,12 @@ export const DIFFER_FILE_COMMENT = gql`
   }
 `
 
+type Position = {
+  hunkIndex: number
+  blockIndex: number
+  rowIndex: number
+}
+
 export default defineComponent({
   components: {
     ReviewNewComment,
@@ -386,7 +392,7 @@ export default defineComponent({
     'set-comment-composing-reply',
     'set-is-hidden',
   ],
-  data(): Data {
+  data() {
     return {
       isHiddenTooManyChanges: false,
       isReadyToDisplay: false,
@@ -394,18 +400,21 @@ export default defineComponent({
       checkedHunks: reactive(new Map<string, boolean>()),
       fileDropdownOpen: false,
 
-      newCommentComposePos: undefined,
-      showMakeNewCommentPillPos: undefined,
+      newCommentComposePos: undefined as Position | undefined,
+      showMakeNewCommentPillPos: undefined as Position | undefined,
 
-      showingSuggestionsByUser: null,
+      showingSuggestionsByUser: null as string | null,
 
-      parsedHunks: [], // Diff2Html objects
+      parsedHunks: [] as ReturnType<typeof Diff2Html.parse>,
 
       enableSyntaxHighlight: false,
     }
   },
   props: {
-    isSuggesting: Boolean,
+    isSuggesting: {
+      type: Boolean,
+      required: true,
+    },
     fileKey: {
       type: String,
       required: true,
@@ -417,13 +426,16 @@ export default defineComponent({
     },
 
     comments: {
-      type: Object as PropType<Array<DifferFileCommentFragment>>,
+      type: Object as PropType<DifferFileCommentFragment[]>,
       required: true,
     },
 
     newCommentAvatarUrl: String,
     canComment: Boolean,
-    suggestions: Object,
+    suggestions: {
+      type: Array as PropType<DifferFile_SuggestionFragment[]>,
+      required: true,
+    },
     initShowSuggestionsByUser: String,
     hoveringCommentID: String,
     showFullFileButton: Boolean,
@@ -488,59 +500,38 @@ export default defineComponent({
       return this.diffs.hunks.length > 0
     },
     suggestionByUser() {
-      // if have suggestions by this user
-      if (this.showingSuggestionsByUser && this.suggestions) {
-        for (const suggestion of this.suggestions) {
-          if (suggestion.author.id === this.showingSuggestionsByUser) {
-            return suggestion
-          }
-        }
-      }
-      return null
+      if (!this.showingSuggestionsByUser) return undefined
+      return this.suggestions.find(({ author }) => author.id === this.showingSuggestionsByUser)
     },
     showSuggestions(): boolean {
       return !!this.suggestionByUser
     },
     canTakeSuggestions(): boolean {
-      const s = this.suggestionByUser
-      if (!s) {
-        return false
-      }
-
-      // If at least one hunk is both non-outdated and non-applied, we can take suggestions
-      for (const hunk of s.diff.hunks) {
-        if (!hunk.isApplied && !hunk.isOutdated && !hunk.isDismissed) {
-          return true
-        }
-      }
-
-      return false
+      return this.suggestionByUser
+        ? this.suggestionByUser.diffs.some(({ hunks }) =>
+            hunks.some(
+              ({ isApplied, isOutdated, isDismissed }) => !isApplied && !isOutdated && isDismissed
+            )
+          )
+        : false
     },
     newRowsWithComments() {
-      let res = new Set()
-      if (this.comments) {
-        for (const comment of this.comments) {
-          if (comment.codeContext?.lineIsNew && comment.codeContext.lineStart > 0) {
-            res.add(comment.codeContext.lineStart)
-          }
-        }
-      }
-      return res
+      return new Set([
+        ...this.comments
+          .filter(({ codeContext }) => codeContext)
+          .map(({ codeContext }) => codeContext!)
+          .filter(({ lineIsNew, lineStart }) => lineIsNew && lineStart > 0)
+          .map(({ lineStart }) => lineStart),
+      ])
     },
     oldRowsWithComments() {
-      let res = new Set()
-      if (this.comments) {
-        for (const comment of this.comments) {
-          if (
-            comment.codeContext &&
-            !comment.codeContext.lineIsNew &&
-            comment.codeContext.lineStart > 0
-          ) {
-            res.add(comment.codeContext.lineStart)
-          }
-        }
-      }
-      return res
+      return new Set([
+        ...this.comments
+          .filter(({ codeContext }) => codeContext)
+          .map(({ codeContext }) => codeContext!)
+          .filter(({ lineIsNew, lineStart }) => !lineIsNew && lineStart > 0)
+          .map(({ lineStart }) => lineStart),
+      ])
     },
     rowsWithSearchMatches() {
       let res = new Set<string>()
@@ -621,8 +612,8 @@ export default defineComponent({
   },
   methods: {
     loadDiffsAndParse() {
-      let sumPatchLength = this.diffs.hunks
-        .map((hunk) => hunk.patch.length)
+      const sumPatchLength = this.diffs.hunks
+        .map(({ patch }) => patch.length)
         .reduce((a, b) => a + b, 0)
 
       // Is 20k a reasonable limit?
@@ -646,23 +637,15 @@ export default defineComponent({
     },
 
     parse() {
-      let res = []
-
-      this.diffs.hunks.forEach((hunk) => {
-        let parsed = Diff2Html.parse(hunk.patch, {
+      this.parsedHunks = this.diffs.hunks.flatMap(({ patch }) => {
+        return Diff2Html.parse(patch, {
           matching: 'lines',
           outputFormat: 'line-by-line',
         })
-        res = res.concat(parsed)
       })
 
-      this.parsedHunks = res
       this.updatedSelection()
 
-      // Show!
-      if (this.differState.isHidden) {
-        // this.emitIsHidden(false)
-      }
       this.isHiddenTooManyChanges = false
       this.isReadyToDisplay = true
     },
@@ -710,13 +693,11 @@ export default defineComponent({
 
     isComposingNewCommentAt(hunkIndex: number, blockIndex: number, rowIndex: number): boolean {
       if (!this.newCommentComposePos) return false
-      if (
+      return (
         this.newCommentComposePos.hunkIndex === hunkIndex &&
         this.newCommentComposePos.blockIndex === blockIndex &&
         this.newCommentComposePos.rowIndex === rowIndex
-      ) {
-        return true
-      }
+      )
     },
     onCancelComposeNewComment() {
       this.newCommentComposePos = undefined
