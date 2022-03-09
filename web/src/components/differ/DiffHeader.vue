@@ -79,7 +79,7 @@
 
     <div class="flex-grow" />
     <RouterLinkButton
-      v-if="showFullFileButton"
+      v-if="showFullFileButton && diffs.newName"
       size="small"
       :to="{ name: 'browseFile', params: { path: diffs.newName.split('/') } }"
     >
