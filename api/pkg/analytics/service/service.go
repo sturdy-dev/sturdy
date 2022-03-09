@@ -32,6 +32,10 @@ func New(
 
 func (s *Service) Capture(ctx context.Context, event string, oo ...analytics.CaptureOption) {
 	userID, _ := auth.UserID(ctx)
+	s.CaptureUser(userID, event, oo...)
+}
+
+func (s *Service) CaptureUser(userID users.ID, event string, oo ...analytics.CaptureOption) {
 	options := &analytics.CaptureOptions{
 		DistinctId: userID.String(),
 	}
