@@ -20,6 +20,12 @@ const UPDATED_WORKSPACE = gql`
       lastActivityAt
       draftDescription
 
+      diffsCount
+      commentsCount
+
+      archivedAt
+      unarchivedAt
+
       author {
         id
       }

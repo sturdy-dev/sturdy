@@ -132,6 +132,7 @@
                     ? 'bg-warmgray-50 hover:text-gray-900'
                     : 'hover:bg-warmgray-100 hover:text-gray-900',
                   !workspace.isCurrent && workspace.isUnread ? '!text-gray-900 !font-semibold' : '',
+                  workspace.renderNameItalics ? 'italic !text-gray-400' : '',
                 ]"
               >
                 <Avatar
@@ -292,6 +293,7 @@ import NavigationOrganizationPickerMenu, {
   ORGANIZATION_FRAGMENT as NAVIGATION_ORGANIZATION_FRAGMENT,
 } from '../../molecules/NavigationOrganizationPickerMenu.vue'
 import { useUpdatedOrganization } from '../../subscriptions/useUpdatedOrganization'
+import { useUpdatedWorkspaceByCodebase } from '../../subscriptions/useUpdatedWorkspace'
 
 const WORKSPACE_ACTIVITY_FRAGMENT = gql`
   fragment StackedMenu_WorkspaceActivity on WorkspaceActivity {
@@ -475,16 +477,19 @@ const ownedBy = function (user: User | undefined): (ws: WorkspaceFragment) => bo
   return (ws: WorkspaceFragment) => ws.author.id === user?.id
 }
 
+const haveActivityOrUsage = function (ws: WorkspaceFragment): boolean {
+  const hasComments = ws.commentsCount > 0
+  const hasActivity = ws.activity.length > 0
+  const hasDiffs = ws.diffsCount !== null && ws.diffsCount !== undefined ? ws.diffsCount > 0 : true // fallback for older workspaces without diffs count
+  return hasComments || hasActivity || hasDiffs
+}
+
 const showTo = function (user: User | undefined): (ws: WorkspaceFragment) => boolean {
   return user
     ? (ws: WorkspaceFragment) => {
         const isOwnWorkspace = ws.author.id === user.id
-        const hasComments = ws.commentsCount > 0
-        const hasActivity = ws.activity.length > 0
-        const hasDiffs =
-          ws.diffsCount !== null && ws.diffsCount !== undefined ? ws.diffsCount > 0 : true // fallback for older workspaces without diffs count
         const reviewRequested = ws.reviews.some(reviewByUserId(user.id))
-        return isOwnWorkspace ? true : hasComments || hasActivity || hasDiffs || reviewRequested
+        return isOwnWorkspace ? true : reviewRequested || haveActivityOrUsage(ws)
       }
     : () => true
 }
@@ -558,7 +563,6 @@ export default defineComponent({
   },
 
   emits: ['logout'],
-
   setup() {
     const route = useRoute()
     const shortCodebaseID = computed(() =>
@@ -592,6 +596,10 @@ export default defineComponent({
     useUpdatedViews()
     useUpdatedOrganization()
 
+    useUpdatedWorkspaceByCodebase(shortCodebaseID, {
+      pause: computed(() => !shortCodebaseID.value),
+    })
+
     // Reload data every 15s
     const reload = () => {
       executeQuery({ requestPolicy: 'network-only' })
@@ -619,6 +627,7 @@ export default defineComponent({
       },
     }
   },
+
   computed: {
     isLoading(): boolean {
       if (this.data) return false
@@ -681,6 +690,8 @@ export default defineComponent({
               ? ws.activity.filter(hasMention(this.user.id)).length
               : 0
 
+            const renderNameItalics = !haveActivityOrUsage(ws)
+
             return {
               id: ws.id,
               name: ws.name,
@@ -693,6 +704,7 @@ export default defineComponent({
               currentView: cb.views.find(viewByWorkspaceId(ws.id)),
               isOwnedByUser: !!this.user && ws.author.id === this.user.id,
               suggestingWorkspaces: suggestions.get(ws.id) || [],
+              renderNameItalics,
             }
           })
 

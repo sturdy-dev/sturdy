@@ -22,6 +22,7 @@ export type NavigationWorkspace = {
   currentView?: View
   isOwnedByUser: boolean
   suggestingWorkspaces: NavigationSuggestingWorkspace[]
+  renderNameItalics: boolean
 }
 
 export type NavigationView = {
