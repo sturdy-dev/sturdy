@@ -52,10 +52,12 @@
           Previous
         </Button>
       </router-link>
-      <Button v-else :disabled="true" class="flex gap-2" size="small">
-        <ArrowLeftIcon class="h-4 w-4" />
-        Previous
-      </Button>
+      <a v-else>
+        <Button :disabled="true" class="inline-flex gap-2" size="small">
+          <ArrowLeftIcon class="h-4 w-4" />
+          Previous
+        </Button>
+      </a>
 
       <router-link v-if="!!change.child" :to="{ params: { id: change.child.id } }">
         <Button class="flex gap-2" size="small">
@@ -63,10 +65,12 @@
           <ArrowRightIcon class="h-4 w-4" />
         </Button>
       </router-link>
-      <Button v-else :disabled="true" class="flex gap-2" size="small">
-        Next
-        <ArrowRightIcon class="h-4 w-4" />
-      </Button>
+      <a v-else>
+        <Button :disabled="true" class="inline-flex gap-2" size="small">
+          Next
+          <ArrowRightIcon class="h-4 w-4" />
+        </Button>
+      </a>
     </div>
   </div>
 </template>

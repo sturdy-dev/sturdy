@@ -69,13 +69,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 'vue'
 import { DeepMaybeRef } from '@vueuse/core'
 import ChangeDetails, {
   CHANGE_DETAILS_CHANGE_FRAGMENT,
 } from '../../components/changelog/ChangeDetails.vue'
 import { gql, useQuery } from '@urql/vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ChangelogDetails, { CHANGE_FRAGMENT } from '../../components/changelog/ChangelogDetails.vue'
 import ChangelogDetailsFetching from '../../components/changelog/ChangelogDetails.fetching.vue'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
@@ -162,6 +162,27 @@ export default defineComponent({
         changeID: changeId,
         isGitHubEnabled: isGitHubEnabled,
       },
+    })
+
+    const router = useRouter()
+
+    const onKeyDown = function (event: KeyboardEvent) {
+      // previous
+      if (event.key === 'ArrowLeft' && data?.value?.change?.parent?.id) {
+        router.push({ params: { id: data.value.change.parent.id } })
+        return
+      }
+
+      // next
+      if (event.key === 'ArrowRight' && data?.value?.change?.child?.id) {
+        router.push({ params: { id: data.value.change.child.id } })
+        return
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    onUnmounted(() => {
+      window.removeEventListener('keydown', onKeyDown)
     })
 
     return {
