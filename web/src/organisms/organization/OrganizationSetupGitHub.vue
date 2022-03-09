@@ -132,7 +132,9 @@ import Spinner from '../../components/shared/Spinner.vue'
 import Button from '../../components/shared/Button.vue'
 import { Slug } from '../../slug'
 import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
-import GitHubConnectButton, {GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT} from '../../molecules/GitHubConnectButton.vue'
+import GitHubConnectButton, {
+  GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
+} from '../../molecules/GitHubConnectButton.vue'
 import { useSetupGitHubRepository } from '../../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { Feature } from '../../__generated__/types'
