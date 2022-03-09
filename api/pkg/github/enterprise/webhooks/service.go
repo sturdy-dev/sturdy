@@ -222,9 +222,6 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		if err := svc.activityService.SetChange(ctx, ws.ID, ch.ID); err != nil {
 			return fmt.Errorf("failed to set change: %w", err)
 		}
-		if err := svc.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
-			return fmt.Errorf("failed to dissmiss reviews: %w", err)
-		}
 
 		svc.analyticsService.Capture(ctx, "pull request merged",
 			analytics.DistinctID(ws.UserID.String()),

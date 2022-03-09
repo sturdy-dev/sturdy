@@ -601,10 +601,6 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 		analytics.Property("change_id", change.ID),
 	)
 
-	if err := s.reviewRepo.DismissAllInWorkspace(ctx, ws.ID); err != nil {
-		return nil, fmt.Errorf("failed to dismiss all reviews: %w", err)
-	}
-
 	if ws.ViewID != nil {
 		if err := s.snapshotterQueue.Enqueue(ctx, ws.CodebaseID, *ws.ViewID, ws.ID, snapshots.ActionChangeLand); err != nil {
 			return nil, fmt.Errorf("failed to enqueue snapshot: %w", err)

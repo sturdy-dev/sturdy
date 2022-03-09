@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
@@ -84,25 +83,4 @@ func (m *memory) ListLatestByWorkspace(ctx context.Context, workspaceID string) 
 		}
 	}
 	return rr, nil
-}
-
-func (m *memory) DismissAllInWorkspace(ctx context.Context, workspaceID string) error {
-	byWorkspace := m.byWorkspaceByUser[workspaceID]
-	if byWorkspace == nil {
-		return nil
-	}
-
-	for _, reviews := range byWorkspace {
-		for _, review := range reviews {
-			if review.DismissedAt != nil {
-				continue
-			}
-			if review.IsReplaced {
-				continue
-			}
-			now := time.Now()
-			review.DismissedAt = &now
-		}
-	}
-	return nil
 }
