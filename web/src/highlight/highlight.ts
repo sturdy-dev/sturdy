@@ -18,7 +18,7 @@ export default (input: Block[], language: string, highlightEnabled: boolean) => 
       type,
       prefix: content.substring(0, 1),
       originalContent: content.substring(1),
-      content: shouldHighlight ? hljs.highlight(language, content.substring(1)).value : '',
+      content: shouldHighlight ? hljs.highlight(content.substring(1), { language }).value : '',
     })),
   }))
 }
