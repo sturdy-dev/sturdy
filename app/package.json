@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.5.8",
+  "version": "0.5.9-beta1",
   "name": "SturdyDev",
   "main": "dist/main.js",
   "scripts": {
