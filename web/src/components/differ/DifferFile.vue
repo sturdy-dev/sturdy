@@ -153,17 +153,11 @@
                   @mouseover="setShowCommentPill(hunkIndex, blockIndex, rowIndex)"
                 >
                   <td
+                    class="d2h-code-linenumber bg-white sticky left-0 z-20"
                     :class="[
-                      'd2h-code-linenumber bg-white sticky left-0 z-20',
-                      checkedHunks.get(diffs.hunks[hunkIndex].id) && row.type === 'insert'
-                        ? 'bg-green-50'
-                        : '',
-                      checkedHunks.get(diffs.hunks[hunkIndex].id) && row.type === 'delete'
-                        ? 'bg-red-50'
-                        : '',
+                      row.type === 'insert' ? 'bg-green-50 border-r border-l border-green-500' : '',
+                      row.type === 'delete' ? 'bg-red-50 border-r border-l border-red-500' : '',
                       searchMatchesHunk(diffs.hunks[hunkIndex].id) ? '!bg-yellow-100' : '',
-                      row.type === 'insert' ? 'border-r border-l border-green-500' : '',
-                      row.type === 'delete' ? 'border-r border-l border-red-500' : '',
                     ]"
                   >
                     <label
@@ -192,8 +186,8 @@
 
                   <td
                     :id="diffs.hunks[hunkIndex].id + '-' + rowIndex"
+                    class="code-row-wrapper relative z-10"
                     :class="[
-                      'code-row-wrapper relative z-10',
                       row.type === 'insert' ? 'bg-green-50' : '',
                       row.type === 'delete' ? 'bg-red-50' : '',
                       row.newNumber && newRowsWithComments.has(row.newNumber) ? '!bg-blue-100' : '',
@@ -203,15 +197,18 @@
                         : '',
 
                       searchIsCurrentSelected(diffs.hunks[hunkIndex].id, rowIndex)
-                        ? '!bg-yellow-400  font-bold sturdy-searchmatch'
+                        ? '!bg-yellow-400 font-bold sturdy-searchmatch'
                         : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, rowIndex)
                         ? '!bg-yellow-200 font-bold sturdy-searchmatch'
                         : '',
                     ]"
                   >
                     <div class="d2h-code-line relative z-0 px-4">
-                      <span v-if="row.type === 'context'" class="d2h-code-line-prefix">&nbsp;</span>
-                      <span v-else class="d2h-code-line-prefix">{{ row.prefix }}</span>
+                      <span class="d2h-code-line-prefix">
+                        <template v-if="row.type === 'context'">&nbsp;</template>
+                        <template v-else>{{ row.prefix }}</template>
+                      </span>
+
                       <span
                         v-if="row.content"
                         class="d2h-code-line-ctn whitespace-pre"
