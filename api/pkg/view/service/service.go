@@ -2,9 +2,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 
-	eventsv2 "getsturdy.com/api/pkg/events/v2"
+	events "getsturdy.com/api/pkg/events/v2"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
@@ -25,7 +24,7 @@ type Service struct {
 	snapshotRepo     db_snapshots.Repository
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	executorProvider executor.Provider
-	eventSender      *eventsv2.Publisher
+	eventSender      *events.Publisher
 }
 
 func New(
@@ -36,7 +35,7 @@ func New(
 	snapshotRepo db_snapshots.Repository,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
-	eventSender *eventsv2.Publisher,
+	eventSender *events.Publisher,
 ) *Service {
 	return &Service{
 		logger:           logger.Named("views_service"),
@@ -51,7 +50,7 @@ func New(
 }
 
 func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *workspaces.Workspace) error {
-	if err := open.OpenWorkspaceOnView(
+	return open.OpenWorkspaceOnView(
 		ctx,
 		s.logger,
 		view,
@@ -63,10 +62,7 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 		s.workspaceWriter,
 		s.executorProvider,
 		s.eventSender,
-	); err != nil {
-		return fmt.Errorf("failed to open workspace: %w", err)
-	}
-	return nil
+	)
 }
 
 func (s *Service) GetByID(_ context.Context, id string) (*view.View, error) {
