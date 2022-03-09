@@ -179,6 +179,12 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		zap.Stringer("snapshot_action", action),
 	)
 
+	// if this view is the authoritative view of the workspace, mark this snapshot as the latest one
+	ws, err := s.workspaceReader.Get(workspaceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get workspace: %w", err)
+	}
+
 	var latest *snapshots.Snapshot
 
 	if options.onView != nil {
@@ -200,6 +206,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 		if latest != nil &&
 			!isSuggesting &&
 			!options.withNoThrottle &&
+			(ws.DiffsCount != nil && *ws.DiffsCount > 0) && // Always snapshot if we have no recorded diff count, or if the count is 0
 			action == snapshots.ActionViewSync &&
 			latest.Action == snapshots.ActionViewSync &&
 			latest.CreatedAt.After(time.Now().Add(-10*time.Second)) {
@@ -338,12 +345,6 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	if options.onView != nil || options.markAsLatestInWorkspace {
-		// if this view is the authoritative view of the workspace, mark this snapshot as the latest one
-		ws, err := s.workspaceReader.Get(workspaceID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get workspace: %w", err)
-		}
-
 		isAuthoritativeView := ws.ViewID != nil && *ws.ViewID == *options.onView
 
 		// If authoritative view, or explicitly asked to mark this as the latest snapshot
