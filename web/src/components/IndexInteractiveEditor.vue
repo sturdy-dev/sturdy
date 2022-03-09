@@ -204,8 +204,8 @@ export default defineComponent({
         ' @@ // Demo\n'
 
       this.diffs = {
-        orig_name: 'index.js',
-        new_name: 'index.js',
+        origName: 'index.js',
+        newName: 'index.js',
         hunks: [{ patch: header + d }],
       }
     },

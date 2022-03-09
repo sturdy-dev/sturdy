@@ -5,6 +5,8 @@
   >
     <DiffHeader
       :diffs="diffs"
+      :show-full-file-button="false"
+      :show-add-button="false"
       :suggestions="null"
       :show-add="false"
       :show-suggestions="false"
@@ -119,8 +121,8 @@ interface Pos {
 
 export interface FileDiff {
   // unidiff.FileDiff
-  orig_name: string
-  new_name: string
+  origName: string
+  newName: string
   hunks: Array<string>
 }
 
@@ -132,6 +134,7 @@ export default defineComponent({
   data(): Data {
     return {
       parsedHunks: [], // Diff2Html objects
+      isReadyToDisplay: true,
     }
   },
   props: {
