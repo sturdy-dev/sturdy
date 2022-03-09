@@ -326,10 +326,3 @@ func (r *reviewRootResolver) DismissReview(ctx context.Context, args resolvers.D
 
 	return &reviewResolver{root: r, rev: rev}, nil
 }
-
-func (r *reviewRootResolver) InternalDismissAllInWorkspace(ctx context.Context, workspaceID string) error {
-	if err := r.reviewRepo.DismissAllInWorkspace(ctx, workspaceID); err != nil {
-		return err
-	}
-	return nil
-}

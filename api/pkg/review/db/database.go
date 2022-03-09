@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
@@ -76,17 +75,4 @@ func (r *database) ListLatestByWorkspace(ctx context.Context, workspaceID string
 		return nil, fmt.Errorf("failed to list by workspace: %w", err)
 	}
 	return res, nil
-}
-
-func (r *database) DismissAllInWorkspace(ctx context.Context, workspaceID string) error {
-	ts := time.Now()
-	_, err := r.db.ExecContext(ctx, `UPDATE workspace_reviews
-		SET dismissed_at = $1
-		WHERE workspace_id = $2 
-			AND dismissed_at IS NULL
-			AND is_replaced IS FALSE`, ts, workspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to list by workspace: %w", err)
-	}
-	return nil
 }

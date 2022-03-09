@@ -10,7 +10,6 @@ type ReviewRootResolver interface {
 	// Internal
 	InternalReview(ctx context.Context, id string) (ReviewResolver, error)
 	InternalReviews(ctx context.Context, workspaceID string) ([]ReviewResolver, error)
-	InternalDismissAllInWorkspace(ctx context.Context, workspaceID string) error
 
 	// Mutations
 	CreateOrUpdateReview(ctx context.Context, args CreateReviewArgs) (ReviewResolver, error)
