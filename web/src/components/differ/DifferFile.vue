@@ -291,6 +291,8 @@ import {
   DifferFile_SuggestionFragment,
 } from './__generated__/DifferFile'
 
+type SuggestionHunk = DifferFile_SuggestionFragment['diffs'][number]['hunks'][number]
+
 export const SUGGESTION_FRAGMENT = gql`
   fragment DifferFile_Suggestion on Suggestion {
     id
@@ -405,8 +407,6 @@ export default defineComponent({
 
       showingSuggestionsByUser: null as string | null,
 
-      parsedHunks: [] as ReturnType<typeof Diff2Html.parse>,
-
       enableSyntaxHighlight: false,
     }
   },
@@ -496,6 +496,17 @@ export default defineComponent({
     },
   },
   computed: {
+    hunkIds() {
+      return new Set([...this.diffs.hunks.flatMap((hunk) => hunk.id)])
+    },
+    parsedHunks() {
+      return this.diffs.hunks.flatMap(({ patch }) =>
+        Diff2Html.parse(patch, {
+          matching: 'lines',
+          outputFormat: 'line-by-line',
+        })
+      )
+    },
     haveLiveChanges(): boolean {
       return this.diffs.hunks.length > 0
     },
@@ -585,14 +596,6 @@ export default defineComponent({
       return res
     },
   },
-  watch: {
-    diffs() {
-      this.loadDiffsAndParse()
-    },
-    fileKey() {
-      this.reset()
-    },
-  },
   created() {
     if (this.initShowSuggestionsByUser) {
       this.showingSuggestionsByUser = this.initShowSuggestionsByUser
@@ -605,7 +608,6 @@ export default defineComponent({
   },
   unmounted() {
     // Make sure to send deregister events upwards
-    this.reset()
     this.emitter.off('differ-deselect-all-hunks', this.reset)
     this.emitter.off('differ-set-hunks-with-prefix', this.onDifferSetHunksWithPrefix)
     this.emitter.off('show-suggestions-by-user', this.showSuggestionsByUser)
@@ -628,7 +630,6 @@ export default defineComponent({
         this.isHiddenTooManyChanges = true
         this.isReadyToDisplay = true
         this.emitIsHidden(true)
-        this.parsedHunks = []
         return
       }
 
@@ -637,15 +638,7 @@ export default defineComponent({
     },
 
     parse() {
-      this.parsedHunks = this.diffs.hunks.flatMap(({ patch }) => {
-        return Diff2Html.parse(patch, {
-          matching: 'lines',
-          outputFormat: 'line-by-line',
-        })
-      })
-
       this.updatedSelection()
-
       this.isHiddenTooManyChanges = false
       this.isReadyToDisplay = true
     },
@@ -811,14 +804,11 @@ export default defineComponent({
       this.updatedSelection()
     },
     updatedSelection() {
-      let hunkPatchIDs = new Set<string>()
-
-      let currentlyExistingHunkIds = new Set<string>(this.diffs.hunks.map((h) => h.id))
+      const hunkPatchIDs = new Set<string>()
 
       this.checkedHunks.forEach((isChecked, patchID) => {
         // un-set if hunk no longer exists
-        if (!currentlyExistingHunkIds.has(patchID)) {
-          console.log('un-registering', { patchID })
+        if (!this.hunkIds.has(patchID)) {
           this.checkedHunks.delete(patchID)
           return
         }
@@ -837,8 +827,7 @@ export default defineComponent({
       this.emitter.emit('ignore-file', { fileName: '/' + fileName })
     },
     undoFile() {
-      let ids = new Set<string>(this.diffs.hunks.map((h) => h.id))
-      this.emitter.emit('undo-file', { patch_ids: ids })
+      this.emitter.emit('undo-file', { patch_ids: this.hunkIds })
     },
     sendSetWithPrefix(prefix: string, selected: boolean) {
       // Send event to siblings, etc.
@@ -847,16 +836,19 @@ export default defineComponent({
         selected: selected,
       })
     },
-    highlightedBlocks(input: Array<Block>, lang: string): Array<HighlightedBlock> {
+    highlightedBlocks(input: Block[], lang: string): HighlightedBlock[] {
       return highlight(input, lang, this.enableSyntaxHighlight)
     },
-    onClickDismissHunkedSuggestion(hunk: any, suggestion: any) {
+    onClickDismissHunkedSuggestion(
+      hunk: SuggestionHunk,
+      suggestion: DifferFile_SuggestionFragment
+    ) {
       this.$emit('dismissHunkedSuggestion', {
         suggestionId: suggestion.id,
         hunks: [hunk.id],
       })
     },
-    onClickApplyHunkedSuggestion(hunk: any, suggestion: any) {
+    onClickApplyHunkedSuggestion(hunk: SuggestionHunk, suggestion: DifferFile_SuggestionFragment) {
       this.$emit('applyHunkedSuggestion', {
         suggestionId: suggestion.id,
         hunks: [hunk.id],
