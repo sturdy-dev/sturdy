@@ -1,11 +1,19 @@
 <template>
-  <LinkButton v-if="!gitHubAccount || !gitHubAccount.isValid" :href="github_oauth_url" :color="color">
+  <LinkButton
+    v-if="!gitHubAccount || !gitHubAccount.isValid"
+    :href="github_oauth_url"
+    :color="color"
+  >
     {{ notConnectedText }}
   </LinkButton>
   <div v-else class="space-x-2">
     <slot></slot>
     <GitHubAppErrorsBanner :git-hub-app-validation="gitHubApp.validation" />
-    <LinkButton v-if="gitHubApp.validation.ok" :href="github_manage_installation_url" :color="color">
+    <LinkButton
+      v-if="gitHubApp.validation.ok"
+      :href="github_manage_installation_url"
+      :color="color"
+    >
       {{ alreadyInstalledText }}
     </LinkButton>
   </div>
@@ -15,10 +23,13 @@
 import { defineComponent, PropType } from 'vue'
 import { gql } from '@urql/vue'
 import LinkButton from '../components/shared/LinkButton.vue'
-import { GitHubConnectButton_GitHubAccountFragment, GitHubConnectButton_GitHubAppFragment } from './__generated__/GitHubConnectButton'
+import {
+  GitHubConnectButton_GitHubAccountFragment,
+  GitHubConnectButton_GitHubAppFragment,
+} from './__generated__/GitHubConnectButton'
 import GitHubAppErrorsBanner, {
-  GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT
-} from "./GitHubAppErrorsBanner.vue";
+  GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT,
+} from './GitHubAppErrorsBanner.vue'
 
 export const GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT = gql`
   fragment GitHubConnectButton_GitHubApp on GitHubApp {
@@ -26,9 +37,9 @@ export const GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT = gql`
     name
     clientID
     validation {
-        _id
-        ok
-        ...GitHubAppErrorsBanner_GithubValidationApp
+      _id
+      ok
+      ...GitHubAppErrorsBanner_GithubValidationApp
     }
   }
   ${GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT}
@@ -43,7 +54,7 @@ export const GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: {GitHubAppErrorsBanner, LinkButton },
+  components: { GitHubAppErrorsBanner, LinkButton },
   props: {
     gitHubApp: {
       type: Object as PropType<GitHubConnectButton_GitHubAppFragment>,
