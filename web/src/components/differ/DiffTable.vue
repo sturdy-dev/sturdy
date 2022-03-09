@@ -73,44 +73,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import * as Diff2Html from 'diff2html'
 import highlight from '../../highlight/highlight'
 import { Block, HighlightedBlock } from './event'
-import { DiffFile } from 'diff2html/lib/types'
+import { gql } from '@urql/vue'
+import { DiffTable_HunkFragment } from './__generated__/DiffTable'
 
 // This component shares a lot of code with DifferFile, can they be combined and/or split in some nicer way?
 
-interface Data {
-  parsedDiff: DiffFile[] | null
-}
+export const HUNK_FRAGMENT = gql`
+  fragment DiffTable_Hunk on Hunk {
+    id
+    patch
+  }
+`
 
 export default defineComponent({
   props: {
-    unparsedDiff: Object,
-    grayedOut: Boolean,
-  },
-  data(): Data {
-    return {
-      parsedDiff: null,
-    }
-  },
-  watch: {
-    unparsedDiff() {
-      this.parse()
+    unparsedDiff: {
+      type: Object as PropType<DiffTable_HunkFragment>,
+      required: true,
+    },
+    grayedOut: {
+      type: Boolean,
+      required: true,
     },
   },
-  mounted() {
-    this.parse()
+  calculated: {
+    parsedDiff() {
+      return Diff2Html.parse(this.unparsedDiff.patch)
+    },
   },
   methods: {
-    parse() {
-      if (this.unparsedDiff) {
-        this.parsedDiff = Diff2Html.parse(this.unparsedDiff.patch, {})
-      }
-    },
     highlightedBlocks(input: Array<Block>, lang: string): Array<HighlightedBlock> {
-      return highlight(input, lang)
+      return highlight(input, lang, true)
     },
   },
 })
