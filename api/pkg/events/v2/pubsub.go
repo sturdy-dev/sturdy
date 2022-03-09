@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -20,6 +21,10 @@ type subscriber struct {
 type callback func(context.Context, *event) error
 
 type Topic string
+
+func (t Topic) String() string {
+	return string(t)
+}
 
 func user(userID users.ID) Topic {
 	return Topic(fmt.Sprintf("user:%s", userID))
@@ -47,17 +52,23 @@ func (r *PubSub) pub(topic Topic, evt *event) {
 	handlers := r.subscribers[topic][evt.Type]
 	r.subscribersGuard.RUnlock()
 
+	logger := r.logger.With(zap.Stringer("topic", topic), zap.Stringer("type", evt.Type))
+
 	for _, handler := range handlers {
 		handler := handler
 		go func() {
+			start := time.Now()
+
 			defer func() {
 				if rec := recover(); rec != nil {
-					r.logger.Error("panic in events v2 publisher", zap.Any("recover", rec), zap.Stack("stack"))
+					logger.Error("panic in events v2 publisher", zap.Any("recover", rec), zap.Stack("stack"),
+						zap.Duration("duration", time.Since(start)),
+					)
 				}
 			}()
 
 			if err := handler.callback(handler.ctx, evt); err != nil {
-				r.logger.Error("failed to publish event", zap.Error(err))
+				logger.Error("failed to handle event", zap.Error(err), zap.Duration("duration", time.Since(start)))
 			}
 		}()
 	}
