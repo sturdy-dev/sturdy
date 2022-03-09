@@ -135,13 +135,18 @@ export class SSHKeys {
       'ssh-keyscan',
       ['-p', this.#syncHostURL.port || '22', this.#syncHostURL.hostname],
       {
-        stdio: ['ignore', 'pipe', 'ignore'],
+        stdio: ['ignore', 'pipe', 'pipe'],
       }
     )
     const chunks: Buffer[] = []
     keyscan.stdout.on('data', (chunk) => {
       chunks.push(chunk)
+      console.log('ssh-keyscan stdout', chunk.toString())
     })
+    keyscan.stderr.on('data', (chunk) => {
+      console.log('ssh-keyscan stderr', chunk.toString())
+    })
+
     const statusCode = await new Promise<number>((resolve, reject) =>
       keyscan.once('error', reject).once('exit', resolve)
     )
