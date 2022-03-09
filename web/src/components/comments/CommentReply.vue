@@ -122,6 +122,13 @@ export default defineComponent({
       await this.createComment(this.replyTo.id, ConvertEmojiToColons(this.replyMessage))
       this.isSending = false
       this.replyMessage = ''
+
+      // reset
+      this.$emit('setCommentComposingReply', {
+        commentId: this.replyTo.id,
+        composingReply: undefined,
+      })
+
       this.$emit('replied')
     },
   },
