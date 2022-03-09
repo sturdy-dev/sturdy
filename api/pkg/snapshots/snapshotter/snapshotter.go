@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
@@ -109,6 +111,8 @@ type snap struct {
 	eventsSenderV2   *eventsv2.Publisher
 	executorProvider executor.Provider
 	logger           *zap.Logger
+
+	analyticsService *service_analytics.Service
 }
 
 func NewGitSnapshotter(
@@ -122,6 +126,8 @@ func NewGitSnapshotter(
 	eventsSenderV2 *eventsv2.Publisher,
 	executorProvider executor.Provider,
 	logger *zap.Logger,
+
+	analyticsService *service_analytics.Service,
 ) Snapshotter {
 	return &snap{
 		snapshotsRepo:   snapshotsRepo,
@@ -134,6 +140,8 @@ func NewGitSnapshotter(
 		eventsSenderV2:   eventsSenderV2,
 		executorProvider: executorProvider,
 		logger:           logger.Named("GitSnapshotter"),
+
+		analyticsService: analyticsService,
 	}
 }
 
@@ -370,6 +378,11 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 			}
 		}
 	}
+
+	s.analyticsService.CaptureUser(ws.UserID, "created snapshot",
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("diffs_count", diffsCount),
+	)
 
 	return snap, nil
 }
