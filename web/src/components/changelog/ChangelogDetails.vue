@@ -105,7 +105,7 @@ export const CHANGE_FRAGMENT = gql`
     createdAt
     codebase {
       id
-      gitHubIntegration {
+      gitHubIntegration @include(if: $isGitHubEnabled) {
         id
         enabled
         owner
