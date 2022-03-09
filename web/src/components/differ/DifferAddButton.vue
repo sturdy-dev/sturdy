@@ -36,13 +36,13 @@
             <!--- If more options are added here, remember to adjust the min-height above to fit the menu on small files -->
             <!-- Only new files can be ignored -->
             <button
-              :disabled="canIgnoreFile"
+              :disabled="!canIgnoreFile"
               class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50"
               title="Ignore future changes to this file"
               role="menuitem"
               @click="$emit('ignore')"
             >
-              Ignore file
+              Ignore file (add to .gitignore)
             </button>
 
             <button
@@ -67,18 +67,27 @@
   </div>
 </template>
 
-<script lang="js">
-import {ChevronDownIcon} from '@heroicons/vue/solid';
-import {IsFocusChildOfElementWithClass} from "../../focus";
-import Button from "../shared/Button.vue";
+<script lang="ts">
+import { ChevronDownIcon } from '@heroicons/vue/solid'
+import { IsFocusChildOfElementWithClass } from '../../focus'
+import Button from '../shared/Button.vue'
+import { defineComponent } from 'vue'
 
-export default {
-  name: "DifferAddButton",
-  components: {ChevronDownIcon, Button},
+export default defineComponent({
+  components: { ChevronDownIcon, Button },
   props: {
-    isAdded: Boolean,
-    isHidden: Boolean,
-    canIgnoreFile: Boolean,
+    isAdded: {
+      type: Boolean,
+      required: true,
+    },
+    isHidden: {
+      type: Boolean,
+      required: true,
+    },
+    canIgnoreFile: {
+      type: Boolean,
+      required: true,
+    },
   },
   emits: ['add', 'hide', 'undo', 'ignore', 'showdropdown', 'hidedropdown', 'unhide'],
   data() {
@@ -88,22 +97,22 @@ export default {
   },
   methods: {
     toggleDropDown() {
-      this.showDropdown = !this.showDropdown;
+      this.showDropdown = !this.showDropdown
       this.$emit('showdropdown')
       this.$emit('unhide')
     },
     hide() {
-      this.showDropdown = false;
+      this.showDropdown = false
       this.$emit('hidedropdown')
       this.$emit('hide')
     },
     fileDropDownBlur(e) {
       // Lost blur to outside of dropdown
-      if (!IsFocusChildOfElementWithClass(e, "file-dropdown-overlay")) {
-        this.showDropdown = false;
+      if (!IsFocusChildOfElementWithClass(e, 'file-dropdown-overlay')) {
+        this.showDropdown = false
         this.$emit('hidedropdown')
       }
     },
-  }
-}
+  },
+})
 </script>
