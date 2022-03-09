@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { computed, defineComponent, inject, Ref, ref, watch } from 'vue'
 import { DeepMaybeRef } from '@vueuse/core'
 import ChangeDetails, {
   CHANGE_DETAILS_CHANGE_FRAGMENT,
@@ -85,11 +85,11 @@ import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import ChangeActivitySidebar, {
   CHANGE_FRAGMENT as CHANGE_ACTIVITY_CHANGE_FRAGMENT,
 } from '../../organisms/ChangeActivitySidebar.vue'
-
+import { Feature } from '../../__generated__/types'
 import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
 
 const PAGE_QUERY = gql`
-  query ChangePage($changeID: ID!) {
+  query ChangePage($changeID: ID!, $isGitHubEnabled: Boolean!) {
     change(id: $changeID) {
       id
 
@@ -149,6 +149,9 @@ export default defineComponent({
       changeId.value = newRoute.params.id as string
     })
 
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     const { data, fetching, error } = useQuery<
       ChangePageQuery,
       DeepMaybeRef<ChangePageQueryVariables>
@@ -157,6 +160,7 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
       variables: {
         changeID: changeId,
+        isGitHubEnabled: isGitHubEnabled,
       },
     })
 
