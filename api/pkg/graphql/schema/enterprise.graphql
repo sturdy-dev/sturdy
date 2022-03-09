@@ -179,6 +179,7 @@ type GitHubApp {
 }
 
 type GithubValidationApp{
+    _id: ID! # Always "sturdy"
     ok: Boolean!
     missingPermissions: [String!]!
     missingEvents: [String!]!

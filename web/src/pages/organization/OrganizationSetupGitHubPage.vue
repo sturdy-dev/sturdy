@@ -35,7 +35,9 @@ import { useRoute } from 'vue-router'
 import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
-import OrganizationSetupGitHub from '../../organisms/organization/OrganizationSetupGitHub.vue'
+import OrganizationSetupGitHub, {
+  ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT
+} from '../../organisms/organization/OrganizationSetupGitHub.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import { Feature } from '../../__generated__/types'
 
@@ -68,6 +70,7 @@ export default defineComponent({
             _id
             clientID
             name
+            ...OrganizationSetupGitHub_GitHubApp
           }
 
           user {
@@ -79,6 +82,8 @@ export default defineComponent({
             }
           }
         }
+
+        ${ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
       variables: {

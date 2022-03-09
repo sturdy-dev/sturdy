@@ -50,7 +50,7 @@
       Read the docs
     </LinkButton>
 
-    <template v-if="data && data.gitHubRepositories.length > 0">
+    <template v-if="data && data.gitHubRepositories.length > 0 && gitHubApp.validation.ok">
       <div class="text-sm p-4">
         <p>
           Click <em>Setup</em> to create a new codebase that's connected to the selected repository.
@@ -122,7 +122,9 @@ import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 
 import {
-  OrganizationSetupGitHubOrganizationFragment,
+  OrganizationSetupGitHub_GitHubAccountFragment,
+  OrganizationSetupGitHub_GitHubAppFragment,
+  OrganizationSetupGitHub_OrganizationFragment,
   OrganizationSetupGitHubQuery,
   OrganizationSetupGitHubQueryVariables,
 } from './__generated__/OrganizationSetupGitHub'
@@ -130,34 +132,32 @@ import Spinner from '../../components/shared/Spinner.vue'
 import Button from '../../components/shared/Button.vue'
 import { Slug } from '../../slug'
 import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
-import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
-import {
-  GitHubAccountFragment,
-  GitHubAppFragment,
-} from '../../molecules/__generated__/GitHubConnectButton'
+import GitHubConnectButton, {GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT} from '../../molecules/GitHubConnectButton.vue'
 import { useSetupGitHubRepository } from '../../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { Feature } from '../../__generated__/types'
 import LinkButton from '../../components/shared/LinkButton.vue'
 
-export const GITHUB_APP_FRAGMENT = gql`
-  fragment GitHubApp on GitHubApp {
+export const ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT = gql`
+  fragment OrganizationSetupGitHub_GitHubApp on GitHubApp {
     _id
     name
     clientID
+    ...GitHubConnectButton_GitHubApp
   }
+  ${GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT}
 `
 
-export const GITHUB_ACCOUNT_FRAGMENT = gql`
-  fragment GitHubAccount on GitHubAccount {
+export const ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT = gql`
+  fragment OrganizationSetupGitHub_GitHubAccount on GitHubAccount {
     id
     login
     isValid
   }
 `
 
-export const ORGANIZATION_FRAGMENT = gql`
-  fragment OrganizationSetupGitHubOrganization on Organization {
+export const ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT = gql`
+  fragment OrganizationSetupGitHub_Organization on Organization {
     id
     name
   }
@@ -167,16 +167,16 @@ export default defineComponent({
   components: { GitHubConnectButton, Spinner, Button, RouterLinkButton, CheckIcon, LinkButton },
   props: {
     organization: {
-      type: Object as PropType<OrganizationSetupGitHubOrganizationFragment>,
+      type: Object as PropType<OrganizationSetupGitHub_OrganizationFragment>,
       required: true,
     },
     gitHubApp: {
-      type: Object as PropType<GitHubAppFragment>,
+      type: Object as PropType<OrganizationSetupGitHub_GitHubAppFragment>,
       default: null,
       required: false,
     },
     gitHubAccount: {
-      type: Object as PropType<GitHubAccountFragment>,
+      type: Object as PropType<OrganizationSetupGitHub_GitHubAccountFragment>,
       default: null,
       required: false,
     },
@@ -237,14 +237,14 @@ export default defineComponent({
     }
   },
   methods: {
-    async installRepo(repo) {
+    async installRepo(repo: { gitHubInstallationID: string; gitHubRepositoryID: string }) {
       await this.setupGitHubRepository(
         this.organization.id,
         repo.gitHubInstallationID,
         repo.gitHubRepositoryID
       )
     },
-    slug(cb) {
+    slug(cb: { name: string; shortID: string }) {
       return Slug(cb.name, cb.shortID)
     },
   },
