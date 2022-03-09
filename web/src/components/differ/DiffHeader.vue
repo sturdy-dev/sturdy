@@ -4,34 +4,34 @@
       <!-- TODO: Different icons for different filetypes -->
       <DocumentTextIcon class="w-5 h-5" />
 
-      <span v-if="compatIsNew" class="d2h-file-name">
-        <DifferName :name="compatNewName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
+      <span v-if="diffs.isNew" class="d2h-file-name">
+        <DifferName :name="diffs.newName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
       </span>
 
-      <span v-else-if="compatIsDeleted" class="d2h-file-name">
-        <DifferName :name="compatOrigName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
+      <span v-else-if="diffs.isDeleted" class="d2h-file-name">
+        <DifferName :name="diffs.origName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
       </span>
 
       <span
-        v-else-if="compatNewName && compatOrigName && compatNewName !== compatOrigName"
+        v-else-if="diffs.newName && diffs.origName && diffs.newName !== diffs.origName"
         class="d2h-file-name"
       >
-        <DifferName :name="compatOrigName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
+        <DifferName :name="diffs.origName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
         →
-        <DifferName :name="compatNewName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
+        <DifferName :name="diffs.origName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
       </span>
 
       <span v-else class="d2h-file-name">
-        <DifferName :name="compatOrigName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
+        <DifferName :name="diffs.origName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
       </span>
 
-      <span v-if="compatIsNew" class="d2h-tag d2h-added d2h-added-tag">ADDED</span>
-      <span v-else-if="compatIsDeleted" class="d2h-tag d2h-deleted d2h-deleted-tag"> DELETED </span>
-      <span v-else-if="compatIsMoved" class="d2h-tag d2h-moved d2h-moved-tag">MOVED</span>
+      <span v-if="diffs.isNew" class="d2h-tag d2h-added d2h-added-tag">ADDED</span>
+      <span v-else-if="diffs.isDeleted" class="d2h-tag d2h-deleted d2h-deleted-tag"> DELETED </span>
+      <span v-else-if="diffs.isMoved" class="d2h-tag d2h-moved d2h-moved-tag">MOVED</span>
       <span v-else class="d2h-tag d2h-changed d2h-changed-tag">CHANGED</span>
 
-      <span v-if="compatIsLarge">
-        {{ humanSize(compatLargeFileInfo.size) }}
+      <span v-if="diffs.isLarge">
+        {{ humanSize(diffs.largeFileInfo.size) }}
       </span>
     </span>
 
@@ -81,7 +81,7 @@
     <RouterLinkButton
       v-if="showFullFileButton"
       size="small"
-      :to="{ name: 'browseFile', params: { path: compatNewName.split('/') } }"
+      :to="{ name: 'browseFile', params: { path: diffs.newName.split('/') } }"
     >
       Show file
     </RouterLinkButton>
@@ -89,8 +89,9 @@
       v-if="!showSuggestions && showAddButton"
       :is-added="isAdded"
       :can-ignore-file="canIgnoreFile"
+      :is-hidden="false"
       @add="$emit('add')"
-      @ignore="onIgnore(diffs.new_name)"
+      @ignore="onIgnore(diffs.newName)"
       @hide="$emit('hide')"
       @undo="$emit('undo')"
       @unhide="$emit('unhide')"
@@ -100,24 +101,62 @@
   </div>
 </template>
 
-<script lang="js">
-import DifferName from "./DifferName.vue";
-import DifferAddButton from "./DifferAddButton.vue";
-import { CheckCircleIcon, ClockIcon, DocumentTextIcon } from "@heroicons/vue/outline";
-import RouterLinkButton from "../shared/RouterLinkButton.vue";
-import Avatar from "../shared/Avatar.vue";
+<script lang="ts">
+import DifferName from './DifferName.vue'
+import DifferAddButton from './DifferAddButton.vue'
+import { CheckCircleIcon, ClockIcon, DocumentTextIcon } from '@heroicons/vue/outline'
+import RouterLinkButton from '../shared/RouterLinkButton.vue'
+import Avatar from '../shared/Avatar.vue'
+import { defineComponent, PropType } from 'vue'
+import { gql } from '@urql/vue'
+import {
+  DiffHeader_FileDiffFragment,
+  DiffHeader_SuggestionsFragment,
+} from './__generated__/DiffHeader'
 
-const deduplicateAuthors = (authors) => {
+const deduplicateAuthors = (authors: Author[]) => {
   const seen = new Set()
-  return authors.filter(author => {
+  return authors.filter((author) => {
     const isNew = !seen.has(author.id)
     seen.add(author.id)
     return isNew
   })
 }
 
-export default {
-  name: 'DiffHeader',
+type Author = DiffHeader_SuggestionsFragment['author']
+
+export const DIFF_HEADER_FILE_DIFF = gql`
+  fragment DiffHeader_FileDiff on FileDiff {
+    id
+
+    origName
+    newName
+    preferredName
+
+    isDeleted
+    isNew
+    isMoved
+
+    isLarge
+    largeFileInfo {
+      id
+      size
+    }
+  }
+`
+
+export const DIFF_HEADER_SUGGESTIONS = gql`
+  fragment DiffHeader_Suggestions on Suggestion {
+    id
+    author {
+      id
+      name
+      avatarUrl
+    }
+  }
+`
+
+export default defineComponent({
   components: {
     DifferName,
     DifferAddButton,
@@ -128,19 +167,37 @@ export default {
     DocumentTextIcon: DocumentTextIcon,
   },
   props: {
-    isSuggesting: Boolean,
     diffs: {
-      type: Object,
+      type: Object as PropType<DiffHeader_FileDiffFragment>,
       required: true,
     },
-    suggestions: Array,
-    conflictSelection: String,
+
+    isSuggesting: Boolean,
     showSuggestions: Boolean,
+    suggestions: {
+      type: Object as PropType<Array<DiffHeader_SuggestionsFragment>>,
+      required: false,
+      default: function () {
+        return new Array<DiffHeader_SuggestionsFragment>()
+      },
+    },
+    showingSuggestionsByUser: {
+      type: String,
+      required: false,
+      default: function () {
+        return null
+      },
+    },
+
+    conflictSelection: String,
+
     isAdded: Boolean,
-    fileKey: String,
     haveLiveChanges: Boolean,
-    showingSuggestionsByUser: String,
-    canIgnoreFile: Boolean,
+
+    canIgnoreFile: {
+      type: Boolean,
+      required: true,
+    },
     canTakeSuggestions: Boolean,
     showFullFileButton: Boolean,
     showAddButton: {
@@ -164,43 +221,22 @@ export default {
       const authors = this.suggestions.map((suggestion) => suggestion.author)
       return deduplicateAuthors(authors)
     },
-    compatIsNew() {
-      return this.diffs.is_new || this.diffs.isNew
-    },
-    compatIsMoved() {
-      return this.diffs.is_moved || this.diffs.isMoved
-    },
-    compatIsDeleted() {
-      return this.diffs.is_deleted || this.diffs.isDeleted
-    },
-    compatNewName() {
-      return this.diffs.new_name || this.diffs.newName
-    },
-    compatOrigName() {
-      return this.diffs.orig_name || this.diffs.origName
-    },
-    compatIsLarge() {
-      return this.diffs.is_large || this.diffs.isLarge
-    },
-    compatLargeFileInfo() {
-      return this.diffs.large_file_info || this.diffs.largeFileInfo
-    },
   },
   methods: {
-    sendSetWithPrefix(prefix, selected) {
+    sendSetWithPrefix(prefix: string, selected: boolean) {
       // Send event to siblings, etc.
       this.emitter.emit('differ-set-hunks-with-prefix', {
         prefix: prefix,
         selected: selected,
       })
     },
-    onIgnore(fileName) {
+    onIgnore(fileName: string) {
       this.$emit('ignore', fileName)
     },
-    round2(num) {
+    round2(num: number) {
       return Math.round((num + Number.EPSILON) * 100) / 100
     },
-    humanSize(bytes) {
+    humanSize(bytes: number) {
       if (bytes < 1024) {
         return bytes + 'B'
       }
@@ -216,5 +252,5 @@ export default {
       return this.round2(gBytes) + 'GB'
     },
   },
-}
+})
 </script>

@@ -7,13 +7,14 @@
   >
     <DiffHeader
       :diffs="diffs"
+      :file-key="fileKey"
       :is-suggesting="isSuggesting"
       :suggestions="suggestions"
       :show-suggestions="showSuggestions"
       :is-added="isAdded"
       :have-live-changes="haveLiveChanges"
       :showing-suggestions-by-user="showingSuggestionsByUser"
-      :can-ignore-file="!diffs.new_name || !diffs.is_new"
+      :can-ignore-file="canIgnoreFile"
       :can-take-suggestions="canTakeSuggestions"
       :show-full-file-button="showFullFileButton"
       :show-add-button="showAddButton"
@@ -271,7 +272,7 @@ import { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
 import DiffTable, { HUNK_FRAGMENT as DIFF_TABLE_HUNK_FRAGMENT } from './DiffTable.vue'
 import Button from '../shared/Button.vue'
 import * as Diff2Html from 'diff2html'
-import DiffHeader from './DiffHeader.vue'
+import DiffHeader, { DIFF_HEADER_SUGGESTIONS } from './DiffHeader.vue'
 import '../../highlight/highlight_common_languages'
 import highlight from '../../highlight/highlight'
 import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
@@ -309,8 +310,12 @@ export const DIFFER_FILE_SUGGESTION = gql`
         isDismissed
       }
     }
+
+    ...DiffHeader_Suggestions
   }
+
   ${DIFF_TABLE_HUNK_FRAGMENT}
+  ${DIFF_HEADER_SUGGESTIONS}
 `
 
 export const DIFFER_FILE_FILE_DIFF = gql`
@@ -420,6 +425,7 @@ export default defineComponent({
       required: true,
     },
     extraClasses: String,
+
     diffs: {
       type: Object as PropType<DifferFile_FileDiffFragment>,
       required: true,
@@ -433,7 +439,7 @@ export default defineComponent({
     newCommentAvatarUrl: String,
     canComment: Boolean,
     suggestions: {
-      type: Array as PropType<DifferFile_SuggestionFragment[]>,
+      type: Array as PropType<Array<DifferFile_SuggestionFragment>>,
       required: true,
     },
     initShowSuggestionsByUser: String,
@@ -597,6 +603,12 @@ export default defineComponent({
       }
 
       return res
+    },
+    canIgnoreFile() {
+      if (this.diffs.isNew && this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')) {
+        return true
+      }
+      return false
     },
   },
   created() {
