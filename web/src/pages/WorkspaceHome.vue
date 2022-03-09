@@ -1092,6 +1092,9 @@ export default defineComponent({
         this.fetchRebasingStatus(this.displayView.id)
       }
     },
+    'data.workspace.draftDescription': function () {
+      this.setDraftDescription()
+    },
   },
   unmounted() {
     this.emitter.off('differ-selected-hunk-ids', this.onSelectedHunkIDs)
