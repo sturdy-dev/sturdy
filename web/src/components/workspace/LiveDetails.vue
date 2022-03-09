@@ -536,7 +536,6 @@ export default defineComponent({
       if (!this.diffs) {
         return []
       }
-      console.log(this.diffs)
       return this.diffs.filter((d) => !d.is_hidden)
     },
     hasHiddenChanges() {
