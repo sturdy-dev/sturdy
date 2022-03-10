@@ -197,11 +197,9 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 			return fmt.Errorf("failed to create change: %w", err)
 		}
 
-		// unset the draft description
-		ws.DraftDescription = ""
+		// link the workspace with the change that it created
 		ws.ChangeID = &ch.ID
 		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
-			db_workspaces.SetDraftDescription(""),
 			db_workspaces.SetChangeID(&ch.ID)); err != nil {
 			return fmt.Errorf("failed to update workspace: %w", err)
 		}
