@@ -177,13 +177,30 @@ export class MutagenManager {
     )
     this.#status.reconciledSessions()
 
-    let manager = this
+    const manager = this
 
     const logger = this.#logger
 
     const ipcImplementation: MutagenIPC = {
       async createView(workspaceID, mountPath) {
-        logger.log(`mounting workspace ${workspaceID} at ${mountPath}`)
+        logger.log(`createView ${workspaceID} at ${mountPath}`)
+
+        const origMountPath = mountPath
+        for (let idx = 2; idx < 100; idx++) {
+          const dirname = path.dirname(mountPath)
+          const baseName = path.basename(mountPath)
+          const content = await readdir(dirname)
+          if (content.find((f) => f === baseName)) {
+            // try again with new name
+            mountPath = `${origMountPath}-${idx}`
+            continue
+          }
+
+          // mount path is ok
+          break
+        }
+
+        logger.log(`createView final name: ${workspaceID} at ${mountPath}`)
 
         const dirname = path.dirname(mountPath)
         const baseName = path.basename(mountPath)
