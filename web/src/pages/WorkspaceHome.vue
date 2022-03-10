@@ -206,7 +206,7 @@
                     color="green"
                     :disabled="loadingNewWorkspace"
                     class="z-20"
-                    @click="createSuggestion()"
+                    @click="createSuggestion(data.workspace.id, mostRecentSelfUserView.id)"
                   >
                     <div class="flex">
                       <AnnotationIcon

@@ -41,61 +41,57 @@
       </div>
     </div>
 
-    <template v-if="!differState.isHidden && showSuggestions && !diffs.is_large && !diffs.isLarge">
+    <template v-if="!differState.isHidden && showSuggestions && !diffs.isLarge">
       <template v-for="suggestion in suggestions">
         <template v-if="suggestion.author.id === showingSuggestionsByUser">
-          <DiffTable
-            v-for="hunk in suggestion.diff.hunks"
-            :key="hunk.id"
-            :unparsed-diff="hunk"
-            :grayed-out="hunk.isApplied || hunk.isOutdated || hunk.isDismissed"
-          >
-            <template #blockIndexAction>
-              <div class="relative flex items-start justify-center w-full">
-                <span v-if="hunk.isApplied" class="text-sm font-medium text-green-600">Taken</span>
-                <span v-else-if="hunk.isDismissed" class="text-sm font-medium text-red-600"
-                  >Dismissed</span
-                >
-                <span v-else-if="hunk.isOutdated" class="text-sm font-medium text-gray-500"
-                  >Outdated</span
-                >
-                <template v-else-if="showSuggestions && canTakeSuggestions">
-                  <Button
-                    size="tiny"
-                    color="green"
-                    :grouped="true"
-                    :first="true"
-                    @click="onClickApplyHunkedSuggestion(hunk, suggestion)"
+          <template v-for="(diff, diffIdx) in suggestion.diffs" :key="diffIdx">
+            <DiffTable
+              v-for="hunk in diff.hunks"
+              :key="hunk.id"
+              :unparsed-diff="hunk"
+              :grayed-out="hunk.isApplied || hunk.isOutdated || hunk.isDismissed"
+            >
+              <template #blockIndexAction>
+                <div class="relative flex items-start justify-center w-full">
+                  <span v-if="hunk.isApplied" class="text-sm font-medium text-green-600"
+                    >Taken</span
                   >
-                    <CheckIcon class="w-4 h-4" />
-                  </Button>
+                  <span v-else-if="hunk.isDismissed" class="text-sm font-medium text-red-600">
+                    Dismissed
+                  </span>
+                  <span v-else-if="hunk.isOutdated" class="text-sm font-medium text-gray-500">
+                    Outdated
+                  </span>
+                  <template v-else-if="showSuggestions && canTakeSuggestions">
+                    <Button
+                      size="tiny"
+                      color="green"
+                      :grouped="true"
+                      :first="true"
+                      @click="onClickApplyHunkedSuggestion(hunk, suggestion)"
+                    >
+                      <CheckIcon class="w-4 h-4" />
+                    </Button>
 
-                  <Button
-                    size="tiny"
-                    color="red"
-                    :grouped="true"
-                    :last="true"
-                    @click="onClickDismissHunkedSuggestion(hunk, suggestion)"
-                  >
-                    <XIcon class="w-4 h-4" />
-                  </Button>
-                </template>
-              </div>
-            </template>
-          </DiffTable>
+                    <Button
+                      size="tiny"
+                      color="red"
+                      :grouped="true"
+                      :last="true"
+                      @click="onClickDismissHunkedSuggestion(hunk, suggestion)"
+                    >
+                      <XIcon class="w-4 h-4" />
+                    </Button>
+                  </template>
+                </div>
+              </template>
+            </DiffTable>
+          </template>
         </template>
       </template>
     </template>
 
-    <div
-      v-if="
-        isReadyToDisplay &&
-        !differState.isHidden &&
-        !showSuggestions &&
-        !diffs.is_large &&
-        !diffs.isLarge
-      "
-    >
+    <div v-if="isReadyToDisplay && !differState.isHidden && !showSuggestions && !diffs.isLarge">
       <div class="d2h-code-wrapper">
         <table
           class="d2h-diff-table leading-4 z-0"
@@ -148,7 +144,7 @@
                 <tr
                   :data-row-index="rowIndex"
                   class="z-0"
-                  :data-preferred-name="diffs.preferred_name || diffs.preferredName"
+                  :data-preferred-name="diffs.preferredName"
                   :data-line-oldnum="row.oldNumber"
                   :data-line-newnum="row.newNumber"
                   @mouseover="setShowCommentPill(hunkIndex, blockIndex, rowIndex)"
@@ -241,8 +237,8 @@
                     <ReviewNewComment
                       :members="members"
                       :user="user"
-                      :path="diffs.preferred_name || diffs.preferredName"
-                      :old-path="diffs.orig_name || diffs.origName"
+                      :path="diffs.preferredName"
+                      :old-path="diffs.origName"
                       :line-is-new="!!row.newNumber"
                       :line-start="row.oldNumber || row.newNumber"
                       :line-end="row.oldNumber || row.newNumber"
@@ -302,6 +298,7 @@ export const DIFFER_FILE_SUGGESTION = gql`
     }
     diffs {
       id
+      isLarge
       hunks {
         id
         ...DiffTable_Hunk
@@ -329,6 +326,7 @@ export const DIFFER_FILE_FILE_DIFF = gql`
     isDeleted
     isNew
     isMoved
+    isLarge
 
     hunks {
       id
@@ -519,7 +517,7 @@ export default defineComponent({
     haveLiveChanges(): boolean {
       return this.diffs.hunks.length > 0
     },
-    suggestionByUser() {
+    suggestionByUser(): DifferFile_SuggestionFragment | undefined {
       if (!this.showingSuggestionsByUser) return undefined
       return this.suggestions.find(({ author }) => author.id === this.showingSuggestionsByUser)
     },
@@ -527,13 +525,15 @@ export default defineComponent({
       return !!this.suggestionByUser
     },
     canTakeSuggestions(): boolean {
-      return this.suggestionByUser
-        ? this.suggestionByUser.diffs.some(({ hunks }) =>
-            hunks.some(
-              ({ isApplied, isOutdated, isDismissed }) => !isApplied && !isOutdated && isDismissed
-            )
-          )
-        : false
+      if (!this.suggestionByUser) {
+        return false
+      }
+
+      return this.suggestionByUser?.diffs?.some(({ hunks }) =>
+        hunks.some(
+          ({ isApplied, isOutdated, isDismissed }) => !isApplied && !isOutdated && !isDismissed
+        )
+      )
     },
     newRowsWithComments() {
       return new Set([
