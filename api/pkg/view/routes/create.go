@@ -9,12 +9,9 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebase/access"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	eventsv2 "getsturdy.com/api/pkg/events/v2"
-	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/open"
+	service_view "getsturdy.com/api/pkg/view/service"
 	"getsturdy.com/api/pkg/view/vcs"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
@@ -39,11 +36,8 @@ func Create(
 	codebaseUserRepo db_codebase.CodebaseUserRepository,
 	analyticsService *service_analytics.Service,
 	workspaceReader db_workspaces.WorkspaceReader,
-	snapshotter snapshotter.Snapshotter,
-	snapshotRepo db_snapshots.Repository,
-	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
-	eventSender *eventsv2.Publisher,
+	viewService *service_view.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req CreateRequest
@@ -100,7 +94,7 @@ func Create(
 		}
 
 		// Use workspace on view
-		if err := open.OpenWorkspaceOnView(c.Request.Context(), logger, &e, ws, viewRepo, workspaceReader, snapshotter, snapshotRepo, workspaceWriter, executorProvider, eventSender); err != nil {
+		if err := viewService.OpenWorkspace(c.Request.Context(), &e, ws); err != nil {
 			logger.Error("failed to open workspace on view", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return

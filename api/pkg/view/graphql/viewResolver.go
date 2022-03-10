@@ -25,7 +25,7 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/view/ignore"
-	"getsturdy.com/api/pkg/view/open"
+	service_view "getsturdy.com/api/pkg/view/service"
 	view_vcs "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -67,6 +67,7 @@ type ViewRootResolver struct {
 	authService              *service_auth.Service
 	analyticsService         *service_analytics.Service
 	eventsSubscriber         *eventsv2.Subscriber
+	viewService              *service_view.Service
 }
 
 func NewResolver(
@@ -88,6 +89,7 @@ func NewResolver(
 	codebaseResolver resolvers.CodebaseRootResolver,
 	authService *service_auth.Service,
 	eventsSubscriber *eventsv2.Subscriber,
+	viewService *service_view.Service,
 ) resolvers.ViewRootResolver {
 	return &ViewRootResolver{
 		viewRepo:                 viewRepo,
@@ -108,6 +110,7 @@ func NewResolver(
 		codebaseResolver:         codebaseResolver,
 		authService:              authService,
 		eventsSubscriber:         eventsSubscriber,
+		viewService:              viewService,
 	}
 }
 
@@ -320,7 +323,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	}
 
 	// Use workspace on view
-	if err := open.OpenWorkspaceOnView(ctx, r.logger, &e, ws, r.viewRepo, r.workspaceReader, r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSenderV2); errors.Is(err, open.ErrRebasing) {
+	if err := r.viewService.OpenWorkspace(ctx, &e, ws); errors.Is(err, service_view.ErrRebasing) {
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
 	} else if err != nil {
 		return nil, gqlerrors.Error(err)
