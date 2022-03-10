@@ -27,6 +27,7 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
+	service_view "getsturdy.com/api/pkg/view/service"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	routes_v3_workspace "getsturdy.com/api/pkg/workspaces/routes"
@@ -63,6 +64,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
 		EventsSender     *eventsv2.Publisher
+		ViewService      *service_view.Service
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
@@ -80,7 +82,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver
@@ -256,6 +258,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
 		EventsSender     *eventsv2.Publisher
+		ViewService      *service_view.Service
 
 		Logger           *zap.Logger
 		AnalyticsSerivce *service_analytics.Service
@@ -273,7 +276,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver

@@ -35,6 +35,7 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
+	service_view "getsturdy.com/api/pkg/view/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	vcsvcs "getsturdy.com/api/vcs"
@@ -361,6 +362,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		AnalyticsService      *service_analytics.Service
 		CodebaseRepo          db_codebase.CodebaseRepository
 		SyncService           *service_sync.Service
+		ViewService           *service_view.Service
 	}
 
 	var d deps
@@ -376,7 +378,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	codebaseUserRepo := d.CodebaseUserRepo
 	codebaseRepo := d.CodebaseRepo
 
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceRepo, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 	startRoutev2 := routes_v3_sync.StartV2(d.Logger, d.SyncService, d.WorkspaceService)
 	resolveRoutev2 := routes_v3_sync.ResolveV2(d.Logger, d.SyncService)
 	statusRoute := routes_v3_sync.Status(d.ViewRepo, d.ExecutorProvider, d.Logger)
