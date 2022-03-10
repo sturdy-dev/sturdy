@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	module_analytics "getsturdy.com/api/pkg/analytics/module"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	module_events "getsturdy.com/api/pkg/events"
@@ -30,6 +31,7 @@ func TestModule(c *di.Container) {
 	c.Import(module_logger.Module)
 	c.Import(module_vcs.Module)
 	c.Import(module_configuration.TestingModule)
+	c.Import(module_analytics.Module)
 	c.Import(inmemory.TestModule)
 	c.Import(module_snapshots.InMemoryTestingModule)
 	c.Import(module_events_v2.Module)

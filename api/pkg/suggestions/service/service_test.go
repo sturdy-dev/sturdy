@@ -272,7 +272,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider)
 	activityService := service_activity.New(nil, activityRepo, eventsSender)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop())
+	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop(), analyticsService)
 	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, nil, changeService, activityService, nil, nil, executorProvider, nil, nil, nil, gitSnapshotter, nil)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)
 	return &test{
