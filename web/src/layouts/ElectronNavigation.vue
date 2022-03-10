@@ -34,5 +34,5 @@ import AppHistoryNavigationButtons from '../components/AppHistoryNavigationButto
 import AppMutagenStatus from '../components/AppMutagenStatus.vue'
 import AppShareButton from '../components/AppShareButton.vue'
 
-const appPlatform = appEnvironment?.platform
+const appPlatform = window.appEnvironment?.platform
 </script>
