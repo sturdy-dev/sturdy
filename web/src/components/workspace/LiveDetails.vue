@@ -229,6 +229,7 @@ import {
 } from './__generated__/LiveDetails'
 import Spinner from '../shared/Spinner.vue'
 import { DifferFile_SuggestionFragment } from '../differ/__generated__/DifferFile'
+import { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {
@@ -252,6 +253,7 @@ export const LIVE_DETAILS_DIFFS = gql`
       isDeleted
       isNew
       isMoved
+      isHidden
 
       hunks {
         id
@@ -312,7 +314,7 @@ export default defineComponent({
     },
 
     diffs: {
-      type: Object as PropType<LiveDetailsDiffsFragment>,
+      type: Object as PropType<Array<LiveDetailsDiffsFragment>>,
       required: true,
     },
 
@@ -525,9 +527,9 @@ export default defineComponent({
     hideDiffs() {
       return this.diffs && this.diffs.length > 250
     },
-    filesWithDiffs() {
-      const set = new Set()
-      this.visible_diffs.map((d) => d.preferred_name).forEach((f) => set.add(f))
+    filesWithDiffs(): Set<string> {
+      const set = new Set<string>()
+      this.visible_diffs.map((d) => d.preferredName).forEach((f) => set.add(f))
       return set
     },
     showShare() {
@@ -542,11 +544,11 @@ export default defineComponent({
       const isMember = this.members.some(({ id }) => id === this.user?.id)
       return this.isAuthenticated && isMember
     },
-    visible_diffs() {
+    visible_diffs(): Array<LiveDetailsDiffsFragment> {
       if (!this.diffs) {
         return []
       }
-      return this.diffs.filter((d) => !d.is_hidden)
+      return this.diffs.filter((d) => !d.isHidden)
     },
     hasHiddenChanges() {
       if (!this.diffs) {
@@ -643,14 +645,17 @@ export default defineComponent({
       })
       return suggestedFilesByUser
     },
-    suggestionsByFile() {
-      const suggestionsByFile = {}
+    suggestionsByFile(): { [key: string]: Differ_SuggestionFragment[] } {
+      const suggestionsByFile: { [key: string]: Differ_SuggestionFragment[] } = {}
       this.openSuggestions.forEach((suggestion) => {
         suggestion.diffs.forEach((diff) => {
           if (!suggestionsByFile[diff.preferredName]) {
             suggestionsByFile[diff.preferredName] = []
           }
-          suggestionsByFile[diff.preferredName].push(suggestion)
+
+          let sug = { ...suggestion }
+          sug.diffs = [diff]
+          suggestionsByFile[diff.preferredName].push(sug)
         })
       })
       return suggestionsByFile
@@ -666,7 +671,7 @@ export default defineComponent({
           // Copy the diff, but remove the hunks
           suggestion.diffs.forEach((diff) => {
             // This file is already visible
-            let name = diff.preferred_name
+            let name = diff.preferredName
             if (this.filesWithDiffs.has(name)) {
               return
             }
