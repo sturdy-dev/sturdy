@@ -193,14 +193,14 @@
 <script lang="ts">
 import Differ from '../differ/Differ.vue'
 import http from '../../http'
-import { ExternalLinkIcon, XIcon } from '@heroicons/vue/outline'
+import { XIcon } from '@heroicons/vue/outline'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
 import { Banner } from '../../atoms'
 import Avatar from '../shared/Avatar.vue'
 import Button from '../shared/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { computed, ref, watch, defineComponent, inject, Ref, PropType } from 'vue'
+import { computed, defineComponent, inject, PropType, Ref, ref, watch } from 'vue'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -220,7 +220,6 @@ import {
   LiveDetailsQueryVariables,
 } from './__generated__/LiveDetails'
 import Spinner from '../shared/Spinner.vue'
-import { DifferFile_SuggestionFragment } from '../differ/__generated__/DifferFile'
 import { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
@@ -270,7 +269,6 @@ export default defineComponent({
     OnboardingStep,
     Banner,
     TooManyFilesChanged,
-    ExternalLinkIcon,
     Differ,
     Avatar,
     Button,
