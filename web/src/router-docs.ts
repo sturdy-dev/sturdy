@@ -177,6 +177,17 @@ export const RoutesDocs: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/blog/2022-03-10-introducing-draft-changes',
+    name: 'blog2022-03-10',
+    component: () => import('./pages/blog/2022-03-10/Post.vue'),
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#015 - Introducing Draft changes' },
+    },
+  },
+  {
     path: '/blog/2022-02-21-sturdy-is-now-open-source',
     name: 'blog2022-02-21',
     component: () => import('./pages/blog/2022-02-21/Post.vue'),
