@@ -40,6 +40,7 @@ import (
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	routes_v3_view "getsturdy.com/api/pkg/view/routes"
+	service_view "getsturdy.com/api/pkg/view/service"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	routes_v3_workspace "getsturdy.com/api/pkg/workspaces/routes"
@@ -96,6 +97,7 @@ func TestCreate(t *testing.T) {
 		SnapshotRepo     db_snapshots.Repository
 		ExecutorProvider executor.Provider
 		EventsSender     *eventsv2.Publisher
+		ViewService      *service_view.Service
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
@@ -115,7 +117,6 @@ func TestCreate(t *testing.T) {
 	gcService := d.GcService
 	codebaseService := d.CodebaseService
 	workspaceService := d.WorkspaceService
-	gitSnapshotter := d.GitSnapshotter
 	repoProvider := d.RepoProvider
 
 	logger := d.Logger
@@ -123,13 +124,11 @@ func TestCreate(t *testing.T) {
 	codebaseUserRepo := d.CodebaseUserRepo
 	workspaceRepo := d.WorkspaceRepo
 	viewRepo := d.ViewRepo
-	snapshotRepo := d.SnapshotRepo
 	executorProvider := d.ExecutorProvider
-	eventsSender := d.EventsSender
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsSerivce, workspaceRepo, gitSnapshotter, snapshotRepo, workspaceRepo, executorProvider, eventsSender)
+	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsSerivce, workspaceRepo, executorProvider, d.ViewService)
 
 	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
@@ -564,6 +563,7 @@ func TestLargeFiles(t *testing.T) {
 		ExecutorProvider executor.Provider
 		EventsSender     *eventsv2.Publisher
 		WorkspaceWriter  db_workspaces.WorkspaceWriter
+		ViewService      *service_view.Service
 
 		Logger           *zap.Logger
 		AnalyticsSerivce *service_analytics.Service
@@ -580,7 +580,7 @@ func TestLargeFiles(t *testing.T) {
 	workspaceRootResolver := d.WorkspaceRootResolver
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.GitSnapshotter, d.SnapshotRepo, d.WorkspaceWriter, d.ExecutorProvider, d.EventsSender)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 
 	testCases := []struct {
 		name          string
