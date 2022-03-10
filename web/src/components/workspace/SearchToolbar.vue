@@ -76,6 +76,11 @@ export default defineComponent({
       searchCurrentSelectedId: null,
     }
   },
+  computed: {
+    isApp() {
+      return !!this.ipc
+    },
+  },
   watch: {
     searchQuery: function () {
       this.searchCurrentSelectedId = null
@@ -89,11 +94,6 @@ export default defineComponent({
   unmounted() {
     window.removeEventListener('keydown', this.globalKeyDown)
     this.emitter.off('search-result', this.onSearchResult)
-  },
-  computed: {
-    isApp() {
-      return !!this.ipc
-    },
   },
   methods: {
     globalKeyDown(event) {
