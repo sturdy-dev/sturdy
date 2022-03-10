@@ -13,7 +13,7 @@
       <a class="text-amber-600" href="https://www.producthunt.com/posts/sturdy">Product Hunt</a>!
     </template>
     <template #default>
-      <h2>Draft changes</h2>
+      <h2>📝 Draft changes</h2>
       <p>
         We felt that workspaces in Sturdy were sometimes unnecessarily complex. For example, after
         you merge the code in your workspace, should you continue working in the same workspace or
@@ -23,7 +23,7 @@
       <ul>
         <li>All code changes start from a Draft</li>
         <li>
-          If a Draft is empty, it's name will be <span class="font-semibold italic">Italic</span>,
+          If a Draft is empty, it's name will be <span class="font-semibold italic">italic</span>,
           and it will not be visible to others
         </li>
         <li>Drafts with code updates are discoverable in the app sidebar</li>
@@ -34,15 +34,16 @@
       </div>
 
       <p>
-        This change makes the 'develop — collaborate — integrate' loop even tighter. In addition, as
-        a team you will no longer have to search which workspaces have relevant changes.
+        This change makes the 'develop &mdash; collaborate &mdash; integrate' loop even tighter. In
+        addition, as a team you will no longer have to search which workspaces have relevant
+        changes.
       </p>
       <p>
-        We would love to hear what you think! You are welcome to simply reply to this email or drop
-        us a message on <a href="https://discord.gg/fQcH9QAVpX">Discord</a>.
+        We would love to hear what you think! Feel free to drop us a message on
+        <a href="https://discord.gg/fQcH9QAVpX">Discord</a>.
       </p>
 
-      <h2>Launching on Product Hunt</h2>
+      <h2>🚀 Launching on Product Hunt</h2>
       <p>
         It is always very exciting to share Sturdy with the wider developer community. It also
         drives us to think how to better describe what we stand for.
@@ -56,7 +57,7 @@
 
       <img src="./skip-the-git-overhead.png" height="600" width="1200" class="rounded shadow-md" />
 
-      <h2>Sturdy on Linux</h2>
+      <h2>🐧 Sturdy on Linux</h2>
 
       <p>
         The Sturdy desktop client 🐥 now has a Linux 🐧 version! We had a number of users asking for
@@ -69,7 +70,7 @@
 
       <p>This means that Sturdy is now available for Mac, Windows, and Linux!</p>
 
-      <h2>Kodsnack podcast (in Swedish)</h2>
+      <h2>🎙 Kodsnack podcast (in Swedish)</h2>
       <p>
         I had the pleasure of talking about Sturdy, version control, and our vision for code
         collaboration on the Kodsnack podcast.

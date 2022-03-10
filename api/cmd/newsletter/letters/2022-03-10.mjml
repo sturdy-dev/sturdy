@@ -1,0 +1,127 @@
+<mjml>
+    <mj-head>
+        <mj-preview>
+            Hey everyone! 👋 In this week's update I would like to share with you an update to the Sturdy workflow with Draft changes, as well as the release of Sturdy for Linux. Today is also an exciting day for us because we are launching Sturdy on Product Hunt! 🚀
+        </mj-preview>
+    </mj-head>
+
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hey everyone! 👋 In this week's update I would like to share with you an update to the Sturdy workflow with Draft changes, as well as the release of Sturdy for Linux. Today is also an exciting day for us because we are launching Sturdy on <a href="https://www.producthunt.com/posts/sturdy">Product Hunt</a>! 🚀
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2022-03-10-introducing-draft-changes?ref=newsletter"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">📝 Draft changes</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We felt that workspaces in Sturdy were sometimes unnecessarily complex. For example, after you merge the code in your workspace, should you continue working in the same workspace or create a new one?
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Drafts replace Workspaces. Here's how they work:
+
+                    <ul>
+                        <li>
+                            All code changes start from a Draft
+                        </li>
+                        <li>
+                            If a Draft is empty, it's name will be <i>italic</i>, and it will not be visible to others
+                        </li>
+                        <li>
+                            Drafts with code updates are discoverable in the app sidebar
+                        </li>
+                        <li>
+                            Whenever a Draft is merged, it simply becomes a Change entry in the Changelog
+                        </li>
+                    </ul>
+                </mj-text>
+                <mj-image src="https://getsturdy.com/assets/drafts-italic.febbbd09.png" width="200px" border-radius="8px" />
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    This change makes the 'develop &mdash; collaborate &mdash; integrate' loop even tighter. In addition, as a team you will no longer have to search which workspaces have relevant changes.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    We would love to hear what you think! You are welcome to simply reply to this email or drop us a message on <a href="https://discord.gg/fQcH9QAVpX">Discord</a>.
+                </mj-text>
+
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🚀 Launching on Product Hunt</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    It is always very exciting to share Sturdy with the wider developer community. It also drives us to think how to better describe what we stand for.
+                </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Today we are launching Sturdy on <a href="https://www.producthunt.com/posts/sturdy">Product Hunt</a>! Check out the workflow video and screenshots that we shared :). We would also be very thankful for your upvote there 🙏❤️.</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/skip-the-git-overhead.ebdcd309.png" border-radius="8px" />
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🐧 Sturdy on Linux</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">The Sturdy desktop client 🐥 now has a Linux 🐧 version! We had a number of users asking for it, and now we have finally added <b>.deb</b> and <b>.rpm</b> distributions on our <a href="https://getsturdy.com/download">download page</a>.</mj-text>
+
+                <mj-image src="https://getsturdy.com/assets/sturdy-linux.e5da3de8.jpeg" border-radius="8px" />
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">This means that Sturdy is now available for Mac, Windows, and Linux!</mj-text>
+
+
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">🎙 Kodsnack podcast (in Swedish)</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">I had the pleasure of talking about Sturdy, version control, and our vision for code collaboration on the Kodsnack podcast.</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Fredrik had some great questions and the conversation was a lot of fun! It is in Swedish, and you can check it out <a href="https://kodsnack.se/463/">here</a>.
+                </mj-text>
+                <mj-image src="https://getsturdy.com/assets/kodsnack-logo.afedb137.png" width="200px" border-radius="8px" />
+
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Thanks for reading, and until the next update!
+                    <br />
+                    &mdash; Gustav and team Sturdy
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
