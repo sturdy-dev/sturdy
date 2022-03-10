@@ -11,7 +11,7 @@
             fixed
             pad-right="1rem"
             class="bg-gray-50 border-b left-0 right-0"
-            :class="[appEnvironment?.platform === 'win32' ? 'border-black' : '']"
+            :class="[appPlatform === 'win32' ? 'border-black' : '']"
           >
             <div class="flex-1 flex flex-row justify-between gap-8 items-center">
               <!-- Navigation buttons when the sidebar is hidden -->
@@ -44,7 +44,7 @@
                 fixed
                 pad-right="1rem"
                 class="bg-gray-50 border-b left-0 md:left-64 right-0"
-                :class="[appEnvironment?.platform === 'win32' ? 'border-black' : '']"
+                :class="[appPlatform === 'win32' ? 'border-black' : '']"
               >
                 <div class="flex-1 flex flex-row justify-between gap-8 items-center">
                   <!-- Navigation buttons when the sidebar is hidden -->
@@ -60,7 +60,7 @@
               <!-- Primary column -->
               <section
                 class="flex-1 flex flex-col overflow-x-auto"
-                :class="[appEnvironment ? 'spacer-padding' : '']"
+                :class="[appPlatform ? 'spacer-padding' : '']"
               >
                 <router-view v-if="showRoute" :user="user" class="flex-1" />
                 <Error v-else-if="error" :error="error" @reset-error="error = null" />
@@ -151,7 +151,7 @@ export default defineComponent({
     Error,
   },
   setup() {
-    let route = useRoute()
+    const route = useRoute()
     useHead({
       title: 'Sturdy - Code collaboration',
       meta: [
@@ -190,9 +190,10 @@ export default defineComponent({
     }
 
     const router = useRouter()
+    const ipcExists = false // !!window.ipc
 
     function onChangeRoute(currentRoute: RouteLocationNormalizedLoaded) {
-      if (window.ipc && currentRoute.meta.nonApp && !currentRoute.meta.isAuth) {
+      if (ipcExists && currentRoute.meta.nonApp && !currentRoute.meta.isAuth) {
         if (currentRoute.path !== '/') {
           window.open(new URL(currentRoute.path, location.href).href)
         }
@@ -243,6 +244,7 @@ export default defineComponent({
       computed(() => data.value?.user)
     )
 
+    const platform = window.appEnvironment?.platform // TODO: this makes the app alow
     return {
       data,
       fetching,
@@ -251,7 +253,7 @@ export default defineComponent({
           requestPolicy: 'network-only',
         })
       },
-      appEnvironment: window.appEnvironment,
+      appPlatform: platform,
       featuresData,
     }
   },

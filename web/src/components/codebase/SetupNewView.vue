@@ -181,13 +181,15 @@ export default defineComponent({
     }
   },
   data() {
+    const ipc = window.ipc
     return {
       showCliInstructions: false,
+      ipc,
     }
   },
   computed: {
     isApp() {
-      return !!window.ipc
+      return !!this.ipc
     },
 
     canShowCliInstructions() {

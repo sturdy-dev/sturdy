@@ -19,13 +19,19 @@ export default defineComponent({
   setup() {
     const createWorkspaceResult = useCreateWorkspace()
     return {
-      mutagenIpc: window.mutagenIpc,
-      ipc: window.ipc,
       createWorkspace(codebaseID: string) {
         return createWorkspaceResult({
           codebaseID,
         })
       },
+    }
+  },
+  data() {
+    const mutagenIpc = window.mutagenIpc
+    const ipc = window.ipc
+    return {
+      mutagenIpc,
+      ipc,
     }
   },
   methods: {
@@ -34,10 +40,10 @@ export default defineComponent({
         return
       }
 
-      let oldIsReady = this.mutagenIpc?.isReady && (await this.mutagenIpc.isReady())
-      let newIsReady = this.ipc?.state && (await this.ipc.state()) === 'online'
+      const oldIsReady = this.mutagenIpc?.isReady && (await this.mutagenIpc.isReady())
+      const newIsReady = this.ipc?.state && (await this.ipc.state()) === 'online'
 
-      let mutagenReady = oldIsReady || newIsReady
+      const mutagenReady = oldIsReady || newIsReady
 
       if (!mutagenReady) {
         this.emitter.emit('notification', {

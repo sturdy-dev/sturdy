@@ -44,17 +44,19 @@ import { defineComponent, onUnmounted, ref } from 'vue'
 
 export default defineComponent({
   setup() {
-    let appState = ref('starting')
-    let restarting = ref(false)
+    const appState = ref('starting')
+    const restarting = ref(false)
+    const ipc = window.ipc
+    const mutagenIpc = window.mutagenIpc
 
     const fetchSetState = async () => {
       // This API was added on 2021-11-24
-      if (window.ipc && window.ipc.state) {
-        appState.value = await window.ipc.state()
+      if (ipc && ipc.state) {
+        appState.value = await ipc.state()
       }
       // This API was removed on 2021-11-24
-      else if (window.mutagenIpc && window.mutagenIpc.isReady) {
-        if (await window.mutagenIpc.isReady()) {
+      else if (mutagenIpc && mutagenIpc.isReady) {
+        if (await mutagenIpc.isReady()) {
           appState.value = 'online'
         } else {
           appState.value = 'starting'
@@ -65,7 +67,7 @@ export default defineComponent({
     }
 
     fetchSetState()
-    let interval = setInterval(fetchSetState, 1000)
+    const interval = setInterval(fetchSetState, 1000)
 
     onUnmounted(() => {
       clearInterval(interval)
@@ -74,13 +76,14 @@ export default defineComponent({
     return {
       appState,
       restarting,
+      ipc,
     }
   },
   methods: {
     async restart() {
       try {
         this.restarting = true
-        await window.ipc.forceRestartMutagen()
+        await this.ipc.forceRestartMutagen()
       } catch (e) {
         console.error(e)
       } finally {

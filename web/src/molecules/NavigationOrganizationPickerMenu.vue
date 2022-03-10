@@ -181,7 +181,7 @@
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                 'group flex items-center px-4 py-2 text-sm',
               ]"
-              :target="ipc ? '_blank' : ''"
+              :target="isApp ? '_blank' : ''"
             >
               <SupportIcon
                 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
@@ -198,7 +198,7 @@
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                 'group flex items-center px-4 py-2 text-sm',
               ]"
-              :target="ipc ? '_blank' : ''"
+              :target="isApp ? '_blank' : ''"
             >
               <ExternalLinkIcon
                 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
@@ -313,10 +313,18 @@ export default defineComponent({
 
     return {
       isMultiTenancyEnabled,
-      ipc: window.ipc,
+    }
+  },
+  data() {
+    const ipc = window.ipc
+    return {
+      ipc,
     }
   },
   computed: {
+    isApp() {
+      return !!this.ipc
+    },
     authenticated() {
       return !!this.user
     },
@@ -327,10 +335,10 @@ export default defineComponent({
       return this.organizations.filter((org) => org.id !== this.currentOrganization.id)
     },
     showInstallCLI() {
-      return !this.ipc && this.authenticated && this.isMultiTenancyEnabled
+      return !this.isApp && this.authenticated && this.isMultiTenancyEnabled
     },
     showInstallDownloadApp() {
-      return !this.ipc && !this.authenticated
+      return !this.isApp && !this.authenticated
     },
   },
   methods: {

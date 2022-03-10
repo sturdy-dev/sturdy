@@ -50,6 +50,7 @@ export default defineComponent({
 
     const currentRoute = useRoute()
     const router = useRouter()
+    const ipc = window.ipc
 
     router.isReady().then(() => {
       const isAppRoute = !currentRoute.meta.nonApp && !currentRoute.meta.neverElectron
@@ -57,7 +58,7 @@ export default defineComponent({
       const isMobile = !import.meta.env.SSR && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       const disabled = import.meta.env.VITE_DISABLE_WEB_TO_APP_REDIRECT
 
-      if (!import.meta.env.SSR && isAppRoute && !isMobile && window.ipc == null && !disabled) {
+      if (!import.meta.env.SSR && isAppRoute && !isMobile && ipc == null && !disabled) {
         isLoading.value = true
         checkIfBlurs(() => {
           if (import.meta.env.DEV) {

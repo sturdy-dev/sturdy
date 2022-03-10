@@ -4,7 +4,9 @@
       fixed
       pad-right="1rem"
       class="bg-gray-50 border-b left-0 right-0"
-      :class="[appEnvironment?.platform === 'win32' ? 'border-black' : '']"
+      :class="{
+        'border-black': appPlatform === 'win32',
+      }"
     >
       <div class="flex-1 flex flex-row justify-between gap-8 items-center">
         <AppTitleBarSpacer v-slot="{ ipc }" pad-left="1rem">
@@ -19,7 +21,7 @@
     <!-- Primary column -->
     <section
       class="flex-1 flex flex-col overflow-x-auto"
-      :class="[appEnvironment ? 'spacer-padding' : '']"
+      :class="{ 'spacer-padding': !!appPlatform }"
     >
       <slot></slot>
     </section>
@@ -32,5 +34,5 @@ import AppHistoryNavigationButtons from '../components/AppHistoryNavigationButto
 import AppMutagenStatus from '../components/AppMutagenStatus.vue'
 import AppShareButton from '../components/AppShareButton.vue'
 
-const appEnvironment = window.appEnvironment
+const appPlatform = appEnvironment?.platform
 </script>

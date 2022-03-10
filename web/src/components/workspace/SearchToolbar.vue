@@ -65,13 +65,10 @@ export default defineComponent({
     ArrowSmUpIcon,
     XIcon,
   },
-  setup() {
-    return {
-      ipc: window.ipc,
-    }
-  },
   data() {
+    const ipc = window.ipc
     return {
+      ipc,
       searchQuery: '',
       showSearch: false,
       searchCurrentIdx: -1,
@@ -93,6 +90,11 @@ export default defineComponent({
     window.removeEventListener('keydown', this.globalKeyDown)
     this.emitter.off('search-result', this.onSearchResult)
   },
+  computed: {
+    isApp() {
+      return !!this.ipc
+    },
+  },
   methods: {
     globalKeyDown(event) {
       // Available as cmd+k on the web
@@ -101,7 +103,7 @@ export default defineComponent({
       ]
 
       // Also available as cmd+f in the app
-      if (this.ipc) {
+      if (this.isApp) {
         keys.push(70) // F
       }
 

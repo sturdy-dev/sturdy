@@ -251,14 +251,15 @@ export default defineComponent({
       },
       now,
       codebaseSlug,
-      ipc: window.ipc,
 
       isMultiTenancyEnabled,
     }
   },
   data() {
+    const ipc = window.ipc
     return {
       showSetupInstructions: false,
+      ipc,
     }
   },
   computed: {
