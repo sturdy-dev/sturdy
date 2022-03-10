@@ -421,23 +421,26 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 		return nil, err
 	}
 
+	if err := s.workspaceWriter.Create(ws); err != nil {
+		return nil, fmt.Errorf("failed to write workspace to db: %w", err)
+	}
+
 	// Add the reverted changes to a snapshot
 	if req.BaseChangeID != nil && baseCommitSha != "" && req.Revert {
-		if snapshot, err := s.snap.Snapshot(
+		snapshot, err := s.snap.Snapshot(
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
 			snapshotter.WithOnTemporaryView(),
 			snapshotter.WithRevertDiff(baseCommitSha, baseCommitParentSha),
-		); err != nil {
+		)
+		if err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
-		} else {
-			ws.SetSnapshot(snapshot)
 		}
-	}
-
-	if err := s.workspaceWriter.Create(ws); err != nil {
-		return nil, fmt.Errorf("failed to write workspace to db: %w", err)
+		ws.SetSnapshot(snapshot)
+		if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(ws.LatestSnapshotID), db.SetDiffsCount(ws.DiffsCount)); err != nil {
+			return nil, fmt.Errorf("failed to update workspace: %w", err)
+		}
 	}
 
 	s.analyticsService.Capture(ctx, "create workspace",
