@@ -2,7 +2,7 @@
   <main v-if="data" class="bg-white">
     <div
       class="md:pr-64 fixed z-50 w-full"
-      :style="ipc ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
+      :style="isApp ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
     >
       <SelectedHunksToolbar />
       <SearchToolbar />
@@ -167,7 +167,7 @@
                     />
                     Connect {{ mostRecentSelfUserView.shortMountPath }} for editing
                   </div>
-                  <template v-if="connectedViews.length > 1 || mutagenIpc != null" #dropdown>
+                  <template v-if="connectedViews.length > 1 || mutagenAvailable" #dropdown>
                     <MenuItem v-for="view in connectedViews" :key="view.id">
                       <button
                         class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
@@ -180,7 +180,7 @@
                       </button>
                     </MenuItem>
 
-                    <MenuItem v-if="mutagenIpc != null">
+                    <MenuItem v-if="mutagenAvailable">
                       <button
                         class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
                         @click="createViewInDirectory"
@@ -206,7 +206,7 @@
                     color="green"
                     :disabled="loadingNewWorkspace"
                     class="z-20"
-                    @click="createSuggestion(data.workspace.id, mostRecentSelfUserView.id)"
+                    @click="createSuggestion()"
                   >
                     <div class="flex">
                       <AnnotationIcon
@@ -235,7 +235,7 @@
 
               <div
                 v-if="
-                  viewConnectionState === 'own' && mutagenIpc != null && connectedViews.length === 0
+                  viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
                 "
                 class="mt-5"
               >
@@ -913,9 +913,6 @@ export default defineComponent({
 
       openWorkspaceOnViewResult,
 
-      mutagenIpc: window.mutagenIpc,
-      ipc: window.ipc,
-
       selectedHunkIDs,
 
       async refresh() {
@@ -956,9 +953,21 @@ export default defineComponent({
     }
   },
   data() {
-    return this.initialState()
+    const mutagenIpc = window.mutagenIpc
+    const ipc = window.ipc // TODO: this makes the app slow
+    return {
+      ...this.initialState(),
+      ipc,
+      mutagenIpc,
+    }
   },
   computed: {
+    isApp() {
+      return !!this.ipc
+    },
+    mutagenAvailable() {
+      return !!this.mutagenIpc
+    },
     diffs() {
       let diffws = this.diffsData?.workspace?.id
       let wsID = this.data?.workspace?.id
@@ -1352,10 +1361,10 @@ export default defineComponent({
         return
       }
 
-      let oldIsReady = this.mutagenIpc?.isReady && (await this.mutagenIpc.isReady())
-      let newIsReady = this.ipc?.state && (await this.ipc.state()) === 'online'
+      const oldIsReady = this.mutagenIpc?.isReady && (await this.mutagenIpc.isReady())
+      const newIsReady = this.ipc?.state && (await this.ipc.state()) === 'online'
 
-      let mutagenReady = oldIsReady || newIsReady
+      const mutagenReady = oldIsReady || newIsReady
 
       if (!mutagenReady) {
         this.emitter.emit('notification', {

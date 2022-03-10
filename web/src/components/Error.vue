@@ -37,7 +37,7 @@ export default defineComponent({
   },
   emits: ['reset-error'],
   setup() {
-    let { data } = useQuery({
+    const { data } = useQuery({
       query: gql`
         query ErrorPage {
           user {
@@ -47,12 +47,16 @@ export default defineComponent({
       `,
     })
 
+    const ipc = window.ipc
     return {
       data,
-      isApp: !!window.ipc,
+      ipc,
     }
   },
   computed: {
+    isApp() {
+      return !!this.ipc
+    },
     isNotFound() {
       if (this.error?.message === 'SturdyCodebaseNotFoundError') return true
       if (!this.error.graphQLErrors) return false

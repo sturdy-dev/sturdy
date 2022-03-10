@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="ipc != null"
+    v-if="isApp"
     class="spacer flex items-center"
     :class="[
       fixed ? 'fixed top-0 z-50' : '',
@@ -34,11 +34,16 @@ export default defineComponent({
       default: '',
     },
   },
-  setup() {
+  data() {
     return {
-      ipc: window.ipc,
+      ipc: window.ipc, // TODO: this makes the app slow
       appEnvironment: window.appEnvironment,
     }
+  },
+  computed: {
+    isApp() {
+      return !!this.ipc
+    },
   },
 })
 </script>

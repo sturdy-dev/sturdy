@@ -2,7 +2,7 @@
   <div>
     <div
       class="fixed z-50 md:pr-64 w-full"
-      :style="ipc ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
+      :style="isApp ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
     >
       <slot name="toolbar" />
     </div>
@@ -26,10 +26,16 @@ import PaddedApp from './PaddedApp.vue'
 
 export default defineComponent({
   components: { PaddedApp },
-  setup() {
+  data() {
+    const ipc = window.ipc
     return {
-      ipc: window.ipc,
+      ipc,
     }
+  },
+  computed: {
+    isApp() {
+      return !!this.ipc
+    },
   },
 })
 </script>
