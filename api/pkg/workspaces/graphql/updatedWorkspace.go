@@ -89,7 +89,8 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 			return nil
 		}
 
-		resolver, err := r.Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(reference)})
+		t := true
+		resolver, err := r.Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(reference), AllowArchived: &t})
 		if err != nil {
 			return err
 		}
