@@ -6,7 +6,7 @@ import (
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view/open"
+	"getsturdy.com/api/pkg/view/service"
 )
 
 func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolvers.OpenViewArgs) (resolvers.ViewResolver, error) {
@@ -41,8 +41,7 @@ func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolve
 			WorkspaceID: args.Input.WorkspaceID,
 		}})
 	} else {
-		if err := open.OpenWorkspaceOnView(ctx, r.logger, view, ws, r.viewRepo, r.workspaceReader,
-			r.snapshotter, r.snapshotRepo, r.workspaceWriter, r.executorProvider, r.eventSenderV2); errors.Is(err, open.ErrRebasing) {
+		if err := r.viewService.OpenWorkspace(ctx, view, ws); errors.Is(err, service.ErrRebasing) {
 			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
 		} else if err != nil {
 			return nil, gqlerrors.Error(err)
