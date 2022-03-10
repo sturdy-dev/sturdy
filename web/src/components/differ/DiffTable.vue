@@ -100,7 +100,7 @@ export default defineComponent({
       required: true,
     },
   },
-  calculated: {
+  computed: {
     parsedDiff() {
       return Diff2Html.parse(this.unparsedDiff.patch)
     },

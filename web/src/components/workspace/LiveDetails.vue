@@ -222,8 +222,13 @@ import { useUpdatedSuggestion } from '../../subscriptions/useUpdatedSuggestion'
 import { useDismissSuggestion } from '../../mutations/useDismissSuggestion'
 import { useRemovePatches } from '../../mutations/useRemovePatches'
 import { Feature } from '../../__generated__/types'
-import { LiveDetailsDiffsFragment } from './__generated__/LiveDetails'
+import {
+  LiveDetailsDiffsFragment,
+  LiveDetailsQuery,
+  LiveDetailsQueryVariables,
+} from './__generated__/LiveDetails'
 import Spinner from '../shared/Spinner.vue'
+import { DifferFile_SuggestionFragment } from '../differ/__generated__/DifferFile'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {
@@ -259,6 +264,8 @@ export const LIVE_DETAILS_DIFFS = gql`
     }
   }
 `
+
+type Suggestion = LiveDetailsQuery['workspace']['suggestions'][number]
 
 export default defineComponent({
   components: {
@@ -337,7 +344,10 @@ export default defineComponent({
         workspaceID.value = slug
       }
     )
-    let { data, fetching, error, executeQuery } = useQuery({
+    let { data, fetching, error, executeQuery } = useQuery<
+      LiveDetailsQuery,
+      LiveDetailsQueryVariables
+    >({
       query: gql`
         query LiveDetails($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID) {
@@ -601,7 +611,7 @@ export default defineComponent({
 
       return false
     },
-    openSuggestions() {
+    openSuggestions(): Suggestion[] {
       return this.data.workspace.suggestions.filter((s) => {
         return !s.dismissedAt
       })
@@ -640,11 +650,7 @@ export default defineComponent({
           if (!suggestionsByFile[diff.preferredName]) {
             suggestionsByFile[diff.preferredName] = []
           }
-          suggestionsByFile[diff.preferredName].push({
-            author: suggestion.author,
-            id: suggestion.id,
-            diff: diff,
-          })
+          suggestionsByFile[diff.preferredName].push(suggestion)
         })
       })
       return suggestionsByFile
