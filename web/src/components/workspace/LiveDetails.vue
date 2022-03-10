@@ -1,13 +1,5 @@
 <template>
   <div v-if="data">
-    <Banner v-if="showPullRequestMergedBanner" status="success" class="mb-2">
-      <div class="flex items-center">
-        <span>Your <a :href="gitHubPRLink" class="font-bold">pull request</a></span>
-        <ExternalLinkIcon class="w-4 h-4 mx-1" />
-        <span> has been merged. Sync with upstream changes.</span>
-      </div>
-    </Banner>
-
     <Banner
       v-if="isAuthorized && conflictsData && conflictsData.workspace.conflicts"
       status="warning"
@@ -588,31 +580,6 @@ export default defineComponent({
       )
     },
 
-    showPullRequestMergedBanner() {
-      if (!this.mutable) return false
-      if (!this.data.workspace?.gitHubPullRequest?.merged) return false
-      if (this.data.workspace?.upToDateWithTrunk) return false
-
-      // If the pull request was after the current head change was created, show the banner
-      const mergedAt = this.data.workspace?.gitHubPullRequest?.mergedAt
-      const headCreatedAt = this.data.workspace?.headChange?.createdAt
-
-      // This is the first PR in this codebase, show the banner
-      if (!headCreatedAt) {
-        return true
-      }
-
-      // No data for when the PR was merged
-      if (!mergedAt) {
-        return false
-      }
-
-      if (mergedAt > headCreatedAt) {
-        return true
-      }
-
-      return false
-    },
     openSuggestions(): Suggestion[] {
       return this.data.workspace.suggestions.filter((s) => {
         return !s.dismissedAt
