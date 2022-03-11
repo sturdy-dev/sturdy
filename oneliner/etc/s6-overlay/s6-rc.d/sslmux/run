@@ -9,4 +9,5 @@ exec 2>&1
 exec sslmux \
 	-l tcp://0.0.0.0:80 \
 	-ssh tcp://localhost:22 \
+	-https tcp://localhost:8080 \
 	-others tcp://localhost:8080

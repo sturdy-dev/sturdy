@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  sturdy:
+    image: getsturdy/server:latest
+    pull_policy: always
+    volumes:
+      - sturdy-data:/var/data
+    ports:
+      - 30080:80
+
+volumes:
+  sturdy-data:
+    driver: local
