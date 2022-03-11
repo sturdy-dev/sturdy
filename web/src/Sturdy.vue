@@ -1,73 +1,39 @@
 <template>
   <AppRedirect>
-    <div class="bg-gray-100 min-h-screen flex flex-col">
+    <AppTitleBar :show-sidebar="showSidebar">
       <template v-if="haveSelfContainedLayout">
         <router-view :user="user" />
       </template>
       <template v-else-if="!isApp">
         <ClientOnly>
           <IndexNavbar v-if="showNavigation" :user="user" />
-          <AppTitleBarSpacer
-            fixed
-            pad-right="1rem"
-            class="bg-gray-50 border-b left-0 right-0"
-            :class="[appPlatform === 'win32' ? 'border-black' : '']"
-          >
-            <div class="flex-1 flex flex-row justify-between gap-8 items-center">
-              <!-- Navigation buttons when the sidebar is hidden -->
-              <AppTitleBarSpacer v-slot="{ ipc }" fixed pad-left="1rem">
-                <AppHistoryNavigationButtons :ipc="ipc" class="flex md:hidden" />
-              </AppTitleBarSpacer>
-            </div>
-          </AppTitleBarSpacer>
         </ClientOnly>
 
         <router-view :user="user" :features="features" />
         <IndexFooter v-if="showNavigation" />
       </template>
+
       <template v-else>
         <!-- Bottom section -->
         <ClientOnly>
-          <div class="z-0 flex-1 flex">
-            <!-- Narrow sidebar-->
-            <StackedMenu
-              v-if="showSidebar"
-              class="hidden md:flex w-64"
-              :user="user"
-              :features="features"
-              @logout="logout"
-            />
+          <!-- Narrow sidebar-->
+          <StackedMenu
+            v-if="showSidebar"
+            class="hidden md:flex w-64"
+            :user="user"
+            :features="features"
+            @logout="logout"
+          />
 
-            <!-- Main area -->
-            <main class="md:pl-64 flex flex-1 flex-col">
-              <AppTitleBarSpacer
-                fixed
-                pad-right="1rem"
-                class="bg-gray-50 border-b left-0 md:left-64 right-0"
-                :class="[appPlatform === 'win32' ? 'border-black' : '']"
-              >
-                <div class="flex-1 flex flex-row justify-between gap-8 items-center">
-                  <!-- Navigation buttons when the sidebar is hidden -->
-                  <AppTitleBarSpacer v-slot="{ ipc }" pad-left="1rem">
-                    <AppHistoryNavigationButtons :ipc="ipc" class="flex md:hidden" />
-                  </AppTitleBarSpacer>
-
-                  <AppMutagenStatus class="flex-1" />
-                  <AppShareButton class="flex-shrink-0" />
-                </div>
-              </AppTitleBarSpacer>
-
-              <!-- Primary column -->
-              <section
-                class="flex-1 flex flex-col overflow-x-auto"
-                :class="[appPlatform ? 'spacer-padding' : '']"
-              >
-                <router-view v-if="showRoute" :user="user" class="flex-1" />
-                <Error v-else-if="error" :error="error" @reset-error="error = null" />
-                <ComingSoon v-else class="pt-2 px-2" />
-              </section>
-            </main>
-          </div>
+          <!-- Main area -->
+          <main class="md:pl-64 flex flex-1 flex-col bg-gray-100">
+            <!-- Primary column -->
+            <section class="flex-1 flex flex-col overflow-x-auto">
+              <router-view v-if="showRoute" :user="user" class="flex-1" />
+              <Error v-else-if="error" :error="error" @reset-error="error = null" />
+              <ComingSoon v-else class="pt-2 px-2" />
+            </section>
+          </main>
         </ClientOnly>
       </template>
 
@@ -86,10 +52,8 @@
           </div>
         </div>
       </ClientOnly>
-    </div>
+    </AppTitleBar>
   </AppRedirect>
-
-  <div id="teleported-position"></div>
 
   <ClientOnly>
     <Onboarding />
@@ -113,10 +77,6 @@ import { Integrations } from '@sentry/tracing'
 import StackedMenu from './components/menu/StackedMenu.vue'
 import Error from './components/Error.vue'
 import Onboarding from './components/onboarding/Onboarding.vue'
-import AppTitleBarSpacer from './components/AppTitleBarSpacer.vue'
-import AppHistoryNavigationButtons from './components/AppHistoryNavigationButtons.vue'
-import AppShareButton from './components/AppShareButton.vue'
-import AppMutagenStatus from './components/AppMutagenStatus.vue'
 import AppRedirect from './components/AppRedirect.vue'
 import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { User, Feature } from './__generated__/types'
@@ -126,6 +86,7 @@ import {
   FeaturesQuery,
   FeaturesQueryVariables,
 } from './__generated__/Sturdy'
+import AppTitleBar from './organisms/AppTitleBar.vue'
 
 type ToastNotificationMessage = {
   id: string
@@ -137,10 +98,7 @@ type ToastNotificationMessage = {
 export default defineComponent({
   components: {
     AppRedirect,
-    AppShareButton,
-    AppHistoryNavigationButtons,
-    AppTitleBarSpacer,
-    AppMutagenStatus,
+    AppTitleBar,
     Onboarding,
     StackedMenu,
     IndexFooter,
@@ -244,7 +202,7 @@ export default defineComponent({
       computed(() => data.value?.user)
     )
 
-    const platform = window.appEnvironment?.platform // TODO: this makes the app alow
+    const platform = window.appEnvironment?.platform
     return {
       data,
       fetching,

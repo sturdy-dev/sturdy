@@ -1,12 +1,9 @@
 <template>
   <nav
-    class="bg-gray-200 border-r border-gray-300 h-screen fixed space-y-1 h-screen flex flex-col z-20 select-none"
+    class="bg-gray-200 border-r border-gray-300 fixed space-y-1 flex flex-col z-20 select-none"
+    :style="{ height }"
     aria-label="Sidebar"
   >
-    <AppTitleBarSpacer v-slot="{ ipc }" pad-left="1rem" class="flex-none">
-      <AppHistoryNavigationButtons :ipc="ipc" />
-    </AppTitleBarSpacer>
-
     <div class="flex-shrink-0 border-b border-warmgray-300 h-16 z-20">
       <NavigationOrganizationPickerMenu
         v-if="data?.organizations"
@@ -249,6 +246,7 @@
 </template>
 
 <script lang="ts">
+import { DeepMaybeRef } from '@vueuse/core'
 import { CogIcon, PlusSmIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
 import { computed, defineComponent, onUnmounted, PropType } from 'vue'
@@ -286,8 +284,6 @@ import {
   NavigationWorkspace,
   WorkspaceIndex,
 } from './MenuHelper'
-import AppTitleBarSpacer from '../AppTitleBarSpacer.vue'
-import AppHistoryNavigationButtons from '../AppHistoryNavigationButtons.vue'
 import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
 import NavigationOrganizationPickerMenu, {
   ORGANIZATION_FRAGMENT as NAVIGATION_ORGANIZATION_FRAGMENT,
@@ -552,8 +548,6 @@ export default defineComponent({
     CogIcon,
     NotificationIcon,
     StackedMenuLoading,
-    AppHistoryNavigationButtons,
-    AppTitleBarSpacer,
   },
 
   props: {
@@ -569,7 +563,10 @@ export default defineComponent({
       route.params.codebaseSlug ? IdFromSlug(route.params.codebaseSlug as string) : ''
     )
 
-    const { data, executeQuery, fetching } = useQuery<StackedMenuQuery, StackedMenuQueryVariables>({
+    const { data, executeQuery, fetching } = useQuery<
+      StackedMenuQuery,
+      DeepMaybeRef<StackedMenuQueryVariables>
+    >({
       query: gql`
         query StackedMenu($shortCodebaseId: ID!) {
           codebase(shortID: $shortCodebaseId) {
@@ -611,7 +608,10 @@ export default defineComponent({
 
     const createWorkspaceResult = useCreateWorkspace()
     const openWorkspaceOnView = useOpenWorkspaceOnView()
+    const { appEnvironment } = window
     return {
+      appEnvironment,
+
       data,
       shortCodebaseID,
 
@@ -629,6 +629,18 @@ export default defineComponent({
   },
 
   computed: {
+    isApp() {
+      return !!this.appEnvironment
+    },
+    darwin() {
+      return this.appEnvironment?.platform === 'darwin'
+    },
+    height() {
+      if (!this.isApp) return '100%'
+      // this is same as titlebar calculations
+      return this.darwin ? 'calc(100vh - 3rem)' : 'calc(100vh - 2rem - 1px)'
+    },
+
     isLoading(): boolean {
       if (this.data) return false
       return this.fetching

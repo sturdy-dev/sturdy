@@ -3,103 +3,101 @@
 @tailwind utilities;
 
 .rtl {
-    direction: rtl;
+  direction: rtl;
 }
 
-
- .d2h-file-header {
-     display: flex;
-     padding: 8px 16px;
-     border-bottom: 0px solid #d8d8d8;
- }
+.d2h-file-header {
+  display: flex;
+  padding: 8px 16px;
+  border-bottom: 0px solid #d8d8d8;
+}
 
 .d2h-diff-table {
-    font-family: Menlo, Consolas, monospace;
-    font-size: 11px;
-    width: 100%;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 11px;
+  width: 100%;
 }
 
 .d2h-code-line-prefix {
-    user-select: none;
+  user-select: none;
 }
 
 .d2h-code-linenumber .line-num {
-    box-sizing: border-box;
-    width: 3.5em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0 0.5em;
-    text-align: center;
+  box-sizing: border-box;
+  width: 3.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 0.5em;
+  text-align: center;
 }
 
 .d2h-code-line {
-    white-space: nowrap;
-    width: 100%;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .d2h-code-line-ctn {
-    white-space: pre;
-    background: none;
-    padding-left: 4px;
+  white-space: pre;
+  background: none;
+  padding-left: 4px;
 }
 
 .d2h-icon {
-    vertical-align: middle;
-    fill: currentColor;
+  vertical-align: middle;
+  fill: currentColor;
 }
 
 .d2h-file-name {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 
 .d2h-tag {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    font-size: 10px;
-    padding: 0 2px;
-    background-color: #fff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  font-size: 10px;
+  padding: 0 2px;
+  background-color: #fff;
 }
 
 .d2h-deleted {
-    color: #c33;
+  color: #c33;
 }
 
 .d2h-added {
-    color: #399839;
+  color: #399839;
 }
 
 .d2h-changed {
-    color: #d0b44c;
+  color: #d0b44c;
 }
 
 .d2h-moved {
-    color: #3572b0;
+  color: #3572b0;
 }
 
 .d2h-deleted-tag {
-    border: 1px solid #c33;
+  border: 1px solid #c33;
 }
 
 .d2h-added-tag {
-    border: 1px solid #399839;
+  border: 1px solid #399839;
 }
 
 .d2h-changed-tag {
-    border: 1px solid #d0b44c;
+  border: 1px solid #d0b44c;
 }
 
 .d2h-moved-tag {
-    border: 1px solid #3572b0;
+  border: 1px solid #3572b0;
 }
 
 .hunk-selected .d2h-file-name {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .code-row-wrapper {
-    width: 100%;
+  width: 100%;
 }
-

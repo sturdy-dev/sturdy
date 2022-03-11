@@ -181,10 +181,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     })
 
     this.#window = new BrowserWindow({
-      x: mainWindowState.x,
-      y: mainWindowState.y,
-      height: mainWindowState.height,
-      width: mainWindowState.width,
+      ...mainWindowState,
 
       minWidth: 680,
       minHeight: 400,
@@ -193,11 +190,8 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
         preload: path.join(__dirname, 'preload.js'),
         devTools: !this.#isAppPackaged,
       },
+      frame: false,
       titleBarStyle: 'hidden',
-      titleBarOverlay: {
-        color: '#F9FAFB',
-        symbolColor: '#1F2937',
-      },
       trafficLightPosition: { x: 16, y: 16 },
     })
 
@@ -361,6 +355,28 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       state() {
         return status.state
       },
+      minimize() {
+        window?.minimize()
+      },
+      maximize() {
+        window?.maximize()
+      },
+      unmaximize() {
+        window?.unmaximize()
+      },
+      close() {
+        window?.close()
+      },
+      isMaximized() {
+        return window?.isMaximized() ?? false
+      },
+      isMinimized() {
+        return window?.isMinimized() ?? false
+      },
+      isNormal() {
+        return window?.isNormal() ?? false
+      },
+
       async forceRestartMutagen() {
         try {
           await mutagenManager.forceRestart()
