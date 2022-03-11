@@ -49,7 +49,6 @@ const (
 	StatusUpdated
 	CompletedOnboardingStep
 	WorkspaceWatchingStatusUpdated
-	OrganizationUpdated
 )
 
 var eventTypeString = map[EventType]string{
@@ -67,7 +66,6 @@ var eventTypeString = map[EventType]string{
 	StatusUpdated:                  "StatusUpdated",
 	CompletedOnboardingStep:        "CompletedOnboardingStep",
 	WorkspaceWatchingStatusUpdated: "WorkspaceWatchingStatusUpdated",
-	OrganizationUpdated:            "OrganizationUpdated",
 }
 
 type CallbackFunc func(eventType EventType, reference string) error

@@ -6,23 +6,22 @@ import (
 	"errors"
 	"strings"
 
-	"go.uber.org/zap"
-
-	"getsturdy.com/api/pkg/events"
-
-	"github.com/gosimple/slug"
-	"github.com/graph-gophers/graphql-go"
-
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebase"
 	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	events "getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
+
+	"github.com/gosimple/slug"
+	"github.com/graph-gophers/graphql-go"
+	"go.uber.org/zap"
 )
 
 type organizationRootResolver struct {
@@ -35,9 +34,8 @@ type organizationRootResolver struct {
 	licensesRootResolver  resolvers.LicenseRootResolver
 	codebasesRootResolver resolvers.CodebaseRootResolver
 
-	viewEvents   events.EventReader
-	eventsSender events.EventSender
-	logger       *zap.Logger
+	eventsSubscriber *eventsv2.Subscriber
+	logger           *zap.Logger
 }
 
 func New(
@@ -50,8 +48,7 @@ func New(
 	licensesRootResolver resolvers.LicenseRootResolver,
 	codebasesRootResolver resolvers.CodebaseRootResolver,
 
-	viewEvents events.EventReader,
-	eventsSender events.EventSender,
+	eventsSubscriber *eventsv2.Subscriber,
 	logger *zap.Logger,
 
 ) resolvers.OrganizationRootResolver {
@@ -65,9 +62,8 @@ func New(
 		licensesRootResolver:  licensesRootResolver,
 		codebasesRootResolver: codebasesRootResolver,
 
-		viewEvents:   viewEvents,
-		eventsSender: eventsSender,
-		logger:       logger.Named("OrganizationRootResolver"),
+		eventsSubscriber: eventsSubscriber,
+		logger:           logger.Named("OrganizationRootResolver"),
 	}
 }
 
@@ -241,47 +237,29 @@ func (r *organizationRootResolver) UpdatedOrganization(ctx context.Context, args
 	c := make(chan resolvers.OrganizationResolver, 100)
 	didErrorOut := false
 
-	cancelFunc := r.viewEvents.SubscribeUser(userID, func(et events.EventType, reference string) error {
+	r.eventsSubscriber.User(ctx, userID).OnOrganizationUpdated(ctx, func(ctx context.Context, org *organization.Organization) error {
+		if args.OrganizationID != nil && string(*args.OrganizationID) != org.ID {
+			return nil
+		}
+
 		select {
 		case <-ctx.Done():
 			return events.ErrClientDisconnected
+		case c <- &organizationResolver{root: r, org: org}:
+			if didErrorOut {
+				didErrorOut = false
+			}
+			return nil
 		default:
+			r.logger.Error("dropped subscription event",
+				zap.Stringer("user_id", userID),
+				zap.String("event_type", "organization_updated"),
+				zap.Int("channel_size", len(c)),
+			)
+			didErrorOut = true
+			return nil
 		}
-
-		if et == events.OrganizationUpdated {
-			id := graphql.ID(reference)
-			if args.OrganizationID != nil && id != *args.OrganizationID {
-				return nil
-			}
-			resolver, err := r.Organization(ctx, resolvers.OrganizationArgs{ID: &id})
-			if err != nil {
-				return err
-			}
-			select {
-			case <-ctx.Done():
-				return events.ErrClientDisconnected
-			case c <- resolver:
-				if didErrorOut {
-					didErrorOut = false
-				}
-				return nil
-			default:
-				r.logger.Error("dropped subscription event",
-					zap.Stringer("user_id", userID),
-					zap.Stringer("event_type", et),
-					zap.Int("channel_size", len(c)),
-				)
-				didErrorOut = true
-				return nil
-			}
-		}
-		return nil
 	})
-
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-	}()
 
 	return c, nil
 }

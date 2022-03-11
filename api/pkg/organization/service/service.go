@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"getsturdy.com/api/pkg/events"
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/shortid"
@@ -20,14 +20,14 @@ import (
 )
 
 type Service struct {
-	eventsSender                 events.EventSender
+	eventsSender                 *events.Publisher
 	organizationRepository       db_organization.Repository
 	organizationMemberRepository db_organization.MemberRepository
 	analyticsService             *service_analytics.Service
 }
 
 func New(
-	eventsSender events.EventSender,
+	eventsSender *events.Publisher,
 	organizationRepository db_organization.Repository,
 	organizationMemberRepository db_organization.MemberRepository,
 	analyticsService *service_analytics.Service,
@@ -125,14 +125,12 @@ func (svc *Service) Update(ctx context.Context, organizationID string, newName s
 
 	org.Name = newName
 
-	err = svc.organizationRepository.Update(ctx, org)
-	if err != nil {
+	if err := svc.organizationRepository.Update(ctx, org); err != nil {
 		return nil, fmt.Errorf("could not update organization: %w", err)
 	}
 
-	err = svc.eventsSender.Organization(ctx, organizationID, events.OrganizationUpdated, organizationID)
-	if err != nil {
-		return nil, fmt.Errorf("could not update organization: %w", err)
+	if err := svc.eventsSender.OrganizationUpdated(ctx, events.Organization((organizationID)), org); err != nil {
+		return nil, fmt.Errorf("failed to send event: %w", err)
 	}
 
 	return org, nil
