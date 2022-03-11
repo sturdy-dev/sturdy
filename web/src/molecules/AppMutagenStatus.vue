@@ -1,7 +1,6 @@
 <template>
   <div class="flex gap-2 items-center justify-center">
     <template v-if="appState === 'online'"></template>
-
     <template v-else-if="appState === 'offline'">
       <span class="text-sm text-gray-800">Disconnected!</span>
       <button
@@ -12,7 +11,6 @@
         Reconnect
       </button>
     </template>
-
     <template v-else>
       <span class="text-sm text-gray-800">
         <span v-if="appState === 'starting'">Starting</span>
@@ -20,7 +18,6 @@
         <span v-else-if="appState === 'uploading-ssh-key'">Authorizing Device</span>
         <span v-else>Loading</span>
       </span>
-
       <div class="inline-flex space-x-1 rounded-full items-center -ml-1 mt-2.5">
         <div
           class="bg-gray-500 w-1 h-1 rounded-full animate-bounce"
@@ -40,46 +37,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  setup() {
-    const appState = ref('starting')
-    const restarting = ref(false)
-    const ipc = window.ipc
-    const mutagenIpc = window.mutagenIpc
-
-    const fetchSetState = async () => {
-      // This API was added on 2021-11-24
-      if (ipc && ipc.state) {
-        appState.value = await ipc.state()
-      }
-      // This API was removed on 2021-11-24
-      else if (mutagenIpc && mutagenIpc.isReady) {
-        if (await mutagenIpc.isReady()) {
-          appState.value = 'online'
-        } else {
-          appState.value = 'starting'
-        }
-      } else {
-        appState.value = 'online'
-      }
-    }
-
-    fetchSetState()
-    const interval = setInterval(fetchSetState, 1000)
-
-    onUnmounted(() => {
-      clearInterval(interval)
-    })
-
+  data() {
+    const { ipc, mutagenIpc } = window
     return {
-      appState,
-      restarting,
+      appState: 'starting',
+      restarting: false,
       ipc,
+      mutagenIpc,
+      interval: undefined as undefined | ReturnType<typeof setInterval>,
     }
   },
+  unmounted() {
+    if (this.interval) clearInterval(this.interval)
+  },
+  mounted() {
+    this.fetchSetState()
+    this.interval = setInterval(this.fetchSetState, 1000)
+  },
   methods: {
+    async fetchSetState() {
+      // This API was added on 2021-11-24
+      if (this.ipc && this.ipc.state) {
+        this.appState = await this.ipc.state()
+      }
+      // This API was removed on 2021-11-24
+      else if (this.mutagenIpc && this.mutagenIpc.isReady) {
+        if (await this.mutagenIpc.isReady()) {
+          this.appState = 'online'
+        } else {
+          this.appState = 'starting'
+        }
+      } else {
+        this.appState = 'online'
+      }
+    },
     async restart() {
       try {
         this.restarting = true

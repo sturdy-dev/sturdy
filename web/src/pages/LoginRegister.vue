@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center pb-12 pt-24 px-4 sm:px-6 lg:px-8 justify-between flex-col space-y-8"
+    class="h-full flex items-center pb-12 pt-24 px-4 sm:px-6 lg:px-8 justify-between flex-col space-y-8"
   >
     <div class="max-w-md w-full space-y-8">
       <div>

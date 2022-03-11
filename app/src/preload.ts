@@ -4,10 +4,12 @@ import { AppIPC, MutagenIPC, sharedAppIpc, sharedMutagenIpc } from './ipc'
 
 export interface AppEnvironment {
   platform: typeof process.platform
+  frameless: boolean
 }
 
 const appEnvironment: AppEnvironment = {
   platform: process.platform,
+  frameless: true,
 }
 
 declare global {

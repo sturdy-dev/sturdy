@@ -57,6 +57,13 @@ export var sharedAppIpc = {
   goForward: new IPCMethod<[], void>('goForward'),
   state: new IPCMethod<[], State>('state'),
   forceRestartMutagen: new IPCMethod<[], void>('forceRestartMutagen'),
+  minimize: new IPCMethod<[], void>('minimize'),
+  maximize: new IPCMethod<[], void>('maximize'),
+  unmaximize: new IPCMethod<[], void>('unmaximize'),
+  close: new IPCMethod<[], void>('close'),
+  isMaximized: new IPCMethod<[], boolean>('isMaximized'),
+  isMinimized: new IPCMethod<[], boolean>('isMinimized'),
+  isNormal: new IPCMethod<[], boolean>('isNormal'),
 }
 
 // IPC methods that are only available if there is a mutagen session

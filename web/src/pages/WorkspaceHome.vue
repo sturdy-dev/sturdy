@@ -1,9 +1,6 @@
 <template>
   <main v-if="data" class="bg-white">
-    <div
-      class="md:pr-64 fixed z-50 w-full"
-      :style="isApp ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
-    >
+    <div class="md:pr-64 fixed z-50 w-full">
       <SelectedHunksToolbar />
       <SearchToolbar />
     </div>
@@ -955,8 +952,7 @@ export default defineComponent({
     }
   },
   data() {
-    const mutagenIpc = window.mutagenIpc
-    const ipc = window.ipc // TODO: this makes the app slow
+    const { mutagenIpc, ipc } = window
     return {
       ...this.initialState(),
       ipc,
