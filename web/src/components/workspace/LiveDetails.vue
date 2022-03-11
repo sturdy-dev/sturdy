@@ -216,8 +216,10 @@ import { useRemovePatches } from '../../mutations/useRemovePatches'
 import { Feature } from '../../__generated__/types'
 import {
   LiveDetailsDiffsFragment,
+  LiveDetailsMemberFragment,
   LiveDetailsQuery,
   LiveDetailsQueryVariables,
+  LiveDetailsViewFragment,
 } from './__generated__/LiveDetails'
 import Spinner from '../shared/Spinner.vue'
 import { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
@@ -233,32 +235,53 @@ export const LIVE_DETAILS_WORKSPACE = gql`
 `
 
 export const LIVE_DETAILS_DIFFS = gql`
-  fragment LiveDetailsDiffs on Workspace {
-    diffs {
+  fragment LiveDetailsDiffs on FileDiff {
+    id
+
+    origName
+    newName
+    preferredName
+
+    isDeleted
+    isNew
+    isMoved
+    isHidden
+
+    hunks {
       id
+      patch
 
-      origName
-      newName
-      preferredName
-
-      isDeleted
-      isNew
-      isMoved
-      isHidden
-
-      hunks {
-        id
-        patch
-
-        isOutdated
-        isApplied
-        isDismissed
-      }
+      isOutdated
+      isApplied
+      isDismissed
     }
   }
 `
 
+export const LIVE_DETAILS_VIEW = gql`
+  fragment LiveDetailsView on View {
+    id
+    shortMountPath
+    lastUsedAt
+  }
+`
+
+export const LIVE_DETAILS_MEMBER = gql`
+  fragment LiveDetailsMember on Author {
+    id
+    name
+    avatarUrl
+  }
+`
+
 type Suggestion = LiveDetailsQuery['workspace']['suggestions'][number]
+type SuggestingAuthor = LiveDetailsQuery['workspace']['suggestions'][number]['author']
+type SuggestionFileDiff = LiveDetailsQuery['workspace']['suggestions'][number]['diffs'][number]
+
+interface Data {
+  lastShowSuggestionsByUser: string | null
+  selectedHunkIDs: Set<string>
+}
 
 export default defineComponent({
   components: {
@@ -275,7 +298,7 @@ export default defineComponent({
   },
   props: {
     view: {
-      type: Object,
+      type: Object as PropType<LiveDetailsViewFragment>,
       required: false,
     },
     user: {
@@ -283,7 +306,7 @@ export default defineComponent({
       required: false,
     },
     members: {
-      type: Array,
+      type: Array as PropType<Array<LiveDetailsMemberFragment>>,
       required: true,
     },
     isOnAuthoritativeView: {
@@ -329,13 +352,8 @@ export default defineComponent({
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
     let route = useRoute()
-    let workspaceID = ref(route.params.id)
-    watch(
-      () => route.params.id,
-      (slug) => {
-        workspaceID.value = slug
-      }
-    )
+    let workspaceID = computed(() => route.params.id as string)
+
     let { data, fetching, error, executeQuery } = useQuery<
       LiveDetailsQuery,
       LiveDetailsQueryVariables
@@ -369,6 +387,7 @@ export default defineComponent({
                 isMoved
 
                 isLarge
+                isHidden
 
                 hunks {
                   id
@@ -452,34 +471,34 @@ export default defineComponent({
     const dismissSuggestionResult = useDismissSuggestion()
     const removePatchesResult = useRemovePatches()
     return {
-      async removePatches(workspaceID, hunkIds) {
+      async removePatches(workspaceID: string, hunkIds: string[]) {
         await removePatchesResult({
           workspaceID,
           hunkIDs: hunkIds,
         })
       },
 
-      async dismissSuggestion(suggestionId) {
+      async dismissSuggestion(suggestionId: string) {
         await dismissSuggestionResult({
           id: suggestionId,
         })
       },
 
-      async applySuggestionHunks(suggestionId, hunkIds) {
+      async applySuggestionHunks(suggestionId: string, hunkIds: string[]) {
         await applySuggestionHunksResult({
           id: suggestionId,
           hunkIDs: hunkIds,
         })
       },
 
-      async dismissSuggestionHunks(suggestionId, hunkIds) {
+      async dismissSuggestionHunks(suggestionId: string, hunkIds: string[]) {
         await dismissSuggestionHunksResult({
           id: suggestionId,
           hunkIDs: hunkIds,
         })
       },
 
-      async extractWorkspace(workspaceID, patchIDs) {
+      async extractWorkspace(workspaceID: string, patchIDs: string[]) {
         const variables = { workspaceID, patchIDs }
         return await extractWorkspace(variables).then((result) => {
           if (result.error) {
@@ -503,11 +522,10 @@ export default defineComponent({
       executeConflictsQuery,
     }
   },
-  data() {
+  data(): Data {
     return {
       lastShowSuggestionsByUser: null,
-
-      selectedHunkIDs: new Set(),
+      selectedHunkIDs: new Set<string>(),
     }
   },
   computed: {
@@ -558,7 +576,7 @@ export default defineComponent({
       }, 0)
     },
     userIsConnectedToView() {
-      let t = new Date() / 1000 - 120 // 2 minutes ago
+      let t = +new Date() / 1000 - 120 // 2 minutes ago
       if (this.view && this.view.lastUsedAt && this.view.lastUsedAt > t) {
         return true
       }
@@ -579,27 +597,32 @@ export default defineComponent({
     },
 
     openSuggestions(): Suggestion[] {
+      if (!this.data) {
+        return []
+      }
       return this.data.workspace.suggestions.filter((s) => {
         return !s.dismissedAt
       })
     },
     suggestingUsers() {
+      let acc: { [index: string]: SuggestingAuthor } = {}
       return this.openSuggestions.reduce((acc, current) => {
         acc[current.author.id] = current.author
         return acc
-      }, {})
+      }, acc)
     },
     suggestionsByUser() {
+      let acc: { [index: string]: Suggestion[] } = {}
       return this.openSuggestions.reduce((acc, current) => {
         if (!acc[current.author.id]) {
           acc[current.author.id] = []
         }
         acc[current.author.id].push(current)
         return acc
-      }, {})
+      }, acc)
     },
     suggestedFilesByUser() {
-      const suggestedFilesByUser = {}
+      const suggestedFilesByUser: { [index: string]: Set<string> } = {}
       this.openSuggestions.forEach((suggestion) => {
         suggestion.diffs.forEach((diff) => {
           if (!suggestedFilesByUser[suggestion.author.id]) {
@@ -625,10 +648,9 @@ export default defineComponent({
       })
       return suggestionsByFile
     },
-    extraSuggestionOnlyFiles() {
+    extraSuggestionOnlyFiles(): LiveDetailsDiffsFragment[] {
       // Files that have suggestions to them, but no diffs in the original view
-      const extraSuggestionOnlyFiles = []
-
+      const extraSuggestionOnlyFiles: LiveDetailsDiffsFragment[] = []
       const userID = this.lastShowSuggestionsByUser
 
       if (this.suggestionsByUser && userID && this.suggestionsByUser[userID]) {
@@ -646,6 +668,7 @@ export default defineComponent({
           })
         })
       }
+
       return extraSuggestionOnlyFiles
     },
   },
@@ -687,11 +710,10 @@ export default defineComponent({
 
     deleteSelected() {
       this.removePatches(this.workspace.id, Array.from(this.selectedHunkIDs)).then(() => {
-        this.changeMessage = ''
         this.emitter.emit('differ-deselect-all-hunks', {})
       })
     },
-    undoFile(patch_ids) {
+    undoFile(patch_ids: Set<string>) {
       this.removePatches(this.workspace.id, Array.from(patch_ids))
     },
     selectAll() {
@@ -700,7 +722,11 @@ export default defineComponent({
     deselectAll() {
       this.emitter.emit('differ-deselect-all-hunks', {})
     },
-    ignoreFile(path) {
+    ignoreFile(path: string) {
+      if (!this.view) {
+        return
+      }
+
       fetch(http.url('v3/views/' + this.view.id + '/ignore-file'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -710,7 +736,7 @@ export default defineComponent({
         credentials: 'include',
       })
     },
-    onkey(e) {
+    onkey(e: KeyboardEvent) {
       const cmd = e.metaKey || e.ctrlKey
       const shift = e.shiftKey
       const a = e.keyCode == 65
@@ -732,27 +758,27 @@ export default defineComponent({
           break
       }
     },
-    updateSelectedHunks(ev) {
-      this.selectedHunkIDs = ev.patchIDs
+    updateSelectedHunks(ev: { patchIDs: string[] }) {
+      this.selectedHunkIDs = new Set(ev.patchIDs)
     },
-    onIgnoreFileEvent(ignoreFile) {
+    onIgnoreFileEvent(ignoreFile: { fileName: string }) {
       this.ignoreFile(ignoreFile.fileName)
     },
-    onUndoFileEvent(undoFile) {
+    onUndoFileEvent(undoFile: { patch_ids: Set<string> }) {
       this.undoFile(undoFile.patch_ids)
     },
-    onClickShowSuggestionsByUser(userID) {
+    onClickShowSuggestionsByUser(userID: string | null) {
       // Event is picked up by downstream components
       this.lastShowSuggestionsByUser = userID
       this.emitter.emit('show-suggestions-by-user', userID)
     },
-    onDismissHunkedSuggestion(e) {
+    onDismissHunkedSuggestion(e: { suggestionId: string; hunks: string[] }) {
       this.dismissSuggestionHunks(e.suggestionId, e.hunks)
     },
-    onApplyHunkedSuggestion(e) {
+    onApplyHunkedSuggestion(e: { suggestionId: string; hunks: string[] }) {
       this.applySuggestionHunks(e.suggestionId, e.hunks)
     },
-    dismissSuggestionByUser(userId) {
+    dismissSuggestionByUser(userId: string) {
       this.suggestionsByUser[userId].map((s) => s.id).forEach(this.dismissSuggestion)
     },
   },

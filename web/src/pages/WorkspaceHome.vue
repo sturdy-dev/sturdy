@@ -813,7 +813,9 @@ export default defineComponent({
         query WorkspaceHomeDiffs($workspaceID: ID!) {
           workspace(id: $workspaceID) {
             id
-            ...LiveDetailsDiffs
+            diffs {
+                ...LiveDetailsDiffs
+            }
           }
 
           ${LIVE_DETAILS_DIFFS}
