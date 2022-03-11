@@ -5,6 +5,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/view"
@@ -106,7 +107,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 		return nil
 	}
 
-	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, onViewUpdated)
+	r.eventsSubscriber.OnViewUpdated(ctx, eventsv2.SubscribeUser(userID), onViewUpdated)
 
 	go func() {
 		<-ctx.Done()

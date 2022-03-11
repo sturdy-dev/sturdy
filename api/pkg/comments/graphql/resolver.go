@@ -268,7 +268,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 		return nil
 	}
 
-	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, onViewUpdated)
+	r.eventsSubscriber.OnViewUpdated(ctx, eventsv2.SubscribeUser(userID), onViewUpdated)
 
 	go func() {
 		<-ctx.Done()

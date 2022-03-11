@@ -2,14 +2,10 @@ package events
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
-
-	"getsturdy.com/api/pkg/users"
-
 	"go.uber.org/zap"
 )
 
@@ -20,34 +16,24 @@ type subscriber struct {
 
 type callback func(context.Context, *event) error
 
-type Topic string
-
-func (t Topic) String() string {
-	return string(t)
-}
-
-func user(userID users.ID) Topic {
-	return Topic(fmt.Sprintf("user:%s", userID))
-}
-
 type subscriptionID string
 
-type PubSub struct {
+type pubSub struct {
 	logger *zap.Logger
 
 	subscribersGuard *sync.RWMutex
 	subscribers      map[Topic]map[Type]map[subscriptionID]subscriber
 }
 
-func New(logger *zap.Logger) *PubSub {
-	return &PubSub{
+func New(logger *zap.Logger) *pubSub {
+	return &pubSub{
 		logger:           logger.Named("events_pubsub"),
 		subscribersGuard: &sync.RWMutex{},
 		subscribers:      map[Topic]map[Type]map[subscriptionID]subscriber{},
 	}
 }
 
-func (r *PubSub) pub(topic Topic, evt *event) {
+func (r *pubSub) pub(topic Topic, evt *event) {
 	r.subscribersGuard.RLock()
 	handlers := r.subscribers[topic][evt.Type]
 	r.subscribersGuard.RUnlock()
@@ -74,7 +60,7 @@ func (r *PubSub) pub(topic Topic, evt *event) {
 	}
 }
 
-func (r *PubSub) sub(ctx context.Context, fn callback, topic Topic, tt ...Type) {
+func (r *pubSub) sub(ctx context.Context, fn callback, topic Topic, tt ...Type) {
 	id := subscriptionID(uuid.NewString())
 
 	r.subscribersGuard.Lock()
