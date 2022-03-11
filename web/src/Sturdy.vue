@@ -3,6 +3,15 @@
     <template v-if="haveSelfContainedLayout">
       <router-view :user="user" />
     </template>
+
+    <template v-else-if="!isApp && isAuthPage">
+      <ClientOnly>
+        <AppTitleBar :show-sidebar="showSidebar">
+          <router-view :user="user" :features="features" />
+        </AppTitleBar>
+      </ClientOnly>
+    </template>
+
     <template v-else-if="!isApp">
       <ClientOnly>
         <IndexNavbar v-if="showNavigation" :user="user" />
