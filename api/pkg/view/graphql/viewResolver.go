@@ -183,8 +183,8 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 		return nil
 	}
 
-	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, callback)
-	r.eventsSubscriber.User(ctx, userID).OnViewStatusUpdated(ctx, callback)
+	r.eventsSubscriber.OnViewUpdated(ctx, eventsv2.SubscribeUser(userID), callback)
+	r.eventsSubscriber.OnViewStatusUpdated(ctx, eventsv2.SubscribeUser(userID), callback)
 
 	go func() {
 		<-ctx.Done()
@@ -229,8 +229,8 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 		return nil
 	}
 
-	r.eventsSubscriber.User(ctx, userID).OnViewUpdated(ctx, callback)
-	r.eventsSubscriber.User(ctx, userID).OnViewStatusUpdated(ctx, callback)
+	r.eventsSubscriber.OnViewUpdated(ctx, eventsv2.SubscribeUser(userID), callback)
+	r.eventsSubscriber.OnViewStatusUpdated(ctx, eventsv2.SubscribeUser(userID), callback)
 
 	go func() {
 		<-ctx.Done()

@@ -237,7 +237,7 @@ func (r *organizationRootResolver) UpdatedOrganization(ctx context.Context, args
 	c := make(chan resolvers.OrganizationResolver, 100)
 	didErrorOut := false
 
-	r.eventsSubscriber.User(ctx, userID).OnOrganizationUpdated(ctx, func(ctx context.Context, org *organization.Organization) error {
+	r.eventsSubscriber.OnOrganizationUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, org *organization.Organization) error {
 		if args.OrganizationID != nil && string(*args.OrganizationID) != org.ID {
 			return nil
 		}

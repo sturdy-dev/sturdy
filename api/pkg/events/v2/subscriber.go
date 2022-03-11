@@ -16,131 +16,125 @@ import (
 )
 
 type Subscriber struct {
-	pubsub *PubSub
+	pubsub *pubSub
 }
 
-func NewSubscriber(pubsub *PubSub) *Subscriber {
+func NewSubscriber(
+	pubsub *pubSub,
+) *Subscriber {
 	return &Subscriber{
 		pubsub: pubsub,
 	}
 }
 
-func (s *Subscriber) User(ctx context.Context, userID users.ID) *sub {
-	return &sub{
-		pubsub: s.pubsub,
-		topic:  user(userID),
-	}
+func SubscribeUser(id users.ID) Topic {
+	return userTopic(id)
 }
 
-type sub struct {
-	topic  Topic
-	pubsub *PubSub
-}
-
-func (s *sub) OnCodebaseEvent(ctx context.Context, callback func(context.Context, *codebase.Codebase) error) {
+func (s *Subscriber) OnCodebaseEvent(ctx context.Context, topic Topic, callback func(context.Context, *codebase.Codebase) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Codebase)
-	}, s.topic, CodebaseEvent)
+	}, topic, CodebaseEvent)
 }
 
-func (s *sub) OnCodebaseUpdated(ctx context.Context, callback func(context.Context, *codebase.Codebase) error) {
+func (s *Subscriber) OnCodebaseUpdated(ctx context.Context, topic Topic, callback func(context.Context, *codebase.Codebase) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Codebase)
-	}, s.topic, CodebaseUpdated)
+	}, topic, CodebaseUpdated)
 }
 
-func (s *sub) OnViewUpdated(ctx context.Context, callback func(context.Context, *view.View) error) {
+func (s *Subscriber) OnViewUpdated(ctx context.Context, topic Topic, callback func(context.Context, *view.View) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.View)
-	}, s.topic, ViewUpdated)
+	}, topic, ViewUpdated)
 }
 
-func (s *sub) OnViewStatusUpdated(ctx context.Context, callback func(context.Context, *view.View) error) {
+func (s *Subscriber) OnViewStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *view.View) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.View)
-	}, s.topic, ViewStatusUpdated)
+	}, topic, ViewStatusUpdated)
 }
 
-func (s *sub) OnWorkspaceUpdated(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdated(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdated)
+	}, topic, WorkspaceUpdated)
 }
 
-func (s *sub) OnWorkspaceUpdatedComments(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedComments(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedComments)
+	}, topic, WorkspaceUpdatedComments)
 }
 
-func (s *sub) OnWorkspaceUpdatedReviews(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedReviews(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedReviews)
+	}, topic, WorkspaceUpdatedReviews)
 }
 
-func (s *sub) OnWorkspaceUpdatedActivity(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedActivity(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedActivity)
+	}, topic, WorkspaceUpdatedActivity)
 }
 
-func (s *sub) OnWorkspaceUpdatedSnapshot(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedSnapshot(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedSnapshot)
+	}, topic, WorkspaceUpdatedSnapshot)
 }
 
-func (s *sub) OnWorkspaceUpdatedPresence(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedPresence(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedPresence)
+	}, topic, WorkspaceUpdatedPresence)
 }
 
-func (s *sub) OnWorkspaceUpdatedSuggestion(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceUpdatedSuggestion(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceUpdatedSuggestion)
+	}, topic, WorkspaceUpdatedSuggestion)
 }
 
-func (s *sub) OnWorkspaceWatchingStatusUpdated(ctx context.Context, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceWatchingStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Workspace)
-	}, s.topic, WorkspaceWatchingStatusUpdated)
+	}, topic, WorkspaceWatchingStatusUpdated)
 }
 
-func (s *sub) OnReviewUpdated(ctx context.Context, callback func(context.Context, *review.Review) error) {
+func (s *Subscriber) OnReviewUpdated(ctx context.Context, topic Topic, callback func(context.Context, *review.Review) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Review)
-	}, s.topic, ReviewUpdated)
+	}, topic, ReviewUpdated)
 }
 
-func (s *sub) OnGitHubPRUpdated(ctx context.Context, callback func(context.Context, *github.GitHubPullRequest) error) {
+func (s *Subscriber) OnGitHubPRUpdated(ctx context.Context, topic Topic, callback func(context.Context, *github.GitHubPullRequest) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.GitHubPullRequest)
-	}, s.topic, GitHubPRUpdated)
+	}, topic, GitHubPRUpdated)
 }
 
-func (s *sub) OnNotificationEvent(ctx context.Context, callback func(context.Context, *notification.Notification) error) {
+func (s *Subscriber) OnNotificationEvent(ctx context.Context, topic Topic, callback func(context.Context, *notification.Notification) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Notification)
-	}, s.topic, NotificationEvent)
+	}, topic, NotificationEvent)
 }
 
-func (s *sub) OnStatusUpdated(ctx context.Context, callback func(context.Context, *statuses.Status) error) {
+func (s *Subscriber) OnStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *statuses.Status) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Status)
-	}, s.topic, StatusUpdated)
+	}, topic, StatusUpdated)
 }
 
-func (s *sub) OnCompletedOnboardingStep(ctx context.Context, callback func(context.Context, *onboarding.Step) error) {
+func (s *Subscriber) OnCompletedOnboardingStep(ctx context.Context, topic Topic, callback func(context.Context, *onboarding.Step) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.OnboardingStep)
-	}, s.topic, CompletedOnboardingStep)
+	}, topic, CompletedOnboardingStep)
 }
 
-func (s *sub) OnOrganizationUpdated(ctx context.Context, callback func(context.Context, *organization.Organization) error) {
+func (s *Subscriber) OnOrganizationUpdated(ctx context.Context, topic Topic, callback func(context.Context, *organization.Organization) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Organization)
-	}, s.topic, OrganizationUpdated)
+	}, topic, OrganizationUpdated)
 }
