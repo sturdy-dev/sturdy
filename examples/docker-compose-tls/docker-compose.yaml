@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  sturdy:
+    image: getsturdy/server:latest
+    pull_policy: always
+    volumes:
+      - sturdy-data:/var/data
+      - .:/var/certs/
+    ports:
+      - 30443:80
+    environment:
+      SSL_TYPE: static
+      SSL_CERT: /var/certs/mysturdy.example.com+2.pem
+      SSL_KEY: /var/certs/mysturdy.example.com+2-key.pem
+      DEBUG: 1
+
+volumes:
+  sturdy-data:
+    driver: local

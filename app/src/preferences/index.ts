@@ -101,6 +101,23 @@ const hostFromConfig = (hostConfig: HostConfig): Host => {
   try {
     const config = hostConfig as ShortHostConfig
     validateShortHostConfig(config)
+
+    // With user defined protocol
+    const hasProto = config.host.startsWith('https://') || config.host.startsWith('http://')
+    if (hasProto) {
+      const webURL = new URL(`${config.host}`)
+      const apiURL = new URL(`${config.host}/api`)
+      const syncURL = new URL(`ssh://${webURL.hostname}:${webURL.port}`)
+
+      return new Host({
+        title: hostConfig.title,
+        webURL,
+        apiURL,
+        syncURL,
+      })
+    }
+
+    // With default protocol
     return new Host({
       title: hostConfig.title,
       webURL: new URL(`http://${config.host}`),
