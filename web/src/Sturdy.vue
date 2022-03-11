@@ -1,21 +1,21 @@
 <template>
   <AppRedirect>
-    <AppTitleBar :show-sidebar="showSidebar">
-      <template v-if="haveSelfContainedLayout">
-        <router-view :user="user" />
-      </template>
-      <template v-else-if="!isApp">
-        <ClientOnly>
-          <IndexNavbar v-if="showNavigation" :user="user" />
-        </ClientOnly>
+    <template v-if="haveSelfContainedLayout">
+      <router-view :user="user" />
+    </template>
+    <template v-else-if="!isApp">
+      <ClientOnly>
+        <IndexNavbar v-if="showNavigation" :user="user" />
+      </ClientOnly>
 
-        <router-view :user="user" :features="features" />
-        <IndexFooter v-if="showNavigation" />
-      </template>
+      <router-view :user="user" :features="features" />
+      <IndexFooter v-if="showNavigation" />
+    </template>
 
-      <template v-else>
-        <!-- Bottom section -->
-        <ClientOnly>
+    <template v-else>
+      <!-- Bottom section -->
+      <ClientOnly>
+        <AppTitleBar :show-sidebar="showSidebar">
           <!-- Narrow sidebar-->
           <StackedMenu
             v-if="showSidebar"
@@ -34,25 +34,25 @@
               <ComingSoon v-else class="pt-2 px-2" />
             </section>
           </main>
-        </ClientOnly>
-      </template>
-
-      <ClientOnly>
-        <div class="fixed inset-0 flex items-start justify-end px-4 py-6 pointer-events-none z-10">
-          <!-- Top margin so that the notification is placed below the "current view" banner -->
-          <div class="max-w-sm w-full lg:mt-24 self-end">
-            <ToastNotification
-              v-for="n in toastNotifications"
-              :id="n.id"
-              :key="n.id"
-              :title="n.title"
-              :style="n.style"
-              :message="n.message"
-            />
-          </div>
-        </div>
+        </AppTitleBar>
       </ClientOnly>
-    </AppTitleBar>
+    </template>
+
+    <ClientOnly>
+      <div class="fixed inset-0 flex items-start justify-end px-4 py-6 pointer-events-none z-10">
+        <!-- Top margin so that the notification is placed below the "current view" banner -->
+        <div class="max-w-sm w-full lg:mt-24 self-end">
+          <ToastNotification
+            v-for="n in toastNotifications"
+            :id="n.id"
+            :key="n.id"
+            :title="n.title"
+            :style="n.style"
+            :message="n.message"
+          />
+        </div>
+      </div>
+    </ClientOnly>
   </AppRedirect>
 
   <ClientOnly>
