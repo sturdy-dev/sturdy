@@ -216,6 +216,21 @@
           </router-link>
         </DocsInfoBox>
 
+        <h2 id="read-more">Read more</h2>
+
+        <ul>
+          <li>
+            <a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose">
+              Example configuration: Sturdy in Docker Compose</a
+            >
+          </li>
+          <li>
+            <a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose-tls">
+              Example configuration: Sturdy in Docker Compose with TLS</a
+            >
+          </li>
+        </ul>
+
         <h2 id="license">License</h2>
 
         <p>
