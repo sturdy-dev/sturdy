@@ -9,7 +9,7 @@
   >
     <svg
       v-if="currentStep"
-      class="fixed top-0 left-0 hidden md:block"
+      class="fixed top-0 left-0 hidden md:block z-40"
       height="100%"
       width="100%"
       :viewBox="`0 0 ${screenWidth} ${screenHeight}`"
