@@ -1,5 +1,5 @@
 <template>
-  <div ref="target" class="contents">
+  <div ref="target" class="contents z-40">
     <slot></slot>
   </div>
 </template>
