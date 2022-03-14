@@ -132,9 +132,9 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     GOMODCACHE=/root/.cache/go-mod \
     go install -v github.com/JamesDunne/sslmux@v0.0.0-20180531161153-81a78ca8247d
 
-FROM debian:11.2-slim as reproxy-builder
+FROM alpine:3.15 as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
     ARCH='arm64'; \
     REPROXY_SHA256_SUM='35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e'; \
