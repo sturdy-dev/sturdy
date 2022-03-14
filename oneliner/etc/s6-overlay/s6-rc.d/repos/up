@@ -1,1 +1,1 @@
-/bin/sh /etc/scripts/repos/setup.sh
+/bin/bash /etc/scripts/repos/setup.sh

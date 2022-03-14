@@ -1,10 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.17.6-alpine3.15 as ssh-builder
+FROM golang:1.17.6-bullseye as ssh-builder
 WORKDIR /go/src/ssh
-RUN apk update \
-    && apk add --no-cache \
-    bash \
-    git
 COPY ./ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/.cache/go-mod \
@@ -19,34 +15,42 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     GOMODCACHE=/root/.cache/go-mod \
     go build -v -o /usr/bin/ssh getsturdy.com/ssh/cmd/ssh
 
-FROM alpine:3.15 as ssh
-RUN apk update \
-    apk add --no-cache \
-    ca-certificates=20211220-r0 
+FROM debian:11.2-slim as ssh
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates=20211220-r0 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 
-FROM golang:1.17.6-alpine3.15 as api-builder
-# github.com/libgit2/git2go dependencies
-RUN apk update \
-    && apk add --no-cache \
-    libgit2-dev=1.3.0-r0 \
-    pkgconfig \
-    gcc \
-    libc-dev=0.7.2-r3
+FROM golang:1.17.6-bullseye as api-builder
+# compile libgit2
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    libgit2-dev \
+    libssh2-1-dev \
+    git=1:2.30.2-1 \
+    ca-certificates=20210119 \
+    gcc=4:10.2.1-1 \
+    make=4.3-4.1 \
+    python3 \
+    cmake=3.18.4-2+deb11u1 \
+    libssl-dev=1.1.1k-1+deb11u1 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /libgit2
+RUN git clone https://github.com/libgit2/libgit2.git . && git checkout v1.3.0
+WORKDIR /libgit2/build
+RUN cmake .. -DGIT_SSH=TRUE -DGIT_SSH_MEMORY_CREDENTIALS=TRUE && cmake --build . --target install
 WORKDIR /go/src/api
 # cache api dependencies
 COPY ./api/go.mod ./go.mod
 COPY ./api/go.sum ./go.sum
-
 # build api
 ARG API_BUILD_TAGS
 ARG VERSION
 COPY ./api ./
-
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/.cache/go-mod \
     GOMODCACHE=/root/.cache/go-mod \
@@ -55,16 +59,52 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     -ldflags "-X getsturdy.com/api/pkg/version.Version=${VERSION}" \
     -v -o /usr/bin/api getsturdy.com/api/cmd/api
 
-FROM alpine:3.15 as api
-RUN apk update \
-    && apk add --no-cache \
-    git \
-    git-lfs=3.0.2-r0 \
-    libgit2=1.3.0-r0
+FROM debian:11.2-slim as api 
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    git-lfs=2.13.2-1+b5 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
+ENV LD_LIBRARY_PATH=/usr/local/lib
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 ENTRYPOINT [ "/usr/bin/api" ]
 
-FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder
+# for amd64, use a prebuild rudolfs image
+FROM jasonwhite0/rudolfs:0.3.5 as rudolfs-builder-amd64
+# for arm64, compile from source, since there is no prebuild image
+FROM --platform=$BUILDPLATFORM rust:1.55 as rudolfs-builder-arm64
+ENV PKG_CONFIG_ALLOW_CROSS="1" \
+    DEBIAN_FRONTEND="noninteractive" \
+    CARGO_BUILD_TARGET="aarch64-unknown-linux-gnu"
+RUN apt-get update \
+    && apt-get -y --no-install-recommends install \
+    musl-tools \
+    ca-certificates \
+    git \
+    && git clone https://github.com/jasonwhite/rudolfs
+WORKDIR /rudolfs
+SHELL ["/bin/bash", "-c"]
+RUN git checkout 0.3.5 \
+    && rustup target add "${CARGO_BUILD_TARGET}" \
+    && cargo build --target "${CARGO_BUILD_TARGET}" --release  \
+    && mkdir -p /build \
+    && cp "target/${CARGO_BUILD_TARGET}/release/rudolfs" /build/ \
+    && strip /build/rudolfs
+
+FROM debian:11.2-slim as rudolfs
+VOLUME ["/data"]
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends  \
+    ca-certificates
+# use the correct binary depending on the architecture. we do this to avoid building amd64 version ourselves, 
+# as it requires us to run qemu emulation which is very slow.
+ARG TARGETARCH
+COPY --from=rudolfs-builder-arm64 /build/rudolfs /arm64/rudolfs
+COPY --from=rudolfs-builder-amd64 /rudolfs /amd64/rudolfs
+RUN cp "/${TARGETARCH}/rudolfs" /usr/bin/rudolfs
+EXPOSE 8080
+ENTRYPOINT ["/usr/bin/rudolfs"]
+CMD ["--cache-dir", "/data"]
 
 FROM --platform=$BUILDPLATFORM node:17.3.1-alpine3.15 as web-builder
 # The website is the same for linux/amd64 and linux/arm64 (output is html), setting --platform to run all builds on the
@@ -86,15 +126,15 @@ RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn \
 COPY ./web .
 RUN yarn build:oneliner
 
-FROM golang:1.17.6-alpine3.15 as sslmux-builder
+FROM golang:1.17.6-bullseye as sslmux-builder
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/.cache/go-mod \
     GOMODCACHE=/root/.cache/go-mod \
     go install -v github.com/JamesDunne/sslmux@v0.0.0-20180531161153-81a78ca8247d
 
-FROM alpine:3.15 as reproxy-builder
+FROM debian:11.2-slim as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
     ARCH='arm64'; \
     REPROXY_SHA256_SUM='35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e'; \
@@ -108,22 +148,41 @@ RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
     && tar -xzf /tmp/reproxy.tar.gz -C /usr/bin \
     && rm /tmp/reproxy.tar.gz
 
-FROM alpine:3.15 as oneliner
+FROM debian:11.2-slim as oneliner
 # postgresql
 # openssl is needed by rudolfs to generate secret
 # git, git-lfs and libgit2 are needed by api
 # openssh-keygen is needed by ssh to generate ssh keys
 # ca-cerificates is needed by ssh to connect to tls hosts
-RUN apk update \
-    && apk add --no-cache \
-    postgresql14=14.2-r0 \
-    openssl=1.1.1l-r8 \
-    git \
-    git-lfs=3.0.2-r0 \
-    libgit2=1.3.0-r0 \
-    openssh-keygen=8.8_p1-r1 \
-    ca-certificates=20211220-r0
-COPY --from=rudolfs-builder /rudolfs /usr/bin/rudolfs
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    curl=7.74.0-1.3+deb11u1 \
+    ca-certificates=20210119 \
+    gnupg=2.2.27-2 \
+    && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    | gpg --dearmor \
+    | tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null \
+    && echo "deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main" > /etc/apt/sources.list.d/postgresql.list \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    postgresql-14=14.2-1.pgdg110+1 \
+    openssl=1.1.1k-1+deb11u1 \
+    git=1:2.30.2-1 \
+    git-lfs=2.13.2-1+b5 \
+    keychain=2.8.5-2 \
+    wget \
+    bash \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
+ENV LD_LIBRARY_PATH=/usr/local/lib
+# use the correct binary depending on the architecture. we do this to avoid building amd64 version ourselves, 
+# as it requires us to run qemu emulation which is very slow.
+ARG TARGETARCH
+COPY --from=rudolfs-builder-arm64 /build/rudolfs /arm64/rudolfs
+COPY --from=rudolfs-builder-amd64 /rudolfs /amd64/rudolfs
+RUN cp "/${TARGETARCH}/rudolfs" /usr/bin/rudolfs
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
@@ -138,7 +197,6 @@ ARG S6_OVERLAY_VERSION="3.0.0.2" \
     S6_OVERLAY_NOARCH_SHA256_SUM="17880e4bfaf6499cd1804ac3a6e245fd62bc2234deadf8ff4262f4e01e3ee521" \
     S6_OVERLAY_SYMLINKS_ARCH_SHA256_SUM="6ee2b8580b23c0993b1e8c66b58777f32f6ff031ba0192cccd53a31e62942c70" \
     S6_OVERLAY_SYMLINKS_NOARCH_SHA256_SUM="d67c9b436ef59ffefd4f083f07b2869662af40b2ea79a069b147dd0c926db2d3"
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN ARCH="$(uname -m)" \
     && if [[ "$ARCH" == 'x86_64' ]]; then \
     S6_OVERLAY_ARCH_SHA256_SUM="a4c039d1515812ac266c24fe3fe3c00c48e3401563f7f11d09ac8e8b4c2d0b0c"; \

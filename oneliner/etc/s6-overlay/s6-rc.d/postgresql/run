@@ -2,4 +2,4 @@
 
 fdmove -c 2 1
 s6-setuidgid postgres
-postgres -D "/var/data/postgresql/data"
+/usr/lib/postgresql/14/bin/postgres -D "/var/data/postgresql/data"

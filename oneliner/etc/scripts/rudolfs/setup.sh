@@ -1,12 +1,16 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 set -euo pipefail
+
+log() {
+	echo "rudolfs-prepare $@"
+}
 
 DIR="/var/data/rudolfs"
 KEY="$DIR/key"
 
 if [[ ! -f "$KEY" ]]; then
-  echo "Generating key..."
-  mkdir -p "$DIR"
-  openssl rand -hex 32 >"$DIR/key"
+	log "Generating key..."
+	mkdir -p "$DIR"
+	openssl rand -hex 32 >"$DIR/key"
 fi
