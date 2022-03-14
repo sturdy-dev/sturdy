@@ -63,6 +63,7 @@ import type {
   Differ_FileDiffFragment,
   Differ_SuggestionFragment,
 } from './__generated__/Differ'
+import { getIndicesOf } from './DifferHelper'
 
 export const DIFFER_TOP_COMMENT_FRAGMENT = gql`
   fragment Differ_TopComment on TopComment {
@@ -87,25 +88,6 @@ export const DIFFER_SUGGESTION = gql`
   }
   ${DIFFER_FILE_SUGGESTION}
 `
-
-const getIndicesOf = function (searchStr: string, str: string, caseSensitive: boolean): number[] {
-  let searchStrLen = searchStr.length
-  if (searchStrLen === 0) {
-    return []
-  }
-  let startIndex = 0,
-    index,
-    indices = []
-  if (!caseSensitive) {
-    str = str.toLowerCase()
-    searchStr = searchStr.toLowerCase()
-  }
-  while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-    indices.push(index)
-    startIndex = index + searchStrLen
-  }
-  return indices
-}
 
 export default defineComponent({
   components: {
