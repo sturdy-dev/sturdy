@@ -97,16 +97,21 @@ export default defineComponent({
   methods: {
     globalKeyDown(event) {
       // Available as cmd+k on the web
-      let keys = [
+      let cmdKeys = [
         75, // K
       ]
 
+      const standaloneKeys = ['/']
+
       // Also available as cmd+f in the app
       if (this.isApp) {
-        keys.push(70) // F
+        cmdKeys.push(70) // F
       }
 
-      if (keys.indexOf(event.keyCode) > -1 && (event.ctrlKey || event.metaKey)) {
+      if (
+        (cmdKeys.indexOf(event.keyCode) > -1 && (event.ctrlKey || event.metaKey)) ||
+        standaloneKeys.includes(event.key)
+      ) {
         this.showSearch = true
         event.stopPropagation()
         event.preventDefault()
