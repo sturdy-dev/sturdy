@@ -59,6 +59,7 @@ func (srv *Server) Start(ctx context.Context) error {
 	if err := srv.sshServer.SetOption(ssh.HostKeyFile(srv.cfg.KeyHostPath)); err != nil {
 		return fmt.Errorf("failed to set host key file: %w", err)
 	}
+
 	if err := srv.sshServer.SetOption(ssh.PublicKeyAuth(validateKey(srv.logger, srv.cfg.SturdyApiAddr))); err != nil {
 		return fmt.Errorf("failed to set public key auth: %w", err)
 	}
@@ -102,6 +103,24 @@ func (srv *Server) sshHandler(s ssh.Session) {
 		zap.String("connection_id", uuid.NewString()),
 	)
 
+	switch s.User() {
+	case "ping":
+		srv.sshPingHandler(logger, s)
+	default:
+		srv.sshMutagenHandler(logger, s)
+	}
+}
+
+func (srv *Server) sshPingHandler(logger *zap.Logger, s ssh.Session) {
+	if _, err := s.Write([]byte("pong!\n")); err != nil {
+		logger.Error("failed to write pong", zap.Error(err))
+	}
+	if err := s.Close(); err != nil {
+		logger.Error("failed to close pong", zap.Error(err))
+	}
+}
+
+func (srv *Server) sshMutagenHandler(logger *zap.Logger, s ssh.Session) {
 	var binary string
 	switch s.Command()[0] {
 	case ".sturdy-sync/agents/0.12.0-beta2/mutagen-agent":
@@ -217,6 +236,10 @@ type VerifyPublicKeyRequest struct {
 
 func validateKey(logger *zap.Logger, sturdyApiAddr string) func(ctx ssh.Context, key ssh.PublicKey) bool {
 	return func(ctx ssh.Context, key ssh.PublicKey) bool {
+		if ctx.User() == "ping" {
+			return true
+		}
+
 		var res struct{}
 		err := Request(sturdyApiAddr, "POST", "/v3/pki/verify", "", &VerifyPublicKeyRequest{
 			UserID:    ctx.User(),
