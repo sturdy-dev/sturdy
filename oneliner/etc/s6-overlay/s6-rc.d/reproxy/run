@@ -20,4 +20,5 @@ exec reproxy \
   --timeout.keep-alive=60s \
   --timeout.resp-header=60s \
   --timeout.idle-conn=90s \
+  --max=0 \
 	--listen="127.0.0.1:8080"
