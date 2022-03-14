@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, Menu, MenuItem } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, MenuItem } from 'electron'
 import { Logger } from '../Logger'
 import path from 'path'
 import { readFile, writeFile } from 'fs/promises'
@@ -40,21 +40,28 @@ const validateShortHostConfig = (hostConfig: ShortHostConfig): ShortHostConfig =
   return hostConfig
 }
 
+const isValidShortHostConfig = (hostConfig: ShortHostConfig): boolean => {
+  if (!hostConfig.host) {
+    return false
+  }
+  return true
+}
+
 const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHostConfig => {
   try {
     new URL(hostConfig.webURL)
   } catch (e) {
-    throw new Error('Host config must have a valid webURL')
+    throw new Error('Host config must have a valid webURL (' + hostConfig.webURL + '): ' + e)
   }
   try {
     new URL(hostConfig.apiURL)
   } catch (e) {
-    throw new Error('Host config must have a valid apiURL')
+    throw new Error('Host config must have a valid apiURL (' + hostConfig.apiURL + '): ' + e)
   }
   try {
     new URL(hostConfig.syncURL)
   } catch (e) {
-    throw new Error('Host config must have a valid syncURL')
+    throw new Error('Host config must have a valid syncURL (' + hostConfig.syncURL + '): ' + e)
   }
   return hostConfig
 }
@@ -92,48 +99,68 @@ const cloud: HostConfig = {
   apiURL: 'https://api.getsturdy.com',
   syncURL: 'ssh://sync.getsturdy.com',
 }
+
 const selfhosted: HostConfig = {
   title: 'Self-hosted',
   host: 'localhost:30080',
 }
 
 const hostFromConfig = (hostConfig: HostConfig): Host => {
-  try {
+  if (isValidShortHostConfig(hostConfig as ShortHostConfig)) {
     const config = hostConfig as ShortHostConfig
     validateShortHostConfig(config)
 
-    // With user defined protocol
-    const hasProto = config.host.startsWith('https://') || config.host.startsWith('http://')
-    if (hasProto) {
-      const webURL = new URL(`${config.host}`)
-      const apiURL = new URL(`${config.host}/api`)
-      const syncURL = new URL(`ssh://${webURL.hostname}:${webURL.port}`)
+    let webApiProto = 'http:'
 
-      return new Host({
-        title: hostConfig.title,
-        webURL,
-        apiURL,
-        syncURL,
-      })
+    let baseHost = config.host
+    if (config.host.startsWith('https://') || config.host.startsWith('http://')) {
+      const webURL = new URL(`${config.host}`)
+      webApiProto = webURL.protocol
+    } else {
+      baseHost = 'http://' + baseHost
     }
 
-    // With default protocol
+    const configURL = new URL(baseHost)
+
+    let port = '80'
+    if (config.host.startsWith('https://')) {
+      port = '443'
+    }
+    if (configURL.port) {
+      port = configURL.port
+    }
+
+    const webURLStr = `${webApiProto}//${configURL.hostname}:${port}`
+    console.log('webURL', webURLStr)
+    const webURL = new URL(webURLStr)
+
+    const apiURLStr = `${webApiProto}//${configURL.hostname}:${port}/api`
+    console.log('apiURL', apiURLStr)
+    const apiURL = new URL(apiURLStr)
+
+    const syncURLStr = `ssh://${apiURL.hostname}:${port}`
+    console.log('syncURL', syncURLStr)
+    const syncURL = new URL(syncURLStr)
+
     return new Host({
       title: hostConfig.title,
-      webURL: new URL(`http://${config.host}`),
-      apiURL: new URL(`http://${config.host}/api`),
-      syncURL: new URL(`ssh://${config.host}`),
-    })
-  } catch (e) {
-    const config = hostConfig as DetailedHostConfig
-    validateDetailedHostConfig(config)
-    return new Host({
-      title: hostConfig.title,
-      webURL: new URL(config.webURL),
-      apiURL: new URL(config.apiURL),
-      syncURL: new URL(config.syncURL),
+      webURL,
+      apiURL,
+      syncURL,
     })
   }
+
+  // is detailed config
+
+  const detailedConfig = hostConfig as DetailedHostConfig
+  validateDetailedHostConfig(detailedConfig)
+
+  return new Host({
+    title: hostConfig.title,
+    webURL: new URL(detailedConfig.webURL),
+    apiURL: new URL(detailedConfig.apiURL),
+    syncURL: new URL(detailedConfig.syncURL),
+  })
 }
 
 const defaultConfig = {
