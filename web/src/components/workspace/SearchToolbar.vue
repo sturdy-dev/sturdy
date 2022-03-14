@@ -27,7 +27,6 @@
             placeholder="Search"
             @keyup.enter="searchKeyUpEnter"
             @keyup.esc="searchStop"
-            @keyup="emitSearch"
           />
         </div>
       </div>
@@ -129,10 +128,12 @@ export default defineComponent({
     searchNext() {
       this.searchCurrentIdx++
       this.searchScrollTo()
+      this.emitSearch()
     },
     searchPrev() {
       this.searchCurrentIdx--
       this.searchScrollTo()
+      this.emitSearch()
     },
     searchScrollTo() {
       let allMatches = document.getElementsByClassName('sturdy-searchmatch')

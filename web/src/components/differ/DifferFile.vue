@@ -287,6 +287,7 @@ import {
   DifferFile_FileDiffFragment,
   DifferFile_SuggestionFragment,
 } from './__generated__/DifferFile'
+import {searchMatches} from "./DifferHelper";
 
 type SuggestionHunk = DifferFile_SuggestionFragment['diffs'][number]['hunks'][number]
 
@@ -554,62 +555,11 @@ export default defineComponent({
       ])
     },
     rowsWithSearchMatches() {
-      let res = new Set<string>()
-
-      if (!this.searchResult || this.searchResult.size === 0) {
-        return res
-      }
-
-      let endsAt = new Map<string, number[]>()
-
-      for (let hunk of this.diffs.hunks) {
-        let ends = 0
-        let started = false
-
-        // TODO: Read line by line instead of allocating a list
-        let lines = hunk.patch.split('\n')
-
-        for (let line of lines) {
-          ends += line.length + 1 // add trimmed newline
-          if (!started && line.startsWith('@@ ')) {
-            started = true
-          }
-          if (!started) {
-            continue
-          }
-          if (!endsAt.has(hunk.id)) {
-            endsAt.set(hunk.id, [ends])
-          } else {
-            let ref = endsAt.get(hunk.id)
-            if (ref) {
-              ref.push(ends)
-            }
-          }
-        }
-      }
-
-      for (const [hunkID, foundIndexes] of this.searchResult) {
-        let ends = endsAt.get(hunkID)
-        if (!ends) {
-          continue
-        }
-        for (let foundIndex of foundIndexes) {
-          for (let i = 0; i < ends.length; i++) {
-            if (foundIndex >= ends[i] && foundIndex < ends[i + 1]) {
-              res.add(hunkID + '-' + i)
-            }
-          }
-        }
-      }
-
-      return res
+      return searchMatches(this.searchResult, this.diffs.hunks);
     },
     canIgnoreFile() {
-      if (this.diffs.isNew && this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')) {
-        return true
-      }
-      return false
-    },
+      return this.diffs.isNew && this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')
+    }
   },
   created() {
     if (this.initShowSuggestionsByUser) {
@@ -736,14 +686,14 @@ export default defineComponent({
           continue
         }
         if (
-          newRow !== undefined &&
+          newRow != undefined &&
           comment.codeContext.lineIsNew &&
           comment.codeContext.lineStart === newRow
         ) {
           res.push(comment)
         }
         if (
-          oldRow !== undefined &&
+          oldRow != undefined &&
           !comment.codeContext.lineIsNew &&
           comment.codeContext.lineStart === oldRow
         ) {
@@ -762,7 +712,7 @@ export default defineComponent({
           continue
         }
         if (
-          newRow !== undefined &&
+          newRow != undefined &&
           comment.codeContext.lineIsNew === true &&
           comment.codeContext.lineStart === newRow &&
           comment.id === id
@@ -770,7 +720,7 @@ export default defineComponent({
           return true
         }
         if (
-          oldRow !== undefined &&
+          oldRow != undefined &&
           comment.codeContext.lineIsNew === false &&
           comment.codeContext.lineStart === oldRow &&
           comment.id === id
@@ -877,7 +827,7 @@ export default defineComponent({
       }
     },
     showSuggestionsByUser(userID: string | null) {
-      // Check if this component have any suggestions for this user
+      // Check if this component has any suggestions for this user
       if (!this.suggestions) {
         this.showingSuggestionsByUser = null
         return
