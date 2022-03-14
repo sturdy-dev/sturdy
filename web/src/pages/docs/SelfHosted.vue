@@ -209,27 +209,68 @@
 
         <p>Congratulations! You are now ready to use Sturdy with GitHub integration.</p>
 
-        <DocsInfoBox
-          >To learn more about how to use GitHub integration, see
-          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }"
-            >How to setup Sturdy on GitHub
+        <DocsInfoBox>
+          To learn more about how to use GitHub integration, see
+          <router-link :to="{ name: 'v2DocsHowToSetupSturdyWithGitHub' }">
+            How to setup Sturdy on GitHub
           </router-link>
         </DocsInfoBox>
+
+        <h2 id="next-steps">Next steps</h2>
+
+        <p>
+          For a getting started guide, refer to the
+          <router-link :to="{ name: 'v2DocsUsingSturdy' }">Using Sturdy</router-link>
+          page.
+        </p>
 
         <h2 id="read-more">Read more</h2>
 
         <ul>
           <li>
             <a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose">
-              Example configuration: Sturdy in Docker Compose</a
-            >
+              Example configuration: Sturdy in Docker Compose
+            </a>
           </li>
           <li>
             <a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose-tls">
-              Example configuration: Sturdy in Docker Compose with TLS</a
-            >
+              Example configuration: Sturdy in Docker Compose with TLS
+            </a>
           </li>
         </ul>
+
+        <h2 id="debugging">Debugging your server</h2>
+
+        <p>If you have a problem setting up Sturdy, please follow the troubleshooting guide below, or reach out on the <a href="https://discord.gg/fQcH9QAVpX">Sturdy Discord</a> for Community Support.</p>
+
+        <h3>Trouble connecting</h3>
+        <p>
+          Make sure that the server is up and running, once the server has started it will print a
+          message like
+          <pre>[api] The server is ready, open the Sturdy App to get started! 🐣</pre> If you
+          don't see this message, something might be wrong with the setup.
+        </p>
+
+        <p>
+          It's important to <strong>not</strong> run Sturdy behind a TLS or HTTPS proxy. Sturdy uses both HTTP(s)
+          (for the GraphQL API) and SSH (for file transfers) on the <strong>same port</strong>,
+          which many proxies can't handle, and will very likely interfere with the SSH connections.
+        </p>
+
+        <p>
+          To setup TLS with Sturdy set the <code>SSL_CERT</code> and
+          <code>SSL_KEY</code> environment variables when running Sturdy (<a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose-tls">example</a>).
+        </p>
+
+        <h4>Debug API connectivity</h4>
+
+        <p>To validate API connectivity run the command below. The server will respond with a 200 OK if everything is is working as it should.</p>
+        <p><pre>curl -v "https://your-server:443/api/readyz"</pre></p>
+
+        <h4>Debug syncer connectivity</h4>
+
+        <p>To validate SSH connectivity run run the command below (replace 443 with the port number that Sturdy is running on). If everything is working, the server will print <code>ping!</code> before closing the connection</p>
+        <p><pre>ssh ping@your-server -p 443</pre> </p>
 
         <h2 id="license">License</h2>
 
@@ -237,11 +278,6 @@
           The published Docker image <code>getsturdy/server</code> contains Sturdy Enterprise, and
           is licensed under the Sturdy Enterprise License.
         </p>
-
-        <h2 id="next-steps">Next steps</h2>
-        For a getting started guide, refer to the
-        <router-link :to="{ name: 'v2DocsUsingSturdy' }">Using Sturdy</router-link>
-        page.
       </div>
     </template>
   </DocumentationWithTableOfContents>
