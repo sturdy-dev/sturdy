@@ -1,1 +1,1 @@
-/bin/sh /etc/scripts/postgresql/setup.sh
+/bin/bash /etc/scripts/postgresql/setup.sh

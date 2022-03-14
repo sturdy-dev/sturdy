@@ -1,1 +1,1 @@
-/bin/sh /etc/scripts/rudolfs/setup.sh
+/bin/bash /etc/scripts/rudolfs/setup.sh
