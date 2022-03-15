@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { HostConfig } from '.'
 
 contextBridge.exposeInMainWorld('ipc', {
+  updateHostConfigs: (hostConfigs: HostConfig[]) =>
+    ipcRenderer.send('config:hosts:update', hostConfigs),
   addHostConfig: (cfg: HostConfig) => ipcRenderer.send('config:hosts:add', cfg),
   deleteHostConfig: (cfg: HostConfig) => ipcRenderer.send('config:hosts:delete', cfg),
   isHostUp: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:isUp', cfg),
