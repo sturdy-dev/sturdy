@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM debian:11.2-slim as ssh
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates=20211220-r0 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
