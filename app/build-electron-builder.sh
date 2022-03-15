@@ -41,6 +41,9 @@ if [ "$STURDY_SYNC_VERSION" == "" ]; then
 	exit 1
 fi
 
+APP_VERSION="$(jq --raw-output '.version' package.json)"
+validate_version "$APP_VERSION"
+
 if ((NOTARIZE)); then
 	setup_darwin_notarize
 fi
