@@ -133,9 +133,9 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     GOMODCACHE=/root/.cache/go-mod \
     go install -v github.com/JamesDunne/sslmux@v0.0.0-20180531161153-81a78ca8247d
 
-FROM alpine:3.15 as reproxy-builder
+FROM debian:11.2-slim  as reproxy-builder
 ARG REPROXY_VERSION="v0.11.0"
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
     ARCH='arm64'; \
     REPROXY_SHA256_SUM='35dd1cc3568533a0b6e1109e7ba630d60e2e39716eea28d3961c02f0feafee8e'; \
@@ -143,6 +143,7 @@ RUN if [[ "$(uname -m)" == 'aarch64' ]]; then \
     ARCH='x86_64'; \
     REPROXY_SHA256_SUM='100a1389882b8ab68ae94f37e9222f5f928ece299d8cfdf5b26c9f12f902c23a'; \
     fi \
+    && apt-get update && apt-get install -y wget \
     && wget --quiet --output-document "/tmp/reproxy.tar.gz" "https://github.com/umputun/reproxy/releases/download/${REPROXY_VERSION}/reproxy_${REPROXY_VERSION}_linux_${ARCH}.tar.gz" \
     && sha256sum "/tmp/reproxy.tar.gz" \
     && echo "${REPROXY_SHA256_SUM}  /tmp/reproxy.tar.gz" | sha256sum -c \
@@ -178,21 +179,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
 ENV LD_LIBRARY_PATH=/usr/local/lib
-# use the correct binary depending on the architecture. we do this to avoid building amd64 version ourselves, 
-# as it requires us to run qemu emulation which is very slow.
-ARG TARGETARCH
-COPY --from=rudolfs-builder-arm64 /build/rudolfs /arm64/rudolfs
-COPY --from=rudolfs-builder-amd64 /rudolfs /amd64/rudolfs
-RUN cp "/${TARGETARCH}/rudolfs" /usr/bin/rudolfs
-COPY --from=api-builder /usr/bin/api /usr/bin/api
-COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
-COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
-COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
-COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
-COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
-COPY --from=web-builder /web/dist/oneliner /web/dist
-COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
-COPY --from=sslmux-builder /go/bin/sslmux /usr/bin/sslmux
+
 # s6-overlay
 ARG S6_OVERLAY_VERSION="3.0.0.2" \
     S6_OVERLAY_NOARCH_SHA256_SUM="17880e4bfaf6499cd1804ac3a6e245fd62bc2234deadf8ff4262f4e01e3ee521" \
@@ -228,6 +215,23 @@ RUN ARCH="$(uname -m)" \
     && tar -C / -Jxpf "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz" \
     && rm "/tmp/s6-overlay-symlinks-arch-${S6_OVERLAY_VERSION}.tar.xz"
 COPY oneliner/etc /etc
+
+# use the correct binary depending on the architecture. we do this to avoid building amd64 version ourselves,
+# as it requires us to run qemu emulation which is very slow.
+ARG TARGETARCH
+COPY --from=rudolfs-builder-arm64 /build/rudolfs /arm64/rudolfs
+COPY --from=rudolfs-builder-amd64 /rudolfs /amd64/rudolfs
+RUN cp "/${TARGETARCH}/rudolfs" /usr/bin/rudolfs
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta
+COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
+COPY --from=sslmux-builder /go/bin/sslmux /usr/bin/sslmux
+COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
+COPY --from=web-builder /web/dist/oneliner /web/dist
+COPY --from=api-builder /usr/bin/api /usr/bin/api
+
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
     LC_ALL="C" \
@@ -240,8 +244,9 @@ ENV LANG="en_US.UTF-8" \
     STURDY_GITHUB_APP_PRIVATE_KEY_PATH= \
     STURDY_API_ALLOW_CORS_ORIGINS=http://127.0.0.1:80 \
     STURDY_ANALYTICS_DISABLE=false
-# 80 is a port for web, api and ssh
-# 22 is a port for ssh
-EXPOSE 80 22
+
+# Expose sslmux on port 7000, acting as the entrypoint to the application
+EXPOSE 7000
+
 VOLUME [ "/var/data" ]
 ENTRYPOINT [ "/init" ]

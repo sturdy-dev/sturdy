@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# DEPRECATED - sslmux80 (listens on port 80) has been deprecated by sslmux (listens on port 7000)
+# TODO(gustav): remove sslmux80 at some point in the future (2022-03-14)
+
+# Port 80 - All incoming connections, redirected to port 22 (SSH) or 7002 (HTTPS/HTTP)
+
+exec 2>&1
+exec sslmux \
+	-l tcp://0.0.0.0:80 \
+	-ssh tcp://localhost:22 \
+	-https tcp://localhost:7002 \
+	-others tcp://localhost:7002

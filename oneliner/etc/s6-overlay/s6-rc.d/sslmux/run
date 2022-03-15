@@ -1,13 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
 # proxy all ssh connections to the ssh server
 # proxy all other connections to reproxy
 
+# Port 7000 - All incoming connections, redirected to port 22 (SSH) or 7002 (HTTPS/HTTP)
+
 exec 2>&1
 exec sslmux \
-	-l tcp://0.0.0.0:80 \
+	-l tcp://0.0.0.0:7000 \
 	-ssh tcp://localhost:22 \
-	-https tcp://localhost:8080 \
-	-others tcp://localhost:8080
+	-https tcp://localhost:7002 \
+	-others tcp://localhost:7002

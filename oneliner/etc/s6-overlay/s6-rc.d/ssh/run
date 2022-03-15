@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# Port 22 - Incoming SSH connections
+# Port 7060 - pprof
+
 exec 2>&1
 exec ssh \
   --ssh-listen-addr="0.0.0.0:22" \

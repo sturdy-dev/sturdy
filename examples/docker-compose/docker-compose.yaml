@@ -6,7 +6,8 @@ services:
     volumes:
       - sturdy-data:/var/data
     ports:
-      - 30080:80
+      # Listen on port 80 and forward traffic to Sturdy on port 7000
+      - "80:7000"
 
 volumes:
   sturdy-data:
