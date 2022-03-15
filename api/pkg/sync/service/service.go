@@ -266,6 +266,7 @@ func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codeba
 	if _, err := svc.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted,
 		snapshotter.WithOnView(viewID),
 		snapshotter.WithOnRepo(repo),
+		snapshotter.WithMarkAsLatestInWorkspace(),
 	); err != nil {
 		svc.logger.Error("failed to snapshot", zap.Error(err))
 		// Don't fail
