@@ -49,6 +49,11 @@ while [[ $# -gt 0 ]]; do
 		shift
 		shift
 		;;
+	--image)
+		IMAGE="$2"
+		shift
+		shift
+		;;
 	--push)
 		PUSH_ARG="--push"
 		shift
@@ -62,8 +67,9 @@ if [[ -z "$VERSION" ]]; then
 	exit 1
 fi
 
-echo "version: $VERSION"
-sleep 0.5
+echo "image: ${IMAGE}"
+echo "version: ${VERSION}"
+sleep 1
 echo
 
 docker buildx build \
