@@ -1,7 +1,15 @@
 <template>
   <div
+    :id="diffs.id"
     class="d2h-file-wrapper bg-white rounded-md border border-gray-200 z-0 relative overflow-y-hidden overflow-x-auto"
-    :class="extraClasses"
+    :class="[
+      extraClasses,
+      searchIsCurrentSelectedFilename(diffs.id)
+        ? '!bg-yellow-400 font-bold sturdy-searchmatch'
+        : searchMatchesFiles(diffs.id)
+        ? '!bg-yellow-200 font-bold sturdy-searchmatch'
+        : '',
+    ]"
     :style="[fileDropdownOpen ? 'min-height: 180px' : '']"
     @mouseleave="hideMakeNewCommentPill"
   >
@@ -287,7 +295,7 @@ import {
   DifferFile_FileDiffFragment,
   DifferFile_SuggestionFragment,
 } from './__generated__/DifferFile'
-import {searchMatches} from "./DifferHelper";
+import { searchMatches } from './DifferHelper'
 
 type SuggestionHunk = DifferFile_SuggestionFragment['diffs'][number]['hunks'][number]
 
@@ -555,11 +563,11 @@ export default defineComponent({
       ])
     },
     rowsWithSearchMatches() {
-      return searchMatches(this.searchResult, this.diffs.hunks);
+      return searchMatches(this.searchResult, this.diffs.hunks)
     },
     canIgnoreFile() {
       return this.diffs.isNew && this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')
-    }
+    },
   },
   created() {
     if (this.initShowSuggestionsByUser) {
@@ -848,6 +856,16 @@ export default defineComponent({
       }
 
       this.showingSuggestionsByUser = userID
+    },
+    searchMatchesFiles(fileName: string): boolean {
+      if (!this.searchResult) {
+        return false
+      }
+
+      return this.searchResult.has(fileName)
+    },
+    searchIsCurrentSelectedFilename(filename: string): boolean {
+      return this.searchCurrentSelectedId === filename
     },
     searchMatchesHunk(hunkID: string): boolean {
       if (!this.searchResult) {
