@@ -549,7 +549,6 @@ func TestPRHighLevel(t *testing.T) {
 			ws, err := workspaceRepo.Get(workspaceID)
 			assert.NoError(t, err)
 			assert.Nil(t, ws.UpToDateWithTrunk)
-			assert.Empty(t, ws.DraftDescription) // draft message is reset after push event
 
 			// The workspace should no longer have any comments
 			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: b(true)})
