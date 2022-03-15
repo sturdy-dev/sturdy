@@ -63,6 +63,7 @@ FROM debian:11.2-slim as api
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     git-lfs=2.13.2-1+b5 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
 ENV LD_LIBRARY_PATH=/usr/local/lib
