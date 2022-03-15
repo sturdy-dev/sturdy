@@ -225,7 +225,7 @@ RUN cp "/${TARGETARCH}/rudolfs" /usr/bin/rudolfs
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta2 /usr/bin/mutagen-agent-v0.12.0-beta2
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen-agent-v0.12.0-beta6
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
-COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta
+COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 COPY --from=reproxy-builder /usr/bin/reproxy /usr/bin/reproxy
 COPY --from=sslmux-builder /go/bin/sslmux /usr/bin/sslmux
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
