@@ -176,6 +176,10 @@ export default defineComponent({
       let matchesCount = 0
 
       for (const diff of this.diffs) {
+        if (diff.preferredName.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+          result.set(diff.id, [])
+          matchesCount += 1
+        }
         for (const hunk of diff.hunks) {
           const idx = getIndicesOf(this.searchQuery, hunk.patch, false)
           if (idx.length > 0) {
