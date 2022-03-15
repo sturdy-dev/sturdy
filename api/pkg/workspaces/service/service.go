@@ -521,15 +521,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// TODO: We can start to remove the metadata from commit messages, it's not used anymore
-	changeMeta := changes.ChangeMetadata{
-		Description: message.CommitMessage(ws.DraftDescription),
-		UserID:      user.ID,
-	}
-	if ws.ViewID != nil {
-		changeMeta.ViewID = *ws.ViewID
-	}
-	gitCommitMessage := changeMeta.ToCommitMessage()
+	gitCommitMessage := message.CommitMessage(ws.DraftDescription)
 
 	signature := git.Signature{
 		Name:  user.Name,

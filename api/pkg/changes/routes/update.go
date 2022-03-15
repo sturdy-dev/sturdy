@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strings"
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
@@ -69,8 +68,8 @@ func Update(
 
 			// Use the first line as the title
 			cleanCommitMessage := message.CommitMessage(req.UpdatedDescription)
-			cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
-			ch.Title = &cleanCommitMessageTitle
+			title := message.Title(cleanCommitMessage)
+			ch.Title = &title
 		}
 
 		err = changeRepo.Update(ctx, *ch)
