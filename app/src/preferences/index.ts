@@ -5,6 +5,7 @@ import { readFile, writeFile } from 'fs/promises'
 import { dataPath } from '../resources'
 import { Host } from '../application'
 import { TypedEventEmitter } from '../TypedEventEmitter'
+import ElectronWindowState from 'electron-window-state'
 
 type DetailedHostConfig = {
   webURL: string
@@ -66,24 +67,23 @@ const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHos
   return hostConfig
 }
 
-type migration = (cfg: Config) => Config
+type migration = (cfg: HostConfig[]) => HostConfig[]
 
-const updateSelfHosted = (cfg: Config): Config => {
-  return {
-    hosts: [
-      ...cfg.hosts.filter((h) => h.title !== 'Self-hosted'),
-      {
-        title: 'Self-hosted',
-        host: 'localhost:30080',
-      },
-    ],
-  }
+const updateSelfHosted: migration = (cfg: HostConfig[]) =>
+  cfg.map((host) => {
+    if (host.title !== 'Self Hosted') {
+      return host
+    }
+    return { title: host.title, host: 'locahost:30080' }
+  })
+
+const migrations: Record<string, migration> = {
+  'update-default-selfhosted-url': updateSelfHosted,
 }
-
-const migrations: migration[] = [updateSelfHosted]
 
 type Config = {
   hosts: HostConfig[]
+  appliedMigrations?: string[]
 }
 
 const development: HostConfig = {
@@ -105,6 +105,9 @@ const selfhosted: HostConfig = {
   host: 'localhost:30080',
 }
 
+const httpsPort = '443',
+  httpPort = '80'
+
 const hostFromConfig = (hostConfig: HostConfig): Host => {
   if (isValidShortHostConfig(hostConfig as ShortHostConfig)) {
     const config = hostConfig as ShortHostConfig
@@ -122,24 +125,19 @@ const hostFromConfig = (hostConfig: HostConfig): Host => {
 
     const configURL = new URL(baseHost)
 
-    let port = '80'
-    if (config.host.startsWith('https://')) {
-      port = '443'
-    }
-    if (configURL.port) {
-      port = configURL.port
-    }
+    const port = configURL.port
+      ? configURL.port
+      : config.host.startsWith('https://')
+      ? httpsPort
+      : httpPort
 
     const webURLStr = `${webApiProto}//${configURL.hostname}:${port}`
-    console.log('webURL', webURLStr)
     const webURL = new URL(webURLStr)
 
     const apiURLStr = `${webApiProto}//${configURL.hostname}:${port}/api`
-    console.log('apiURL', apiURLStr)
     const apiURL = new URL(apiURLStr)
 
     const syncURLStr = `ssh://${apiURL.hostname}:${port}`
-    console.log('syncURL', syncURLStr)
     const syncURL = new URL(syncURLStr)
 
     return new Host({
@@ -196,22 +194,41 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   static async open(logger: Logger) {
-    let cfg = await this.#read()
-    cfg = await this.migrate(cfg)
+    const cfg = await this.#read(logger).then((cfg) =>
+      this.migrate(logger.withPrefix('migrate'), cfg)
+    )
     return new Preferences(logger, cfg)
   }
 
-  static async migrate(cfg: Config) {
-    for (const migration of migrations) {
-      cfg = migration(cfg)
+  static async migrate(logger: Logger, cfg: Config): Promise<Config> {
+    const migrationsToApply = Object.entries(migrations).filter(
+      ([key, _]) => !cfg.appliedMigrations?.includes(key)
+    )
+    if (migrationsToApply.length === 0) {
+      return cfg
     }
+
+    cfg = migrationsToApply.reduce((cfg, [migrationName, migrate]) => {
+      logger.log(`applying ${migrationName}`)
+      cfg.hosts = migrate(cfg.hosts)
+      if (cfg.appliedMigrations) {
+        cfg.appliedMigrations.push(migrationName)
+      } else {
+        cfg.appliedMigrations = [migrationName]
+      }
+      return cfg
+    }, cfg)
+
     await writeFile(preferencesPath, JSON.stringify(cfg, null, 2))
+    logger.log(`write config to ${preferencesPath}`, cfg)
     return cfg
   }
 
-  static async #read(): Promise<Config> {
+  static async #read(logger: Logger): Promise<Config> {
     try {
-      return JSON.parse(await readFile(preferencesPath, 'utf8'))
+      const cfg = JSON.parse(await readFile(preferencesPath, 'utf8'))
+      logger.log(`read config from ${preferencesPath}`, cfg)
+      return cfg
     } catch (e) {
       if ((e as any).code === 'ENOENT') {
         return defaultConfig
@@ -245,9 +262,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   async #openHost(hostConfig: HostConfig) {
-    console.log('openHost', hostConfig)
     const host = hostFromConfig(hostConfig)
-    console.log('host', host)
     this.emit('open', host)
     this.emit('hostsChanged', this.#hosts)
   }
@@ -265,21 +280,27 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     }
     this.#config.hosts.splice(index, 1)
     this.#hosts.splice(index, 1)
-    this.emit('hostsChanged', this.#hosts)
     await this.#saveConfig(this.#config)
   }
 
   async #handleAddHostConfig(hostConfig: HostConfig) {
-    hostConfig = validateHostConfig(hostConfig)
+    validateHostConfig(hostConfig)
     this.#config.hosts.push(hostConfig)
     this.#hosts.push(hostFromConfig(hostConfig))
-    this.emit('hostsChanged', this.#hosts)
     await this.#saveConfig(this.#config)
   }
 
   async #saveConfig(config: Config) {
-    this.emit('hostsChanged', this.#hosts)
+    this.#logger.log(`write config to ${preferencesPath}`, config)
     await writeFile(preferencesPath, JSON.stringify(config, null, 2))
+    this.emit('hostsChanged', this.#hosts)
+  }
+
+  async updateHostConfigs(hostConfigs: HostConfig[]) {
+    hostConfigs.forEach(validateHostConfig)
+    this.#config.hosts = hostConfigs
+    this.#hosts = hostConfigs.map(hostFromConfig)
+    await this.#saveConfig(this.#config)
   }
 
   get config() {
@@ -287,12 +308,15 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   #newWindow() {
+    const windowState = ElectronWindowState({
+      defaultHeight: 320,
+      defaultWidth: 640,
+      file: 'preference-window.json',
+    })
     const window = new BrowserWindow({
-      width: 640,
-      height: 320,
       minWidth: 640,
-      maxWidth: 640,
-      minHeight: 230,
+      minHeight: 320,
+      ...windowState,
       webPreferences: {
         nodeIntegration: true,
         devTools: !app.isPackaged,

@@ -212,6 +212,19 @@ async function main() {
   manager.on('switch', async (application: Application) => {
     tray.setContextMenu(menu(application))
     await application.open()
+
+    // move the host up in the list, so next time app relaunches it will be the first one to open
+    const reorderedHosts = preferences.config.hosts.sort(({ title: titleA }, { title: titleB }) => {
+      if (titleA === application.host.title) {
+        return -1
+      }
+      if (titleB === application.host.title) {
+        return 1
+      }
+      return 0
+    })
+
+    await preferences.updateHostConfigs(reorderedHosts)
   })
 
   preferences.on('hostsChanged', (hosts) => {
