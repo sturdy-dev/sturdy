@@ -51,8 +51,8 @@ COPY ./api/go.sum ./go.sum
 ARG API_BUILD_TAGS
 ARG VERSION
 COPY ./api ./
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/root/.cache/go-mod \
+RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build \
+    --mount=type=cache,target=/root/.cache/go-mod,id=go-cache \
     GOMODCACHE=/root/.cache/go-mod \
     go build \
     -tags "${API_BUILD_TAGS},static,system_libgit2" \
