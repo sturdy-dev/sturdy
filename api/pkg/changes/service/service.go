@@ -103,12 +103,12 @@ func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspaces
 	t := time.Now()
 
 	cleanCommitMessage := message.CommitMessage(ws.DraftDescription)
-	cleanCommitMessageTitle := strings.Split(cleanCommitMessage, "\n")[0]
+	title := message.Title(cleanCommitMessage)
 
 	changeChange := changes.Change{
 		ID:                 changeID,
 		CodebaseID:         ws.CodebaseID,
-		Title:              &cleanCommitMessageTitle,
+		Title:              &title,
 		UpdatedDescription: ws.DraftDescription,
 		UserID:             &ws.UserID,
 		CreatedAt:          &t,
@@ -298,18 +298,16 @@ func (svc *Service) importCommitToChange(ctx context.Context, codebaseID, commit
 		return nil, ErrNotFound
 	}
 
-	meta := changes.ParseCommitMessage(details.Message)
-	title := firstLine(meta.Description)
-
-	desc := meta.Description
-	desc = strings.ReplaceAll(desc, "\n", "<br>")
+	description := strings.TrimSpace(details.Message)
+	title := message.Title(description)
+	description = strings.NewReplacer("\r\n", "<br>", "\n", "<br>").Replace(description)
 
 	// CreateWithCommitAsParent change!
 	ch := changes.Change{
 		ID:                 changes.ID(uuid.NewString()),
 		CodebaseID:         codebaseID,
 		Title:              &title,
-		UpdatedDescription: desc,
+		UpdatedDescription: description,
 		UserID:             nil,
 		CreatedAt:          nil, // Set?
 		GitCreatedAt:       &details.Author.When,
@@ -325,14 +323,6 @@ func (svc *Service) importCommitToChange(ctx context.Context, codebaseID, commit
 	}
 
 	return &ch, nil
-}
-
-func firstLine(in string) string {
-	idx := strings.IndexByte(in, '\n')
-	if idx < 0 {
-		return in
-	}
-	return in[0:idx]
 }
 
 func (svc *Service) Diffs(ctx context.Context, ch *changes.Change, allower *unidiff.Allower) ([]unidiff.FileDiff, error) {

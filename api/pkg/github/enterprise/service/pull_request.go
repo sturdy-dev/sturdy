@@ -9,7 +9,6 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/changes/message"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebase"
@@ -185,15 +184,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		remoteBranchName = prs[0].Head
 	}
 
-	meta := changes.ChangeMetadata{
-		Description: message.CommitMessage(ws.DraftDescription),
-		UserID:      userID,
-		WorkspaceID: ws.ID,
-	}
-	if ws.ViewID != nil {
-		meta.ViewID = *ws.ViewID
-	}
-	gitCommitMessage := meta.ToCommitMessage()
+	gitCommitMessage := message.CommitMessage(ws.DraftDescription)
 
 	var prSHA string
 	if ws.ViewID == nil && ws.LatestSnapshotID != nil {

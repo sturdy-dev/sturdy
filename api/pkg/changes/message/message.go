@@ -28,5 +28,15 @@ func CommitMessage(draftDescription string) string {
 		// bluemonday normalizes all newlines to \n
 		// We want to have Windows-compatible newlines, so replace all \n with \r\n
 		strings.ReplaceAll(sanitized, "\n", "\r\n"),
-	)
+	) + "\r\n\r\nCreated with Sturdy"
+}
+
+func Title(in string) string {
+	if idx := strings.Index(in, "\r\n"); idx > 0 {
+		return strings.TrimSpace(in[0:idx])
+	}
+	if idx := strings.Index(in, "\n"); idx > 0 {
+		return strings.TrimSpace(in[0:idx])
+	}
+	return strings.TrimSpace(in)
 }
