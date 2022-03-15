@@ -1,9 +1,12 @@
 #!/command/with-contenv bash
 
-set -eou pipefail
+set -euo pipefail
 
 # serve the static files as an SPA
 # proxy /api/* http calls to the backend
+
+# Port 7002 - HTTP and HTTPS traffic (HTTPS if SSL_TYPE is set to auto or static)
+# Port 7001 - HTTP for ACME challenges
 
 exec 2>&1
 exec reproxy \
@@ -13,12 +16,13 @@ exec reproxy \
 	--static.rule='*,^/api/(.*),http://127.0.0.1:3000/$1,' \
 	--gzip \
 	--logger.stdout \
-	--timeout.read-header=60s \
-	--timeout.write=60s \
-	--timeout.idle=60s \
-	--timeout.dial=60s \
-	--timeout.keep-alive=60s \
-	--timeout.resp-header=60s \
-	--timeout.idle-conn=90s \
-    --max=0 \
-	--listen="127.0.0.1:8080"
+  --timeout.read-header=60s \
+  --timeout.write=60s \
+  --timeout.idle=60s \
+  --timeout.dial=60s \
+  --timeout.keep-alive=60s \
+  --timeout.resp-header=60s \
+  --timeout.idle-conn=90s \
+  --max=0 \
+	--listen="0.0.0.0:7002" \
+	--ssl.http-port 7001

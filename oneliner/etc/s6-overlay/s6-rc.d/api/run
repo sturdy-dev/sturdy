@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Port 3000 - GraphQL API
+# Port 3001 - Git API
+
 flags=""
 flags="$flags --vcs.repos-path=/var/data/repos"
 flags="$flags --http.addr=127.0.0.1:3000"

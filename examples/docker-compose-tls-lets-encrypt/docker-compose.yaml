@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sturdy:
+    image: getsturdy/server:latest
+    pull_policy: always
+    volumes:
+      - sturdy-data:/var/data
+    ports:
+      # Listen on port 443, and forward to Sturdy on port 7000
+      - "443:7000"
+      # The server must listen on port 80 to accept Let's Encrypt http01 challenges, forward to Sturdy on port 7001.
+      # HTTP requests to this port will be redirected to port 443.
+      - "80:7001"
+    environment:
+      SSL_TYPE: auto # Set to "auto" to enable ACME / Let's Encrypt
+      SSL_ACME_LOCATION: /var/data/acme # Location to store certificates in
+      SSL_ACME_EMAIL: you@example.com # Email address used for notifications from Let's Encrypt
+      SSL_ACME_FQDN: "sturdy.example.com" # Set to your domain name to issue certificates for
+      STURDY_API_ALLOW_CORS_ORIGINS: "https://sturdy.example.com"
+      DEBUG: 1 # Set to 1 to enable debug information from reproxy
+
+volumes:
+  sturdy-data:
+    driver: local

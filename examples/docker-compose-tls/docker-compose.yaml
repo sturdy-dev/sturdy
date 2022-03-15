@@ -8,7 +8,8 @@ services:
       - sturdy-data:/var/data
       - .:/var/certs/
     ports:
-      - 30443:80
+      # Listen on port 443 and forward traffic to Sturdy on port 7000
+      - "443:7000"
     environment:
       SSL_TYPE: static
       SSL_CERT: /var/certs/mysturdy.example.com+2.pem

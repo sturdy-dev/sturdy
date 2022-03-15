@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -eou pipefail
+set -euo pipefail
+
+# Port 8888 - Git LFS Server
 
 exec 2>&1
 exec rudolfs \
