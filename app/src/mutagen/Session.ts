@@ -98,7 +98,11 @@ export class MutagenSession {
 
     this.#logger.log('subscribe to status updates')
 
-    let listener = (name: string, oldState: MutagenSessionState, newState: MutagenSessionState) => {
+    const listener = (
+      name: string,
+      oldState: MutagenSessionState,
+      newState: MutagenSessionState
+    ) => {
       if (name === this.name) {
         this.#state = newState
       }
@@ -251,30 +255,30 @@ export class MutagenSession {
     logger.log(`new session ${name}`)
     // prettier-ignore
     const args = [
-            'sync', 'create',
-            '--no-global-configuration',
-            '-c', configPath,
-            '--name', name,
-            '--label', 'sturdy=true',
-            '--label', `sessionVersion=${SESSION_VERSION_NUMBER}`,
-            '--label', `sturdyApiProto=${apiURL.protocol.slice(0, -1)}`,
-            '--label', `sturdyApiHost=${apiURL.hostname}`,
-            '--label', `sturdyApiHostPort=${apiURL.port}`,
-            '--label', `sturdyApiPrefix=${apiURL.pathname === '' ? '' : apiURL.pathname.slice(1)}`,
-            '--label', `sturdyViewId=${viewID}`,
-            '--stage-mode-beta=neighboring',
+      'sync', 'create',
+      '--no-global-configuration',
+      '-c', configPath,
+      '--name', name,
+      '--label', 'sturdy=true',
+      '--label', `sessionVersion=${SESSION_VERSION_NUMBER}`,
+      '--label', `sturdyApiProto=${apiURL.protocol.slice(0, -1)}`,
+      '--label', `sturdyApiHost=${apiURL.hostname}`,
+      '--label', `sturdyApiHostPort=${apiURL.port}`,
+      '--label', `sturdyApiPrefix=${apiURL.pathname === '' ? '' : apiURL.pathname.slice(1)}`,
+      '--label', `sturdyViewId=${viewID}`,
+      '--stage-mode-beta=neighboring',
 
-            // Alpha
-            mountPath,
+      // Alpha
+      mountPath,
 
-            // Beta
-            // Note: /repos here is a convention
-            `${userID}@${syncHostURL.host}:/repos/${codebaseID}/${viewID}/`,
-        ]
+      // Beta
+      // Note: /repos here is a convention
+      `${userID}@${syncHostURL.host}:/repos/${codebaseID}/${viewID}/`
+    ]
 
     // Create session object before calling the daemon to create it
     // This allows us to catch events from during the creation process _inside_ the MutagenSession
-    let newSession = new MutagenSession(
+    const newSession = new MutagenSession(
       logger,
       executable,
       daemon,
@@ -284,28 +288,52 @@ export class MutagenSession {
       mountPath
     )
 
-    const [, onExit] = executable.execute(args, {
-      stdio: ['ignore', 'ignore', 'ignore'],
+    const [proc, onExit] = executable.execute(args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
     })
+
+    proc.stdout.on('data', (chunk) => {
+      logger.log('mutagen session create stdout', chunk.toString())
+    })
+    proc.stderr.on('data', (chunk) => {
+      logger.log('mutagen session create stderr', chunk.toString())
+    })
+
     await onExit
 
     return newSession
   }
 
   async pause() {
-    const [, onExit] = this.#executable.execute(['sync', 'pause', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
+    const [proc, onExit] = this.#executable.execute(['sync', 'pause', this.name], {
+      stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 10000,
     })
+
+    proc.stdout.on('data', (chunk) => {
+      this.#logger.log('mutagen session pause stdout', chunk.toString())
+    })
+    proc.stderr.on('data', (chunk) => {
+      this.#logger.log('mutagen session pause stderr', chunk.toString())
+    })
+
     await onExit
     this.#unsubscribeToStateUpdates()
   }
 
   async resume() {
     this.#subscribeToStateUpdates()
-    const [, onExit] = this.#executable.execute(['sync', 'resume', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
+    const [proc, onExit] = this.#executable.execute(['sync', 'resume', this.name], {
+      stdio: ['ignore', 'pipe', 'pipe'],
     })
+
+    proc.stdout.on('data', (chunk) => {
+      this.#logger.log('mutagen session resume stdout', chunk.toString())
+    })
+    proc.stderr.on('data', (chunk) => {
+      this.#logger.log('mutagen session resume stderr', chunk.toString())
+    })
+
     await onExit
   }
 
@@ -314,10 +342,19 @@ export class MutagenSession {
   }
 
   async terminate() {
-    const [, onExit] = this.#executable.execute(['sync', 'terminate', this.name], {
-      stdio: ['ignore', 'ignore', 'ignore'],
+    const [proc, onExit] = this.#executable.execute(['sync', 'terminate', this.name], {
+      stdio: ['ignore', 'pipe', 'pipe'],
     })
+
+    proc.stdout.on('data', (chunk) => {
+      this.#logger.log('mutagen session terminate stdout', chunk.toString())
+    })
+    proc.stderr.on('data', (chunk) => {
+      this.#logger.log('mutagen session terminate stderr', chunk.toString())
+    })
+
     await onExit
+
     this.#unsubscribeToStateUpdates()
   }
 }
