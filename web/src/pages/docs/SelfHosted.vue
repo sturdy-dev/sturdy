@@ -262,6 +262,12 @@
           <code>SSL_KEY</code> environment variables when running Sturdy (<a href="https://getsturdy.com/sturdy-zyTDsnY/browse/examples/docker-compose-tls">example</a>).
         </p>
 
+        <h4>Setup CORS</h4>
+        <p>
+          When running Sturdy on non-localhost, you need to configure the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS-header</a>.
+          Set the <code>STURDY_API_ALLOW_CORS_ORIGINS</code> environment variable to the host that you're running Sturdy on (example: <code>https://sturdy.example.com</code>).
+        </p>
+
         <h4>Debug API connectivity</h4>
 
         <p>To validate API connectivity run the command below. The server will respond with a 200 OK if everything is is working as it should.</p>
