@@ -39,7 +39,6 @@
 </template>
 
 <script>
-import { add as addServer } from '../stores/servers'
 import ipc from '../ipc'
 
 export default {
@@ -52,6 +51,7 @@ export default {
       hostActivated: false,
     }
   },
+  emits: ['error', 'success'],
   watch: {
     title(n) {
       if (n.length > 0) {
@@ -90,12 +90,18 @@ export default {
     },
   },
   methods: {
-    handleAdd() {
+    async handleAdd() {
       if (!this.isValid) return
 
-      addServer(this.hostConfig)
-      ipc.addHostConfig(this.hostConfig)
+      try {
+        await ipc.addHostConfig(this.hostConfig)
+      } catch (e) {
+        const errorMessage = e.message.split('Error:').slice(-1)[0]
+        this.$emit('error', errorMessage)
+        return
+      }
 
+      this.$emit('success', this.hostConfig)
       this.resetValues()
       this.resetActivated()
     },

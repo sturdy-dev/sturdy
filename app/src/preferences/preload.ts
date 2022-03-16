@@ -2,11 +2,9 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { HostConfig } from '.'
 
 contextBridge.exposeInMainWorld('ipc', {
-  updateHostConfigs: (hostConfigs: HostConfig[]) =>
-    ipcRenderer.send('config:hosts:update', hostConfigs),
-  addHostConfig: (cfg: HostConfig) => ipcRenderer.send('config:hosts:add', cfg),
-  deleteHostConfig: (cfg: HostConfig) => ipcRenderer.send('config:hosts:delete', cfg),
+  addHostConfig: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:add', cfg),
+  deleteHostConfig: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:delete', cfg),
   isHostUp: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:isUp', cfg),
-  listHosts: () => ipcRenderer.invoke('config:hosts:list'),
-  openHost: (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:open', cfg),
+  listHosts: async () => ipcRenderer.invoke('config:hosts:list'),
+  openHost: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:open', cfg),
 })
