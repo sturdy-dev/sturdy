@@ -143,8 +143,13 @@ func New(
 }
 
 func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullRequestEvent) error {
+	ghRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
+	if err != nil {
+		return fmt.Errorf("could not get installation: %w", err)
+	}
+
 	apiPR := event.GetPullRequest()
-	pr, err := svc.gitHubPullRequestRepo.GetByGitHubID(apiPR.GetID())
+	pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(apiPR.GetID(), ghRepo.CodebaseID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil // noop
 	} else if err != nil {

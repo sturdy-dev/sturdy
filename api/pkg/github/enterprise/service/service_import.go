@@ -84,7 +84,7 @@ var ErrAlreadyImported = errors.New("pull request has already been imported")
 
 func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.Repository, ghInstallation *github.Installation, accessToken string) error {
 	// check that this pull request hasn't been imported before
-	if _, err := svc.gitHubPullRequestRepo.GetByGitHubID(gitHubPR.GetID()); err == nil {
+	if _, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(gitHubPR.GetID(), codebaseID); err == nil {
 		return ErrAlreadyImported
 	} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("failed to check if pr is imported: %w", err)

@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"database/sql"
+
 	"getsturdy.com/api/pkg/github"
 )
 
@@ -17,7 +18,7 @@ type inMemoryGithubRepositoryRepo struct {
 
 func (i *inMemoryGithubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error) {
 	for _, r := range i.repos {
-		if r.InstallationID == installationID && r.GitHubRepositoryID == gitHubRepositoryID {
+		if r.InstallationID == installationID && r.GitHubRepositoryID == gitHubRepositoryID && r.DeletedAt == nil {
 			return &r, nil
 		}
 	}
@@ -30,7 +31,7 @@ func (i *inMemoryGithubRepositoryRepo) GetByInstallationAndName(installationID i
 
 func (i *inMemoryGithubRepositoryRepo) GetByCodebaseID(codebaseID string) (*github.Repository, error) {
 	for _, r := range i.repos {
-		if r.CodebaseID == codebaseID {
+		if r.CodebaseID == codebaseID && r.DeletedAt == nil {
 			return &r, nil
 		}
 	}
@@ -39,7 +40,7 @@ func (i *inMemoryGithubRepositoryRepo) GetByCodebaseID(codebaseID string) (*gith
 
 func (i *inMemoryGithubRepositoryRepo) GetByID(ID string) (*github.Repository, error) {
 	for _, r := range i.repos {
-		if r.ID == ID {
+		if r.ID == ID && r.DeletedAt == nil {
 			return &r, nil
 		}
 	}

@@ -192,10 +192,22 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 	if repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID()); errors.Is(err, sql.ErrNoRows) {
 		// no repo found, set it up!
 	} else if err != nil {
-		return nil, fmt.Errorf("failed to save new repo installation: %w", err)
+		return nil, fmt.Errorf("failed to get previous repo installation: %w", err)
 	} else {
-		// repo already exists, return the codebase
-		return svc.codebaseRepo.Get(repo.CodebaseID)
+
+		// if the existing repo is archived, remove the previous connection, and allow to setup the repo from scratch
+		if cb, err := svc.codebaseRepo.GetAllowArchived(repo.CodebaseID); err == nil && cb.ArchivedAt != nil {
+			t := time.Now()
+			repo.DeletedAt = &t
+			if err := svc.gitHubRepositoryRepo.Update(repo); err != nil {
+				return nil, fmt.Errorf("failed to mark existing repo as deleted: %w", err)
+			}
+
+			// no return, setup as new repo
+		} else {
+			// repo already exists (and is not archived), return the codebase
+			return svc.codebaseRepo.Get(repo.CodebaseID)
+		}
 	}
 
 	svc.logger.Info("handleInstalledRepository setting up new non-ready codebase", zap.Int64("installation_ID", installationID), zap.String("gh_repo_name", ghRepo.GetName()))

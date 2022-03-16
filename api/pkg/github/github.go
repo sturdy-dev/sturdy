@@ -37,6 +37,8 @@ type Repository struct {
 
 	LastPushErrorMessage *string    `json:"-" db:"last_push_error_message"`
 	LastPushAt           *time.Time `json:"-" db:"last_push_at"`
+
+	DeletedAt *time.Time `json:"-" db:"deleted_at"`
 }
 
 type User struct {

@@ -29,7 +29,11 @@ func NewGitHubRepositoryRepo(db *sqlx.DB) GitHubRepositoryRepo {
 
 func (r *gitHubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error) {
 	var res github.Repository
-	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE installation_id = $1 AND github_repository_id = $2", installationID, gitHubRepositoryID)
+	err := r.db.Get(&res, `SELECT *
+		 FROM github_repositories
+         WHERE installation_id = $1
+           AND github_repository_id = $2
+           AND deleted_at IS NULL`, installationID, gitHubRepositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -38,7 +42,11 @@ func (r *gitHubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, 
 
 func (r *gitHubRepositoryRepo) GetByInstallationAndName(installationID int64, name string) (*github.Repository, error) {
 	var res github.Repository
-	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE installation_id = $1 AND name = $2", installationID, name)
+	err := r.db.Get(&res, `SELECT *
+		FROM github_repositories
+		WHERE installation_id = $1
+		  AND name = $2
+		  AND deleted_at IS NULL`, installationID, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -47,7 +55,7 @@ func (r *gitHubRepositoryRepo) GetByInstallationAndName(installationID int64, na
 
 func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.Repository, error) {
 	var res github.Repository
-	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE id = $1", ID)
+	err := r.db.Get(&res, `SELECT * FROM github_repositories WHERE id = $1 AND deleted_at IS NULL`, ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -56,7 +64,7 @@ func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.Repository, error) {
 
 func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.Repository, error) {
 	var res github.Repository
-	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE codebase_id = $1", repositoryID)
+	err := r.db.Get(&res, `SELECT * FROM github_repositories WHERE codebase_id = $1 AND deleted_at IS NULL`, repositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -65,7 +73,7 @@ func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.Rep
 
 func (r *gitHubRepositoryRepo) ListByInstallationID(installationID int64) ([]*github.Repository, error) {
 	var entities []*github.Repository
-	err := r.db.Select(&entities, "SELECT * FROM github_repositories WHERE installation_id = $1", installationID)
+	err := r.db.Select(&entities, `SELECT * FROM github_repositories WHERE installation_id = $1 AND deleted_at IS NULL`, installationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -73,7 +81,7 @@ func (r *gitHubRepositoryRepo) ListByInstallationID(installationID int64) ([]*gi
 }
 
 func (r *gitHubRepositoryRepo) ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.Repository, error) {
-	query, args, err := sqlx.In("SELECT * FROM github_repositories WHERE installation_id = ? AND github_repository_id IN(?)",
+	query, args, err := sqlx.In(`SELECT * FROM github_repositories WHERE installation_id = ? AND github_repository_id IN(?) AND deleted_at IS NULL`,
 		installationID,
 		gitHubRepositoryIDs)
 	if err != nil {
@@ -107,7 +115,8 @@ func (r *gitHubRepositoryRepo) Update(i *github.Repository) error {
 			    integration_enabled = :integration_enabled,
 			    github_source_of_truth = :github_source_of_truth,
 			    last_push_at = :last_push_at,
-			    last_push_error_message = :last_push_error_message
+			    last_push_error_message = :last_push_error_message,
+			    deleted_at = :deleted_at
 			WHERE id = :id`, i)
 	if err != nil {
 		return fmt.Errorf("failed to update repo: %w", err)
