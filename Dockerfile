@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.17.6-bullseye as ssh-builder
+FROM golang:1.18.0-bullseye as ssh-builder
 WORKDIR /go/src/ssh
 COPY ./ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
 RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -25,7 +25,7 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 
-FROM golang:1.17.6-bullseye as api-builder
+FROM golang:1.18.0-bullseye as api-builder
 # compile libgit2
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -127,7 +127,7 @@ RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn \
 COPY ./web .
 RUN yarn build:oneliner
 
-FROM golang:1.17.6-bullseye as sslmux-builder
+FROM golang:1.18.0-bullseye as sslmux-builder
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/root/.cache/go-mod \
     GOMODCACHE=/root/.cache/go-mod \
