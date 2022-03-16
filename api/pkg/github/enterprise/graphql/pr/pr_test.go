@@ -458,6 +458,9 @@ func TestPRHighLevel(t *testing.T) {
 			if assert.NotNil(t, createdPullRequestResolver) {
 				assert.True(t, createdPullRequestResolver.Open())
 				assert.False(t, createdPullRequestResolver.Merged())
+				if status, err := createdPullRequestResolver.State(); assert.NoError(t, err) {
+					assert.Equal(t, resolvers.GitHubPullRequestStateOpen, status)
+				}
 			} else {
 				t.FailNow()
 			}
@@ -481,7 +484,11 @@ func TestPRHighLevel(t *testing.T) {
 			gqlID := graphql.ID(workspaceID)
 			updatedPR, err := prResolver.InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &gqlID})
 			assert.NoError(t, err)
+			assert.False(t, updatedPR.Merged())
 			assert.False(t, updatedPR.Open())
+			if status, err := updatedPR.State(); assert.NoError(t, err) {
+				assert.Equal(t, resolvers.GitHubPullRequestStateClosed, status)
+			}
 
 			// PR was reopened
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
@@ -498,6 +505,9 @@ func TestPRHighLevel(t *testing.T) {
 			updatedPR, err = prResolver.InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &gqlID})
 			assert.NoError(t, err)
 			assert.True(t, updatedPR.Open())
+			if status, err := updatedPR.State(); assert.NoError(t, err) {
+				assert.Equal(t, resolvers.GitHubPullRequestStateOpen, status)
+			}
 
 			preMergeHeadSha, err := fakeGitHubBareRepo.BranchCommitID("master")
 			assert.NoError(t, err)
@@ -536,6 +546,9 @@ func TestPRHighLevel(t *testing.T) {
 			assert.NoError(t, err)
 			assert.False(t, updatedPR.Open())
 			assert.True(t, updatedPR.Merged())
+			if status, err := updatedPR.State(); assert.NoError(t, err) {
+				assert.Equal(t, resolvers.GitHubPullRequestStateMerged, status)
+			}
 
 			// Post-merge push webhook event
 			webhookRepoPush := gh.PushEvent{

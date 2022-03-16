@@ -287,8 +287,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 			HeadSHA:            &prSHA,
 			CodebaseID:         ghRepo.CodebaseID,
 			Base:               ghRepo.TrackedBranch,
-			Open:               true,
-			Merged:             apiPR.GetMerged(),
+			State:              github.PullRequestStateOpen,
 			CreatedAt:          time.Now(),
 		}
 		if err := svc.gitHubPullRequestRepo.Create(pr); err != nil {

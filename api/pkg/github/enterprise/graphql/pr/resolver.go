@@ -2,6 +2,7 @@ package pr
 
 import (
 	"context"
+	"fmt"
 
 	"getsturdy.com/api/pkg/github"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -20,17 +21,29 @@ func (r *prResolver) PullRequestNumber() int32 {
 }
 
 func (r *prResolver) Open() bool {
-	return r.pr.Open
+	return r.pr.State == github.PullRequestStateOpen
 }
 
 func (r *prResolver) Merged() bool {
-	return r.pr.Merged
+	return r.pr.State == github.PullRequestStateMerged
+}
+
+func (r *prResolver) State() (resolvers.GitHubPullRequestState, error) {
+	switch r.pr.State {
+	case github.PullRequestStateOpen:
+		return resolvers.GitHubPullRequestStateOpen, nil
+	case github.PullRequestStateClosed:
+		return resolvers.GitHubPullRequestStateClosed, nil
+	case github.PullRequestStateMerged:
+		return resolvers.GitHubPullRequestStateMerged, nil
+	case github.PullRequestStateMerging:
+		return resolvers.GitHubPullRequestStateMerging, nil
+	default:
+		return "", fmt.Errorf("unknown status: %s", r.pr.State)
+	}
 }
 
 func (r *prResolver) MergedAt() *int32 {
-	if !r.pr.Merged {
-		return nil
-	}
 	if r.pr.MergedAt == nil {
 		return nil
 	}
