@@ -1,4 +1,4 @@
-package enterprise
+package graphql
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package oss
+package graphql
 
 import (
 	"context"

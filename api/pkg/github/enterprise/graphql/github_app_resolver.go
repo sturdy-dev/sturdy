@@ -1,13 +1,15 @@
-package enterprise
+package graphql
 
 import (
 	"context"
+
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
-	"github.com/graph-gophers/graphql-go"
 	"sync"
+
+	"github.com/graph-gophers/graphql-go"
 )
 
 type gitHubAppRootResolver struct {
