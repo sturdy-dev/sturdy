@@ -1,5 +1,5 @@
 schema {
-    query: Query
-    subscription: Subscription
-    mutation: Mutation
+  query: Query
+  subscription: Subscription
+  mutation: Mutation
 }
