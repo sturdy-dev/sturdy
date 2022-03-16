@@ -24,7 +24,7 @@ func (r *repo) Create(entity workspaces.Workspace) error {
 		VALUES
 		(:id, :user_id, :codebase_id, :name, :created_at, :view_id, :latest_snapshot_id, :draft_description, :diffs_count)`, &entity)
 	if err != nil {
-		return fmt.Errorf("failed to perform insert: %w", err)
+		return fmt.Errorf("failed to insert workspace: %w", err)
 	}
 	return nil
 }
@@ -35,7 +35,7 @@ func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 	FROM workspaces
 	WHERE id=$1`, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to get workspace: %w", err)
 	}
 	return &entity, nil
 }
@@ -58,7 +58,7 @@ func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]
 	var views []*workspaces.Workspace
 	err = r.db.Select(&views, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to ListByCodebaseIDs: %w", err)
 	}
 	return views, nil
 }
@@ -79,7 +79,7 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 	var views []*workspaces.Workspace
 	err = r.db.Select(&views, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to ListByCodebaseIDsAndUserID: %w", err)
 	}
 	return views, nil
 }
@@ -87,7 +87,7 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
 	_, err := r.db.Exec("UPDATE workspaces SET up_to_date_with_trunk = NULL WHERE codebase_id = $1 AND archived_at IS NULL", codebaseID)
 	if err != nil {
-		return fmt.Errorf("failed to perform update: %w", err)
+		return fmt.Errorf("failed to UnsetUpToDateWithTrunkForAllInCodebase: %w", err)
 	}
 	return nil
 }
@@ -104,7 +104,7 @@ func (r *repo) GetByViewID(viewID string, includeArchived bool) (*workspaces.Wor
 	}
 	err := r.db.Get(&entity, q, viewID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to GetByViewID: %w", err)
 	}
 	return &entity, nil
 }
@@ -135,7 +135,7 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 		WHERE
 			latest_snapshot_id=$1
 	`, snapshotID); err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to GetBySnapshotID: %w", err)
 	}
 	return &entity, nil
 }
@@ -220,7 +220,7 @@ func (r *repo) UpdateFields(ctx context.Context, workspaceID string, fields ...U
 	}
 
 	if _, err := r.db.NamedExecContext(ctx, query.String(workspaceID), query.args); err != nil {
-		return fmt.Errorf("failed to perform update: %w", err)
+		return fmt.Errorf("failed to update workspace: %w", err)
 	}
 	return nil
 }
