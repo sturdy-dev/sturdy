@@ -132,6 +132,13 @@ type BuildkiteIntegrationConfiguration {
   webhookSecret: String!
 }
 
+enum GitHubPullRequestState {
+  Open
+  Closed
+  Merging
+  Merged
+}
+
 type GitHubPullRequest {
   id: ID!
   pullRequestNumber: Int!
@@ -141,6 +148,7 @@ type GitHubPullRequest {
   base: String!
   workspace: Workspace!
   statuses: [Status!]!
+  state: GitHubPullRequestState!
 }
 
 input CreateOrUpdateGitHubPullRequestInput {

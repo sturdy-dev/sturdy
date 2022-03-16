@@ -50,6 +50,22 @@ type User struct {
 	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
 }
 
+type PullRequestState string
+
+const (
+	// PullRequestStateUnknown is the default value for a pull request status.
+	PullRequestStateUnknown PullRequestState = ""
+	// PullRequestStateOpen is the status for a pull request that is open.
+	PullRequestStateOpen PullRequestState = "open"
+	// PullRequestStateClosed is the status for a pull request that is closed, not merged.
+	PullRequestStateClosed PullRequestState = "closed"
+	// PullRequestStateMerging is the status for a pull request that was merged through Sturdy,
+	// and Sturdy is waiting for GitHub's webhook to complete the merge.
+	PullRequestStateMerging PullRequestState = "merging"
+	// PullRequestStateMerged is the status for a pull request that is merged, closed.
+	PullRequestStateMerged PullRequestState = "merged"
+)
+
 type PullRequest struct {
 	ID                 string   `db:"id"`
 	WorkspaceID        string   `db:"workspace_id"`
@@ -59,15 +75,14 @@ type PullRequest struct {
 	GitHubPRNumber     int      `db:"github_pr_number"`
 	Head               string   `db:"head"`
 	// HeadSHA is empty for older pull requests.
-	HeadSHA    *string    `db:"head_sha"`
-	CodebaseID string     `db:"codebase_id"`
-	Base       string     `db:"base"`
-	Open       bool       `db:"open"`
-	Merged     bool       `db:"merged"`
-	CreatedAt  time.Time  `db:"created_at"`
-	UpdatedAt  *time.Time `db:"updated_at"`
-	ClosedAt   *time.Time `db:"closed_at"`
-	MergedAt   *time.Time `db:"merged_at"`
+	HeadSHA    *string          `db:"head_sha"`
+	CodebaseID string           `db:"codebase_id"`
+	Base       string           `db:"base"`
+	CreatedAt  time.Time        `db:"created_at"`
+	UpdatedAt  *time.Time       `db:"updated_at"`
+	ClosedAt   *time.Time       `db:"closed_at"`
+	MergedAt   *time.Time       `db:"merged_at"`
+	State      PullRequestState `db:"state"`
 }
 
 type CloneRepositoryEvent struct {

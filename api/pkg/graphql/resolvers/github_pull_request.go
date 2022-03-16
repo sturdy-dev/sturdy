@@ -53,4 +53,14 @@ type GitHubPullRequestResolver interface {
 	Base() string
 	Workspace(context.Context) (WorkspaceResolver, error)
 	Statuses(context.Context) ([]StatusResolver, error)
+	State() (GitHubPullRequestState, error)
 }
+
+type GitHubPullRequestState string
+
+const (
+	GitHubPullRequestStateOpen    GitHubPullRequestState = "Open"
+	GitHubPullRequestStateClosed  GitHubPullRequestState = "Closed"
+	GitHubPullRequestStateMerging GitHubPullRequestState = "Merging"
+	GitHubPullRequestStateMerged  GitHubPullRequestState = "Merged"
+)

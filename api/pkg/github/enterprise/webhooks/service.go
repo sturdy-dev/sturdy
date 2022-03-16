@@ -142,6 +142,20 @@ func New(
 	}
 }
 
+func getPRStatus(apiPR *PullRequest) github.PullRequestState {
+	switch apiPR.GetState() {
+	case "open":
+		return github.PullRequestStateOpen
+	case "closed":
+		if apiPR.GetMerged() {
+			return github.PullRequestStateMerged
+		}
+		return github.PullRequestStateClosed
+	default:
+		return github.PullRequestStateUnknown
+	}
+}
+
 func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullRequestEvent) error {
 	ghRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
 	if err != nil {
@@ -156,16 +170,13 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("failed to get github pull request from db: %w", err)
 	}
 
-	if apiPR.GetState() == "closed" || apiPR.GetState() == "open" {
-		pr.Open = apiPR.GetState() == "open"
-		t0 := time.Now()
-		pr.UpdatedAt = &t0
-		pr.ClosedAt = apiPR.ClosedAt
-		pr.Merged = apiPR.GetMerged()
-		pr.MergedAt = apiPR.MergedAt
-		if err := svc.gitHubPullRequestRepo.Update(pr); err != nil {
-			return fmt.Errorf("failed to update github pull request in db: %w", err)
-		}
+	now := time.Now()
+	pr.UpdatedAt = &now
+	pr.ClosedAt = apiPR.ClosedAt
+	pr.MergedAt = apiPR.MergedAt
+	pr.State = getPRStatus(apiPR)
+	if err := svc.gitHubPullRequestRepo.Update(pr); err != nil {
+		return fmt.Errorf("failed to update github pull request in db: %w", err)
 	}
 
 	ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
@@ -177,8 +188,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 	}
 
 	// import / sync workspace
-	if apiPR.GetState() == "closed" && apiPR.GetMerged() {
-
+	if pr.State == github.PullRequestStateMerged {
 		accessToken, err := svc.accessToken(event.GetInstallation().GetID(), event.GetRepo().GetID())
 		if err != nil {
 			return fmt.Errorf("failed to get github access token: %w", err)
