@@ -1,4 +1,4 @@
-FROM golang:1.17.0-buster AS builder
+FROM golang:1.18.0-buster AS builder
 
 RUN apt-get update && apt-get install -y git gcc cmake libssl-dev
 
