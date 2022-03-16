@@ -6,6 +6,7 @@
     <template #default>
       <div class="prose p-4 max-w-[800px]">
         <h1 id="using-sturdy">Using Sturdy</h1>
+
         <p>
           This tutorial takes you from setting up Sturdy with a repository from GitHub to merging a
           pull request from Sturdy. Make sure you have completed the Sturdy
@@ -18,8 +19,8 @@
         <img src="./images/UI_overview.png" width="1551" height="937" alt="Sturdy UI overview" />
         <ol>
           <li>
-            The left sidebar lists <strong>codebases</strong> and <strong>workspaces</strong> from
-            your organization &mdash; click on a codebase or workspace to navigate to it
+            The left sidebar lists <strong>codebases</strong> and open <strong>draft changes</strong> from
+            your organization &mdash; click on a codebase or draft change to navigate to it
           </li>
           <li>
             The top left corner has a icon with tree dots &mdash; click the icon to open a menu with
@@ -126,33 +127,33 @@
             src="./images/Connect_directory.png"
             width="1248"
             height="834"
-            alt="Connecting a local directory to a Sturdy workspace"
+            alt="Connecting a local directory to a Sturdy draft change"
           />
           <li>
             Select a directory where you want to have the code in. Sturdy will create a new
             directory inside the directory that you select with the same name as the codebase.
           </li>
           <li>
-            Observe that a new workspace was created with the name "Your Name's Workspace". In
-            Sturdy, work always happens inside a workspace
+            Observe that a new draft change was created with the name "Untitled Draft". In
+            Sturdy, work always happens inside a draft change.
           </li>
-          <li>Workspaces are listed in the sidebar on the left, below the codebase</li>
+          <li>Open draft changes are listed in the sidebar on the left, below the codebase</li>
           <li>Press the "Edit" button at the top of the page and rename it to "My first change"</li>
           <li>Any changes made files in the connected directory will show up here</li>
           <li>
-            The folder you chose is connected to this workspace. This is indicated at the top of the
-            workspace
+            The folder you chose is connected to this draft. This is indicated at the top of the
+            draft change page.
           </li>
         </ol>
 
         <h2 id="creating-a-change">Creating your first change</h2>
-        <p>With the workspace "My first change" selected:</p>
+        <p>With the draft change "My first change" selected:</p>
         <ol>
           <li>
             Open the connected folder on your computer with an IDE or text editor of your choice
           </li>
           <ol>
-            <li>The directory connected to this workspace is indicated at the top</li>
+            <li>The directory connected to this draft is indicated at the top</li>
             <li>
               <SubtleText>
                 <em>Optional:</em> Open the codebase in Visual Studio Code with the "Open in" button
@@ -168,12 +169,12 @@
           <li>Using your editor, open a file in the codebase and make some changes to it</li>
           <li>
             Within Sturdy &mdash; observe that changes you make are displayed as diffs in the "My
-            first change" workspace
+            first change" draft
           </li>
         </ol>
 
         <h2 id="describing-a-change">Describing your changes</h2>
-        <p>With the workspace "My first change" selected:</p>
+        <p>With the draft "My first change" selected:</p>
         <ol>
           <li>Write a description of your changes in the text box at the top</li>
           <ol>
@@ -186,14 +187,14 @@
         </ol>
 
         <h2 id="creating-and-merging-a-pull-request">Creating and merging a pull request</h2>
-        <p>With the workspace "My first change" selected and a description provided:</p>
+        <p>With the draft change "My first change" selected and a description provided:</p>
         <ol>
           <li>Click the "Create pull request" button at the top</li>
           <img
             src="./images/Before_creating_PR.png"
             height="222"
             width="1088"
-            alt="Change description in Sturdy workspaces"
+            alt="Change description in a Sturdy draft change"
           />
           <li>Two new buttons will appear ("Update pull request" and "Merge")</li>
           <li>
@@ -207,8 +208,7 @@
             alt="Managing a GitHub Pull Request from Sturdy"
           />
           <li>
-            After a few seconds the PR will be merged, you will see the change you've just created
-            and your workspace will reset be ready for the next change
+            After a few seconds the PR will be merged. A new draft change will automatically be created for you, so that you're ready to code again right away!
           </li>
         </ol>
         <DocsInfoBox>
@@ -217,7 +217,7 @@
         </DocsInfoBox>
 
         <h2 id="exploring-the-changelog">Exploring the codebase changelog</h2>
-        <p>After the pull request from the "My first change" workspace has been merged:</p>
+        <p>After the pull request from the "My first change" draft has been merged:</p>
         <ol>
           <li>
             Navigate to the codebase overview by clicking on the codebase in the sidebar on the left

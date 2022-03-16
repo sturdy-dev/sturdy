@@ -32,13 +32,13 @@
         </p>
 
         <ol>
-          <li>Create a new workspace, and give it a good name</li>
+          <li>Create a new draft change, and give it a good name</li>
           <li>
             Open the directory with the code in any text editor
             <SubtleText>(tip: use the “Open in Visual Studio Code”-button)</SubtleText>
           </li>
           <li>Make the changes to your code</li>
-          <li>Go back to Sturdy, and navigate to the workspace from the sidebar</li>
+          <li>Go back to Sturdy, and navigate to the draft from the sidebar</li>
           <li>
             <SubtleText><em>Optional:</em> Undo changes you would like to dismiss</SubtleText>
           </li>
@@ -71,10 +71,10 @@
           </li>
           <li>
             Click “Share!” to land all of the changes on top of the changelog, and to allow other
-            workspaces to be based on top of your code
+            drafts to be based on top of your code
           </li>
           <li>
-            After the change is shared, the workspace will be reset and ready for the next change
+            After the change is shared, a new draft change will be created for you, so that you're ready to code right away
           </li>
         </ol>
 
@@ -100,8 +100,8 @@
           <li>After writing a description, the “Create pull request” button will appear</li>
           <li>
             Click “Create pull request” to use Sturdy to a PR to the connected GitHub repository. A
-            single commit will be created containing all of the changes in the workspace. The
-            Workspace title and description will be used as the description of the commit, and the
+            single commit will be created containing all of the changes in the draft change. The
+            draft title and description will be used as the description of the commit, and the
             title/description of the pull request.
           </li>
           <li>
@@ -122,8 +122,7 @@
             leaving Sturdy.
           </li>
           <li>
-            Click “Merge” to merge the PR. After a few seconds the PR will be merged, and the
-            workspace will be reset and ready for the next change automatically.
+            Click “Merge” to merge the PR. After a few seconds the PR will be merged, and Sturdy will prepare a new and empty draft change for you to keep working in.
           </li>
         </ol>
 
@@ -141,26 +140,26 @@
           In the blue banner at the top of the screen press "Undo" (NB: This action cannot be
           reversed)
         </p>
-        <p>The changes that you had selected are removed from your workspace</p>
+        <p>The changes that you had selected are removed from your draft</p>
 
         <h2 id="optional-resolving-conflicts" title="Resolving conflicts">
           Optional: Resolving conflicts
         </h2>
 
         <p>
-          If the changes in the workspace are conflicting with recent changes in the codebase, you
-          have a conflict. Conflicts happen when two workspaces make changes to the same piece of
+          If the changes in the draft are conflicting with recent changes in the codebase, you
+          have a conflict. Conflicts happen when two drafts make changes to the same piece of
           code.
         </p>
 
-        <p>A banner will be shown in the workspace if it’s conflicting.</p>
+        <p>A banner will be shown in the draft change if it’s conflicting.</p>
 
         <ol>
           <li>To start resolving a conflict, click “Sync” in the upper right corner</li>
           <li>For each file with conflicts, you now have three options.</li>
           <ol>
             <li>Pick the version of the entire file as it is on trunk</li>
-            <li>Pick the version of the entire file as it is in the workspace</li>
+            <li>Pick the version of the entire file as it is in your draft change</li>
 
             <li>Create a mix of the two (“Custom” resolution)</li>
           </ol>
@@ -175,11 +174,11 @@
             <li>Edit the file to your liking.</li>
           </ol>
           <li>
-            When a resolution (trunk, workspace, or custom) has been picked for each file. Mark the
+            When a resolution (trunk, draft, or custom) has been picked for each file. Mark the
             conflicts as completed by clicking “Done”.
           </li>
           <li>
-            The workspace should no longer have any conflicts, and the changes are ready to be
+            The draft change should no longer have any conflicts, and the changes are ready to be
             shared.
           </li>
         </ol>
@@ -196,7 +195,7 @@
 
         <p>
           It might be a good idea to ask for some feedback from a colleague before sharing the
-          changes. When browsing a workspace in Sturdy, use the “Ask for feedback” button on the
+          changes. When browsing a draft change in Sturdy, use the “Ask for feedback” button on the
           right sidebar to ask someone to take a look at your code. They can either give you a
           thumbs up, or give you a comment with feedback.
         </p>
@@ -204,9 +203,9 @@
         <h2 id="optional-syncing" title="Syncing">Optional: Syncing</h2>
 
         <p>
-          After creating the workspace, if new changes land on the changelog (either from others on
-          the team or from you via another workspace), these changes are not available in your
-          workspace by default.
+          After creating the draft, if new changes land on the changelog (either from others on
+          the team or from you via another draft), these changes are not available in your
+          draft by default.
         </p>
 
         <p>
@@ -214,7 +213,7 @@
           blue flash.
         </p>
 
-        <p>To rebase your workspace on the latest changes:</p>
+        <p>To rebase your draft change on the latest changes:</p>
 
         <ol>
           <li>Press the “Sync changes” button</li>

@@ -127,9 +127,9 @@
 
         <p>
           The way experimentation is supported in Sturdy is in the design of it's lightweight
-          workspaces. If a developer has an idea or wants to quickly test something, they can
-          quickly jump to a separate workspace. This is similar to git branches, but there is no
-          need for manually stashing of current work. But also critically, because workspaces are
+          draft changes. If a developer has an idea or wants to quickly test something, they can
+          quickly jump to a new draft. This is similar to git branches, but there is no
+          need for manually stashing of current work. But also critically, because drafts are
           available to the team in real time, experiments like this can be part of the larger team
           conversation.
         </p>

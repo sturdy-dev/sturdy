@@ -41,7 +41,7 @@
             :to="{ name: 'resourcesMigrateFromGitHub', hash: '#sturdy-as-source-of-truth' }"
             >Sturdy as the source of truth
           </router-link>
-          , changes that are shared from a workspace and appended to the changelog will be committed
+          , changes that are shared from a draft change and added to the changelog will be committed
           to the default branch on the GitHub repository. This, in turn, will run any workflows
           configured in GitHub.
         </li>

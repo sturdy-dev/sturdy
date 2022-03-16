@@ -6,7 +6,7 @@
 
     <div class="text-gray-500 m-auto text-sm max-w-sm mt-2">
       <p>This codebase doesn't have any files yet.</p>
-      <p>Connect a workspace to your computer to get started.</p>
+      <p>Connect a draft change to your computer to get started.</p>
     </div>
   </div>
 </template>

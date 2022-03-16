@@ -17,7 +17,7 @@
       v-if="hasHiddenChanges"
       class="mb-2"
       status="warning"
-      message="This workspace has more changes, but you don't have access to see them."
+      message="This draft change has more changes, but you don't have access to see them."
     />
 
     <div v-if="hasLiveChanges && mutable" class="relative ml-3 flex space-x-4">

@@ -19,7 +19,7 @@
             class="flex justify-around text-slate-200 my-12 flex-col lg:flex-row space-y-8 lg:space-y-0 p-4 lg:p-0 lg:space-x-8"
           >
             <PricingTierSummary name="Free">
-              <PricingTierSummaryItem>Unlimited codebases and workspaces</PricingTierSummaryItem>
+              <PricingTierSummaryItem>Unlimited codebases and open drafts</PricingTierSummaryItem>
               <PricingTierSummaryItem>Self-hosted, or in the cloud</PricingTierSummaryItem>
               <PricingTierSummaryItem>Up to 10 users</PricingTierSummaryItem>
               <PricingTierSummaryItem>Sturdy for GitHub</PricingTierSummaryItem>
@@ -468,7 +468,7 @@ const allSections: Section[] = [
       },
 
       {
-        name: 'Workspaces',
+        name: 'Draft changes',
         tiers: {
           'Open Source': true,
           Free: true,

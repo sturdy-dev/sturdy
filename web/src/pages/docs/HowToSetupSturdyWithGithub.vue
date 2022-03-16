@@ -55,12 +55,12 @@
 
         <DocsInfoBox>
           The newly created Sturdy codebase is also aware of your existing pull requests, which will
-          be imported and show up as workspaces.
+          be imported and show up as draft changes.
         </DocsInfoBox>
 
         <p>
           <em>Coming soon:</em> Pull requests created by others on your team will also show up as
-          workspaces so that you can get the code with one click. This will work even if others on
+          draft chagnes so that you can get the code with one click. This will work even if others on
           the team are not using Sturdy.
         </p>
 

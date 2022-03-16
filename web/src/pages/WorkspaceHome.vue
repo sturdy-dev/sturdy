@@ -23,7 +23,7 @@
                         ref="workspaceName"
                         v-model="userEditingName"
                         type="text"
-                        placeholder="Name your workspace, so that you know what you're working on"
+                        placeholder="Name your draft change, so that you and others can discover what it's about"
                         style="min-width: 400px"
                         class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                         @keydown="editingNameKeyDown"
@@ -85,21 +85,21 @@
                     >
                       <template #title>Get up to date</template>
                       <template #description>
-                        Other workspaces have published changes, and this workspace has fallen
-                        behind. Before any changes in this workspace can be published, it needs to
-                        be synchronized with the changelog. Try it out!
+                        The codebase have new changes since this draft was started, and it's fallen
+                        behind. Sync this draft to download all of the new changes.
                       </template>
 
                       <Tooltip :disabled="isSyncing" x-direction="left">
                         <template #tooltip>
                           <div v-if="data.workspace.upToDateWithTrunk">
-                            This workspace is already up-to-date with the changelog.
+                            This draft change is already up-to-date with the changelog.
                           </div>
                           <div v-else-if="viewConnectionState !== 'editing'">
-                            You need to connect a local directory to this workspace before syncing.
+                            You need to connect a local directory to this draft change before
+                            syncing.
                           </div>
                           <div v-else>
-                            Get all the latest changes from the changelog into this workspace.
+                            Get all the latest changes from the changelog into this draft change.
                           </div>
                         </template>
 
@@ -193,9 +193,9 @@
                   <template #title>Help {{ data.workspace.author.name }} out</template>
 
                   <template #description>
-                    You've made it to someone else's workspace. If you want to give feedback in
-                    code, you can temporarily connect your local directory to this workspace and
-                    make changes locally. These changes will appear as suggestions to
+                    You're looking at someone else's draft change. If you want to give feedback in
+                    code, you can temporarily connect your local directory to this draft and make
+                    changes locally. These changes will appear as suggestions to
                     {{ data.workspace.author.name }}.
                   </template>
 

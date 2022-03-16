@@ -2,7 +2,7 @@
   <Button v-if="mutagenIpc" @click="createViewInDirectory">
     <div class="flex items-center px-1">
       <DesktopComputerIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-      Connect directory
+      Connect new directory
     </div>
   </Button>
 </template>

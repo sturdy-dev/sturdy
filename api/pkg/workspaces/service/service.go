@@ -360,13 +360,8 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 	if len(req.Name) > 0 {
 		ws.Name = &req.Name
 	} else {
-		user, err := s.userRepo.Get(req.UserID)
-		if err != nil {
-			s.logger.Error("failed to get name of user when creating workspace", zap.Error(err))
-		} else {
-			name := fmt.Sprintf("%s's Workspace", user.Name)
-			ws.Name = &name
-		}
+		n := "Untitled draft"
+		ws.Name = &n
 	}
 
 	var baseCommitSha string
@@ -711,7 +706,7 @@ const readMeTemplate = `# __CODEBASE__NAME__
 const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <ul>
 	<li><p>This is a workspace - it's where you're <strong>coding</strong>, and can give and take <strong>feedback</strong> from your team</p></li>
-	<li><p><strong>Share</strong> this workspace to land the README on the trunk, and to make the file available to all collaborators</p></li>
+	<li><p><strong>Share</strong> this draft to land the changes to the README on the trunk, and to make the file available to all collaborators</p></li>
 </ul>
 
 <p>Happy hacking!</p>

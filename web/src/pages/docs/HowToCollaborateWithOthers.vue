@@ -31,13 +31,13 @@
           on your computer:
         </p>
         <ol>
-          <li>Create a new workspace and give it a good name</li>
+          <li>Create a new draft change and give it a good name</li>
           <li>
             Open the directory with the code in any text editor
             <SubtleText>(tip: use the “Open in Visual Studio Code”-button)</SubtleText>
           </li>
           <li>Make the changes to your code</li>
-          <li>Go back to Sturdy, and navigate to the workspace from the sidebar</li>
+          <li>Go back to Sturdy, and navigate to the draft from the sidebar</li>
           <li>
             Use the <strong>"Ask for feedback"</strong> dropdown menu to the right to select a team
             member to ask for feedback
@@ -52,7 +52,7 @@
           <li>The user that you tagged will receive a notification that you asked for feedback</li>
           <ol>
             <li>
-              When somebody from the team is checking out a workspace, their avatar will appear in
+              When somebody from the team is browsing a draft, their avatar will appear in
               the top right corner
             </li>
           </ol>
@@ -72,7 +72,7 @@
         </ol>
 
         <h3 id="comment-on-code" title="Comment on code">Optional: Comment on code</h3>
-        <p>You can write comments on specific piece of code within the workspace</p>
+        <p>You can write comments on specific piece of code within the draft change</p>
         <ol>
           <li>
             Point the mouse over the specific line that you wish to comment on &mdash; a plus icon
@@ -110,9 +110,9 @@
           Optional: Taking / Dismissing code suggestions
         </h3>
         <p>
-          Other members of the codebase can get the code from your workspace and
+          Other members of the codebase can get the code from your draft and
           <a href="#give-suggestions">create suggestions for you</a>. When that happens you will see
-          a green banner indicating that at the top of the workspace.
+          a green banner indicating it at the top of the draft.
         </p>
         <ol>
           <li>
@@ -128,7 +128,7 @@
           </li>
           <li>
             To see the suggestions, click the "Show suggestions" button. This will display the code
-            diffs between the state of the code in your workspace and the changes made by the person
+            diffs between the state of the code in your draft and the changes made by the person
             suggesting.
           </li>
           <li>Suggestions are indicated with the avatar of the team member making them.</li>
@@ -136,11 +136,11 @@
             You can hide the suggestions by clicking the "Hide suggestions" button in the green
             banner.
           </li>
-          <li>Suggestions are not in your workspace until you accept them.</li>
+          <li>Suggestions are not in your draft change until you accept them.</li>
           <ol>
             <li>
               To take a suggestion, press the green checkmark button on the left side. By taking the
-              suggestion, the code in your workspace will be updated to reflect that - you can
+              suggestion, the code in your draft will be updated to reflect that – you can
               immediately see the update in your IDE as well.
             </li>
             <li>To dismiss a suggestion, press the red cross button on the left.</li>
@@ -154,21 +154,21 @@
         <h2 id="giving-feedback">Giving feedback or help to others</h2>
         <p>
           You can give help and feedback to others spontaneously or when somebody asks for feedback.
-          In the left sidebar of Sturdy you can see your own workspaces as well as those of others
+          In the left sidebar of Sturdy you can see your own drafts as well as those of others
           on the team.
         </p>
         <ol>
           <li>
-            Navigate to a workspace by somebody else on the team by clicking on it in the sidebar.
-            The avatars to the left of workspace names indicate who the author is.
+            Navigate to a draft by somebody else on the team by clicking on it in the sidebar.
+            The avatars to the left of draft names indicate who the author is.
           </li>
           <li>
-            If the author of the workspace is currently working on it, you will see their avatar in
+            If the author of the draft is currently working on it, you will see their avatar in
             the top right corner.
           </li>
           <li>
-            If the author of the workspace makes code changes, you will see them in real-time, the
-            same way you would see changes in your own workspaces.
+            If the author of the draft is making code changes, you will see them in real-time, the
+            same way you would see changes in your own draft.
           </li>
           <li>
             <SubtleText
@@ -206,20 +206,20 @@
         <h3 id="trying-code" title="Trying the code">Optional: Trying the code</h3>
         <ol>
           <li>
-            While viewing the workspaces of another team member, press the "Connect
+            While viewing a draft of another team member, press the "Connect
             <em>folder</em> for suggesting" button.
           </li>
           <ol>
             <li>
-              You will see a new nested workspace named "Suggestion 1" below the workspace that you
+              You will see a new nested draft change named "Suggestion 1" below the draft that you
               are trying.
             </li>
             <li>
-              This temporary workspace has the code of your team member's workspace as it looked at
+              This temporary draft has the code of your team member's draft as it looked at
               the time you pressed the connect button.
             </li>
           </ol>
-          <li>The folder on your computer now has the code of your team member's workspace.</li>
+          <li>The folder on your computer now has the code of your team member's draft.</li>
           <li>
             Explore or run the code as you normally would using your IDE / text editor / terminal
           </li>
@@ -229,23 +229,23 @@
             </SubtleText>
           </li>
           <li>
-            When you are done you can navigate back to your own workspace and press the "Connect
+            When you are done you can navigate back to your own draft change and press the "Connect
             <em>folder</em> for editing" button to continue where you left off.
           </li>
         </ol>
 
         <p>
-          If the original author makes changes to their workspace after you have pressed the
+          If the original author makes changes to their draft change after you have pressed the
           "Connect <em>folder</em> for suggesting" you will not see those new changes. This is a
           known limitation. To work around this:
         </p>
 
         <ol>
-          <li>Navigate to the workspace of your teammate</li>
+          <li>Navigate to the draft of your teammate</li>
           <li>Press the "Connect <em>folder</em> for suggesting" button</li>
           <ol>
             <li>
-              Observe that now there is a second temporary workspace named "Suggestion 2" to which
+              Observe that now there is a second temporary draft named "Suggestion 2" to which
               you are connected
             </li>
           </ol>
@@ -254,18 +254,18 @@
         <h3 id="give-suggestions">Give code suggestions</h3>
 
         <p>
-          When you have the code from someone else's workspace on your computer, you can give
+          When you have the code from someone else's draft change on your computer, you can give
           suggestions by simply making changes in your IDE.
         </p>
-        <p>While you are connected to the "Suggestion <em>n</em>" workspace:</p>
+        <p>While you are connected to the "Suggestion <em>n</em>" draft change:</p>
 
         <ol>
           <li>Type any changes as you normally would, in your IDE or text editor.</li>
           <li>
-            Within the temporary suggestion workspace you can see the changes you have created
+            Within the temporary suggestion draft change you can see the changes you have created
           </li>
           <li>
-            The author of the original workspace is notified of the suggestions [<a
+            The author of the original draft change is notified of the suggestions [<a
               href="#taking-dismissing-suggestions"
               >go to</a
             >]
@@ -274,7 +274,7 @@
 
         <p>
           You can suggest changes even to files that have not been modified in the original
-          workspace.
+          draft change.
         </p>
       </div>
     </template>

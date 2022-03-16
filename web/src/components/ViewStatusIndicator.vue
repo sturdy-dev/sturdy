@@ -55,7 +55,7 @@
 
     <div
       v-if="!compact && isSuggesting"
-      title="You're connected to someone else's workspace. All edits you make will appear to them as suggestions."
+      title="You're connected to someone else's draft change. All edits you make will appear to them as suggestions."
       class="rounded-full bg-green-200 text-green-800 text-sm px-2 py-0.5 ml-3"
     >
       Suggesting
