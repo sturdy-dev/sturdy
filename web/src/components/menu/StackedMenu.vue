@@ -46,6 +46,7 @@
           </template>
 
           <router-link
+            :ref="codebase.id"
             :to="{
               name: 'codebaseHome',
               params: { codebaseSlug: codebase.slug },
@@ -116,6 +117,7 @@
               </template>
 
               <router-link
+                :ref="workspace.id"
                 :to="{
                   name: 'workspaceHome',
                   params: {
@@ -745,6 +747,20 @@ export default defineComponent({
         }
       })
     },
+    currentCodebaseOrWorkspace(): string | undefined {
+      for (let cb of this.navigation) {
+        if (cb.isCurrent) {
+          return cb.id
+        }
+
+        for (let ws of cb.workspaces) {
+          if (ws.isCurrent) {
+            return ws.id
+          }
+        }
+      }
+      return undefined
+    },
     currentOrDefaultOrganization(): OrganizationFragment | undefined {
       // From codebase page URL
       if (
@@ -786,6 +802,17 @@ export default defineComponent({
       this.shortCodebaseID = newRoute.params.codebaseSlug
         ? IdFromSlug(newRoute.params.codebaseSlug as string)
         : ''
+    },
+
+    currentCodebaseOrWorkspace: function (newCurrent) {
+      this.$nextTick(() => {
+        if (this.$refs && this.$refs[newCurrent]) {
+          const r = this.$refs[newCurrent]
+          if (r.length > 0) {
+            r[0].$el.scrollIntoView()
+          }
+        }
+      })
     },
   },
 
