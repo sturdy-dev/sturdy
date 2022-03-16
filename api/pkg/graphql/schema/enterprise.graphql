@@ -1,263 +1,273 @@
 extend type Query {
-    # GitHub Integration Metadata
-    gitHubApp: GitHubApp!
+  # GitHub Integration Metadata
+  gitHubApp: GitHubApp!
 
-    # List all available repositories that the user can setup with Sturdy
-    gitHubRepositories: [GitHubRepository!]!
+  # List all available repositories that the user can setup with Sturdy
+  gitHubRepositories: [GitHubRepository!]!
 }
 
 extend type Mutation {
-    updateCodebaseGitHubIntegration(input: UpdateCodebaseGitHubIntegrationInput!): CodebaseGitHubIntegration!
-    createOrUpdateGitHubPullRequest(input: CreateOrUpdateGitHubPullRequestInput!): GitHubPullRequest!
-    mergeGitHubPullRequest(input: MergeGitHubPullRequestInput!): GitHubPullRequest!
+  updateCodebaseGitHubIntegration(
+    input: UpdateCodebaseGitHubIntegrationInput!
+  ): CodebaseGitHubIntegration!
+  createOrUpdateGitHubPullRequest(
+    input: CreateOrUpdateGitHubPullRequestInput!
+  ): GitHubPullRequest!
+  mergeGitHubPullRequest(
+    input: MergeGitHubPullRequestInput!
+  ): GitHubPullRequest!
 
-    # Import a branch from a connected GitHub repository to a new workspace.
-    createWorkspaceFromGitHubBranch(input: CreateWorkspaceFromGitHubBranchInput!): Workspace!
-    importGitHubPullRequests(input: ImportGitHubPullRequestsInput!): Codebase!
-    refreshGitHubCodebases: [Codebase!]!
+  # Import a branch from a connected GitHub repository to a new workspace.
+  createWorkspaceFromGitHubBranch(
+    input: CreateWorkspaceFromGitHubBranchInput!
+  ): Workspace!
+  importGitHubPullRequests(input: ImportGitHubPullRequestsInput!): Codebase!
+  refreshGitHubCodebases: [Codebase!]!
 
-    # Setup a codebase with GitHub
-    setupGitHubRepository(input: SetupGitHubRepositoryInput!): Codebase!
+  # Setup a codebase with GitHub
+  setupGitHubRepository(input: SetupGitHubRepositoryInput!): Codebase!
 
-    createOrUpdateBuildkiteIntegration(input: CreateOrUpdateBuildkiteIntegrationInput!): Integration!
+  createOrUpdateBuildkiteIntegration(
+    input: CreateOrUpdateBuildkiteIntegrationInput!
+  ): Integration!
 
-    # Instant integration
-    triggerInstantIntegration(input: TriggerInstantIntegrationInput!): [Status!]!
+  # Instant integration
+  triggerInstantIntegration(input: TriggerInstantIntegrationInput!): [Status!]!
 
-    # Third party integrations
-    deleteIntegration(input: DeleteIntegrationInput!): Integration!
+  # Third party integrations
+  deleteIntegration(input: DeleteIntegrationInput!): Integration!
 
-    # Installation
-    updateInstallation(input: UpdateInstallationInput!): Installation!
+  # Installation
+  updateInstallation(input: UpdateInstallationInput!): Installation!
 }
 
 extend type Subscription {
-    updatedGitHubPullRequest(workspaceID: ID!): GitHubPullRequest!
+  updatedGitHubPullRequest(workspaceID: ID!): GitHubPullRequest!
 
-    updatedGitHubPullRequestStatuses(id: ID!): Status!
+  updatedGitHubPullRequestStatuses(id: ID!): Status!
 }
 
 extend type User {
-    gitHubAccount: GitHubAccount
+  gitHubAccount: GitHubAccount
 }
 
 extend type Codebase {
-    gitHubIntegration: CodebaseGitHubIntegration
-    integrations(id: ID): [Integration!]!
+  gitHubIntegration: CodebaseGitHubIntegration
+  integrations(id: ID): [Integration!]!
 }
 
 extend type Status {
-    gitHubPullRequest: GitHubPullRequest
+  gitHubPullRequest: GitHubPullRequest
 }
 
 extend type Workspace {
-    # Only applies when there is a github integration for the codebase.
-    #
-    # Returns one of:
-    # - The single currently open pull request for this workspace
-    # - The most recently closed pull request if there is no PR which is currently opened
-    # - Null if there was never any pull request created for this workspace
-    gitHubPullRequest: GitHubPullRequest
+  # Only applies when there is a github integration for the codebase.
+  #
+  # Returns one of:
+  # - The single currently open pull request for this workspace
+  # - The most recently closed pull request if there is no PR which is currently opened
+  # - Null if there was never any pull request created for this workspace
+  gitHubPullRequest: GitHubPullRequest
 }
 
 type CodebaseGitHubIntegration {
-    id: ID!
-    owner: String!
-    name: String!
-    createdAt: Int!
-    uninstalledAt: Int
-    trackedBranch: String
-    syncedAt: Int
+  id: ID!
+  owner: String!
+  name: String!
+  createdAt: Int!
+  uninstalledAt: Int
+  trackedBranch: String
+  syncedAt: Int
 
-    # If the GitHub integration is enabled or not.
-    # Controllable by the user
-    enabled: Boolean!
+  # If the GitHub integration is enabled or not.
+  # Controllable by the user
+  enabled: Boolean!
 
-    # If GitHub is the source of truth or not.
-    # When true, Sturdy will open PRs
-    gitHubIsSourceOfTruth: Boolean!
+  # If GitHub is the source of truth or not.
+  # When true, Sturdy will open PRs
+  gitHubIsSourceOfTruth: Boolean!
 
-    # Error message (from GitHub) if pushing failed
-    lastPushErrorMessage: String
-    lastPushAt: Int
+  # Error message (from GitHub) if pushing failed
+  lastPushErrorMessage: String
+  lastPushAt: Int
 
-    codebase: Codebase!
+  codebase: Codebase!
 }
 
 type GitHubAccount {
-    id: ID!
-    login: String!
-    isValid: Boolean!
+  id: ID!
+  login: String!
+  isValid: Boolean!
 }
 
 enum IntegrationProvider {
-    Buildkite
+  Buildkite
 }
 
 interface Integration {
-    id: ID!
-    codebaseID: ID!
-    provider: IntegrationProvider!
-    createdAt: Int!
-    updatedAt: Int
-    deletedAt: Int
+  id: ID!
+  codebaseID: ID!
+  provider: IntegrationProvider!
+  createdAt: Int!
+  updatedAt: Int
+  deletedAt: Int
 }
 
 type BuildkiteIntegration implements Integration {
-    id: ID!
-    codebaseID: ID!
-    provider: IntegrationProvider!
-    createdAt: Int!
-    updatedAt: Int
-    deletedAt: Int
+  id: ID!
+  codebaseID: ID!
+  provider: IntegrationProvider!
+  createdAt: Int!
+  updatedAt: Int
+  deletedAt: Int
 
-    configuration: BuildkiteIntegrationConfiguration!
+  configuration: BuildkiteIntegrationConfiguration!
 }
 
 type BuildkiteIntegrationConfiguration {
-    id: ID!
-    organizationName: String!
-    pipelineName: String!
-    apiToken: String!
-    webhookSecret: String!
+  id: ID!
+  organizationName: String!
+  pipelineName: String!
+  apiToken: String!
+  webhookSecret: String!
 }
 
 type GitHubPullRequest {
-    id: ID!
-    pullRequestNumber: Int!
-    open: Boolean!
-    merged: Boolean!
-    mergedAt: Int
-    base: String!
-    workspace: Workspace!
-    statuses: [Status!]!
+  id: ID!
+  pullRequestNumber: Int!
+  open: Boolean!
+  merged: Boolean!
+  mergedAt: Int
+  base: String!
+  workspace: Workspace!
+  statuses: [Status!]!
 }
 
 input CreateOrUpdateGitHubPullRequestInput {
-    workspaceID: ID!
-    patchIDs: [String!]!
+  workspaceID: ID!
+  patchIDs: [String!]!
 }
 
 input MergeGitHubPullRequestInput {
-    workspaceID: ID!
+  workspaceID: ID!
 }
 
 input CreateWorkspaceFromGitHubBranchInput {
-    codebaseID: ID!
-    branchName: String!
+  codebaseID: ID!
+  branchName: String!
 }
 
 input ImportGitHubPullRequestsInput {
-    codebaseID: ID!
+  codebaseID: ID!
 }
 
 input UpdateCodebaseGitHubIntegrationInput {
-    id: ID!
-    enabled: Boolean
-    gitHubIsSourceOfTruth: Boolean
+  id: ID!
+  enabled: Boolean
+  gitHubIsSourceOfTruth: Boolean
 }
 
 extend enum NotificationType {
-    GitHubRepositoryImported
+  GitHubRepositoryImported
 }
 
 type GitHubRepositoryImported implements Notification {
-    id: ID!
-    type: NotificationType!
-    createdAt: Int!
-    archivedAt: Int
-    codebase: Codebase!
+  id: ID!
+  type: NotificationType!
+  createdAt: Int!
+  archivedAt: Int
+  codebase: Codebase!
 
-    repository: CodebaseGitHubIntegration!
+  repository: CodebaseGitHubIntegration!
 }
 
 type GitHubApp {
-    _id: ID! # Always "sturdy"
-    name: String!
-    clientID: String!
-    validation: GithubValidationApp!
+  _id: ID! # Always "sturdy"
+  name: String!
+  clientID: String!
+  validation: GithubValidationApp!
 }
 
-type GithubValidationApp{
-    _id: ID! # Always "sturdy"
-    ok: Boolean!
-    missingPermissions: [String!]!
-    missingEvents: [String!]!
+type GithubValidationApp {
+  _id: ID! # Always "sturdy"
+  ok: Boolean!
+  missingPermissions: [String!]!
+  missingEvents: [String!]!
 }
 
 input CreateOrUpdateBuildkiteIntegrationInput {
-    integrationID: ID
-    codebaseID: ID!
-    organizationName: String!
-    pipelineName: String!
-    apiToken: String!
-    webhookSecret: String!
+  integrationID: ID
+  codebaseID: ID!
+  organizationName: String!
+  pipelineName: String!
+  apiToken: String!
+  webhookSecret: String!
 }
 
 enum OrganizationPlan {
-    Free
-    Pro
+  Free
+  Pro
 }
 
 extend type Organization {
-    licenses: [License!]!
+  licenses: [License!]!
 }
 
 extend type Installation {
-    license: License
+  license: License
 }
 
 type License {
-    id: ID!
-    key: String!
-    createdAt: Int!
-    expiresAt: Int!
-    seats: Int!
+  id: ID!
+  key: String!
+  createdAt: Int!
+  expiresAt: Int!
+  seats: Int!
 
-    status: LicenseStatus!
-    messages: [LicenseMessage!]!
+  status: LicenseStatus!
+  messages: [LicenseMessage!]!
 }
 
 enum LicenseStatus {
-    Valid
-    Invalid
+  Valid
+  Invalid
 }
 
 type LicenseMessage {
-    level: LicenseMessageLevel!
-    type : LicenseMessageType!
-    text: String!
+  level: LicenseMessageLevel!
+  type: LicenseMessageType!
+  text: String!
 }
 
 enum LicenseMessageType {
-    Notification
-    Banner
-    Fullscreen
+  Notification
+  Banner
+  Fullscreen
 }
 
 enum LicenseMessageLevel {
-    Error
-    Warning
-    Info
+  Error
+  Warning
+  Info
 }
 
 input SetupGitHubRepositoryInput {
-    organizationID: ID!
+  organizationID: ID!
 
-    gitHubInstallationID: ID!
-    gitHubRepositoryID: ID!
+  gitHubInstallationID: ID!
+  gitHubRepositoryID: ID!
 }
 
 type GitHubRepository {
-    id: ID!
-    gitHubInstallationID: ID!
-    gitHubRepositoryID: ID!
-    gitHubOwner: String!
-    gitHubName: String!
+  id: ID!
+  gitHubInstallationID: ID!
+  gitHubRepositoryID: ID!
+  gitHubOwner: String!
+  gitHubName: String!
 
-    codebase: Codebase
+  codebase: Codebase
 }
 
 input UpdateInstallationInput {
-    licenseKey: String
+  licenseKey: String
 }

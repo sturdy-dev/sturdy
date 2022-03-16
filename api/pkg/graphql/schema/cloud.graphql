@@ -1,3 +1,2 @@
 # cloud.graphql contains the API only available on Sturdy Cloud.
 # Self Hosted instances of Sturdy will use this API to validate licenses, etc.
-
