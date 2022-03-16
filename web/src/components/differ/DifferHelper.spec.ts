@@ -21,7 +21,7 @@ index 48533da..f627f7d 100644
 \\ no newline at end of file
 `
     expect(getIndicesOf('testing', str1, false).length).toEqual(5)
-    expect(getIndicesOf('da', str1, false).length).toEqual(4)
+    expect(getIndicesOf('da', str1, false).length).toEqual(3)
     expect(getIndicesOf('sa', str1, false).length).toEqual(1)
     expect(getIndicesOf('f', str1, false).length).toEqual(0)
 
