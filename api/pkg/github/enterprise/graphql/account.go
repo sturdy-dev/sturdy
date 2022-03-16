@@ -1,7 +1,8 @@
-package enterprise
+package graphql
 
 import (
 	"context"
+
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/db"

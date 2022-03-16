@@ -7,6 +7,8 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
+	"getsturdy.com/api/pkg/github/enterprise/graphql"
+	graphql_pr "getsturdy.com/api/pkg/github/enterprise/graphql/pr"
 	"getsturdy.com/api/pkg/github/enterprise/service"
 	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	"getsturdy.com/api/pkg/github/enterprise/workers"
@@ -17,6 +19,8 @@ import (
 func Module(c *di.Container) {
 	c.Import(workers.Module)
 	c.Import(db.Module)
+	c.Import(graphql.Module)
+	c.Import(graphql_pr.Module)
 	c.Register(service.New)
 	c.Register(service_github_webhooks.New)
 
