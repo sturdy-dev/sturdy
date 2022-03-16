@@ -1,5 +1,5 @@
 <template>
-  <AppTitleBar :showSidebar="false">
+  <AppTitleBar :show-sidebar="false">
     <PaddedApp>
       <div v-if="show_redirected_to_app">
         <div class="p-3 pt-32 flex flex-col gap-5 items-center justify-center">
