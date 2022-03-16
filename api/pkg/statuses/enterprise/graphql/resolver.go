@@ -2,16 +2,16 @@ package graphql
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/statuses"
 	"getsturdy.com/api/pkg/statuses/graphql"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 
@@ -25,7 +25,7 @@ type RootResolver struct {
 	statusService *service_statuses.Service
 	authService   *service_auth.Service
 	githHubPRRepo db_github.GitHubPRRepo
-	eventsReader  events.EventReader
+	eventsReader  *eventsv2.Subscriber
 }
 
 func New(
@@ -35,7 +35,7 @@ func New(
 	statusService *service_statuses.Service,
 	authService *service_auth.Service,
 	githHubPRRepo db_github.GitHubPRRepo,
-	eventsReader events.EventReader,
+	eventsReader *eventsv2.Subscriber,
 ) *RootResolver {
 	return &RootResolver{
 		RootResolver: ossResolver,
@@ -68,28 +68,7 @@ func (r *RootResolver) UpdatedGitHubPullRequestStatuses(ctx context.Context, arg
 	}
 
 	c := make(chan resolvers.StatusResolver, 100)
-	didErrorOut := false
-
-	callbackFunc := func(eventType events.EventType, reference string) error {
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		default:
-		}
-
-		if eventType != events.StatusUpdated {
-			return nil
-		}
-
-		status, err := r.statusService.Get(ctx, reference)
-		switch {
-		case err == nil:
-		case errors.Is(err, sql.ErrNoRows):
-			return nil
-		default:
-			return fmt.Errorf("failed to get status by id: %w", err)
-		}
-
+	r.eventsReader.OnStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, status *statuses.Status) error {
 		if status.CommitID != *pr.HeadSHA {
 			return nil
 		}
@@ -98,34 +77,20 @@ func (r *RootResolver) UpdatedGitHubPullRequestStatuses(ctx context.Context, arg
 			return nil
 		}
 
-		resolver := r.InternalStatus(status)
 		select {
 		case <-ctx.Done():
 			return events.ErrClientDisconnected
-		case c <- resolver:
-			if didErrorOut {
-				didErrorOut = false
-			}
+		case c <- r.InternalStatus(status):
 			return nil
 		default:
 			r.logger.Named("updatedGitHubPullRequestStatuses").Error(
 				"dropped subscription event",
 				zap.Stringer("user_id", userID),
-				zap.Stringer("event_type", eventType),
+				zap.Stringer("event_type", eventsv2.StatusUpdated),
 				zap.Int("channel_size", len(c)),
 			)
+			return nil
 		}
-
-		return nil
-	}
-
-	cancelFunc := r.eventsReader.SubscribeUser(userID, callbackFunc)
-
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-		close(c)
-	}()
-
+	})
 	return c, nil
 }

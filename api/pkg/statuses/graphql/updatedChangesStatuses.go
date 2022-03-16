@@ -2,15 +2,15 @@ package graphql
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/statuses"
 
 	"go.uber.org/zap"
 )
@@ -46,26 +46,7 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 	c := make(chan resolvers.StatusResolver, 100)
 	didErrorOut := false
 
-	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		default:
-		}
-
-		if eventType != events.StatusUpdated {
-			return nil
-		}
-
-		status, err := r.svc.Get(ctx, reference)
-		switch {
-		case err == nil:
-		case errors.Is(err, sql.ErrNoRows):
-			return nil
-		default:
-			return fmt.Errorf("failed to get status by id: %w", err)
-		}
-
+	r.eventsSubscriber.OnStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, status *statuses.Status) error {
 		if !watchCommit[status.CommitID] {
 			return nil
 		}
@@ -83,18 +64,13 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 			r.logger.Named("updatedChangesStatuses").Error(
 				"dropped subscription event",
 				zap.Stringer("user_id", userID),
-				zap.Stringer("event_type", eventType),
+				zap.Stringer("event_type", eventsv2.StatusUpdated),
 				zap.Int("channel_size", len(c)),
 			)
 		}
 
 		return nil
 	})
-
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-	}()
 
 	return c, nil
 }

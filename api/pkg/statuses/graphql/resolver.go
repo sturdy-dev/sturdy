@@ -9,7 +9,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/statuses"
@@ -32,7 +32,7 @@ type RootResolver struct {
 	changeRootResolver resolvers.ChangeRootResolver
 	gitHubPrResovler   resolvers.GitHubPullRequestRootResolver
 
-	eventsReader events.EventReader
+	eventsSubscriber *eventsv2.Subscriber
 }
 
 func New(
@@ -43,7 +43,7 @@ func New(
 	authService *service_auth.Service,
 	changeRootResolver resolvers.ChangeRootResolver,
 	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
-	eventsReader events.EventReader,
+	eventsReader *eventsv2.Subscriber,
 ) *RootResolver {
 	return &RootResolver{
 		logger:             logger,
@@ -53,7 +53,7 @@ func New(
 		authService:        authService,
 		changeRootResolver: changeRootResolver,
 		gitHubPrResovler:   gitHubPrResovler,
-		eventsReader:       eventsReader,
+		eventsSubscriber:   eventsReader,
 	}
 }
 

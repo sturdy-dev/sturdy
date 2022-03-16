@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/statuses"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
 
@@ -12,20 +12,20 @@ import (
 )
 
 type Service struct {
-	logger       *zap.Logger
-	repo         *db_statuses.Repository
-	eventsSender events.EventSender
+	logger          *zap.Logger
+	repo            *db_statuses.Repository
+	eventsPublisher *events.Publisher
 }
 
 func New(
 	logger *zap.Logger,
 	repo *db_statuses.Repository,
-	eventsSender events.EventSender,
+	eventsPublisher *events.Publisher,
 ) *Service {
 	return &Service{
-		logger:       logger,
-		repo:         repo,
-		eventsSender: eventsSender,
+		logger:          logger,
+		repo:            repo,
+		eventsPublisher: eventsPublisher,
 	}
 }
 
@@ -38,7 +38,7 @@ func (s *Service) Set(ctx context.Context, status *statuses.Status) error {
 	if err := s.repo.Create(ctx, status); err != nil {
 		return fmt.Errorf("failed to create status: %w", err)
 	}
-	if err := s.eventsSender.Codebase(status.CodebaseID, events.StatusUpdated, status.ID); err != nil {
+	if err := s.eventsPublisher.StatusUpdated(ctx, events.Codebase(status.CodebaseID), status); err != nil {
 		s.logger.Error("failed to send status updated event", zap.Error(err))
 	}
 	return nil
