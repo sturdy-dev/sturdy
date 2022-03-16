@@ -149,21 +149,21 @@ func New(
 	}
 }
 
-func (s *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string) (*github.GitHubRepository, error) {
-	return s.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
+func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string) (*github.GitHubRepository, error) {
+	return svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 }
 
-func (s *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, installationID, repositoryID int64) (*github.GitHubRepository, error) {
-	return s.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
+func (svc *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, installationID, repositoryID int64) (*github.GitHubRepository, error) {
+	return svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
 }
 
-func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *changes.Change) error {
-	installation, err := s.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
+func (svc *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *changes.Change) error {
+	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
 	if err != nil {
 		return fmt.Errorf("failed to get github installation: %w", err)
 	}
 
-	logger := s.logger.With(
+	logger := svc.logger.With(
 		zap.Int64("github_installation_id", gitHubRepository.InstallationID),
 		zap.Int64("github_repository_id", gitHubRepository.GitHubRepositoryID),
 	)
@@ -171,11 +171,11 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 	accessToken, err := github_client.GetAccessToken(
 		ctx,
 		logger,
-		s.gitHubAppConfig,
+		svc.gitHubAppConfig,
 		installation,
 		gitHubRepository.GitHubRepositoryID,
-		s.gitHubRepositoryRepo,
-		s.gitHubInstallationClientProvider,
+		svc.gitHubRepositoryRepo,
+		svc.gitHubInstallationClientProvider,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to get github access token: %w", err)
@@ -184,14 +184,14 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 	t := time.Now()
 
 	// GitHub Repository might have been modified at this point, refresh it
-	gitHubRepository, err = s.gitHubRepositoryRepo.GetByID(gitHubRepository.ID)
+	gitHubRepository, err = svc.gitHubRepositoryRepo.GetByID(gitHubRepository.ID)
 	if err != nil {
 		return fmt.Errorf("failed to re-get github repository: %w", err)
 	}
 
 	// Push in a git executor context
 	var userVisibleError string
-	if err := s.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
+	if err := svc.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
 		userVisibleError, err = github_vcs.PushTrackedToGitHub(
 			logger,
 			repo,
@@ -207,7 +207,7 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 		// save that the push failed
 		gitHubRepository.LastPushAt = &t
 		gitHubRepository.LastPushErrorMessage = &userVisibleError
-		if err := s.gitHubRepositoryRepo.Update(gitHubRepository); err != nil {
+		if err := svc.gitHubRepositoryRepo.Update(gitHubRepository); err != nil {
 			logger.Error("failed to update status of github integration", zap.Error(err))
 		}
 
@@ -217,7 +217,7 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 	// Mark as successfully pushed
 	gitHubRepository.LastPushAt = &t
 	gitHubRepository.LastPushErrorMessage = nil
-	if err := s.gitHubRepositoryRepo.Update(gitHubRepository); err != nil {
+	if err := svc.gitHubRepositoryRepo.Update(gitHubRepository); err != nil {
 		return fmt.Errorf("failed to update status of github integration: %w", err)
 	}
 
@@ -226,8 +226,8 @@ func (s *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepos
 	return nil
 }
 
-func (s *Service) CheckPermissions(ctx context.Context) (bool, []string, []string, error) {
-	provider, err := s.gitHubAppClientProvider(s.gitHubAppConfig)
+func (svc *Service) CheckPermissions(ctx context.Context) (bool, []string, []string, error) {
+	provider, err := svc.gitHubAppClientProvider(svc.gitHubAppConfig)
 	if err != nil {
 		return false, nil, nil, fmt.Errorf("failed to get github app client provider: %w", err)
 	}
