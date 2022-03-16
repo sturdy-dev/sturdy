@@ -809,7 +809,7 @@ export default defineComponent({
         if (this.$refs && this.$refs[newCurrent]) {
           const r = this.$refs[newCurrent]
           if (r.length > 0) {
-            r[0].$el.scrollIntoView()
+            r[0].$el.scrollIntoView({ block: 'nearest' })
           }
         }
       })
