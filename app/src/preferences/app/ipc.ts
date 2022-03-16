@@ -5,7 +5,7 @@ const listHosts = (): Promise<HostConfig[]> => {
 }
 
 const addHostConfig = async (cfg: HostConfig): Promise<void> => {
-  window.ipc.addHostConfig(cfg)
+  return window.ipc.addHostConfig(cfg)
 }
 
 const isHostUp = async (cfg: HostConfig): Promise<boolean> => {
@@ -13,11 +13,11 @@ const isHostUp = async (cfg: HostConfig): Promise<boolean> => {
 }
 
 const openHost = async (cfg: HostConfig): Promise<void> => {
-  window.ipc.openHost(cfg)
+  return window.ipc.openHost(cfg)
 }
 
 const deleteHost = async (cfg: HostConfig): Promise<void> => {
-  window.ipc.deleteHostConfig(cfg)
+  return window.ipc.deleteHostConfig(cfg)
 }
 
 export default {

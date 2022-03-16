@@ -15,10 +15,10 @@ export type ShortHostConfig = {
 declare global {
   interface Window {
     readonly ipc: {
-      openHost: (cfg: HostConfig) => void
+      openHost: (cfg: HostConfig) => Promise<void>
       listHosts: () => Promise<HostConfig[]>
-      addHostConfig: (cfg: HostConfig) => void
-      deleteHostConfig: (cfg: HostConfig) => void
+      addHostConfig: (cfg: HostConfig) => Promise<void>
+      deleteHostConfig: (cfg: HostConfig) => Promise<void>
       isHostUp: (cfg: HostConfig) => Promise<boolean>
     }
   }

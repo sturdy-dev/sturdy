@@ -23,46 +23,57 @@ export type HostConfig = (DetailedHostConfig | ShortHostConfig) & {
 
 const validateHostConfig = (hostConfig: HostConfig): HostConfig => {
   if (!hostConfig.title) {
-    throw new Error('Host config must have a title')
+    throw new Error(`Title can not be empty`)
   }
-  try {
-    validateShortHostConfig(hostConfig as ShortHostConfig)
-  } catch (e) {
+  const shortConfig = hostConfig as ShortHostConfig
+  if (shortConfig.host) {
+    validateShortHostConfig(shortConfig)
+  } else {
     validateDetailedHostConfig(hostConfig as DetailedHostConfig)
-  } finally {
-    return hostConfig
   }
+  return hostConfig
 }
 
 const validateShortHostConfig = (hostConfig: ShortHostConfig): ShortHostConfig => {
-  if (!hostConfig.host) {
-    throw new Error('Host config must have a host')
+  if (hostConfig.host.startsWith('http')) {
+    try {
+      new URL(hostConfig.host)
+    } catch (e) {
+      throw new Error(`${hostConfig.host} is not a valid host`)
+    }
+  }
+  try {
+    new URL(`http://${hostConfig.host}`)
+  } catch (e) {
+    throw new Error(`${hostConfig.host} is not a valid host`)
   }
   return hostConfig
 }
 
 const isValidShortHostConfig = (hostConfig: ShortHostConfig): boolean => {
-  if (!hostConfig.host) {
+  try {
+    validateShortHostConfig(hostConfig)
+    return true
+  } catch {
     return false
   }
-  return true
 }
 
 const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHostConfig => {
   try {
     new URL(hostConfig.webURL)
   } catch (e) {
-    throw new Error('Host config must have a valid webURL (' + hostConfig.webURL + '): ' + e)
+    throw new Error(`${hostConfig.webURL} is not a valid host`)
   }
   try {
     new URL(hostConfig.apiURL)
   } catch (e) {
-    throw new Error('Host config must have a valid apiURL (' + hostConfig.apiURL + '): ' + e)
+    throw new Error(`${hostConfig.apiURL} is not a valid host`)
   }
   try {
     new URL(hostConfig.syncURL)
   } catch (e) {
-    throw new Error('Host config must have a valid syncURL (' + hostConfig.syncURL + '): ' + e)
+    throw new Error(`${hostConfig.syncURL} is not a valid host`)
   }
   return hostConfig
 }
@@ -111,7 +122,6 @@ const httpsPort = '443',
 const hostFromConfig = (hostConfig: HostConfig): Host => {
   if (isValidShortHostConfig(hostConfig as ShortHostConfig)) {
     const config = hostConfig as ShortHostConfig
-    validateShortHostConfig(config)
 
     let webApiProto = 'http:'
 
@@ -268,7 +278,12 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   async #isHostUp(hostConfig: HostConfig) {
-    const host = hostFromConfig(validateHostConfig(hostConfig))
+    try {
+      validateHostConfig(hostConfig)
+    } catch {
+      return false
+    }
+    const host = hostFromConfig(hostConfig)
     this.emit('hostsChanged', this.#hosts)
     return host.isUp()
   }
@@ -284,7 +299,11 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   async #handleAddHostConfig(hostConfig: HostConfig) {
-    validateHostConfig(hostConfig)
+    try {
+      validateHostConfig(hostConfig)
+    } catch (e) {
+      throw e
+    }
     this.#config.hosts.push(hostConfig)
     this.#hosts.push(hostFromConfig(hostConfig))
     await this.#saveConfig(this.#config)
@@ -330,8 +349,10 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
       trafficLightPosition: { x: 16, y: 16 },
     })
     ipcMain.handle('config:hosts:list', () => this.#config.hosts)
-    ipcMain.on('config:hosts:add', (_, hostConfig) => this.#handleAddHostConfig(hostConfig))
-    ipcMain.on('config:hosts:delete', (_, hostConfig) => this.#handleDeleteHostConfig(hostConfig))
+    ipcMain.handle('config:hosts:add', (_, hostConfig) => this.#handleAddHostConfig(hostConfig))
+    ipcMain.handle('config:hosts:delete', (_, hostConfig) =>
+      this.#handleDeleteHostConfig(hostConfig)
+    )
     ipcMain.handle('config:hosts:isUp', (_, hostConfig) => this.#isHostUp(hostConfig))
     ipcMain.handle('config:hosts:open', (_, hostConfig) => this.#openHost(hostConfig))
     window.on('closed', () => {

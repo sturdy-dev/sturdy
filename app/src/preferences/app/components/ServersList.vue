@@ -30,8 +30,10 @@
           </thead>
           <tbody>
             <Server v-for="server in servers" :key="server.title" :server="server" />
+            <ServerInput @error="onInputError" @success="onInputSuccess" />
           </tbody>
         </table>
+        <p v-if="error" class="m-2 text-red-600 font-xs">{{ error }}</p>
       </div>
     </div>
   </div>
@@ -46,11 +48,25 @@ import ipc from '../ipc'
 
 export default {
   components: { Server, ServerInput },
+  data() {
+    return {
+      error: null,
+    }
+  },
   setup() {
     ipc.listHosts().then((hosts) => hosts.forEach(addServer))
     return {
       servers: useStore(servers),
     }
+  },
+  methods: {
+    onInputError(error) {
+      this.error = error
+    },
+    onInputSuccess(hostConfig) {
+      addServer(hostConfig)
+      this.error = null
+    },
   },
 }
 </script>
