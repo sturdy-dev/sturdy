@@ -27,7 +27,7 @@
           loop
           muted
           playsinline
-          alt="Navigating between Sturdy workspaces with one click"
+          alt="Navigating between Sturdy drafts with one click"
           class="rounded-lg object-cover object-center"
         >
           <source src="../../assets/Landing/WorkspaceSwitching.webm" type="video/webm" />
@@ -48,12 +48,12 @@
         an earlier state of your work, the sturdy directory will be instantly updated.
       </p>
 
-      <h3>Workspaces</h3>
+      <h3>Draft changes</h3>
       <p>
-        In Sturdy you're coding in isolation from each other, in what we're calling a Workspace. You
-        can have as many workspaces as you want, and easily switch between which one that you want
-        to open on your computer from Sturdy. The changes in a workspace are continuously saved, and
-        when you're coming back to an older workspace, everything will be restored to just how you
+        In Sturdy you're coding in isolation from each other, in what we're calling a Draft Change. You
+        can have as many drafts as you want, and easily switch between which one that you want
+        to open on your computer from Sturdy. The changes in a draft are continuously saved, and
+        when you're coming back to an older draft change, everything will be restored to just how you
         left it.
       </p>
       <div class="relative text-base mx-auto max-w-prose lg:max-w-none">
@@ -61,12 +61,12 @@
           <div class="aspect-w-12 aspect-h-7 lg:aspect-none">
             <img
               class="rounded-lg object-cover object-center"
-              alt="Jumping between Workspaces in Sturdy"
+              alt="Jumping between draft changes in Sturdy"
               src="../../assets/Web/NavBanner.png"
             />
           </div>
           <figcaption class="mt-3 flex text-sm text-gray-500">
-            <span class="ml-2">Jumping between Workspaces in Sturdy</span>
+            <span class="ml-2">Jumping between draft changes in Sturdy</span>
           </figcaption>
         </figure>
       </div>
@@ -74,16 +74,16 @@
       <p>
         Because Sturdy saves work automatically you can easily and safely
         <router-link :to="{ name: 'featuresWorkspaceNavigation' }">
-          jump to another workspace
+          jump to another draft
         </router-link>
         and try out the code on your computer and then go back to to what you are working on before.
       </p>
 
       <p>
-        All workspaces in a codebase are available to all of it's collaborators. When you go to
-        someone elses workspace in the browser, you'll see what they are up to
+        All drafts in a codebase are available to all of it's collaborators. When you go to
+        someone else's draft in the browser, you'll see what they are up to
         <i>right now</i>. From there, you can <strong>comment on their code in real-time</strong>,
-        and if you want to give suggestions for improvements, checking out their workspace on your
+        and if you want to give suggestions for improvements, checking out their draft on your
         computer is just one click away.
       </p>
       <div class="relative text-base mx-auto max-w-prose lg:max-w-none">

@@ -38,7 +38,7 @@
       <p>So what do you do?</p>
       <p>
         Let's say that Sarahs changes are approved first, and she shares them with the rest of the
-        team. The next time that Frank syncs new changes into his workspace, the conflict will be
+        team. The next time that Frank syncs new changes into his draft change, the conflict will be
         detected, and he'll have to decide how to resolve the conflict.
       </p>
 

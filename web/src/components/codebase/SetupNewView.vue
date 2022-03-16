@@ -270,8 +270,8 @@ export default defineComponent({
             component: SetupSturdyInstallAppStep,
           },
           {
-            name: 'Setup directory',
-            description: 'Connect Sturdy app to a local directory',
+            name: 'Create directory',
+            description: 'Create a new directory, and connect Sturdy to it',
             status:
               this.currentStep === 1 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
             component: CreateViewAndWorkspace,
@@ -281,8 +281,8 @@ export default defineComponent({
 
       return [
         {
-          name: 'Setup directory',
-          description: 'Connect Sturdy app to a local directory',
+          name: 'Create directory',
+          description: 'Create a new directory, and connect Sturdy to it',
           status:
             this.currentStep === 0 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
           component: CreateViewAndWorkspace,

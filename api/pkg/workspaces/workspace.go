@@ -63,5 +63,5 @@ func (w Workspace) NameOrFallback() string {
 	if w.Name != nil {
 		return *w.Name
 	}
-	return fmt.Sprintf("Unnamed Workspace %s", w.ID[:8])
+	return fmt.Sprintf("Unnamed Draft %s", w.ID[:8])
 }

@@ -1,9 +1,9 @@
 <template>
   <StaticPage
-    title="Instant Workspace switching"
-    subtitle="Navigate between coding workspaces with one click"
+    title="Instant draft change switching"
+    subtitle="Navigate between open drafts with one click"
     category="solutions"
-    metadescription="Navigate between coding workspaces with one click"
+    metadescription="Navigate between open drafts with one click"
   >
     <div
       class="mt-5 prose prose-yellow text-gray-500 mx-auto lg:max-w-none lg:row-start-1 lg:col-start-1"
@@ -14,12 +14,12 @@
           >manages the codebase folder on your workstation
         </router-link>
         , jumping between different work efforts is really easy. It takes a single click to move
-        your development environment to another workspace, either yours or created by your team. All
+        your development environment to another draft change, either yours or created by your team. All
         of this without losing any of your work in progress.
       </p>
       <p>
         We are building Sturdy in order to make experimentation and collaboration on code easier.
-        Instant workspace switching is particularly useful when you:
+        Instant draft change switching is particularly useful when you:
       </p>
       <ul>
         <li>Suddenly spot something small that you wish to fix and deploy separately</li>
@@ -33,7 +33,7 @@
           loop
           muted
           playsinline
-          alt="Navigating between Sturdy workspaces with one click"
+          alt="Navigating between Sturdy drafts with one click"
           class="rounded-lg object-cover object-center"
         >
           <source src="../../assets/Landing/WorkspaceSwitching.webm" type="video/webm" />
@@ -41,7 +41,7 @@
         </video>
       </div>
       <p>
-        Compared to checking out different Git branches, switching workspaces is a very lightweight
+        Compared to checking out different Git branches, switching between open draft changes is a very lightweight
         operation.
       </p>
       <p>

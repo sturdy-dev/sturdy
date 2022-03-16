@@ -1,7 +1,7 @@
 <template>
   <ConfirmModal
-    title="Archive workspace"
-    subtitle="Are you sure you want to archive this workspace?"
+    title="Archive draft change"
+    subtitle="Are you sure you want to archive this draft?"
     :show="isActive"
     @confirmed="deleteWorkspace"
     @close="close"

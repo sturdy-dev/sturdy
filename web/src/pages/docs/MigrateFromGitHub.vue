@@ -57,12 +57,12 @@
 
       <ul>
         <li>Sturdy syncs new commits when they are pushed to the <i>default</i> GitHub branch</li>
-        <li>Use Sturdy workspaces, with live feedback and suggestions</li>
+        <li>Use Sturdy draft changes, with live feedback and suggestions</li>
         <li>
-          When a workspace is ready to be shared, Sturdy opens a Pull Request towards your repo.
+          When a draft change is ready to be shared, Sturdy opens a pull request towards your repo.
           Where you can use your existing code review and CI/CD tools.
         </li>
-        <li>When the Pull Request is merged on GitHub, it will be synced back to Sturdy again</li>
+        <li>When the pull request is merged on GitHub, it will be synced back to Sturdy again</li>
       </ul>
       <h3 id="sturdy-as-source-of-truth">Sturdy as the source of truth</h3>
       <p>
@@ -72,7 +72,7 @@
       </p>
       <ul>
         <li>Changes are shared directly on Sturdy</li>
-        <li>Use Sturdy workspaces, with live feedback and suggestions</li>
+        <li>Use Sturdy draft changes, with live feedback and suggestions</li>
         <li>
           After a change has been <i>shared</i> on Sturdy, a copy can be pushed to your GitHub
           repository, as a backup, or to trigger your release pipelines.

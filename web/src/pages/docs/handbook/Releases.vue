@@ -15,7 +15,7 @@
         <p>How to make a new release of the Sturdy Docker oneliner.</p>
 
         <ol>
-          <li>In a new workspace, prepare release notes (CHANGELOG.md)</li>
+          <li>In a new draft change, prepare release notes (CHANGELOG.md)</li>
           <li>
             Announce in <a href="https://getsturdy.slack.com/archives/C01MHP6SUKS">#general</a> that
             you're making a release
@@ -40,7 +40,7 @@
         <p>How to make a new release of the Sturdy Electron app.</p>
 
         <ol>
-          <li>In a new workspace, prepare release notes (CHANGELOG.md)</li>
+          <li>In a new draft change, prepare release notes (CHANGELOG.md)</li>
           <li>
             Announce in <a href="https://getsturdy.slack.com/archives/C01MHP6SUKS">#general</a> that
             you're making a release

@@ -21,7 +21,7 @@
           @click="copyToNewWorkspace"
         >
           <DocumentDuplicateIcon class="h-4" />
-          <span class="flex-1 whitespace-nowrap">Copy to New Workspace</span>
+          <span class="flex-1 whitespace-nowrap">Copy to New Draft</span>
         </button>
 
         <button

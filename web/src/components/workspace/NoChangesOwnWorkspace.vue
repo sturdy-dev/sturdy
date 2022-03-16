@@ -7,7 +7,7 @@
 
     <div class="text-gray-500 m-auto text-sm max-w-sm mt-2">
       <p v-if="workspace.view == null">
-        You haven't made any changes yet. Connect a local directory to this workspace to
+        You haven't made any changes yet. Connect a local directory to this draft change to
         <span class="whitespace-nowrap">get started!</span>
       </p>
 

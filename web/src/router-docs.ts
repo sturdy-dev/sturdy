@@ -98,13 +98,11 @@ export const RoutesDocs: RouteRecordRaw[] = [
   },
   {
     path: '/syncing',
-    redirect: '/docs/syncing',
+    redirect: '/docs',
   },
   {
     path: '/docs/syncing',
-    component: () => import('./pages/docs/SharingAndSyncing.vue'),
-    name: 'syncing',
-    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+    redirect: '/docs',
   },
   {
     path: '/features/instant-switching',

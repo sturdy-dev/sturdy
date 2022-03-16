@@ -415,8 +415,7 @@ func prDescription(userName, userGitHubLogin string, cb *codebase.Codebase, ws *
 	builder.WriteString("\n\n---\n\n")
 
 	workspaceUrl := fmt.Sprintf("https://getsturdy.com/%s/%s", cb.GenerateSlug(), ws.ID)
-	builder.WriteString(fmt.Sprintf("This PR was created from %s's (%s) [workspace](%s) on [Sturdy](https://getsturdy.com/).\n\n", userName, userGitHubLogin, workspaceUrl))
-	builder.WriteString("Join your team, and code and collaborate on Sturdy, [join now!](https://getsturdy.com/get-started/github)\n\n")
+	builder.WriteString(fmt.Sprintf("This PR was created by %s (%s) on [Sturdy](%s).\n\n", userName, userGitHubLogin, workspaceUrl))
 	builder.WriteString("Update this PR by making changes through Sturdy.\n")
 
 	res := builder.String()

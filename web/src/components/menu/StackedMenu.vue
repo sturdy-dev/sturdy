@@ -69,12 +69,13 @@
               :dependencies="['FindingYourWorkspace', 'LandingAChange']"
               :enabled="codebase.workspaces.some((ws) => ws.isCurrent)"
             >
-              <template #title>More Workspaces</template>
+              <template #title>More draft changes</template>
 
               <template #description>
-                Workspaces are cheap! You can make new ones on the fly, and move your local
-                directory between them. Changes you make stay in the workspace until you share them!
-                Make one to quickly fix a bug, or try out an idea without interrupting your flow.
+                Create as many draft changes as you need! You can make new ones on the fly, and move
+                your local directory between them. Changes you make stay in the draft until you
+                share them! Make one to quickly fix a bug, or try out an idea without interrupting
+                your flow.
               </template>
 
               <Tooltip :y-direction="codebaseIdx === 0 ? 'down' : 'up'" x-direction="left">
@@ -98,20 +99,20 @@
               id="FindingYourWorkspace"
               :enabled="codebaseIdx === 0 && workspaceIdx === 0"
             >
-              <template #title>Workspaces</template>
+              <template #title>Draft changes</template>
               <template #description>
                 <div v-if="workspace.currentView == null && workspace.isOwnedByUser">
-                  Look over here! This is a workspace – a place where you can make changes to the
-                  codebase. Connect your local directory to the workspace and start making changes
-                  in your own editor!
+                  Look over here! This is a draft change – a place where you can make changes to the
+                  codebase. Connect your local directory to the draft and start making changes in
+                  your own editor!
                 </div>
                 <div v-else-if="workspace.currentView != null && workspace.isOwnedByUser">
-                  Look over here! This is a workspace – a place where you can make change to the
+                  Look over here! This is a draft change – a place where you can make change to the
                   codebase. Your local directory is connected to it, so you can start making changes
                   in your own editor!
                 </div>
                 <div v-else>
-                  Look over here! This is a workspace – a place where changes are made to the
+                  Look over here! This is a draft change – a place where changes are made to the
                   codebase. Create one for yourself and connect your local directory to it!
                 </div>
               </template>

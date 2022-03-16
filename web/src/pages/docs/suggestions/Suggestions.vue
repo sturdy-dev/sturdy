@@ -7,20 +7,20 @@
   >
     <div class="prose prose-yellow">
       <p>
-        Sturdy's workspaces gives you real-time superpowers. All of the code that you create in a
-        workspace is instantly available for your team to review and feedback on.
+        Sturdy's draft changes gives you real-time superpowers. All of the code that you create in a
+        draft is instantly available for your team to review and feedback on.
       </p>
 
       <p>
-        Workspaces are powerful and allow you to comment and collaborate in real time. In this
+        Draft changes are powerful and allow you to comment and collaborate in real time. In this
         documentation we'll go through how to use
-        <strong>Suggestions</strong>, to give feedback and suggest changes to a workspace &mdash;
+        <strong>Suggestions</strong>, to give feedback and suggest changes to a draft &mdash;
         directly from your editor or IDE.
       </p>
 
       <ul>
         <li>Share feedback directly from your editor</li>
-        <li>Explore any workspace from your IDE, with powerful code navigation</li>
+        <li>Explore any drafts from your IDE, with powerful code navigation</li>
         <li>Give and take feedback, without leaving your editor or browser</li>
         <li>No copy-pasting, and no commands to run on the command line</li>
       </ul>
@@ -47,9 +47,9 @@
       </p>
 
       <p>
-        With this single click, all files from Gustav's workspace are transferred to Thomas
+        With this single click, all files from Gustav's draft change are transferred to Thomas
         computer. If Thomas had any unsaved changes, they would be saved and will be automatically
-        restored when he goes back to his own workspace.
+        restored when he goes back to his own draft.
       </p>
 
       <a :href="thomasSuggestingImage" target="_blank">
@@ -65,13 +65,13 @@
         <img :src="gustavTakeSuggestionImage" height="2096" width="3562" />
       </a>
       <p>
-        Gustav now gets a notification that Thomas has made suggestions to his workspace, and can
+        Gustav now gets a notification that Thomas has made suggestions to his draft change, and can
         decide to either take the suggestion, or dismiss it.
       </p>
 
       <p>
         By clicking <strong>Take suggestion</strong>, the suggestions from Thomas can be instantly
-        applied to Gustav's workspace, and are downloaded to his computer.
+        applied to Gustav's draft, and are downloaded to his computer.
       </p>
 
       <h3>Read more</h3>

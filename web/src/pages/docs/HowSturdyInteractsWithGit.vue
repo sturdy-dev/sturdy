@@ -119,7 +119,7 @@
           <li>Discover work-in-progress code within the team, get early feedback.</li>
           <li>No manual synchronizing of local and remote.</li>
           <li>
-            Getting the code from someone else’s workspace (roughly equivalent to a branch or pull
+            Getting the code from someone else’s draft change (roughly equivalent to a branch or pull
             request) with a single click.
           </li>
           <li>Trivial to give or accept code suggestions.</li>
@@ -146,7 +146,7 @@
               <td>Repository</td>
             </tr>
             <tr>
-              <td>Workspace</td>
+              <td>Draft change</td>
               <td>Branch and pull request (<em>but live</em>)</td>
             </tr>
             <tr>

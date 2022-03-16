@@ -11,7 +11,7 @@
 
                     Codebase <strong>{{ .GitHubRepo.Name }}</strong> is now ready to be used on Sturdy!<br /><br />
 
-                    Share, try, and iterate on code together using Sturdy’s supercharged workspaces. It’s like Slack instead of email.
+                    Share, try, and iterate on code together using Sturdy’s supercharged workflow. It’s like Slack instead of email.
                 </mj-text>
 
                 <mj-button font-family="Helvetica" background-color="#FBBF24" color="black" align="left" href="https://getsturdy.com/{{ .Codebase.GenerateSlug }}">
