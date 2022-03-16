@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/github"
 
 	"github.com/jmoiron/sqlx"
@@ -15,7 +16,7 @@ type gitHubPRRepo struct {
 type GitHubPRRepo interface {
 	Create(pr github.PullRequest) error
 	Get(ID string) (*github.PullRequest, error)
-	GetByGitHubID(gitHubID int64) (*github.PullRequest, error)
+	GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID string) (*github.PullRequest, error)
 	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error)
 	ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error)
 	GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error)
@@ -93,9 +94,9 @@ func (r *gitHubPRRepo) Get(ID string) (*github.PullRequest, error) {
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) GetByGitHubID(gitHubID int64) (*github.PullRequest, error) {
+func (r *gitHubPRRepo) GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID string) (*github.PullRequest, error) {
 	var pr github.PullRequest
-	err := r.db.Get(&pr, "SELECT * FROM github_pull_requests WHERE github_id=$1", gitHubID)
+	err := r.db.Get(&pr, "SELECT * FROM github_pull_requests WHERE github_id=$1 AND codebase_id = $2", gitHubID, codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

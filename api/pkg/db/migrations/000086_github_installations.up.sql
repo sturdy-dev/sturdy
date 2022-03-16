@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS github_installations
     uninstalled_at  timestamp,
     PRIMARY KEY (id)
 );
+
 CREATE UNIQUE INDEX ON github_installations (installation_id);
 
 CREATE TABLE IF NOT EXISTS github_repositories

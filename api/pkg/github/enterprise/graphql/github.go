@@ -55,12 +55,12 @@ func (r *gitHubRootResolver) GitHubRepositories(ctx context.Context) ([]resolver
 func (r *gitHubRootResolver) SetupGitHubRepository(ctx context.Context, args resolvers.SetupGitHubRepositoryArgs) (resolvers.CodebaseResolver, error) {
 	installationID, err := strconv.ParseInt(string(args.Input.GitHubInstallationID), 10, 64)
 	if err != nil {
-		return nil, gqlerrors.Error(err)
+		return nil, gqlerrors.Error(fmt.Errorf("failed to parse GitHubInstallationID: %w", err))
 	}
 
-	repositoryID, _ := strconv.ParseInt(string(args.Input.GitHubRepositoryID), 10, 64)
+	repositoryID, err := strconv.ParseInt(string(args.Input.GitHubRepositoryID), 10, 64)
 	if err != nil {
-		return nil, gqlerrors.Error(err)
+		return nil, gqlerrors.Error(fmt.Errorf("failed to parse GitHubRepositoryID: %w", err))
 	}
 
 	userID, err := auth.UserID(ctx)
