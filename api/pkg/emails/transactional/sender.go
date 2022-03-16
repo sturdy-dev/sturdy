@@ -416,7 +416,7 @@ func (e *Sender) Send(
 	u *users.User,
 	subject string,
 	template templates.Template,
-	data interface{},
+	data any,
 ) error {
 	content, err := templates.Render(template, data)
 	if err != nil {

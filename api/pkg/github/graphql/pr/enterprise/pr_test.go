@@ -660,7 +660,7 @@ func (f *fakeGitHubAppsClient) Get(ctx context.Context, appSlug string) (*gh.App
 	panic("implement me")
 }
 
-func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, reqType string, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response any, reqType string, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params

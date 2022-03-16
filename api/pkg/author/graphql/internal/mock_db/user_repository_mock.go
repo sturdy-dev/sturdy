@@ -45,7 +45,7 @@ func (m *MockRepository) Count(arg0 context.Context) (uint64, error) {
 }
 
 // Count indicates an expected call of Count.
-func (mr *MockRepositoryMockRecorder) Count(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Count(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockRepository)(nil).Count), arg0)
 }
@@ -59,7 +59,7 @@ func (m *MockRepository) Create(arg0 *users.User) error {
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0)
 }
@@ -74,7 +74,7 @@ func (m *MockRepository) Get(arg0 users.ID) (*users.User, error) {
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockRepositoryMockRecorder) Get(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Get(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepository)(nil).Get), arg0)
 }
@@ -89,7 +89,7 @@ func (m *MockRepository) GetByEmail(arg0 string) (*users.User, error) {
 }
 
 // GetByEmail indicates an expected call of GetByEmail.
-func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockRepository)(nil).GetByEmail), arg0)
 }
@@ -97,7 +97,7 @@ func (mr *MockRepositoryMockRecorder) GetByEmail(arg0 interface{}) *gomock.Call 
 // GetByIDs mocks base method.
 func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...users.ID) ([]*users.User, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0}
+	varargs := []any{arg0}
 	for _, a := range arg1 {
 		varargs = append(varargs, a)
 	}
@@ -108,9 +108,9 @@ func (m *MockRepository) GetByIDs(arg0 context.Context, arg1 ...users.ID) ([]*us
 }
 
 // GetByIDs indicates an expected call of GetByIDs.
-func (mr *MockRepositoryMockRecorder) GetByIDs(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetByIDs(arg0 any, arg1 ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0}, arg1...)
+	varargs := append([]any{arg0}, arg1...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByIDs", reflect.TypeOf((*MockRepository)(nil).GetByIDs), varargs...)
 }
 
@@ -124,7 +124,7 @@ func (m *MockRepository) List(arg0 context.Context, arg1 uint64) ([]*users.User,
 }
 
 // List indicates an expected call of List.
-func (mr *MockRepositoryMockRecorder) List(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) List(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockRepository)(nil).List), arg0, arg1)
 }
@@ -138,7 +138,7 @@ func (m *MockRepository) Update(arg0 *users.User) error {
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), arg0)
 }
@@ -152,7 +152,7 @@ func (m *MockRepository) UpdatePassword(arg0 *users.User) error {
 }
 
 // UpdatePassword indicates an expected call of UpdatePassword.
-func (mr *MockRepositoryMockRecorder) UpdatePassword(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) UpdatePassword(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockRepository)(nil).UpdatePassword), arg0)
 }

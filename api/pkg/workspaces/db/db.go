@@ -142,13 +142,13 @@ func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 
 type updateQuery struct {
 	raw  strings.Builder
-	args map[string]interface{}
+	args map[string]any
 }
 
 func newQuery() *updateQuery {
 	return &updateQuery{
 		raw:  strings.Builder{},
-		args: make(map[string]interface{}),
+		args: make(map[string]any),
 	}
 }
 
@@ -161,7 +161,7 @@ func (u *updateQuery) String(workspaceID string) string {
 	}, " ")
 }
 
-func (u *updateQuery) Set(field string, value interface{}) *updateQuery {
+func (u *updateQuery) Set(field string, value any) *updateQuery {
 	if len(u.args) == 0 {
 		u.raw.WriteString(fmt.Sprintf("%s = :%s", field, field))
 	} else {

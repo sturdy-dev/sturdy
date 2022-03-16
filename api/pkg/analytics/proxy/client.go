@@ -19,9 +19,9 @@ type client struct {
 	installation *installations.Installation
 }
 
-func (c *client) setProperties(properties map[string]interface{}) map[string]interface{} {
+func (c *client) setProperties(properties map[string]any) map[string]any {
 	if properties == nil {
-		properties = make(map[string]interface{}, 3)
+		properties = make(map[string]any, 3)
 	}
 	properties["installation_id"] = c.installation.ID
 	properties["installation_type"] = c.installation.Type.String()
@@ -29,9 +29,9 @@ func (c *client) setProperties(properties map[string]interface{}) map[string]int
 	return properties
 }
 
-func (c *client) setGroups(groups map[string]interface{}) map[string]interface{} {
+func (c *client) setGroups(groups map[string]any) map[string]any {
 	if groups == nil {
-		groups = make(map[string]interface{}, 1)
+		groups = make(map[string]any, 1)
 	}
 	groups["installation"] = c.installation.ID
 	return groups
@@ -64,7 +64,7 @@ func (c *client) identifyInstallation() {
 	if err := c.Client.Enqueue(posthog.GroupIdentify{
 		Type: "installation", // this should match other event's property key
 		Key:  c.installation.ID,
-		Properties: map[string]interface{}{
+		Properties: map[string]any{
 			"type":            c.installation.Type.String(),
 			"version":         c.installation.Version,
 			"license_key_set": c.installation.LicenseKey != nil,

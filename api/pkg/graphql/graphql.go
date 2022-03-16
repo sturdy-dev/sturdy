@@ -223,7 +223,7 @@ func CorsMiddleware(allowOrigins []string) func(*gin.Context) {
 
 // Reads and parses the schema from file.
 // Associates root resolver. Panics if can't read.
-func parseSchema(resolver interface{}, tracer *metricTracer, logger *zap.Logger) *graphql.Schema {
+func parseSchema(resolver any, tracer *metricTracer, logger *zap.Logger) *graphql.Schema {
 	parsedSchema, err := graphql.ParseSchema(
 		schema.String,
 		resolver,
@@ -248,7 +248,7 @@ func NewPanicHandler(logger *zap.Logger) *sturdyPanicHandler {
 	}
 }
 
-func (s *sturdyPanicHandler) MakePanicError(ctx context.Context, value interface{}) *errors.QueryError {
+func (s *sturdyPanicHandler) MakePanicError(ctx context.Context, value any) *errors.QueryError {
 	s.logger.Error("panic in graphql resolver", zap.Any("panic_value", value))
 	return errors.Errorf("internal server error")
 }
@@ -266,7 +266,7 @@ type metricTracer struct {
 	logger *zap.Logger
 }
 
-func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, operationName string, variables map[string]interface{}, varTypes map[string]*introspection.Type) (context.Context, trace.TraceQueryFinishFunc) {
+func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, operationName string, variables map[string]any, varTypes map[string]*introspection.Type) (context.Context, trace.TraceQueryFinishFunc) {
 	return ctx, func(errors []*errors.QueryError) {
 		fields := []zap.Field{
 			zap.String("queryString", queryString),
@@ -308,7 +308,7 @@ func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, opera
 	}
 }
 
-func (m *metricTracer) TraceField(ctx context.Context, label, typeName, fieldName string, trivial bool, args map[string]interface{}) (context.Context, trace.TraceFieldFinishFunc) {
+func (m *metricTracer) TraceField(ctx context.Context, label, typeName, fieldName string, trivial bool, args map[string]any) (context.Context, trace.TraceFieldFinishFunc) {
 	t0 := time.Now()
 	return ctx, func(err *errors.QueryError) {
 		hasError := "false"

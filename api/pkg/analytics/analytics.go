@@ -4,16 +4,16 @@ import "getsturdy.com/api/pkg/users"
 
 type CaptureOptions struct {
 	DistinctId string
-	Groups     map[string]interface{}
-	Properties map[string]interface{}
+	Groups     map[string]any
+	Properties map[string]any
 }
 
 type CaptureOption func(*CaptureOptions)
 
-func Property(key string, value interface{}) CaptureOption {
+func Property(key string, value any) CaptureOption {
 	return func(o *CaptureOptions) {
 		if o.Properties == nil {
-			o.Properties = make(map[string]interface{})
+			o.Properties = make(map[string]any)
 		}
 		o.Properties[key] = value
 	}
@@ -34,11 +34,11 @@ func DistinctID(id string) CaptureOption {
 func CodebaseID(id string) CaptureOption {
 	return func(o *CaptureOptions) {
 		if o.Properties == nil {
-			o.Properties = make(map[string]interface{})
+			o.Properties = make(map[string]any)
 		}
 		o.Properties["codebase_id"] = id
 		if o.Groups == nil {
-			o.Groups = make(map[string]interface{})
+			o.Groups = make(map[string]any)
 		}
 		o.Groups["codebase"] = id
 	}
@@ -47,11 +47,11 @@ func CodebaseID(id string) CaptureOption {
 func OrganizationID(id string) CaptureOption {
 	return func(o *CaptureOptions) {
 		if o.Properties == nil {
-			o.Properties = make(map[string]interface{})
+			o.Properties = make(map[string]any)
 		}
 		o.Properties["organization_id"] = id
 		if o.Groups == nil {
-			o.Groups = make(map[string]interface{})
+			o.Groups = make(map[string]any)
 		}
 		o.Groups["organization"] = id
 	}

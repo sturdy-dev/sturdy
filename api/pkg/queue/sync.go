@@ -21,7 +21,7 @@ func NewSync() *Sync {
 	}
 }
 
-func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg interface{}) error {
+func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg any) error {
 	chs, ok := q.chans[name]
 	if !ok {
 		return nil

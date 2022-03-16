@@ -16,7 +16,7 @@ type Module func(*Container)
 
 type Container struct {
 	container *dig.Container
-	invokes   []interface{}
+	invokes   []any
 }
 
 // Register teaches container how to create an instance of the given type, for instance:
@@ -39,7 +39,7 @@ type Container struct {
 //     container.Register(func(*MyOtherType) MyType { ... })
 //     container.Register(func(*MyType) MyOtherTypeType { ... })
 //
-func (c *Container) Register(provider interface{}, as ...interface{}) {
+func (c *Container) Register(provider any, as ...any) {
 	if len(as) == 0 {
 		if err := c.container.Provide(provider); err != nil {
 			panic(fmt.Sprintf("%+v", err))
@@ -75,7 +75,7 @@ func (c *Container) Register(provider interface{}, as ...interface{}) {
 		}
 	}
 
-	invokes := make([]interface{}, 0, len(cycleForTypes))
+	invokes := make([]any, 0, len(cycleForTypes))
 	for _, cycleType := range cycleForTypes {
 		cycleValPtr := reflect.New(cycleType)
 
@@ -112,7 +112,7 @@ func isDigError(err error) bool {
 }
 
 // Init retrieves an instance of the dest from the container.
-func Init(dest interface{}, module Module) error {
+func Init(dest any, module Module) error {
 	c := &Container{
 		container: dig.New(),
 	}

@@ -347,7 +347,7 @@ func (r *notificationPreferenceResolver) Enabled() bool {
 type notificationResolver struct {
 	notif   notification.Notification
 	root    *notificationRootResolver
-	subItem interface{}
+	subItem any
 }
 
 func (r *notificationResolver) ID() graphql.ID {
@@ -392,7 +392,7 @@ func (r *notificationResolver) Codebase(ctx context.Context) (resolvers.Codebase
 	return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 }
 
-func (r *notificationResolver) sub(ctx context.Context) (interface{}, error) {
+func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 	switch r.notif.NotificationType {
 	case notification.CommentNotificationType:
 		return r.root.commentResolver.Comment(ctx, resolvers.CommentArgs{ID: graphql.ID(r.notif.ReferenceID)})

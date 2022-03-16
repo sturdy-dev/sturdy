@@ -9,7 +9,7 @@ import (
 
 type ResolverError interface {
 	error
-	Extensions() map[string]interface{}
+	Extensions() map[string]any
 }
 
 var ErrNotFound = errors.New("NotFoundError")
@@ -37,7 +37,7 @@ func IsClientSideError(err error) bool {
 }
 
 func Error(err error, kv ...string) ResolverError {
-	data := make(map[string]interface{})
+	data := make(map[string]any)
 	for i := 0; i < len(kv); i += 2 {
 		data[kv[i]] = kv[i+1]
 	}
@@ -65,7 +65,7 @@ func Error(err error, kv ...string) ResolverError {
 
 type SturdyGraphqlError struct {
 	err  error // This error is exposed on the API
-	data map[string]interface{}
+	data map[string]any
 
 	originalError error // not exposed by GraphQL, used for internal logging
 }
@@ -74,7 +74,7 @@ func (e *SturdyGraphqlError) Error() string {
 	return e.err.Error()
 }
 
-func (e *SturdyGraphqlError) Extensions() map[string]interface{} {
+func (e *SturdyGraphqlError) Extensions() map[string]any {
 	return e.data
 }
 

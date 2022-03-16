@@ -32,7 +32,7 @@ type inmemorymessage struct {
 	ack               chan struct{}
 }
 
-func newInmemoryMessage(v interface{}) (*inmemorymessage, error) {
+func newInmemoryMessage(v any) (*inmemorymessage, error) {
 	marshaled, err := json.Marshal(v)
 	if err != nil {
 		return nil, err
@@ -52,11 +52,11 @@ func (m *inmemorymessage) Ack() error {
 	return nil
 }
 
-func (m *inmemorymessage) As(v interface{}) error {
+func (m *inmemorymessage) As(v any) error {
 	return json.Unmarshal(m.marshalledMessage, v)
 }
 
-func (q *memoryQueue) Publish(ctx context.Context, name names.IncompleteQueueName, msg interface{}) error {
+func (q *memoryQueue) Publish(ctx context.Context, name names.IncompleteQueueName, msg any) error {
 	q.chansGuard.RLock()
 	defer q.chansGuard.RUnlock()
 	chans, ok := q.chans[name]

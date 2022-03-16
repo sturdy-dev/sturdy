@@ -20,8 +20,8 @@ import (
 var (
 	//go:embed output/*.html output/notification/*.html
 	fs        embed.FS
-	templates = template.Must(template.New("").Funcs(map[string]interface{}{
-		"ternary": func(vt interface{}, vf interface{}, v bool) interface{} {
+	templates = template.Must(template.New("").Funcs(map[string]any{
+		"ternary": func(vt any, vf any, v bool) any {
 			if v {
 				return vt
 			}
@@ -110,7 +110,7 @@ type VerifyEmailTemplateData struct {
 	Token *jwt.Token
 }
 
-func Render(template Template, data interface{}) (string, error) {
+func Render(template Template, data any) (string, error) {
 	rendered := &bytes.Buffer{}
 	if err := templates.ExecuteTemplate(rendered, string(template), data); err != nil {
 		return "", fmt.Errorf("failed to render template: %w", err)

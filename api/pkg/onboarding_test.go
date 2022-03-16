@@ -794,11 +794,11 @@ func copy(t *testing.T, src string, dst string) {
 	assert.NoError(t, err)
 }
 
-func request(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}) {
+func request(t *testing.T, userID users.ID, route func(*gin.Context), request, response any) {
 	requestWithParams(t, userID, route, request, response, nil)
 }
 
-func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response any, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params

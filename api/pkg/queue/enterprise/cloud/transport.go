@@ -14,7 +14,7 @@ type transport struct {
 
 const dataLimit = 256 * 1024 // 256kb
 
-func marshal(data interface{}) ([]byte, error) {
+func marshal(data any) ([]byte, error) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal data to json: %w", err)
@@ -38,7 +38,7 @@ func marshal(data interface{}) ([]byte, error) {
 	})
 }
 
-func unmarshal(data []byte, dist interface{}) error {
+func unmarshal(data []byte, dist any) error {
 	var msg transport
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return fmt.Errorf("failed to unmarshal data: %w", err)

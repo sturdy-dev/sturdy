@@ -44,7 +44,7 @@ func (m *MockNotificationSender) Codebase(arg0 context.Context, arg1 string, arg
 }
 
 // Codebase indicates an expected call of Codebase.
-func (mr *MockNotificationSenderMockRecorder) Codebase(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+func (mr *MockNotificationSenderMockRecorder) Codebase(arg0, arg1, arg2, arg3, arg4 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Codebase", reflect.TypeOf((*MockNotificationSender)(nil).Codebase), arg0, arg1, arg2, arg3, arg4)
 }
@@ -58,7 +58,7 @@ func (m *MockNotificationSender) User(arg0 context.Context, arg1, arg2 string, a
 }
 
 // User indicates an expected call of User.
-func (mr *MockNotificationSenderMockRecorder) User(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+func (mr *MockNotificationSenderMockRecorder) User(arg0, arg1, arg2, arg3, arg4 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "User", reflect.TypeOf((*MockNotificationSender)(nil).User), arg0, arg1, arg2, arg3, arg4)
 }

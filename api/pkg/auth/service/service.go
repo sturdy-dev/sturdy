@@ -61,18 +61,18 @@ const (
 )
 
 // CanRead checks if the user has the read permission on the given object.
-func (s *Service) CanRead(ctx context.Context, obj interface{}) error {
+func (s *Service) CanRead(ctx context.Context, obj any) error {
 	return s.hasAccess(ctx, accessTypeRead, obj)
 }
 
 // CanWrite checks if the user has the write permission on the given object.
-func (s *Service) CanWrite(ctx context.Context, obj interface{}) error {
+func (s *Service) CanWrite(ctx context.Context, obj any) error {
 	return s.hasAccess(ctx, accessTypeWrite, obj)
 }
 
 // hasAccess checks if the user has the given permission on the given object.
 //nolint:cyclop
-func (s *Service) hasAccess(ctx context.Context, at accessType, obj interface{}) error {
+func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 	subject, found := auth.FromContext(ctx)
 	if !found {
 		return fmt.Errorf("subject is not found in the context: %w", auth.ErrUnauthenticated)

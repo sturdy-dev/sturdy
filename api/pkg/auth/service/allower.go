@@ -21,7 +21,7 @@ var (
 	noneAllowed, _ = unidiff.NewAllower()
 )
 
-func (s *Service) GetAllower(ctx context.Context, obj interface{}) (*unidiff.Allower, error) {
+func (s *Service) GetAllower(ctx context.Context, obj any) (*unidiff.Allower, error) {
 	if obj == nil {
 		return noneAllowed, nil
 	}

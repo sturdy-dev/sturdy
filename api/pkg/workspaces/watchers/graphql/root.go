@@ -6,9 +6,9 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"

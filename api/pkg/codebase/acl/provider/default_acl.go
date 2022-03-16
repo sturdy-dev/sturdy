@@ -44,7 +44,7 @@ var (
 func defaultACLFor(aclID string, userEmails []string) (string, error) {
 	w := bytes.Buffer{}
 
-	if err := defaultACLTemplate.Execute(&w, map[string]interface{}{
+	if err := defaultACLTemplate.Execute(&w, map[string]any{
 		"aclID":      aclID,
 		"userEmails": userEmails,
 	}); err != nil {

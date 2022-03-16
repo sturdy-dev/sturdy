@@ -12,7 +12,7 @@ func NewNoop() *noopQueue {
 	return &noopQueue{}
 }
 
-func (*noopQueue) Publish(context.Context, names.IncompleteQueueName, interface{}) error {
+func (*noopQueue) Publish(context.Context, names.IncompleteQueueName, any) error {
 	return nil
 }
 
