@@ -93,7 +93,7 @@ type event struct {
 	View              *view.View
 	Workspace         *workspaces.Workspace
 	Review            *review.Review
-	GitHubPullRequest *github.GitHubPullRequest
+	GitHubPullRequest *github.PullRequest
 	Notification      *notification.Notification
 	Status            *statuses.Status
 	OnboardingStep    *onboarding.Step

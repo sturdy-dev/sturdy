@@ -149,15 +149,15 @@ func New(
 	}
 }
 
-func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string) (*github.GitHubRepository, error) {
+func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string) (*github.Repository, error) {
 	return svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 }
 
-func (svc *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, installationID, repositoryID int64) (*github.GitHubRepository, error) {
+func (svc *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, installationID, repositoryID int64) (*github.Repository, error) {
 	return svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
 }
 
-func (svc *Service) Push(ctx context.Context, gitHubRepository *github.GitHubRepository, change *changes.Change) error {
+func (svc *Service) Push(ctx context.Context, gitHubRepository *github.Repository, change *changes.Change) error {
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
 	if err != nil {
 		return fmt.Errorf("failed to get github installation: %w", err)

@@ -94,13 +94,13 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canUserAccessView(ctx, subjectID, at, &object)
 		case *view.View:
 			return s.canUserAccessView(ctx, subjectID, at, object)
-		case github.GitHubRepository:
+		case github.Repository:
 			return s.canUserAccessGitHubRepo(ctx, subjectID, at, &object)
-		case *github.GitHubRepository:
+		case *github.Repository:
 			return s.canUserAccessGitHubRepo(ctx, subjectID, at, object)
-		case github.GitHubPullRequest:
+		case github.PullRequest:
 			return s.canUserAccessGitHubPullRequest(ctx, subjectID, at, &object)
-		case *github.GitHubPullRequest:
+		case *github.PullRequest:
 			return s.canUserAccessGitHubPullRequest(ctx, subjectID, at, object)
 		case comments.Comment:
 			return s.canUserAccessComment(ctx, subjectID, at, &object)
@@ -148,9 +148,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canAnonymousAccessReview(ctx, at, &object)
 		case *review.Review:
 			return s.canAnonymousAccessReview(ctx, at, object)
-		case github.GitHubRepository:
+		case github.Repository:
 			return s.canAnonymousAccessGitHubRepo(ctx, at, &object)
-		case *github.GitHubRepository:
+		case *github.Repository:
 			return s.canAnonymousAccessGitHubRepo(ctx, at, object)
 		case comments.Comment:
 			return s.canAnonymousAccessComment(ctx, at, &object)
@@ -378,7 +378,7 @@ func (s *Service) canUserAccessWorkspaceActivity(ctx context.Context, userID use
 	return fmt.Errorf("activity doesn't have workspace_id or change_id set: %w", auth.ErrForbidden)
 }
 
-func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID users.ID, at accessType, repo *github.GitHubRepository) error {
+func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID users.ID, at accessType, repo *github.Repository) error {
 	// user can access a github repository if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, repo.CodebaseID)
 	if err != nil {
@@ -387,7 +387,7 @@ func (s *Service) canUserAccessGitHubRepo(ctx context.Context, userID users.ID, 
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessGitHubPullRequest(ctx context.Context, userID users.ID, at accessType, pr *github.GitHubPullRequest) error {
+func (s *Service) canUserAccessGitHubPullRequest(ctx context.Context, userID users.ID, at accessType, pr *github.PullRequest) error {
 	// user can access a github pr if they can access the codebase it's in
 	cb, err := s.codebaseService.GetByID(ctx, pr.CodebaseID)
 	if err != nil {
@@ -396,7 +396,7 @@ func (s *Service) canUserAccessGitHubPullRequest(ctx context.Context, userID use
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canAnonymousAccessGitHubRepo(ctx context.Context, at accessType, repo *github.GitHubRepository) error {
+func (s *Service) canAnonymousAccessGitHubRepo(ctx context.Context, at accessType, repo *github.Repository) error {
 	if at != accessTypeRead {
 		return fmt.Errorf("anonymous users can only read github repositories: %w", auth.ErrForbidden)
 	}

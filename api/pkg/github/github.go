@@ -6,7 +6,7 @@ import (
 	"getsturdy.com/api/pkg/users"
 )
 
-type GitHubInstallation struct {
+type Installation struct {
 	ID                     string     `db:"id"`
 	InstallationID         int64      `db:"installation_id"`
 	Owner                  string     `db:"owner"`
@@ -15,7 +15,7 @@ type GitHubInstallation struct {
 	HasWorkflowsPermission bool       `db:"has_workflows_permission"`
 }
 
-type GitHubRepository struct {
+type Repository struct {
 	ID                               string     `db:"id"`
 	InstallationID                   int64      `db:"installation_id"`
 	Name                             string     `db:"name"`
@@ -39,7 +39,7 @@ type GitHubRepository struct {
 	LastPushAt           *time.Time `json:"-" db:"last_push_at"`
 }
 
-type GitHubUser struct {
+type User struct {
 	ID                         string    `json:"id" db:"id"`
 	UserID                     users.ID  `json:"user_id" db:"user_id"`
 	Username                   string    `json:"username" db:"username"`
@@ -48,7 +48,7 @@ type GitHubUser struct {
 	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
 }
 
-type GitHubPullRequest struct {
+type PullRequest struct {
 	ID                 string   `db:"id"`
 	WorkspaceID        string   `db:"workspace_id"`
 	GitHubID           int64    `db:"github_id"`

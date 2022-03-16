@@ -57,7 +57,7 @@ type WelcomeTemplateData struct {
 }
 
 type NotificationGitHubRepositoryImportedTemplateData struct {
-	GitHubRepo *github.GitHubRepository
+	GitHubRepo *github.Repository
 	Codebase   *codebase.Codebase
 	User       *users.User
 }

@@ -26,7 +26,7 @@ func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID users.ID) e
 	return svc.AddUserToCodebases(ctx, githubUser)
 }
 
-func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.GitHubUser) error {
+func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.User) error {
 	githubOAuth2Client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: ghUser.AccessToken}))
 	githubAPIClient := gh.NewClient(githubOAuth2Client)
 
@@ -66,7 +66,7 @@ func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID u
 		return fmt.Errorf("failed to get user accessible repos by IDs from db: %w", err)
 	}
 
-	var hasAccess []*github.GitHubRepository
+	var hasAccess []*github.Repository
 	for _, ghr := range gitHubRepositories {
 		if contains(repoIDs, ghr.GitHubRepositoryID) {
 			hasAccess = append(hasAccess, ghr)

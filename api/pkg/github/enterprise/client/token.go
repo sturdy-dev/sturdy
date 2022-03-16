@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func permissionsForInstallation(installation *github.GitHubInstallation) *gh.InstallationPermissions {
+func permissionsForInstallation(installation *github.Installation) *gh.InstallationPermissions {
 	var workflows *string
 	if installation.HasWorkflowsPermission {
 		workflows = gh.String("write")
@@ -24,7 +24,7 @@ func permissionsForInstallation(installation *github.GitHubInstallation) *gh.Ins
 	}
 }
 
-func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, githubClientProvider InstallationClientProvider) (*gh.InstallationToken, error) {
+func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppConfig, installation *github.Installation, gitHubRepositoryID int64, githubClientProvider InstallationClientProvider) (*gh.InstallationToken, error) {
 	// Get a new token
 
 	_, appsClient, err := githubClientProvider(
@@ -49,7 +49,7 @@ func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppC
 	return installToken, nil
 }
 
-func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.GitHubInstallation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider InstallationClientProvider) (string, error) {
+func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.Installation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider InstallationClientProvider) (string, error) {
 	// Check if we already have a valid token in the database
 	ghr, err := repo.GetByInstallationAndGitHubRepoID(installation.InstallationID, gitHubRepositoryID)
 	if err != nil {

@@ -411,7 +411,7 @@ func (svc *Service) HandleInstallationEvent(ctx context.Context, event *Installa
 		existing, err := svc.gitHubInstallationRepo.GetByInstallationID(event.Installation.GetID())
 		if errors.Is(err, sql.ErrNoRows) {
 			// Save new installation
-			err := svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
+			err := svc.gitHubInstallationRepo.Create(github.Installation{
 				ID:                     uuid.NewString(),
 				InstallationID:         event.Installation.GetID(),
 				Owner:                  event.Installation.GetAccount().GetLogin(), // "sturdy-dev" or "zegl", etc.
@@ -462,7 +462,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.GetInstallation().GetID())
 	// If the original InstallationEvent webhook was missed (otherwise user has to remove and re-add app)
 	if errors.Is(err, sql.ErrNoRows) {
-		installation := github.GitHubInstallation{
+		installation := github.Installation{
 			ID:                     uuid.NewString(),
 			InstallationID:         event.Installation.GetID(),
 			Owner:                  event.Installation.Account.GetLogin(), // "sturdy-dev" or "zegl", etc.

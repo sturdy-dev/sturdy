@@ -9,14 +9,14 @@ import (
 )
 
 type GitHubRepositoryRepo interface {
-	GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.GitHubRepository, error)
-	GetByInstallationAndName(installationID int64, name string) (*github.GitHubRepository, error)
-	GetByCodebaseID(repositoryID string) (*github.GitHubRepository, error)
-	GetByID(ID string) (*github.GitHubRepository, error)
-	ListByInstallationID(installationID int64) ([]*github.GitHubRepository, error)
-	ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.GitHubRepository, error)
-	Create(repository github.GitHubRepository) error
-	Update(*github.GitHubRepository) error
+	GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error)
+	GetByInstallationAndName(installationID int64, name string) (*github.Repository, error)
+	GetByCodebaseID(repositoryID string) (*github.Repository, error)
+	GetByID(ID string) (*github.Repository, error)
+	ListByInstallationID(installationID int64) ([]*github.Repository, error)
+	ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.Repository, error)
+	Create(repository github.Repository) error
+	Update(*github.Repository) error
 }
 
 type gitHubRepositoryRepo struct {
@@ -27,8 +27,8 @@ func NewGitHubRepositoryRepo(db *sqlx.DB) GitHubRepositoryRepo {
 	return &gitHubRepositoryRepo{db}
 }
 
-func (r *gitHubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.GitHubRepository, error) {
-	var res github.GitHubRepository
+func (r *gitHubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error) {
+	var res github.Repository
 	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE installation_id = $1 AND github_repository_id = $2", installationID, gitHubRepositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -36,8 +36,8 @@ func (r *gitHubRepositoryRepo) GetByInstallationAndGitHubRepoID(installationID, 
 	return &res, nil
 }
 
-func (r *gitHubRepositoryRepo) GetByInstallationAndName(installationID int64, name string) (*github.GitHubRepository, error) {
-	var res github.GitHubRepository
+func (r *gitHubRepositoryRepo) GetByInstallationAndName(installationID int64, name string) (*github.Repository, error) {
+	var res github.Repository
 	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE installation_id = $1 AND name = $2", installationID, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -45,8 +45,8 @@ func (r *gitHubRepositoryRepo) GetByInstallationAndName(installationID int64, na
 	return &res, nil
 }
 
-func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.GitHubRepository, error) {
-	var res github.GitHubRepository
+func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.Repository, error) {
+	var res github.Repository
 	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE id = $1", ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -54,8 +54,8 @@ func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.GitHubRepository, err
 	return &res, nil
 }
 
-func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.GitHubRepository, error) {
-	var res github.GitHubRepository
+func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.Repository, error) {
+	var res github.Repository
 	err := r.db.Get(&res, "SELECT * FROM github_repositories WHERE codebase_id = $1", repositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -63,8 +63,8 @@ func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.Git
 	return &res, nil
 }
 
-func (r *gitHubRepositoryRepo) ListByInstallationID(installationID int64) ([]*github.GitHubRepository, error) {
-	var entities []*github.GitHubRepository
+func (r *gitHubRepositoryRepo) ListByInstallationID(installationID int64) ([]*github.Repository, error) {
+	var entities []*github.Repository
 	err := r.db.Select(&entities, "SELECT * FROM github_repositories WHERE installation_id = $1", installationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -72,7 +72,7 @@ func (r *gitHubRepositoryRepo) ListByInstallationID(installationID int64) ([]*gi
 	return entities, nil
 }
 
-func (r *gitHubRepositoryRepo) ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.GitHubRepository, error) {
+func (r *gitHubRepositoryRepo) ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.Repository, error) {
 	query, args, err := sqlx.In("SELECT * FROM github_repositories WHERE installation_id = ? AND github_repository_id IN(?)",
 		installationID,
 		gitHubRepositoryIDs)
@@ -80,7 +80,7 @@ func (r *gitHubRepositoryRepo) ListByInstallationIDAndGitHubRepoIDs(installation
 		return nil, fmt.Errorf("failed to create query: %w", err)
 	}
 	query = r.db.Rebind(query)
-	var entities []*github.GitHubRepository
+	var entities []*github.Repository
 	err = r.db.Select(&entities, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -88,7 +88,7 @@ func (r *gitHubRepositoryRepo) ListByInstallationIDAndGitHubRepoIDs(installation
 	return entities, nil
 }
 
-func (r *gitHubRepositoryRepo) Create(i github.GitHubRepository) error {
+func (r *gitHubRepositoryRepo) Create(i github.Repository) error {
 	_, err := r.db.NamedExec(`INSERT INTO github_repositories (id, installation_id, name, created_at, github_repository_id, codebase_id, tracked_branch, synced_at, installation_access_token, installation_access_token_expires_at)
 		VALUES (:id, :installation_id, :name, :created_at, :github_repository_id, :codebase_id, :tracked_branch, :synced_at, :installation_access_token, :installation_access_token_expires_at)`, &i)
 	if err != nil {
@@ -97,7 +97,7 @@ func (r *gitHubRepositoryRepo) Create(i github.GitHubRepository) error {
 	return nil
 }
 
-func (r *gitHubRepositoryRepo) Update(i *github.GitHubRepository) error {
+func (r *gitHubRepositoryRepo) Update(i *github.Repository) error {
 	_, err := r.db.NamedExec(`UPDATE github_repositories
 			SET uninstalled_at = :uninstalled_at,
 				installation_access_token = :installation_access_token,

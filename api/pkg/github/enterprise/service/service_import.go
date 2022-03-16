@@ -82,7 +82,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
-func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.GitHubRepository, ghInstallation *github.GitHubInstallation, accessToken string) error {
+func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.Repository, ghInstallation *github.Installation, accessToken string) error {
 	// check that this pull request hasn't been imported before
 	if _, err := svc.gitHubPullRequestRepo.GetByGitHubID(gitHubPR.GetID()); err == nil {
 		return ErrAlreadyImported
@@ -206,7 +206,7 @@ func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHub
 
 	if gitHubPR.GetHead().GetUser().GetLogin() == ghInstallation.Owner {
 		// Create pull request object, to enable updates to existing PRs
-		sturdyPR := github.GitHubPullRequest{
+		sturdyPR := github.PullRequest{
 			ID:                 uuid.NewString(),
 			WorkspaceID:        workspaceID,
 			GitHubID:           gitHubPR.GetID(),

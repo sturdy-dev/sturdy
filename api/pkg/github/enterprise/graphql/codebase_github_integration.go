@@ -156,8 +156,8 @@ func (r *codebaseGitHubIntegrationRootResolver) resolveByID(gitHubRepoID graphql
 }
 
 type codebaseGitHubIntegrationResolver struct {
-	gitHubRepo   *github.GitHubRepository
-	installation *github.GitHubInstallation
+	gitHubRepo   *github.Repository
+	installation *github.Installation
 	root         *codebaseGitHubIntegrationRootResolver
 }
 

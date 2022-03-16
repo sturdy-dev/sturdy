@@ -169,7 +169,7 @@ func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, ar
 	}
 }
 
-func (r prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resolvers.UpdatedGitHubPullRequestArgs) (<-chan resolvers.GitHubPullRequestResolver, error) {
+func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resolvers.UpdatedGitHubPullRequestArgs) (<-chan resolvers.GitHubPullRequestResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -257,7 +257,7 @@ func (r *prRootResolver) MergeGitHubPullRequest(ctx context.Context, args resolv
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.gitHubService.MergePullRequest(ctx, string(args.Input.WorkspaceID)); err != nil {
+	if err := r.gitHubService.MergePullRequest(ctx, ws); err != nil {
 		var userErr service_github.GitHubUserError
 		if errors.As(err, &userErr) {
 			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", userErr.Error())

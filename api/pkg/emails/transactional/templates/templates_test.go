@@ -32,7 +32,7 @@ func TestRenderWelcome(t *testing.T) {
 
 func TestRenderGitHubRepositoryImported(t *testing.T) {
 	output, err := Render(NotificationGitHubRepositoryImportedTemplate, NotificationGitHubRepositoryImportedTemplateData{
-		GitHubRepo: &github.GitHubRepository{
+		GitHubRepo: &github.Repository{
 			Name: "codebase",
 		},
 		Codebase: &codebase.Codebase{

@@ -212,7 +212,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 		if err != nil {
 			return nil, fmt.Errorf("could not get installation metadata from github: %w", err)
 		}
-		if err := svc.gitHubInstallationRepo.Create(github.GitHubInstallation{
+		if err := svc.gitHubInstallationRepo.Create(github.Installation{
 			ID:                     uuid.NewString(),
 			InstallationID:         installationID,
 			Owner:                  installation.GetAccount().GetLogin(),
@@ -237,7 +237,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 		return nil, fmt.Errorf("failed to create non-ready codebase: %w", err)
 	}
 
-	sturdyGitHubRepo := github.GitHubRepository{
+	sturdyGitHubRepo := github.Repository{
 		ID:                 uuid.NewString(),
 		InstallationID:     installationID,
 		Name:               ghRepo.GetName(),
