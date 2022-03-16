@@ -79,7 +79,7 @@ func Oauth(
 
 		ghUser, err := gitHubUserRepo.GetByUsername(ghApiUser.GetLogin())
 		if errors.Is(err, sql.ErrNoRows) {
-			ghUser = &github.GitHubUser{
+			ghUser = &github.User{
 				ID:          uuid.NewString(),
 				UserID:      user.ID,
 				Username:    ghApiUser.GetLogin(),

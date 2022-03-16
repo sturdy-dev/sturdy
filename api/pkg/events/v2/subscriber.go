@@ -109,7 +109,7 @@ func (s *Subscriber) OnReviewUpdated(ctx context.Context, topic Topic, callback 
 	}, topic, ReviewUpdated)
 }
 
-func (s *Subscriber) OnGitHubPRUpdated(ctx context.Context, topic Topic, callback func(context.Context, *github.GitHubPullRequest) error) {
+func (s *Subscriber) OnGitHubPRUpdated(ctx context.Context, topic Topic, callback func(context.Context, *github.PullRequest) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.GitHubPullRequest)
 	}, topic, GitHubPRUpdated)

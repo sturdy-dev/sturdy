@@ -13,21 +13,21 @@ type gitHubPRRepo struct {
 }
 
 type GitHubPRRepo interface {
-	Create(pr github.GitHubPullRequest) error
-	Get(ID string) (*github.GitHubPullRequest, error)
-	GetByGitHubID(gitHubID int64) (*github.GitHubPullRequest, error)
-	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.GitHubPullRequest, error)
-	ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.GitHubPullRequest, error)
-	GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.GitHubPullRequest, error)
-	ListOpenedByWorkspace(workspaceID string) ([]*github.GitHubPullRequest, error)
-	Update(pr *github.GitHubPullRequest) error
+	Create(pr github.PullRequest) error
+	Get(ID string) (*github.PullRequest, error)
+	GetByGitHubID(gitHubID int64) (*github.PullRequest, error)
+	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error)
+	ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error)
+	GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error)
+	ListOpenedByWorkspace(workspaceID string) ([]*github.PullRequest, error)
+	Update(pr *github.PullRequest) error
 }
 
 func NewGitHubPRRepo(db *sqlx.DB) GitHubPRRepo {
 	return &gitHubPRRepo{db: db}
 }
 
-func (r *gitHubPRRepo) Create(pr github.GitHubPullRequest) error {
+func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 	_, err := r.db.NamedExec(`INSERT INTO github_pull_requests (
 		id,
 		workspace_id,
@@ -68,8 +68,8 @@ func (r *gitHubPRRepo) Create(pr github.GitHubPullRequest) error {
 	return nil
 }
 
-func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.GitHubPullRequest, error) {
-	var pr github.GitHubPullRequest
+func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error) {
+	var pr github.PullRequest
 	if err := r.db.GetContext(ctx, &pr, `
 		SELECT
 			*
@@ -84,8 +84,8 @@ func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) Get(ID string) (*github.GitHubPullRequest, error) {
-	var pr github.GitHubPullRequest
+func (r *gitHubPRRepo) Get(ID string) (*github.PullRequest, error) {
+	var pr github.PullRequest
 	err := r.db.Get(&pr, "SELECT * FROM github_pull_requests WHERE id=$1", ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -93,8 +93,8 @@ func (r *gitHubPRRepo) Get(ID string) (*github.GitHubPullRequest, error) {
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) GetByGitHubID(gitHubID int64) (*github.GitHubPullRequest, error) {
-	var pr github.GitHubPullRequest
+func (r *gitHubPRRepo) GetByGitHubID(gitHubID int64) (*github.PullRequest, error) {
+	var pr github.PullRequest
 	err := r.db.Get(&pr, "SELECT * FROM github_pull_requests WHERE github_id=$1", gitHubID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -102,8 +102,8 @@ func (r *gitHubPRRepo) GetByGitHubID(gitHubID int64) (*github.GitHubPullRequest,
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) ListOpenedByWorkspace(workspaceID string) ([]*github.GitHubPullRequest, error) {
-	var entities []*github.GitHubPullRequest
+func (r *gitHubPRRepo) ListOpenedByWorkspace(workspaceID string) ([]*github.PullRequest, error) {
+	var entities []*github.PullRequest
 	err := r.db.Select(&entities, "SELECT * FROM github_pull_requests WHERE workspace_id = $1 and open = true", workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -111,8 +111,8 @@ func (r *gitHubPRRepo) ListOpenedByWorkspace(workspaceID string) ([]*github.GitH
 	return entities, nil
 }
 
-func (r *gitHubPRRepo) GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.GitHubPullRequest, error) {
-	var pr github.GitHubPullRequest
+func (r *gitHubPRRepo) GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error) {
+	var pr github.PullRequest
 	err := r.db.Get(&pr, "SELECT * FROM github_pull_requests WHERE workspace_id=$1 ORDER BY closed_at DESC LIMIT 1", workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -120,8 +120,8 @@ func (r *gitHubPRRepo) GetMostRecentlyClosedByWorkspace(workspaceID string) (*gi
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.GitHubPullRequest, error) {
-	var entities []*github.GitHubPullRequest
+func (r *gitHubPRRepo) ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error) {
+	var entities []*github.PullRequest
 	err := r.db.Select(&entities, "SELECT * FROM github_pull_requests WHERE head = $1 AND github_repository_id = $2", head, repositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -129,7 +129,7 @@ func (r *gitHubPRRepo) ListByHeadAndRepositoryID(head string, repositoryID int64
 	return entities, nil
 }
 
-func (r *gitHubPRRepo) Update(pr *github.GitHubPullRequest) error {
+func (r *gitHubPRRepo) Update(pr *github.PullRequest) error {
 	_, err := r.db.NamedExec(`UPDATE github_pull_requests
 		SET open = :open,
 		    merged = :merged,

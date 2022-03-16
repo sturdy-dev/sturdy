@@ -222,7 +222,7 @@ func (p *Publisher) ReviewUpdated(ctx context.Context, receiver *receiver, revie
 	return nil
 }
 
-func (p *Publisher) GitHubPRUpdated(ctx context.Context, receiver *receiver, pr *github.GitHubPullRequest) error {
+func (p *Publisher) GitHubPRUpdated(ctx context.Context, receiver *receiver, pr *github.PullRequest) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err

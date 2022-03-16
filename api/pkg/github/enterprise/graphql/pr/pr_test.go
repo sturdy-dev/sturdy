@@ -298,7 +298,7 @@ func TestPRHighLevel(t *testing.T) {
 				CodebaseID: codebaseID,
 			}
 			expT := time.Now().Add(20 * time.Minute)
-			ghr := &github.GitHubRepository{
+			ghr := &github.Repository{
 				ID:                               sturdyRepositoryID,
 				GitHubRepositoryID:               gitHubRepositoryID,
 				InstallationID:                   gitHubInstallationID,
@@ -310,13 +310,13 @@ func TestPRHighLevel(t *testing.T) {
 				InstallationAccessToken:          str("token"),
 				InstallationAccessTokenExpiresAt: &expT,
 			}
-			ghu := &github.GitHubUser{
+			ghu := &github.User{
 				ID:       uuid.NewString(),
 				UserID:   userID,
 				Username: uuid.NewString(),
 			}
 
-			in := &github.GitHubInstallation{
+			in := &github.Installation{
 				ID:             uuid.NewString(),
 				InstallationID: gitHubInstallationID,
 				Owner:          gitHubRepoOwner,

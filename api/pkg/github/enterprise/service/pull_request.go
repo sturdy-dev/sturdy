@@ -35,15 +35,10 @@ func (g GitHubUserError) Error() string {
 	return g.msg
 }
 
-func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) error {
+func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspace) error {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return err
-	}
-
-	ws, err := svc.workspaceReader.Get(workspaceID)
-	if err != nil {
-		return fmt.Errorf("could not get workpsace: %w", err)
 	}
 
 	existingGitHubUser, err := svc.gitHubUserRepo.GetByUserID(userID)
@@ -51,7 +46,7 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 		return fmt.Errorf("failed to get github user: %w", err)
 	}
 
-	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(workspaceID)
+	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(ws.ID)
 	if err != nil {
 		return fmt.Errorf("pull request not found: %w", err)
 	}
@@ -71,7 +66,6 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 		return fmt.Errorf("gh installation not found: %w", err)
 	}
 
-	bgCtx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: existingGitHubUser.AccessToken},
 	)
@@ -87,7 +81,7 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 	commitMessage := message.CommitMessage(ws.DraftDescription) + "\n\nMerged via Sturdy"
 
 	//nolint:contextcheck
-	res, _, err := userAuthClient.PullRequests.Merge(bgCtx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
+	res, _, err := userAuthClient.PullRequests.Merge(ctx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
 	if err != nil {
 		// 405 not allowed
 		// This happens if the repo is configured with branch protection rules (require approvals, tests to pass, etc).
@@ -126,15 +120,13 @@ func (svc *Service) MergePullRequest(ctx context.Context, workspaceID string) er
 
 var ErrIntegrationNotEnabled = errors.New("github integration is not enabled")
 
-func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspaces.Workspace, patchIDs []string) (*github.GitHubPullRequest, error) {
+func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspaces.Workspace, patchIDs []string) (*github.PullRequest, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	codebaseID := ws.CodebaseID
-
-	ghRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
+	ghRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(ws.CodebaseID)
 	if err != nil {
 		return nil, err
 	}
@@ -213,9 +205,9 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	// If the repository is _empty_ there is a risk that the branch pushed for the PR is the first branch pushed to GH
 	// If this is the case, first push the sturdytrunk to be the new "master"/"main".
 	// This is done _without_ force, to not screw anything up if we're in the wrong.
-	if err := vcs.HaveTrackedBranch(svc.executorProvider, codebaseID, ghRepo.TrackedBranch); err != nil {
+	if err := vcs.HaveTrackedBranch(svc.executorProvider, ws.CodebaseID, ghRepo.TrackedBranch); err != nil {
 		logger.Info("pushing sturdytrunk to github")
-		userVisibleError, pushTrunkErr := vcs.PushBranchToGithubSafely(logger, svc.executorProvider, codebaseID, "sturdytrunk", ghRepo.TrackedBranch, accessToken)
+		userVisibleError, pushTrunkErr := vcs.PushBranchToGithubSafely(logger, svc.executorProvider, ws.CodebaseID, "sturdytrunk", ghRepo.TrackedBranch, accessToken)
 		if pushTrunkErr != nil {
 			logger.Error("failed to push trunk to github (github is source of truth)", zap.Error(pushTrunkErr))
 
@@ -232,7 +224,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		logger.Info("github have a default branch, not pushing sturdytrunk")
 	}
 
-	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(logger, svc.executorProvider, codebaseID, prBranch, remoteBranchName, ghUser.AccessToken)
+	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(logger, svc.executorProvider, ws.CodebaseID, prBranch, remoteBranchName, ghUser.AccessToken)
 	if pushErr != nil {
 		logger.Error("failed to push to github (github is source of truth)", zap.Error(pushErr))
 
@@ -284,7 +276,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		if err != nil {
 			return nil, gqlerrors.Error(err, "createPullRequestFailure", "Failed to create a GitHub Pull Request")
 		}
-		pr := github.GitHubPullRequest{
+		pr := github.PullRequest{
 			ID:                 uuid.NewString(),
 			WorkspaceID:        ws.ID,
 			GitHubID:           apiPR.GetID(),
@@ -304,7 +296,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		}
 
 		svc.analyticsService.Capture(ctx, "created pull request",
-			analytics.CodebaseID(codebaseID),
+			analytics.CodebaseID(ws.CodebaseID),
 			analytics.Property("github", true),
 		)
 
@@ -335,7 +327,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		return nil, err
 	}
 	svc.analyticsService.Capture(ctx, "updated pull request",
-		analytics.CodebaseID(codebaseID),
+		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("github", true),
 	)
 

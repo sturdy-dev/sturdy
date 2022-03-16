@@ -41,7 +41,7 @@ func (r *GitHubAccountRootResolver) InteralByID(_ context.Context, id users.ID) 
 }
 
 type gitHubAccountResolver struct {
-	githubUser     *github.GitHubUser
+	githubUser     *github.User
 	personalClient client.PersonalClientProvider
 }
 

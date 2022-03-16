@@ -12,7 +12,7 @@ import (
 
 type prResolver struct {
 	root *prRootResolver
-	pr   *github.GitHubPullRequest
+	pr   *github.PullRequest
 }
 
 func (r *prResolver) PullRequestNumber() int32 {
