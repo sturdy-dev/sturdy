@@ -12,13 +12,13 @@ import (
 // Batch implements posthog /batch/ api endpoint
 func Batch(logger *zap.Logger, client posthog.Client) gin.HandlerFunc {
 	type event struct {
-		Type       string                 `json:"type"`
-		Event      string                 `json:"event"`
-		Timestamp  time.Time              `json:"timestamp"`
-		Properties map[string]interface{} `json:"properties"`
-		Groups     map[string]interface{} `json:"groups"`
-		DistinctID string                 `json:"distinct_id"`
-		Set        map[string]interface{} `json:"$set"`
+		Type       string         `json:"type"`
+		Event      string         `json:"event"`
+		Timestamp  time.Time      `json:"timestamp"`
+		Properties map[string]any `json:"properties"`
+		Groups     map[string]any `json:"groups"`
+		DistinctID string         `json:"distinct_id"`
+		Set        map[string]any `json:"$set"`
 	}
 	type request struct {
 		Batch []event `json:"batch"`

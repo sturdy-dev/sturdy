@@ -1,6 +1,6 @@
 module getsturdy.com/api
 
-go 1.17
+go 1.18
 
 // Fork of go-diff
 // Patched to introduce Windows compatible APIs

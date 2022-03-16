@@ -19,7 +19,7 @@ var eventTypeMapping = map[string]string{
 	"workflow_job":              "WorkflowJobEvent",
 }
 
-func ParseWebHook(messageType string, payload []byte) (interface{}, error) {
+func ParseWebHook(messageType string, payload []byte) (any, error) {
 	eventType, ok := eventTypeMapping[messageType]
 	if !ok {
 		return nil, fmt.Errorf("unknown X-Github-Event in message: %v", messageType)
@@ -44,7 +44,7 @@ type Event struct {
 
 // ParsePayload parses the event payload. For recognized event types,
 // a value of the corresponding struct type will be returned.
-func (e *Event) ParsePayload() (payload interface{}, err error) {
+func (e *Event) ParsePayload() (payload any, err error) {
 	switch *e.Type {
 	case "InstallationEvent":
 		payload = &InstallationEvent{}

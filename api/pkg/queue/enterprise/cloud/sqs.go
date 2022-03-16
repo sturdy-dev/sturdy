@@ -70,7 +70,7 @@ func (q *sqsQueue) getPublisher(name names.IncompleteQueueName) (publisher, erro
 	return publisher, nil
 }
 
-func (q *sqsQueue) Publish(_ context.Context, name names.IncompleteQueueName, v interface{}) error {
+func (q *sqsQueue) Publish(_ context.Context, name names.IncompleteQueueName, v any) error {
 	q.logger.Info("publishing message", zap.String("queue", string(name)))
 
 	publish, err := q.getPublisher(name)
@@ -111,7 +111,7 @@ type message struct {
 	data          *string
 }
 
-func (m *message) As(out interface{}) error {
+func (m *message) As(out any) error {
 	if err := unmarshal([]byte(*m.data), out); err != nil {
 		// try parsing using deprecated message format
 		return m.AsJSON(out)
@@ -120,7 +120,7 @@ func (m *message) As(out interface{}) error {
 }
 
 // deprecated message format
-func (m *message) AsJSON(out interface{}) error {
+func (m *message) AsJSON(out any) error {
 	if err := json.Unmarshal([]byte(*m.data), out); err != nil {
 		return fmt.Errorf("failed to unmarshal message: %w", err)
 	}
@@ -193,7 +193,7 @@ func sub(awsSession *session.Session, logger *zap.Logger, queueName string, snsT
 	return nil
 }
 
-type publisher func(msg interface{}) error
+type publisher func(msg any) error
 
 func newPublisher(logger *zap.Logger, awsSession *session.Session, queueName names.QueueName) (publisher, error) {
 	q := sqs.New(awsSession)
@@ -204,7 +204,7 @@ func newPublisher(logger *zap.Logger, awsSession *session.Session, queueName nam
 		return nil, err
 	}
 
-	publ := func(msg interface{}) error {
+	publ := func(msg any) error {
 		body, err := marshal(msg)
 		if err != nil {
 			return err
@@ -318,7 +318,7 @@ func getOrCreateQueue(logger *zap.Logger, q *sqs.SQS, stsClient *sts.STS, queueN
 			return "", "", err
 		}
 
-		redrivePolicy, err := json.Marshal(map[string]interface{}{
+		redrivePolicy, err := json.Marshal(map[string]any{
 			"deadLetterTargetArn": dlqArn,
 			"maxReceiveCount":     5,
 		})

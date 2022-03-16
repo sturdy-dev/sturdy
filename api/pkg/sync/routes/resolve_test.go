@@ -641,7 +641,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	}
 }
 
-func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response interface{}, params []gin.Param) {
+func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response any, params []gin.Param) {
 	res := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(res)
 	c.Params = params

@@ -55,7 +55,7 @@ func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Or
 	if err := s.client.Enqueue(posthog.GroupIdentify{
 		Type: "organization", // this should match other event's property key
 		Key:  org.ID,
-		Properties: map[string]interface{}{
+		Properties: map[string]any{
 			"name": org.Name,
 		},
 	}); err != nil {
@@ -67,7 +67,7 @@ func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
 	if err := s.client.Enqueue(posthog.GroupIdentify{
 		Type: "codebase",
 		Key:  cb.ID,
-		Properties: map[string]interface{}{
+		Properties: map[string]any{
 			"name":      cb.Name,
 			"is_public": cb.IsPublic,
 		},
@@ -79,7 +79,7 @@ func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
 func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
 	if err := s.client.Enqueue(posthog.Identify{
 		DistinctId: user.ID.String(),
-		Properties: map[string]interface{}{
+		Properties: map[string]any{
 			"name":  user.Name,
 			"email": user.Email,
 		},
@@ -91,7 +91,7 @@ func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
 func (s *Service) IdentifyGitHubInstallation(ctx context.Context, installationID int64, accountLogin, accountEmail string) {
 	if err := s.client.Enqueue(posthog.Identify{
 		DistinctId: fmt.Sprintf("%d", installationID), // Using the installation ID as a person?
-		Properties: map[string]interface{}{
+		Properties: map[string]any{
 			"installation_org":        accountLogin,
 			"email":                   accountEmail,
 			"github_app_installation": true,

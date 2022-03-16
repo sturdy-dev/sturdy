@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type Publisher func(msg interface{}) error
+type Publisher func(msg any) error
 
 func NewPublisher(awsSession *session.Session, logger *zap.Logger, topicName names.BroadcastQueuePublisherName) (pub Publisher, snsArn string, err error) {
 	s := sns.New(awsSession)
@@ -53,7 +53,7 @@ func NewPublisher(awsSession *session.Session, logger *zap.Logger, topicName nam
 		topicArn = *createdTopic.TopicArn
 	}
 
-	publ := func(msg interface{}) error {
+	publ := func(msg any) error {
 		body, err := json.Marshal(msg)
 		if err != nil {
 			return err

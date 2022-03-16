@@ -46,7 +46,7 @@ func (m *MockRepositoriesClient) Get(arg0 context.Context, arg1, arg2 string) (*
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockRepositoriesClientMockRecorder) Get(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRepositoriesClientMockRecorder) Get(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepositoriesClient)(nil).Get), arg0, arg1, arg2)
 }
@@ -62,7 +62,7 @@ func (m *MockRepositoriesClient) GetByID(arg0 context.Context, arg1 int64) (*git
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockRepositoriesClientMockRecorder) GetByID(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoriesClientMockRecorder) GetByID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepositoriesClient)(nil).GetByID), arg0, arg1)
 }
@@ -78,7 +78,7 @@ func (m *MockRepositoriesClient) ListCollaborators(arg0 context.Context, arg1, a
 }
 
 // ListCollaborators indicates an expected call of ListCollaborators.
-func (mr *MockRepositoriesClientMockRecorder) ListCollaborators(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockRepositoriesClientMockRecorder) ListCollaborators(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCollaborators", reflect.TypeOf((*MockRepositoriesClient)(nil).ListCollaborators), arg0, arg1, arg2, arg3)
 }

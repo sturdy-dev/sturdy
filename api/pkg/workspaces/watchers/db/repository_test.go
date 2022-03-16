@@ -155,7 +155,7 @@ func TestImplementations(t *testing.T) {
 	}
 }
 
-func funcName(v interface{}) string {
+func funcName(v any) string {
 	pc := reflect.ValueOf(v).Pointer()
 	nameFull := runtime.FuncForPC(pc).Name()
 	nameEnd := filepath.Ext(nameFull)
@@ -163,7 +163,7 @@ func funcName(v interface{}) string {
 	return name
 }
 
-func implName(v interface{}) string {
+func implName(v any) string {
 	nameFull := reflect.TypeOf(v).String()
 	nameEnd := filepath.Ext(nameFull)
 	name := strings.TrimPrefix(nameEnd, ".")
