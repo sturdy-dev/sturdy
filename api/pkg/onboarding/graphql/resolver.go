@@ -5,23 +5,36 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/onboarding"
 	"getsturdy.com/api/pkg/onboarding/db"
+	"go.uber.org/zap"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type onboardingRootResolver struct {
-	repo        db.CompletedOnboardingStepsRepository
-	eventSender events.EventSender
-	eventReader events.EventReader
+	logger *zap.Logger
+	repo   db.CompletedOnboardingStepsRepository
+
+	eventsPublisher  *eventsv2.Publisher
+	eventsSubscriber *eventsv2.Subscriber
 }
 
-func NewRootResolver(repo db.CompletedOnboardingStepsRepository, eventSender events.EventSender, eventReader events.EventReader) resolvers.OnboardingRootResolver {
-	return &onboardingRootResolver{repo, eventSender, eventReader}
+func NewRootResolver(
+	repo db.CompletedOnboardingStepsRepository,
+	logger *zap.Logger,
+	eventsPublisher *eventsv2.Publisher,
+	eventsSubscriber *eventsv2.Subscriber,
+) resolvers.OnboardingRootResolver {
+	return &onboardingRootResolver{
+		logger:           logger,
+		repo:             repo,
+		eventsPublisher:  eventsPublisher,
+		eventsSubscriber: eventsSubscriber,
+	}
 }
 
 func (r *onboardingRootResolver) CompleteOnboardingStep(ctx context.Context, args resolvers.CompleteOnboardingStepArgs) (resolvers.OnboardingStepResolver, error) {
@@ -38,7 +51,10 @@ func (r *onboardingRootResolver) CompleteOnboardingStep(ctx context.Context, arg
 	if err := r.repo.InsertCompletedStep(ctx, step); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
-	r.eventSender.User(userID, events.CompletedOnboardingStep, step.ID)
+	if err := r.eventsPublisher.CompletedOnboardingStep(ctx, eventsv2.User(userID), step); err != nil {
+		r.logger.Error("failed to publish completed onboarding step event", zap.Error(err))
+		// do not fail
+	}
 	return &onboardingStepResolver{step: step}, nil
 }
 
@@ -68,36 +84,15 @@ func (r *onboardingRootResolver) CompletedOnboardingStep(ctx context.Context) (c
 
 	res := make(chan resolvers.OnboardingStepResolver, 100)
 
-	cancelFunc := r.eventReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
+	r.eventsSubscriber.OnCompletedOnboardingStep(ctx, eventsv2.SubscribeUser(userID), func(_ context.Context, step *onboarding.Step) error {
 		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
+		case res <- &onboardingStepResolver{step: step}:
+			return nil
 		default:
+			r.logger.Error("dropped subscription event", zap.String("step_id", step.ID), zap.Int("count", len(res)))
+			return nil
 		}
-
-		if eventType == events.CompletedOnboardingStep {
-			select {
-			case <-ctx.Done():
-				return events.ErrClientDisconnected
-			case res <- &onboardingStepResolver{
-				step: &onboarding.Step{
-					ID:        reference,
-					UserID:    userID,
-					CreatedAt: time.Now(),
-				},
-			}:
-				return nil
-			default:
-				return nil
-			}
-		}
-		return nil
 	})
-
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-	}()
 
 	return res, nil
 }
