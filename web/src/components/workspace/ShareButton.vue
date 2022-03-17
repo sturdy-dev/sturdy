@@ -26,7 +26,7 @@
           <Button
             color="blue"
             size="wider"
-            :disabled="creatingOrUpdatingPR || disabled"
+            :disabled="creatingOrUpdatingPR || disabled || isMerging"
             :class="[creatingOrUpdatingPR || disabled ? 'cursor-default' : '']"
             :show-tooltip="disabled"
             :tooltip-right="true"
@@ -50,14 +50,19 @@
           <Button
             v-if="hasGitHubPR && hasOpenGitHubPR"
             color="green"
-            :disabled="mergingGitHubPullRequest"
+            :disabled="isMerging"
+            :show-tooltip="isMerging"
+            :tooltip-right="true"
             @click="triggerMergePullRequest"
           >
-            <div v-if="mergingGitHubPullRequest" class="flex items-center">
-              <Spinner class="mr-1" />
-              <span>Merging</span>
-            </div>
-            <span v-else>Merge</span>
+            <template #tooltip>Hang on, we are waiting for GitHub to call us back...</template>
+            <template #default>
+              <div v-if="isMerging" class="flex items-center">
+                <Spinner class="mr-1" />
+                <span>Merging</span>
+              </div>
+              <span v-else>Merge</span>
+            </template>
           </Button>
         </div>
       </div>
@@ -105,6 +110,7 @@ import { ExternalLinkIcon } from '@heroicons/vue/outline'
 import { useLandWorkspaceChange } from '../../mutations/useLandWorkspaceChange'
 import { useCreateOrUpdateGitHubPullRequest } from '../../mutations/useCreateOrUpdateGitHubPullRequest'
 import { useMergeGitHubPullRequest } from '../../mutations/useMergeGitHubPullRequest'
+import { GitHubPullRequestState } from '../../__generated__/types'
 
 export const SHARE_BUTTON = gql`
   fragment ShareButton on Workspace {
@@ -122,7 +128,7 @@ export const SHARE_BUTTON = gql`
     gitHubPullRequest {
       id
       pullRequestNumber
-      open
+      state
     }
   }
 `
@@ -177,6 +183,12 @@ export default defineComponent({
     }
   },
   computed: {
+    isMerging() {
+      return (
+        this.mergingGitHubPullRequest ||
+        this.workspace.gitHubPullRequest?.state === GitHubPullRequestState.Merging
+      )
+    },
     shareViaGitHubPR() {
       if (this.workspace.codebase.gitHubIntegration?.enabled) {
         if (this.workspace.codebase.gitHubIntegration?.gitHubIsSourceOfTruth) {
@@ -189,7 +201,9 @@ export default defineComponent({
       return Boolean(this.workspace.gitHubPullRequest?.pullRequestNumber)
     },
     hasOpenGitHubPR() {
-      return this.workspace.gitHubPullRequest?.open
+      const isOpen = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Open
+      const isMerging = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Merging
+      return isOpen || isMerging
     },
     gitHubPRLink() {
       const { owner, name } = this.workspace.codebase.gitHubIntegration ?? {}

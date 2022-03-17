@@ -21,7 +21,13 @@ func (r *prResolver) PullRequestNumber() int32 {
 }
 
 func (r *prResolver) Open() bool {
-	return r.pr.State == github.PullRequestStateOpen
+	if r.pr.State == github.PullRequestStateOpen {
+		return true
+	}
+	if r.pr.State == github.PullRequestStateMerging {
+		return true
+	}
+	return false
 }
 
 func (r *prResolver) Merged() bool {

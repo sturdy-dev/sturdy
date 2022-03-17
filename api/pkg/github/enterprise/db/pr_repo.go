@@ -9,19 +9,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type gitHubPRRepo struct {
-	db *sqlx.DB
-}
-
 type GitHubPRRepo interface {
 	Create(pr github.PullRequest) error
-	Get(ID string) (*github.PullRequest, error)
+	Get(id string) (*github.PullRequest, error)
 	GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID string) (*github.PullRequest, error)
 	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error)
 	ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error)
 	GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error)
 	ListOpenedByWorkspace(workspaceID string) ([]*github.PullRequest, error)
-	Update(pr *github.PullRequest) error
+	Update(context.Context, *github.PullRequest) error
+}
+
+type gitHubPRRepo struct {
+	db *sqlx.DB
 }
 
 func NewGitHubPRRepo(db *sqlx.DB) GitHubPRRepo {
@@ -143,8 +143,8 @@ func (r *gitHubPRRepo) ListByHeadAndRepositoryID(head string, repositoryID int64
 	return entities, nil
 }
 
-func (r *gitHubPRRepo) Update(pr *github.PullRequest) error {
-	_, err := r.db.NamedExec(`UPDATE github_pull_requests
+func (r *gitHubPRRepo) Update(ctx context.Context, pr *github.PullRequest) error {
+	_, err := r.db.NamedExecContext(ctx, `UPDATE github_pull_requests
 		SET updated_at = :updated_at,
 		    closed_at = :closed_at,
 		    merged_at = :merged_at,
