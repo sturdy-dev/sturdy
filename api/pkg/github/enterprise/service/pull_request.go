@@ -12,7 +12,7 @@ import (
 	"getsturdy.com/api/pkg/changes/message"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebase"
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
@@ -80,6 +80,21 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 
 	commitMessage := message.CommitMessage(ws.DraftDescription) + "\n\nMerged via Sturdy"
 
+	// update PR state to merging
+	previousState := pr.State
+	pr.State = github.PullRequestStateMerging
+	if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
+		return fmt.Errorf("failed to update pull request: %w", err)
+	}
+	if err := svc.eventsPublisher.GitHubPRUpdated(ctx, events.Codebase(pr.CodebaseID), pr); err != nil {
+		svc.logger.Error("failed to send codebase event",
+			zap.String("workspace_id", pr.WorkspaceID),
+			zap.String("github_pr_id", pr.ID),
+			zap.Error(err),
+		)
+		// do not fail
+	}
+
 	//nolint:contextcheck
 	res, _, err := userAuthClient.PullRequests.Merge(ctx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
 	if err != nil {
@@ -97,6 +112,20 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 			return GitHubUserError{userError}
 		}
 
+		// rollback github pr state
+		pr.State = previousState
+		if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
+			return fmt.Errorf("failed to update pull request: %w", err)
+		}
+		if err := svc.eventsPublisher.GitHubPRUpdated(ctx, events.Codebase(pr.CodebaseID), pr); err != nil {
+			svc.logger.Error("failed to send codebase event",
+				zap.String("workspace_id", pr.WorkspaceID),
+				zap.String("github_pr_id", pr.ID),
+				zap.Error(err),
+			)
+			// do not fail
+		}
+
 		svc.logger.Error("unable to merge github pull request", zap.Error(err))
 
 		return fmt.Errorf("failed to merge pr: %w", err)
@@ -108,13 +137,8 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 
 	// This endpoint is not marking the PR as merged
 	// That happens when GitHub is sending the webhook to us
-	// TODO: We can make this flow smoother, and maybe sync the workspace, etc...
-
-	if err := svc.eventsSender.Codebase(ghRepo.CodebaseID, events.GitHubPRUpdated, pr.WorkspaceID); err != nil {
-		svc.logger.Error("failed to send codebase event", zap.String("workspace_id", pr.WorkspaceID), zap.String("github_pr_id", pr.ID), zap.Error(err))
-		// do not fail
-	}
-
+	// Doing so, allows us to handle PR merges both from our and github's UI in the same way
+	// TODO: rely less on github
 	return nil
 }
 
@@ -322,7 +346,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	currentPR.UpdatedAt = &t0
 	currentPR.HeadSHA = &prSHA
 	// Only updated_at time saved?
-	if err := svc.gitHubPullRequestRepo.Update(currentPR); err != nil {
+	if err := svc.gitHubPullRequestRepo.Update(ctx, currentPR); err != nil {
 		return nil, err
 	}
 	svc.analyticsService.Capture(ctx, "updated pull request",

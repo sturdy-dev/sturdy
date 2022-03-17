@@ -13,6 +13,7 @@ import (
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
@@ -68,6 +69,7 @@ type Service struct {
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
 	activitySender     sender_workspace_activity.ActivitySender
+	eventsPublisher    *eventsv2.Publisher
 
 	userService     service_user.Service
 	syncService     *service_sync.Service
@@ -104,6 +106,7 @@ func New(
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,
 	activitySender sender_workspace_activity.ActivitySender,
+	eventsPublisher *eventsv2.Publisher,
 
 	userService service_user.Service,
 	syncService *service_sync.Service,
@@ -139,6 +142,7 @@ func New(
 		notificationSender: notificationSender,
 		eventsSender:       eventsSender,
 		activitySender:     activitySender,
+		eventsPublisher:    eventsPublisher,
 
 		userService:     userService,
 		syncService:     syncService,

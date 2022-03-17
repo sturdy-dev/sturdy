@@ -9,6 +9,8 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	db_codebase "getsturdy.com/api/pkg/codebase/db"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
+	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
@@ -19,7 +21,6 @@ import (
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
-	"github.com/graph-gophers/graphql-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
@@ -52,7 +53,7 @@ type prRootResolver struct {
 
 	gitHubClientProvider         client.InstallationClientProvider
 	gitHubPersonalClientProvider client.PersonalClientProvider
-	events                       events.EventReadWriter
+	events                       *eventsv2.Subscriber
 
 	authService   *service_auth.Service
 	gitHubService *service_github.Service
@@ -79,7 +80,7 @@ func NewResolver(
 
 	gitHubClientProvider client.InstallationClientProvider,
 	gitHubPersonalClientProvider client.PersonalClientProvider,
-	events events.EventReadWriter,
+	events *eventsv2.Subscriber,
 
 	authService *service_auth.Service,
 	gitHubService *service_github.Service,
@@ -193,30 +194,11 @@ func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args reso
 
 	concurrentUpdatedPullRequestConnections.Inc()
 
-	cancelFunc := r.events.SubscribeUser(userID, func(et events.EventType, reference string) error {
+	r.events.OnGitHubPRUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, pr *github.PullRequest) error {
 		select {
 		case <-ctx.Done():
 			return events.ErrClientDisconnected
-		default:
-		}
-
-		if et != events.GitHubPRUpdated {
-			return nil
-		}
-
-		if reference != ws.ID {
-			return nil
-		}
-
-		id := graphql.ID(ws.ID)
-		resolver, err := r.InternalGitHubPullRequestByWorkspaceID(ctx, resolvers.GitHubPullRequestArgs{WorkspaceID: &id})
-		if err != nil {
-			return err
-		}
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		case res <- resolver:
+		case res <- &prResolver{root: r, pr: pr}:
 			if didErrorOut {
 				didErrorOut = false
 			}
@@ -225,7 +207,7 @@ func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args reso
 			r.logger.Error("dropped subscription event",
 				zap.Stringer("user_id", userID),
 				zap.String("codebase_id", ws.CodebaseID),
-				zap.Stringer("event_type", et),
+				zap.Stringer("event_type", eventsv2.GitHubPRUpdated),
 				zap.Int("channel_size", len(res)),
 			)
 			didErrorOut = true
@@ -235,8 +217,6 @@ func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args reso
 
 	go func() {
 		<-ctx.Done()
-		cancelFunc()
-		close(res)
 		concurrentUpdatedPullRequestConnections.Dec()
 	}()
 

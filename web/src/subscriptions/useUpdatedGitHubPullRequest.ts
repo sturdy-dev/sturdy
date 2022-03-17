@@ -13,6 +13,7 @@ const UPDATED_GIT_HUB_PULL_REQUEST = gql`
       pullRequestNumber
       open
       merged
+      state
       mergedAt
       workspace {
         id

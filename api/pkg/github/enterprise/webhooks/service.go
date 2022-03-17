@@ -107,7 +107,7 @@ func New(
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
 	return &Service{
-		logger: logger,
+		logger: logger.Named("github_webhooks"),
 
 		gitHubPullRequestRepo:  gitHubPullRequestRepo,
 		gitHubRepositoryRepo:   gitHubRepositoryRepo,
@@ -157,46 +157,55 @@ func getPRStatus(apiPR *PullRequest) github.PullRequestState {
 }
 
 func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullRequestEvent) error {
-	ghRepo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
+	logger := svc.logger.With(
+		zap.Int64("pr_id", event.PullRequest.GetID()),
+		zap.String("pr_state", event.GetPullRequest().GetState()),
+		zap.Bool("pr_merged", event.GetPullRequest().GetMerged()),
+	)
+	start := time.Now()
+	defer logger.Info("handle pull request event", zap.Duration("duration", time.Since(start)))
+
+	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
 	if err != nil {
+		logger.Error("failed to get GitHub repository", zap.Error(err))
 		return fmt.Errorf("could not get installation: %w", err)
 	}
 
+	logger = logger.With(zap.String("codebase_id", repo.CodebaseID), zap.String("gh_repo_id", repo.ID))
+
 	apiPR := event.GetPullRequest()
-	pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(apiPR.GetID(), ghRepo.CodebaseID)
+	pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(apiPR.GetID(), repo.CodebaseID)
 	if errors.Is(err, sql.ErrNoRows) {
+		logger.Info("pull request not found")
 		return nil // noop
 	} else if err != nil {
 		return fmt.Errorf("failed to get github pull request from db: %w", err)
 	}
+
+	logger = logger.With(zap.String("pr_id", pr.ID))
 
 	now := time.Now()
 	pr.UpdatedAt = &now
 	pr.ClosedAt = apiPR.ClosedAt
 	pr.MergedAt = apiPR.MergedAt
 	pr.State = getPRStatus(apiPR)
-	if err := svc.gitHubPullRequestRepo.Update(pr); err != nil {
+	if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
 		return fmt.Errorf("failed to update github pull request in db: %w", err)
-	}
-
-	ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
-	if errors.Is(err, sql.ErrNoRows) {
-		svc.logger.Warn("handled a github pull request webhook for non-existing workspace", zap.String("workspace_id", pr.WorkspaceID), zap.String("github_pr_id", pr.ID), zap.String("github_pr_link", apiPR.GetHTMLURL()))
-		return nil // noop
-	} else if err != nil {
-		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
 
 	// import / sync workspace
 	if pr.State == github.PullRequestStateMerged {
+		ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
+		if errors.Is(err, sql.ErrNoRows) {
+			svc.logger.Warn("handled a github pull request webhook for non-existing workspace", zap.String("workspace_id", pr.WorkspaceID), zap.String("github_pr_id", pr.ID), zap.String("github_pr_link", apiPR.GetHTMLURL()))
+			return nil // noop
+		} else if err != nil {
+			return fmt.Errorf("failed to get workspace from db: %w", err)
+		}
+
 		accessToken, err := svc.accessToken(event.GetInstallation().GetID(), event.GetRepo().GetID())
 		if err != nil {
 			return fmt.Errorf("failed to get github access token: %w", err)
-		}
-
-		repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
-		if err != nil {
-			return fmt.Errorf("failed to get github repo from db: %w", err)
 		}
 
 		// pull from github if sturdy doesn't have the commits
@@ -210,18 +219,6 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, apiPR.GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
 		if err != nil {
 			return fmt.Errorf("failed to create change: %w", err)
-		}
-
-		// link the workspace with the change that it created
-		ws.ChangeID = &ch.ID
-		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
-			db_workspaces.SetChangeID(&ch.ID)); err != nil {
-			return fmt.Errorf("failed to update workspace: %w", err)
-		}
-
-		if err := svc.eventsSender.Workspace(ws.ID, events.WorkspaceUpdated, ws.ID); err != nil {
-			svc.logger.Error("failed to send workspace updated event", zap.Error(err))
-			// do not fail
 		}
 
 		if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
@@ -246,6 +243,13 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		// Create workspace activity
 		if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
 			return fmt.Errorf("failed to create workspace activity: %w", err)
+		}
+
+		// link the workspace with the change that it created
+		ws.ChangeID = &ch.ID
+		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
+			db_workspaces.SetChangeID(&ch.ID)); err != nil {
+			return fmt.Errorf("failed to update workspace: %w", err)
 		}
 
 		// Send events that the codebase has been updated
@@ -279,10 +283,17 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 				}
 			}
 		}
+
+		logger.Info("pull request merged")
 	}
 
-	if err := svc.eventsSender.Codebase(ws.CodebaseID, events.GitHubPRUpdated, pr.WorkspaceID); err != nil {
-		svc.logger.Error("failed to send codebase event", zap.String("workspace_id", pr.WorkspaceID), zap.String("github_pr_id", pr.ID), zap.String("github_pr_link", apiPR.GetHTMLURL()), zap.Error(err))
+	if err := svc.eventsSenderV2.GitHubPRUpdated(ctx, eventsv2.Codebase(pr.CodebaseID), pr); err != nil {
+		svc.logger.Error("failed to send codebase event",
+			zap.String("workspace_id", pr.WorkspaceID),
+			zap.String("github_pr_id", pr.ID),
+			zap.String("github_pr_link", apiPR.GetHTMLURL()),
+			zap.Error(err),
+		)
 		// do not fail
 	}
 
