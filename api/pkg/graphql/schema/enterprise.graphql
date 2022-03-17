@@ -301,6 +301,7 @@ input CreateCodebaseRemoteInput {
   url: String!
   basicAuthUsername: String!
   basicAuthPassword: String!
+  trackedBranch: String!
 }
 
 input PushWorkspaceToRemoteInput {

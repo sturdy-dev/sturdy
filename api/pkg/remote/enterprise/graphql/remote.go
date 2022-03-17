@@ -64,6 +64,7 @@ func (r *remoteRootResolver) CreateCodebaseRemote(ctx context.Context, args reso
 		args.Input.Url,
 		args.Input.BasicAuthUsername,
 		args.Input.BasicAuthPassword,
+		args.Input.TrackedBranch,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add remote: %w", err)

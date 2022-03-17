@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"getsturdy.com/api/pkg/changes/message"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/remote"
 	db_remote "getsturdy.com/api/pkg/remote/enterprise/db"
@@ -29,6 +30,7 @@ type Service struct {
 	logger           *zap.Logger
 	workspaceReader  db_workspaces.WorkspaceReader
 	snap             snapshotter.Snapshotter
+	changeService    *service_change.Service
 }
 
 func New(
@@ -37,6 +39,7 @@ func New(
 	logger *zap.Logger,
 	workspaceReader db_workspaces.WorkspaceReader,
 	snap snapshotter.Snapshotter,
+	changeService *service_change.Service,
 ) *Service {
 	return &Service{
 		repo:             repo,
@@ -44,10 +47,11 @@ func New(
 		logger:           logger,
 		workspaceReader:  workspaceReader,
 		snap:             snap,
+		changeService:    changeService,
 	}
 }
 
-func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, username, password string) error {
+func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, username, password, trackedBranch string) error {
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
@@ -57,7 +61,7 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, userna
 		rep.URL = url
 		rep.BasicAuthUsername = username
 		rep.BasicAuthPassword = password
-		rep.TrackedBranch = "master"
+		rep.TrackedBranch = trackedBranch
 		if err := svc.repo.Update(ctx, rep); err != nil {
 			return fmt.Errorf("failed to update remote: %w", err)
 		}
@@ -71,7 +75,7 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, userna
 			URL:               url,
 			BasicAuthUsername: username,
 			BasicAuthPassword: password,
-			TrackedBranch:     "master",
+			TrackedBranch:     trackedBranch,
 		}
 		if err := svc.repo.Create(ctx, r); err != nil {
 			return fmt.Errorf("failed to add remote: %w", err)
@@ -140,6 +144,10 @@ func (svc *Service) Pull(ctx context.Context, codebaseID string) error {
 
 	if err := svc.executorProvider.New().GitWrite(pull).ExecTrunk(codebaseID, "pullRemote"); err != nil {
 		return fmt.Errorf("failed to pull: %w", err)
+	}
+
+	if err := svc.changeService.UnsetHeadChangeCache(codebaseID); err != nil {
+		return fmt.Errorf("failed to unset head: %w", err)
 	}
 
 	return nil

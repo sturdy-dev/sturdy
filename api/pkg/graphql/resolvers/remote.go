@@ -28,6 +28,7 @@ type CreateCodebaseRemoteInput struct {
 	Url               string
 	BasicAuthUsername string
 	BasicAuthPassword string
+	TrackedBranch     string
 }
 
 type PushWorkspaceToRemoteArgs struct {
