@@ -895,6 +895,12 @@ func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace
 		return fmt.Errorf("failed to open workspace on view: %w", err)
 	}
 
+	// Send events that the codebase has been updated, list of workspaces has changed
+	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+		s.logger.Error("failed to send codebase event", zap.Error(err))
+		// do not fail
+	}
+
 	return nil
 }
 
@@ -913,5 +919,12 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	s.analyticsService.Capture(ctx, "workspace unarchived", analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("workspace_id", ws.ID),
 	)
+
+	// Send events that the codebase has been updated, list of workspaces has changed
+	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+		s.logger.Error("failed to send codebase event", zap.Error(err))
+		// do not fail
+	}
+
 	return nil
 }

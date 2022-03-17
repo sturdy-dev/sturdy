@@ -199,108 +199,131 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("failed to update github pull request in db: %w", err)
 	}
 
-	// import / sync workspace
-	if pr.State == github.PullRequestStateMerged {
-		ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
-		if errors.Is(err, sql.ErrNoRows) {
-			svc.logger.Warn("handled a github pull request webhook for non-existing workspace", zap.String("workspace_id", pr.WorkspaceID), zap.String("github_pr_id", pr.ID), zap.String("github_pr_link", apiPR.GetHTMLURL()))
-			return nil // noop
-		} else if err != nil {
-			return fmt.Errorf("failed to get workspace from db: %w", err)
-		}
-
-		accessToken, err := svc.accessToken(event.GetInstallation().GetID(), event.GetRepo().GetID())
-		if err != nil {
-			return fmt.Errorf("failed to get github access token: %w", err)
-		}
-
-		// pull from github if sturdy doesn't have the commits
-		if err := svc.pullFromGitHubIfCommitNotExists(ws.CodebaseID, []string{
-			apiPR.GetMergeCommitSHA(),
-			event.GetPullRequest().GetBase().GetSHA(),
-		}, accessToken, repo.TrackedBranch); err != nil {
-			return fmt.Errorf("failed to pullFromGitHubIfCommitNotExists: %w", err)
-		}
-
-		ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, apiPR.GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
-		if err != nil {
-			return fmt.Errorf("failed to create change: %w", err)
-		}
-
-		if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
-			return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
-		}
-
-		if err := svc.commentsService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, ch.ID); err != nil {
-			return fmt.Errorf("failed to migrate comments: %w", err)
-		}
-
-		if err := svc.activityService.SetChange(ctx, ws.ID, ch.ID); err != nil {
-			return fmt.Errorf("failed to set change: %w", err)
-		}
-
-		svc.analyticsService.Capture(ctx, "pull request merged",
-			analytics.DistinctID(ws.UserID.String()),
-			analytics.CodebaseID(ws.CodebaseID),
-			analytics.Property("workspace_id", ws.ID),
-			analytics.Property("github", true),
-		)
-
-		// Create workspace activity
-		if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
-			return fmt.Errorf("failed to create workspace activity: %w", err)
-		}
-
-		// link the workspace with the change that it created
-		ws.ChangeID = &ch.ID
-		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
-			db_workspaces.SetChangeID(&ch.ID)); err != nil {
-			return fmt.Errorf("failed to update workspace: %w", err)
-		}
-
-		// Send events that the codebase has been updated
-		if err := svc.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
-			svc.logger.Error("failed to send codebase event", zap.Error(err))
+	defer func() {
+		// send pr updated event in any case as soon as this function is complete
+		if err := svc.eventsSenderV2.GitHubPRUpdated(ctx, eventsv2.Codebase(pr.CodebaseID), pr); err != nil {
+			logger.Error("failed to send codebase event", zap.Error(err))
 			// do not fail
 		}
+	}()
 
-		if err := svc.buildQueue.EnqueueChange(ctx, ch); err != nil {
-			svc.logger.Error("failed to enqueue change", zap.Error(err))
-			// do not fail
-		}
-
-		// sync workspace with head if it has no conflicts
-		hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
-		if err != nil {
-			svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
-			// do not fail
-		} else if !hasConflicts {
-			if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
-				return fmt.Errorf("failed to sync workspace: %w", err)
-			}
-
-			// if workspace has no diffs, archive it
-			diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
-			if err != nil {
-				svc.logger.Error("failed to get diffs", zap.Error(err))
-			} else if len(diffs) == 0 {
-				if err := svc.workspaceService.Archive(ctx, ws); err != nil {
-					return fmt.Errorf("failed to archive workspace: %w", err)
-				}
-			}
-		}
-
-		logger.Info("pull request merged")
+	if pr.State != github.PullRequestStateMerged {
+		// no need to sync if PR is not merged
+		return nil
 	}
 
-	if err := svc.eventsSenderV2.GitHubPRUpdated(ctx, eventsv2.Codebase(pr.CodebaseID), pr); err != nil {
-		svc.logger.Error("failed to send codebase event",
+	// import / sync workpsace
+
+	ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
+	if errors.Is(err, sql.ErrNoRows) {
+		svc.logger.Warn("handled a github pull request webhook for non-existing workspace",
 			zap.String("workspace_id", pr.WorkspaceID),
 			zap.String("github_pr_id", pr.ID),
 			zap.String("github_pr_link", apiPR.GetHTMLURL()),
-			zap.Error(err),
 		)
+		return nil // noop
+	} else if err != nil {
+		return fmt.Errorf("failed to get workspace from db: %w", err)
+	}
+
+	accessToken, err := svc.accessToken(event.GetInstallation().GetID(), event.GetRepo().GetID())
+	if err != nil {
+		return fmt.Errorf("failed to get github access token: %w", err)
+	}
+
+	// pull from github if sturdy doesn't have the commits
+	if err := svc.pullFromGitHubIfCommitNotExists(pr.CodebaseID, []string{
+		apiPR.GetMergeCommitSHA(),
+		event.GetPullRequest().GetBase().GetSHA(),
+	}, accessToken, repo.TrackedBranch); err != nil {
+		return fmt.Errorf("failed to pullFromGitHubIfCommitNotExists: %w", err)
+	}
+
+	ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, apiPR.GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
+	if err != nil {
+		return fmt.Errorf("failed to create change: %w", err)
+	}
+
+	svc.analyticsService.Capture(ctx, "pull request merged",
+		analytics.DistinctID(ws.UserID.String()),
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("github", true),
+	)
+
+	// send change to ci
+	if err := svc.buildQueue.EnqueueChange(ctx, ch); err != nil {
+		svc.logger.Error("failed to enqueue change", zap.Error(err))
 		// do not fail
+	}
+
+	// all workspaces that were up to date with trunk are no more
+	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
+		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
+	}
+
+	// Create workspace activity
+	if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
+		return fmt.Errorf("failed to create workspace activity: %w", err)
+	}
+
+	// copy all workspace activities to change activities
+	if err := svc.activityService.SetChange(ctx, ws.ID, ch.ID); err != nil {
+		return fmt.Errorf("failed to set change: %w", err)
+	}
+
+	// Send events that the codebase has been updated, because codebase.lastUpdatedAt has changed
+	if err := svc.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+		svc.logger.Error("failed to send codebase event", zap.Error(err))
+		// do not fail
+	}
+
+	if err := svc.commentsService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, ch.ID); err != nil {
+		return fmt.Errorf("failed to migrate comments: %w", err)
+	}
+
+	hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
+	if err != nil {
+		svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
+		// do not fail
+		return nil
+	}
+
+	if hasConflicts {
+		// if workspace has conflicts, that probably means that it was changed between the pr was opened and merged
+		// in that case, do nothing, let the user resolve the conflits and archive the workspace
+		return nil
+	}
+
+	// no conflits, so we can sync the workspace with the trunk
+	if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
+		return fmt.Errorf("failed to sync workspace: %w", err)
+	}
+
+	diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
+	if err != nil {
+		svc.logger.Error("failed to get diffs", zap.Error(err))
+		// do not fail
+		return nil
+	}
+
+	if len(diffs) != 0 {
+		// there are some diffs left after the sync. That means that the workspace was changed between the pr was opened
+		// and merged. leave those diffs in the workspace and let user decide what to do with them
+		return nil
+	}
+
+	// workspace is synced with with trunk, has no diffs - archive it
+
+	// link the workspace with the change that it created
+	ws.ChangeID = &ch.ID
+	if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
+		db_workspaces.SetChangeID(&ch.ID)); err != nil {
+		return fmt.Errorf("failed to update workspace: %w", err)
+	}
+
+	if err := svc.workspaceService.Archive(ctx, ws); err != nil {
+		return fmt.Errorf("failed to archive workspace: %w", err)
 	}
 
 	return nil
