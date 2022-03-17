@@ -1,25 +1,28 @@
 <template>
-  <Spacer>
-    <div class="flex flex-1 items-center justify-center">
+  <TitleBar>
+    <template #header>
       <h1>Preferences</h1>
-    </div>
-  </Spacer>
-  <div class="flex px-2 space-x-4">
-    <Navigation />
-    <section id="servers" class="flex flex-1">
-      <ServersList />
-    </section>
-  </div>
+    </template>
+
+    <template #default>
+      <div class="flex p-2 space-x-4">
+        <Navigation />
+        <section id="servers" class="flex flex-1">
+          <ServersList />
+        </section>
+      </div>
+    </template>
+  </TitleBar>
 </template>
 
 <script lang="ts">
-import Spacer from './components/Spacer.vue'
+import TitleBar from './components/TitleBar.vue'
 import Navigation from './components/Navigation.vue'
 import ServersList from './components/ServersList.vue'
 
 export default {
   components: {
-    Spacer,
+    TitleBar,
     Navigation,
     ServersList,
   },

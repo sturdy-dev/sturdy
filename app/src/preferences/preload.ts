@@ -7,4 +7,19 @@ contextBridge.exposeInMainWorld('ipc', {
   isHostUp: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:isUp', cfg),
   listHosts: async () => ipcRenderer.invoke('config:hosts:list'),
   openHost: async (cfg: HostConfig) => ipcRenderer.invoke('config:hosts:open', cfg),
+
+  minimize: async () => ipcRenderer.invoke('minimize'),
+  maximize: async () => ipcRenderer.invoke('maximize'),
+  unmaximize: async () => ipcRenderer.invoke('unmaximize'),
+  close: async () => ipcRenderer.invoke('close'),
+  isMaximized: async () => ipcRenderer.invoke('isMaximized'),
+  isMinimized: async () => ipcRenderer.invoke('isMinimized'),
+  isNormal: async () => ipcRenderer.invoke('isNormal'),
 })
+
+const appEnvironment = {
+  platform: process.platform,
+  frameless: true,
+}
+
+contextBridge.exposeInMainWorld('appEnvironment', appEnvironment)

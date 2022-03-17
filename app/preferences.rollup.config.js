@@ -3,7 +3,7 @@ import typescript from '@rollup/plugin-typescript'
 import resolve from '@rollup/plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
 import injectProcessEnv from 'rollup-plugin-inject-process-env'
-import html from '@rollup/plugin-html'
+import copy from 'rollup-plugin-copy'
 
 export default {
   input: './src/preferences/app/main.ts',
@@ -30,8 +30,8 @@ export default {
     injectProcessEnv({
       NODE_ENV: 'production',
     }),
-    html({
-      title: 'Preferences',
+    copy({
+      targets: [{ src: 'src/preferences/app/index.html', dest: 'dist/preferences' }],
     }),
   ],
 }

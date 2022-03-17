@@ -16,7 +16,6 @@
     "dev-mac-x64-prodlike": "rollup -c && electron-builder --mac --x64 --dir -c.mac.identity=null && cross-env STURDY_DISABLE_AUTO_UPDATER=1 ./dist/mac/Sturdy.app/Contents/MacOS/Sturdy"
   },
   "devDependencies": {
-    "@rollup/plugin-html": "^0.2.4",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
     "@tailwindcss/typography": "^0.5.1",
@@ -38,6 +37,7 @@
     "postcss": "^8.4.6",
     "prettier": "^2.5.0",
     "rollup": "^2.59.0",
+    "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-inject-process-env": "^1.3.1",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^1.1.0",

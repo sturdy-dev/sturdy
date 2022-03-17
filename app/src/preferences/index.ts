@@ -341,11 +341,8 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
         devTools: !app.isPackaged,
         preload: path.join(__dirname, 'preferences/preload.js'),
       },
+      frame: false,
       titleBarStyle: 'hidden',
-      titleBarOverlay: {
-        color: '#F9FAFB',
-        symbolColor: '#1F2937',
-      },
       trafficLightPosition: { x: 16, y: 16 },
     })
     ipcMain.handle('config:hosts:list', () => this.#config.hosts)
@@ -355,12 +352,29 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     )
     ipcMain.handle('config:hosts:isUp', (_, hostConfig) => this.#isHostUp(hostConfig))
     ipcMain.handle('config:hosts:open', (_, hostConfig) => this.#openHost(hostConfig))
+
+    ipcMain.handle('minimize', () => window.minimize())
+    ipcMain.handle('maximize', () => window.maximize())
+    ipcMain.handle('unmaximize', () => window.unmaximize())
+    ipcMain.handle('close', () => window.close())
+    ipcMain.handle('isMaximized', () => window.isMaximized())
+    ipcMain.handle('isMinimized', () => window.isMinimized())
+    ipcMain.handle('isNormal', () => window.isNormal())
+
     window.on('closed', () => {
       ipcMain.removeHandler('config:hosts:add')
       ipcMain.removeHandler('config:hosts:delete')
       ipcMain.removeHandler('config:hosts:list')
       ipcMain.removeHandler('config:hosts:isUp')
       ipcMain.removeHandler('config:hosts:open')
+
+      ipcMain.removeHandler('minimize')
+      ipcMain.removeHandler('maximize')
+      ipcMain.removeHandler('unmaximize')
+      ipcMain.removeHandler('close')
+      ipcMain.removeHandler('isMaximized')
+      ipcMain.removeHandler('isMinimized')
+      ipcMain.removeHandler('isNormal')
     })
     window.loadFile(path.join(__dirname, 'preferences/index.html'))
     return window
