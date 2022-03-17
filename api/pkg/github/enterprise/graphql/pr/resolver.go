@@ -62,7 +62,11 @@ func (r *prResolver) Base() string {
 }
 
 func (r *prResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
-	return (*r.root.workspaceResolver).Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(r.pr.WorkspaceID)})
+	t := true
+	return (*r.root.workspaceResolver).Workspace(ctx, resolvers.WorkspaceArgs{
+		ID:            graphql.ID(r.pr.WorkspaceID),
+		AllowArchived: &t,
+	})
 }
 
 func (r *prResolver) ID() graphql.ID {
