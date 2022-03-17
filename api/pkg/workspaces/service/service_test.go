@@ -101,7 +101,7 @@ func TestCreateNewWorkspace(t *testing.T) {
 
 	assert.Equal(t, ws.UserID, request.UserID)
 	assert.Equal(t, ws.CodebaseID, request.CodebaseID)
-	assert.Equal(t, *ws.Name, "Test Testsson's Workspace")
+	assert.Equal(t, *ws.Name, "Untitled draft")
 }
 
 func TestCreateNewWorkspaceWithExplicitName(t *testing.T) {
