@@ -20,6 +20,7 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/notification/sender"
+	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -75,6 +76,7 @@ type Service struct {
 	syncService     *service_sync.Service
 	commentsService *service_comments.Service
 	changeService   *service_change.Service
+	remoteService   *service_remote.Service
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -112,6 +114,7 @@ func New(
 	syncService *service_sync.Service,
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
+	remoteService *service_remote.Service,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
@@ -148,6 +151,7 @@ func New(
 		syncService:     syncService,
 		commentsService: commentsService,
 		changeService:   changeService,
+		remoteService:   remoteService,
 
 		buildQueue: buildQueue,
 	}

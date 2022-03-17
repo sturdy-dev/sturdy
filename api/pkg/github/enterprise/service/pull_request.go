@@ -8,10 +8,14 @@ import (
 	"strings"
 	"time"
 
+	gh "github.com/google/go-github/v39/github"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes/message"
-	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
@@ -19,13 +23,6 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/workspaces"
-	vcsvcs "getsturdy.com/api/vcs"
-
-	gh "github.com/google/go-github/v39/github"
-	"github.com/google/uuid"
-	git "github.com/libgit2/git2go/v33"
-	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 )
 
 type GitHubUserError struct {
@@ -223,14 +220,9 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 
 	gitCommitMessage := message.CommitMessage(ws.DraftDescription)
 
-	var prSHA string
-	if ws.ViewID == nil && ws.LatestSnapshotID != nil {
-		prSHA, err = svc.prepareBranchForPullRequestFromSnapshot(ctx, prBranch, ws, gitCommitMessage, user.Name, user.Email, patchIDs)
-	} else if ws.ViewID != nil {
-		prSHA, err = svc.prepareBranchForPullRequestWithView(prBranch, ws, gitCommitMessage, user.Name, user.Email, patchIDs)
-	}
+	prSHA, err := svc.remoteService.PrepareBranchForPush(ctx, prBranch, ws, gitCommitMessage, user.Name, user.Email)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to prepare branch: %w", err)
 	}
 
 	accessToken, err := client.GetAccessToken(ctx, logger, svc.gitHubAppConfig, ghInstallation, ghRepo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
@@ -376,81 +368,6 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	)
 
 	return currentPR, nil
-}
-
-func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
-	signature := git.Signature{
-		Name:  userName,
-		Email: userEmail,
-		When:  time.Now(),
-	}
-
-	var resSha string
-
-	exec := svc.executorProvider.New().FileReadGitWrite(func(r vcsvcs.RepoReaderGitWriter) error {
-		treeID, err := vcs_change.CreateChangesTreeFromPatches(svc.logger, r, ws.CodebaseID, patchIDs)
-		if err != nil {
-			return err
-		}
-
-		// No changes where added
-		if treeID == nil {
-			return fmt.Errorf("no changes to add")
-		}
-
-		if err := r.CreateNewBranchOnHEAD(prBranchName); err != nil {
-			return fmt.Errorf("failed to create pr branch: %w", err)
-		}
-
-		sha, err := r.CommitIndexTreeWithReference(treeID, commitMessage, signature, "refs/heads/"+prBranchName)
-		if err != nil {
-			return fmt.Errorf("failed save change: %w", err)
-		}
-
-		if err := r.ForcePush(svc.logger, prBranchName); err != nil {
-			return fmt.Errorf("failed to push to sturdytrunk: %w", err)
-		}
-
-		resSha = sha
-		return nil
-	})
-
-	if err := exec.ExecView(ws.CodebaseID, *ws.ViewID, "prepareBranchForPullRequestWithView"); err != nil {
-		return "", fmt.Errorf("failed to create pr branch from view: %w", err)
-	}
-
-	return resSha, nil
-}
-
-func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string, patchIDs []string) (string, error) {
-	signature := git.Signature{
-		Name:  userName,
-		Email: userEmail,
-		When:  time.Now(),
-	}
-
-	snapshot, err := svc.snap.GetByID(ctx, *ws.LatestSnapshotID)
-	if err != nil {
-		return "", fmt.Errorf("failed to get snapshot: %w", err)
-	}
-
-	var resSha string
-
-	exec := svc.executorProvider.New().GitWrite(func(r vcsvcs.RepoGitWriter) error {
-		sha, err := r.CreateNewCommitBasedOnCommit(prBranchName, snapshot.CommitID, signature, commitMessage)
-		if err != nil {
-			return err
-		}
-
-		resSha = sha
-		return nil
-	})
-
-	if err := exec.ExecTrunk(ws.CodebaseID, "prepareBranchForPullRequestFromSnapshot"); err != nil {
-		return "", fmt.Errorf("failed to create pr branch from snapshot")
-	}
-
-	return resSha, nil
 }
 
 // GitHub support (some) HTML the Pull Request descriptions, so we don't need to clean that up here.

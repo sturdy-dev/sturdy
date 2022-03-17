@@ -47,6 +47,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/workers"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	module_remote_enterprise "getsturdy.com/api/pkg/remote/enterprise/module"
 	db_review "getsturdy.com/api/pkg/review/db"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -113,6 +114,7 @@ func module(c *di.Container) {
 	c.Register(enterprise.NewCodebaseGitHubIntegrationRootResolver)
 	c.Register(enterprise.NewGitHubRootResolver)
 	c.Register(graphql_pr_enterprise.NewResolver)
+	c.Import(module_remote_enterprise.Module)
 
 	c.Register(func() *config.GitHubAppConfig {
 		return &config.GitHubAppConfig{}

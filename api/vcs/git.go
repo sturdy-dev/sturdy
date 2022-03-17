@@ -573,6 +573,18 @@ func (r *repository) ForcePush(logger *zap.Logger, branchName string) error {
 	return nil
 }
 
+func (r *repository) PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error) {
+	defer getMeterFunc("PushRemoteUrlWithRefspec")()
+
+	remote, err := r.r.Remotes.CreateAnonymous(remoteUrl)
+	if err != nil {
+		return fmt.Sprintf("Push failed: %s", err.Error()), err
+	}
+	defer remote.Free()
+
+	return r.pushRemoteWithRefSpec(logger, remote, creds, refspecs)
+}
+
 func (r *repository) pushNamedRemote(logger *zap.Logger, branchName, remoteName, remoteBranchName string, creds git.CredentialsCallback, force bool) (userError string, err error) {
 	// https://git-scm.com/book/it/v2/Git-Internals-The-Refspec
 	// "+" means to allow force pushes
@@ -740,8 +752,8 @@ func (r *repository) MoveBranchToHEAD(branchName string) error {
 	return nil
 }
 
-func (r *repository) RemoteFetchWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error {
-	defer getMeterFunc("RemoteFetchWithCreds")()
+func (r *repository) FetchNamedRemoteWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error {
+	defer getMeterFunc("FetchNamedRemoteWithCreds")()
 
 	opts := &git.FetchOptions{
 		RemoteCallbacks: git.RemoteCallbacks{
@@ -755,6 +767,34 @@ func (r *repository) RemoteFetchWithCreds(remoteName string, creds git.Credentia
 	}
 
 	remote, err := r.r.Remotes.Lookup(remoteName)
+	if err != nil {
+		return err
+	}
+	defer remote.Free()
+
+	err = remote.Fetch(refspecs, opts, "")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repository) FetchUrlRemoteWithCreds(url string, creds git.CredentialsCallback, refspecs []string) error {
+	defer getMeterFunc("FetchUrlRemoteWithCreds")()
+
+	opts := &git.FetchOptions{
+		RemoteCallbacks: git.RemoteCallbacks{
+			CredentialsCallback:      creds,
+			CertificateCheckCallback: func(cert *git.Certificate, valid bool, hostname string) error { return nil },
+			CompletionCallback: func(rc git.RemoteCompletion) error {
+				log.Printf("completion: %+v", rc)
+				return nil
+			},
+		},
+	}
+
+	remote, err := r.r.Remotes.CreateAnonymous(url)
 	if err != nil {
 		return err
 	}

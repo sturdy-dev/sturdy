@@ -31,6 +31,7 @@ import (
 
 type RootResolver struct {
 	resolvers.ACLRootResolver
+	resolvers.ActivityRootResolver
 	resolvers.AuthorRootResolver
 	resolvers.BuildkiteInstantIntegrationRootResolver
 	resolvers.ChangeRootResolver
@@ -41,6 +42,7 @@ type RootResolver struct {
 	resolvers.GitHubAppRootResolver
 	resolvers.GitHubPullRequestRootResolver
 	resolvers.GitHubRootResolver
+	resolvers.InstallationsRootResolver
 	resolvers.IntegrationRootResolver
 	resolvers.LicenseRootResolver
 	resolvers.NotificationRootResolver
@@ -48,14 +50,13 @@ type RootResolver struct {
 	resolvers.OrganizationRootResolver
 	resolvers.PKIRootResolver
 	resolvers.PresenceRootResolver
+	resolvers.RemoteRootResolver
 	resolvers.ReviewRootResolver
-	resolvers.InstallationsRootResolver
 	resolvers.ServiceTokensRootResolver
 	resolvers.StatusesRootResolver
 	resolvers.SuggestionRootResolver
 	resolvers.UserRootResolver
 	resolvers.ViewRootResolver
-	resolvers.ActivityRootResolver
 	resolvers.WorkspaceRootResolver
 	resolvers.WorkspaceWatcherRootResolver
 
@@ -69,6 +70,7 @@ func NewRootResolver(
 	jwtService *service_jwt.Service,
 
 	aclResovler resolvers.ACLRootResolver,
+	activityResolver resolvers.ActivityRootResolver,
 	authorResolver resolvers.AuthorRootResolver,
 	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver,
 	changeResolver resolvers.ChangeRootResolver,
@@ -86,6 +88,7 @@ func NewRootResolver(
 	pkiRootResolver resolvers.PKIRootResolver,
 	prResolver resolvers.GitHubPullRequestRootResolver,
 	presenceRootResolver resolvers.PresenceRootResolver,
+	remoteRootResolver resolvers.RemoteRootResolver,
 	reviewResolver resolvers.ReviewRootResolver,
 	serverStatusRootResolver resolvers.InstallationsRootResolver,
 	serviceTokensRootResolver resolvers.ServiceTokensRootResolver,
@@ -93,7 +96,6 @@ func NewRootResolver(
 	suggestionResolver resolvers.SuggestionRootResolver,
 	userResolver resolvers.UserRootResolver,
 	viewResolver resolvers.ViewRootResolver,
-	activityResolver resolvers.ActivityRootResolver,
 	workspaceResolver resolvers.WorkspaceRootResolver,
 	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
 ) *RootResolver {
@@ -102,6 +104,7 @@ func NewRootResolver(
 		logger:     logger,
 
 		ACLRootResolver:                         aclResovler,
+		ActivityRootResolver:                    activityResolver,
 		AuthorRootResolver:                      authorResolver,
 		BuildkiteInstantIntegrationRootResolver: buildkiteRootResolver,
 		ChangeRootResolver:                      changeResolver,
@@ -112,6 +115,7 @@ func NewRootResolver(
 		GitHubAppRootResolver:                   githubAppResolver,
 		GitHubPullRequestRootResolver:           prResolver,
 		GitHubRootResolver:                      gitHubRootResolver,
+		InstallationsRootResolver:               serverStatusRootResolver,
 		IntegrationRootResolver:                 instantIntegrationRootResolver,
 		LicenseRootResolver:                     licenseRootResolver,
 		NotificationRootResolver:                notificationResolver,
@@ -119,14 +123,13 @@ func NewRootResolver(
 		OrganizationRootResolver:                organizationRootResolver,
 		PKIRootResolver:                         pkiRootResolver,
 		PresenceRootResolver:                    presenceRootResolver,
+		RemoteRootResolver:                      remoteRootResolver,
 		ReviewRootResolver:                      reviewResolver,
-		InstallationsRootResolver:               serverStatusRootResolver,
 		ServiceTokensRootResolver:               serviceTokensRootResolver,
 		StatusesRootResolver:                    statusRootResolver,
 		SuggestionRootResolver:                  suggestionResolver,
 		UserRootResolver:                        userResolver,
 		ViewRootResolver:                        viewResolver,
-		ActivityRootResolver:                    activityResolver,
 		WorkspaceRootResolver:                   workspaceResolver,
 		WorkspaceWatcherRootResolver:            workspaceWatcherRootResolver,
 	}

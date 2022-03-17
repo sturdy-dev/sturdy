@@ -13,7 +13,7 @@ import (
 func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
 		refspec := fmt.Sprintf("+%s:refs/heads/sturdytrunk", ref)
-		if err := repo.RemoteFetchWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
+		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 
@@ -28,7 +28,7 @@ func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) 
 
 func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
-		if err := repo.RemoteFetchWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
+		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 		return nil
@@ -91,16 +91,8 @@ func HaveTrackedBranch(executorProvider executor.Provider, codebaseID, remoteBra
 }
 
 func newCredentialsCallback(token string) git.CredentialsCallback {
-	return func(url string, username string, allowedTypes git.CredType) (*git.Cred, error) {
-		cred, _ := git.NewCredUserpassPlaintext("x-access-token", token)
+	return func(url string, username string, allowedTypes git.CredentialType) (*git.Credential, error) {
+		cred, _ := git.NewCredentialUserpassPlaintext("x-access-token", token)
 		return cred, nil
 	}
-}
-
-func ListImportedChanges(repo vcs.RepoGitReader) ([]*vcs.LogEntry, error) {
-	entries, err := repo.LogBranch("sturdytrunk", 50)
-	if err != nil {
-		return nil, err
-	}
-	return entries, nil
 }

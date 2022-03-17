@@ -39,6 +39,15 @@ extend type Mutation {
 
   # Installation
   updateInstallation(input: UpdateInstallationInput!): Installation!
+
+  # createCodebaseRemote is experimental
+  createCodebaseRemote(input: CreateCodebaseRemoteInput!): Codebase!
+
+  # pushWorkspaceToRemote is experimental
+  pushWorkspaceToRemote(input: PushWorkspaceToRemoteInput!): Workspace!
+
+  # fetchRemoteToTrunk is experimental
+  fetchRemoteToTrunk(input: FetchRemoteToTrunkInput!): Codebase!
 }
 
 extend type Subscription {
@@ -278,4 +287,26 @@ type GitHubRepository {
 
 input UpdateInstallationInput {
   licenseKey: String
+}
+
+type Remote {
+  id: ID!
+  name: String!
+  url: String!
+}
+
+input CreateCodebaseRemoteInput {
+  codebaseID: ID!
+  name: String!
+  url: String!
+  basicAuthUsername: String!
+  basicAuthPassword: String!
+}
+
+input PushWorkspaceToRemoteInput {
+  workspaceID: ID!
+}
+
+input FetchRemoteToTrunkInput {
+  codebaseID: ID!
 }
