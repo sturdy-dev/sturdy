@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -54,7 +55,11 @@ func (r *pubSub) pub(topic Topic, evt *event) {
 			}()
 
 			if err := handler.callback(handler.ctx, evt); err != nil {
-				logger.Error("failed to handle event", zap.Error(err), zap.Duration("duration", time.Since(start)))
+				logger.Error(
+					"failed to handle event",
+					zap.Duration("duration", time.Since(start)),
+					zap.Error(errors.Unwrap(err)),
+				)
 			}
 		}()
 	}

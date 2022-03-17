@@ -212,7 +212,7 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 
 	concurrentUpdatedViewConnections.Inc()
 
-	callback := func(_ context.Context, eventView *view.View) error {
+	callback := func(ctx context.Context, eventView *view.View) error {
 		if v.ID != eventView.ID {
 			return nil
 		}
