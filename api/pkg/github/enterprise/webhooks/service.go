@@ -158,15 +158,21 @@ func getPRStatus(apiPR *PullRequest) github.PullRequestState {
 
 func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullRequestEvent) error {
 	logger := svc.logger.With(
-		zap.Int64("pr_id", event.PullRequest.GetID()),
+		zap.Int64("pr_id", event.GetPullRequest().GetID()),
 		zap.String("pr_state", event.GetPullRequest().GetState()),
 		zap.Bool("pr_merged", event.GetPullRequest().GetMerged()),
+		zap.Int64("installation_id", event.GetInstallation().GetID()),
+		zap.Int64("repository_id", event.GetRepo().GetID()),
+		zap.String("repository_name", event.GetRepo().GetFullName()),
 	)
 	start := time.Now()
 	defer logger.Info("handle pull request event", zap.Duration("duration", time.Since(start)))
 
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(event.GetInstallation().GetID(), event.GetRepo().GetID())
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		logger.Info("repository not found", zap.Error(err))
+		return nil // noop
+	} else if err != nil {
 		logger.Error("failed to get GitHub repository", zap.Error(err))
 		return fmt.Errorf("could not get installation: %w", err)
 	}
