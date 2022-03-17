@@ -46,7 +46,6 @@ const (
 	WorkspaceUpdatedSuggestion
 	GitHubPRUpdated
 	NotificationEvent
-	StatusUpdated
 	CompletedOnboardingStep
 	WorkspaceWatchingStatusUpdated
 )
@@ -63,7 +62,6 @@ var eventTypeString = map[EventType]string{
 	ReviewUpdated:                  "ReviewUpdated",
 	GitHubPRUpdated:                "GitHubPRUpdated",
 	NotificationEvent:              "NotificationEvent",
-	StatusUpdated:                  "StatusUpdated",
 	CompletedOnboardingStep:        "CompletedOnboardingStep",
 	WorkspaceWatchingStatusUpdated: "WorkspaceWatchingStatusUpdated",
 }
