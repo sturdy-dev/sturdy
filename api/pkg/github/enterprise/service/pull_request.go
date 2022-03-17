@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -95,23 +96,18 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 		// do not fail
 	}
 
-	//nolint:contextcheck
-	res, _, err := userAuthClient.PullRequests.Merge(ctx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
-	if err != nil {
-		// 405 not allowed
-		// This happens if the repo is configured with branch protection rules (require approvals, tests to pass, etc).
-		// Try to parse the error from GitHub and return it to the user.
+	// check if pr is already merged, without any api error checking
+	// actual error will come when trying to merge pr, if needed
+	if apiPR, _, err := userAuthClient.PullRequests.Get(ctx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber); err == nil && apiPR.GetMerged() {
+		// pr is already merged, continue waiting for the webhook
 		//
-		// Examples:
-		// * "failed to merge pr: PUT https://api.github.com/repos/zegl/empty-11/pulls/4/merge: 405 At least 1 approving review is required by reviewers with write access. []"
-		searchDelim := " 405 "
-		if idx := strings.Index(err.Error(), searchDelim); idx > -1 {
-			svc.logger.Warn("unable to merge github pull request", zap.Error(err))
-			userError := err.Error()[idx+len(searchDelim):]
-			userError = strings.Trim(userError, " []")
-			return GitHubUserError{userError}
-		}
+		// TODO: do not wait for the webhook, we have all the information to update the pr status accordingly
+		return nil
+	}
 
+	//nolint:contextcheck
+	res, resp, err := userAuthClient.PullRequests.Merge(ctx, ghInstallation.Owner, ghRepo.Name, pr.GitHubPRNumber, commitMessage, mergeOpts)
+	if err != nil {
 		// rollback github pr state
 		pr.State = previousState
 		if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
@@ -126,19 +122,44 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 			// do not fail
 		}
 
+		var errorResponse *gh.ErrorResponse
+		if resp.StatusCode == http.StatusMethodNotAllowed && errors.As(err, &errorResponse) {
+			// 405 not allowed
+			// This happens if the repo is configured with branch protection rules (require approvals, tests to pass, etc).
+			// Proxy GitHub's error message to the end user.
+			//
+			// Examples:
+			// * "failed to merge pr: PUT https://api.github.com/repos/zegl/empty-11/pulls/4/merge: 405 At least 1 approving review is required by reviewers with write access. []"
+			return GitHubUserError{errorResponse.Message}
+		}
+
 		svc.logger.Error("unable to merge github pull request", zap.Error(err))
 
 		return fmt.Errorf("failed to merge pr: %w", err)
 	}
 
 	if !res.GetMerged() {
+		// rollback github pr state
+		pr.State = previousState
+		if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
+			return fmt.Errorf("failed to update pull request: %w", err)
+		}
+		if err := svc.eventsPublisher.GitHubPRUpdated(ctx, events.Codebase(pr.CodebaseID), pr); err != nil {
+			svc.logger.Error("failed to send codebase event",
+				zap.String("workspace_id", pr.WorkspaceID),
+				zap.String("github_pr_id", pr.ID),
+				zap.Error(err),
+			)
+			// do not fail
+		}
 		return fmt.Errorf("pull request was not merged")
 	}
 
 	// This endpoint is not marking the PR as merged
 	// That happens when GitHub is sending the webhook to us
 	// Doing so, allows us to handle PR merges both from our and github's UI in the same way
-	// TODO: rely less on github
+	//
+	// TODO: do not wait for the webhook, we already know everything we need
 	return nil
 }
 
