@@ -18,6 +18,9 @@ const UPDATED_GIT_HUB_PULL_REQUEST = gql`
       workspace {
         id
         upToDateWithTrunk
+        change {
+          id
+        }
       }
     }
   }
