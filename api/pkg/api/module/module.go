@@ -41,6 +41,7 @@ import (
 	module_pki "getsturdy.com/api/pkg/pki/module"
 	"getsturdy.com/api/pkg/pprof"
 	module_presence "getsturdy.com/api/pkg/presence/module"
+	module_remote "getsturdy.com/api/pkg/remote/module"
 	module_review "getsturdy.com/api/pkg/review/module"
 	module_servicetokens "getsturdy.com/api/pkg/servicetokens/module"
 	module_statuses "getsturdy.com/api/pkg/statuses/module"
@@ -105,4 +106,5 @@ func common(c *di.Container) {
 	c.Import(module_workspace_watchers.Module)
 	c.Import(module_vcs.Module)
 	c.Import(module_events_v2.Module)
+	c.Import(module_remote.Module)
 }

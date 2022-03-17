@@ -57,12 +57,13 @@ type RepoGitWriter interface {
 	CreateNewCommitBasedOnCommit(newBranchName string, existingCommitID string, signature git.Signature, message string) (string, error)
 
 	CleanStaged() error
-
 	Push(logger *zap.Logger, branchName string) error
 	ForcePush(logger *zap.Logger, branchName string) error
 	PushNamedRemoteWithRefspec(logger *zap.Logger, remoteName string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
+	PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
 
-	RemoteFetchWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error
+	FetchNamedRemoteWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error
+	FetchUrlRemoteWithCreds(remoteUrl string, creds git.CredentialsCallback, refspecs []string) error
 	FetchBranch(branches ...string) error
 
 	SetDefaultBranch(targetBranch string) error
