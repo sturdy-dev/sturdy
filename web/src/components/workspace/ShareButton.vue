@@ -55,7 +55,7 @@
             :tooltip-right="true"
             @click="triggerMergePullRequest"
           >
-            <template #tooltip>Hang on, we are waiting for GitHub to call us back...</template>
+            <template #tooltip>Hang on, we are waiting for GitHub to call back to us...</template>
             <template #default>
               <div v-if="isMerging" class="flex items-center">
                 <Spinner class="mr-1" />
