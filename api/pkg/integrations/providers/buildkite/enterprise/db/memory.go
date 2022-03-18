@@ -3,7 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
-	"getsturdy.com/api/pkg/integrations/buildkite"
+
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 var _ Repository = &memory{}

@@ -8,12 +8,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"getsturdy.com/api/pkg/integrations"
-	"getsturdy.com/api/pkg/integrations/buildkite"
-	db_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/db"
+	"getsturdy.com/api/pkg/integrations/providers"
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
+	db_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/db"
 )
 
-var _ integrations.Provider = &Service{}
+var _ providers.BuildProvider = &Service{}
 
 type Service struct {
 	configRepo db_buildkite.Repository
@@ -23,8 +23,16 @@ func New(configRepo db_buildkite.Repository) *Service {
 	s := &Service{
 		configRepo: configRepo,
 	}
-	integrations.Register(integrations.ProviderTypeBuildkite, s)
+	providers.Register(s)
 	return s
+}
+
+func (b *Service) ProviderType() providers.ProviderType {
+	return providers.ProviderTypeBuild
+}
+
+func (b *Service) ProviderName() providers.ProviderName {
+	return providers.ProviderNameBuildkite
 }
 
 func (b *Service) CreateIntegration(ctx context.Context, cfg *buildkite.Config) error {
@@ -43,7 +51,7 @@ func (b *Service) GetConfigurationByIntegrationID(ctx context.Context, integrati
 	return b.configRepo.GetConfigByIntegrationID(ctx, integrationID)
 }
 
-func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, title string) (*integrations.Build, error) {
+func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, title string) (*providers.Build, error) {
 	cfg, err := b.configRepo.GetConfigByIntegrationID(ctx, integrationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config by codebase id: %w", err)
@@ -93,7 +101,7 @@ func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, ti
 		return nil, fmt.Errorf("unexpected response, id not set")
 	}
 
-	return &integrations.Build{
+	return &providers.Build{
 		Name:        fmt.Sprintf("Buildkite: %s", parsedRes.Pipeline.Name),
 		Description: fmt.Sprintf("Build #%d scheduled", parsedRes.Number),
 		URL:         parsedRes.WebURL,

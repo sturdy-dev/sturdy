@@ -12,7 +12,7 @@ import (
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/http"
-	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 	routes_ci "getsturdy.com/api/pkg/statuses/enterprise/routes"

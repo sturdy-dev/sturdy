@@ -5,7 +5,7 @@ package module
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/integrations/buildkite/graphql"
+	"getsturdy.com/api/pkg/integrations/providers/buildkite/graphql"
 )
 
 func Module(c *di.Container) {

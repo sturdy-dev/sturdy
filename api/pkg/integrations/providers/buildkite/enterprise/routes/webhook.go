@@ -16,8 +16,8 @@ import (
 	"time"
 
 	svc_ci "getsturdy.com/api/pkg/ci/service"
-	"getsturdy.com/api/pkg/integrations/buildkite"
-	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
+	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 	"getsturdy.com/api/pkg/statuses"
 	svc_statuses "getsturdy.com/api/pkg/statuses/service"

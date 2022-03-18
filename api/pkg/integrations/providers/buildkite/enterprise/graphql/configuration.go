@@ -1,9 +1,9 @@
 package graphql
 
 import (
-	"getsturdy.com/api/pkg/integrations/buildkite"
-
 	"github.com/graph-gophers/graphql-go"
+
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 type buildkiteConfigurationResover struct {
