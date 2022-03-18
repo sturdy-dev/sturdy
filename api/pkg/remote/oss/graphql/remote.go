@@ -7,11 +7,14 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
-type remoteRootResolver struct {
-}
+type remoteRootResolver struct{}
 
 func New() resolvers.RemoteRootResolver {
 	return &remoteRootResolver{}
+}
+
+func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, codebaseID string) (resolvers.RemoteResolver, error) {
+	return nil, gqlerror.ErrNotImplemented
 }
 
 func (r *remoteRootResolver) CreateCodebaseRemote(ctx context.Context, args resolvers.CreateCodebaseRemoteArgs) (resolvers.CodebaseResolver, error) {

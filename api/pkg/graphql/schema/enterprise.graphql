@@ -40,8 +40,8 @@ extend type Mutation {
   # Installation
   updateInstallation(input: UpdateInstallationInput!): Installation!
 
-  # createCodebaseRemote is experimental
-  createCodebaseRemote(input: CreateCodebaseRemoteInput!): Codebase!
+  # createOrUpdateCodebaseRemote is experimental
+  createOrUpdateCodebaseRemote(input: CreateOrUpdateCodebaseRemoteInput!): Remote!
 
   # pushWorkspaceToRemote is experimental
   pushWorkspaceToRemote(input: PushWorkspaceToRemoteInput!): Workspace!
@@ -63,6 +63,9 @@ extend type User {
 extend type Codebase {
   gitHubIntegration: CodebaseGitHubIntegration
   integrations(id: ID): [Integration!]!
+
+  # remote is experimental
+  remote: Remote
 }
 
 extend type Status {
@@ -293,9 +296,12 @@ type Remote {
   id: ID!
   name: String!
   url: String!
+  basicAuthUsername: String!
+  basicAuthPassword: String!
+  trackedBranch: String!
 }
 
-input CreateCodebaseRemoteInput {
+input CreateOrUpdateCodebaseRemoteInput {
   codebaseID: ID!
   name: String!
   url: String!

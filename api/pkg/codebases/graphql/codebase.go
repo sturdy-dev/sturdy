@@ -51,6 +51,7 @@ type CodebaseRootResolver struct {
 	instantIntegrationRootResolver    resolvers.IntegrationRootResolver
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver
 	organizationRootResolver          *resolvers.OrganizationRootResolver
+	remoteRootResolver                resolvers.RemoteRootResolver
 
 	logger           *zap.Logger
 	viewEvents       events.EventReader
@@ -80,6 +81,7 @@ func NewCodebaseRootResolver(
 	instantIntegrationRootResolver resolvers.IntegrationRootResolver,
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver,
 	organizationRootResolver *resolvers.OrganizationRootResolver,
+	remoteRootResolver resolvers.RemoteRootResolver,
 
 	logger *zap.Logger,
 	viewEvents events.EventReader,
@@ -108,6 +110,7 @@ func NewCodebaseRootResolver(
 		instantIntegrationRootResolver:    instantIntegrationRootResolver,
 		codebaseGitHubIntegrationResolver: codebaseGitHubIntegrationResolver,
 		organizationRootResolver:          organizationRootResolver,
+		remoteRootResolver:                remoteRootResolver,
 
 		logger:           logger.Named("CodebaseRootResolver"),
 		viewEvents:       viewEvents,
@@ -629,6 +632,18 @@ func (r *CodebaseResolver) Organization(ctx context.Context) (resolvers.Organiza
 		return nil, gqlerrors.Error(err)
 	}
 	return res, nil
+}
+
+func (r *CodebaseResolver) Remote(ctx context.Context) (resolvers.RemoteResolver, error) {
+	resolver, err := r.root.remoteRootResolver.InternalRemoteByCodebaseID(ctx, string(r.ID()))
+	switch {
+	case err == nil:
+		return resolver, nil
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	default:
+		return nil, gqlerrors.Error(err)
+	}
 }
 
 func (r *CodebaseResolver) Writeable(ctx context.Context) bool {
