@@ -464,6 +464,8 @@ type Workspace {
   diffsCount: Int
 
   diffs: [FileDiff!]!
+
+  rebaseStatus: RebaseStatus
 }
 
 input WatchWorkspaceInput {
@@ -709,6 +711,19 @@ type Change {
   child: Change
   # parent is the previous change in the change list. first change's parent is null
   parent: Change
+}
+
+type RebaseStatus {
+  id: ID!
+  isRebasing: Boolean!
+  conflictingFiles: [ConflictingFile!]!
+}
+
+type ConflictingFile {
+  id: ID!
+  path: String!
+  workspaceDiff: FileDiff!
+  trunkDiff: FileDiff!
 }
 
 type FileDiff {
