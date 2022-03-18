@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import DiffConflict, {DIFF_CONFLICT_DIFF} from '../differ/DiffConflict.vue'
+import DiffConflict, { DIFF_CONFLICT_DIFF } from '../differ/DiffConflict.vue'
 import HorizontalDivider from '../shared/HorizontalDivider.vue'
 import { gql } from '@urql/vue'
 import { ResolveConflictDiffFragment } from './__generated__/ResolveConflict'

@@ -400,17 +400,21 @@
                       class="text-sm text-gray-500 pb-4 text-center"
                     >
                       You have
-                      {{ rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size }}
+                      {{
+                        rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size
+                      }}
                       unresolved conflict{{
-                        rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size > 1
-                            ? 's'
-                            : ''
+                        rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size >
+                        1
+                          ? 's'
+                          : ''
                       }}
                     </p>
                     <div class="flex justify-center">
                       <Button
                         :disabled="
-                          rebaseStatus.conflictingFiles.length !== rebasing_conflict_resolutions.size
+                          rebaseStatus.conflictingFiles.length !==
+                          rebasing_conflict_resolutions.size
                         "
                         @click="sendConflictResolution"
                       >
@@ -517,7 +521,7 @@ import LiveDetails, {
 } from '../components/workspace/LiveDetails.vue'
 import http from '../http'
 import { Banner } from '../atoms'
-import ResolveConflict, {RESOLVE_CONFLICT_DIFF} from '../components/workspace/ResolveConflict.vue'
+import ResolveConflict, { RESOLVE_CONFLICT_DIFF } from '../components/workspace/ResolveConflict.vue'
 import Button from '../components/shared/Button.vue'
 import debounce from '../debounce'
 import { gql, useMutation, useQuery } from '@urql/vue'
@@ -783,18 +787,18 @@ export default defineComponent({
               ...PresenceParts
             }
             rebaseStatus {
+              id
+              isRebasing
+              conflictingFiles {
                 id
-                isRebasing
-                conflictingFiles {
-                    id
-                    path
-                    workspaceDiff {
-                        ...ResolveConflictDiff
-                    }
-                    trunkDiff {
-                        ...ResolveConflictDiff
-                    }
+                path
+                workspaceDiff {
+                  ...ResolveConflictDiff
                 }
+                trunkDiff {
+                  ...ResolveConflictDiff
+                }
+              }
             }
             ...LiveDetailsWorkspace
             ...ShareButton
@@ -880,8 +884,7 @@ export default defineComponent({
       if (data.value?.workspace?.view) {
         displayView.value = data.value?.workspace?.view
         displayViewId.value = displayView.value?.id
-      }
-      else {
+      } else {
         displayView.value = null
         displayViewId.value = null
       }
@@ -1090,7 +1093,7 @@ export default defineComponent({
       }
       return false
     },
-    rebaseStatus: function() {
+    rebaseStatus: function () {
       return this.data.workspace.rebaseStatus
     },
   },
