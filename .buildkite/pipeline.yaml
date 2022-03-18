@@ -1,7 +1,7 @@
 steps:
   - label: ":coverage: :golang: Lint API modules"
     commands:
-      - "./download && cd ./tmp_output/api"
+      - "./download && cd ./tmp_output"
       - "docker-compose -f ci/docker-compose.yaml run go ./scripts/lint-dependencies.sh"
 
   - label: ":docker: :golang: Run unit tests"
