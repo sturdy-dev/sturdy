@@ -60,8 +60,8 @@
 
         <p>
           <em>Coming soon:</em> Pull requests created by others on your team will also show up as
-          draft chagnes so that you can get the code with one click. This will work even if others on
-          the team are not using Sturdy.
+          draft chagnes so that you can get the code with one click. This will work even if others
+          on the team are not using Sturdy.
         </p>
 
         <h1 id="source-of-truth">Source of truth</h1>

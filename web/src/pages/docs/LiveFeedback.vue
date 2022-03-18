@@ -50,11 +50,11 @@
 
       <h3>Draft changes</h3>
       <p>
-        In Sturdy you're coding in isolation from each other, in what we're calling a Draft Change. You
-        can have as many drafts as you want, and easily switch between which one that you want
+        In Sturdy you're coding in isolation from each other, in what we're calling a Draft Change.
+        You can have as many drafts as you want, and easily switch between which one that you want
         to open on your computer from Sturdy. The changes in a draft are continuously saved, and
-        when you're coming back to an older draft change, everything will be restored to just how you
-        left it.
+        when you're coming back to an older draft change, everything will be restored to just how
+        you left it.
       </p>
       <div class="relative text-base mx-auto max-w-prose lg:max-w-none">
         <figure>
@@ -80,8 +80,8 @@
       </p>
 
       <p>
-        All drafts in a codebase are available to all of it's collaborators. When you go to
-        someone else's draft in the browser, you'll see what they are up to
+        All drafts in a codebase are available to all of it's collaborators. When you go to someone
+        else's draft in the browser, you'll see what they are up to
         <i>right now</i>. From there, you can <strong>comment on their code in real-time</strong>,
         and if you want to give suggestions for improvements, checking out their draft on your
         computer is just one click away.
