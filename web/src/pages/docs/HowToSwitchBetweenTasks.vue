@@ -7,11 +7,11 @@
       <div class="prose p-4 max-w-[800px]">
         <h1 id="how-to-switch-between-tasks">How to switch between tasks</h1>
         <p>
-          Sturdy allows you to easily and quickly switch between tasks by using multiple draft change.
-          Draft changes are a unit of isolation in Sturdy, which means that code changes in one
-          draft are independent from those in another. It is quick to create and dispose of
-          draft. This guide will go through how you can use multiple drafts to seamlessly
-          switch between tasks. Make sure you are familiar with
+          Sturdy allows you to easily and quickly switch between tasks by using multiple draft
+          change. Draft changes are a unit of isolation in Sturdy, which means that code changes in
+          one draft are independent from those in another. It is quick to create and dispose of
+          draft. This guide will go through how you can use multiple drafts to seamlessly switch
+          between tasks. Make sure you are familiar with
           <router-link :to="{ name: 'v2DocsHowToEditCode' }">editing code</router-link>
           in Sturdy before continuing.
         </p>
@@ -24,25 +24,27 @@
 
         <ol>
           <li>
-            Create a new draft change by clicking the "plus" icon next to the codebase name in the left
-            sidebar
+            Create a new draft change by clicking the "plus" icon next to the codebase name in the
+            left sidebar
           </li>
           <li>Navigate to the new draft named "<em>Untitled draft</em>"</li>
           <li>Rename the newly created draft to "Feature Alpha" using the "Edit" button</li>
           <li>
-            Click the "Connect <em>folder</em> for editing" button at the top of the draft change page
+            Click the "Connect <em>folder</em> for editing" button at the top of the draft change
+            page
           </li>
           <li>The chosen <em>folder</em> is now connected to the "Feature Alpha" draft</li>
           <li>Using your IDE of choice, create some changes to the code</li>
           <li>The diffs of your changes appear in the "Feature Alpha" d</li>
           <li>
-            Create a new draft change by clicking the "plus" icon next to the codebase name in the left
-            sidebar
+            Create a new draft change by clicking the "plus" icon next to the codebase name in the
+            left sidebar
           </li>
           <li>Navigate to the new draft named "<em>Untitled draft</em>"</li>
           <li>Rename the newly created draft change to "Feature Beta" using the "Edit" button</li>
           <li>
-            Click the "Connect <em>folder</em> for editing" button at the top of the draft change page
+            Click the "Connect <em>folder</em> for editing" button at the top of the draft change
+            page
           </li>
           <li>The chosen <em>folder</em> is now connected to the "Feature Beta" draft change</li>
           <ol>
@@ -60,8 +62,8 @@
           </li>
           <ol>
             <li>
-              This is because the changes were made in draft "Feature Alpha" and your directory
-              is now connected to the "Feature Beta" draft change
+              This is because the changes were made in draft "Feature Alpha" and your directory is
+              now connected to the "Feature Beta" draft change
             </li>
           </ol>
           <li>Using your IDE:</li>
@@ -77,8 +79,8 @@
             <li>In Sturdy you can see the diffs that you made earlier</li>
           </ol>
           <li>
-            Click the "Connect <em>folder</em> for editing" button at the top of the draft change page
-            to connect your folder to "Feature Alpha"
+            Click the "Connect <em>folder</em> for editing" button at the top of the draft change
+            page to connect your folder to "Feature Alpha"
           </li>
           <ol>
             <li>
@@ -99,8 +101,7 @@
         </p>
 
         <DocsInfoBox>
-          In Sturdy, there is no need to 'save' or 'stash' changes when switching between
-          drafts.
+          In Sturdy, there is no need to 'save' or 'stash' changes when switching between drafts.
         </DocsInfoBox>
 
         <DocsInfoBox class="mt-8">
@@ -130,8 +131,7 @@
         </ol>
         <p>
           Sturdy allows you to create new draft change based on the work in an existing draft.
-          Within an existing draft which <em>already has</em> some work in progress code
-          changes:
+          Within an existing draft which <em>already has</em> some work in progress code changes:
         </p>
         <ol>
           <li>
@@ -163,12 +163,14 @@
             <em>name of the original</em>"
           </li>
           <li>Observe that the new draft change has only the changes that you selected</li>
-          <li>Rename the draft change to reflect the changes included, for example "Quick bugfix"</li>
+          <li>
+            Rename the draft change to reflect the changes included, for example "Quick bugfix"
+          </li>
         </ol>
 
         <p>
-          Creating draft change based on other drafts is a powerful tool that allows you to
-          quickly and easily ship small incremental changes.
+          Creating draft change based on other drafts is a powerful tool that allows you to quickly
+          and easily ship small incremental changes.
         </p>
       </div>
     </template>

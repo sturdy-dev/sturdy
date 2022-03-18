@@ -14,8 +14,8 @@
           >manages the codebase folder on your workstation
         </router-link>
         , jumping between different work efforts is really easy. It takes a single click to move
-        your development environment to another draft change, either yours or created by your team. All
-        of this without losing any of your work in progress.
+        your development environment to another draft change, either yours or created by your team.
+        All of this without losing any of your work in progress.
       </p>
       <p>
         We are building Sturdy in order to make experimentation and collaboration on code easier.
@@ -41,8 +41,8 @@
         </video>
       </div>
       <p>
-        Compared to checking out different Git branches, switching between open draft changes is a very lightweight
-        operation.
+        Compared to checking out different Git branches, switching between open draft changes is a
+        very lightweight operation.
       </p>
       <p>
         There is no need to stash your work in progress because Sturdy manages keeps track of every
