@@ -74,7 +74,8 @@
             drafts to be based on top of your code
           </li>
           <li>
-            After the change is shared, a new draft change will be created for you, so that you're ready to code right away
+            After the change is shared, a new draft change will be created for you, so that you're
+            ready to code right away
           </li>
         </ol>
 
@@ -122,7 +123,8 @@
             leaving Sturdy.
           </li>
           <li>
-            Click “Merge” to merge the PR. After a few seconds the PR will be merged, and Sturdy will prepare a new and empty draft change for you to keep working in.
+            Click “Merge” to merge the PR. After a few seconds the PR will be merged, and Sturdy
+            will prepare a new and empty draft change for you to keep working in.
           </li>
         </ol>
 
@@ -147,9 +149,8 @@
         </h2>
 
         <p>
-          If the changes in the draft are conflicting with recent changes in the codebase, you
-          have a conflict. Conflicts happen when two drafts make changes to the same piece of
-          code.
+          If the changes in the draft are conflicting with recent changes in the codebase, you have
+          a conflict. Conflicts happen when two drafts make changes to the same piece of code.
         </p>
 
         <p>A banner will be shown in the draft change if it’s conflicting.</p>
@@ -203,9 +204,9 @@
         <h2 id="optional-syncing" title="Syncing">Optional: Syncing</h2>
 
         <p>
-          After creating the draft, if new changes land on the changelog (either from others on
-          the team or from you via another draft), these changes are not available in your
-          draft by default.
+          After creating the draft, if new changes land on the changelog (either from others on the
+          team or from you via another draft), these changes are not available in your draft by
+          default.
         </p>
 
         <p>

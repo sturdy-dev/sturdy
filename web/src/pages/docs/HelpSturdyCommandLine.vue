@@ -75,8 +75,8 @@
       </p>
       <p>
         To move an existing draft change to the new directory, use the "computer picker" in the top
-        right of the page when viewing a draft, and select the new directory that you want to
-        use. The draft, and all unsaved changes will be moved automatically.
+        right of the page when viewing a draft, and select the new directory that you want to use.
+        The draft, and all unsaved changes will be moved automatically.
       </p>
 
       <h2>Deleting a Sturdy directory</h2>
