@@ -193,6 +193,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       frame: false,
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },
+      icon: path.join(`${__dirname}/../assets/Sturdy.iconset/icon_512x512.png`),
     })
 
     mainWindowState.manage(this.#window)

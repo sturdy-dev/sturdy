@@ -341,6 +341,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
         devTools: !app.isPackaged,
         preload: path.join(__dirname, 'preferences/preload.js'),
       },
+      icon: path.join(`${__dirname}/../assets/Sturdy.iconset/icon_512x512@2x.png`),
       frame: false,
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },

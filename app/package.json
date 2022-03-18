@@ -2,6 +2,8 @@
   "private": true,
   "version": "0.5.12",
   "name": "SturdyDev",
+  "author": "Sturdy Team <support@getsturdy.com>",
+  "description": "Real-Time Version Control",
   "main": "dist/main.js",
   "scripts": {
     "dev": "rollup -c rollup.config.js && yarn electron-dev",
