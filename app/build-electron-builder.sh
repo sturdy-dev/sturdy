@@ -55,6 +55,8 @@ build windows amd64 zip
 
 LINUX_TARGET=rpm build linux amd64
 LINUX_TARGET=deb build linux amd64
+LINUX_TARGET=appImage build linux amd64
+LINUX_TARGET=appImage build linux arm64
 
 if ((DO_UPLOAD)); then
 	invalidate_cloudfront "${CHANNEL}"

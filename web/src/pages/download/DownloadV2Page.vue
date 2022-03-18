@@ -146,6 +146,20 @@ linux.archDownloads.push({
   icon: DownloadIcon,
 })
 
+linux.archDownloads.push({
+  id: 'linux-appImage-amd64',
+  fullName: 'Download .AppImage (amd64)',
+  url: new URL('linux/amd64/Sturdy.AppImage', url).href,
+  icon: DownloadIcon,
+})
+
+linux.archDownloads.push({
+  id: 'linux-appImage-arm64',
+  fullName: 'Download .AppImage (arm64)',
+  url: new URL('linux/arm64/Sturdy.AppImage', url).href,
+  icon: DownloadIcon,
+})
+
 // linux.archDownloads.push({
 //   id: 'linux-snapcraft',
 //   fullName: 'Download from Snapcraft (beta)',

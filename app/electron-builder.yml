@@ -55,10 +55,11 @@ dmg:
     height: 498
   sign: true
 
-snap:
-  # TODO: Submit Sturdy for review to use the classic confinement (or see if we can make Sturdy run in the sandbox)
-  #   - (NEEDS REVIEW) confinement 'classic' not allowed. If your snap needs classic confinement to function, please make a request for this snap to use classic by creating a new topic in the forum using the 'store-requests' category and detail the technical reasons why classic is required.
-  confinement: 'devmode'
+appImage:
+  category: 'RevisionControl'
+  desktop:
+    Comment: Real-Time Version Control
+    Icon: assets/Sturdy.iconset/icon_256x256.png
 
 nsis:
   menuCategory: false

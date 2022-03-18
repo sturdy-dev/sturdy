@@ -89,7 +89,7 @@ function build() {
 	fi
 
 	BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}.yml"
-	if [ -v LINUX_TARGET ]; then
+	if [ -n "$LINUX_TARGET" ]; then
 		BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}-${LINUX_TARGET}.yml"
 	fi
 
@@ -109,7 +109,7 @@ function build() {
     " "$BUILDER_CONFIG_YML"
 
 		# .productName can not contain space in RPM packages
-		if [ -v LINUX_TARGET ] && [ "$LINUX_TARGET" == "rpm" ]; then
+		if [ "$LINUX_TARGET" == "rpm" ]; then
 			yq -i eval "
         .productName = \"Sturdy${CHANNEL}\" |
         .extraMetadata.name = \"Sturdy${CHANNEL}\" |
@@ -118,11 +118,15 @@ function build() {
 		fi
 	fi
 
-	if [ -v LINUX_TARGET ]; then
+	if [ -n "$LINUX_TARGET" ]; then
 		yq -i eval ".linux.target += \"${LINUX_TARGET}\"" "$BUILDER_CONFIG_YML"
 
 		if [ "$LINUX_TARGET" == "snap" ]; then
 			yq -i eval '.publish += [{ "provider": "snapStore", "repo": "Sturdy", "channels": ["edge"] }]' "$BUILDER_CONFIG_YML"
+		fi
+
+		if [ "$LINUX_TARGET" == "appImage" ]; then
+			yq -i eval ".appImage.desktop.Name += \"Sturdy ${CHANNEL}\"" "$BUILDER_CONFIG_YML"
 		fi
 	fi
 
@@ -221,6 +225,18 @@ function create_latest() {
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-${app_version}.x86_64.rpm" \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.rpm"
 	fi
+
+	if [ "$OS" == linux ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "appImage" ]; then
+		aws s3 cp \
+			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-${app_version}.AppImage" \
+			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy.AppImage"
+	fi
+
+	if [ "$OS" == linux ] && [ "$ARCH" == "arm64" ] && [ "$LINUX_TARGET" == "appImage" ]; then
+		aws s3 cp \
+			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy-${app_version}-arm64.AppImage" \
+			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy.AppImage"
+	fi
 }
 
 function setup_darwin_notarize() {
@@ -228,6 +244,7 @@ function setup_darwin_notarize() {
 	read APPLE_ID
 	printf 'Password: '
 	read -s APPLE_ID_PASSWORD
+	echo
 	export APPLE_ID
 	export APPLE_ID_PASSWORD
 }
