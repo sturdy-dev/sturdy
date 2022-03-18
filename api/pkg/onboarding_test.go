@@ -19,10 +19,10 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -91,7 +91,7 @@ func TestCreate(t *testing.T) {
 		RepoProvider          provider.RepoProvider
 
 		// Dependencies of Gin Routes
-		CodebaseUserRepo db_codebase.CodebaseUserRepository
+		CodebaseUserRepo db_codebases.CodebaseUserRepository
 		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
@@ -136,7 +136,7 @@ func TestCreate(t *testing.T) {
 	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()}))
 
 	// Create a codebase
-	var codebaseRes codebase.Codebase
+	var codebaseRes codebases.Codebase
 	request(t, createUser.ID, createCodebaseRoute, routes_v3_codebase.CreateRequest{Name: "testrepo"}, &codebaseRes)
 	assert.Len(t, codebaseRes.ID, 36)
 	assert.Equal(t, "testrepo", codebaseRes.Name)
@@ -556,7 +556,7 @@ func TestLargeFiles(t *testing.T) {
 		RepoProvider          provider.RepoProvider
 
 		// Dependencies of Gin Routes
-		CodebaseUserRepo db_codebase.CodebaseUserRepository
+		CodebaseUserRepo db_codebases.CodebaseUserRepository
 		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
 		SnapshotRepo     db_snapshots.Repository
@@ -615,7 +615,7 @@ func TestLargeFiles(t *testing.T) {
 			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()})
 
 			// Create a codebase
-			var codebaseRes codebase.Codebase
+			var codebaseRes codebases.Codebase
 			request(t, createUser.ID, createCodebaseRoute, routes_v3_codebase.CreateRequest{Name: "testrepo"}, &codebaseRes)
 			assert.Len(t, codebaseRes.ID, 36)
 			assert.Equal(t, "testrepo", codebaseRes.Name)

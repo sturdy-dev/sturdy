@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -43,7 +43,7 @@ func Organization(organizationID string) *receiver {
 
 func (r *receiver) Topics(
 	ctx context.Context,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	workspaceRepo db_workspaces.WorkspaceReader,
 	organizationMemberRepoRepo db_organization.MemberRepository,
 ) (map[Topic]bool, error) {

@@ -10,13 +10,13 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
 
 type directoryResolver struct {
-	codebase *codebase.Codebase
+	codebase *codebases.Codebase
 	path     string
 	children []string
 

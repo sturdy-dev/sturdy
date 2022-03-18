@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/users"
@@ -77,7 +77,7 @@ func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID u
 		_, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, ghr.CodebaseID)
 		if errors.Is(err, sql.ErrNoRows) {
 			t0 := time.Now()
-			err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
+			err := svc.codebaseUserRepo.Create(codebases.CodebaseUser{
 				ID:         uuid.NewString(),
 				UserID:     userID,
 				CodebaseID: ghr.CodebaseID,

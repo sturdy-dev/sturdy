@@ -8,7 +8,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/remote/enterprise/service"

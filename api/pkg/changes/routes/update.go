@@ -11,8 +11,8 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	changeDB "getsturdy.com/api/pkg/changes/db"
 	"getsturdy.com/api/pkg/changes/message"
-	"getsturdy.com/api/pkg/codebase/access"
-	codebaseDB "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases/access"
+	codebaseDB "getsturdy.com/api/pkg/codebases/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

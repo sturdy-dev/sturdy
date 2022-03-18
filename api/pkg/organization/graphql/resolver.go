@@ -8,8 +8,8 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/codebases"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	events "getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -324,7 +324,7 @@ func (r *organizationResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 		return nil, gqlerrors.Error(err)
 	}
 
-	var codebases []*codebase.Codebase
+	var codebases []*codebases.Codebase
 
 	// List all codebases in the organization
 	if isMemberOfOrganization {

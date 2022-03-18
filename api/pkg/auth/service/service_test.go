@@ -10,8 +10,8 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/codebases"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/organization"
 	service_organization "getsturdy.com/api/pkg/organization/service"
@@ -78,13 +78,13 @@ func TestCanWrite_codebase(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			cb := codebase.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
+			cb := codebases.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
 			assert.NoError(t, codebaseRepo.Create(cb))
 
 			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
-				cbu := codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
+				cbu := codebases.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
 				assert.NoError(t, codebaseUserRepo.Create(cbu))
 			}
 
@@ -180,7 +180,7 @@ func TestCanRead_codebase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			orgID := uuid.NewString()
 
-			cb := codebase.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
+			cb := codebases.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
 
 			if tc.isMemberOfOrganization {
 				cb.OrganizationID = &orgID
@@ -191,7 +191,7 @@ func TestCanRead_codebase(t *testing.T) {
 			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
-				cbu := codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
+				cbu := codebases.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
 				assert.NoError(t, codebaseUserRepo.Create(cbu))
 			}
 
@@ -295,10 +295,10 @@ func TestCanReadWrite_organization(t *testing.T) {
 			}
 
 			if tc.isMemberOfCodebase {
-				cb := codebase.Codebase{ID: uuid.NewString(), OrganizationID: &org.ID}
+				cb := codebases.Codebase{ID: uuid.NewString(), OrganizationID: &org.ID}
 				assert.NoError(t, codebaseRepo.Create(cb))
 
-				cbu := codebase.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
+				cbu := codebases.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}
 				assert.NoError(t, codebaseUserRepo.Create(cbu))
 			}
 

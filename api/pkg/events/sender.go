@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -25,7 +25,7 @@ type EventSender interface {
 }
 
 type eventsSender struct {
-	codebaseUserRepo       db_codebase.CodebaseUserRepository
+	codebaseUserRepo       db_codebases.CodebaseUserRepository
 	workspaceRepo          db_workspaces.WorkspaceReader
 	organizationMemberRepo db_organization.MemberRepository
 
@@ -33,7 +33,7 @@ type eventsSender struct {
 }
 
 func NewSender(
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	workspaceRepo db_workspaces.WorkspaceReader,
 	organizationMemberRepo db_organization.MemberRepository,
 	events EventReadWriter,

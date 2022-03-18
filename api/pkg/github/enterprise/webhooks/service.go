@@ -18,7 +18,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -47,7 +47,7 @@ type Service struct {
 	workspaceWriter db_workspaces.WorkspaceWriter
 	workspaceReader db_workspaces.WorkspaceReader
 	reviewRepo      db_review.ReviewRepository
-	codebaseRepo    db_codebase.CodebaseRepository
+	codebaseRepo    db_codebases.CodebaseRepository
 	viewRepo        db_view.Repository
 
 	gitHubAppConfig                  *config_github.GitHubAppConfig
@@ -82,7 +82,7 @@ func New(
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	workspaceReader db_workspaces.WorkspaceReader,
 	reviewRepo db_review.ReviewRepository,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	viewRepo db_view.Repository,
 
 	gitHubAppConfig *config_github.GitHubAppConfig,

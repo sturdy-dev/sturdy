@@ -19,8 +19,8 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase/acl"
-	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
+	"getsturdy.com/api/pkg/codebases/acl"
+	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/users"
 	db_users "getsturdy.com/api/pkg/users/db"

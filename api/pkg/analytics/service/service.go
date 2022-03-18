@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/users"
 
@@ -63,7 +63,7 @@ func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Or
 	}
 }
 
-func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebase.Codebase) {
+func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebases.Codebase) {
 	if err := s.client.Enqueue(posthog.GroupIdentify{
 		Type: "codebase",
 		Key:  cb.ID,

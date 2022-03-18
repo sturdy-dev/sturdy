@@ -10,8 +10,8 @@ import (
 
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	module_github "getsturdy.com/api/pkg/github/module"
@@ -58,10 +58,10 @@ func TestUpdateViewWorkspace(t *testing.T) {
 		RepoProvider provider.RepoProvider
 
 		UserRepo         db_user.Repository
-		CodebaseRepo     db_codebase.CodebaseRepository
+		CodebaseRepo     db_codebases.CodebaseRepository
 		WorkspaceRepo    db_workspaces.Repository
 		ViewRepo         db_view.Repository
-		CodebaseUserRepo db_codebase.CodebaseUserRepository
+		CodebaseUserRepo db_codebases.CodebaseUserRepository
 	}
 
 	var d deps
@@ -122,12 +122,12 @@ func TestUpdateViewWorkspace(t *testing.T) {
 			workspaceAID := uuid.New()
 			workspaceBID := uuid.New()
 
-			err := codebaseRepo.Create(codebase.Codebase{
+			err := codebaseRepo.Create(codebases.Codebase{
 				ID:              codebaseID,
-				ShortCodebaseID: codebase.ShortCodebaseID(codebaseID), // not realistic
+				ShortCodebaseID: codebases.ShortCodebaseID(codebaseID), // not realistic
 			})
 			assert.NoError(t, err)
-			assert.NoError(t, codebaseUserRepo.Create(codebase.CodebaseUser{
+			assert.NoError(t, codebaseUserRepo.Create(codebases.CodebaseUser{
 				ID:         uuid.NewString(),
 				CodebaseID: codebaseID,
 				UserID:     userID,

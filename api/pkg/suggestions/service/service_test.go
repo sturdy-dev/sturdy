@@ -14,8 +14,8 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_changes "getsturdy.com/api/pkg/changes/db"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification/sender"
@@ -236,7 +236,7 @@ type test struct {
 	viewDB            db_view.Repository
 	workspaceDB       db_workspaces.Repository
 	snapshotsDB       db_snapshots.Repository
-	codebaseUserRepo  db_codebase.CodebaseUserRepository
+	codebaseUserRepo  db_codebases.CodebaseUserRepository
 	gitSnapshotter    snapshotter.Snapshotter
 	workspaceService  service_workspace.Service
 	suggestionService *service_suggestions.Service

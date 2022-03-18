@@ -8,7 +8,7 @@ import (
 	"html/template"
 
 	"getsturdy.com/api/pkg/changes"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/jwt"
@@ -58,7 +58,7 @@ type WelcomeTemplateData struct {
 
 type NotificationGitHubRepositoryImportedTemplateData struct {
 	GitHubRepo *github.Repository
-	Codebase   *codebase.Codebase
+	Codebase   *codebases.Codebase
 	User       *users.User
 }
 
@@ -67,7 +67,7 @@ type NotificationCommentTemplateData struct {
 
 	Comment   *comments.Comment
 	Author    *users.User
-	Codebase  *codebase.Codebase
+	Codebase  *codebases.Codebase
 	Workspace *workspaces.Workspace
 	Change    *changes.Change
 
@@ -79,7 +79,7 @@ type NotificationNewSuggestionTemplateData struct {
 
 	Author    *users.User
 	Workspace *workspaces.Workspace
-	Codebase  *codebase.Codebase
+	Codebase  *codebases.Codebase
 }
 
 type NotificationRequestedReviewTemplateData struct {
@@ -87,7 +87,7 @@ type NotificationRequestedReviewTemplateData struct {
 
 	RequestedBy *users.User
 	Workspace   *workspaces.Workspace
-	Codebase    *codebase.Codebase
+	Codebase    *codebases.Codebase
 }
 
 type NotificationReviewTemplateData struct {
@@ -96,7 +96,7 @@ type NotificationReviewTemplateData struct {
 	Author    *users.User
 	Review    *review.Review
 	Workspace *workspaces.Workspace
-	Codebase  *codebase.Codebase
+	Codebase  *codebases.Codebase
 }
 
 type MagicLinkTemplateData struct {

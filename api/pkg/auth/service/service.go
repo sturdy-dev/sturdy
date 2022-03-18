@@ -8,9 +8,9 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
-	"getsturdy.com/api/pkg/codebase"
-	provider_acl "getsturdy.com/api/pkg/codebase/acl/provider"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	"getsturdy.com/api/pkg/codebases"
+	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/organization"
@@ -106,9 +106,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canUserAccessComment(ctx, subjectID, at, &object)
 		case *comments.Comment:
 			return s.canUserAccessComment(ctx, subjectID, at, object)
-		case codebase.Codebase:
+		case codebases.Codebase:
 			return s.canUserAccessCodebase(ctx, subjectID, at, &object)
-		case *codebase.Codebase:
+		case *codebases.Codebase:
 			return s.canUserAccessCodebase(ctx, subjectID, at, object)
 		case changes.Change:
 			return s.canUserAccessChange(ctx, subjectID, at, &object)
@@ -160,9 +160,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canAnonymousAccessChange(ctx, at, &object)
 		case *changes.Change:
 			return s.canAnonymousAccessChange(ctx, at, object)
-		case codebase.Codebase:
+		case codebases.Codebase:
 			return s.canAnonymousAccessCodebase(ctx, at, &object)
-		case *codebase.Codebase:
+		case *codebases.Codebase:
 			return s.canAnonymousAccessCodebase(ctx, at, object)
 		case workspaces.Workspace:
 			return s.canAnonymousAccessWorkspace(ctx, at, &object)
@@ -224,7 +224,7 @@ func (s *Service) canUserAccessComment(ctx context.Context, userID users.ID, at 
 	return s.canUserAccessCodebase(ctx, userID, at, cb)
 }
 
-func (s *Service) canUserAccessCodebase(ctx context.Context, userID users.ID, at accessType, codebase *codebase.Codebase) error {
+func (s *Service) canUserAccessCodebase(ctx context.Context, userID users.ID, at accessType, codebase *codebases.Codebase) error {
 	// Everyone can read public codebases
 	if at == accessTypeRead && codebase.IsPublic {
 		return nil
@@ -253,7 +253,7 @@ func (s *Service) canUserAccessCodebase(ctx context.Context, userID users.ID, at
 	return fmt.Errorf("user doesn't have acces to the codebase: %w", auth.ErrForbidden)
 }
 
-func (s *Service) canAnonymousAccessCodebase(ctx context.Context, at accessType, codebase *codebase.Codebase) error {
+func (s *Service) canAnonymousAccessCodebase(ctx context.Context, at accessType, codebase *codebases.Codebase) error {
 	if at == accessTypeRead && codebase.IsPublic {
 		return nil
 	}

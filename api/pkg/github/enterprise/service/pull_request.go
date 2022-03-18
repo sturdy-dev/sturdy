@@ -16,7 +16,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes/message"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
@@ -371,7 +371,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 }
 
 // GitHub support (some) HTML the Pull Request descriptions, so we don't need to clean that up here.
-func prDescription(userName, userGitHubLogin string, cb *codebase.Codebase, ws *workspaces.Workspace) *string {
+func prDescription(userName, userGitHubLogin string, cb *codebases.Codebase, ws *workspaces.Workspace) *string {
 	var builder strings.Builder
 	builder.WriteString(ws.DraftDescription)
 	builder.WriteString("\n\n---\n\n")

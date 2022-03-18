@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"getsturdy.com/api/pkg/codebase/acl"
-	db_acl "getsturdy.com/api/pkg/codebase/acl/db"
+	"getsturdy.com/api/pkg/codebases/acl"
+	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 )
 
 type inMemoryAclRepo struct {

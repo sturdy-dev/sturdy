@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase/access"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases/access"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
 
@@ -23,7 +23,7 @@ type MutagenView struct {
 	CodebaseIsArchived bool     `json:"codebase_is_archived"`
 }
 
-func GetView(logger *zap.Logger, repo db_view.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, codebaseRepo db_codebase.CodebaseRepository) func(c *gin.Context) {
+func GetView(logger *zap.Logger, repo db_view.Repository, codebaseUserRepo db_codebases.CodebaseUserRepository, codebaseRepo db_codebases.CodebaseRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		viewID := c.Param("id")
 

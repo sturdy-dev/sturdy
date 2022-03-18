@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	decorate_comments "getsturdy.com/api/pkg/comments/decorate"
@@ -46,9 +46,9 @@ type Sender struct {
 	sender emails.Sender
 
 	userRepo                       db_users.Repository
-	codebaseUserRepo               db_codebase.CodebaseUserRepository
+	codebaseUserRepo               db_codebases.CodebaseUserRepository
 	commentsRepo                   db_comments.Repository
-	codebaseRepo                   db_codebase.CodebaseRepository
+	codebaseRepo                   db_codebases.CodebaseRepository
 	workspaceRepo                  db_workspaces.Repository
 	suggestionRepo                 db_suggestion.Repository
 	reviewRepo                     db_review.ReviewRepository
@@ -66,9 +66,9 @@ func New(
 	sender emails.Sender,
 
 	userRepo db_users.Repository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	commentsRepo db_comments.Repository,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	workspaceRepo db_workspaces.Repository,
 	suggestionRepo db_suggestion.Repository,
 	reviewRepo db_review.ReviewRepository,

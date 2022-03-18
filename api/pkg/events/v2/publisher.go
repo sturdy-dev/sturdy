@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/notification"
 	"getsturdy.com/api/pkg/onboarding"
@@ -13,7 +13,7 @@ import (
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/workspaces"
 
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )
@@ -21,14 +21,14 @@ import (
 type Publisher struct {
 	pubSub *pubSub
 
-	codebaseUserRepo       db_codebase.CodebaseUserRepository
+	codebaseUserRepo       db_codebases.CodebaseUserRepository
 	organizationMemberRepo db_organization.MemberRepository
 	workspaceRepo          db_workspaces.WorkspaceReader
 }
 
 func NewPublisher(
 	pubsub *pubSub,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	workspaceRepo db_workspaces.WorkspaceReader,
 	organizationMemberRepo db_organization.MemberRepository,
 ) *Publisher {
@@ -40,7 +40,7 @@ func NewPublisher(
 	}
 }
 
-func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
+func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codebase *codebases.Codebase) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (p *Publisher) CodebaseEvent(ctx context.Context, receiver *receiver, codeb
 	return nil
 }
 
-func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, codebase *codebase.Codebase) error {
+func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, codebase *codebases.Codebase) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err

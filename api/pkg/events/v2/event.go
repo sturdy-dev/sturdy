@@ -1,7 +1,7 @@
 package events
 
 import (
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/notification"
 	"getsturdy.com/api/pkg/onboarding"
@@ -89,7 +89,7 @@ func (t Type) String() string {
 type event struct {
 	Type Type
 
-	Codebase          *codebase.Codebase
+	Codebase          *codebases.Codebase
 	View              *view.View
 	Workspace         *workspaces.Workspace
 	Review            *review.Review

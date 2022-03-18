@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/notification"
@@ -88,7 +88,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 			logger.Info("granting access to repository based on GitHub credentials")
 
 			t0 := time.Now()
-			if err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
+			if err := svc.codebaseUserRepo.Create(codebases.CodebaseUser{
 				ID:         uuid.NewString(),
 				UserID:     gitHubUser.UserID,
 				CodebaseID: codebaseID,
@@ -182,7 +182,7 @@ func listCollaborators(ctx context.Context, reposClient client.RepositoriesClien
 func (svc *Service) AddUser(ctx context.Context, codebaseID string, userID users.ID) error {
 	// Add access to this user directly
 	t := time.Now()
-	err := svc.codebaseUserRepo.Create(codebase.CodebaseUser{
+	err := svc.codebaseUserRepo.Create(codebases.CodebaseUser{
 		ID:         uuid.NewString(),
 		UserID:     userID,
 		CodebaseID: codebaseID,

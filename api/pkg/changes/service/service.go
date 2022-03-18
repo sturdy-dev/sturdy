@@ -14,8 +14,8 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	db_change "getsturdy.com/api/pkg/changes/db"
 	"getsturdy.com/api/pkg/changes/message"
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
@@ -26,14 +26,14 @@ import (
 
 type Service struct {
 	changeRepo       db_change.Repository
-	codebaseRepo     db_codebase.CodebaseRepository
+	codebaseRepo     db_codebases.CodebaseRepository
 	logger           *zap.Logger
 	executorProvider executor.Provider
 }
 
 func New(
 	changeRepo db_change.Repository,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	logger *zap.Logger,
 	executorProvider executor.Provider,
 ) *Service {
@@ -374,7 +374,7 @@ func (svc *Service) Diffs(ctx context.Context, ch *changes.Change, allower *unid
 	return decoratedDiff, nil
 }
 
-func (svc *Service) HeadChange(ctx context.Context, cb *codebase.Codebase) (*changes.Change, error) {
+func (svc *Service) HeadChange(ctx context.Context, cb *codebases.Codebase) (*changes.Change, error) {
 	if cb.CalculatedHeadChangeID && cb.CachedHeadChangeID == nil {
 		return nil, ErrNotFound
 	}

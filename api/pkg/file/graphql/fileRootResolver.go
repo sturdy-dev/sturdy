@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/vcs"
@@ -29,7 +29,7 @@ func NewFileRootResolver(
 	}
 }
 
-func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebase.Codebase, pathsWithFallback ...string) (resolvers.FileOrDirectoryResolver, error) {
+func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebases.Codebase, pathsWithFallback ...string) (resolvers.FileOrDirectoryResolver, error) {
 	var resolver resolvers.FileOrDirectoryResolver
 
 	allower, err := r.authService.GetAllower(ctx, codebase)
