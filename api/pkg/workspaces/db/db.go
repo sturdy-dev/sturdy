@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/jmoiron/sqlx"
@@ -40,7 +41,7 @@ func (r *repo) Get(id string) (*workspaces.Workspace, error) {
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]*workspaces.Workspace, error) {
+func (r *repo) ListByCodebaseIDs(codebaseIDs []codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
 	q := `SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, head_change_computed, diffs_count, change_id
 	FROM workspaces
 	WHERE codebase_id IN(?)`
@@ -63,7 +64,7 @@ func (r *repo) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]
 	return views, nil
 }
 
-func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) ([]*workspaces.Workspace, error) {
+func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error) {
 	query, args, err := sqlx.In(`SELECT id, user_id, codebase_id, name, created_at, last_landed_at, archived_at, unarchived_at, updated_at, draft_description, view_id, latest_snapshot_id, up_to_date_with_trunk, head_change_id, diffs_count, change_id
 	FROM workspaces
 	WHERE codebase_id IN(?)
@@ -84,7 +85,7 @@ func (r *repo) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) (
 	return views, nil
 }
 
-func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
+func (r *repo) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID codebases.ID) error {
 	_, err := r.db.Exec("UPDATE workspaces SET up_to_date_with_trunk = NULL WHERE codebase_id = $1 AND archived_at IS NULL", codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to UnsetUpToDateWithTrunkForAllInCodebase: %w", err)

@@ -6,11 +6,12 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/remote"
 )
 
 type Repository interface {
-	GetByCodebaseID(ctx context.Context, codebaseID string) (*remote.Remote, error)
+	GetByCodebaseID(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error)
 	Create(ctx context.Context, r remote.Remote) error
 	Update(ctx context.Context, r *remote.Remote) error
 }
@@ -23,7 +24,7 @@ type repo struct {
 	db *sqlx.DB
 }
 
-func (r *repo) GetByCodebaseID(ctx context.Context, codebaseID string) (*remote.Remote, error) {
+func (r *repo) GetByCodebaseID(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error) {
 	var res remote.Remote
 	err := r.db.GetContext(ctx, &res, `SELECT * FROM remotes WHERE codebase_id = $1`, codebaseID)
 	if err != nil {

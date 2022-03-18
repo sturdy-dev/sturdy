@@ -7,6 +7,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -76,7 +77,7 @@ func NewResolver(
 	}
 }
 
-func (r *ChangeRootResolver) IntenralListChanges(ctx context.Context, codebaseID string, limit int, before *graphql.ID) ([]resolvers.ChangeResolver, error) {
+func (r *ChangeRootResolver) IntenralListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]resolvers.ChangeResolver, error) {
 	var beforeChange *changes.ID
 	if before != nil {
 		changeID := changes.ID(*before)
@@ -108,7 +109,7 @@ func (r *ChangeRootResolver) Change(ctx context.Context, args resolvers.ChangeAr
 		}
 	} else if args.CommitID != nil && args.CodebaseID != nil {
 		// Lookup by CommitID and CodebaseID
-		ch, err = r.svc.GetByCommitAndCodebase(ctx, string(*args.CommitID), string(*args.CodebaseID))
+		ch, err = r.svc.GetByCommitAndCodebase(ctx, string(*args.CommitID), codebases.ID(*args.CodebaseID))
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("failed to lookup by commit id and codebaseid: %w", err))
 		}

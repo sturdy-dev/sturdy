@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 
@@ -13,11 +14,11 @@ import (
 type Repository interface {
 	Create(entity view.View) error
 	Get(id string) (*view.View, error)
-	ListByCodebase(codebaseID string) ([]*view.View, error)
+	ListByCodebase(codebases.ID) ([]*view.View, error)
 	ListByUser(users.ID) ([]*view.View, error)
-	LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string, userID users.ID) (*view.View, error)
-	ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*view.View, error)
-	ListByCodebaseAndWorkspace(codebaseID, workspaceID string) ([]*view.View, error)
+	LastUsedByCodebaseAndUser(context.Context, codebases.ID, users.ID) (*view.View, error)
+	ListByCodebaseAndUser(codebases.ID, users.ID) ([]*view.View, error)
+	ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*view.View, error)
 	Update(e *view.View) error
 }
 
@@ -56,7 +57,7 @@ func (r *repo) Get(id string) (*view.View, error) {
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebase(codebaseID string) ([]*view.View, error) {
+func (r *repo) ListByCodebase(codebaseID codebases.ID) ([]*view.View, error) {
 	var views []*view.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname   FROM views WHERE codebase_id=$1", codebaseID)
 	if err != nil {
@@ -74,7 +75,7 @@ func (r *repo) ListByUser(userID users.ID) ([]*view.View, error) {
 	return views, nil
 }
 
-func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string, userID users.ID) (*view.View, error) {
+func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (*view.View, error) {
 	var entity view.View
 	err := r.db.GetContext(ctx, &entity, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE user_id=$1 AND codebase_id=$2 ORDER BY last_used_at DESC LIMIT 1", userID, codebaseID)
 	if err != nil {
@@ -83,7 +84,7 @@ func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID string,
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*view.View, error) {
+func (r *repo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) ([]*view.View, error) {
 	var views []*view.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE codebase_id=$1 AND user_id=$2", codebaseID, userID)
 	if err != nil {
@@ -92,7 +93,7 @@ func (r *repo) ListByCodebaseAndUser(codebaseID string, userID users.ID) ([]*vie
 	return views, nil
 }
 
-func (r *repo) ListByCodebaseAndWorkspace(codebaseID, workspaceID string) ([]*view.View, error) {
+func (r *repo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*view.View, error) {
 	var views []*view.View
 	err := r.db.Select(&views, `SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname
 		FROM views WHERE codebase_id=$1 AND workspace_id=$2`, codebaseID, workspaceID)

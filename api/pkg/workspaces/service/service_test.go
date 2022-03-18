@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/queue"
@@ -79,7 +80,7 @@ func setup(t *testing.T) *testCollaborators {
 	}
 }
 
-func (c *testCollaborators) createCodebase(t *testing.T, id string) vcs.RepoGitWriter {
+func (c *testCollaborators) createCodebase(t *testing.T, id codebases.ID) vcs.RepoGitWriter {
 	repoPath := c.repoProvider.TrunkPath(id)
 	repo, err := vcs.CreateBareRepoWithRootCommit(repoPath)
 	assert.NoError(t, err)

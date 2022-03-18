@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/author"
-	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/users"
 
 	"github.com/gosimple/slug"
@@ -12,8 +11,18 @@ import (
 
 type ShortCodebaseID string
 
+func (s ShortCodebaseID) String() string {
+	return string(s)
+}
+
+type ID string
+
+func (id ID) String() string {
+	return string(id)
+}
+
 type Codebase struct {
-	ID              string          `db:"id" json:"id"`
+	ID              ID              `db:"id" json:"id"`
 	ShortCodebaseID ShortCodebaseID `db:"short_id" json:"short_id"` // Used in Web slugs
 	Name            string          `db:"name" json:"name"`
 	Description     string          `db:"description" json:"description"`
@@ -27,14 +36,14 @@ type Codebase struct {
 	IsPublic bool `json:"is_public" db:"is_public"`
 
 	// Use through ChangeService.HeadChange()
-	CalculatedHeadChangeID bool        `json:"-" db:"calculated_head_change_id"`
-	CachedHeadChangeID     *changes.ID `json:"-" db:"cached_head_change_id"`
+	CalculatedHeadChangeID bool    `json:"-" db:"calculated_head_change_id"`
+	CachedHeadChangeID     *string `json:"-" db:"cached_head_change_id"`
 }
 
 type CodebaseUser struct {
 	ID         string     `db:"id"`
 	UserID     users.ID   `db:"user_id"`
-	CodebaseID string     `db:"codebase_id"`
+	CodebaseID ID         `db:"codebase_id"`
 	CreatedAt  *time.Time `db:"created_at" json:"created_at"`
 }
 

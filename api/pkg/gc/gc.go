@@ -1,9 +1,13 @@
 package gc
 
-import "time"
+import (
+	"time"
+
+	"getsturdy.com/api/pkg/codebases"
+)
 
 type CodebaseGarbageStatus struct {
-	CodebaseID     string    `db:"codebase_id"`
-	CompletedAt    time.Time `db:"completed_at"`
-	DurationMillis int64     `db:"duration_millis"`
+	CodebaseID     codebases.ID `db:"codebase_id"`
+	CompletedAt    time.Time    `db:"completed_at"`
+	DurationMillis int64        `db:"duration_millis"`
 }

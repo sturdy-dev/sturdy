@@ -113,7 +113,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			codebaseID := uuid.NewString()
+			codebaseID := codebases.ID(uuid.NewString())
 			viewID := uuid.NewString()
 
 			trunkPath := repoProvider.TrunkPath(codebaseID)

@@ -35,7 +35,7 @@ func (r *WorkspaceRootResolver) ExtractWorkspace(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.eventsSender.Codebase(newWorkspace.CodebaseID, events.CodebaseUpdated, newWorkspace.CodebaseID); err != nil {
+	if err := r.eventsSender.Codebase(newWorkspace.CodebaseID, events.CodebaseUpdated, newWorkspace.CodebaseID.String()); err != nil {
 		r.logger.Error("failed to send codebase event", zap.Error(err))
 	}
 

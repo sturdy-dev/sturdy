@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
 	"go.uber.org/zap"
@@ -16,7 +17,7 @@ import (
 )
 
 type CreateRequest struct {
-	CodebaseID string `json:"codebase_id" binding:"required"`
+	CodebaseID codebases.ID `json:"codebase_id" binding:"required"`
 }
 
 func Create(logger *zap.Logger, workspaceService service_workspace.Service, codebaseUserRepo db_codebases.CodebaseUserRepository) func(c *gin.Context) {
@@ -33,7 +34,7 @@ func Create(logger *zap.Logger, workspaceService service_workspace.Service, code
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		req.CodebaseID = strings.TrimSpace(req.CodebaseID)
+		req.CodebaseID = codebases.ID(strings.TrimSpace(req.CodebaseID.String()))
 
 		if !access.UserHasAccessToCodebase(codebaseUserRepo, userID, req.CodebaseID) {
 			c.AbortWithStatus(http.StatusUnauthorized)

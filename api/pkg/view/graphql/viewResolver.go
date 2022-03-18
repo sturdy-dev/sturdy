@@ -13,6 +13,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -130,7 +131,7 @@ func (r *ViewRootResolver) InternalViewsByUser(userID users.ID) ([]resolvers.Vie
 	return res, nil
 }
 
-func (r *ViewRootResolver) InternalLastUsedViewByUser(ctx context.Context, codebaseID string, userID users.ID) (resolvers.ViewResolver, error) {
+func (r *ViewRootResolver) InternalLastUsedViewByUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (resolvers.ViewResolver, error) {
 	vw, err := r.viewRepo.LastUsedByCodebaseAndUser(ctx, codebaseID, userID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -369,7 +370,7 @@ func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspa
 		if err := vcs2.Restore(logger, repoProvider, ws.CodebaseID, ws.ID, newView, snapshot.ID, snapshot.CommitID); err != nil {
 			return fmt.Errorf("failed to restore snapshot: %w", err)
 		}
-		decoratedLogger.Info("restored from snapshot", zap.String("commit_id", snapshot.CodebaseID))
+		decoratedLogger.Info("restored from snapshot", zap.Stringer("codebase_id", snapshot.CodebaseID), zap.String("commit_id", snapshot.CommitID))
 	}
 
 	// Swap replacement

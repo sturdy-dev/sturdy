@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -33,7 +34,7 @@ func New(
 }
 
 func (r *rootResolver) CreateServiceToken(ctx context.Context, args resolvers.CreateServiceTokenArgs) (resolvers.ServiceTokenResovler, error) {
-	codebase, err := r.codebaseService.GetByShortID(ctx, args.Input.ShortCodebaseID)
+	codebase, err := r.codebaseService.GetByShortID(ctx, codebases.ShortCodebaseID(args.Input.ShortCodebaseID))
 	if err != nil {
 		return nil, gqlerror.Error(fmt.Errorf("codebase not found: %w", err))
 	}

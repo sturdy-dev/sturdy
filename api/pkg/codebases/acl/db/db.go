@@ -3,6 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
+
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 
 	"github.com/jmoiron/sqlx"
@@ -11,7 +13,7 @@ import (
 type ACLRepository interface {
 	Create(context.Context, acl.ACL) error
 	Update(context.Context, acl.ACL) error
-	GetByCodebaseID(ctx context.Context, codebaseID string) (acl.ACL, error)
+	GetByCodebaseID(context.Context, codebases.ID) (acl.ACL, error)
 }
 
 type aclRepository struct {
@@ -59,7 +61,7 @@ func (r *aclRepository) Update(ctx context.Context, entity acl.ACL) error {
 	return nil
 }
 
-func (r *aclRepository) GetByCodebaseID(ctx context.Context, codebaseID string) (acl.ACL, error) {
+func (r *aclRepository) GetByCodebaseID(ctx context.Context, codebaseID codebases.ID) (acl.ACL, error) {
 	entity := &acl.ACL{}
 	err := r.db.GetContext(ctx, entity, `SELECT id, codebase_id, created_at, policy
 		FROM acls

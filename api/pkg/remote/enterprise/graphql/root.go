@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -37,7 +38,7 @@ func New(
 	}
 }
 
-func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, codebaseID string) (resolvers.RemoteResolver, error) {
+func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, codebaseID codebases.ID) (resolvers.RemoteResolver, error) {
 	cb, err := r.codebaseService.GetByID(ctx, codebaseID)
 	if err != nil {
 		return nil, gqlerror.Error(err)
@@ -56,7 +57,8 @@ func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, cod
 }
 
 func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, args resolvers.CreateOrUpdateCodebaseRemoteArgsArgs) (resolvers.RemoteResolver, error) {
-	cb, err := r.codebaseService.GetByID(ctx, args.Input.CodebaseID)
+	codebaseID := codebases.ID(args.Input.CodebaseID)
+	cb, err := r.codebaseService.GetByID(ctx, codebaseID)
 	if err != nil {
 		return nil, gqlerror.Error(err)
 	}
@@ -67,7 +69,7 @@ func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, a
 
 	rem, err := r.service.SetRemote(
 		ctx,
-		args.Input.CodebaseID,
+		codebaseID,
 		args.Input.Name,
 		args.Input.Url,
 		args.Input.BasicAuthUsername,

@@ -1,6 +1,10 @@
 package statuses
 
-import "time"
+import (
+	"time"
+
+	"getsturdy.com/api/pkg/codebases"
+)
 
 type Type string
 
@@ -18,12 +22,12 @@ var ValidType = map[Type]bool{
 }
 
 type Status struct {
-	ID          string    `db:"id" json:"id"`
-	CommitID    string    `db:"commit_id" json:"commit_id"`
-	CodebaseID  string    `db:"codebase_id" json:"codebase_id"`
-	Type        Type      `db:"type" json:"type"`
-	Title       string    `db:"title" json:"title"`
-	DetailsURL  *string   `db:"details_url" json:"details_url"`
-	Description *string   `db:"description" json:"description,omitempty"`
-	Timestamp   time.Time `db:"timestamp" json:"timestamp"`
+	ID          string       `db:"id" json:"id"`
+	CommitID    string       `db:"commit_id" json:"commit_id"`
+	CodebaseID  codebases.ID `db:"codebase_id" json:"codebase_id"`
+	Type        Type         `db:"type" json:"type"`
+	Title       string       `db:"title" json:"title"`
+	DetailsURL  *string      `db:"details_url" json:"details_url"`
+	Description *string      `db:"description" json:"description,omitempty"`
+	Timestamp   time.Time    `db:"timestamp" json:"timestamp"`
 }

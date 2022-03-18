@@ -32,7 +32,7 @@ func TestFileResolver(t *testing.T) {
 	logger := zap.NewNop()
 	executorProvider := executor.NewProvider(logger, repoProvider)
 
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 	viewID := uuid.NewString()
 	trunkPath := repoProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(trunkPath)
@@ -78,7 +78,7 @@ func TestFileResolver(t *testing.T) {
 		"__RESTRICTED_USER_DIR_USER_ID__", restrictedUserDirUserID,
 		"__RESTRICTED_USER_DIR_NO_TRAILING_SLASH_USER_ID__", restrictedUserDirNoTrailingSlashUserID,
 		"__RESTRICTED_USER_DIR_FOO_USER_ID__", restrictedUserDirFooUserID,
-		"__CODEBASE_ID__", codebaseID,
+		"__CODEBASE_ID__", codebaseID.String(),
 	).Replace(`{
   "groups": [
     {

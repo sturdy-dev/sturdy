@@ -3,6 +3,7 @@ package graphql
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	"getsturdy.com/api/pkg/codebases/acl/access"
 	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
@@ -42,7 +43,7 @@ func (r *ACLRootResolver) CanI(ctx context.Context, args resolvers.CanIArgs) (bo
 		return false, gqlerrors.Error(gqlerrors.ErrBadRequest, "action", "unsupported type")
 	}
 
-	a, err := r.aclProvider.GetByCodebaseID(ctx, string(args.CodebaseID))
+	a, err := r.aclProvider.GetByCodebaseID(ctx, codebases.ID(args.CodebaseID))
 	if err != nil {
 		return false, gqlerrors.Error(err)
 	}
@@ -56,7 +57,7 @@ func (r *ACLRootResolver) CanI(ctx context.Context, args resolvers.CanIArgs) (bo
 }
 
 func (r *ACLRootResolver) InternalACLByCodebaseID(ctx context.Context, codebaseID graphql.ID) (resolvers.ACLResolver, error) {
-	a, err := r.aclProvider.GetByCodebaseID(ctx, string(codebaseID))
+	a, err := r.aclProvider.GetByCodebaseID(ctx, codebases.ID(codebaseID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -65,7 +66,7 @@ func (r *ACLRootResolver) InternalACLByCodebaseID(ctx context.Context, codebaseI
 }
 
 func (r *ACLRootResolver) UpdateACL(ctx context.Context, args resolvers.UpdateACLArgs) (resolvers.ACLResolver, error) {
-	a, err := r.aclProvider.GetByCodebaseID(ctx, string(args.Input.CodebaseID))
+	a, err := r.aclProvider.GetByCodebaseID(ctx, codebases.ID(args.Input.CodebaseID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

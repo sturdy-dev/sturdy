@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID string, authAsUserID *users.ID) error {
+func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID codebases.ID, authAsUserID *users.ID) error {
 	var didInviteAny bool
 
 	gitHubRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
@@ -119,7 +119,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID str
 
 	if didInviteAny {
 		// Send events
-		svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID)
+		svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID.String())
 	}
 
 	return nil
@@ -179,7 +179,7 @@ func listCollaborators(ctx context.Context, reposClient client.RepositoriesClien
 	return users, rsp.NextPage, nil
 }
 
-func (svc *Service) AddUser(ctx context.Context, codebaseID string, userID users.ID) error {
+func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) error {
 	// Add access to this user directly
 	t := time.Now()
 	err := svc.codebaseUserRepo.Create(codebases.CodebaseUser{
@@ -209,7 +209,7 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID string, userID users
 	)
 
 	// Send events
-	svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID)
+	svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID.String())
 
 	return nil
 }

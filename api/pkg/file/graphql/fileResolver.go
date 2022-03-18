@@ -1,14 +1,17 @@
 package graphql
 
 import (
-	"getsturdy.com/api/pkg/graphql/resolvers"
+	"fmt"
 	"path"
+
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type fileResolver struct {
-	codebaseID string
+	codebaseID codebases.ID
 	path       string
 	contents   []byte
 }
@@ -22,7 +25,7 @@ func (r *fileResolver) ToDirectory() (resolvers.DirectoryResolver, bool) {
 }
 
 func (r *fileResolver) ID() graphql.ID {
-	return graphql.ID(r.codebaseID + "-" + r.path)
+	return graphql.ID(fmt.Sprintf("%s-%s", r.codebaseID, r.path))
 }
 
 func (r *fileResolver) Path() string {

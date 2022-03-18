@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/db"
@@ -51,12 +52,12 @@ func (w *writerWithEvents) UpdateFields(ctx context.Context, workspaceID string,
 	return nil
 }
 
-func (w *writerWithEvents) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
+func (w *writerWithEvents) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID codebases.ID) error {
 	err := w.workspaceRepo.UnsetUpToDateWithTrunkForAllInCodebase(codebaseID)
 	if err != nil {
 		return err
 	}
-	workspaces, err := w.workspaceRepo.ListByCodebaseIDs([]string{codebaseID}, false)
+	workspaces, err := w.workspaceRepo.ListByCodebaseIDs([]codebases.ID{codebaseID}, false)
 	if err != nil {
 		return err
 	}

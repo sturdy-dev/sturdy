@@ -50,10 +50,10 @@ func TestCodebaseAccess(t *testing.T) {
 		nil,
 	)
 
-	privateCodebase := codebases.Codebase{ID: uuid.NewString(), ShortCodebaseID: "short-private"}
+	privateCodebase := codebases.Codebase{ID: codebases.ID(uuid.NewString()), ShortCodebaseID: "short-private"}
 	assert.NoError(t, codebaseRepo.Create(privateCodebase))
 
-	publicCodebase := codebases.Codebase{ID: uuid.NewString(), ShortCodebaseID: "short-public", IsPublic: true}
+	publicCodebase := codebases.Codebase{ID: codebases.ID(uuid.NewString()), ShortCodebaseID: "short-public", IsPublic: true}
 	assert.NoError(t, codebaseRepo.Create(publicCodebase))
 
 	userID := users.ID(uuid.NewString())
@@ -65,7 +65,7 @@ func TestCodebaseAccess(t *testing.T) {
 	cases := []struct {
 		name         string
 		ctx          context.Context
-		codebaseID   string
+		codebaseID   codebases.ID
 		expectAccess bool
 	}{
 		{

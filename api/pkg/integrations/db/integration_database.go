@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations"
 
 	"github.com/jmoiron/sqlx"
@@ -48,7 +49,7 @@ func (cd *configDatabase) Update(ctx context.Context, cfg *integrations.Integrat
 	return nil
 }
 
-func (cd *configDatabase) ListByCodebaseID(ctx context.Context, codebaseID string) ([]*integrations.Integration, error) {
+func (cd *configDatabase) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*integrations.Integration, error) {
 	rows, err := cd.db.QueryContext(ctx, `
 		SELECT
 			id, codebase_id, provider, provider_type, seed_files, created_at, updated_at

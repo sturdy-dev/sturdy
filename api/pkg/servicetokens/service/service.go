@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/servicetokens"
 	db_servicetokens "getsturdy.com/api/pkg/servicetokens/db"
 
@@ -28,9 +29,9 @@ func New(
 	}
 }
 
-// Create creates a new service token. It returns the created service token in plaintext (now stored) and the
+// Create creates a new service token. It returns the created service token in plaintext (not stored) and the
 // servicetoken in encrypted form (can be recovered from the database).
-func (s *Service) Create(ctx context.Context, codebaseID string, name string) (string, *servicetokens.Token, error) {
+func (s *Service) Create(ctx context.Context, codebaseID codebases.ID, name string) (string, *servicetokens.Token, error) {
 	plainTextToken := uuid.New().String()
 	hashedToken, err := bcrypt.GenerateFromPassword([]byte(plainTextToken), bcryptCost)
 	if err != nil {

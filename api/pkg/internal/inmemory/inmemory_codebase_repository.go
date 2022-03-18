@@ -21,7 +21,7 @@ func (r *inMemoryCodebaseRepository) Create(entity codebases.Codebase) error {
 	return nil
 }
 
-func (r *inMemoryCodebaseRepository) Get(id string) (*codebases.Codebase, error) {
+func (r *inMemoryCodebaseRepository) Get(id codebases.ID) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if cb.ID == id && cb.ArchivedAt == nil {
 			return &cb, nil
@@ -30,7 +30,7 @@ func (r *inMemoryCodebaseRepository) Get(id string) (*codebases.Codebase, error)
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) GetAllowArchived(id string) (*codebases.Codebase, error) {
+func (r *inMemoryCodebaseRepository) GetAllowArchived(id codebases.ID) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if cb.ID == id {
 			return &cb, nil
@@ -48,9 +48,9 @@ func (r *inMemoryCodebaseRepository) GetByInviteCode(inviteCode string) (*codeba
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) GetByShortID(shortID string) (*codebases.Codebase, error) {
+func (r *inMemoryCodebaseRepository) GetByShortID(shortID codebases.ShortCodebaseID) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
-		if string(cb.ShortCodebaseID) == shortID && cb.ArchivedAt == nil {
+		if cb.ShortCodebaseID == shortID && cb.ArchivedAt == nil {
 			return &cb, nil
 		}
 	}

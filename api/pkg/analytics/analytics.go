@@ -1,6 +1,9 @@
 package analytics
 
-import "getsturdy.com/api/pkg/users"
+import (
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/users"
+)
 
 type CaptureOptions struct {
 	DistinctId string
@@ -31,7 +34,7 @@ func DistinctID(id string) CaptureOption {
 	}
 }
 
-func CodebaseID(id string) CaptureOption {
+func CodebaseID(id codebases.ID) CaptureOption {
 	return func(o *CaptureOptions) {
 		if o.Properties == nil {
 			o.Properties = make(map[string]any)

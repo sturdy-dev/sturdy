@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 )
@@ -15,7 +16,7 @@ func NewSync(snapshotter snapshotter.Snapshotter) Queue {
 	return &inProcessPublisher{snapshotter: snapshotter}
 }
 
-func (p *inProcessPublisher) Enqueue(_ context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error {
+func (p *inProcessPublisher) Enqueue(_ context.Context, codebaseID codebases.ID, viewID, workspaceID string, action snapshots.Action) error {
 	_, err := p.snapshotter.Snapshot(codebaseID, workspaceID, action, snapshotter.WithOnView(viewID))
 	if err != nil {
 		return err

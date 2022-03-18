@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/statuses"
 
 	"github.com/jmoiron/sqlx"
@@ -69,7 +70,7 @@ func (r *Repository) Get(ctx context.Context, id string) (*statuses.Status, erro
 }
 
 // ListByCodebaseIDAndCommitID returns a list of latest statuses for commit_id grouped by title.
-func (r *Repository) ListByCodebaseIDAndCommitID(ctx context.Context, codebaseID string, commitID string) ([]*statuses.Status, error) {
+func (r *Repository) ListByCodebaseIDAndCommitID(ctx context.Context, codebaseID codebases.ID, commitID string) ([]*statuses.Status, error) {
 	var ss []*statuses.Status
 	if err := r.db.SelectContext(ctx, &ss, `
 		WITH latest AS (

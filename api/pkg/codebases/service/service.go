@@ -68,7 +68,7 @@ func New(
 	}
 }
 
-func (svc *Service) GetByID(ctx context.Context, id string) (*codebases.Codebase, error) {
+func (svc *Service) GetByID(ctx context.Context, id codebases.ID) (*codebases.Codebase, error) {
 	cb, err := svc.repo.Get(id)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (svc *Service) GetByID(ctx context.Context, id string) (*codebases.Codebase
 	return cb, nil
 }
 
-func (svc *Service) GetByShortID(ctx context.Context, shortID string) (*codebases.Codebase, error) {
+func (svc *Service) GetByShortID(ctx context.Context, shortID codebases.ShortCodebaseID) (*codebases.Codebase, error) {
 	cb, err := svc.repo.GetByShortID(shortID)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (svc *Service) GetByShortID(ctx context.Context, shortID string) (*codebase
 	return cb, nil
 }
 
-func (svc *Service) CanAccess(ctx context.Context, userID users.ID, codebaseID string) (bool, error) {
+func (svc *Service) CanAccess(ctx context.Context, userID users.ID, codebaseID codebases.ID) (bool, error) {
 	_, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case err == nil:
@@ -181,7 +181,7 @@ func (svc *Service) Update(ctx context.Context, cb *codebases.Codebase) error {
 	if err := svc.repo.Update(cb); err != nil {
 		return fmt.Errorf("could not update codebase: %w", err)
 	}
-	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
+	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID.String()); err != nil {
 		svc.logger.Error("failed to send codebase updated event", zap.Error(err))
 	}
 	svc.analyticsService.IdentifyCodebase(ctx, cb)
@@ -194,7 +194,7 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 		return nil, err
 	}
 
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 	t := time.Now()
 
 	cb := codebases.Codebase{
@@ -249,7 +249,7 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 	}
 
 	// Send events
-	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
+	if err := svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID.String()); err != nil {
 		return nil, fmt.Errorf("failed to send events: %w", err)
 	}
 
@@ -260,7 +260,7 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 	return svc.repo.Count(ctx)
 }
 
-func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string) (*codebases.CodebaseUser, error) {
+func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string) (*codebases.CodebaseUser, error) {
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %w", err)
@@ -286,7 +286,7 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string
 	}
 
 	// Send events
-	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
+	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID.String()); err != nil {
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
@@ -298,7 +298,7 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID, email string
 	return &member, nil
 }
 
-func (svc *Service) RemoveUser(ctx context.Context, codebaseID string, userID users.ID) error {
+func (svc *Service) RemoveUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) error {
 	member, err := svc.codebaseUserRepo.GetByUserAndCodebase(userID, codebaseID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
@@ -312,7 +312,7 @@ func (svc *Service) RemoveUser(ctx context.Context, codebaseID string, userID us
 	}
 
 	// Send events
-	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID); err != nil {
+	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID.String()); err != nil {
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 

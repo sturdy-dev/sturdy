@@ -1,13 +1,14 @@
 package vcs
 
 import (
+	"getsturdy.com/api/pkg/codebases"
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
 )
 
 // RepoGitReader only need access to read .git on the filesystem.
 type RepoGitReader interface {
-	CodebaseID() string
+	CodebaseID() codebases.ID
 	IsTrunk() bool
 	ViewID() *string
 	IsRebasing() bool
@@ -100,7 +101,7 @@ type RepoReader interface {
 	AddFilesToIndex(files []string) (*git.Oid, error)
 	AddAndCommit(msg string) (string, error)
 
-	LargeFilesClean(codebaseID string, paths []string) ([][]byte, error)
+	LargeFilesClean(codebaseID codebases.ID, paths []string) ([][]byte, error)
 
 	CanApplyPatch(patch []byte) (bool, error)
 }

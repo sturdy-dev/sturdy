@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/ci"
+	"getsturdy.com/api/pkg/codebases"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +18,7 @@ type database struct {
 	db *sqlx.DB
 }
 
-func (r *database) GetByCodebaseAndCiRepoCommitID(ctx context.Context, codebaseID, ciRepoCommitID string) (*ci.Commit, error) {
+func (r *database) GetByCodebaseAndCiRepoCommitID(ctx context.Context, codebaseID codebases.ID, ciRepoCommitID string) (*ci.Commit, error) {
 	var res ci.Commit
 	err := r.db.GetContext(ctx, &res, `SELECT id, codebase_id, ci_repo_commit_id, trunk_commit_id, created_at FROM ci_commits WHERE codebase_id = $1 AND ci_repo_commit_id = $2`, codebaseID, ciRepoCommitID)
 	if err != nil {

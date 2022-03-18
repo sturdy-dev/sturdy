@@ -3,12 +3,13 @@ package vcs
 import (
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 )
 
-func Create(repoProvider provider.RepoProvider, codebaseID, checkoutBranchName, viewID string) error {
+func Create(repoProvider provider.RepoProvider, codebaseID codebases.ID, checkoutBranchName, viewID string) error {
 	view, err := vcs.CloneRepo(repoProvider.TrunkPath(codebaseID), repoProvider.ViewPath(codebaseID, viewID))
 	if err != nil {
 		return fmt.Errorf("failed to create a view of %s: %w", codebaseID, err)
@@ -16,7 +17,7 @@ func Create(repoProvider provider.RepoProvider, codebaseID, checkoutBranchName, 
 	return checkoutBranch(view, checkoutBranchName)
 }
 
-func SetWorkspace(viewProvider provider.ViewProvider, codebaseID, viewID, workspaceID string) error {
+func SetWorkspace(viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, workspaceID string) error {
 	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
 	if err != nil {
 		return fmt.Errorf("failed find codebaseID %s: %w", codebaseID, err)

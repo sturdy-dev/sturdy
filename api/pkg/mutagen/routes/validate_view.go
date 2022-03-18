@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/codebases"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -15,10 +16,10 @@ import (
 )
 
 type ValidateViewRequest struct {
-	ViewID          string   `json:"view_id" binding:"required"`
-	CodebaseID      string   `json:"codebase_id" binding:"required"`
-	UserID          users.ID `json:"user_id" binding:"required"`
-	IsNewConnection bool     `json:"is_new_connection"`
+	ViewID          string       `json:"view_id" binding:"required"`
+	CodebaseID      codebases.ID `json:"codebase_id" binding:"required"`
+	UserID          users.ID     `json:"user_id" binding:"required"`
+	IsNewConnection bool         `json:"is_new_connection"`
 }
 
 func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsService *service_analytics.Service, eventsSender *eventsv2.Publisher) func(c *gin.Context) {

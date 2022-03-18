@@ -3,6 +3,7 @@ package graphql
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"path"
 	"sort"
@@ -32,7 +33,7 @@ func (r *directoryResolver) ToDirectory() (resolvers.DirectoryResolver, bool) {
 }
 
 func (r *directoryResolver) ID() graphql.ID {
-	return graphql.ID(r.codebase.ID + "-" + r.path)
+	return graphql.ID(fmt.Sprintf("%s-%s", r.codebase.ID, r.path))
 }
 
 func (r *directoryResolver) Path() string {

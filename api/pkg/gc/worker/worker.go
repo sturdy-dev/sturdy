@@ -7,13 +7,14 @@ import (
 
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/gc/service"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
 )
 
 type CodebaseGarbageCollectionQueueEntry struct {
-	CodebaseID string `json:"codebase_id"`
+	CodebaseID codebases.ID `json:"codebase_id"`
 }
 
 type Queue struct {
@@ -37,7 +38,7 @@ func New(
 	}
 }
 
-func (q *Queue) Enqueue(ctx context.Context, codebaseID string) error {
+func (q *Queue) Enqueue(ctx context.Context, codebaseID codebases.ID) error {
 	if err := q.queue.Publish(ctx, q.name, &CodebaseGarbageCollectionQueueEntry{
 		CodebaseID: codebaseID,
 	}); err != nil {
@@ -63,7 +64,7 @@ func (q *Queue) Start(ctx context.Context) error {
 				q.logger.Error("failed to decode message", zap.Error(err))
 				continue
 			}
-			logger := q.logger.With(zap.String("codebase_id", m.CodebaseID))
+			logger := q.logger.With(zap.Stringer("codebase_id", m.CodebaseID))
 
 			if err := q.service.Work(context.Background(), logger, m.CodebaseID); err != nil {
 				logger.Error("failed to gc codebase", zap.Error(err))

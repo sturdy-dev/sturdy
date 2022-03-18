@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
@@ -14,13 +15,13 @@ import (
 )
 
 type PullRequestImportEvent struct {
-	CodebaseID string   `json:"codebase_id"`
-	UserID     users.ID `json:"user_id"`
+	CodebaseID codebases.ID `json:"codebase_id"`
+	UserID     users.ID     `json:"user_id"`
 }
 
 type ImporterQueue interface {
 	Start(ctx context.Context) error
-	Enqueue(ctx context.Context, codebaseID string, userID users.ID) error
+	Enqueue(ctx context.Context, codebaseID codebases.ID, userID users.ID) error
 }
 
 type importerQueue struct {
@@ -43,7 +44,7 @@ func NewImporterQueue(
 	}
 }
 
-func (q *importerQueue) Enqueue(ctx context.Context, codebaseID string, userID users.ID) error {
+func (q *importerQueue) Enqueue(ctx context.Context, codebaseID codebases.ID, userID users.ID) error {
 	if err := q.queue.Publish(ctx, q.name, &PullRequestImportEvent{
 		CodebaseID: codebaseID,
 		UserID:     userID,
@@ -71,7 +72,7 @@ func (q *importerQueue) Start(ctx context.Context) error {
 				continue
 			}
 
-			logger := q.logger.With(zap.String("codebase_id", event.CodebaseID), zap.Stringer("user_id", event.UserID))
+			logger := q.logger.With(zap.Stringer("codebase_id", event.CodebaseID), zap.Stringer("user_id", event.UserID))
 
 			if err := q.gitHubService.ImportOpenPullRequestsByUser(ctx, event.CodebaseID, event.UserID); err != nil {
 				logger.Error("failed to import pull request", zap.Error(err))

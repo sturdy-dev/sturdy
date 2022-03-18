@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -14,8 +15,8 @@ func (id ID) String() string {
 }
 
 type Comment struct {
-	ID         ID     `db:"id"`
-	CodebaseID string `db:"codebase_id"`
+	ID         ID           `db:"id"`
+	CodebaseID codebases.ID `db:"codebase_id"`
 
 	// Either ChangeID is set, and the comment belongs to a change
 	// or WorkspaceID is set (when the comment belongs to a live change)

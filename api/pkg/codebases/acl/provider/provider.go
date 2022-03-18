@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
@@ -35,7 +36,7 @@ func New(
 	}
 }
 
-func (p *Provider) GetByCodebaseID(ctx context.Context, codebaseID string) (acl.ACL, error) {
+func (p *Provider) GetByCodebaseID(ctx context.Context, codebaseID codebases.ID) (acl.ACL, error) {
 	entity, err := p.aclDB.GetByCodebaseID(ctx, codebaseID)
 	switch {
 	case err == nil:
@@ -55,7 +56,7 @@ func (p *Provider) GetByCodebaseID(ctx context.Context, codebaseID string) (acl.
 	return entity, nil
 }
 
-func (p *Provider) createDefaultPolicy(ctx context.Context, codebaseID string) (acl.ACL, error) {
+func (p *Provider) createDefaultPolicy(ctx context.Context, codebaseID codebases.ID) (acl.ACL, error) {
 	emails, err := p.getUserEmailsForCodebase(ctx, codebaseID)
 	if err != nil {
 		return acl.ACL{}, err
@@ -81,7 +82,7 @@ func (p *Provider) createDefaultPolicy(ctx context.Context, codebaseID string) (
 	return a, nil
 }
 
-func (p *Provider) getUserEmailsForCodebase(ctx context.Context, codebaseID string) ([]string, error) {
+func (p *Provider) getUserEmailsForCodebase(ctx context.Context, codebaseID codebases.ID) ([]string, error) {
 	uu, err := p.codebaseUserDB.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query codebase users: %w", err)

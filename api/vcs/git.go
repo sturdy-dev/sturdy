@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
@@ -24,8 +25,8 @@ type repository struct {
 	lfsHostname string
 }
 
-func (repo *repository) CodebaseID() string {
-	return filepath.Base(filepath.Dir(repo.path))
+func (repo *repository) CodebaseID() codebases.ID {
+	return codebases.ID(filepath.Base(filepath.Dir(repo.path)))
 }
 
 func (repo *repository) IsTrunk() bool {

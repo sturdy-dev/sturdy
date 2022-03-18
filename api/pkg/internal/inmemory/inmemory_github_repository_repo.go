@@ -3,6 +3,7 @@ package inmemory
 import (
 	"database/sql"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 )
 
@@ -29,7 +30,7 @@ func (i *inMemoryGithubRepositoryRepo) GetByInstallationAndName(installationID i
 	panic("implement me")
 }
 
-func (i *inMemoryGithubRepositoryRepo) GetByCodebaseID(codebaseID string) (*github.Repository, error) {
+func (i *inMemoryGithubRepositoryRepo) GetByCodebaseID(codebaseID codebases.ID) (*github.Repository, error) {
 	for _, r := range i.repos {
 		if r.CodebaseID == codebaseID && r.DeletedAt == nil {
 			return &r, nil

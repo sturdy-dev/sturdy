@@ -9,6 +9,7 @@ import (
 	db_activity "getsturdy.com/api/pkg/activity/db"
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/events"
@@ -19,7 +20,7 @@ import (
 
 type ActivitySender interface {
 	// Codebase is deprecated. Create activity-type specific methods insteaad, like Comment
-	Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error
+	Codebase(ctx context.Context, codebaseID codebases.ID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error
 
 	Comment(context.Context, *comments.Comment) error
 }
@@ -78,7 +79,7 @@ func (s *realActivitySender) Comment(ctx context.Context, comment *comments.Comm
 	return nil
 }
 
-func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
+func (s *realActivitySender) Codebase(ctx context.Context, codebaseID codebases.ID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
 	activityID := uuid.NewString()
 
 	act := activity.Activity{
@@ -113,7 +114,7 @@ func (s *realActivitySender) Codebase(ctx context.Context, codebaseID, workspace
 
 type noopActivitySender struct{}
 
-func (noopActivitySender) Codebase(ctx context.Context, codebaseID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
+func (noopActivitySender) Codebase(ctx context.Context, codebaseID codebases.ID, workspaceID string, userID users.ID, activityType activity.Type, referenceID string) error {
 	return nil
 }
 

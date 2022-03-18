@@ -284,7 +284,7 @@ func TestPRHighLevel(t *testing.T) {
 
 			userID := users.ID(uuid.NewString())
 			viewID := uuid.NewString()
-			codebaseID := uuid.NewString()
+			codebaseID := codebases.ID(uuid.NewString())
 			codebaseUserID := uuid.NewString()
 			sturdyRepositoryID := uuid.NewString()
 			gitHubRepositoryID := rand.Int63n(500_000_000)

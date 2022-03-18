@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/gitserver/pack"
@@ -121,7 +122,8 @@ func (h *Server) jwtTokenAuth(c *gin.Context) {
 		return
 	}
 
-	accessAllowed, err := h.codebaseService.CanAccess(c.Request.Context(), users.ID(userToken.Subject), c.Param("codebaseId"))
+	codebaseID := codebases.ID(c.Param("codebaseId"))
+	accessAllowed, err := h.codebaseService.CanAccess(c.Request.Context(), users.ID(userToken.Subject), codebaseID)
 	if err != nil {
 		h.logger.Error("failed to check access", zap.Error(err))
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -183,7 +185,7 @@ func getServiceName(r *http.Request) string {
 }
 
 func (h *Server) handleGitReceivePack(c *gin.Context) {
-	codebaseID := c.Param("codebaseId")
+	codebaseID := codebases.ID(c.Param("codebaseId"))
 
 	c.Writer.Header().Set("Content-Type", "application/x-git-receive-pack-result")
 
@@ -219,7 +221,7 @@ func (h *Server) handleGitReceivePack(c *gin.Context) {
 			c.AbortWithStatus(http.StatusBadRequest)
 			h.logger.Error("receive-pack request to non sturdytrunk branch",
 				zap.String("branch", header.Branch),
-				zap.String("codebase_id", codebaseID),
+				zap.Stringer("codebase_id", codebaseID),
 			)
 			return
 		}
@@ -318,7 +320,7 @@ func (h *Server) handleInfoRefs(c *gin.Context) {
 			return
 		}
 	} else { // this is import flow
-		if err := executor.ExecTrunk(c.Param("codebaseId"), "gitserverInfoRefs"); err != nil {
+		if err := executor.ExecTrunk(codebases.ID(c.Param("codebaseId")), "gitserverInfoRefs"); err != nil {
 			h.logger.Error("failed to handle info refs", zap.Error(err))
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return

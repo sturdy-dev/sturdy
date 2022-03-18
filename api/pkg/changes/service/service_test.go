@@ -12,6 +12,7 @@ import (
 
 	module_change_db "getsturdy.com/api/pkg/changes/db"
 	"getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/installations"
@@ -56,7 +57,7 @@ func TestChangelog(t *testing.T) {
 	}
 
 	svc := d.Service
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 
 	barePath := d.RepoProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(barePath)
@@ -129,7 +130,7 @@ func Test_Parent_Child_navigation(t *testing.T) {
 	}
 
 	svc := d.Service
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 
 	barePath := d.RepoProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(barePath)

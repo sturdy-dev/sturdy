@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
@@ -13,7 +14,7 @@ import (
 type receiver struct {
 	UserIDs         []users.ID
 	WorkspaceIDs    []string
-	CodebaseIDs     []string
+	CodebaseIDs     []codebases.ID
 	OrganizationIDs []string
 }
 
@@ -29,9 +30,9 @@ func User(userID users.ID) *receiver {
 	}
 }
 
-func Codebase(codebaseID string) *receiver {
+func Codebase(codebaseID codebases.ID) *receiver {
 	return &receiver{
-		CodebaseIDs: []string{codebaseID},
+		CodebaseIDs: []codebases.ID{codebaseID},
 	}
 }
 

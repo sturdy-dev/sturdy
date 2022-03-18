@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -32,7 +33,7 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 	}
 
 	watchCommit := map[string]bool{}
-	codebaseIDs := map[string]bool{}
+	codebaseIDs := map[codebases.ID]bool{}
 	for _, ch := range changes {
 		if err := r.authService.CanRead(ctx, ch); err != nil {
 			return nil, gqlerrors.Error(err)

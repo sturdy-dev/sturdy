@@ -7,6 +7,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/view"
@@ -23,11 +24,11 @@ import (
 )
 
 type CreateRequest struct {
-	CodebaseID    string `json:"codebase_id" binding:"required"`
-	WorkspaceID   string `json:"workspace_id" binding:"required"`
-	Name          string `json:"name"`
-	MountPath     string `json:"mount_path"`
-	MountHostname string `json:"mount_hostname"`
+	CodebaseID    codebases.ID `json:"codebase_id" binding:"required"`
+	WorkspaceID   string       `json:"workspace_id" binding:"required"`
+	Name          string       `json:"name"`
+	MountPath     string       `json:"mount_path"`
+	MountHostname string       `json:"mount_hostname"`
 }
 
 func Create(

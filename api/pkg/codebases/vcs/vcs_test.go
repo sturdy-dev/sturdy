@@ -3,6 +3,7 @@ package vcs
 import (
 	"testing"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs/testutil"
 
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ func TestCreateCodebase(t *testing.T) {
 
 func TestListChangesInCodebaseTrunk(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	err := Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 	repo, err := repoProvider.TrunkRepo(codebaseID)

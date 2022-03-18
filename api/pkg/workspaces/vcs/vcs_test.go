@@ -3,6 +3,7 @@ package vcs
 import (
 	"testing"
 
+	"getsturdy.com/api/pkg/codebases"
 	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/vcs/testutil"
 
@@ -11,7 +12,7 @@ import (
 
 func TestCreateWorkspace(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	err := codebasevcs.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 

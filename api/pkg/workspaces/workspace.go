@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 )
 
 type Workspace struct {
-	ID         string   `db:"id" json:"id"`
-	UserID     users.ID `db:"user_id" json:"user_id"`
-	CodebaseID string   `db:"codebase_id" json:"codebase_id"`
-	Name       *string  `db:"name" json:"name"`
+	ID         string       `db:"id" json:"id"`
+	UserID     users.ID     `db:"user_id" json:"user_id"`
+	CodebaseID codebases.ID `db:"codebase_id" json:"codebase_id"`
+	Name       *string      `db:"name" json:"name"`
 
 	// These are shadowed by the values in WorkspaceWithMetadataJSON
 	CreatedAt    *time.Time `db:"created_at" json:"-"`

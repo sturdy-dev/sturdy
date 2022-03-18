@@ -16,6 +16,7 @@ import (
 	"time"
 
 	svc_ci "getsturdy.com/api/pkg/ci/service"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
@@ -182,11 +183,11 @@ func WebhookHandler(
 			return
 		}
 
-		logger.Info("got webhook from buildkite", zap.String("path", pipelineUrl.Path), zap.String("codebase_id", serviceToken.CodebaseID))
+		logger.Info("got webhook from buildkite", zap.String("path", pipelineUrl.Path), zap.Stringer("codebase_id", serviceToken.CodebaseID))
 	}
 }
 
-func validateSignature(ctx context.Context, xBuildkiteSignature string, codebaseID string, requestBody []byte, buildkiteService *service_buildkite.Service) error {
+func validateSignature(ctx context.Context, xBuildkiteSignature string, codebaseID codebases.ID, requestBody []byte, buildkiteService *service_buildkite.Service) error {
 	buildkiteConfigs, err := buildkiteService.GetConfigurationsByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get buildkite configuration: %w", err)

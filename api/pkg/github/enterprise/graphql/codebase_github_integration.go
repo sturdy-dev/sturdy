@@ -4,6 +4,7 @@ import (
 	"context"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
@@ -128,7 +129,7 @@ func (r *codebaseGitHubIntegrationRootResolver) UpdateCodebaseGitHubIntegration(
 }
 
 func (r *codebaseGitHubIntegrationRootResolver) resolveByCodebaseID(ctx context.Context, codebaseID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
-	repo, err := r.gitHubRepositoryRepo.GetByCodebaseID(string(codebaseID))
+	repo, err := r.gitHubRepositoryRepo.GetByCodebaseID(codebases.ID(codebaseID))
 	if err != nil {
 		return nil, err
 	}

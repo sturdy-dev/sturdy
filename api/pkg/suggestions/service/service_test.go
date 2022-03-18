@@ -14,6 +14,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_changes "getsturdy.com/api/pkg/changes/db"
 	service_change "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/events"
@@ -241,7 +242,7 @@ type test struct {
 	workspaceService  service_workspace.Service
 	suggestionService *service_suggestions.Service
 
-	codebaseID string
+	codebaseID codebases.ID
 
 	originalUserID    users.ID
 	originalViewID    string

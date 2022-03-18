@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -29,7 +30,7 @@ func (r *repo) Get(ctx context.Context, id changes.ID) (*changes.Change, error) 
 	return &res, nil
 }
 
-func (r *repo) GetByCommitID(ctx context.Context, commitID, codebaseID string) (*changes.Change, error) {
+func (r *repo) GetByCommitID(ctx context.Context, commitID string, codebaseID codebases.ID) (*changes.Change, error) {
 	var res changes.Change
 	err := r.db.GetContext(ctx, &res, `SELECT id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id, parent_change_id, workspace_id
 		FROM changes

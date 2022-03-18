@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -283,7 +284,7 @@ func (e *Sender) sendNewSuggestionNotification(ctx context.Context, usr *users.U
 	return e.Send(ctx, usr, title, templates.NotificationNewSuggestionTemplate, data)
 }
 
-func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*users.User, error) {
+func (e *Sender) getUsersByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*users.User, error) {
 	codebaseUsers, err := e.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)

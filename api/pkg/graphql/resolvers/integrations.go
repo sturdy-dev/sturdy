@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations"
 
 	"github.com/graph-gophers/graphql-go"
@@ -14,7 +16,7 @@ type IntegrationRootResolver interface {
 
 	// internal
 	InternalIntegrationProvider(*integrations.Integration) IntegrationResolver
-	InternalIntegrationsByCodebaseID(context.Context, string) ([]IntegrationResolver, error)
+	InternalIntegrationsByCodebaseID(context.Context, codebases.ID) ([]IntegrationResolver, error)
 	InternalIntegrationByID(context.Context, string) (IntegrationResolver, error)
 }
 

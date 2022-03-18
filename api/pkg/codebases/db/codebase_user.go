@@ -13,9 +13,9 @@ import (
 type CodebaseUserRepository interface {
 	Create(codebases.CodebaseUser) error
 	GetByUser(users.ID) ([]*codebases.CodebaseUser, error)
-	GetByCodebase(codebaseID string) ([]*codebases.CodebaseUser, error)
-	GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebases.CodebaseUser, error)
-	DeleteByID(ctx context.Context, id string) error
+	GetByCodebase(codebases.ID) ([]*codebases.CodebaseUser, error)
+	GetByUserAndCodebase(userID users.ID, codebaseID codebases.ID) (*codebases.CodebaseUser, error)
+	DeleteByID(context.Context, string) error
 }
 
 type codebaseUserRepo struct {
@@ -44,7 +44,7 @@ func (r *codebaseUserRepo) GetByUser(userID users.ID) ([]*codebases.CodebaseUser
 	return entities, nil
 }
 
-func (r *codebaseUserRepo) GetByCodebase(codebaseID string) ([]*codebases.CodebaseUser, error) {
+func (r *codebaseUserRepo) GetByCodebase(codebaseID codebases.ID) ([]*codebases.CodebaseUser, error) {
 	var entities []*codebases.CodebaseUser
 	err := r.db.Select(&entities, "SELECT * FROM codebase_users WHERE codebase_id=$1", codebaseID)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *codebaseUserRepo) GetByCodebase(codebaseID string) ([]*codebases.Codeba
 	return entities, nil
 }
 
-func (r *codebaseUserRepo) GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebases.CodebaseUser, error) {
+func (r *codebaseUserRepo) GetByUserAndCodebase(userID users.ID, codebaseID codebases.ID) (*codebases.CodebaseUser, error) {
 	var cb codebases.CodebaseUser
 	err := r.db.Get(&cb, "SELECT * FROM codebase_users WHERE user_id = $1 AND codebase_id = $2 LIMIT 1", userID, codebaseID)
 	if err != nil {

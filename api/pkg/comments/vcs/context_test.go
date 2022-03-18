@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/internal/testmodule"
 	"getsturdy.com/api/pkg/snapshots"
@@ -38,7 +39,7 @@ func TestContext(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 	workspaceID := uuid.NewString()
 	viewID := uuid.NewString()
 

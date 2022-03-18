@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/comments"
 
 	"github.com/jmoiron/sqlx"
@@ -14,7 +15,7 @@ type Repository interface {
 	Create(comments.Comment) error
 	Get(id comments.ID) (comments.Comment, error)
 	Update(comment comments.Comment) error
-	GetByCodebaseAndChange(codebaseID string, changeID changes.ID) ([]comments.Comment, error)
+	GetByCodebaseAndChange(codebaseID codebases.ID, changeID changes.ID) ([]comments.Comment, error)
 	GetByWorkspace(workspaceID string) ([]comments.Comment, error)
 	GetByParent(id comments.ID) ([]comments.Comment, error)
 	CountByWorkspaceID(context.Context, string) (int32, error)
@@ -59,7 +60,7 @@ func (r *repo) Update(comment comments.Comment) error {
 	return nil
 }
 
-func (r *repo) GetByCodebaseAndChange(codebaseID string, changeID changes.ID) ([]comments.Comment, error) {
+func (r *repo) GetByCodebaseAndChange(codebaseID codebases.ID, changeID changes.ID) ([]comments.Comment, error) {
 	var res []comments.Comment
 	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
 		FROM comments

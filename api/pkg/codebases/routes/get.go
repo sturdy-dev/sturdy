@@ -5,8 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"go.uber.org/zap"
-
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/access"
@@ -14,6 +12,7 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func Get(
@@ -35,9 +34,9 @@ func Get(
 
 		// If ID is a short ID
 		if len(id) == 7 {
-			cb, err = repo.GetByShortID(id)
+			cb, err = repo.GetByShortID(codebases.ShortCodebaseID(id))
 		} else {
-			cb, err = repo.Get(id)
+			cb, err = repo.Get(codebases.ID(id))
 		}
 
 		if errors.Is(err, sql.ErrNoRows) {

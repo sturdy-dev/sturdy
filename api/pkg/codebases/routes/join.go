@@ -81,7 +81,7 @@ func JoinCodebase(logger *zap.Logger, repo db.CodebaseRepository, codeBaseUserRe
 		}
 
 		// Send events
-		if err := eventSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID); err != nil {
+		if err := eventSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID.String()); err != nil {
 			logger.Error("failed to send events", zap.Error(err))
 		}
 

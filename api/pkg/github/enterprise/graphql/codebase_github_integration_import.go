@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -27,7 +28,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 		return nil, gqlerrors.Error(err)
 	}
 
-	codebaseID := string(args.Input.CodebaseID)
+	codebaseID := codebases.ID(args.Input.CodebaseID)
 	viewID := "github-import-" + uuid.NewString()
 	workspaceID := uuid.NewString()
 
@@ -135,7 +136,7 @@ func (r *codebaseGitHubIntegrationRootResolver) ImportGitHubPullRequests(ctx con
 		return nil, gqlerrors.Error(err)
 	}
 
-	codebaseID := string(args.Input.CodebaseID)
+	codebaseID := codebases.ID(args.Input.CodebaseID)
 
 	cb, err := r.codebaseService.GetByID(ctx, codebaseID)
 	if err != nil {

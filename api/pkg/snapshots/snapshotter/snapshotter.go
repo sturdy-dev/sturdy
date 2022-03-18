@@ -9,6 +9,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
@@ -29,7 +30,7 @@ import (
 
 // todo: rename to snapshot service
 type Snapshotter interface {
-	Snapshot(codebaseID, workspaceID string, action snapshots.Action, options ...SnapshotOption) (*snapshots.Snapshot, error)
+	Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, options ...SnapshotOption) (*snapshots.Snapshot, error)
 	Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error)
 	Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error)
 	GetByID(context.Context, string) (*snapshots.Snapshot, error)
@@ -163,7 +164,7 @@ var (
 )
 
 //nolint:cyclop
-func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
+func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
 
 	if !options.onTemporaryView && options.onView == nil {
@@ -180,7 +181,7 @@ func (s *snap) Snapshot(codebaseID, workspaceID string, action snapshots.Action,
 	}
 
 	logger := s.logger.With(
-		zap.String("codebase_id", codebaseID),
+		zap.Stringer("codebase_id", codebaseID),
 		zap.String("workspace_id", workspaceID),
 		zap.Bool("option_on_temporary_view", options.onTemporaryView),
 		zap.Stringp("option_on_view", options.onView),
@@ -567,7 +568,7 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 		ID:          uuid.New().String(),
 		CreatedAt:   time.Now(),
 		CodebaseID:  snapshot.CodebaseID,
-		ViewID:      snapshot.CodebaseID,
+		ViewID:      snapshot.ViewID,
 		WorkspaceID: snapshot.WorkspaceID,
 		Action:      snapshot.Action,
 		DiffsCount:  snapshot.DiffsCount,

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs/provider"
 
 	"github.com/gofrs/flock"
@@ -61,7 +62,7 @@ func newLocker(provider provider.RepoProvider) *locker {
 const lockFileName = ".git/sturdy.lock"
 
 // Returns a mutex for the given codebase and view.
-func (l *locker) Get(codebaseID string, viewID *string) lock {
+func (l *locker) Get(codebaseID codebases.ID, viewID *string) lock {
 	key := l.key(codebaseID, viewID)
 
 	l.locksGuard.Lock()
@@ -85,14 +86,14 @@ func (l *locker) Get(codebaseID string, viewID *string) lock {
 	return lock
 }
 
-func (l *locker) key(codebaseID string, viewID *string) string {
+func (l *locker) key(codebaseID codebases.ID, viewID *string) string {
 	if viewID == nil {
 		return fmt.Sprintf("%s/trunk", codebaseID)
 	}
 	return fmt.Sprintf("%s/%s", codebaseID, *viewID)
 }
 
-func (l *locker) GetInMemory(codebaseID string, viewID *string) lock {
+func (l *locker) GetInMemory(codebaseID codebases.ID, viewID *string) lock {
 	key := l.key(codebaseID, viewID) + "-inmemory"
 
 	l.locksGuard.Lock()

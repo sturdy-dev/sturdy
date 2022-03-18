@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 )
 
 type inMemoryChangeRepo struct {
@@ -34,7 +35,7 @@ func (r *inMemoryChangeRepo) ListByIDs(_ context.Context, ids ...changes.ID) ([]
 	return res, nil
 }
 
-func (r *inMemoryChangeRepo) GetByCommitID(_ context.Context, commitID, codebaseID string) (*changes.Change, error) {
+func (r *inMemoryChangeRepo) GetByCommitID(_ context.Context, commitID string, codebaseID codebases.ID) (*changes.Change, error) {
 	for _, c := range r.changes {
 		if c.CodebaseID == codebaseID && c.CommitID == nil && *c.CommitID == commitID {
 			return c, nil

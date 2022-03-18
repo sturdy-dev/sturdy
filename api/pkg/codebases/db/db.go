@@ -28,7 +28,7 @@ func (r *Repo) Create(entity codebases.Codebase) error {
 	return nil
 }
 
-func (r *Repo) Get(id string) (*codebases.Codebase, error) {
+func (r *Repo) Get(id codebases.ID) (*codebases.Codebase, error) {
 	entity := &codebases.Codebase{}
 	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id, calculated_head_change_id, cached_head_change_id
 		FROM codebases
@@ -40,7 +40,7 @@ func (r *Repo) Get(id string) (*codebases.Codebase, error) {
 	return entity, nil
 }
 
-func (r *Repo) GetAllowArchived(id string) (*codebases.Codebase, error) {
+func (r *Repo) GetAllowArchived(id codebases.ID) (*codebases.Codebase, error) {
 	entity := &codebases.Codebase{}
 	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id, calculated_head_change_id, cached_head_change_id
 		FROM codebases
@@ -63,7 +63,7 @@ func (r *Repo) GetByInviteCode(inviteCode string) (*codebases.Codebase, error) {
 	return entity, nil
 }
 
-func (r *Repo) GetByShortID(shortID string) (*codebases.Codebase, error) {
+func (r *Repo) GetByShortID(shortID codebases.ShortCodebaseID) (*codebases.Codebase, error) {
 	entity := &codebases.Codebase{}
 	err := r.db.Get(entity, `SELECT id, short_id, name, description, emoji, created_at, invite_code, is_ready, archived_at, is_public, organization_id, calculated_head_change_id, cached_head_change_id
 		FROM codebases

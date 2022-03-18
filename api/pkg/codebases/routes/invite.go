@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 )
 
@@ -20,7 +21,7 @@ func Invite(
 	authService *service_auth.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		codebaseID := c.Param("id")
+		codebaseID := codebases.ID(c.Param("id"))
 
 		cb, err := codebaseService.GetByID(c.Request.Context(), codebaseID)
 		if err != nil && errors.Is(err, sql.ErrNoRows) {

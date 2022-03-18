@@ -32,7 +32,7 @@ import (
 // 3) This worker, clones the repository, populates the GitHubRepository, discovers all users that should have access,
 //    and last sets isReady to true.
 func (svc *Service) Clone(
-	codebaseID string,
+	codebaseID codebases.ID,
 	installationID int64,
 	gitHubRepositoryID int64,
 	senderUserID users.ID,
@@ -42,7 +42,7 @@ func (svc *Service) Clone(
 		return fmt.Errorf("could not get github installation: %w", err)
 	}
 
-	logger := svc.logger.With(zap.String("codebase_id", codebaseID))
+	logger := svc.logger.With(zap.Stringer("codebase_id", codebaseID))
 
 	ctx := context.Background()
 
@@ -114,7 +114,7 @@ func (svc *Service) Clone(
 	}
 
 	// Send events
-	svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID)
+	svc.eventsSender.Codebase(cb.ID, events.CodebaseUpdated, cb.ID.String())
 
 	logger.Info("successfully cloned repository, and marked it as ready!")
 
@@ -238,7 +238,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 	}
 
 	nonReadyCodebase := codebases.Codebase{
-		ID:              uuid.NewString(),
+		ID:              codebases.ID(uuid.NewString()),
 		Name:            ghRepo.GetName(),
 		ShortCodebaseID: codebases.ShortCodebaseID(shortid.New()),
 		Description:     ghRepo.GetDescription(),

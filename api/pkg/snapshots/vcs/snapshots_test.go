@@ -6,6 +6,7 @@ import (
 	"path"
 	"testing"
 
+	"getsturdy.com/api/pkg/codebases"
 	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view/vcs"
@@ -20,7 +21,7 @@ import (
 
 func TestSnapshot(t *testing.T) {
 	reposBasePath, repoProvider := reposBasePath(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	err := codebasevcs.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 
@@ -38,7 +39,7 @@ func TestSnapshot(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Write some files
-	viewPath := path.Join(reposBasePath, codebaseID, viewID)
+	viewPath := path.Join(reposBasePath, codebaseID.String(), viewID)
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/a.txt", []byte("hello a"), 0o666))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b"), 0o666))
 

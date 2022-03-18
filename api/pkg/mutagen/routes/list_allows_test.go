@@ -19,6 +19,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
 	"getsturdy.com/api/pkg/internal/inmemory"
@@ -95,7 +96,7 @@ func TestListAllows(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			userID := users.ID(uuid.NewString())
 			viewID := uuid.NewString()
-			codebaseID := uuid.NewString()
+			codebaseID := codebases.ID(uuid.NewString())
 
 			usr := &users.User{
 				ID: userID,
@@ -115,7 +116,7 @@ func TestListAllows(t *testing.T) {
 
 			rawPolicy := strings.NewReplacer(
 				"__USER_ID__", userID.String(),
-				"__CODEBASE_ID__", codebaseID,
+				"__CODEBASE_ID__", codebaseID.String(),
 				"__RESOURCES__", tc.resources,
 			).Replace(`{
   "groups": [

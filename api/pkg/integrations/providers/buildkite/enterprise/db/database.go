@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
@@ -48,7 +49,7 @@ func (d *database) Update(ctx context.Context, cfg *buildkite.Config) error {
 	return nil
 }
 
-func (d *database) GetConfigsByCodebaseID(ctx context.Context, codebaseID string) ([]*buildkite.Config, error) {
+func (d *database) GetConfigsByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*buildkite.Config, error) {
 	var cfgs []*buildkite.Config
 	if err := d.db.SelectContext(ctx, &cfgs, `
 		SELECT 

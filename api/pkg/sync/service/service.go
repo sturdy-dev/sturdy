@@ -6,6 +6,7 @@ import (
 	"time"
 
 	change_vcs "getsturdy.com/api/pkg/changes/vcs"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -217,7 +218,7 @@ func (svc *Service) OnTrunk(ctx context.Context, ws *workspaces.Workspace) (*syn
 }
 
 // complete is called by OnTrunk (if there where no conflicts) and Resolve (when all conflicts have been resolved)
-func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codebaseID, workspaceID, viewID string, unsavedCommitID *string, rebasedCommits []vcsvcs.RebasedCommit) error {
+func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codebaseID codebases.ID, workspaceID, viewID string, unsavedCommitID *string, rebasedCommits []vcsvcs.RebasedCommit) error {
 	if err := repo.MoveBranchToHEAD(workspaceID); err != nil {
 		return fmt.Errorf("failed to move workspace to head: %w", err)
 	}

@@ -8,6 +8,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -115,7 +116,7 @@ func (r *notificationRootResolver) Notifications(ctx context.Context) ([]resolve
 		return nil, gqlerrors.Error(err)
 	}
 
-	hasAccessToCodebase := map[string]bool{}
+	hasAccessToCodebase := map[codebases.ID]bool{}
 	for _, codebase := range userCodebases {
 		hasAccessToCodebase[codebase.CodebaseID] = true
 	}

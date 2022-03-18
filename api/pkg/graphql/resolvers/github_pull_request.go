@@ -3,12 +3,13 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	"github.com/graph-gophers/graphql-go"
 )
 
 type GitHubPullRequestRootResolver interface {
 	// Internal
-	InternalByCodebaseIDAndHeadSHA(context.Context, string, string) (GitHubPullRequestResolver, error)
+	InternalByCodebaseIDAndHeadSHA(context.Context, codebases.ID, string) (GitHubPullRequestResolver, error)
 	InternalGitHubPullRequestByWorkspaceID(ctx context.Context, args GitHubPullRequestArgs) (GitHubPullRequestResolver, error)
 
 	// Mutations

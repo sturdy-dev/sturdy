@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -15,15 +16,15 @@ type Repository interface {
 
 type WorkspaceWriter interface {
 	Create(workspace workspaces.Workspace) error
-	UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error
+	UnsetUpToDateWithTrunkForAllInCodebase(codebases.ID) error
 
 	UpdateFields(ctx context.Context, workspaceID string, fields ...UpdateOption) error
 }
 
 type WorkspaceReader interface {
 	Get(id string) (*workspaces.Workspace, error)
-	ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]*workspaces.Workspace, error)
-	ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) ([]*workspaces.Workspace, error)
+	ListByCodebaseIDs(codebaseIDs []codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error)
+	ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error)
 	GetByViewID(viewID string, includeArchived bool) (*workspaces.Workspace, error)
 	GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 }

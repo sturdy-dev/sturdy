@@ -89,7 +89,7 @@ func (svc *Service) addUserToInstallationCodebases(ctx context.Context, userID u
 			}
 
 			// Send events
-			svc.eventsSender.Codebase(ghr.CodebaseID, events.CodebaseUpdated, ghr.CodebaseID)
+			svc.eventsSender.Codebase(ghr.CodebaseID, events.CodebaseUpdated, ghr.CodebaseID.String())
 		} else if err != nil {
 			svc.logger.Error("failed to get codebase-user relation", zap.Error(err))
 		}

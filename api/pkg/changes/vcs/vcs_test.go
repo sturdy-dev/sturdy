@@ -9,6 +9,7 @@ import (
 	"time"
 
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
+	"getsturdy.com/api/pkg/codebases"
 	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	viewsvcs "getsturdy.com/api/pkg/view/vcs"
@@ -41,7 +42,7 @@ func getDiffs(t *testing.T, repo vcs.RepoReader) []unidiff.FileDiff {
 
 func TestCreateAndLandFromView(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	workspaceID := "workspaceID"
 	viewID := "viewID"
 	setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
@@ -90,7 +91,7 @@ func TestCreateAndLandFromView(t *testing.T) {
 
 func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	workspaceID := "workspaceID"
 	viewID := "viewID"
 	setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
@@ -142,7 +143,7 @@ func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	assert.Len(t, diffs, 0)
 }
 
-func setupCodebase(t *testing.T, repoProvider provider.RepoProvider, codebaseID, workspaceID, viewID string) {
+func setupCodebase(t *testing.T, repoProvider provider.RepoProvider, codebaseID codebases.ID, workspaceID, viewID string) {
 	err := codebasevcs.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 
@@ -171,7 +172,7 @@ func TestRevert(t *testing.T) {
 		t.Run(tc.binaryFileName, func(t *testing.T) {
 			repoProvider := testutil.TestingRepoProvider(t)
 			executorProvider := executor.NewProvider(zap.NewNop(), repoProvider)
-			codebaseID := "codebaseID"
+			codebaseID := codebases.ID("codebaseID")
 			workspaceID := "workspaceID"
 			viewID := "viewID"
 			setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
@@ -270,7 +271,7 @@ func TestRevert(t *testing.T) {
 
 func TestStagedCleanup(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	workspaceID := "workspaceID"
 	viewID := "viewID"
 	setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
