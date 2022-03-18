@@ -64,6 +64,7 @@ type Service interface {
 	RemovePatches(context.Context, *unidiff.Allower, *workspaces.Workspace, ...string) error
 	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
 	Archive(context.Context, *workspaces.Workspace) error
+	ArchiveWithChange(context.Context, *workspaces.Workspace, *changes.Change) error
 	Unarchive(context.Context, *workspaces.Workspace) error
 	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
 }
@@ -852,7 +853,17 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 	}
 }
 
+// ArchiveWithChange is the same as Archive, but also marks workspacw with the change ID.
+func (s *WorkspaceService) ArchiveWithChange(ctx context.Context, ws *workspaces.Workspace, change *changes.Change) error {
+	return s.archive(ctx, ws, &change.ID)
+}
+
+// Archive archives a workspace. If there is a view connected to the workspace, it will be reconnected to a new workspace.
 func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace) error {
+	return s.archive(ctx, ws, nil)
+}
+
+func (s *WorkspaceService) archive(ctx context.Context, ws *workspaces.Workspace, changeID *changes.ID) error {
 	if ws.ArchivedAt != nil {
 		return nil // noop
 	}
@@ -860,14 +871,17 @@ func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace
 	t := time.Now()
 	ws.ArchivedAt = &t
 	ws.UnarchivedAt = nil
-	if err := s.workspaceWriter.UpdateFields(
-		ctx,
-		ws.ID,
-		db.SetArchivedAt(&t),
-		db.SetUnarchivedAt(nil),
-	); err != nil {
+	updateFields := []db.UpdateOption{db.SetArchivedAt(&t), db.SetUnarchivedAt(nil)}
+
+	if changeID != nil {
+		ws.ChangeID = changeID
+		updateFields = append(updateFields, db.SetChangeID(changeID))
+	}
+
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, updateFields...); err != nil {
 		return fmt.Errorf("failed to archive workspace: %w", err)
 	}
+
 	s.analyticsService.Capture(ctx, "workspace archived", analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("workspace_id", ws.ID),
 	)
@@ -909,10 +923,12 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	ws.ArchivedAt = nil
 	ws.UnarchivedAt = &t
 	ws.ViewID = nil
+	ws.ChangeID = nil
 	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
 		db.SetArchivedAt(nil),
 		db.SetUnarchivedAt(&t),
 		db.SetViewID(nil),
+		db.SetChangeID(nil),
 	); err != nil {
 		return fmt.Errorf("failed to unarchive workspace: %w", err)
 	}
