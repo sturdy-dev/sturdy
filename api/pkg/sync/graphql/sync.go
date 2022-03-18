@@ -110,9 +110,9 @@ func (c *ConflictingFileResolver) Path() string {
 }
 
 func (c *ConflictingFileResolver) WorkspaceDiff() (resolvers.FileDiffResolver, error) {
-	return (*c.fileDiffRootResolver).InternalFileDiff(string(c.ID()), &c.conflictingFile.WorkspaceDiff), nil
+	return (*c.fileDiffRootResolver).InternalFileDiff(string(c.ID())+"Workspace", &c.conflictingFile.WorkspaceDiff), nil
 }
 
 func (c *ConflictingFileResolver) TrunkDiff() (resolvers.FileDiffResolver, error) {
-	return (*c.fileDiffRootResolver).InternalFileDiff(string(c.ID()), &c.conflictingFile.TrunkDiff), nil
+	return (*c.fileDiffRootResolver).InternalFileDiff(string(c.ID())+"Trunk", &c.conflictingFile.TrunkDiff), nil
 }

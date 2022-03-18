@@ -9,6 +9,7 @@
       :show-add-button="false"
       @click="toggleExpand"
     />
+
     <div v-if="expanded">
       <div>
         <div class="m-4 flex space-between">
@@ -141,10 +142,10 @@ export default defineComponent({
   },
   computed: {
     trunkDiff: function () {
-      return this.conflict.trunk_diff
+      return this.conflict.trunkDiff
     },
     workspaceDiff: function () {
-      return this.conflict.workspace_diff
+      return this.conflict.workspaceDiff
     },
   },
   methods: {
