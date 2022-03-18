@@ -19,9 +19,8 @@
         <img src="./images/UI_overview.png" width="1551" height="937" alt="Sturdy UI overview" />
         <ol>
           <li>
-            The left sidebar lists <strong>codebases</strong> and open
-            <strong>draft changes</strong> from your organization &mdash; click on a codebase or
-            draft change to navigate to it
+            The left sidebar lists <strong>codebases</strong> and open <strong>draft changes</strong> from
+            your organization &mdash; click on a codebase or draft change to navigate to it
           </li>
           <li>
             The top left corner has a icon with tree dots &mdash; click the icon to open a menu with
@@ -135,8 +134,8 @@
             directory inside the directory that you select with the same name as the codebase.
           </li>
           <li>
-            Observe that a new draft change was created with the name "Untitled Draft". In Sturdy,
-            work always happens inside a draft change.
+            Observe that a new draft change was created with the name "Untitled Draft". In
+            Sturdy, work always happens inside a draft change.
           </li>
           <li>Open draft changes are listed in the sidebar on the left, below the codebase</li>
           <li>Press the "Edit" button at the top of the page and rename it to "My first change"</li>
@@ -209,8 +208,7 @@
             alt="Managing a GitHub Pull Request from Sturdy"
           />
           <li>
-            After a few seconds the PR will be merged. A new draft change will automatically be
-            created for you, so that you're ready to code again right away!
+            After a few seconds the PR will be merged. A new draft change will automatically be created for you, so that you're ready to code again right away!
           </li>
         </ol>
         <DocsInfoBox>
