@@ -32,6 +32,7 @@ func New(
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
+	userService service_user.Service,
 
 	workspaceRootResolver resolvers.WorkspaceRootResolver,
 	codebaseRootResolver resolvers.CodebaseRootResolver,
@@ -41,6 +42,7 @@ func New(
 		workspaceService: workspaceService,
 		authService:      authService,
 		codebaseService:  codebaseService,
+		userService:      userService,
 
 		workspaceRootResolver: workspaceRootResolver,
 		codebaseRootResolver:  codebaseRootResolver,
