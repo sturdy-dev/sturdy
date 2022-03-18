@@ -52,8 +52,8 @@
           <li>The user that you tagged will receive a notification that you asked for feedback</li>
           <ol>
             <li>
-              When somebody from the team is browsing a draft, their avatar will appear in
-              the top right corner
+              When somebody from the team is browsing a draft, their avatar will appear in the top
+              right corner
             </li>
           </ol>
           <li>
@@ -154,17 +154,17 @@
         <h2 id="giving-feedback">Giving feedback or help to others</h2>
         <p>
           You can give help and feedback to others spontaneously or when somebody asks for feedback.
-          In the left sidebar of Sturdy you can see your own drafts as well as those of others
-          on the team.
+          In the left sidebar of Sturdy you can see your own drafts as well as those of others on
+          the team.
         </p>
         <ol>
           <li>
-            Navigate to a draft by somebody else on the team by clicking on it in the sidebar.
-            The avatars to the left of draft names indicate who the author is.
+            Navigate to a draft by somebody else on the team by clicking on it in the sidebar. The
+            avatars to the left of draft names indicate who the author is.
           </li>
           <li>
-            If the author of the draft is currently working on it, you will see their avatar in
-            the top right corner.
+            If the author of the draft is currently working on it, you will see their avatar in the
+            top right corner.
           </li>
           <li>
             If the author of the draft is making code changes, you will see them in real-time, the
@@ -215,8 +215,8 @@
               are trying.
             </li>
             <li>
-              This temporary draft has the code of your team member's draft as it looked at
-              the time you pressed the connect button.
+              This temporary draft has the code of your team member's draft as it looked at the time
+              you pressed the connect button.
             </li>
           </ol>
           <li>The folder on your computer now has the code of your team member's draft.</li>
@@ -245,8 +245,8 @@
           <li>Press the "Connect <em>folder</em> for suggesting" button</li>
           <ol>
             <li>
-              Observe that now there is a second temporary draft named "Suggestion 2" to which
-              you are connected
+              Observe that now there is a second temporary draft named "Suggestion 2" to which you
+              are connected
             </li>
           </ol>
         </ol>
@@ -273,8 +273,8 @@
         </ol>
 
         <p>
-          You can suggest changes even to files that have not been modified in the original
-          draft change.
+          You can suggest changes even to files that have not been modified in the original draft
+          change.
         </p>
       </div>
     </template>

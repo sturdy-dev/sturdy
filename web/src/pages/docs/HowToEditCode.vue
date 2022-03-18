@@ -1,7 +1,7 @@
 <template>
   <DocumentationWithTableOfContents>
     <template #sidebar>
-      <DocsSidebar/>
+      <DocsSidebar />
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
@@ -48,11 +48,11 @@
         <p>
           As you write the code, you can see your changes in Sturdy, undo them,
           <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers' }"
-          >ask for feedback
+            >ask for feedback
           </router-link>
           or
           <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }"
-          >ship them to production
+            >ship them to production
           </router-link>
           &mdash; all of this is just a click away. You can read more about how Sturdy interacts
           with Git on
@@ -70,7 +70,7 @@
 
 <script lang="ts" setup>
 import DocumentationWithTableOfContents from '../../layouts/DocumentationWithTableOfContents.vue'
-import {useHead} from '@vueuse/head'
+import { useHead } from '@vueuse/head'
 import DocsSidebar from '../../organisms/docs/DocsSidebar.vue'
 import DocsInfoBox from '../../molecules/DocsInfoBox.vue'
 import SubtleText from '../../molecules/docs/SubtleText.vue'
