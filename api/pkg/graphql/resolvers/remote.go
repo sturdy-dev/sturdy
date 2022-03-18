@@ -7,7 +7,10 @@ import (
 )
 
 type RemoteRootResolver interface {
-	CreateCodebaseRemote(ctx context.Context, args CreateCodebaseRemoteArgs) (CodebaseResolver, error)
+	InternalRemoteByCodebaseID(ctx context.Context, codebaseID string) (RemoteResolver, error)
+
+	// Mutations
+	CreateOrUpdateCodebaseRemote(ctx context.Context, args CreateOrUpdateCodebaseRemoteArgsArgs) (RemoteResolver, error)
 	PushWorkspaceToRemote(ctx context.Context, args PushWorkspaceToRemoteArgs) (WorkspaceResolver, error)
 	FetchRemoteToTrunk(ctx context.Context, args FetchRemoteToTrunkArgs) (CodebaseResolver, error)
 }
@@ -16,13 +19,16 @@ type RemoteResolver interface {
 	ID() graphql.ID
 	Name() string
 	URL() string
+	TrackedBranch() string
+	BasicAuthUsername() string
+	BasicAuthPassword() string
 }
 
-type CreateCodebaseRemoteArgs struct {
-	Input CreateCodebaseRemoteInput
+type CreateOrUpdateCodebaseRemoteArgsArgs struct {
+	Input CreateOrUpdateCodebaseRemoteArgsInput
 }
 
-type CreateCodebaseRemoteInput struct {
+type CreateOrUpdateCodebaseRemoteArgsInput struct {
 	CodebaseID        string
 	Name              string
 	Url               string

@@ -51,7 +51,15 @@ func New(
 	}
 }
 
-func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, username, password, trackedBranch string) error {
+func (svc *Service) Get(ctx context.Context, codebaseID string) (*remote.Remote, error) {
+	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
+	if err != nil {
+		return nil, err
+	}
+	return rep, nil
+}
+
+func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, username, password, trackedBranch string) (*remote.Remote, error) {
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
@@ -63,9 +71,9 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, userna
 		rep.BasicAuthPassword = password
 		rep.TrackedBranch = trackedBranch
 		if err := svc.repo.Update(ctx, rep); err != nil {
-			return fmt.Errorf("failed to update remote: %w", err)
+			return nil, fmt.Errorf("failed to update remote: %w", err)
 		}
-		return nil
+		return rep, nil
 	case errors.Is(err, sql.ErrNoRows):
 		// create
 		r := remote.Remote{
@@ -78,11 +86,11 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, userna
 			TrackedBranch:     trackedBranch,
 		}
 		if err := svc.repo.Create(ctx, r); err != nil {
-			return fmt.Errorf("failed to add remote: %w", err)
+			return nil, fmt.Errorf("failed to add remote: %w", err)
 		}
-		return nil
+		return &r, nil
 	default:
-		return fmt.Errorf("failed to set remote: %w", err)
+		return nil, fmt.Errorf("failed to set remote: %w", err)
 	}
 }
 

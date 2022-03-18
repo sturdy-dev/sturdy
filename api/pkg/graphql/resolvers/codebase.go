@@ -74,6 +74,7 @@ type CodebaseResolver interface {
 	Integrations(ctx context.Context, args IntegrationsArgs) ([]IntegrationResolver, error)
 	IsPublic() bool
 	Organization(ctx context.Context) (OrganizationResolver, error)
+	Remote(context.Context) (RemoteResolver, error)
 
 	Writeable(context.Context) bool
 }
