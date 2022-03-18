@@ -10,6 +10,7 @@ import (
 
 	"getsturdy.com/api/vcs"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/gc"
 	"getsturdy.com/api/pkg/gc/db"
 	"getsturdy.com/api/pkg/snapshots"
@@ -52,7 +53,7 @@ func New(
 	}
 }
 
-func (svc *Service) gcSnapshots(ctx context.Context, codebaseID string, snapshotThreshold time.Duration) error {
+func (svc *Service) gcSnapshots(ctx context.Context, codebaseID codebases.ID, snapshotThreshold time.Duration) error {
 	// Delete snapshots older than
 	threshold := time.Now().Add(snapshotThreshold)
 
@@ -220,7 +221,7 @@ func getSnapshotThreshold() time.Duration {
 func (svc *Service) Work(
 	ctx context.Context,
 	logger *zap.Logger,
-	codebaseID string,
+	codebaseID codebases.ID,
 ) error {
 	return svc.WorkWithOptions(ctx, logger, codebaseID, getGCInterval(), getSnapshotThreshold())
 }
@@ -228,7 +229,7 @@ func (svc *Service) Work(
 func (svc *Service) WorkWithOptions(
 	ctx context.Context,
 	logger *zap.Logger,
-	codebaseID string,
+	codebaseID codebases.ID,
 	gcInterval time.Duration,
 	gcSnapshotsThreshold time.Duration,
 ) error {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 )
@@ -33,7 +34,7 @@ func (r *inMemoryAclRepo) Update(_ context.Context, a acl.ACL) error {
 	return nil
 }
 
-func (r *inMemoryAclRepo) GetByCodebaseID(_ context.Context, codebaseID string) (acl.ACL, error) {
+func (r *inMemoryAclRepo) GetByCodebaseID(_ context.Context, codebaseID codebases.ID) (acl.ACL, error) {
 	for _, v := range r.acls {
 		if v.CodebaseID == codebaseID {
 			return v, nil

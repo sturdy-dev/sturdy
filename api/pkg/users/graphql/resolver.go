@@ -7,6 +7,7 @@ import (
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/newsletter"
@@ -203,7 +204,7 @@ func (r *userResolver) Views() ([]resolvers.ViewResolver, error) {
 }
 
 func (r *userResolver) LastUsedView(ctx context.Context, args resolvers.LastUsedViewArgs) (resolvers.ViewResolver, error) {
-	resolver, err := r.root.viewRootResolver.InternalLastUsedViewByUser(ctx, string(args.CodebaseID), r.u.ID)
+	resolver, err := r.root.viewRootResolver.InternalLastUsedViewByUser(ctx, codebases.ID(args.CodebaseID), r.u.ID)
 	if errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	}

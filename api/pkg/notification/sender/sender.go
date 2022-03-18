@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/events"
@@ -19,8 +20,8 @@ import (
 )
 
 type NotificationSender interface {
-	Codebase(ctx context.Context, codebaseID string, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error
-	User(ctx context.Context, userID users.ID, codebaseID string, notificationType notification.NotificationType, referenceID string) error
+	Codebase(ctx context.Context, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error
+	User(ctx context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error
 }
 
 type realNotificationSender struct {
@@ -56,7 +57,7 @@ func NewNotificationSender(
 	}
 }
 
-func (s *realNotificationSender) Codebase(ctx context.Context, codebaseID string, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error {
+func (s *realNotificationSender) Codebase(ctx context.Context, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error {
 	// Send to all members of this codebase
 	codebaseUsers, err := s.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
@@ -88,7 +89,7 @@ func (s *realNotificationSender) Codebase(ctx context.Context, codebaseID string
 	return nil
 }
 
-func (s *realNotificationSender) User(ctx context.Context, userID users.ID, codebaseID string, notificationType notification.NotificationType, referenceID string) error {
+func (s *realNotificationSender) User(ctx context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error {
 	notif := notification.Notification{
 		ID:               uuid.NewString(),
 		UserID:           userID,
@@ -127,11 +128,11 @@ func (s *realNotificationSender) dispatch(ctx context.Context, notif *notificati
 
 type noopNotificationSender struct{}
 
-func (noopNotificationSender) Codebase(_ context.Context, codebaseID string, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error {
+func (noopNotificationSender) Codebase(_ context.Context, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error {
 	return nil
 }
 
-func (noopNotificationSender) User(_ context.Context, userID users.ID, codebaseID string, notificationType notification.NotificationType, referenceID string) error {
+func (noopNotificationSender) User(_ context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error {
 	return nil
 }
 

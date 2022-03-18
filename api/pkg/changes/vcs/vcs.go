@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 
+	"getsturdy.com/api/pkg/codebases"
 	vcs_sync "getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
@@ -22,7 +23,7 @@ import (
 func CreateAndLandFromView(
 	viewRepo vcs.RepoWriter,
 	logger *zap.Logger,
-	codebaseID,
+	codebaseID codebases.ID,
 	workspaceID string,
 	patchIDs []string,
 	message string,
@@ -116,7 +117,7 @@ func CreateAndLandFromView(
 	return newBranchCommit, pushFunc, nil
 }
 
-func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID string, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
+func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
 	treeID, err := CreateChangesTreeFromPatches(logger, r, codebaseID, patchIDs, diffOpts...)
 	if err != nil {
 		return "", err
@@ -137,7 +138,7 @@ func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter
 
 // CreateChangesTreeFromPatches creates a git-tree based on the inputs.
 // If patchIDs is non-nil, the slice will be passed as a filter to unidiff.WithHunksFilter
-func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID string, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
+func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
 	err := r.CleanStaged()
 	if err != nil {
 		return nil, fmt.Errorf("failed to clean staged codebase=%s %w", codebaseID, err)
@@ -232,7 +233,7 @@ func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter,
 	return treeID, nil
 }
 
-func AddToGitignore(executorProvider executor.Provider, codebaseID, viewID, ignorePath string) error {
+func AddToGitignore(executorProvider executor.Provider, codebaseID codebases.ID, viewID, ignorePath string) error {
 	executor := executorProvider.New().Read(func(repo vcs.RepoReader) error {
 		ignoreFilePath := path.Join(repo.Path(), ".gitignore")
 

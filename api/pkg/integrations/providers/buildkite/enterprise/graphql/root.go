@@ -54,7 +54,7 @@ func New(
 func (root *rootResolver) createNewConfiguration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
 	integration := &integrations.Integration{
 		ID:           uuid.NewString(),
-		CodebaseID:   string(args.Input.CodebaseID),
+		CodebaseID:   codebases.ID(args.Input.CodebaseID),
 		Provider:     providers.ProviderNameBuildkite,
 		ProviderType: providers.ProviderTypeBuild,
 		CreatedAt:    time.Now(),
@@ -68,7 +68,7 @@ func (root *rootResolver) createNewConfiguration(ctx context.Context, args resol
 	cfg := &buildkite.Config{
 		ID:               uuid.NewString(),
 		IntegrationID:    integration.ID,
-		CodebaseID:       string(args.Input.CodebaseID),
+		CodebaseID:       codebases.ID(args.Input.CodebaseID),
 		OrganizationName: args.Input.OrganizationName,
 		PipelineName:     args.Input.PipelineName,
 		APIToken:         args.Input.APIToken,
@@ -84,7 +84,7 @@ func (root *rootResolver) createNewConfiguration(ctx context.Context, args resol
 }
 
 func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *buildkite.Config, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
-	existingIntegrations, err := root.instantIntegrationService.ListByCodebaseID(ctx, string(args.Input.CodebaseID))
+	existingIntegrations, err := root.instantIntegrationService.ListByCodebaseID(ctx, codebases.ID(args.Input.CodebaseID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list existing integrations: %w", err)
 	}
@@ -127,7 +127,7 @@ func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *
 }
 
 func (root *rootResolver) CreateOrUpdateBuildkiteIntegration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (resolvers.IntegrationResolver, error) {
-	if err := root.authService.CanWrite(ctx, &codebases.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+	if err := root.authService.CanWrite(ctx, &codebases.Codebase{ID: codebases.ID(args.Input.CodebaseID)}); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

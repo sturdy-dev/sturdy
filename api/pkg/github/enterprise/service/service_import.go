@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/changes/message"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
@@ -23,7 +24,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID string, userID users.ID) error {
+func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) error {
 	repo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get github repo: %w", err)
@@ -66,7 +67,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 			continue
 		}
 
-		svc.logger.Info("importing pull request", zap.String("codebase_id", codebaseID), zap.Int("pr_number", pr.GetNumber()))
+		svc.logger.Info("importing pull request", zap.Stringer("codebase_id", codebaseID), zap.Int("pr_number", pr.GetNumber()))
 
 		err := svc.importPullRequest(codebaseID, userID, pr, repo, installation, accessToken)
 		switch {
@@ -82,7 +83,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
-func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.Repository, ghInstallation *github.Installation, accessToken string) error {
+func (svc *Service) importPullRequest(codebaseID codebases.ID, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.Repository, ghInstallation *github.Installation, accessToken string) error {
 	// check that this pull request hasn't been imported before
 	if _, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(gitHubPR.GetID(), codebaseID); err == nil {
 		return ErrAlreadyImported
@@ -232,7 +233,7 @@ func (svc *Service) importPullRequest(codebaseID string, userID users.ID, gitHub
 	return nil
 }
 
-func (svc *Service) EnqueueGitHubPullRequestImport(ctx context.Context, codebaseID string, userID users.ID) error {
+func (svc *Service) EnqueueGitHubPullRequestImport(ctx context.Context, codebaseID codebases.ID, userID users.ID) error {
 	if err := (*svc.gitHubPullRequestImporterQueue).Enqueue(ctx, codebaseID, userID); err != nil {
 		return err
 	}

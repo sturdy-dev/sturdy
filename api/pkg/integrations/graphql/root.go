@@ -102,7 +102,7 @@ func convertProvider(in resolvers.InstantIntegrationProviderType) (providers.Pro
 	}
 }
 
-func (r *rootResolver) InternalIntegrationsByCodebaseID(ctx context.Context, codebaseID string) ([]resolvers.IntegrationResolver, error) {
+func (r *rootResolver) InternalIntegrationsByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]resolvers.IntegrationResolver, error) {
 	cfgs, err := r.svc.ListByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 
 	"github.com/jmoiron/sqlx"
@@ -11,7 +12,7 @@ import (
 type GitHubRepositoryRepo interface {
 	GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error)
 	GetByInstallationAndName(installationID int64, name string) (*github.Repository, error)
-	GetByCodebaseID(repositoryID string) (*github.Repository, error)
+	GetByCodebaseID(codebases.ID) (*github.Repository, error)
 	GetByID(ID string) (*github.Repository, error)
 	ListByInstallationID(installationID int64) ([]*github.Repository, error)
 	ListByInstallationIDAndGitHubRepoIDs(installationID int64, gitHubRepositoryIDs []int64) ([]*github.Repository, error)
@@ -62,9 +63,9 @@ func (r *gitHubRepositoryRepo) GetByID(ID string) (*github.Repository, error) {
 	return &res, nil
 }
 
-func (r *gitHubRepositoryRepo) GetByCodebaseID(repositoryID string) (*github.Repository, error) {
+func (r *gitHubRepositoryRepo) GetByCodebaseID(codebaseID codebases.ID) (*github.Repository, error) {
 	var res github.Repository
-	err := r.db.Get(&res, `SELECT * FROM github_repositories WHERE codebase_id = $1 AND deleted_at IS NULL`, repositoryID)
+	err := r.db.Get(&res, `SELECT * FROM github_repositories WHERE codebase_id = $1 AND deleted_at IS NULL`, codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

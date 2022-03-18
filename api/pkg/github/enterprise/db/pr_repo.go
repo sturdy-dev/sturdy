@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 
 	"github.com/jmoiron/sqlx"
@@ -12,8 +13,8 @@ import (
 type GitHubPRRepo interface {
 	Create(pr github.PullRequest) error
 	Get(id string) (*github.PullRequest, error)
-	GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID string) (*github.PullRequest, error)
-	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error)
+	GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID codebases.ID) (*github.PullRequest, error)
+	GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID codebases.ID, headSHA string) (*github.PullRequest, error)
 	ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error)
 	GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error)
 	ListOpenedByWorkspace(workspaceID string) ([]*github.PullRequest, error)
@@ -72,7 +73,7 @@ func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 	return nil
 }
 
-func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID, headSHA string) (*github.PullRequest, error) {
+func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID codebases.ID, headSHA string) (*github.PullRequest, error) {
 	var pr github.PullRequest
 	if err := r.db.GetContext(ctx, &pr, `
 		SELECT
@@ -99,7 +100,7 @@ func (r *gitHubPRRepo) Get(id string) (*github.PullRequest, error) {
 	return &pr, nil
 }
 
-func (r *gitHubPRRepo) GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID string) (*github.PullRequest, error) {
+func (r *gitHubPRRepo) GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID codebases.ID) (*github.PullRequest, error) {
 	var pr github.PullRequest
 	err := r.db.Get(&pr, `SELECT
 		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state

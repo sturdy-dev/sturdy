@@ -10,6 +10,7 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
@@ -34,7 +35,7 @@ import (
 )
 
 type ImporterQueue interface {
-	Enqueue(ctx context.Context, codebaseID string, userID users.ID) error
+	Enqueue(ctx context.Context, codebaseID codebases.ID, userID users.ID) error
 }
 
 type ClonerQueue interface {
@@ -157,7 +158,7 @@ func New(
 	}
 }
 
-func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID string) (*github.Repository, error) {
+func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID codebases.ID) (*github.Repository, error) {
 	return svc.gitHubRepositoryRepo.GetByCodebaseID(codebaseID)
 }
 

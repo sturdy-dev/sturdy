@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	service_change "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -60,7 +61,7 @@ const (
 	ArchiveFormatTarGz
 )
 
-func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower, codebaseID, commitID string, format ArchiveFormat) (string, error) {
+func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower, codebaseID codebases.ID, commitID string, format ArchiveFormat) (string, error) {
 	if svc.maybeBucketName == nil || len(*svc.maybeBucketName) == 0 {
 		return "", fmt.Errorf("--export-bucket-name is not defined")
 	}

@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/unidiff"
 
 	"github.com/graph-gophers/graphql-go"
 )
 
 type ChangeRootResolver interface {
-	IntenralListChanges(ctx context.Context, codebaseID string, limit int, before *graphql.ID) ([]ChangeResolver, error)
+	IntenralListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]ChangeResolver, error)
 
 	Change(ctx context.Context, args ChangeArgs) (ChangeResolver, error)
 }

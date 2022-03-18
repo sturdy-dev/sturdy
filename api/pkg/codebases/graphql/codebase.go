@@ -258,7 +258,7 @@ func (r *CodebaseRootResolver) UpdatedCodebase(ctx context.Context) (<-chan reso
 }
 
 func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolvers.UpdateCodebaseArgs) (resolvers.CodebaseResolver, error) {
-	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.ID))
+	cb, err := r.codebaseService.GetByID(ctx, codebases.ID(args.Input.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -301,7 +301,7 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	return &CodebaseResolver{c: cb, root: r}, nil
 }
 func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resolvers.AddUserToCodebaseArgs) (resolvers.CodebaseResolver, error) {
-	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	cb, err := r.codebaseService.GetByID(ctx, codebases.ID(args.Input.CodebaseID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -311,7 +311,7 @@ func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	if _, err := r.codebaseService.AddUserByEmail(ctx, string(args.Input.CodebaseID), args.Input.Email); err != nil {
+	if _, err := r.codebaseService.AddUserByEmail(ctx, codebases.ID(args.Input.CodebaseID), args.Input.Email); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -319,7 +319,7 @@ func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resol
 }
 
 func (r *CodebaseRootResolver) RemoveUserFromCodebase(ctx context.Context, args resolvers.RemoveUserFromCodebaseArgs) (resolvers.CodebaseResolver, error) {
-	cb, err := r.codebaseService.GetByID(ctx, string(args.Input.CodebaseID))
+	cb, err := r.codebaseService.GetByID(ctx, codebases.ID(args.Input.CodebaseID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -329,7 +329,7 @@ func (r *CodebaseRootResolver) RemoveUserFromCodebase(ctx context.Context, args 
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.codebaseService.RemoveUser(ctx, string(args.Input.CodebaseID), users.ID(args.Input.UserID)); err != nil {
+	if err := r.codebaseService.RemoveUser(ctx, codebases.ID(args.Input.CodebaseID), users.ID(args.Input.UserID)); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
@@ -425,7 +425,7 @@ func (r *CodebaseResolver) LastUpdatedAt(ctx context.Context) *int32 {
 }
 
 func (r *CodebaseResolver) Workspaces(ctx context.Context) ([]resolvers.WorkspaceResolver, error) {
-	workspaces, err := r.root.workspaceReader.ListByCodebaseIDs([]string{r.c.ID}, false)
+	workspaces, err := r.root.workspaceReader.ListByCodebaseIDs([]codebases.ID{r.c.ID}, false)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to list workspaces by codebase id: %w", err))
 	}
@@ -635,7 +635,7 @@ func (r *CodebaseResolver) Organization(ctx context.Context) (resolvers.Organiza
 }
 
 func (r *CodebaseResolver) Remote(ctx context.Context) (resolvers.RemoteResolver, error) {
-	resolver, err := r.root.remoteRootResolver.InternalRemoteByCodebaseID(ctx, string(r.ID()))
+	resolver, err := r.root.remoteRootResolver.InternalRemoteByCodebaseID(ctx, codebases.ID(r.ID()))
 	switch {
 	case err == nil:
 		return resolver, nil
@@ -654,7 +654,7 @@ func (r *CodebaseResolver) Writeable(ctx context.Context) bool {
 }
 
 func (r *CodebaseRootResolver) resolveCodebase(ctx context.Context, id graphql.ID) (*CodebaseResolver, error) {
-	c, err := r.codebaseRepo.Get(string(id))
+	c, err := r.codebaseRepo.Get(codebases.ID(id))
 	if err != nil {
 		return nil, err
 	}
@@ -672,7 +672,7 @@ func (r *CodebaseRootResolver) resolveCodebaseByShort(ctx context.Context, short
 		s = s[idx+1:]
 	}
 
-	c, err := r.codebaseRepo.GetByShortID(s)
+	c, err := r.codebaseRepo.GetByShortID(codebases.ShortCodebaseID(s))
 	if err != nil {
 		return nil, err
 	}

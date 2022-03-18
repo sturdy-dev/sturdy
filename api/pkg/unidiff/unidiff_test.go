@@ -2,12 +2,14 @@ package unidiff
 
 import (
 	"fmt"
-	"getsturdy.com/api/vcs"
-	"getsturdy.com/api/vcs/provider"
 	"io/ioutil"
 	"os"
 	"path"
 	"testing"
+
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -326,7 +328,7 @@ func TestFilterAndApply(t *testing.T) {
 	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
 	assert.NoError(t, err)
 	repoProvider := provider.New(tmpBase, "")
-	codebaseID := uuid.NewString()
+	codebaseID := codebases.ID(uuid.NewString())
 	trunkPath := repoProvider.TrunkPath(codebaseID)
 	_, err = vcs.CreateBareRepoWithRootCommit(trunkPath)
 	assert.NoError(t, err)

@@ -33,7 +33,7 @@ func (r *inMemoryCodebaseUserRepository) GetByUser(userID users.ID) ([]*codebase
 	return res, nil
 }
 
-func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*codebases.CodebaseUser, error) {
+func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID codebases.ID) ([]*codebases.CodebaseUser, error) {
 	var res []*codebases.CodebaseUser
 	for _, u := range r.users {
 		if u.CodebaseID == codebaseID {
@@ -44,7 +44,7 @@ func (r *inMemoryCodebaseUserRepository) GetByCodebase(codebaseID string) ([]*co
 	return res, nil
 }
 
-func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID users.ID, codebaseID string) (*codebases.CodebaseUser, error) {
+func (r *inMemoryCodebaseUserRepository) GetByUserAndCodebase(userID users.ID, codebaseID codebases.ID) (*codebases.CodebaseUser, error) {
 	for _, u := range r.users {
 		if u.UserID == userID && u.CodebaseID == codebaseID {
 			return &u, nil

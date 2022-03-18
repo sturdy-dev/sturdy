@@ -57,7 +57,7 @@ func (svc *Service) GetChangeByID(ctx context.Context, id changes.ID) (*changes.
 	return ch, nil
 }
 
-func (svc *Service) GetByCommitAndCodebase(ctx context.Context, commitID, codebaseID string) (*changes.Change, error) {
+func (svc *Service) GetByCommitAndCodebase(ctx context.Context, commitID string, codebaseID codebases.ID) (*changes.Change, error) {
 	ch, err := svc.changeRepo.GetByCommitID(ctx, commitID, codebaseID)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
@@ -124,7 +124,7 @@ func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspaces
 	return &changeChange, nil
 }
 
-func (svc *Service) head(ctx context.Context, codebaseID string) (*changes.Change, error) {
+func (svc *Service) head(ctx context.Context, codebaseID codebases.ID) (*changes.Change, error) {
 	// To find the root commit, peek into git
 	var headCommitID string
 
@@ -153,7 +153,7 @@ func (svc *Service) head(ctx context.Context, codebaseID string) (*changes.Chang
 // limit - the maximum number of changes to return
 // before - if set, used as a change id to start the list from
 //          if not set, list will start from the head
-func (svc *Service) Changelog(ctx context.Context, codebaseID string, limit int, before *changes.ID) ([]*changes.Change, error) {
+func (svc *Service) Changelog(ctx context.Context, codebaseID codebases.ID, limit int, before *changes.ID) ([]*changes.Change, error) {
 	var (
 		startFrom *changes.Change
 		err       error
@@ -254,7 +254,7 @@ func (svc *Service) ParentChange(ctx context.Context, ch *changes.Change) (*chan
 	return parent, nil
 }
 
-func (svc *Service) getChangeFromCommit(ctx context.Context, codebaseID, commitID string) (*changes.Change, error) {
+func (svc *Service) getChangeFromCommit(ctx context.Context, codebaseID codebases.ID, commitID string) (*changes.Change, error) {
 	ch, err := svc.changeRepo.GetByCommitID(ctx, commitID, codebaseID)
 	switch {
 	case err == nil:
@@ -266,7 +266,7 @@ func (svc *Service) getChangeFromCommit(ctx context.Context, codebaseID, commitI
 	}
 }
 
-func (svc *Service) importCommitToChange(ctx context.Context, codebaseID, commitID string) (*changes.Change, error) {
+func (svc *Service) importCommitToChange(ctx context.Context, codebaseID codebases.ID, commitID string) (*changes.Change, error) {
 	// if the change exists in the db, use it!
 	{
 		fromDb, err := svc.changeRepo.GetByCommitID(ctx, commitID, codebaseID)
@@ -380,7 +380,7 @@ func (svc *Service) HeadChange(ctx context.Context, cb *codebases.Codebase) (*ch
 	}
 
 	if cb.CalculatedHeadChangeID && cb.CachedHeadChangeID != nil {
-		return svc.GetChangeByID(ctx, *cb.CachedHeadChangeID)
+		return svc.GetChangeByID(ctx, changes.ID(*cb.CachedHeadChangeID))
 	}
 
 	headChange, err := svc.head(ctx, cb.ID)
@@ -392,7 +392,7 @@ func (svc *Service) HeadChange(ctx context.Context, cb *codebases.Codebase) (*ch
 		return nil, fmt.Errorf("failed to get changelog: %w", err)
 	default:
 		cb.CalculatedHeadChangeID = true
-		cb.CachedHeadChangeID = &headChange.ID
+		cb.CachedHeadChangeID = (*string)(&headChange.ID)
 	}
 
 	if err := svc.codebaseRepo.Update(cb); err != nil {
@@ -406,7 +406,7 @@ func (svc *Service) HeadChange(ctx context.Context, cb *codebases.Codebase) (*ch
 	return headChange, nil
 }
 
-func (svc *Service) UnsetHeadChangeCache(codebaseID string) error {
+func (svc *Service) UnsetHeadChangeCache(codebaseID codebases.ID) error {
 	cb, err := svc.codebaseRepo.Get(codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get codebase: %w", err)
@@ -429,7 +429,7 @@ func (svc *Service) SetAsHeadChange(ch *changes.Change) error {
 	}
 
 	cb.CalculatedHeadChangeID = true
-	cb.CachedHeadChangeID = &ch.ID
+	cb.CachedHeadChangeID = (*string)(&ch.ID)
 
 	if err := svc.codebaseRepo.Update(cb); err != nil {
 		return fmt.Errorf("failed to set codebase head change: %w", err)

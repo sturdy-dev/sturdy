@@ -3,6 +3,7 @@ package provider
 import (
 	"path"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 )
 
@@ -16,15 +17,15 @@ type RepoProvider interface {
 // TrunkProvider
 // Deprecated: TrunkProvider in favour for executor.Executor (except when used in an executor.ExecuteFunc)
 type TrunkProvider interface {
-	TrunkRepo(codebaseID string) (vcs.RepoWriter, error)
-	TrunkPath(codebaseID string) string
+	TrunkRepo(codebaseID codebases.ID) (vcs.RepoWriter, error)
+	TrunkPath(codebaseID codebases.ID) string
 }
 
 // ViewProvider
 // Deprecated: ViewProvider in favour for executor.Executor (except when used in an executor.ExecuteFunc)
 type ViewProvider interface {
-	ViewRepo(codebaseID, viewID string) (vcs.RepoWriter, error)
-	ViewPath(codebaseID, viewID string) string
+	ViewRepo(codebaseID codebases.ID, viewID string) (vcs.RepoWriter, error)
+	ViewPath(codebaseID codebases.ID, viewID string) string
 }
 
 type repoProvider struct {
@@ -39,18 +40,18 @@ func New(reposBasePath, lfsHostname string) RepoProvider {
 	}
 }
 
-func (r *repoProvider) TrunkRepo(codebaseID string) (vcs.RepoWriter, error) {
-	return vcs.OpenRepoWithLFS(path.Join(r.reposBasePath, codebaseID, "trunk"), r.lfsHostname)
+func (r *repoProvider) TrunkRepo(codebaseID codebases.ID) (vcs.RepoWriter, error) {
+	return vcs.OpenRepoWithLFS(path.Join(r.reposBasePath, codebaseID.String(), "trunk"), r.lfsHostname)
 }
 
-func (r *repoProvider) ViewRepo(codebaseID, viewID string) (vcs.RepoWriter, error) {
-	return vcs.OpenRepoWithLFS(path.Join(r.reposBasePath, codebaseID, viewID), r.lfsHostname)
+func (r *repoProvider) ViewRepo(codebaseID codebases.ID, viewID string) (vcs.RepoWriter, error) {
+	return vcs.OpenRepoWithLFS(path.Join(r.reposBasePath, codebaseID.String(), viewID), r.lfsHostname)
 }
 
-func (r *repoProvider) TrunkPath(codebaseID string) string {
-	return path.Join(r.reposBasePath, codebaseID, "trunk")
+func (r *repoProvider) TrunkPath(codebaseID codebases.ID) string {
+	return path.Join(r.reposBasePath, codebaseID.String(), "trunk")
 }
 
-func (r *repoProvider) ViewPath(codebaseID, viewID string) string {
-	return path.Join(r.reposBasePath, codebaseID, viewID)
+func (r *repoProvider) ViewPath(codebaseID codebases.ID, viewID string) string {
+	return path.Join(r.reposBasePath, codebaseID.String(), viewID)
 }

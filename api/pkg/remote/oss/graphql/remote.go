@@ -3,6 +3,7 @@ package graphql
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
@@ -13,7 +14,7 @@ func New() resolvers.RemoteRootResolver {
 	return &remoteRootResolver{}
 }
 
-func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, codebaseID string) (resolvers.RemoteResolver, error) {
+func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, codebaseID codebases.ID) (resolvers.RemoteResolver, error) {
 	return nil, gqlerror.ErrNotImplemented
 }
 

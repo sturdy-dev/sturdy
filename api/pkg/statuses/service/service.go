@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/statuses"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
@@ -48,6 +49,6 @@ func (s *Service) Get(ctx context.Context, id string) (*statuses.Status, error) 
 	return s.repo.Get(ctx, id)
 }
 
-func (s *Service) List(ctx context.Context, codebaseID, commitID string) ([]*statuses.Status, error) {
+func (s *Service) List(ctx context.Context, codebaseID codebases.ID, commitID string) ([]*statuses.Status, error) {
 	return s.repo.ListByCodebaseIDAndCommitID(ctx, codebaseID, commitID)
 }

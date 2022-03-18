@@ -78,7 +78,7 @@ func TestCanWrite_codebase(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			cb := codebases.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
+			cb := codebases.Codebase{ID: codebases.ID(uuid.NewString()), IsPublic: tc.codebaseIsPublic}
 			assert.NoError(t, codebaseRepo.Create(cb))
 
 			userID := users.ID(uuid.NewString())
@@ -180,7 +180,7 @@ func TestCanRead_codebase(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			orgID := uuid.NewString()
 
-			cb := codebases.Codebase{ID: uuid.NewString(), IsPublic: tc.codebaseIsPublic}
+			cb := codebases.Codebase{ID: codebases.ID(uuid.NewString()), IsPublic: tc.codebaseIsPublic}
 
 			if tc.isMemberOfOrganization {
 				cb.OrganizationID = &orgID
@@ -295,7 +295,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 			}
 
 			if tc.isMemberOfCodebase {
-				cb := codebases.Codebase{ID: uuid.NewString(), OrganizationID: &org.ID}
+				cb := codebases.Codebase{ID: codebases.ID(uuid.NewString()), OrganizationID: &org.ID}
 				assert.NoError(t, codebaseRepo.Create(cb))
 
 				cbu := codebases.CodebaseUser{ID: uuid.NewString(), CodebaseID: cb.ID, UserID: userID}

@@ -3,19 +3,21 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations"
 )
 
 var _ IntegrationsRepository = &memory{}
 
 type memory struct {
-	byCodebaseID map[string][]*integrations.Integration
+	byCodebaseID map[codebases.ID][]*integrations.Integration
 	byID         map[string]*integrations.Integration
 }
 
 func NewInMemory() *memory {
 	return &memory{
-		byCodebaseID: make(map[string][]*integrations.Integration),
+		byCodebaseID: make(map[codebases.ID][]*integrations.Integration),
 		byID:         make(map[string]*integrations.Integration),
 	}
 }
@@ -32,7 +34,7 @@ func (m *memory) Update(ctx context.Context, cfg *integrations.Integration) erro
 	return nil
 }
 
-func (m *memory) ListByCodebaseID(ctx context.Context, codebaseID string) ([]*integrations.Integration, error) {
+func (m *memory) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*integrations.Integration, error) {
 	return m.byCodebaseID[codebaseID], nil
 }
 

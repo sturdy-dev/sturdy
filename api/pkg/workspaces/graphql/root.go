@@ -6,6 +6,7 @@ import (
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/events"
@@ -157,7 +158,8 @@ func (r *WorkspaceRootResolver) InternalWorkspace(ws *workspaces.Workspace) reso
 }
 
 func (r *WorkspaceRootResolver) Workspaces(ctx context.Context, args resolvers.WorkspacesArgs) ([]resolvers.WorkspaceResolver, error) {
-	cb, err := r.codebaseRepo.Get(string(args.CodebaseID))
+	codebaseID := codebases.ID(args.CodebaseID)
+	cb, err := r.codebaseRepo.Get(codebaseID)
 	if err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("codebase not found: %w", err))
 	}
@@ -170,7 +172,7 @@ func (r *WorkspaceRootResolver) Workspaces(ctx context.Context, args resolvers.W
 		includeDeleted = true
 	}
 
-	workspaces, err := r.workspaceReader.ListByCodebaseIDs([]string{string(args.CodebaseID)}, includeDeleted)
+	workspaces, err := r.workspaceReader.ListByCodebaseIDs([]codebases.ID{codebaseID}, includeDeleted)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

@@ -9,6 +9,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -61,7 +62,7 @@ func (r *RootResolver) InternalStatus(status *statuses.Status) resolvers.StatusR
 	return &resolver{status: status, root: r}
 }
 
-func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID, commitID string) ([]resolvers.StatusResolver, error) {
+func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID codebases.ID, commitID string) ([]resolvers.StatusResolver, error) {
 	ss, err := r.svc.List(ctx, codebaseID, commitID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

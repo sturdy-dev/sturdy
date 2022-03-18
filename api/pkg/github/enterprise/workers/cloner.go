@@ -3,8 +3,9 @@ package workers
 import (
 	"context"
 	"fmt"
-	"getsturdy.com/api/pkg/github"
 	"time"
+
+	"getsturdy.com/api/pkg/github"
 
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	"getsturdy.com/api/pkg/queue"
@@ -58,7 +59,7 @@ func (q *ClonerQueue) Start(ctx context.Context) error {
 				continue
 			}
 
-			q.logger.Info("cloning", zap.String("codebase_id", event.CodebaseID))
+			q.logger.Info("cloning", zap.Stringer("codebase_id", event.CodebaseID))
 
 			if err := q.gitHubService.Clone(
 				event.CodebaseID,
@@ -75,7 +76,7 @@ func (q *ClonerQueue) Start(ctx context.Context) error {
 				continue
 			}
 
-			q.logger.Info("cloned", zap.String("codebase_id", event.CodebaseID), zap.Duration("duration", time.Since(t0)))
+			q.logger.Info("cloned", zap.Stringer("codebase_id", event.CodebaseID), zap.Duration("duration", time.Since(t0)))
 		}
 	}()
 

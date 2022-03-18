@@ -18,6 +18,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
@@ -177,7 +178,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("could not get installation: %w", err)
 	}
 
-	logger = logger.With(zap.String("codebase_id", repo.CodebaseID), zap.String("gh_repo_id", repo.ID))
+	logger = logger.With(zap.Stringer("codebase_id", repo.CodebaseID), zap.String("gh_repo_id", repo.ID))
 
 	apiPR := event.GetPullRequest()
 	pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(apiPR.GetID(), repo.CodebaseID)
@@ -329,7 +330,7 @@ func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error
 		return nil
 	}
 
-	logger := svc.logger.With(zap.String("codebase_id", repo.CodebaseID),
+	logger := svc.logger.With(zap.Stringer("codebase_id", repo.CodebaseID),
 		zap.String("repo_id", repo.ID),
 		zap.String("repo_tracked_branch", repo.TrackedBranch))
 
@@ -377,7 +378,7 @@ func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error
 	return nil
 }
 
-func (svc *Service) pullFromGitHubIfCommitNotExists(codebaseID string, commitShas []string, accessToken, trackedBranchName string) error {
+func (svc *Service) pullFromGitHubIfCommitNotExists(codebaseID codebases.ID, commitShas []string, accessToken, trackedBranchName string) error {
 	shouldPull := false
 
 	if err := svc.executorProvider.New().

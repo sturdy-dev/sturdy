@@ -2,6 +2,8 @@ package resolvers
 
 import (
 	"context"
+
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/statuses"
 
 	"github.com/graph-gophers/graphql-go"
@@ -16,7 +18,7 @@ type StatusesRootResolver interface {
 	UpdatedGitHubPullRequestStatuses(context.Context, UpdatedGitHubPullRequestStatusesArgs) (<-chan StatusResolver, error)
 
 	// Internal
-	InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID, commitID string) ([]StatusResolver, error)
+	InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID codebases.ID, commitID string) ([]StatusResolver, error)
 	InternalStatus(*statuses.Status) StatusResolver
 }
 

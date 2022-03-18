@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"os"
 
-	gh "github.com/google/go-github/v39/github"
-	"go.uber.org/zap"
-
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 
+	gh "github.com/google/go-github/v39/github"
 	git "github.com/libgit2/git2go/v33"
+	"go.uber.org/zap"
 )
 
-func Create(trunkProvider provider.TrunkProvider, codebaseID string) error {
+func Create(trunkProvider provider.TrunkProvider, codebaseID codebases.ID) error {
 	path := trunkProvider.TrunkPath(codebaseID)
 	_, err := vcs.CreateBareRepoWithRootCommit(path)
 	if err != nil {
@@ -45,7 +45,7 @@ func ListChanges(repo vcs.RepoGitReader, limit int) ([]*vcs.LogEntry, error) {
 	return filteredLog, nil
 }
 
-func CloneFromGithub(logger *zap.Logger, trunkProvider provider.TrunkProvider, codebaseID string, repo *gh.Repository, accessToken string) error {
+func CloneFromGithub(logger *zap.Logger, trunkProvider provider.TrunkProvider, codebaseID codebases.ID, repo *gh.Repository, accessToken string) error {
 	barePath := trunkProvider.TrunkPath(codebaseID)
 	if _, err := os.Open(barePath); err != nil && os.IsNotExist(err) {
 		upstream := repo.GetCloneURL()

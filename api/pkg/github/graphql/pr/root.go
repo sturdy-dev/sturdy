@@ -3,6 +3,7 @@ package pr
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
@@ -13,7 +14,7 @@ func NewResolver() resolvers.GitHubPullRequestRootResolver {
 	return &prRootResolver{}
 }
 
-func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(context.Context, string, string) (resolvers.GitHubPullRequestResolver, error) {
+func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(context.Context, codebases.ID, string) (resolvers.GitHubPullRequestResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
 	"github.com/lib/pq"
 )
@@ -13,8 +14,8 @@ import (
 type ID string
 
 type Suggestion struct {
-	ID         ID     `db:"id"`
-	CodebaseID string `db:"codebase_id"`
+	ID         ID           `db:"id"`
+	CodebaseID codebases.ID `db:"codebase_id"`
 	// The id of the workspce that contains suggestions.
 	WorkspaceID string `db:"workspace_id"`
 	// The id of the workspace that suggestion is being made for.

@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+
+	"getsturdy.com/api/pkg/codebases"
 )
 
 func (r *repository) Path() string {
@@ -14,7 +16,7 @@ func (r *repository) Path() string {
 	return r.path
 }
 
-func (r *repository) LargeFilesClean(codebaseID string, paths []string) ([][]byte, error) {
+func (r *repository) LargeFilesClean(codebaseID codebases.ID, paths []string) ([][]byte, error) {
 	defer getMeterFunc("LargeFilesClean")()
 	if r.lfsHostname == "" {
 		return nil, fmt.Errorf("LFS not configured")
@@ -113,7 +115,7 @@ func (r *repository) LargeFilesPull() error {
 	return nil
 }
 
-func (r *repository) configureLfs(codebaseID string) error {
+func (r *repository) configureLfs(codebaseID codebases.ID) error {
 	defer getMeterFunc("configureLfs")()
 	configCmd := exec.Command("git", "config", "lfs.url", fmt.Sprintf("http://%s/api/sturdy/%s", r.lfsHostname, codebaseID))
 	configCmd.Dir = r.path

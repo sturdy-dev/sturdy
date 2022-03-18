@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 
 	"github.com/jmoiron/sqlx"
@@ -16,7 +17,7 @@ type Repository interface {
 	LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error)
 	Get(string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
-	ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error)
+	ListUndeletedInCodebase(codebaseID codebases.ID, threshold time.Time) ([]*snapshots.Snapshot, error)
 }
 
 type dbrepo struct {
@@ -93,7 +94,7 @@ func (r *dbrepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
 	return res, nil
 }
 
-func (r *dbrepo) ListUndeletedInCodebase(codebaseID string, threshold time.Time) ([]*snapshots.Snapshot, error) {
+func (r *dbrepo) ListUndeletedInCodebase(codebaseID codebases.ID, threshold time.Time) ([]*snapshots.Snapshot, error) {
 	var res []*snapshots.Snapshot
 	err := r.db.Select(&res, `
 		SELECT 

@@ -66,7 +66,7 @@ func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Or
 func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebases.Codebase) {
 	if err := s.client.Enqueue(posthog.GroupIdentify{
 		Type: "codebase",
-		Key:  cb.ID,
+		Key:  cb.ID.String(),
 		Properties: map[string]any{
 			"name":      cb.Name,
 			"is_public": cb.IsPublic,

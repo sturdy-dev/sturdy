@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	gq_errors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -23,7 +24,7 @@ var (
 )
 
 func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resolvers.UpdatedWorkspaceArgs) (<-chan resolvers.WorkspaceResolver, error) {
-	var codebaseID string
+	var codebaseID codebases.ID
 	var workspaceID *string
 
 	userID, err := auth.UserID(ctx)
@@ -45,8 +46,8 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 		codebaseID = ws.CodebaseID
 		workspaceID = &ws.ID
 	} else if args.ShortCodebaseID != nil {
-		s := string(*args.ShortCodebaseID)
-		if idx := strings.LastIndex(s, "-"); idx >= 0 {
+		s := codebases.ShortCodebaseID(*args.ShortCodebaseID)
+		if idx := strings.LastIndex(s.String(), "-"); idx >= 0 {
 			s = s[idx+1:]
 		}
 		cb, err := r.codebaseRepo.GetByShortID(s)
@@ -105,7 +106,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 		default:
 			r.logger.Error("dropped subscription event",
 				zap.Stringer("user_id", userID),
-				zap.String("codebase_id", codebaseID),
+				zap.Stringer("codebase_id", codebaseID),
 				zap.Stringer("event_type", eventType),
 				zap.Int("channel_size", len(c)),
 			)

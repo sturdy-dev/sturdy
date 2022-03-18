@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
@@ -15,7 +16,7 @@ type EventSender interface {
 	User(id users.ID, eventType EventType, reference string)
 
 	// Codebase sends this event to all members of this codebase
-	Codebase(id string, eventType EventType, reference string) error
+	Codebase(id codebases.ID, eventType EventType, reference string) error
 
 	// Workspace sends this event to all members of the codebase of this workspace
 	Workspace(id string, eventType EventType, reference string) error
@@ -50,7 +51,7 @@ func (s *eventsSender) User(id users.ID, eventType EventType, reference string) 
 	s.events.UserEvent(id, eventType, reference)
 }
 
-func (s *eventsSender) Codebase(id string, eventType EventType, reference string) error {
+func (s *eventsSender) Codebase(id codebases.ID, eventType EventType, reference string) error {
 	members, err := s.codebaseUserRepo.GetByCodebase(id)
 	if err != nil {
 		return err

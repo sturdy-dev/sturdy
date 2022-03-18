@@ -392,7 +392,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 			authenticatedUserContext := auth.NewContext(context.Background(), &auth.Subject{ID: userID.String(), Type: auth.SubjectUser})
 
-			codebaseID := uuid.NewString()
+			codebaseID := codebases.ID(uuid.NewString())
 
 			err = codebaseRepo.Create(codebases.Codebase{
 				ID:              codebaseID,

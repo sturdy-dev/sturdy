@@ -3,6 +3,7 @@ package vcs
 import (
 	"fmt"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -44,7 +45,7 @@ func PushTrackedToGitHub(logger *zap.Logger, repo vcs.RepoGitWriter, accessToken
 	return "", nil
 }
 
-func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.Provider, codebaseID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
+func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
@@ -60,7 +61,7 @@ func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.P
 	return userError, nil
 }
 
-func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Provider, codebaseID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
+func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
@@ -76,7 +77,7 @@ func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Prov
 	return userError, nil
 }
 
-func HaveTrackedBranch(executorProvider executor.Provider, codebaseID, remoteBranchName string) error {
+func HaveTrackedBranch(executorProvider executor.Provider, codebaseID codebases.ID, remoteBranchName string) error {
 	err := executorProvider.New().GitRead(func(r vcs.RepoGitReader) error {
 		_, err := r.RemoteBranchCommit("origin", remoteBranchName)
 		if err != nil {

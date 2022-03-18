@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
@@ -121,14 +122,14 @@ func (snapshotsFS *SnapshotsFS) Open(path string) (fs.File, error) {
 type ViewFS struct {
 	executorProvider executor.Provider
 	viewID           string
-	codebaseID       string
+	codebaseID       codebases.ID
 	// newLines directly links to comment.LineIsNew
 	newLines bool
 }
 
 func viewFS(
 	executorProvider executor.Provider,
-	codebaseID string,
+	codebaseID codebases.ID,
 	viewID string,
 	newLines bool,
 ) fs.FS {

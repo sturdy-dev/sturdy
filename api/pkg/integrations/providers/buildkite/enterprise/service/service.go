@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations/providers"
 	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 	db_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/db"
@@ -43,7 +44,7 @@ func (b *Service) UpdateIntegration(ctx context.Context, cfg *buildkite.Config) 
 	return b.configRepo.Update(ctx, cfg)
 }
 
-func (b *Service) GetConfigurationsByCodebaseID(ctx context.Context, codebaseID string) ([]*buildkite.Config, error) {
+func (b *Service) GetConfigurationsByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*buildkite.Config, error) {
 	return b.configRepo.GetConfigsByCodebaseID(ctx, codebaseID)
 }
 

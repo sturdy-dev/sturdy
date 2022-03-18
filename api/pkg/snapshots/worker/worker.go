@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
 	"getsturdy.com/api/pkg/snapshots"
@@ -15,7 +16,7 @@ import (
 )
 
 type Queue interface {
-	Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error
+	Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, action snapshots.Action) error
 	Start(ctx context.Context) error
 }
 
@@ -40,7 +41,7 @@ func New(
 	}
 }
 
-func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string, action snapshots.Action) error {
+func (q *q) Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, action snapshots.Action) error {
 	if err := q.queue.Publish(ctx, q.name, &SnapshotQueueEntry{
 		CodebaseID:  codebaseID,
 		ViewID:      viewID,
@@ -53,7 +54,7 @@ func (q *q) Enqueue(ctx context.Context, codebaseID, viewID, workspaceID string,
 }
 
 type SnapshotQueueEntry struct {
-	CodebaseID  string           `json:"codebase_id"`
+	CodebaseID  codebases.ID     `json:"codebase_id"`
 	ViewID      string           `json:"view_id"`
 	WorkspaceID string           `json:"workspace_id"`
 	Action      snapshots.Action `json:"action"`
@@ -79,7 +80,7 @@ func (q *q) Start(ctx context.Context) error {
 
 			logger := q.logger.With(
 				zap.String("view_id", m.ViewID),
-				zap.String("codebase_id", m.CodebaseID),
+				zap.Stringer("codebase_id", m.CodebaseID),
 				zap.String("workspace_id", m.WorkspaceID),
 				zap.Stringer("action", m.Action),
 			)

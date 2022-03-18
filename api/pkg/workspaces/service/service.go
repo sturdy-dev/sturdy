@@ -18,6 +18,7 @@ import (
 	service_change "getsturdy.com/api/pkg/changes/service"
 	change_vcs "getsturdy.com/api/pkg/changes/vcs"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/codebases"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -44,7 +45,7 @@ import (
 
 type CreateWorkspaceRequest struct {
 	UserID           users.ID
-	CodebaseID       string
+	CodebaseID       codebases.ID
 	Name             string
 	DraftDescription string
 
@@ -58,7 +59,7 @@ type Service interface {
 	GetByID(context.Context, string) (*workspaces.Workspace, error)
 	GetByViewID(context.Context, string) (*workspaces.Workspace, error)
 	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*changes.Change, error)
-	CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error
+	CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
 	RemovePatches(context.Context, *unidiff.Allower, *workspaces.Workspace, ...string) error
@@ -656,7 +657,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 	}
 
 	// Send events that the codebase has been updated
-	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID.String()); err != nil {
 		s.logger.Error("failed to send codebase event", zap.Error(err))
 	}
 
@@ -713,7 +714,7 @@ const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <p>Happy hacking!</p>
 `
 
-func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID string, userID users.ID, codebaseName string) error {
+func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error {
 	readMeContents := strings.ReplaceAll(readMeTemplate, "__CODEBASE__NAME__", codebaseName)
 	draftDescriptionContents := strings.ReplaceAll(draftDescriptionTemplate, "__CODEBASE__NAME__", codebaseName)
 
@@ -910,7 +911,7 @@ func (s *WorkspaceService) archive(ctx context.Context, ws *workspaces.Workspace
 	}
 
 	// Send events that the codebase has been updated, list of workspaces has changed
-	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID.String()); err != nil {
 		s.logger.Error("failed to send codebase event", zap.Error(err))
 		// do not fail
 	}
@@ -937,7 +938,7 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	)
 
 	// Send events that the codebase has been updated, list of workspaces has changed
-	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
+	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID.String()); err != nil {
 		s.logger.Error("failed to send codebase event", zap.Error(err))
 		// do not fail
 	}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
@@ -74,7 +75,7 @@ func allPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader) ([]string, error) {
 	return patchIDs, nil
 }
 
-func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID, snapshotID string, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID string, opts ...SnapshotOption) (string, error) {
 	start := time.Now()
 
 	options := snapshotOptions(opts...)
@@ -207,7 +208,7 @@ func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID, existingCommit
 	return existingCommitID, nil
 }
 
-func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID, workspaceID, viewID, snapshotID, snapshotCommitID string) error {
+func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, workspaceID, viewID, snapshotID, snapshotCommitID string) error {
 	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
 	if err != nil {
 		return err
@@ -215,7 +216,7 @@ func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID,
 	return RestoreRepo(logger, repo, codebaseID, workspaceID, snapshotID, snapshotCommitID)
 }
 
-func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, codebaseID, workspaceID, snapshotID, snapshotCommitID string) error {
+func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, codebaseID codebases.ID, workspaceID, snapshotID, snapshotCommitID string) error {
 	if err := repo.FetchBranch("snapshot-" + snapshotID); err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
@@ -252,7 +253,7 @@ func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, codebaseID, workspaceI
 	return nil
 }
 
-func Diff(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID, viewID, snapshotCommitID, parentSnapshotCommitID string) ([]unidiff.FileDiff, error) {
+func Diff(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, snapshotCommitID, parentSnapshotCommitID string) ([]unidiff.FileDiff, error) {
 	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
 	if err != nil {
 		return nil, err

@@ -11,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 
@@ -43,12 +44,12 @@ type Executor interface {
 	AssertBranchName(string) Executor
 
 	// ExecView executes all of the scheduled functions for the given view repository.
-	ExecView(codebaseID, viewID, actionName string) error
+	ExecView(codebaseID codebases.ID, viewID, actionName string) error
 	// ExecTrunk executes all of the scheduled functions for the given trunk repository.
-	ExecTrunk(codebaseID, actionName string) error
+	ExecTrunk(codebaseID codebases.ID, actionName string) error
 	// ExecTemporaryView creates a view for the given codebase, cloning it from the trunk,
 	// executes all the scheduled functions, and then deletes the view.
-	ExecTemporaryView(codebaseID, actionName string) error
+	ExecTemporaryView(codebaseID codebases.ID, actionName string) error
 }
 
 type executeFunc struct {
@@ -231,7 +232,7 @@ func (e *executor) AssertBranchName(name string) Executor {
 var ErrIsRebasing = fmt.Errorf("unexpected git executor state, is rebasing")
 var ErrUnexpectedBranch = fmt.Errorf("unexpected git executor state, on unexpected branch")
 
-func (e *executor) ExecTemporaryView(codebaseID, actionName string) error {
+func (e *executor) ExecTemporaryView(codebaseID codebases.ID, actionName string) error {
 	viewID := fmt.Sprintf("tmp-%s", uuid.NewString())
 	e.allowRebasing = true
 	defer os.RemoveAll(e.repoProvider.ViewPath(codebaseID, viewID))
@@ -248,22 +249,22 @@ func (e *executor) ExecTemporaryView(codebaseID, actionName string) error {
 	}).ExecView(codebaseID, viewID, actionName)
 }
 
-func (e *executor) ExecView(codebaseID, viewID, actionName string) error {
+func (e *executor) ExecView(codebaseID codebases.ID, viewID, actionName string) error {
 	return e.exec(codebaseID, &viewID, actionName)
 }
 
-func (e *executor) ExecTrunk(codebaseID, actionName string) error {
+func (e *executor) ExecTrunk(codebaseID codebases.ID, actionName string) error {
 	return e.exec(codebaseID, nil, actionName)
 }
 
-func (e *executor) exec(codebaseID string, viewID *string, actionName string) (err error) {
+func (e *executor) exec(codebaseID codebases.ID, viewID *string, actionName string) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("recovered call in vcs executor: %v\nStacktrace: %s", r, string(debug.Stack()))
 		}
 	}()
 
-	logger := e.logger.With(zap.String("codebase_id", codebaseID), zap.String("action_name", actionName))
+	logger := e.logger.With(zap.Stringer("codebase_id", codebaseID), zap.String("action_name", actionName))
 	if viewID != nil {
 		logger = logger.With(zap.String("view_id", *viewID))
 	}
@@ -349,7 +350,7 @@ func (e *executor) exec(codebaseID string, viewID *string, actionName string) (e
 }
 
 type onceRepo struct {
-	codebaseID   string
+	codebaseID   codebases.ID
 	viewID       *string
 	repoProvider provider.RepoProvider
 
@@ -359,7 +360,7 @@ type onceRepo struct {
 	once *sync.Once
 }
 
-func openOnce(repoProvider provider.RepoProvider, codebaseID string, viewID *string) *onceRepo {
+func openOnce(repoProvider provider.RepoProvider, codebaseID codebases.ID, viewID *string) *onceRepo {
 	return &onceRepo{
 		codebaseID:   codebaseID,
 		viewID:       viewID,

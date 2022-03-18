@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"getsturdy.com/api/pkg/codebases"
 	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/view/vcs"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
@@ -15,7 +16,7 @@ import (
 
 func TestCreateView(t *testing.T) {
 	repoProvider := newRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	err := vcs_codebase.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 
@@ -32,7 +33,7 @@ func TestCreateView(t *testing.T) {
 
 func TestSetWorkspace(t *testing.T) {
 	repoProvider := newRepoProvider(t)
-	codebaseID := "codebaseID"
+	codebaseID := codebases.ID("codebaseID")
 	err := vcs_codebase.Create(repoProvider, codebaseID)
 	assert.NoError(t, err)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -28,15 +29,15 @@ func (f *memory) Get(id string) (*workspaces.Workspace, error) {
 	return nil, sql.ErrNoRows
 }
 
-func (f *memory) ListByCodebaseIDs(codebaseIDs []string, includeArchived bool) ([]*workspaces.Workspace, error) {
+func (f *memory) ListByCodebaseIDs(codebaseIDs []codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
 	panic("not implemented")
 }
 
-func (f *memory) ListByCodebaseIDsAndUserID(codebaseIDs []string, userID string) ([]*workspaces.Workspace, error) {
+func (f *memory) ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error) {
 	panic("not implemented")
 }
 
-func (f *memory) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID string) error {
+func (f *memory) UnsetUpToDateWithTrunkForAllInCodebase(codebaseID codebases.ID) error {
 	for idx, ws := range f.workspaces {
 		if ws.CodebaseID == codebaseID {
 			f.workspaces[idx].UpToDateWithTrunk = nil

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/codebases"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/presence"
@@ -18,9 +19,9 @@ import (
 )
 
 type SyncTransitionsRequest struct {
-	Paths      []string `json:"paths"`
-	CodebaseID string   `json:"codebase_id"`
-	ViewID     string   `json:"view_id"`
+	Paths      []string     `json:"paths"`
+	CodebaseID codebases.ID `json:"codebase_id"`
+	ViewID     string       `json:"view_id"`
 }
 
 // SyncTransitions is called after mutagen has uploaded new files to the view

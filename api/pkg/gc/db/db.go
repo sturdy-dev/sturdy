@@ -3,14 +3,16 @@ package db
 import (
 	"context"
 	"fmt"
-	"getsturdy.com/api/pkg/gc"
 	"time"
+
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/gc"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type Repository interface {
-	ListSince(ctx context.Context, codebaseID string, since time.Time) ([]*gc.CodebaseGarbageStatus, error)
+	ListSince(ctx context.Context, codebaseID codebases.ID, since time.Time) ([]*gc.CodebaseGarbageStatus, error)
 	Create(context.Context, *gc.CodebaseGarbageStatus) error
 }
 
@@ -22,7 +24,7 @@ func NewRepository(db *sqlx.DB) Repository {
 	return &repo{db: db}
 }
 
-func (r *repo) ListSince(ctx context.Context, codebaseID string, since time.Time) ([]*gc.CodebaseGarbageStatus, error) {
+func (r *repo) ListSince(ctx context.Context, codebaseID codebases.ID, since time.Time) ([]*gc.CodebaseGarbageStatus, error) {
 	var res []*gc.CodebaseGarbageStatus
 	if err := r.db.SelectContext(ctx, &res, `
 		SELECT

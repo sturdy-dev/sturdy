@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
@@ -34,7 +35,7 @@ func (m *memory) Update(ctx context.Context, cfg *buildkite.Config) error {
 	return nil
 }
 
-func (m *memory) GetConfigsByCodebaseID(ctx context.Context, codebaseID string) ([]*buildkite.Config, error) {
+func (m *memory) GetConfigsByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*buildkite.Config, error) {
 	var res []*buildkite.Config
 	for _, v := range m.byID {
 		if v.CodebaseID == codebaseID {

@@ -5,6 +5,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/workspaces/service"
@@ -13,7 +14,7 @@ import (
 )
 
 func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolvers.CreateWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
-	codebaseID := string(args.Input.CodebaseID)
+	codebaseID := codebases.ID(args.Input.CodebaseID)
 
 	userID, err := auth.UserID(ctx)
 	if err != nil {

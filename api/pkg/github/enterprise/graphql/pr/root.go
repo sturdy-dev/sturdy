@@ -7,6 +7,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -113,7 +114,7 @@ func NewResolver(
 	}
 }
 
-func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(ctx context.Context, codebaseID string, commitSHA string) (resolvers.GitHubPullRequestResolver, error) {
+func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(ctx context.Context, codebaseID codebases.ID, commitSHA string) (resolvers.GitHubPullRequestResolver, error) {
 	pr, err := r.gitHubPRRepo.GetByCodebaseIDaAndHeadSHA(ctx, codebaseID, commitSHA)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -206,7 +207,7 @@ func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args reso
 		default:
 			r.logger.Error("dropped subscription event",
 				zap.Stringer("user_id", userID),
-				zap.String("codebase_id", ws.CodebaseID),
+				zap.Stringer("codebase_id", ws.CodebaseID),
 				zap.Stringer("event_type", eventsv2.GitHubPRUpdated),
 				zap.Int("channel_size", len(res)),
 			)

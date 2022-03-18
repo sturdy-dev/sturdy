@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/auth"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/users"
@@ -16,11 +17,11 @@ import (
 )
 
 type MutagenView struct {
-	ID                 string   `json:"id"`
-	UserID             users.ID `json:"user_id"`
-	CodebaseID         string   `json:"codebase_id"`
-	CodebaseName       string   `json:"codebase_name"`
-	CodebaseIsArchived bool     `json:"codebase_is_archived"`
+	ID                 string       `json:"id"`
+	UserID             users.ID     `json:"user_id"`
+	CodebaseID         codebases.ID `json:"codebase_id"`
+	CodebaseName       string       `json:"codebase_name"`
+	CodebaseIsArchived bool         `json:"codebase_is_archived"`
 }
 
 func GetView(logger *zap.Logger, repo db_view.Repository, codebaseUserRepo db_codebases.CodebaseUserRepository, codebaseRepo db_codebases.CodebaseRepository) func(c *gin.Context) {

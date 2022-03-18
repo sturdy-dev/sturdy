@@ -14,6 +14,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -224,7 +225,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 			default:
 				r.logger.Error("dropped subscription event",
 					zap.Stringer("user_id", userID),
-					zap.String("codebase_id", ws.CodebaseID),
+					zap.Stringer("codebase_id", ws.CodebaseID),
 					zap.Stringer("event_type", et),
 					zap.Int("channel_size", len(res)),
 				)
@@ -258,7 +259,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 			default:
 				r.logger.Error("dropped subscription event",
 					zap.Stringer("user_id", userID),
-					zap.String("codebase_id", ws.CodebaseID),
+					zap.Stringer("codebase_id", ws.CodebaseID),
 					zap.Int("channel_size", len(res)),
 				)
 				didErrorOut = true
@@ -346,7 +347,7 @@ func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.
 	return &CommentResolver{root: r, comment: comm}, nil
 }
 
-func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebaseID string) ([]*users.User, error) {
+func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*users.User, error) {
 	codebaseUsers, err := r.codebaseUserRepo.GetByCodebase(codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codebase users: %w", err)
@@ -489,7 +490,7 @@ func (r *CommentRootResolver) prepareTopComment(ctx context.Context, args resolv
 		return nil, fmt.Errorf("path, lineIsNew, lineStart or lineEnd is not set")
 	}
 
-	var codebaseID string
+	var codebaseID codebases.ID
 	var workspaceID *string
 	var changeID *changes.ID
 

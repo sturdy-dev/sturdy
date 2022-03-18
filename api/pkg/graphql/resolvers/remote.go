@@ -3,11 +3,12 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/codebases"
 	"github.com/graph-gophers/graphql-go"
 )
 
 type RemoteRootResolver interface {
-	InternalRemoteByCodebaseID(ctx context.Context, codebaseID string) (RemoteResolver, error)
+	InternalRemoteByCodebaseID(ctx context.Context, codebaseID codebases.ID) (RemoteResolver, error)
 
 	// Mutations
 	CreateOrUpdateCodebaseRemote(ctx context.Context, args CreateOrUpdateCodebaseRemoteArgsArgs) (RemoteResolver, error)

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	integrations "getsturdy.com/api/pkg/integrations"
 	"getsturdy.com/api/pkg/integrations/providers"
 
@@ -75,8 +76,8 @@ func New(
 }
 
 type sturdyJsonData struct {
-	CodebaseID string `json:"codebase_id"`
-	ChangeID   string `json:"change_id"`
+	CodebaseID codebases.ID `json:"codebase_id"`
+	ChangeID   string       `json:"change_id"`
 }
 
 //go:embed download.bash
@@ -201,7 +202,7 @@ func (svc *Service) createGit(ctx context.Context, ch *changes.Change, seedFiles
 	return commitID, nil
 }
 
-func (svc *Service) ListByCodebaseID(ctx context.Context, codebaseID string) ([]*integrations.Integration, error) {
+func (svc *Service) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID) ([]*integrations.Integration, error) {
 	return svc.configRepo.ListByCodebaseID(ctx, codebaseID)
 }
 
@@ -314,7 +315,7 @@ func (svc *Service) Trigger(ctx context.Context, ch *changes.Change, opts ...Tri
 	return ss, nil
 }
 
-func (svc *Service) GetTrunkCommitID(ctx context.Context, codebaseID, ciRepoCommitID string) (string, error) {
+func (svc *Service) GetTrunkCommitID(ctx context.Context, codebaseID codebases.ID, ciRepoCommitID string) (string, error) {
 	c, err := svc.ciCommitRepo.GetByCodebaseAndCiRepoCommitID(ctx, codebaseID, ciRepoCommitID)
 	if err != nil {
 		return "", err

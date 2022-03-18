@@ -199,7 +199,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 	}
 
 	logger := svc.logger.With(
-		zap.String("codebase_id", cb.ID),
+		zap.Stringer("codebase_id", cb.ID),
 		zap.Int64("github_installation_id", ghInstallation.InstallationID),
 		zap.String("workspace_id", ws.ID),
 		zap.Stringer("user_id", userID),

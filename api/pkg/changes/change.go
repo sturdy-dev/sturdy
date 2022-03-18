@@ -3,6 +3,7 @@ package changes
 import (
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -13,11 +14,11 @@ func (id ID) String() string {
 }
 
 type Change struct {
-	ID                 ID        `db:"id"`
-	CodebaseID         string    `db:"codebase_id"`
-	Title              *string   `db:"title"`
-	UpdatedDescription string    `db:"updated_description"`
-	UserID             *users.ID `db:"user_id"`
+	ID                 ID           `db:"id"`
+	CodebaseID         codebases.ID `db:"codebase_id"`
+	Title              *string      `db:"title"`
+	UpdatedDescription string       `db:"updated_description"`
+	UserID             *users.ID    `db:"user_id"`
 
 	// Contains id of the workspace that the chage was created in
 	// For imported changes, WorkspaceID is nil.

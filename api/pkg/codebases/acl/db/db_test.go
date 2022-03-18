@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	acl_db "getsturdy.com/api/pkg/codebases/acl/db"
 	"getsturdy.com/api/pkg/db"
@@ -35,7 +36,7 @@ func Test_Create(t *testing.T) {
 
 	entity := acl.ACL{
 		ID:         acl.ID(uuid.New().String()),
-		CodebaseID: uuid.New().String(),
+		CodebaseID: codebases.ID(uuid.New().String()),
 		CreatedAt:  time.Now(),
 		Policy:     acl.Policy{},
 	}
@@ -54,7 +55,7 @@ func Test_Create_twice_fails(t *testing.T) {
 
 	entity := acl.ACL{
 		ID:         acl.ID(uuid.New().String()),
-		CodebaseID: uuid.New().String(),
+		CodebaseID: codebases.ID(uuid.New().String()),
 		CreatedAt:  time.Now(),
 		Policy:     acl.Policy{},
 	}
@@ -88,7 +89,7 @@ func Test_GetByCodebaseID(t *testing.T) {
 
 	entity := acl.ACL{
 		ID:         acl.ID(uuid.New().String()),
-		CodebaseID: uuid.New().String(),
+		CodebaseID: codebases.ID(uuid.New().String()),
 		CreatedAt:  time.Now(),
 		Policy:     acl.Policy{},
 	}
@@ -119,7 +120,7 @@ func Test_Update(t *testing.T) {
 
 	entity := acl.ACL{
 		ID:         acl.ID(uuid.New().String()),
-		CodebaseID: uuid.New().String(),
+		CodebaseID: codebases.ID(uuid.New().String()),
 		CreatedAt:  time.Now(),
 		Policy:     acl.Policy{},
 	}
@@ -170,7 +171,7 @@ func Test_Update_not_found(t *testing.T) {
 
 	entity := acl.ACL{
 		ID:         acl.ID(uuid.New().String()),
-		CodebaseID: uuid.New().String(),
+		CodebaseID: codebases.ID(uuid.New().String()),
 		CreatedAt:  time.Now(),
 		Policy:     acl.Policy{},
 	}

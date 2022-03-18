@@ -10,29 +10,29 @@ import (
 var _ CodebaseRepository = &memory{}
 
 type memory struct {
-	byShortID    map[string]*codebases.Codebase
+	byShortID    map[codebases.ShortCodebaseID]*codebases.Codebase
 	byInviteCode map[string]*codebases.Codebase
-	byID         map[string]*codebases.Codebase
+	byID         map[codebases.ID]*codebases.Codebase
 }
 
 func NewMemory() *memory {
 	return &memory{
-		byShortID:    make(map[string]*codebases.Codebase),
+		byShortID:    make(map[codebases.ShortCodebaseID]*codebases.Codebase),
 		byInviteCode: make(map[string]*codebases.Codebase),
-		byID:         make(map[string]*codebases.Codebase),
+		byID:         make(map[codebases.ID]*codebases.Codebase),
 	}
 }
 
 func (m *memory) Create(entity codebases.Codebase) error {
 	m.byID[entity.ID] = &entity
-	m.byShortID[string(entity.ShortCodebaseID)] = &entity
+	m.byShortID[entity.ShortCodebaseID] = &entity
 	if entity.InviteCode != nil {
 		m.byInviteCode[*entity.InviteCode] = &entity
 	}
 	return nil
 }
 
-func (m *memory) Get(id string) (*codebases.Codebase, error) {
+func (m *memory) Get(id codebases.ID) (*codebases.Codebase, error) {
 	found, ok := m.byID[id]
 	if !ok || found.ArchivedAt != nil {
 		return nil, sql.ErrNoRows
@@ -40,8 +40,8 @@ func (m *memory) Get(id string) (*codebases.Codebase, error) {
 	return found, nil
 }
 
-func (m *memory) GetAllowArchived(id string) (*codebases.Codebase, error) {
-	found, ok := m.byInviteCode[id]
+func (m *memory) GetAllowArchived(id codebases.ID) (*codebases.Codebase, error) {
+	found, ok := m.byID[id]
 	if !ok {
 		return nil, sql.ErrNoRows
 	}
@@ -56,7 +56,7 @@ func (m *memory) GetByInviteCode(inviteCode string) (*codebases.Codebase, error)
 	return found, nil
 }
 
-func (m *memory) GetByShortID(shortID string) (*codebases.Codebase, error) {
+func (m *memory) GetByShortID(shortID codebases.ShortCodebaseID) (*codebases.Codebase, error) {
 	found, ok := m.byShortID[shortID]
 	if !ok || found.ArchivedAt != nil {
 		return nil, sql.ErrNoRows

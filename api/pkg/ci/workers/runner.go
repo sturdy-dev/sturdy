@@ -79,7 +79,7 @@ func (r *BuildQueue) trigger(ctx context.Context, ch *changes.Change) error {
 	r.logger.Info(
 		"trigger ci build",
 		zap.String("change_id", string(ch.ID)),
-		zap.String("codebase_id", ch.CodebaseID),
+		zap.Stringer("codebase_id", ch.CodebaseID),
 	)
 
 	if _, err := r.ciService.Trigger(ctx, ch); err != nil {

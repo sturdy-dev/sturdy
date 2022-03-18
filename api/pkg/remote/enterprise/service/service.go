@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/changes/message"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/remote"
 	db_remote "getsturdy.com/api/pkg/remote/enterprise/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -51,7 +52,7 @@ func New(
 	}
 }
 
-func (svc *Service) Get(ctx context.Context, codebaseID string) (*remote.Remote, error) {
+func (svc *Service) Get(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error) {
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func (svc *Service) Get(ctx context.Context, codebaseID string) (*remote.Remote,
 	return rep, nil
 }
 
-func (svc *Service) SetRemote(ctx context.Context, codebaseID, name, url, username, password, trackedBranch string) (*remote.Remote, error) {
+func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, name, url, username, password, trackedBranch string) (*remote.Remote, error) {
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
@@ -130,7 +131,7 @@ func (svc *Service) Push(ctx context.Context, user *users.User, ws *workspaces.W
 	return nil
 }
 
-func (svc *Service) Pull(ctx context.Context, codebaseID string) error {
+func (svc *Service) Pull(ctx context.Context, codebaseID codebases.ID) error {
 	rem, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
