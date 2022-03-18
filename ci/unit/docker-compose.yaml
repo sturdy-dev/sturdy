@@ -1,7 +1,8 @@
 version: "3.9"
 services:
-  runner:
+  go:
     command: "go test -v -race ./..."
+    working_dir: /sturdy/api
 
 volumes:
   go-modules:

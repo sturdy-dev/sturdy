@@ -1,13 +1,13 @@
 version: "3.9"
 services:
-  runner:
+  go:
     build:
       context: ..
       dockerfile: ci/Dockerfile
     volumes:
-      - ../api:/app
+      - ..:/sturdy
       - go-modules:/go/pkg/mod
-    working_dir: /app
+    working_dir: /sturdy
 
 volumes:
   go-modules:
