@@ -11,8 +11,9 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/integrations"
-	"getsturdy.com/api/pkg/integrations/buildkite"
-	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	"getsturdy.com/api/pkg/integrations/providers"
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
+	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 
 	"github.com/google/uuid"
 )
@@ -20,7 +21,7 @@ import (
 type rootResolver struct {
 	authService                    *service_auth.Service
 	buildkiteService               *service_buildkite.Service
-	instantIntegrationServcie      *service_ci.Service
+	instantIntegrationService      *service_ci.Service
 	instantIntegrationRootResolver *resolvers.IntegrationRootResolver
 }
 
@@ -39,27 +40,28 @@ var seedFiles = []string{
 func New(
 	authService *service_auth.Service,
 	buildkiteService *service_buildkite.Service,
-	instantIntegrationServcie *service_ci.Service,
+	instantIntegrationService *service_ci.Service,
 	instantIntegrationRootResolver *resolvers.IntegrationRootResolver,
 ) resolvers.BuildkiteInstantIntegrationRootResolver {
 	return &rootResolver{
 		authService:                    authService,
 		buildkiteService:               buildkiteService,
-		instantIntegrationServcie:      instantIntegrationServcie,
+		instantIntegrationService:      instantIntegrationService,
 		instantIntegrationRootResolver: instantIntegrationRootResolver,
 	}
 }
 
 func (root *rootResolver) createNewConfiguration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
 	integration := &integrations.Integration{
-		ID:         uuid.NewString(),
-		CodebaseID: string(args.Input.CodebaseID),
-		Provider:   integrations.ProviderTypeBuildkite,
-		CreatedAt:  time.Now(),
-		SeedFiles:  seedFiles,
+		ID:           uuid.NewString(),
+		CodebaseID:   string(args.Input.CodebaseID),
+		Provider:     providers.ProviderNameBuildkite,
+		ProviderType: providers.ProviderTypeBuild,
+		CreatedAt:    time.Now(),
+		SeedFiles:    seedFiles,
 	}
 
-	if err := root.instantIntegrationServcie.CreateIntegration(ctx, integration); err != nil {
+	if err := root.instantIntegrationService.CreateIntegration(ctx, integration); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to create integration: %w", err))
 	}
 
@@ -82,14 +84,14 @@ func (root *rootResolver) createNewConfiguration(ctx context.Context, args resol
 }
 
 func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *buildkite.Config, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (*integrations.Integration, error) {
-	existingIntegrations, err := root.instantIntegrationServcie.ListByCodebaseID(ctx, string(args.Input.CodebaseID))
+	existingIntegrations, err := root.instantIntegrationService.ListByCodebaseID(ctx, string(args.Input.CodebaseID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list existing integrations: %w", err)
 	}
 
 	var integration *integrations.Integration
 	for _, i := range existingIntegrations {
-		if i.Provider == integrations.ProviderTypeBuildkite {
+		if i.Provider == providers.ProviderNameBuildkite {
 			integration = i
 		}
 	}
@@ -117,7 +119,7 @@ func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *
 	}
 
 	integration.UpdatedAt = time.Now()
-	if err := root.instantIntegrationServcie.UpdateIntegration(ctx, integration); err != nil {
+	if err := root.instantIntegrationService.UpdateIntegration(ctx, integration); err != nil {
 		return nil, fmt.Errorf("failed to update integration: %w", err)
 	}
 

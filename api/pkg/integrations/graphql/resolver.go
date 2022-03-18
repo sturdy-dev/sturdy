@@ -3,7 +3,9 @@ package graphql
 import (
 	"context"
 	"fmt"
+
 	"getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations/providers"
 
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
@@ -26,6 +28,7 @@ func (ir *instantIntegrationProvider) CodebaseID() graphql.ID {
 func (ir *instantIntegrationProvider) CreatedAt() int32 {
 	return int32(ir.integration.CreatedAt.Unix())
 }
+
 func (ir *instantIntegrationProvider) UpdatedAt() *int32 {
 	if ir.integration.UpdatedAt.IsZero() {
 		return nil
@@ -33,6 +36,7 @@ func (ir *instantIntegrationProvider) UpdatedAt() *int32 {
 	ts := int32(ir.integration.UpdatedAt.Unix())
 	return &ts
 }
+
 func (ir *instantIntegrationProvider) DeletedAt() *int32 {
 	if ir.integration.DeletedAt == nil || ir.integration.DeletedAt.IsZero() {
 		return nil
@@ -43,7 +47,7 @@ func (ir *instantIntegrationProvider) DeletedAt() *int32 {
 
 func (ir *instantIntegrationProvider) Provider() (resolvers.InstantIntegrationProviderType, error) {
 	switch ir.integration.Provider {
-	case integrations.ProviderTypeBuildkite:
+	case providers.ProviderNameBuildkite:
 		return resolvers.InstantIntegrationProviderBuildkite, nil
 	default:
 		return resolvers.InstantIntegrationProviderUndefined, fmt.Errorf("invalid provider: %s", ir.integration.Provider)
@@ -51,7 +55,7 @@ func (ir *instantIntegrationProvider) Provider() (resolvers.InstantIntegrationPr
 }
 
 func (ir *instantIntegrationProvider) ToBuildkiteIntegration() (resolvers.BuildkiteIntegration, bool) {
-	if ir.integration.Provider != integrations.ProviderTypeBuildkite {
+	if ir.integration.Provider != providers.ProviderNameBuildkite {
 		return nil, false
 	}
 	return &buildkiteProviderResolver{ir}, true

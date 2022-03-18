@@ -7,6 +7,7 @@ import (
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebase"
 	"getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations/providers"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
@@ -92,12 +93,12 @@ func (r *rootResolver) DeleteIntegration(ctx context.Context, args resolvers.Del
 	return r.InternalIntegrationByID(ctx, string(args.Input.ID))
 }
 
-func convertProvider(in resolvers.InstantIntegrationProviderType) (integrations.ProviderType, error) {
+func convertProvider(in resolvers.InstantIntegrationProviderType) (providers.ProviderName, error) {
 	switch in {
 	case resolvers.InstantIntegrationProviderBuildkite:
-		return integrations.ProviderTypeBuildkite, nil
+		return providers.ProviderNameBuildkite, nil
 	default:
-		return integrations.ProviderTypeUndefined, fmt.Errorf("invalid provider: %s", in)
+		return providers.ProviderNameUndefined, fmt.Errorf("invalid provider: %s", in)
 	}
 }
 

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	integrations "getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations/providers"
 
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/ci"
@@ -225,15 +226,15 @@ func (svc *Service) Delete(ctx context.Context, integrationID string) error {
 
 type TriggerOptions struct {
 	// Which integrations to trigger. If empty, all integrations will be triggered.
-	Providers *map[integrations.ProviderType]bool
+	Providers *map[providers.ProviderName]bool
 }
 
 type TriggerOption func(*TriggerOptions)
 
-func WithProvider(providerType integrations.ProviderType) TriggerOption {
+func WithProvider(providerType providers.ProviderName) TriggerOption {
 	return func(options *TriggerOptions) {
 		if options.Providers == nil {
-			options.Providers = &map[integrations.ProviderType]bool{}
+			options.Providers = &map[providers.ProviderName]bool{}
 		}
 		(*options.Providers)[providerType] = true
 	}
@@ -281,7 +282,7 @@ func (svc *Service) Trigger(ctx context.Context, ch *changes.Change, opts ...Tri
 			}
 		}
 
-		provider, err := integrations.Get(configuration.Provider)
+		provider, err := providers.Get[providers.BuildProvider](configuration.Provider)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get provider: %w", err)
 		}

@@ -2,8 +2,8 @@ package routes
 
 import (
 	service_ci "getsturdy.com/api/pkg/ci/service"
-	routes_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/routes"
-	service_buildkite "getsturdy.com/api/pkg/integrations/buildkite/enterprise/service"
+	routes_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/routes"
+	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 

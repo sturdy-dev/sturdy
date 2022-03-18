@@ -3,9 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"getsturdy.com/api/pkg/integrations/buildkite"
 
 	"github.com/jmoiron/sqlx"
+
+	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 var _ Repository = &database{}

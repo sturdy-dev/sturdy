@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-
 	"fmt"
+
 	"getsturdy.com/api/pkg/integrations"
 
 	"github.com/jmoiron/sqlx"
