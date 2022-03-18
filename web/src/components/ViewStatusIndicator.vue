@@ -44,7 +44,11 @@
             isConnected
           "
         >
-          {{ view.status.progressReceived }} of {{ view.status.progressTotal }}
+          <span
+            >Syncing file {{ view.status.progressReceived + 1 }} of
+            {{ view.status.progressTotal }}</span
+          >
+          <DotDotDot class="ml-1" />
         </span>
         <span v-else-if="!isConnected">Disconnected</span>
         <span v-else>
@@ -70,6 +74,7 @@ import { ViewStatusIndicatorFragment } from './__generated__/ViewStatusIndicator
 import { ViewStatusState } from '../__generated__/types'
 import { ChevronDoubleUpIcon, DesktopComputerIcon } from '@heroicons/vue/outline'
 import Spinner from './shared/Spinner.vue'
+import DotDotDot from '../molecules/DotDotDot.vue'
 
 export const VIEW_STATUS_INDICATOR = gql`
   fragment ViewStatusIndicator on View {
@@ -95,6 +100,7 @@ export const VIEW_STATUS_INDICATOR = gql`
 export default defineComponent({
   name: 'ViewStatusIndicator',
   components: {
+    DotDotDot,
     Spinner,
     DesktopComputerIcon,
     ChevronDoubleUpIcon,

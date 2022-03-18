@@ -18,28 +18,20 @@
         <span v-else-if="appState === 'uploading-ssh-key'">Authorizing Device</span>
         <span v-else>Loading</span>
       </span>
-      <div class="inline-flex space-x-1 rounded-full items-center -ml-1 mt-2.5">
-        <div
-          class="bg-gray-500 w-1 h-1 rounded-full animate-bounce"
-          style="animation-delay: 0.1s"
-        ></div>
-        <div
-          class="bg-gray-500 w-1 h-1 rounded-full animate-bounce"
-          style="animation-delay: 0.2s"
-        ></div>
-        <div
-          class="bg-gray-500 w-1 h-1 rounded-full animate-bounce"
-          style="animation-delay: 0.3s"
-        ></div>
-      </div>
+
+      <DotDotDot class="-ml-1 mt-2.5" />
     </template>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import DotDotDot from './DotDotDot.vue'
 
 export default defineComponent({
+  components: {
+    DotDotDot,
+  },
   data() {
     const { ipc, mutagenIpc } = window
     return {
