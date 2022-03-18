@@ -17,7 +17,7 @@ func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, cod
 	return nil, gqlerror.ErrNotImplemented
 }
 
-func (r *remoteRootResolver) CreateCodebaseRemote(ctx context.Context, args resolvers.CreateCodebaseRemoteArgs) (resolvers.CodebaseResolver, error) {
+func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, args resolvers.CreateOrUpdateCodebaseRemoteArgsArgs) (resolvers.RemoteResolver, error) {
 	return nil, gqlerror.ErrNotImplemented
 }
 
