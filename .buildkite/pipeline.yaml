@@ -5,7 +5,7 @@ steps:
       - |
         set -eou pipefail
         ENTERPRISE_FEATURES="$(go list -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep enterprise)"
-        [[ -z "ENTERPRISE_FEATURES" ]] || (echo "$ENTERPRISE_FEATURES" && exit 1)
+        [[ -z "$ENTERPRISE_FEATURES" ]] || (echo "$ENTERPRISE_FEATURES" && exit 1)
 
   - label: ":coverage: :golang: Make sure OSS doesn't link Cloud features"
     commands:
@@ -13,7 +13,7 @@ steps:
       - |
         set -eou pipefail
         CLOUD_FEATURES="$(go list -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep cloud)"
-        [[ -z "COULD_FEATUERS" ]] || (echo "$CLOUD_FEATURES" && exit 1)
+        [[ -z "$COULD_FEATUERS" ]] || (echo "$CLOUD_FEATURES" && exit 1)
 
   - label: ":coverage: :golang: Make sure Enterprise doesn't link Cloud features"
     commands:
@@ -21,7 +21,7 @@ steps:
       - |
         set -eou pipefail
         CLOUD_FEATURES="$(go list -tags enterprise -f '{{ join .Deps "\n"}}' getsturdy.com/api/cmd/api | grep getsturdy | grep cloud)"
-        [[ -z "${CLOUD_FEATURES}" ]] || (echo "$CLOUD_FEATURES" && exit 1)
+        [[ -z "$CLOUD_FEATURES" ]] || (echo "$CLOUD_FEATURES" && exit 1)
 
   - label: ":docker: :golang: Run unit tests"
     commands:
