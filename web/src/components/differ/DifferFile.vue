@@ -276,7 +276,7 @@ import { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
 import DiffTable, { HUNK_FRAGMENT as DIFF_TABLE_HUNK_FRAGMENT } from './DiffTable.vue'
 import Button from '../shared/Button.vue'
 import * as Diff2Html from 'diff2html'
-import DiffHeader, { DIFF_HEADER_SUGGESTIONS } from './DiffHeader.vue'
+import DiffHeader, {DIFF_HEADER_FILE_DIFF, DIFF_HEADER_SUGGESTIONS} from './DiffHeader.vue'
 import '../../highlight/highlight_common_languages'
 import highlight from '../../highlight/highlight'
 import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
@@ -345,7 +345,9 @@ export const DIFFER_FILE_FILE_DIFF = gql`
       isApplied
       isDismissed
     }
+    ...DiffHeader_FileDiff
   }
+  ${DIFF_HEADER_FILE_DIFF}
 `
 
 export const DIFFER_FILE_TOP_COMMENT = gql`

@@ -386,31 +386,31 @@
                 />
                 <Banner v-if="rebasing_working" status="info" message="Syncing..." class="mb-2" />
 
-                <div v-if="rebasing?.is_rebasing && rebasing.conflicting_files">
+                <div v-if="rebaseStatus?.isRebasing && rebaseStatus.conflictingFiles">
                   <ResolveConflict
-                    :rebasing="rebasing"
+                    :rebasing="rebaseStatus"
                     :conflict-diffs="diffs"
                     @resolve-conflict="resolveConflict"
                   />
                   <div class="my-8">
                     <p
                       v-if="
-                        rebasing.conflicting_files.length !== rebasing_conflict_resolutions.size
+                        rebaseStatus.conflictingFiles.length !== rebasing_conflict_resolutions.size
                       "
                       class="text-sm text-gray-500 pb-4 text-center"
                     >
                       You have
-                      {{ rebasing.conflicting_files.length - rebasing_conflict_resolutions.size }}
+                      {{ rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size }}
                       unresolved conflict{{
-                        rebasing.conflicting_files.length - rebasing_conflict_resolutions.size > 1
-                          ? 's'
-                          : ''
+                        rebaseStatus.conflictingFiles.length - rebasing_conflict_resolutions.size > 1
+                            ? 's'
+                            : ''
                       }}
                     </p>
                     <div class="flex justify-center">
                       <Button
                         :disabled="
-                          rebasing.conflicting_files.length !== rebasing_conflict_resolutions.size
+                          rebaseStatus.conflictingFiles.length !== rebasing_conflict_resolutions.size
                         "
                         @click="sendConflictResolution"
                       >
@@ -517,7 +517,7 @@ import LiveDetails, {
 } from '../components/workspace/LiveDetails.vue'
 import http from '../http'
 import { Banner } from '../atoms'
-import ResolveConflict from '../components/workspace/ResolveConflict.vue'
+import ResolveConflict, {RESOLVE_CONFLICT_DIFF} from '../components/workspace/ResolveConflict.vue'
 import Button from '../components/shared/Button.vue'
 import debounce from '../debounce'
 import { gql, useMutation, useQuery } from '@urql/vue'
@@ -782,6 +782,20 @@ export default defineComponent({
             presence {
               ...PresenceParts
             }
+            rebaseStatus {
+                id
+                isRebasing
+                conflictingFiles {
+                    id
+                    path
+                    workspaceDiff {
+                        ...ResolveConflictDiff
+                    }
+                    trunkDiff {
+                        ...ResolveConflictDiff
+                    }
+                }
+            }
             ...LiveDetailsWorkspace
             ...ShareButton
             ...WorkspaceActivity_Workspace
@@ -797,6 +811,7 @@ export default defineComponent({
         ${LIVE_DETAILS_WORKSPACE}
         ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
+        ${RESOLVE_CONFLICT_DIFF}
       `,
       variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
     })
@@ -1075,6 +1090,9 @@ export default defineComponent({
       }
       return false
     },
+    rebaseStatus: function() {
+      return this.data.workspace.rebaseStatus
+    },
   },
   watch: {
     '$route.params.id': function () {
@@ -1097,11 +1115,6 @@ export default defineComponent({
     },
     'data.workspace.codebase.id': function (n) {
       if (n) this.emitter.emit('codebase', n)
-    },
-    'displayView.id': function () {
-      if (this.displayView && this.displayView.id) {
-        this.fetchRebasingStatus(this.displayView.id)
-      }
     },
     'data.workspace.draftDescription': function () {
       this.setDraftDescription()
@@ -1128,7 +1141,6 @@ export default defineComponent({
           this.justSaved = false
         }, 4000),
 
-        rebasing: {}, // Rebase status
         rebasing_complete_no_conflicts: false,
         rebasing_complete_had_conflicts: false,
         rebasing_failed: false,
@@ -1216,8 +1228,8 @@ export default defineComponent({
       })
         .then(http.checkStatus)
         .then((response) => response.json())
-        .then((data) => {
-          this.rebasing = data
+        .then(async (data) => {
+          await this.refresh()
           this.rebasing_conflict_resolutions = new Map()
 
           // Rebase is complete
@@ -1242,20 +1254,6 @@ export default defineComponent({
         })
     },
 
-    fetchRebasingStatus(viewID: string) {
-      fetch(http.url('v3/rebase/' + viewID), {
-        credentials: 'include',
-      })
-        .then(http.checkStatus)
-        .then((response) => response.json())
-        .then((data) => {
-          this.rebasing = data
-        })
-        .catch((e) => {
-          console.log(e)
-        })
-    },
-
     resolveConflict(event) {
       let conflict = event.conflictingFile
       let version = event.version
@@ -1277,7 +1275,6 @@ export default defineComponent({
       })
 
       this.rebasing_working = true
-      this.rebasing = null
 
       fetch(http.url('v3/rebase/' + this.displayView.id + '/resolve'), {
         method: 'POST',
@@ -1290,8 +1287,8 @@ export default defineComponent({
       })
         .then(http.checkStatus)
         .then((response) => response.json())
-        .then((data) => {
-          this.rebasing = data
+        .then(async (data) => {
+          await this.refresh()
           this.rebasing_conflict_resolutions = new Map()
 
           // Request is done
