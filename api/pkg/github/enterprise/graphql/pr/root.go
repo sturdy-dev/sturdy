@@ -7,7 +7,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
@@ -40,7 +40,7 @@ type prRootResolver struct {
 	statusesRootResolver *resolvers.StatusesRootResolver
 
 	userRepo     db_user.Repository
-	codebaseRepo db_codebase.CodebaseRepository
+	codebaseRepo db_codebases.CodebaseRepository
 
 	gitHubAppConfig *config.GitHubAppConfig
 
@@ -67,7 +67,7 @@ func NewResolver(
 	statusesRootResolver *resolvers.StatusesRootResolver,
 
 	userRepo db_user.Repository,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	workspaceReader db_workspaces.WorkspaceReader,
 	viewRepo db_view.Repository,
 

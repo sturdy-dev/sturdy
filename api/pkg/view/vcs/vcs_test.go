@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	vcs_codebase "getsturdy.com/api/pkg/codebase/vcs"
+	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/view/vcs"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"

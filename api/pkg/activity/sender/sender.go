@@ -9,7 +9,7 @@ import (
 	db_activity "getsturdy.com/api/pkg/activity/db"
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/auth"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/users"
@@ -25,14 +25,14 @@ type ActivitySender interface {
 }
 
 type realActivitySender struct {
-	codebaseUserRepo      db_codebase.CodebaseUserRepository
+	codebaseUserRepo      db_codebases.CodebaseUserRepository
 	workspaceActivityRepo db_activity.ActivityRepository
 	activityService       *service_activity.Service
 	eventsSender          events.EventSender
 }
 
 func NewActivitySender(
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	workspaceActivityRepo db_activity.ActivityRepository,
 	activityService *service_activity.Service,
 	eventsSender events.EventSender,

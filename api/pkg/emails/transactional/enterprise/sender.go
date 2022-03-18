@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/emails/transactional/templates"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
@@ -16,13 +16,13 @@ import (
 type Sender struct {
 	*transactional.Sender
 
-	codebaseRepo         db_codebase.CodebaseRepository
+	codebaseRepo         db_codebases.CodebaseRepository
 	githubRepositoryRepo db_github.GitHubRepositoryRepo
 }
 
 func New(
 	ossSender *transactional.Sender,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	githubRepositoryRepo db_github.GitHubRepositoryRepo,
 ) *Sender {
 	return &Sender{

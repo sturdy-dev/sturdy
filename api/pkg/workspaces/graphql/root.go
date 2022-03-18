@@ -6,7 +6,7 @@ import (
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -27,7 +27,7 @@ import (
 
 type WorkspaceRootResolver struct {
 	workspaceReader db_workspaces.WorkspaceReader
-	codebaseRepo    db_codebase.CodebaseRepository
+	codebaseRepo    db_codebases.CodebaseRepository
 	viewRepo        db_view.Repository
 	commentRepo     db_comments.Repository
 	snapshotsRepo   db_snapshots.Repository
@@ -63,7 +63,7 @@ type WorkspaceRootResolver struct {
 
 func NewResolver(
 	workspaceReader db_workspaces.WorkspaceReader,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 	viewRepo db_view.Repository,
 	commentRepo db_comments.Repository,
 	snapshotRepo db_snapshots.Repository,

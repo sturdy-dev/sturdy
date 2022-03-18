@@ -6,7 +6,7 @@ import (
 	"path"
 	"testing"
 
-	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
+	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/view/vcs"
 	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"

@@ -7,11 +7,11 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/ctxlog"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/codebases/acl"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 
@@ -61,7 +61,7 @@ func ListAllows(
 			Type: auth.SubjectMutagen,
 		})
 
-		allower, err := authService.GetAllower(ctx, &codebase.Codebase{ID: viewObj.CodebaseID})
+		allower, err := authService.GetAllower(ctx, &codebases.Codebase{ID: viewObj.CodebaseID})
 		if err != nil {
 			ctxlog.ErrorOrWarn(logger, "failed to list allowed pattern", err)
 			c.AbortWithStatus(http.StatusInternalServerError)

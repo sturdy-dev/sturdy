@@ -7,8 +7,8 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase/access"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases/access"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	service_view "getsturdy.com/api/pkg/view/service"
@@ -33,7 +33,7 @@ type CreateRequest struct {
 func Create(
 	logger *zap.Logger,
 	viewRepo db.Repository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	analyticsService *service_analytics.Service,
 	workspaceReader db_workspaces.WorkspaceReader,
 	executorProvider executor.Provider,

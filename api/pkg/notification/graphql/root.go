@@ -8,7 +8,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -33,8 +33,8 @@ var (
 
 type notificationRootResolver struct {
 	notificationRepository db_notification.Repository
-	codebaseUserRepo       db_codebase.CodebaseUserRepository
-	codebaseRepo           db_codebase.CodebaseRepository
+	codebaseUserRepo       db_codebases.CodebaseUserRepository
+	codebaseRepo           db_codebases.CodebaseRepository
 
 	preferencesService *service_notification.Preferences
 	authService        *service_auth.Service
@@ -54,8 +54,8 @@ type notificationRootResolver struct {
 
 func NewResolver(
 	notificationRepository db_notification.Repository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
-	codebaseRepo db_codebase.CodebaseRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
 
 	preferencesService *service_notification.Preferences,
 	authService *service_auth.Service,

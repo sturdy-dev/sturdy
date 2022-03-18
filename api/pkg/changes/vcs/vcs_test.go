@@ -9,7 +9,7 @@ import (
 	"time"
 
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
-	codebasevcs "getsturdy.com/api/pkg/codebase/vcs"
+	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	viewsvcs "getsturdy.com/api/pkg/view/vcs"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"

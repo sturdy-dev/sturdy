@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/gitserver/pack"
 	"getsturdy.com/api/pkg/jwt"

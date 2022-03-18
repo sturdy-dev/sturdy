@@ -7,7 +7,7 @@ import (
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_ci "getsturdy.com/api/pkg/ci/service"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/integrations"
@@ -127,7 +127,7 @@ func (root *rootResolver) updateConfiguration(ctx context.Context, existingCfg *
 }
 
 func (root *rootResolver) CreateOrUpdateBuildkiteIntegration(ctx context.Context, args resolvers.CreateOrUpdateBuildkiteIntegrationArgs) (resolvers.IntegrationResolver, error) {
-	if err := root.authService.CanWrite(ctx, &codebase.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
+	if err := root.authService.CanWrite(ctx, &codebases.Codebase{ID: string(args.Input.CodebaseID)}); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

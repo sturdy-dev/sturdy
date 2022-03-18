@@ -8,8 +8,8 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes"
-	"getsturdy.com/api/pkg/codebase"
-	"getsturdy.com/api/pkg/codebase/acl"
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/codebases/acl"
 	"getsturdy.com/api/pkg/suggestions"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
@@ -36,18 +36,18 @@ func (s *Service) GetAllower(ctx context.Context, obj any) (*unidiff.Allower, er
 		subjectID := users.ID(subject.ID)
 		// TODO: mutagen request should be authenticated
 		switch object := obj.(type) {
-		case *codebase.Codebase:
+		case *codebases.Codebase:
 			return s.getUserCodebaseAllower(ctx, subjectID, object)
-		case codebase.Codebase:
+		case codebases.Codebase:
 			return s.getUserCodebaseAllower(ctx, subjectID, &object)
 		}
 
 	case auth.SubjectUser:
 		subjectID := users.ID(subject.ID)
 		switch object := obj.(type) {
-		case *codebase.Codebase:
+		case *codebases.Codebase:
 			return s.getUserCodebaseAllower(ctx, subjectID, object)
-		case codebase.Codebase:
+		case codebases.Codebase:
 			return s.getUserCodebaseAllower(ctx, subjectID, &object)
 		case changes.Change:
 			return s.getUserChangeAllower(ctx, subjectID, &object)
@@ -81,9 +81,9 @@ func (s *Service) GetAllower(ctx context.Context, obj any) (*unidiff.Allower, er
 			return s.getAnonymousWorkspaceAllower(ctx, &object)
 		case *workspaces.Workspace:
 			return s.getAnonymousWorkspaceAllower(ctx, object)
-		case *codebase.Codebase:
+		case *codebases.Codebase:
 			return s.getAnonymousCodebaseAllower(ctx, object)
-		case codebase.Codebase:
+		case codebases.Codebase:
 			return s.getAnonymousCodebaseAllower(ctx, &object)
 		}
 	}
@@ -115,7 +115,7 @@ func (s *Service) getUserSuggestionAllower(ctx context.Context, userID users.ID,
 	return s.getUserCodebaseAllower(ctx, userID, cb)
 }
 
-func (s *Service) getUserCodebaseAllower(ctx context.Context, userID users.ID, codebase *codebase.Codebase) (*unidiff.Allower, error) {
+func (s *Service) getUserCodebaseAllower(ctx context.Context, userID users.ID, codebase *codebases.Codebase) (*unidiff.Allower, error) {
 	aclPolicy, err := s.aclProvider.GetByCodebaseID(ctx, codebase.ID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return noneAllowed, nil
@@ -167,7 +167,7 @@ func (s *Service) getAnonymousChangeAllower(ctx context.Context, change *changes
 	return s.getAnonymousCodebaseAllower(ctx, cb)
 }
 
-func (s *Service) getAnonymousCodebaseAllower(ctx context.Context, cb *codebase.Codebase) (*unidiff.Allower, error) {
+func (s *Service) getAnonymousCodebaseAllower(ctx context.Context, cb *codebases.Codebase) (*unidiff.Allower, error) {
 	if !cb.IsPublic {
 		// if codebase is not public, then anonymous users can't see any files.
 		return noneAllowed, nil

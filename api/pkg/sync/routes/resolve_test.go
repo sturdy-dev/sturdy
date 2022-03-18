@@ -17,8 +17,8 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -352,7 +352,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		WorkspaceService      service_workspace.Service
 		GitSnapshotter        snapshotter.Snapshotter
 		RepoProvider          provider.RepoProvider
-		CodebaseUserRepo      db_codebase.CodebaseUserRepository
+		CodebaseUserRepo      db_codebases.CodebaseUserRepository
 		WorkspaceRepo         db_workspaces.Repository
 		ViewRepo              db_view.Repository
 		SnapshotRepo          db_snapshots.Repository
@@ -360,7 +360,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		EventsSender          *eventsv2.Publisher
 		Logger                *zap.Logger
 		AnalyticsService      *service_analytics.Service
-		CodebaseRepo          db_codebase.CodebaseRepository
+		CodebaseRepo          db_codebases.CodebaseRepository
 		SyncService           *service_sync.Service
 		ViewService           *service_view.Service
 	}
@@ -394,12 +394,12 @@ func TestResolveHighLevelV2(t *testing.T) {
 
 			codebaseID := uuid.NewString()
 
-			err = codebaseRepo.Create(codebase.Codebase{
+			err = codebaseRepo.Create(codebases.Codebase{
 				ID:              codebaseID,
-				ShortCodebaseID: codebase.ShortCodebaseID(codebaseID), // not realistic
+				ShortCodebaseID: codebases.ShortCodebaseID(codebaseID), // not realistic
 			})
 			assert.NoError(t, err)
-			err = codebaseUserRepo.Create(codebase.CodebaseUser{
+			err = codebaseUserRepo.Create(codebases.CodebaseUser{
 				ID:         uuid.NewString(),
 				CodebaseID: codebaseID,
 				UserID:     userID,

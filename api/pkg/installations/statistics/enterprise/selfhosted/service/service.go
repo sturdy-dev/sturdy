@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	service_codebases "getsturdy.com/api/pkg/codebase/service"
+	service_codebases "getsturdy.com/api/pkg/codebases/service"
 	service_installations "getsturdy.com/api/pkg/installations/service"
 	"getsturdy.com/api/pkg/installations/statistics"
 	"getsturdy.com/api/pkg/installations/statistics/enterprise/selfhosted/publisher"

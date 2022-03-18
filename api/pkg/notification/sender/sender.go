@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/notification"
@@ -26,7 +26,7 @@ type NotificationSender interface {
 type realNotificationSender struct {
 	logger *zap.Logger
 
-	codebaseUserRepo db_codebase.CodebaseUserRepository
+	codebaseUserRepo db_codebases.CodebaseUserRepository
 	notificationRepo db_notification.Repository
 	userRepo         db_user.Repository
 
@@ -37,7 +37,7 @@ type realNotificationSender struct {
 func NewNotificationSender(
 	logger *zap.Logger,
 
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	notificationRepo db_notification.Repository,
 	userRepo db_user.Repository,
 

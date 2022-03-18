@@ -13,9 +13,9 @@ import (
 	service_blobs "getsturdy.com/api/pkg/blobs/service"
 	db_change "getsturdy.com/api/pkg/changes/db"
 	routes_v3_change "getsturdy.com/api/pkg/changes/routes"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
-	routes_v3_codebase "getsturdy.com/api/pkg/codebase/routes"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -84,8 +84,8 @@ func ProvideHandler(
 	waitingListRepo waitinglist.WaitingListRepo,
 	aclInterestRepo acl.ACLInterestRepo,
 	instantIntegrationInterestRepo instantintegration.InstantIntegrationInterestRepo,
-	codebaseRepo db_codebase.CodebaseRepository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseRepo db_codebases.CodebaseRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	viewRepo db_view.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
 	userPublicKeyRepo db_pki.Repo,

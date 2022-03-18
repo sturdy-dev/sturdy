@@ -29,8 +29,8 @@ import (
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
@@ -133,8 +133,8 @@ func TestPRHighLevel(t *testing.T) {
 		AnalyticsClient               *analytics_service.Service
 		BuildQueue                    *workers_ci.BuildQueue
 		CodebaseRootResolver          resolvers.CodebaseRootResolver
-		CodebaseRepo                  db_codebase.CodebaseRepository
-		CodebaseUserRepo              db_codebase.CodebaseUserRepository
+		CodebaseRepo                  db_codebases.CodebaseRepository
+		CodebaseUserRepo              db_codebases.CodebaseUserRepository
 		CommentsRootResolver          resolvers.CommentRootResolver
 		CommentsService               *service_comments.Service
 		EventsSender                  events.EventSender
@@ -294,7 +294,7 @@ func TestPRHighLevel(t *testing.T) {
 			gitHubRepoOwner := uuid.NewString()
 			gitHubRepoName := uuid.NewString()
 
-			cu := &codebase.CodebaseUser{
+			cu := &codebases.CodebaseUser{
 				ID:         codebaseUserID,
 				UserID:     userID,
 				CodebaseID: codebaseID,
@@ -325,7 +325,7 @@ func TestPRHighLevel(t *testing.T) {
 			}
 
 			assert.NoError(t, d.UserRepo.Create(&users.User{ID: userID, Email: userID.String() + "@getsturdy.com", Name: "Test Testsson"}))
-			assert.NoError(t, codebaseRepo.Create(codebase.Codebase{ID: codebaseID, ShortCodebaseID: codebase.ShortCodebaseID(codebaseID)}))
+			assert.NoError(t, codebaseRepo.Create(codebases.Codebase{ID: codebaseID, ShortCodebaseID: codebases.ShortCodebaseID(codebaseID)}))
 			assert.NoError(t, codebaseUserRepo.Create(*cu))
 			assert.NoError(t, gitHubUserRepo.Create(*ghu))
 			assert.NoError(t, gitHubInstallationRepo.Create(*in))

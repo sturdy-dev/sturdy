@@ -4,7 +4,7 @@ import (
 	"context"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	service_codebase "getsturdy.com/api/pkg/codebase/service"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/github"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/config"

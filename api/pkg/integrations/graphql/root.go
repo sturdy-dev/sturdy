@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	service_change "getsturdy.com/api/pkg/changes/service"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/integrations"
 	"getsturdy.com/api/pkg/integrations/providers"
 
@@ -82,7 +82,7 @@ func (r *rootResolver) DeleteIntegration(ctx context.Context, args resolvers.Del
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.authService.CanWrite(ctx, &codebase.Codebase{ID: cfg.CodebaseID}); err != nil {
+	if err := r.authService.CanWrite(ctx, &codebases.Codebase{ID: cfg.CodebaseID}); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

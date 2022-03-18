@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"getsturdy.com/api/pkg/changes"
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/jwt"
@@ -35,7 +35,7 @@ func TestRenderGitHubRepositoryImported(t *testing.T) {
 		GitHubRepo: &github.Repository{
 			Name: "codebase",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			Name:            "imported-codebase",
 			ShortCodebaseID: "123456",
 		},
@@ -63,7 +63,7 @@ func TestRenderNotificationComment_commented(t *testing.T) {
 		Author: &users.User{
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -91,7 +91,7 @@ func TestRenderNotificationComment_commented_on_change(t *testing.T) {
 		Author: &users.User{
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -119,7 +119,7 @@ func TestRenderNotificationComment_commented_on_workspace(t *testing.T) {
 		Author: &users.User{
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -147,7 +147,7 @@ func TestRenderNotificationComment_replied_your(t *testing.T) {
 		Author: &users.User{
 			Name: "another user",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -176,7 +176,7 @@ func TestRenderNotificationComment_replied(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -208,7 +208,7 @@ func TestRenderNotificationComment_replied_on_workspace(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -246,7 +246,7 @@ func TestRenderNotificationComment_replied_your_on_workspace(t *testing.T) {
 			ID:   "2",
 			Name: "User Two",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -279,7 +279,7 @@ func TestRenderNotificationComment_replied_on_change(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -317,7 +317,7 @@ func TestRenderNotificationComment_replied_your_on_change(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -350,7 +350,7 @@ func TestRenderNotificationNewSuggestion(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -380,7 +380,7 @@ func TestRenderNotificationRequestedReview(t *testing.T) {
 			ID:   "1",
 			Name: "User One",
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -413,7 +413,7 @@ func TestRenderNotificationReview_approved(t *testing.T) {
 		Review: &review.Review{
 			Grade: review.ReviewGradeApprove,
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},
@@ -446,7 +446,7 @@ func TestRenderNotificationReview_rejected(t *testing.T) {
 		Review: &review.Review{
 			Grade: review.ReviewGradeReject,
 		},
-		Codebase: &codebase.Codebase{
+		Codebase: &codebases.Codebase{
 			ShortCodebaseID: "short-id",
 			Name:            "codebase",
 		},

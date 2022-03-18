@@ -4,24 +4,24 @@ import (
 	"context"
 	"database/sql"
 
-	"getsturdy.com/api/pkg/codebase"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 )
 
 type inMemoryCodebaseRepository struct {
-	codebases []codebase.Codebase
+	codebases []codebases.Codebase
 }
 
-func NewInMemoryCodebaseRepo() db_codebase.CodebaseRepository {
-	return &inMemoryCodebaseRepository{codebases: make([]codebase.Codebase, 0)}
+func NewInMemoryCodebaseRepo() db_codebases.CodebaseRepository {
+	return &inMemoryCodebaseRepository{codebases: make([]codebases.Codebase, 0)}
 }
 
-func (r *inMemoryCodebaseRepository) Create(entity codebase.Codebase) error {
+func (r *inMemoryCodebaseRepository) Create(entity codebases.Codebase) error {
 	r.codebases = append(r.codebases, entity)
 	return nil
 }
 
-func (r *inMemoryCodebaseRepository) Get(id string) (*codebase.Codebase, error) {
+func (r *inMemoryCodebaseRepository) Get(id string) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if cb.ID == id && cb.ArchivedAt == nil {
 			return &cb, nil
@@ -30,7 +30,7 @@ func (r *inMemoryCodebaseRepository) Get(id string) (*codebase.Codebase, error) 
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) GetAllowArchived(id string) (*codebase.Codebase, error) {
+func (r *inMemoryCodebaseRepository) GetAllowArchived(id string) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if cb.ID == id {
 			return &cb, nil
@@ -39,7 +39,7 @@ func (r *inMemoryCodebaseRepository) GetAllowArchived(id string) (*codebase.Code
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) GetByInviteCode(inviteCode string) (*codebase.Codebase, error) {
+func (r *inMemoryCodebaseRepository) GetByInviteCode(inviteCode string) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if cb.InviteCode == nil && *cb.InviteCode == inviteCode && cb.ArchivedAt == nil {
 			return &cb, nil
@@ -48,7 +48,7 @@ func (r *inMemoryCodebaseRepository) GetByInviteCode(inviteCode string) (*codeba
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) GetByShortID(shortID string) (*codebase.Codebase, error) {
+func (r *inMemoryCodebaseRepository) GetByShortID(shortID string) (*codebases.Codebase, error) {
 	for _, cb := range r.codebases {
 		if string(cb.ShortCodebaseID) == shortID && cb.ArchivedAt == nil {
 			return &cb, nil
@@ -57,7 +57,7 @@ func (r *inMemoryCodebaseRepository) GetByShortID(shortID string) (*codebase.Cod
 	return nil, sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) Update(entity *codebase.Codebase) error {
+func (r *inMemoryCodebaseRepository) Update(entity *codebases.Codebase) error {
 	for k, cb := range r.codebases {
 		if cb.ID == entity.ID {
 			r.codebases[k] = *entity
@@ -67,8 +67,8 @@ func (r *inMemoryCodebaseRepository) Update(entity *codebase.Codebase) error {
 	return sql.ErrNoRows
 }
 
-func (r *inMemoryCodebaseRepository) ListByOrganization(_ context.Context, id string) ([]*codebase.Codebase, error) {
-	var res []*codebase.Codebase
+func (r *inMemoryCodebaseRepository) ListByOrganization(_ context.Context, id string) ([]*codebases.Codebase, error) {
+	var res []*codebases.Codebase
 	for _, cb := range r.codebases {
 		if cb.OrganizationID != nil && *cb.OrganizationID == id {
 			c2 := cb

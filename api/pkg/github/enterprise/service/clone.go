@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"getsturdy.com/api/pkg/codebase"
-	"getsturdy.com/api/pkg/codebase/vcs"
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	ghappclient "getsturdy.com/api/pkg/github/enterprise/client"
@@ -174,7 +174,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID users.ID) ([]
 	return res, nil
 }
 
-func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID users.ID, organizationID string) (*codebase.Codebase, error) {
+func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID users.ID, organizationID string) (*codebases.Codebase, error) {
 	client, _, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get github client: %w", err)
@@ -188,7 +188,7 @@ func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, ins
 	return svc.CreateNonReadyCodebaseAndClone(ctx, repo, installationID, nil, &userID, &organizationID)
 }
 
-func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *gh.Repository, installationID int64, sender *gh.User, addUserID *users.ID, organizationID *string) (*codebase.Codebase, error) {
+func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *gh.Repository, installationID int64, sender *gh.User, addUserID *users.ID, organizationID *string) (*codebases.Codebase, error) {
 	if repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, ghRepo.GetID()); errors.Is(err, sql.ErrNoRows) {
 		// no repo found, set it up!
 	} else if err != nil {
@@ -237,10 +237,10 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 		return nil, fmt.Errorf("could not get installation from repo: %w", existingInstallationErr)
 	}
 
-	nonReadyCodebase := codebase.Codebase{
+	nonReadyCodebase := codebases.Codebase{
 		ID:              uuid.NewString(),
 		Name:            ghRepo.GetName(),
-		ShortCodebaseID: codebase.ShortCodebaseID(shortid.New()),
+		ShortCodebaseID: codebases.ShortCodebaseID(shortid.New()),
 		Description:     ghRepo.GetDescription(),
 		IsReady:         false,
 		OrganizationID:  organizationID, // Optional (for now)

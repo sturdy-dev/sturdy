@@ -1,19 +1,20 @@
 package routes
 
 import (
+	"net/http"
+	"strings"
+
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/view/meta"
 	"getsturdy.com/api/vcs/executor"
-	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"getsturdy.com/api/pkg/codebase/access"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	"getsturdy.com/api/pkg/codebases/access"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/view/db"
 )
 
@@ -21,7 +22,7 @@ type IgnoreFileRequest struct {
 	Path string `json:"path" binding:"required"`
 }
 
-func IgnoreFile(logger *zap.Logger, viewRepo db.Repository, codebaseUserRepo db_codebase.CodebaseUserRepository, executorProvider executor.Provider, viewUpdatedFunc meta.ViewUpdatedFunc) func(c *gin.Context) {
+func IgnoreFile(logger *zap.Logger, viewRepo db.Repository, codebaseUserRepo db_codebases.CodebaseUserRepository, executorProvider executor.Provider, viewUpdatedFunc meta.ViewUpdatedFunc) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())
 		if err != nil {

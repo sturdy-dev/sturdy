@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/codebase"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/notification"
 	"getsturdy.com/api/pkg/onboarding"
@@ -31,13 +31,13 @@ func SubscribeUser(id users.ID) Topic {
 	return userTopic(id)
 }
 
-func (s *Subscriber) OnCodebaseEvent(ctx context.Context, topic Topic, callback func(context.Context, *codebase.Codebase) error) {
+func (s *Subscriber) OnCodebaseEvent(ctx context.Context, topic Topic, callback func(context.Context, *codebases.Codebase) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Codebase)
 	}, topic, CodebaseEvent)
 }
 
-func (s *Subscriber) OnCodebaseUpdated(ctx context.Context, topic Topic, callback func(context.Context, *codebase.Codebase) error) {
+func (s *Subscriber) OnCodebaseUpdated(ctx context.Context, topic Topic, callback func(context.Context, *codebases.Codebase) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callback(ctx, event.Codebase)
 	}, topic, CodebaseUpdated)

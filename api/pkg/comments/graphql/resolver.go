@@ -14,7 +14,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	db_codebase "getsturdy.com/api/pkg/codebase/db"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	decorate_comment "getsturdy.com/api/pkg/comments/decorate"
@@ -58,7 +58,7 @@ type CommentRootResolver struct {
 	snapshotRepo             db_snapshots.Repository
 	workspaceReader          db_workspaces.WorkspaceReader
 	viewRepo                 db_view.Repository
-	codebaseUserRepo         db_codebase.CodebaseUserRepository
+	codebaseUserRepo         db_codebases.CodebaseUserRepository
 	workspaceWatchersService *service_workspace_watchers.Service
 	authService              *service_auth.Service
 	changeService            *service_change.Service
@@ -83,7 +83,7 @@ func NewResolver(
 	snapshotRepo db_snapshots.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
 	viewRepo db_view.Repository,
-	codebaseUserRepo db_codebase.CodebaseUserRepository,
+	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	workspaceWatchersService *service_workspace_watchers.Service,
 	authService *service_auth.Service,
 	changeService *service_change.Service,
