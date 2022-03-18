@@ -32,6 +32,7 @@ export default defineComponent({
             'codebaseSettingsIntegrations',
             'codebaseSettingsAddBuildkite',
             'codebaseSettingsEditBuildkite',
+            'codebaseSettingsAddGit',
           ].includes(route.name.toString())
         ),
       },

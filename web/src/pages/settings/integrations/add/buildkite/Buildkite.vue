@@ -121,7 +121,7 @@ import Pill from '../../../../../components/shared/Pill.vue'
 import PaddedAppLeftSidebar from '../../../../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../../../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../../../../molecules/Header.vue'
-import { InputMaybe } from '../../../../../__generated__/types'
+import { InputMaybe, IntegrationProvider } from '../../../../../__generated__/types'
 
 const toKebabCase = (str: string): string => {
   return str.toLowerCase().replace(/ /, '-')
@@ -199,7 +199,7 @@ export default {
         }
         for (const provider of newData.codebase.integrations) {
           if (
-            provider.provider === 'Buildkite' &&
+            provider.provider === IntegrationProvider.Buildkite &&
             provider.configuration &&
             provider.id === route.params?.integrationId
           ) {

@@ -97,6 +97,11 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'codebaseSettingsAddBuildkite',
   },
   {
+    path: '/:codebaseSlug/settings/add/git',
+    component: () => import('./pages/settings/integrations/add/git/Git.vue'),
+    name: 'codebaseSettingsAddGit',
+  },
+  {
     path: '/:codebaseSlug/settings/edit/buildkite/:integrationId',
     component: () => import('./pages/settings/integrations/add/buildkite/Buildkite.vue'),
     name: 'codebaseSettingsEditBuildkite',

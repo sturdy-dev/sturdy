@@ -22,11 +22,11 @@ func NewIntegrationDatabase(db *sqlx.DB) IntegrationsRepository {
 
 func (cd *configDatabase) Create(ctx context.Context, cfg *integrations.Integration) error {
 	if _, err := cd.db.ExecContext(ctx, `
-		INSERT INTO ci_configurations
-			(id, codebase_id, provider, seed_files, created_at, updated_at)
+		INSERT INTO integrations
+			(id, codebase_id, provider, provider_type, seed_files, created_at, updated_at)
 		VALUES
 			($1, $2, $3, $4, $5, $6)
-		`, cfg.ID, cfg.CodebaseID, cfg.Provider, pq.Array(cfg.SeedFiles), cfg.CreatedAt, cfg.UpdatedAt); err != nil {
+		`, cfg.ID, cfg.CodebaseID, cfg.Provider, cfg.ProviderType, pq.Array(cfg.SeedFiles), cfg.CreatedAt, cfg.UpdatedAt); err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
 	}
 	return nil
@@ -34,7 +34,7 @@ func (cd *configDatabase) Create(ctx context.Context, cfg *integrations.Integrat
 
 func (cd *configDatabase) Update(ctx context.Context, cfg *integrations.Integration) error {
 	if _, err := cd.db.ExecContext(ctx, `
-		UPDATE ci_configurations
+		UPDATE integrations
 		SET
 			provider = $2,
 			seed_files = $3,
@@ -51,9 +51,9 @@ func (cd *configDatabase) Update(ctx context.Context, cfg *integrations.Integrat
 func (cd *configDatabase) ListByCodebaseID(ctx context.Context, codebaseID string) ([]*integrations.Integration, error) {
 	rows, err := cd.db.QueryContext(ctx, `
 		SELECT
-			id, codebase_id, provider, seed_files, created_at, updated_at
+			id, codebase_id, provider, provider_type, seed_files, created_at, updated_at
 		FROM
-			ci_configurations
+			integrations
 		WHERE
 			codebase_id = $1
 			AND deleted_at IS NULL
@@ -65,7 +65,7 @@ func (cd *configDatabase) ListByCodebaseID(ctx context.Context, codebaseID strin
 	cfgs := []*integrations.Integration{}
 	for rows.Next() {
 		cfg := &integrations.Integration{}
-		if err := rows.Scan(&cfg.ID, &cfg.CodebaseID, &cfg.Provider, pq.Array(&cfg.SeedFiles), &cfg.CreatedAt, &cfg.UpdatedAt); err != nil {
+		if err := rows.Scan(&cfg.ID, &cfg.CodebaseID, &cfg.Provider, &cfg.ProviderType, pq.Array(&cfg.SeedFiles), &cfg.CreatedAt, &cfg.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan: %w", err)
 		}
 		cfgs = append(cfgs, cfg)
@@ -77,14 +77,14 @@ func (cd *configDatabase) ListByCodebaseID(ctx context.Context, codebaseID strin
 func (cd *configDatabase) Get(ctx context.Context, id string) (*integrations.Integration, error) {
 	row := cd.db.QueryRowContext(ctx, `
 		SELECT
-			id, codebase_id, provider, seed_files, created_at, updated_at, deleted_at
+			id, codebase_id, provider, provider_type, seed_files, created_at, updated_at, deleted_at
 		FROM
-			ci_configurations
+			integrations
 		WHERE
 			id = $1
 	`, id)
 	var cfg integrations.Integration
-	if err := row.Scan(&cfg.ID, &cfg.CodebaseID, &cfg.Provider, pq.Array(&cfg.SeedFiles), &cfg.CreatedAt, &cfg.UpdatedAt, &cfg.DeletedAt); err != nil {
+	if err := row.Scan(&cfg.ID, &cfg.CodebaseID, &cfg.Provider, &cfg.ProviderType, pq.Array(&cfg.SeedFiles), &cfg.CreatedAt, &cfg.UpdatedAt, &cfg.DeletedAt); err != nil {
 		return nil, fmt.Errorf("failed to scan: %w", err)
 	}
 	return &cfg, nil

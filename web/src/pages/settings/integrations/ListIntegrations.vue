@@ -1,5 +1,5 @@
 <template>
-  <PaddedAppLeftSidebar v-if="data" class="bg-white">
+  <PaddedAppLeftSidebar v-if="data?.codebase" class="bg-white">
     <template #navigation>
       <SettingsVerticalNavigation />
     </template>
@@ -17,7 +17,7 @@
               class="flex items-center space-x-4 px-6 py-4"
               :class="!item.enabled ? ['opacity-50'] : []"
             >
-              <img src="../../../components/ci/logos/BuildkiteLogo.svg" class="h-10 w-10" />
+              <img :src="item.logo" class="h-10 w-10" />
               <div class="flex-1">
                 <h3>{{ item.name }}</h3>
                 <p class="text-gray-500 text-sm">{{ item.description }}</p>
@@ -31,7 +31,17 @@
                 <Pill v-else color="gray">Not Installed</Pill>
               </div>
 
-              <Button :disabled="!item.enabled">Add</Button>
+
+
+              <RouterLinkButton
+                :disabled="!item.enabled"
+                :to="{
+                  name: item.page,
+                }"
+              >
+                <span v-if="item.supportMulti">Add</span>
+                <span v-else>Edit</span>
+              </RouterLinkButton>
             </li>
             <template v-if="configuredProviders.has(item.name)">
               <li
@@ -79,8 +89,11 @@ import SettingsVerticalNavigation from '../../../components/codebase/settings/Se
 import Header from '../../../molecules/Header.vue'
 import RouterLinkButton from '../../../components/shared/RouterLinkButton.vue'
 import { useDeleteIntegration } from '../../../mutations/useDeleteIntegration'
-import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref, Ref } from 'vue'
 import { Feature } from '../../../__generated__/types'
+
+import buildkiteLogo from '../../../components/ci/logos/BuildkiteLogo.svg'
+import gitLogo from '../../../components/ci/logos/GitLogo.svg'
 
 const INTEGRATION_FRAGMENT = gql`
   fragment IntegrationListItem on Integration {
@@ -123,6 +136,9 @@ export default defineComponent({
             integrations {
               ...IntegrationListItem
             }
+            remote {
+              id
+            }
           }
         }
 
@@ -154,7 +170,19 @@ export default defineComponent({
           description: 'Setup CI/CD with Buildkite',
           page: 'codebaseSettingsAddBuildkite',
           enabled: this.isGitHubEnabled,
+          logo: buildkiteLogo,
+          supportMulti: true,
         },
+
+        // TODO: Uncomment when ready!
+        /*{
+          name: 'Git',
+          description: 'Sync Sturdy with any Git Provider (GitLab, Azure DevOps, etc)',
+          page: 'codebaseSettingsAddGit',
+          enabled: this.isGitHubEnabled,
+          logo: gitLogo,
+          supportMulti: false,
+        },*/
       ]
     },
     nonDeletedIntegrations(): Array<IntegrationListItemFragment> {
@@ -175,6 +203,11 @@ export default defineComponent({
           res.set(provider.provider, new Array<IntegrationListItemFragment>(provider))
         }
       }
+
+      if (this.data?.codebase?.remote?.id) {
+        res.set('Git', new Array<IntegrationListItemFragment>())
+      }
+
       return res
     },
   },
