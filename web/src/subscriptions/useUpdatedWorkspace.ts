@@ -51,7 +51,7 @@ const UPDATED_WORKSPACE = gql`
         pullRequestNumber
         open
         merged
-        status
+        state
       }
 
       reviews {
