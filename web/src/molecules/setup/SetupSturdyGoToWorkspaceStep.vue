@@ -1,7 +1,6 @@
 <template>
   <div v-if="!newWorkspace">
-    When the codebase is set up on your local machine, a new draft change will be created for you to
-    code in.
+    When the codebase is set up on your local machine, a new draft change will be created for you to code in.
   </div>
   <div v-else>
     <RouterLinkButton
