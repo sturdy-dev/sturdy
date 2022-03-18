@@ -200,7 +200,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 	}
 
 	defer func() {
-		// send pr updated event in any case as soon as this function is complete
+		// make sure we send pr updated event after this function returns in any case
 		if err := svc.eventsSenderV2.GitHubPRUpdated(ctx, eventsv2.Codebase(pr.CodebaseID), pr); err != nil {
 			logger.Error("failed to send codebase event", zap.Error(err))
 			// do not fail
@@ -257,12 +257,12 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		// do not fail
 	}
 
-	// all workspaces that were up to date with trunk are no more
+	// all workspaces that were up to date with trunk are not up to data anymore
 	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
 		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
 	}
 
-	// Create workspace activity
+	// Create workspace activity that it has created a change
 	if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
 		return fmt.Errorf("failed to create workspace activity: %w", err)
 	}
@@ -272,27 +272,25 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("failed to set change: %w", err)
 	}
 
-	// Send events that the codebase has been updated, because codebase.lastUpdatedAt has changed
-	if err := svc.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID); err != nil {
-		svc.logger.Error("failed to send codebase event", zap.Error(err))
-		// do not fail
-	}
-
 	if err := svc.commentsService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, ch.ID); err != nil {
 		return fmt.Errorf("failed to migrate comments: %w", err)
 	}
 
+	// optimisticly archive workspace. if everything is ok with it, it will stay archived
+	// if not, we'll unarchive it a later in this function
+	if err := svc.workspaceService.ArchiveWithChange(ctx, ws, ch); err != nil {
+		return fmt.Errorf("failed to archive workspace: %w", err)
+	}
+
 	hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
 	if err != nil {
-		svc.logger.Error("failed to check for conflicts", zap.Error(err), zap.Any("workspace_id", ws.ID))
-		// do not fail
-		return nil
+		return fmt.Errorf("failed to check for conflicts: %w", err)
 	}
 
 	if hasConflicts {
 		// if workspace has conflicts, that probably means that it was changed between the pr was opened and merged
-		// in that case, do nothing, let the user resolve the conflits and archive the workspace
-		return nil
+		// in that case, unarchive workspace and make the user fix it
+		return svc.workspaceService.Unarchive(ctx, ws)
 	}
 
 	// no conflits, so we can sync the workspace with the trunk
@@ -302,30 +300,16 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 
 	diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
 	if err != nil {
-		svc.logger.Error("failed to get diffs", zap.Error(err))
-		// do not fail
-		return nil
+		return fmt.Errorf("failed to get diffs: %w", err)
 	}
 
 	if len(diffs) != 0 {
 		// there are some diffs left after the sync. That means that the workspace was changed between the pr was opened
-		// and merged. leave those diffs in the workspace and let user decide what to do with them
-		return nil
+		// and merged. in that case, unarchive workspace and make the user fix it
+		return svc.workspaceService.Unarchive(ctx, ws)
 	}
 
-	// workspace is synced with with trunk, has no diffs - archive it
-
-	// link the workspace with the change that it created
-	ws.ChangeID = &ch.ID
-	if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID,
-		db_workspaces.SetChangeID(&ch.ID)); err != nil {
-		return fmt.Errorf("failed to update workspace: %w", err)
-	}
-
-	if err := svc.workspaceService.Archive(ctx, ws); err != nil {
-		return fmt.Errorf("failed to archive workspace: %w", err)
-	}
-
+	// workspace is synced with with trunk, has no diffs - very good!
 	return nil
 }
 
