@@ -140,6 +140,8 @@ func (r *organizationRootResolver) Organization(ctx context.Context, args resolv
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}
+	} else {
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "either ID or ShortID must be set")
 	}
 
 	if err := r.authService.CanRead(ctx, org); err != nil {
