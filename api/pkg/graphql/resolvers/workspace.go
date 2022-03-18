@@ -137,4 +137,5 @@ type WorkspaceResolver interface {
 	DiffsCount(context.Context) *int32
 	Diffs(context.Context) ([]FileDiffResolver, error)
 	Change(context.Context) (ChangeResolver, error)
+	RebaseStatus(context.Context) (RebaseStatusResolver, error)
 }

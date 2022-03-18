@@ -141,7 +141,7 @@ func (r *WorkspaceResolver) CommentsCount(ctx context.Context) (int32, error) {
 	return c, nil
 }
 
-func (r *WorkspaceResolver) DiffsCount(ctx context.Context) *int32 {
+func (r *WorkspaceResolver) DiffsCount(_ context.Context) *int32 {
 	return r.w.DiffsCount
 }
 
@@ -382,7 +382,6 @@ func (r *WorkspaceResolver) diffs(ctx context.Context) ([]unidiff.FileDiff, erro
 }
 
 func (r *WorkspaceResolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
-
 	if r.w.ChangeID == nil {
 		return nil, nil
 	}
@@ -390,4 +389,8 @@ func (r *WorkspaceResolver) Change(ctx context.Context) (resolvers.ChangeResolve
 	return r.root.changeResolver.Change(ctx, resolvers.ChangeArgs{
 		ID: &chID,
 	})
+}
+
+func (r *WorkspaceResolver) RebaseStatus(ctx context.Context) (resolvers.RebaseStatusResolver, error) {
+	return r.root.rebaseStatusRootResolver.InternalWorkspaceRebaseStatus(ctx, r.w.ID)
 }
