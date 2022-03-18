@@ -866,6 +866,10 @@ export default defineComponent({
         displayView.value = data.value?.workspace?.view
         displayViewId.value = displayView.value?.id
       }
+      else {
+        displayView.value = null
+        displayViewId.value = null
+      }
     })
 
     useUpdatedWorkspaceWatchers(workspaceID)
