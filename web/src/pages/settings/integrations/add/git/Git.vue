@@ -70,9 +70,19 @@
                     placeholder="https://my-host.com/repo/name"
                   />
 
-                  <div v-if="recommendedLinkRepo && recommendedLinkRepo !== browserLinkRepo" class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50 ">
-                    <p>Found a recommended link. "<code class="underline">{{recommendedLinkRepo}}</code>". Do you want to use it?</p>
-                    <Button size="small"  class="mt-2" @click="browserLinkRepo = recommendedLinkRepo">Yes!</Button>
+                  <div
+                    v-if="recommendedLinkRepo && recommendedLinkRepo !== browserLinkRepo"
+                    class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50"
+                  >
+                    <p>
+                      Found a recommended link. "<code class="underline">{{
+                        recommendedLinkRepo
+                      }}</code
+                      >". Do you want to use it?
+                    </p>
+                    <Button size="small" class="mt-2" @click="browserLinkRepo = recommendedLinkRepo"
+                      >Yes!</Button
+                    >
                   </div>
                 </div>
 
@@ -86,9 +96,20 @@
                     placeholder="https://my-host.com/repo/name/branch/${BRANCH_NAME}"
                   />
 
-                  <div v-if="recommendedLinkBranch && recommendedLinkBranch !== browserLinkBranch" class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50 ">
-                    <p>Found a recommended link. "<code>{{recommendedLinkRepo}}</code>". Do you want to use it?</p>
-                    <Button size="small"  class="mt-2" @click="browserLinkBranch = recommendedLinkBranch">Yes</Button>
+                  <div
+                    v-if="recommendedLinkBranch && recommendedLinkBranch !== browserLinkBranch"
+                    class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50"
+                  >
+                    <p>
+                      Found a recommended link. "<code>{{ recommendedLinkRepo }}</code
+                      >". Do you want to use it?
+                    </p>
+                    <Button
+                      size="small"
+                      class="mt-2"
+                      @click="browserLinkBranch = recommendedLinkBranch"
+                      >Yes</Button
+                    >
                   </div>
                 </div>
               </div>
@@ -134,8 +155,7 @@ import { Banner } from '../../../../../atoms'
 import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__generated__/Git'
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
-import {defaultLinkBranch, defaultLinkRepo} from "./Links";
-
+import { defaultLinkBranch, defaultLinkRepo } from './Links'
 
 export default defineComponent({
   components: {
@@ -287,7 +307,7 @@ export default defineComponent({
     },
     recommendedLinkBranch() {
       return defaultLinkBranch(this.gitRemoteURL)
-    }
+    },
   },
 })
 </script>
