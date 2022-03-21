@@ -104,7 +104,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspace(ctx context.Context, args resol
 			}
 			return nil
 		default:
-			r.logger.Error("dropped subscription event",
+			r.logger.Warn("dropped subscription event",
 				zap.Stringer("user_id", userID),
 				zap.Stringer("codebase_id", codebaseID),
 				zap.Stringer("event_type", eventType),
