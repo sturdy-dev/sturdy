@@ -79,12 +79,12 @@
       </template>
       <div class="flex flex-col gap-2 items-end">
         <a
-          v-if="false"
-          :href="gitHubPRLink"
+          v-if="pushedWorkspace && gitRemoteBranchURL"
+          :href="gitRemoteBranchURL"
           target="_blank"
           class="flex items-center text-sm text-blue-800"
         >
-          <span>TODO!</span>
+          <span>Go to branch</span>
           <ExternalLinkIcon class="w-4 h-4 ml-1" />
         </a>
 
@@ -148,7 +148,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, PropType } from 'vue'
+import { defineComponent, nextTick, PropType, ref } from 'vue'
 import { gql } from '@urql/vue'
 import { ShareButtonFragment } from './__generated__/ShareButton'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -226,6 +226,7 @@ export default defineComponent({
       useMergeGitHubPullRequest()
 
     const { mutating: pushingWorkspace, pushWorkspace } = usePushWorkspace()
+    let pushedWorkspace = ref(false)
 
     return {
       landing,
@@ -238,6 +239,7 @@ export default defineComponent({
       mergeGitHubPullRequest,
 
       pushingWorkspace,
+      pushedWorkspace,
       pushWorkspace,
     }
   },
@@ -291,6 +293,13 @@ export default defineComponent({
     },
     remote() {
       return this.workspace?.codebase?.remote
+    },
+    gitRemoteBranchURL(): string | null {
+      const rem = this.remote
+      if (!rem) {
+        return null
+      }
+      return rem.browserLinkBranch.replaceAll('${BRANCH_NAME}', 'sturdy-' + this.workspace.id)
     },
   },
   methods: {
@@ -388,18 +397,24 @@ export default defineComponent({
         workspaceID: this.workspace.id,
       }
 
-      await this.pushWorkspace(input).catch((e) => {
-        let title = 'Failed!'
-        let message = 'Failed to push workspace'
+      this.pushedWorkspace = false
 
-        console.error(e)
-
-        this.emitter.emit('notification', {
-          title: title,
-          message,
-          style: 'error',
+      await this.pushWorkspace(input)
+        .then(() => {
+          this.pushedWorkspace = true
         })
-      })
+        .catch((e) => {
+          let title = 'Failed!'
+          let message = 'Failed to push workspace'
+
+          console.error(e)
+
+          this.emitter.emit('notification', {
+            title: title,
+            message,
+            style: 'error',
+          })
+        })
     },
   },
 })
