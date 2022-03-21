@@ -22,6 +22,8 @@ import (
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -68,6 +70,7 @@ type Service interface {
 	ArchiveWithChange(context.Context, *workspaces.Workspace, *changes.Change) error
 	Unarchive(context.Context, *workspaces.Workspace) error
 	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
+	Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error
 }
 
 type WorkspaceService struct {
@@ -84,6 +87,8 @@ type WorkspaceService struct {
 	changeService   *service_change.Service
 	activityService *service_activity.Service
 	viewService     *service_view.Service
+	gitHubService   *service_github.Service
+	remoteService   *service_remote.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -108,6 +113,8 @@ func New(
 	changeService *service_change.Service,
 	activityService *service_activity.Service,
 	viewService *service_view.Service,
+	gitHubService *service_github.Service,
+	remoteService *service_remote.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -131,6 +138,8 @@ func New(
 		changeService:   changeService,
 		activityService: activityService,
 		viewService:     viewService,
+		gitHubService:   gitHubService,
+		remoteService:   remoteService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -941,6 +950,25 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID.String()); err != nil {
 		s.logger.Error("failed to send codebase event", zap.Error(err))
 		// do not fail
+	}
+
+	return nil
+}
+
+func (s *WorkspaceService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
+	// if codebase has github integration, push to github
+	_, err := s.gitHubService.CreateOrUpdatePullRequest(ctx, user, ws)
+	switch {
+	case errors.Is(err, service_github.ErrIntegrationNotEnabled):
+	// continue, check push to other provider
+	case err != nil:
+		return fmt.Errorf("failed to push to github: %w", err)
+	default:
+		return nil
+	}
+
+	if err := s.remoteService.Push(ctx, user, ws); err != nil {
+		return fmt.Errorf("failed to push to remote: %w", err)
 	}
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
@@ -16,6 +17,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
+	service_user "getsturdy.com/api/pkg/users/service"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -52,6 +54,7 @@ type WorkspaceRootResolver struct {
 	workspaceService   service_workspace.Service
 	authService        *service_auth.Service
 	changeService      *service_change.Service
+	userService        service_user.Service
 
 	logger           *zap.Logger
 	viewEvents       events.EventReadWriter
@@ -88,6 +91,7 @@ func NewResolver(
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
 	changeService *service_change.Service,
+	userService service_user.Service,
 
 	logger *zap.Logger,
 	viewEventsWriter events.EventReadWriter,
@@ -123,6 +127,7 @@ func NewResolver(
 		workspaceService:   workspaceService,
 		authService:        authService,
 		changeService:      changeService,
+		userService:        userService,
 
 		logger:           logger.Named("workspaceRootResolver"),
 		viewEvents:       viewEventsWriter,
@@ -236,6 +241,33 @@ func (r *WorkspaceRootResolver) LandWorkspaceChange(ctx context.Context, args re
 
 	if _, err := r.workspaceService.LandChange(ctx, ws, args.Input.PatchIDs, diffOpts...); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
+	}
+
+	return &WorkspaceResolver{w: ws, root: r}, nil
+}
+
+func (r *WorkspaceRootResolver) PushWorkspace(ctx context.Context, args resolvers.PushWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
+	ws, err := r.workspaceReader.Get(string(args.Input.WorkspaceID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanWrite(ctx, ws); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	user, err := r.userService.GetByID(ctx, userID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.workspaceService.Push(ctx, user, ws); err != nil {
+		return nil, gqlerrors.Error(err)
 	}
 
 	return &WorkspaceResolver{w: ws, root: r}, nil

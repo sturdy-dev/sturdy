@@ -19,6 +19,8 @@ type Service struct {
 	gitHubService *service_github.Service
 }
 
+var _ service_workspaces.Service = (*Service)(nil)
+
 func New(
 	ossService *service_workspaces.WorkspaceService,
 	gitHubService *service_github.Service,

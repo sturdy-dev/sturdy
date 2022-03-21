@@ -60,17 +60,29 @@ func (svc *Service) Get(ctx context.Context, codebaseID codebases.ID) (*remote.R
 	return rep, nil
 }
 
-func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, name, url, username, password, trackedBranch string) (*remote.Remote, error) {
+type SetRemoteInput struct {
+	Name              string
+	URL               string
+	BasicAuthUsername string
+	BasicAuthPassword string
+	TrackedBranch     string
+	BrowserLinkRepo   string
+	BrowserLinkBranch string
+}
+
+func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, input *SetRemoteInput) (*remote.Remote, error) {
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
 	case err == nil:
 		// update
-		rep.Name = name
-		rep.URL = url
-		rep.BasicAuthUsername = username
-		rep.BasicAuthPassword = password
-		rep.TrackedBranch = trackedBranch
+		rep.Name = input.Name
+		rep.URL = input.URL
+		rep.BasicAuthUsername = input.BasicAuthUsername
+		rep.BasicAuthPassword = input.BasicAuthPassword
+		rep.TrackedBranch = input.TrackedBranch
+		rep.BrowserLinkRepo = input.BrowserLinkRepo
+		rep.BrowserLinkBranch = input.BrowserLinkBranch
 		if err := svc.repo.Update(ctx, rep); err != nil {
 			return nil, fmt.Errorf("failed to update remote: %w", err)
 		}
@@ -80,11 +92,13 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, name
 		r := remote.Remote{
 			ID:                uuid.NewString(),
 			CodebaseID:        codebaseID,
-			Name:              name,
-			URL:               url,
-			BasicAuthUsername: username,
-			BasicAuthPassword: password,
-			TrackedBranch:     trackedBranch,
+			Name:              input.Name,
+			URL:               input.URL,
+			BasicAuthUsername: input.BasicAuthUsername,
+			BasicAuthPassword: input.BasicAuthPassword,
+			TrackedBranch:     input.TrackedBranch,
+			BrowserLinkRepo:   input.BrowserLinkRepo,
+			BrowserLinkBranch: input.BrowserLinkBranch,
 		}
 		if err := svc.repo.Create(ctx, r); err != nil {
 			return nil, fmt.Errorf("failed to add remote: %w", err)

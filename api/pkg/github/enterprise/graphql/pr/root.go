@@ -160,7 +160,17 @@ func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, ar
 		return nil, err
 	}
 
-	pr, err := r.gitHubService.CreateOrUpdatePullRequest(ctx, ws, args.Input.PatchIDs)
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	user, err := r.userRepo.Get(userID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	pr, err := r.gitHubService.CreateOrUpdatePullRequest(ctx, user, ws)
 	switch {
 	case errors.Is(err, service_github.ErrIntegrationNotEnabled):
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "Pull Requests can only be opened if the integration is enabled and GitHub is considered to be the source of truth")
