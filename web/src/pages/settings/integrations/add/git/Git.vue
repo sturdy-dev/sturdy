@@ -69,6 +69,11 @@
                     v-model="browserLinkRepo"
                     placeholder="https://my-host.com/repo/name"
                   />
+
+                  <div v-if="recommendedLinkRepo && recommendedLinkRepo !== browserLinkRepo" class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50 ">
+                    <p>Found a recommended link. "<code class="underline">{{recommendedLinkRepo}}</code>". Do you want to use it?</p>
+                    <Button size="small"  class="mt-2" @click="browserLinkRepo = recommendedLinkRepo">Yes!</Button>
+                  </div>
                 </div>
 
                 <div>
@@ -80,6 +85,11 @@
                     v-model="browserLinkBranch"
                     placeholder="https://my-host.com/repo/name/branch/${BRANCH_NAME}"
                   />
+
+                  <div v-if="recommendedLinkBranch && recommendedLinkBranch !== browserLinkBranch" class="text-sm text-gray-500 border-l-2 border-green-400 p-2 my-4 bg-green-50 ">
+                    <p>Found a recommended link. "<code>{{recommendedLinkRepo}}</code>". Do you want to use it?</p>
+                    <Button size="small"  class="mt-2" @click="browserLinkBranch = recommendedLinkBranch">Yes</Button>
+                  </div>
                 </div>
               </div>
             </Step>
@@ -124,24 +134,8 @@ import { Banner } from '../../../../../atoms'
 import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__generated__/Git'
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
+import {defaultLinkBranch, defaultLinkRepo} from "./Links";
 
-const defaultLinkRepo = function (gitURL: string): string | null {
-  // GitLab
-  if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
-    return gitURL.substring(0, gitURL.length - 4)
-  }
-
-  return null
-}
-
-const defaultLinkBranch = function (gitURL: string): string | null {
-  // GitLab
-  if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
-    // Example: https://gitlab.com/foo-org/foo-repo/-/tree/sturdy-726608fc-59c0-4475-81b0-28ae5d12d53d
-    return gitURL.substring(0, gitURL.length - 4) + '/-/tree/${BRANCH_NAME}'
-  }
-  return null
-}
 
 export default defineComponent({
   components: {
@@ -288,6 +282,12 @@ export default defineComponent({
       if (this.data?.codebase?.remote?.id) return 'completed'
       return this.gitAuthStepStatus === 'completed' ? 'current' : 'pending'
     },
+    recommendedLinkRepo() {
+      return defaultLinkRepo(this.gitRemoteURL)
+    },
+    recommendedLinkBranch() {
+      return defaultLinkBranch(this.gitRemoteURL)
+    }
   },
 })
 </script>
