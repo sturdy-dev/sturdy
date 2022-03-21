@@ -16,7 +16,7 @@
         </p>
 
         <nav aria-label="Progress" class="max-w-4xl">
-          <ol role="list" class="overflow-hidden">
+          <ol role="list">
             <Step name="Configure host" :status="gitRemoteUrlStatus">
               <p class="my-2 max-w-2xl text-sm text-gray-500">Remote URL (for push and pull)</p>
 
@@ -115,7 +115,7 @@
               </div>
             </Step>
 
-            <Step name="Save" :status="saveUpdateStepStatus" :is-last="true">
+            <Step name="Save" :status="saveUpdateStepStatus" >
               <div class="flex flex-col space-y-2">
                 <Banner v-if="error && error.length > 0" status="error">{{ error }}</Banner>
                 <Banner v-if="showSuccess" status="success">Saved!</Banner>
@@ -131,6 +131,11 @@
                   <Button v-else color="green" @click="createOrUpdateCodebaseRemote">Create</Button>
                 </div>
               </div>
+            </Step>
+
+            <Step v-if="webhookTrigger" name="Webhooks (optional)" :is-last="true" :status="saveUpdateStepStatus">
+              <p class="text-sm text-gray-500">For a better (and faster) experience, configure your GitHost to send webhooks to the following URL on pushes and merges.</p>
+              <InputCopyToClipboard :value="webhookTrigger" />
             </Step>
           </ol>
         </nav>
@@ -156,9 +161,11 @@ import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__g
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
 import { defaultLinkBranch, defaultLinkRepo } from './Links'
+import InputCopyToClipboard from "../../../../../organisms/InputCopyToClipboard.vue";
 
 export default defineComponent({
   components: {
+    InputCopyToClipboard,
     SettingsVerticalNavigation,
     PaddedAppLeftSidebar,
     Step,
@@ -308,6 +315,9 @@ export default defineComponent({
     recommendedLinkBranch() {
       return defaultLinkBranch(this.gitRemoteURL)
     },
+    webhookTrigger() {
+      return window.location.protocol + "//"+ window.location.host + "/v3/remotes/webhook/sync-codebase/" + this.data.codebase.id
+    }
   },
 })
 </script>

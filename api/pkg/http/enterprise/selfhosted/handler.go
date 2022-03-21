@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/http"
 	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	routes_remote "getsturdy.com/api/pkg/remote/enterprise/routes"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 	routes_ci "getsturdy.com/api/pkg/statuses/enterprise/routes"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -35,6 +36,7 @@ func ProvideHandler(
 	buildkiteService *service_buildkite.Service,
 	ossEngine *http.Engine,
 	gitHubWebhooksQueue *workers_github.WebhooksQueue,
+	triggerSyncCodebaseWebhookHandler routes_remote.TriggerSyncCodebaseWebhookHandler,
 ) *Engine {
 	auth := ossEngine.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
@@ -43,5 +45,6 @@ func ProvideHandler(
 	publ := ossEngine.Group("")
 	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubWebhooksQueue))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
+	publ.POST("/v3/remotes/webhook/sync-codebase/:id", gin.HandlerFunc(triggerSyncCodebaseWebhookHandler))
 	return (*Engine)(ossEngine)
 }
