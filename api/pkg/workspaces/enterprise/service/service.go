@@ -8,6 +8,8 @@ import (
 
 	"getsturdy.com/api/pkg/changes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
@@ -17,6 +19,7 @@ type Service struct {
 	*service_workspaces.WorkspaceService
 
 	gitHubService *service_github.Service
+	remoteService *service_remote.Service
 }
 
 var _ service_workspaces.Service = (*Service)(nil)
@@ -24,10 +27,12 @@ var _ service_workspaces.Service = (*Service)(nil)
 func New(
 	ossService *service_workspaces.WorkspaceService,
 	gitHubService *service_github.Service,
+	remoteService *service_remote.Service,
 ) *Service {
 	return &Service{
 		WorkspaceService: ossService,
 		gitHubService:    gitHubService,
+		remoteService:    remoteService,
 	}
 }
 
@@ -57,4 +62,23 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, patc
 	}
 
 	return change, nil
+}
+
+func (s *Service) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
+	// if codebase has github integration, push to github
+	_, err := s.gitHubService.CreateOrUpdatePullRequest(ctx, user, ws)
+	switch {
+	case errors.Is(err, service_github.ErrIntegrationNotEnabled):
+	// continue, check push to other provider
+	case err != nil:
+		return fmt.Errorf("failed to push to github: %w", err)
+	default:
+		return nil
+	}
+
+	if err := s.remoteService.Push(ctx, user, ws); err != nil {
+		return fmt.Errorf("failed to push to remote: %w", err)
+	}
+
+	return nil
 }
