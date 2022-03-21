@@ -37,7 +37,7 @@ RUN apt-get update \
     make=4.3-4.1 \
     python3 \
     cmake=3.18.4-2+deb11u1 \
-    libssl-dev=1.1.1k-1+deb11u1 \
+    libssl-dev=1.1.1k-1+deb11u2 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /libgit2
 RUN git clone https://github.com/libgit2/libgit2.git . && git checkout v1.3.0
