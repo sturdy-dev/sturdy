@@ -64,19 +64,6 @@
       </div>
     </div>
 
-    <!-- Chosen conflict resolution -->
-    <div v-if="conflictSelection" class="flex text-sm text-gray-500 text-center">
-      <p v-if="conflictSelection === 'trunk'">Using version from trunk</p>
-      <p v-else-if="conflictSelection === 'workspace'">Using version from workspace</p>
-      <p v-else-if="conflictSelection === 'custom'">Using custom version</p>
-      <p v-else>Please choose conflict resolution</p>
-      <CheckCircleIcon
-        v-if="['trunk', 'workspace', 'custom'].includes(conflictSelection)"
-        class="-mr-1 ml-1 h-5 w-5 text-green-700"
-      />
-      <ClockIcon v-else class="-mr-1 ml-1 h-5 w-5 text-yellow-500" />
-    </div>
-
     <div class="flex-grow" />
     <RouterLinkButton
       v-if="showFullFileButton && diffs.newName"
@@ -98,6 +85,20 @@
       @showdropdown="$emit('showdropdown')"
       @hidedropdown="$emit('hidedropdown')"
     />
+  </div>
+  <!-- Chosen conflict resolution -->
+  <div v-if="conflictSelection" class="w-full border-t border-gray-200">
+    <div class="pt-1 w-full flex flex-grow justify-center text-sm text-gray-500 text-center ">
+      <p v-if="conflictSelection === 'trunk'">Using version from trunk</p>
+      <p v-else-if="conflictSelection === 'workspace'">Using version from workspace</p>
+      <p v-else-if="conflictSelection === 'custom'">Using custom version</p>
+      <p v-else>Please choose conflict resolution</p>
+      <CheckCircleIcon
+          v-if="['trunk', 'workspace', 'custom'].includes(conflictSelection)"
+          class="-mr-1 ml-1 h-5 w-5 text-green-700"
+      />
+      <ClockIcon v-else class="-mr-1 ml-1 h-5 w-5 text-yellow-500" />
+    </div>
   </div>
 </template>
 
