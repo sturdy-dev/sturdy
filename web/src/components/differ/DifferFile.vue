@@ -4,17 +4,17 @@
     class="d2h-file-wrapper bg-white rounded-md border border-gray-200 z-0 relative overflow-y-hidden overflow-x-auto"
     :class="[
       extraClasses,
-      searchIsCurrentSelectedFilename(diffs.id)
-        ? '!bg-yellow-400 font-bold sturdy-searchmatch'
-        : searchMatchesFiles(diffs.id)
-        ? '!bg-yellow-200 font-bold sturdy-searchmatch'
-        : '',
     ]"
     :style="[fileDropdownOpen ? 'min-height: 180px' : '']"
     @mouseleave="hideMakeNewCommentPill"
   >
     <DiffHeader
       :diffs="diffs"
+      :class="[searchIsCurrentSelectedFilename(diffs.id)
+        ? '!bg-yellow-400 font-bold sturdy-searchmatch'
+        : searchMatchesFiles(diffs.id)
+        ? '!bg-yellow-200 font-bold sturdy-searchmatch'
+        : '']"
       :file-key="fileKey"
       :is-suggesting="isSuggesting"
       :suggestions="suggestions"
