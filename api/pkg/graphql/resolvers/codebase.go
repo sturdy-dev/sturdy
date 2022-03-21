@@ -23,6 +23,7 @@ type CodebaseRootResolver interface {
 	UpdateCodebase(ctx context.Context, args UpdateCodebaseArgs) (CodebaseResolver, error)
 	AddUserToCodebase(ctx context.Context, args AddUserToCodebaseArgs) (CodebaseResolver, error)
 	RemoveUserFromCodebase(ctx context.Context, args RemoveUserFromCodebaseArgs) (CodebaseResolver, error)
+	PullCodebase(ctx context.Context, args PullCodebaseArgs) (CodebaseResolver, error)
 }
 
 type CodebaseViewsArgs struct {
@@ -116,4 +117,12 @@ type RemoveUserFromCodebaseArgs struct {
 type RemoveUserFromCodebaseInput struct {
 	CodebaseID graphql.ID
 	UserID     graphql.ID
+}
+
+type PullCodebaseArgs struct {
+	Input PullCodebaseInput
+}
+
+type PullCodebaseInput struct {
+	CodebaseID graphql.ID
 }

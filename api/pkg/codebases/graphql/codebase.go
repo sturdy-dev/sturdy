@@ -23,6 +23,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_organization "getsturdy.com/api/pkg/organization/service"
+	service_remote "getsturdy.com/api/pkg/remote/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -63,6 +64,7 @@ type CodebaseRootResolver struct {
 	codebaseService     *service_codebase.Service
 	organizationService *service_organization.Service
 	changeService       *service_change.Service
+	remoteService       service_remote.Service
 }
 
 func NewCodebaseRootResolver(
@@ -679,6 +681,23 @@ func (r *CodebaseRootResolver) resolveCodebaseByShort(ctx context.Context, short
 
 	if err := r.authService.CanRead(ctx, c); err != nil {
 		return nil, err
+	}
+
+	return &CodebaseResolver{c: c, root: r}, nil
+}
+
+func (r *CodebaseRootResolver) PullCodebase(ctx context.Context, args resolvers.PullCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	c, err := r.codebaseRepo.Get(codebases.ID(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanWrite(ctx, c); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.remoteService.Pull(ctx, c.ID); err != nil {
+		return nil, gqlerrors.Error(err)
 	}
 
 	return &CodebaseResolver{c: c, root: r}, nil

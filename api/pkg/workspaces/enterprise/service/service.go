@@ -19,7 +19,7 @@ type Service struct {
 	*service_workspaces.WorkspaceService
 
 	gitHubService *service_github.Service
-	remoteService *service_remote.Service
+	remoteService *service_remote.EnterpriseService
 }
 
 var _ service_workspaces.Service = (*Service)(nil)
@@ -27,7 +27,7 @@ var _ service_workspaces.Service = (*Service)(nil)
 func New(
 	ossService *service_workspaces.WorkspaceService,
 	gitHubService *service_github.Service,
-	remoteService *service_remote.Service,
+	remoteService *service_remote.EnterpriseService,
 ) *Service {
 	return &Service{
 		WorkspaceService: ossService,

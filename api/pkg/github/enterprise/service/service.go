@@ -77,7 +77,7 @@ type Service struct {
 	syncService     *service_sync.Service
 	commentsService *service_comments.Service
 	changeService   *service_change.Service
-	remoteService   *service_remote.Service
+	remoteService   *service_remote.EnterpriseService
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -115,7 +115,7 @@ func New(
 	syncService *service_sync.Service,
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
-	remoteService *service_remote.Service,
+	remoteService *service_remote.EnterpriseService,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {

@@ -17,6 +17,7 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/remote"
 	db_remote "getsturdy.com/api/pkg/remote/enterprise/db"
+	"getsturdy.com/api/pkg/remote/service"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
@@ -25,7 +26,7 @@ import (
 	"getsturdy.com/api/vcs/executor"
 )
 
-type Service struct {
+type EnterpriseService struct {
 	repo             db_remote.Repository
 	executorProvider executor.Provider
 	logger           *zap.Logger
@@ -34,6 +35,8 @@ type Service struct {
 	changeService    *service_change.Service
 }
 
+var _ service.Service = (*EnterpriseService)(nil)
+
 func New(
 	repo db_remote.Repository,
 	executorProvider executor.Provider,
@@ -41,8 +44,8 @@ func New(
 	workspaceReader db_workspaces.WorkspaceReader,
 	snap snapshotter.Snapshotter,
 	changeService *service_change.Service,
-) *Service {
-	return &Service{
+) *EnterpriseService {
+	return &EnterpriseService{
 		repo:             repo,
 		executorProvider: executorProvider,
 		logger:           logger,
@@ -52,7 +55,7 @@ func New(
 	}
 }
 
-func (svc *Service) Get(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error) {
+func (svc *EnterpriseService) Get(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error) {
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return nil, err
@@ -70,7 +73,7 @@ type SetRemoteInput struct {
 	BrowserLinkBranch string
 }
 
-func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, input *SetRemoteInput) (*remote.Remote, error) {
+func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebases.ID, input *SetRemoteInput) (*remote.Remote, error) {
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
@@ -109,7 +112,7 @@ func (svc *Service) SetRemote(ctx context.Context, codebaseID codebases.ID, inpu
 	}
 }
 
-func (svc *Service) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
+func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
 	rem, err := svc.repo.GetByCodebaseID(ctx, ws.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
@@ -145,7 +148,7 @@ func (svc *Service) Push(ctx context.Context, user *users.User, ws *workspaces.W
 	return nil
 }
 
-func (svc *Service) Pull(ctx context.Context, codebaseID codebases.ID) error {
+func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID) error {
 	rem, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
@@ -183,7 +186,7 @@ func newCredentialsCallback(username, password string) git.CredentialsCallback {
 	}
 }
 
-func (svc *Service) PrepareBranchForPush(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (commitSha string, err error) {
+func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (commitSha string, err error) {
 	if ws.ViewID == nil && ws.LatestSnapshotID != nil {
 		commitSha, err = svc.prepareBranchForPullRequestFromSnapshot(ctx, prBranchName, ws, commitMessage, userName, userEmail)
 		if err != nil {
@@ -202,7 +205,7 @@ func (svc *Service) PrepareBranchForPush(ctx context.Context, prBranchName strin
 
 }
 
-func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
+func (svc *EnterpriseService) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
 	signature := git.Signature{
 		Name:  userName,
 		Email: userEmail,
@@ -233,7 +236,7 @@ func (svc *Service) prepareBranchForPullRequestFromSnapshot(ctx context.Context,
 	return resSha, nil
 }
 
-func (svc *Service) prepareBranchForPullRequestWithView(prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
+func (svc *EnterpriseService) prepareBranchForPullRequestWithView(prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
 	signature := git.Signature{
 		Name:  userName,
 		Email: userEmail,

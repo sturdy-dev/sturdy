@@ -15,7 +15,7 @@ import (
 )
 
 type remoteRootResolver struct {
-	service          *service.Service
+	service          *service.EnterpriseService
 	workspaceService service_workspace.Service
 	authService      *service_auth.Service
 	codebaseService  *service_codebase.Service
@@ -23,7 +23,7 @@ type remoteRootResolver struct {
 }
 
 func New(
-	service *service.Service,
+	service *service.EnterpriseService,
 	workspaceService service_workspace.Service,
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
