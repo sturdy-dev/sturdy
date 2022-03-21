@@ -29,40 +29,33 @@
 
 <script lang="ts">
 import Avatar from '../shared/Avatar.vue'
+import { AUTHOR } from '../shared/AvatarHelper'
 import Tooltip from '../shared/Tooltip.vue'
 import { gql, useMutation } from '@urql/vue'
 import { computed, defineComponent, onUnmounted, PropType, ref, toRefs, watch } from 'vue'
-import { PresencePartsFragment, WorkspacePartsFragment } from './__generated__/Presence'
+import { Presense_WorkspaceFragment } from './__generated__/Presence'
 import { useUpdatedWorkspacePresence } from '../../subscriptions/useUpdatedWorkspacePresence'
 
-export const PRESENCE_FRAGMENT_QUERY = gql`
-  fragment PresenceParts on WorkspacePresence {
+export const WORKSPACE_FRAGMENT = gql`
+  fragment Presence_Workspace on Workspace {
     id
-    author {
+    presence {
       id
-      name
-      avatarUrl
+      author {
+        ...Author
+      }
+      state
+      lastActiveAt
     }
-    state
-    lastActiveAt
   }
-`
-
-export const WORKSPACE_FRAGMENT_QUERY = gql`
-  fragment WorkspaceParts on Workspace {
-    id
-  }
+  ${AUTHOR}
 `
 
 export default defineComponent({
   components: { Tooltip, Avatar },
   props: {
-    presence: {
-      type: Object as PropType<PresencePartsFragment[]>,
-      required: true,
-    },
     workspace: {
-      type: Object as PropType<WorkspacePartsFragment>,
+      type: Object as PropType<Presense_WorkspaceFragment>,
       required: true,
     },
     user: {
@@ -72,8 +65,8 @@ export default defineComponent({
   setup(props) {
     const { workspace, user } = toRefs(props)
 
-    let now = ref(new Date() / 1000)
-    let interval = setInterval(() => (now.value = new Date() / 1000), 1000 * 5)
+    let now = ref(new Date().getTime() / 1000)
+    let interval = setInterval(() => (now.value = new Date().getTime() / 1000), 1000 * 5)
     onUnmounted(() => clearInterval(interval))
 
     const { executeMutation: reportWorkspacePresence } = useMutation(gql`
@@ -122,9 +115,7 @@ export default defineComponent({
 
     let workspaceID = ref(workspace.value.id)
     watch(workspace, () => {
-      if (workspaceID?.value?.id) {
-        workspaceID = workspaceID?.value?.id
-      }
+      workspaceID.value = workspace.value.id
     })
 
     useUpdatedWorkspacePresence(workspaceID, {
@@ -138,7 +129,7 @@ export default defineComponent({
   computed: {
     presenceToShow() {
       // Show presences with activity in the last 15 minutes
-      return this.presence
+      return this.workspace.presence
         .filter((p) => p?.lastActiveAt && p.lastActiveAt >= this.now - 60 * 15) // Hide old entries
         .filter((p) => p.author.id !== this.user?.id) // Hide yourself
         .sort((a, b) => a.author.name.localeCompare(b.author.name))
