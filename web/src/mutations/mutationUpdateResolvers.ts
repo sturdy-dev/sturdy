@@ -28,6 +28,7 @@ import { removeUserFromCodebaseUpdateResolver } from './useRemoveUserFromCodebas
 import { updateInstallationUpdateResolver } from './useUpdateInstallation'
 import { updateOrganizationResolver } from './useUpdateOrganization'
 import { createOrUpdateCodebaseRemoteUpdateResolver } from './useCreateOrUpdateGitRemote'
+import { updateWorkspaceUpdateResolver } from './useUpdatedWorkspace'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,
@@ -56,6 +57,7 @@ export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   updateInstallation: updateInstallationUpdateResolver,
   updateOrganization: updateOrganizationResolver,
   createOrUpdateCodebaseRemote: createOrUpdateCodebaseRemoteUpdateResolver,
+  updateWorkspace: updateWorkspaceUpdateResolver,
 }
 
 export const optimisticMutationResolvers: Record<string, OptimisticMutationResolver> = {

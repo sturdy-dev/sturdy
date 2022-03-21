@@ -1,11 +1,17 @@
 <template>
-  <div class="min-h-16">
+  <div>
     <h1 v-if="isSuggesting" class="text-2xl font-bold text-gray-900">
       Suggesting to {{ workspace.suggestion.for.name }}
     </h1>
-    <h1 v-else class="text-2xl font-bold text-gray-900">
-      {{ workspace.name }}
-    </h1>
+    <input
+      v-model="name"
+      :disabled="disabled"
+      class="w-full text-2xl font-bold text-gray-900 border-0 p-0 border-0 outline-none"
+      :class="{
+        'animate-pulse': updating,
+      }"
+      @input.prevent="onNameInput"
+    />
     <p class="mt-2 text-sm text-gray-500">
       By
       {{ ' ' }}
@@ -29,16 +35,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, toRefs } from 'vue'
 import { gql } from '@urql/vue'
 import { WorkspaceName_WorkspaceFragment } from './__generated__/WorkspaceName'
 import { Slug } from '../slug'
+import { useUpdateWorkspace } from '../mutations/useUpdatedWorkspace'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment WorkspaceName_Workspace on Workspace {
     id
     name
-
     suggestion {
       id
       for {
@@ -46,12 +52,10 @@ export const WORKSPACE_FRAGMENT = gql`
         name
       }
     }
-
     author {
       id
       name
     }
-
     codebase {
       id
       shortID
@@ -66,6 +70,28 @@ export default defineComponent({
       type: Object as PropType<WorkspaceName_WorkspaceFragment>,
       required: true,
     },
+    disabled: {
+      type: Boolean,
+    },
+  },
+  setup(props) {
+    const { workspace } = toRefs(props)
+    const { updateWorkspace, mutating: updating } = useUpdateWorkspace()
+    return {
+      updating,
+      updateTitle(title: string) {
+        updateWorkspace({
+          id: workspace.value.id,
+          name: title,
+        })
+      },
+    }
+  },
+  data() {
+    return {
+      name: this.workspace.name,
+      updateTitleTimeout: null as null | ReturnType<typeof setTimeout>,
+    }
   },
   computed: {
     isSuggesting() {
@@ -73,6 +99,17 @@ export default defineComponent({
     },
     codebaseSlug() {
       return Slug(this.workspace.codebase.name, this.workspace.codebase.shortID)
+    },
+  },
+  methods: {
+    onNameInput(v: InputEvent) {
+      const target = v.target as HTMLInputElement
+      if (target.value.length === 0) return
+
+      if (this.updateTitleTimeout) clearTimeout(this.updateTitleTimeout)
+      this.updateTitleTimeout = setTimeout(() => {
+        this.updateTitle(target.value)
+      }, 300)
     },
   },
 })
