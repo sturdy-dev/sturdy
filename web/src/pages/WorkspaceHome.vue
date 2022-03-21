@@ -199,7 +199,7 @@
                 <div class="space-y-5 md:flex md:space-y-0">
                   <div class="space-y-5 md:flex-1">
                     <Comments :workspace="data.workspace" />
-                    <UpdatedAt :data="data" />
+                    <UpdatedAt :workspace="data.workspace" />
                   </div>
                   <div class="space-y-5 md:flex-1">
                     <BasedOn :data="data" :codebase-slug="codebaseSlug" />
@@ -388,7 +388,7 @@
           <div class="space-y-5">
             <Presence :workspace="data.workspace" :user="user" class="hidden lg:flex" />
             <Comments :workspace="data.workspace" />
-            <UpdatedAt :data="data" />
+            <UpdatedAt :workspace="data.workspace" />
             <BasedOn :data="data" :codebase-slug="codebaseSlug" />
             <Watching
               v-if="isAuthorized && !isSelfOwnedWorkspace"
@@ -484,7 +484,9 @@ import GitHubPullRequest, {
 import Comments, {
   WORKSPACE_FRAGMENT as COMMENTS_WORKSPACE_FRAGMENT,
 } from '../components/workspace/details/Comments.vue'
-import UpdatedAt from '../components/workspace/details/UpdatedAt.vue'
+import UpdatedAt, {
+  WORKSPACE_FRAGMENT as UPDATED_WORKSPACE_FRAGMENT,
+} from '../components/workspace/details/UpdatedAt.vue'
 import BasedOn from '../components/workspace/details/BasedOn.vue'
 import StatusDetails from '../components/statuses/StatusDetails.vue'
 import { useUpdatedComment } from '../subscriptions/useUpdatedComment'
@@ -739,6 +741,7 @@ export default defineComponent({
             ...WorkspaceName_Workspace
             ...Presence_Workspace
             ...CommentsCount_Workspace
+            ...Updated_Workspace
           }
         }
 
@@ -754,6 +757,7 @@ export default defineComponent({
         ${SHARE_BUTTON}
         ${RESOLVE_CONFLICT_DIFF}
         ${COMMENTS_WORKSPACE_FRAGMENT}
+        ${UPDATED_WORKSPACE_FRAGMENT}
       `,
       variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
     })
