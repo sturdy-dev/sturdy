@@ -386,12 +386,7 @@
         <aside class="hidden xl:block xl:pl-8">
           <h2 class="sr-only">Details</h2>
           <div class="space-y-5">
-            <Presence
-              :presence="data.workspace.presence"
-              :workspace="data.workspace"
-              :user="user"
-              class="hidden lg:flex"
-            />
+            <Presence :workspace="data.workspace" :user="user" class="hidden lg:flex" />
             <Comments :data="data" />
             <UpdatedAt :data="data" />
             <BasedOn :data="data" :codebase-slug="codebaseSlug" />
@@ -478,7 +473,9 @@ import WorkspaceActivitySidebar, {
 } from '../organisms/WorkspaceActivitySidebar.vue'
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
-import Presence, { PRESENCE_FRAGMENT_QUERY } from '../components/workspace/Presence.vue'
+import Presence, {
+  WORKSPACE_FRAGMENT as WORKSPACE_PRESENSE_FRAGMENT,
+} from '../components/workspace/Presence.vue'
 import ArchiveButton from '../organisms/workspace/ArchiveButton.vue'
 import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
@@ -720,9 +717,6 @@ export default defineComponent({
                 ...ViewStatusIndicator
               }
             }
-            presence {
-              ...PresenceParts
-            }
             rebaseStatus {
               id
               isRebasing
@@ -741,12 +735,13 @@ export default defineComponent({
             ...ShareButton
             ...WorkspaceActivity_Workspace
             ...WorkspaceName_Workspace
+            ...Presence_Workspace
           }
         }
 
         ${WORKSPACE_NAME_FRAGMENT}
         ${ViewFragment}
-        ${PRESENCE_FRAGMENT_QUERY}
+        ${WORKSPACE_PRESENSE_FRAGMENT}
         ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
         ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
         ${GITHUB_PULL_REQUEST_FRAGMENT}
