@@ -113,8 +113,6 @@ func New(
 	changeService *service_change.Service,
 	activityService *service_activity.Service,
 	viewService *service_view.Service,
-	gitHubService *service_github.Service,
-	remoteService *service_remote.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -138,8 +136,6 @@ func New(
 		changeService:   changeService,
 		activityService: activityService,
 		viewService:     viewService,
-		gitHubService:   gitHubService,
-		remoteService:   remoteService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -956,20 +952,5 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 }
 
 func (s *WorkspaceService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
-	// if codebase has github integration, push to github
-	_, err := s.gitHubService.CreateOrUpdatePullRequest(ctx, user, ws)
-	switch {
-	case errors.Is(err, service_github.ErrIntegrationNotEnabled):
-	// continue, check push to other provider
-	case err != nil:
-		return fmt.Errorf("failed to push to github: %w", err)
-	default:
-		return nil
-	}
-
-	if err := s.remoteService.Push(ctx, user, ws); err != nil {
-		return fmt.Errorf("failed to push to remote: %w", err)
-	}
-
-	return nil
+	return fmt.Errorf("Push is not implemented in the OSS version of Sturdy")
 }
