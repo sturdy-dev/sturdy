@@ -89,7 +89,7 @@ function build() {
 	fi
 
 	BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}.yml"
-	if [ -n "$LINUX_TARGET" ]; then
+	if [ -n "${LINUX_TARGET+x}" ]; then
 		BUILDER_CONFIG_YML="electron-builder-${OS}-${ARCH}-${LINUX_TARGET}.yml"
 	fi
 
@@ -109,7 +109,7 @@ function build() {
     " "$BUILDER_CONFIG_YML"
 
 		# .productName can not contain space in RPM packages
-		if [ "$LINUX_TARGET" == "rpm" ]; then
+		if [ "${LINUX_TARGET+x}" == "rpm" ]; then
 			yq -i eval "
         .productName = \"Sturdy${CHANNEL}\" |
         .extraMetadata.name = \"Sturdy${CHANNEL}\" |
@@ -118,7 +118,7 @@ function build() {
 		fi
 	fi
 
-	if [ -n "$LINUX_TARGET" ]; then
+	if [ -n "${LINUX_TARGET+x}" ]; then
 		yq -i eval ".linux.target += \"${LINUX_TARGET}\"" "$BUILDER_CONFIG_YML"
 
 		if [ "$LINUX_TARGET" == "snap" ]; then
@@ -214,25 +214,25 @@ function create_latest() {
 			"s3://autoupdate.getsturdy.com/client/windows/amd64/Sturdy-Installer.exe"
 	fi
 
-	if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "deb" ]; then
+	if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "${LINUX_TARGET+x}" == "deb" ]; then
 		aws s3 cp \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy_${app_version}_amd64.deb" \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.deb"
 	fi
 
-	if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "rpm" ]; then
+	if [ "$OS" == "linux" ] && [ "$ARCH" == "amd64" ] && [ "${LINUX_TARGET+x}" == "rpm" ]; then
 		aws s3 cp \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-${app_version}.x86_64.rpm" \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.rpm"
 	fi
 
-	if [ "$OS" == linux ] && [ "$ARCH" == "amd64" ] && [ "$LINUX_TARGET" == "appImage" ]; then
+	if [ "$OS" == linux ] && [ "$ARCH" == "amd64" ] && [ "${LINUX_TARGET+x}" == "appImage" ]; then
 		aws s3 cp \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-${app_version}.AppImage" \
 			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy.AppImage"
 	fi
 
-	if [ "$OS" == linux ] && [ "$ARCH" == "arm64" ] && [ "$LINUX_TARGET" == "appImage" ]; then
+	if [ "$OS" == linux ] && [ "$ARCH" == "arm64" ] && [ "${LINUX_TARGET+x}" == "appImage" ]; then
 		aws s3 cp \
 			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy-${app_version}-arm64.AppImage" \
 			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy.AppImage"

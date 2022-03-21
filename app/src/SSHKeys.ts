@@ -1,12 +1,23 @@
 import { Client, gql } from '@urql/core'
 import path from 'path'
-import { appendFile, mkdir, readFile, stat, rename } from 'fs/promises'
+import { appendFile, mkdir, readFile, stat, rename, chmod } from 'fs/promises'
 import { createWriteStream } from 'fs'
 import { spawn } from 'child_process'
 import { homedir } from 'os'
 import { MessageChannel, Worker } from 'worker_threads'
 import { Status } from './application'
 import { Logger } from './Logger'
+
+const keyMode = 0o600
+const dotSSHMode = 0o755
+const knownHostsMode = 0o644
+
+const ensureMode = async (filepath: string, mode: number) =>
+  await stat(filepath).then((stat) => {
+    if (stat.mode !== mode) {
+      return chmod(filepath, mode)
+    }
+  })
 
 export class SSHKeys {
   readonly #logger: Logger
@@ -58,6 +69,10 @@ export class SSHKeys {
         const { size } = await stat(keyPath)
         if (size === 0) {
           await this.#create(userID)
+        } else {
+          await ensureMode(keyPath, keyMode).catch((e) => {
+            this.#logger.error(`Failed to set mode on ${keyPath}: ${e}`)
+          })
         }
         return keyPath
       } catch (e) {
@@ -86,7 +101,7 @@ export class SSHKeys {
     // Will throw if the directory doesn't exist.
     const stream = createWriteStream(tmpPath, {
       encoding: 'ascii',
-      mode: 0o700,
+      mode: keyMode,
     })
 
     const { port1: callback, port2: replyTo } = new MessageChannel()
@@ -165,8 +180,12 @@ export class SSHKeys {
 
     // Create SSH directory if not exists
     await mkdir(sshDir, {
-      mode: 0o755,
+      mode: dotSSHMode,
       recursive: true,
+    })
+
+    await ensureMode(sshDir, dotSSHMode).catch((e) => {
+      this.#logger.error(`Failed to set mode on ${sshDir}: ${e}`)
     })
 
     let existingTrustRows = ''
@@ -188,7 +207,10 @@ export class SSHKeys {
     const lineSeparator = process.platform === 'win32' ? '\r\n' : '\n'
 
     await appendFile(knownHostsFile, newTrustRows.map((r) => r + lineSeparator).join(''), {
-      mode: 0o644,
+      mode: knownHostsFile,
+    })
+    await ensureMode(knownHostsFile, knownHostsMode).catch((e) => {
+      this.#logger.error(`Failed to set mode on ${knownHostsFile}: ${e}`)
     })
   }
 }
