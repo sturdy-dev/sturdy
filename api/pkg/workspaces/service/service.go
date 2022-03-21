@@ -22,8 +22,6 @@ import (
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
-	service_github "getsturdy.com/api/pkg/github/enterprise/service"
-	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -87,8 +85,6 @@ type WorkspaceService struct {
 	changeService   *service_change.Service
 	activityService *service_activity.Service
 	viewService     *service_view.Service
-	gitHubService   *service_github.Service
-	remoteService   *service_remote.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
