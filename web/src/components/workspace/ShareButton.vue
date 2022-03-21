@@ -69,6 +69,54 @@
     </OnboardingStep>
 
     <OnboardingStep
+      v-else-if="shareViaRemote"
+      id="SubmittingToRemoteGit"
+      :dependencies="['MakingAChange', 'WorkspaceChanges']"
+    >
+      <template #title>Submit to {{ remote.name }}</template>
+      <template #description>
+        When you're ready, use this button to push this workspace as a branch to {{ remote.name }}.
+      </template>
+      <div class="flex flex-col gap-2 items-end">
+        <a
+          v-if="false"
+          :href="gitHubPRLink"
+          target="_blank"
+          class="flex items-center text-sm text-blue-800"
+        >
+          <span>TODO!</span>
+          <ExternalLinkIcon class="w-4 h-4 ml-1" />
+        </a>
+
+        <div class="gap-2 flex">
+          <Button
+            color="blue"
+            size="wider"
+            :disabled="disabled || pushingWorkspace"
+            :class="[disabled ? 'cursor-default' : '']"
+            :show-tooltip="disabled"
+            :tooltip-right="true"
+            @click="triggerPushWorkspace"
+          >
+            <template #default>
+              <div v-if="pushingWorkspace" class="flex items-center">
+                <Spinner class="mr-1" />
+                <span>Pushing to {{ remote.name }}</span>
+              </div>
+              <span v-else>Push to {{ remote.name }}</span>
+            </template>
+
+            <template #tooltip>
+              {{ cantSubmitTooltipMessage }}
+            </template>
+          </Button>
+
+          <!-- TODO: Merge button -->
+        </div>
+      </div>
+    </OnboardingStep>
+
+    <OnboardingStep
       v-else
       id="LandingAChange"
       :dependencies="['MakingAChange', 'WorkspaceChanges']"
@@ -93,7 +141,7 @@
           <span v-else>Share</span>
         </template>
 
-        <template #tooltip>{{ cantSubmitTooltipMessage }} </template>
+        <template #tooltip>{{ cantSubmitTooltipMessage }}</template>
       </Button>
     </OnboardingStep>
   </div>
@@ -111,21 +159,27 @@ import { useLandWorkspaceChange } from '../../mutations/useLandWorkspaceChange'
 import { useCreateOrUpdateGitHubPullRequest } from '../../mutations/useCreateOrUpdateGitHubPullRequest'
 import { useMergeGitHubPullRequest } from '../../mutations/useMergeGitHubPullRequest'
 import { GitHubPullRequestState } from '../../__generated__/types'
+import { usePushWorkspace } from '../../mutations/usePushWorkspace'
 
 export const SHARE_BUTTON = gql`
   fragment ShareButton on Workspace {
     id
     codebase {
       id
-      gitHubIntegration {
+      gitHubIntegration @include(if: $isGitHubEnabled) {
         id
         enabled
         gitHubIsSourceOfTruth
         owner
         name
       }
+      remote @include(if: $isGitHubEnabled) {
+        id
+        name
+        browserLinkBranch
+      }
     }
-    gitHubPullRequest {
+    gitHubPullRequest @include(if: $isGitHubEnabled) {
       id
       pullRequestNumber
       state
@@ -171,6 +225,8 @@ export default defineComponent({
     const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
       useMergeGitHubPullRequest()
 
+    const { mutating: pushingWorkspace, pushWorkspace } = usePushWorkspace()
+
     return {
       landing,
       landWorkspaceChange,
@@ -180,6 +236,9 @@ export default defineComponent({
 
       mergingGitHubPullRequest,
       mergeGitHubPullRequest,
+
+      pushingWorkspace,
+      pushWorkspace,
     }
   },
   computed: {
@@ -194,6 +253,12 @@ export default defineComponent({
         if (this.workspace.codebase.gitHubIntegration?.gitHubIsSourceOfTruth) {
           return true
         }
+      }
+      return false
+    },
+    shareViaRemote() {
+      if (this.workspace.codebase.remote?.id) {
+        return true
       }
       return false
     },
@@ -223,6 +288,9 @@ export default defineComponent({
         default:
           return 'This change can not be shared.'
       }
+    },
+    remote() {
+      return this.workspace?.codebase?.remote
     },
   },
   methods: {
@@ -306,6 +374,25 @@ export default defineComponent({
         } else {
           console.error(e)
         }
+
+        this.emitter.emit('notification', {
+          title: title,
+          message,
+          style: 'error',
+        })
+      })
+    },
+
+    async triggerPushWorkspace() {
+      const input = {
+        workspaceID: this.workspace.id,
+      }
+
+      await this.pushWorkspace(input).catch((e) => {
+        let title = 'Failed!'
+        let message = 'Failed to push workspace'
+
+        console.error(e)
 
         this.emitter.emit('notification', {
           title: title,
