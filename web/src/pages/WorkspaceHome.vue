@@ -198,7 +198,7 @@
                 <h2 class="sr-only">Details</h2>
                 <div class="space-y-5 md:flex md:space-y-0">
                   <div class="space-y-5 md:flex-1">
-                    <Comments :data="data" />
+                    <Comments :workspace="data.workspace" />
                     <UpdatedAt :data="data" />
                   </div>
                   <div class="space-y-5 md:flex-1">
@@ -387,7 +387,7 @@
           <h2 class="sr-only">Details</h2>
           <div class="space-y-5">
             <Presence :workspace="data.workspace" :user="user" class="hidden lg:flex" />
-            <Comments :data="data" />
+            <Comments :workspace="data.workspace" />
             <UpdatedAt :data="data" />
             <BasedOn :data="data" :codebase-slug="codebaseSlug" />
             <Watching
@@ -481,7 +481,9 @@ import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
   GITHUB_PULL_REQUEST_FRAGMENT,
 } from '../components/workspace/details/GitHubPullRequest.vue'
-import Comments from '../components/workspace/details/Comments.vue'
+import Comments, {
+  WORKSPACE_FRAGMENT as COMMENTS_WORKSPACE_FRAGMENT,
+} from '../components/workspace/details/Comments.vue'
 import UpdatedAt from '../components/workspace/details/UpdatedAt.vue'
 import BasedOn from '../components/workspace/details/BasedOn.vue'
 import StatusDetails from '../components/statuses/StatusDetails.vue'
@@ -736,6 +738,7 @@ export default defineComponent({
             ...WorkspaceActivity_Workspace
             ...WorkspaceName_Workspace
             ...Presence_Workspace
+            ...CommentsCount_Workspace
           }
         }
 
@@ -750,6 +753,7 @@ export default defineComponent({
         ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
         ${RESOLVE_CONFLICT_DIFF}
+        ${COMMENTS_WORKSPACE_FRAGMENT}
       `,
       variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
     })
