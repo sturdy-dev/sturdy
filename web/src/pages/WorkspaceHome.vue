@@ -10,46 +10,10 @@
         <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
           <div>
             <div>
-              <div class="md:flex md:items-center md:justify-between md:space-x-4">
-                <!-- Workspace name -->
-                <div v-if="editingName" class="h-16 inline-flex flex-row items-center">
-                  <div
-                    class="inline-flex rounded-md shadow-sm mr-4"
-                    tabindex="0"
-                    @focusout="saveName"
-                  >
-                    <div class="relative flex items-stretch focus-within:z-10">
-                      <input
-                        ref="workspaceName"
-                        v-model="userEditingName"
-                        type="text"
-                        placeholder="Name your draft change, so that you and others can discover what it's about"
-                        style="min-width: 400px"
-                        class="focus:ring-blue-500 focus:border-blue-500 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                        @keydown="editingNameKeyDown"
-                      />
-                    </div>
-                    <button
-                      class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      @click="saveName"
-                    >
-                      <span>Save</span>
-                    </button>
-                  </div>
-                </div>
-                <WorkspaceName v-else :workspace="data.workspace" />
+              <div class="flex items-center justify-between gap-4">
+                <WorkspaceName class="grow" :workspace="data.workspace" :disabled="!isAuthorized" />
 
-                <div v-if="isAuthorized" class="mt-4 flex space-x-3 md:mt-0 items-center">
-                  <Button
-                    v-if="showEdit"
-                    size="wider"
-                    :disabled="editingName"
-                    @click="startEditingName"
-                  >
-                    <PencilIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    <span>Edit</span>
-                  </Button>
-
+                <div v-if="isAuthorized" class="flex space-x-3 md:mt-0 items-center">
                   <ArchiveButton :workspace-id="data.workspace.id" />
 
                   <div v-if="showSync">
@@ -483,12 +447,7 @@
 </template>
 
 <script lang="ts">
-import {
-  AnnotationIcon,
-  DesktopComputerIcon,
-  LightningBoltIcon,
-  PencilIcon,
-} from '@heroicons/vue/solid'
+import { AnnotationIcon, DesktopComputerIcon, LightningBoltIcon } from '@heroicons/vue/solid'
 import { FolderAddIcon } from '@heroicons/vue/outline'
 import LiveDetails, {
   LIVE_DETAILS_DIFFS,
@@ -581,7 +540,6 @@ export default defineComponent({
     AnnotationIcon,
     Banner,
     Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
-    PencilIcon,
     LightningBoltIcon,
     GitHubPullRequest,
     Comments,
@@ -988,9 +946,6 @@ export default defineComponent({
     showActivity() {
       return !this.isSuggesting
     },
-    showEdit() {
-      return !this.isSuggesting
-    },
     showSync() {
       return (
         (!this.data.workspace || this.data.workspace.author.id === this.user?.id) &&
@@ -1131,9 +1086,6 @@ export default defineComponent({
         rebasing_working: false,
         rebasing_conflict_resolutions: new Map(),
 
-        editingName: false, // if the name is being edited
-        userEditingName: '', // model for the new name
-
         loadingNewWorkspace: false,
         isSyncing: false,
         archiveWorkspaceActive: false,
@@ -1175,10 +1127,6 @@ export default defineComponent({
       this.workspace_draft_description = this.data?.workspace?.draftDescription
     },
 
-    async saveName() {
-      await this.updateWorkspace(this.data.workspace.id, this.userEditingName)
-      this.editingName = false
-    },
     async saveDraftDescription() {
       // Deduplication: avoid making requests if the description has not changed.
       // This is used to make sure that the client does not send a request to update the description after or during a
@@ -1295,31 +1243,6 @@ export default defineComponent({
 
     completedSync() {
       this.refresh()
-    },
-
-    startEditingName() {
-      if (this.editingName) {
-        this.editingName = false
-        return
-      }
-
-      this.editingName = true
-      this.userEditingName = this.data.workspace.name
-
-      // Focus the input field
-      this.$nextTick(() => {
-        this.$refs.workspaceName.focus()
-      })
-    },
-    editingNameKeyDown(e) {
-      // Stop bubbling, to not trigger the key handler in LiveDetails (which captures events like Cmd+Enter, and Cmd+A)
-      e.stopPropagation()
-
-      // Enter
-      if (e.keyCode === 13) {
-        e.preventDefault()
-        this.saveName()
-      }
     },
 
     onUpdatedDescription(ev) {
