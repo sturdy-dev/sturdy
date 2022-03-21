@@ -37,33 +37,7 @@
                     </button>
                   </div>
                 </div>
-                <div v-else class="min-h-16">
-                  <h1 v-if="isSuggesting" class="text-2xl font-bold text-gray-900">
-                    Suggesting to {{ data.workspace.suggestion.for.name }}
-                  </h1>
-                  <h1 v-else class="text-2xl font-bold text-gray-900">
-                    {{ data.workspace.name }}
-                  </h1>
-                  <p class="mt-2 text-sm text-gray-500">
-                    By
-                    {{ ' ' }}
-                    <span class="font-medium text-gray-900">
-                      {{ data.workspace.author.name }}
-                    </span>
-                    {{ ' ' }}
-                    in
-                    {{ ' ' }}
-                    <router-link
-                      :to="{
-                        name: 'codebaseHome',
-                        params: { codebaseSlug: codebaseSlug },
-                      }"
-                      class="font-medium text-gray-900"
-                    >
-                      {{ data.workspace.codebase.name }}
-                    </router-link>
-                  </p>
-                </div>
+                <WorkspaceName v-else :workspace="data.workspace" />
 
                 <div v-if="isAuthorized" class="mt-4 flex space-x-3 md:mt-0 items-center">
                   <Button
@@ -305,6 +279,7 @@
                   />
                 </div>
               </aside>
+
               <div v-if="showDescription" class="pt-3 relative max-w-prose">
                 <h2 class="sr-only">Description</h2>
                 <OnboardingStep
@@ -581,6 +556,10 @@ import {
   WorkspaceHomeUpdateMutationVariables,
 } from './__generated__/WorkspaceHome'
 import { useUpdatedWorkspaceDiffs } from '../subscriptions/useUpdatedWorkspaceDiffs'
+import { DeepMaybeRef } from '@vueuse/core'
+import WorkspaceName, {
+  WORKSPACE_FRAGMENT as WORKSPACE_NAME_FRAGMENT,
+} from '../organisms/WorkspaceName.vue'
 
 export default defineComponent({
   components: {
@@ -615,6 +594,7 @@ export default defineComponent({
     SearchToolbar,
     OpenInEditor,
     ArchiveButton,
+    WorkspaceName,
   },
   props: {
     user: {
@@ -651,13 +631,12 @@ export default defineComponent({
 
     let { data, fetching, error, executeQuery } = useQuery<
       WorkspaceHomeQuery,
-      WorkspaceHomeQueryVariables
+      DeepMaybeRef<WorkspaceHomeQueryVariables>
     >({
       query: gql`
         query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID, allowArchived: true) {
             id
-            name
             createdAt
             lastLandedAt
             updatedAt
@@ -803,9 +782,11 @@ export default defineComponent({
             ...LiveDetailsWorkspace
             ...ShareButton
             ...WorkspaceActivity_Workspace
+            ...WorkspaceName_Workspace
           }
         }
 
+        ${WORKSPACE_NAME_FRAGMENT}
         ${ViewFragment}
         ${PRESENCE_FRAGMENT_QUERY}
         ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
@@ -824,7 +805,7 @@ export default defineComponent({
       data: diffsData,
       fetching: diffsFetching,
       stale: diffsStale,
-    } = useQuery<WorkspaceHomeDiffsQuery, WorkspaceHomeDiffsQueryVariables>({
+    } = useQuery<WorkspaceHomeDiffsQuery, DeepMaybeRef<WorkspaceHomeDiffsQueryVariables>>({
       query: gql`
         query WorkspaceHomeDiffs($workspaceID: ID!) {
           workspace(id: $workspaceID) {
