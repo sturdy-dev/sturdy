@@ -1,5 +1,6 @@
 <template>
-  <div class="flex py-1.5 px-2.5 sticky z-20 left-0 inline-flex items-start w-full items-center">
+  <div>
+    <div class="flex py-1.5 px-2.5 sticky z-20 left-0 inline-flex items-start w-full items-center">
     <span class="inline-flex items-center space-x-2 text-sm font-medium text-gray-500">
       <!-- TODO: Different icons for different filetypes -->
       <DocumentTextIcon class="w-5 h-5" />
@@ -13,8 +14,8 @@
       </span>
 
       <span
-        v-else-if="diffs.newName && diffs.origName && diffs.newName !== diffs.origName"
-        class="d2h-file-name"
+          v-else-if="diffs.newName && diffs.origName && diffs.newName !== diffs.origName"
+          class="d2h-file-name"
       >
         <DifferName :name="diffs.origName" :added="isAdded" @addWithPrefix="sendSetWithPrefix" />
         →
@@ -35,69 +36,70 @@
       </span>
     </span>
 
-    <!-- Suggestion heads -->
-    <div v-if="!isSuggesting" class="ml-8">
-      <div v-for="author in suggestingAuthors" :key="author.id">
-        <div
-          :class="[
+      <!-- Suggestion heads -->
+      <div v-if="!isSuggesting" class="ml-8">
+        <div v-for="author in suggestingAuthors" :key="author.id">
+          <div
+              :class="[
             showingSuggestionsByUser === author.id ? 'bg-gray-200' : 'bg-transparent',
             'w-8 h-8 rounded-full items-center justify-center inline-flex',
           ]"
-        >
-          <!-- Avatar if suggestions can be hidden (user have their own modifications to this file) -->
-          <Avatar
-            v-if="haveLiveChanges"
-            :author="author"
-            size="6"
-            class="border-2 border-green-300 cursor-pointer rounded-full"
-            :title="'Show suggestions by ' + author.name"
-            @click="$emit('showSuggestionsByUser', author.id)"
-          />
-          <Avatar
-            v-else
-            :author="author"
-            size="6"
-            class="border-2 border-green-300 rounded-full"
-            :title="'Show suggestions by ' + author.name"
-          />
+          >
+            <!-- Avatar if suggestions can be hidden (user have their own modifications to this file) -->
+            <Avatar
+                v-if="haveLiveChanges"
+                :author="author"
+                size="6"
+                class="border-2 border-green-300 cursor-pointer rounded-full"
+                :title="'Show suggestions by ' + author.name"
+                @click="$emit('showSuggestionsByUser', author.id)"
+            />
+            <Avatar
+                v-else
+                :author="author"
+                size="6"
+                class="border-2 border-green-300 rounded-full"
+                :title="'Show suggestions by ' + author.name"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="flex-grow" />
-    <RouterLinkButton
-      v-if="showFullFileButton && diffs.newName"
-      size="small"
-      :to="{ name: 'browseFile', params: { path: diffs.newName.split('/') } }"
-    >
-      Show file
-    </RouterLinkButton>
-    <DifferAddButton
-      v-if="!showSuggestions && showAddButton"
-      :is-added="isAdded"
-      :can-ignore-file="canIgnoreFile"
-      :is-hidden="false"
-      @add="$emit('add')"
-      @ignore="onIgnore(diffs.newName)"
-      @hide="$emit('hide')"
-      @undo="$emit('undo')"
-      @unhide="$emit('unhide')"
-      @showdropdown="$emit('showdropdown')"
-      @hidedropdown="$emit('hidedropdown')"
-    />
-  </div>
-  <!-- Chosen conflict resolution -->
-  <div v-if="conflictSelection" class="w-full border-t border-gray-200">
-    <div class="pt-1 w-full flex flex-grow justify-center text-sm text-gray-500 text-center">
-      <p v-if="conflictSelection === 'trunk'">Using version from trunk</p>
-      <p v-else-if="conflictSelection === 'workspace'">Using version from workspace</p>
-      <p v-else-if="conflictSelection === 'custom'">Using custom version</p>
-      <p v-else>Please choose conflict resolution</p>
-      <CheckCircleIcon
-        v-if="['trunk', 'workspace', 'custom'].includes(conflictSelection)"
-        class="-mr-1 ml-1 h-5 w-5 text-green-700"
+      <div class="flex-grow" />
+      <RouterLinkButton
+          v-if="showFullFileButton && diffs.newName"
+          size="small"
+          :to="{ name: 'browseFile', params: { path: diffs.newName.split('/') } }"
+      >
+        Show file
+      </RouterLinkButton>
+      <DifferAddButton
+          v-if="!showSuggestions && showAddButton"
+          :is-added="isAdded"
+          :can-ignore-file="canIgnoreFile"
+          :is-hidden="false"
+          @add="$emit('add')"
+          @ignore="onIgnore(diffs.newName)"
+          @hide="$emit('hide')"
+          @undo="$emit('undo')"
+          @unhide="$emit('unhide')"
+          @showdropdown="$emit('showdropdown')"
+          @hidedropdown="$emit('hidedropdown')"
       />
-      <ClockIcon v-else class="-mr-1 ml-1 h-5 w-5 text-yellow-500" />
+    </div>
+    <!-- Chosen conflict resolution -->
+    <div v-if="conflictSelection" class="w-full border-t border-gray-200">
+      <div class="pt-1 w-full flex flex-grow justify-center text-sm text-gray-500 text-center ">
+        <p v-if="conflictSelection === 'trunk'">Using version from trunk</p>
+        <p v-else-if="conflictSelection === 'workspace'">Using version from workspace</p>
+        <p v-else-if="conflictSelection === 'custom'">Using custom version</p>
+        <p v-else>Please choose conflict resolution</p>
+        <CheckCircleIcon
+            v-if="['trunk', 'workspace', 'custom'].includes(conflictSelection)"
+            class="-mr-1 ml-1 h-5 w-5 text-green-700"
+        />
+        <ClockIcon v-else class="-mr-1 ml-1 h-5 w-5 text-yellow-500" />
+      </div>
     </div>
   </div>
 </template>
