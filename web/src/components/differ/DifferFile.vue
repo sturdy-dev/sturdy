@@ -102,14 +102,14 @@
     <div v-if="isReadyToDisplay && !differState.isHidden && !showSuggestions && !diffs.isLarge">
       <div class="d2h-code-wrapper">
         <table
-          class="d2h-diff-table leading-4 z-0"
+          class="d2h-diff-table leading-4"
           style="border-collapse: separate; border-spacing: 0"
         >
           <tbody
             v-for="(hunk, hunkIndex) in parsedHunks"
             :key="hunkIndex"
             :class="[
-              'd2h-diff-tbody d2h-file-diff z-0',
+              'd2h-diff-tbody d2h-file-diff',
               checkedHunks.get(diffs.hunks[hunkIndex].id) ? 'opacity-70' : '',
               differState.isHidden ? 'hidden' : '',
             ]"
@@ -118,7 +118,7 @@
               v-for="(block, blockIndex) in highlightedBlocks(hunk.blocks, hunk.language)"
               :key="block.header"
             >
-              <tr class="h-full overflow-hidden z-0">
+              <tr class="h-full overflow-hidden">
                 <td
                   class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
                 >
@@ -139,7 +139,7 @@
                   </label>
                 </td>
                 <td class="bg-blue-50" />
-                <td class="d2h-info h-full bg-blue-50 left-0 z-0 w-full">
+                <td class="d2h-info h-full bg-blue-50 left-0 w-full">
                   <div class="flex items-center sticky left-0">
                     <div class="d2h-code-line d2h-info text-gray-500">
                       &nbsp;&nbsp;{{ block.header }}
@@ -151,7 +151,6 @@
               <template v-for="(row, rowIndex) in block.lines" :key="rowIndex">
                 <tr
                   :data-row-index="rowIndex"
-                  class="z-0"
                   :data-preferred-name="diffs.preferredName"
                   :data-line-oldnum="row.oldNumber"
                   :data-line-newnum="row.newNumber"
@@ -182,7 +181,7 @@
                   >
                     <button
                       v-if="canComment && showMakeNewCommentPillAt(hunkIndex, blockIndex, rowIndex)"
-                      class="absolute -mt-2 -ml-2 z-40 w-4 h-4 inline-flex items-center rounded-md border border-blue-500 bg-blue-400 text-sm font-medium text-gray-500 hover:bg-blue-500 focus:outline-none focus:ring-0"
+                      class="absolute z-40 -mt-2 -ml-2 w-4 h-4 inline-flex items-center rounded-md border border-blue-500 bg-blue-400 text-sm font-medium text-gray-500 hover:bg-blue-500 focus:outline-none focus:ring-0"
                       @click.stop.prevent="composeNewComment(hunkIndex, blockIndex, rowIndex)"
                     >
                       <PlusIcon class="text-white" />
@@ -208,7 +207,7 @@
                         : '',
                     ]"
                   >
-                    <div class="d2h-code-line relative z-0 px-4">
+                    <div class="d2h-code-line relative px-4">
                       <span class="d2h-code-line-prefix">
                         <template v-if="row.type === 'context'">&nbsp;</template>
                         <template v-else>{{ row.prefix }}</template>
@@ -229,7 +228,11 @@
                   v-for="comment in commentsOnRow(row.oldNumber, row.newNumber)"
                   :key="comment.id"
                 >
-                  <td class="font-sans p-2" colspan="3">
+                  <td
+                    class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+                    colspan="2"
+                  />
+                  <td class="font-sans p-2">
                     <ReviewComment
                       :comment="comment"
                       :members="members"
@@ -241,7 +244,11 @@
                   </td>
                 </tr>
                 <tr v-if="isComposingNewCommentAt(hunkIndex, blockIndex, rowIndex)">
-                  <td class="font-sans p-2" colspan="3">
+                  <td
+                    class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+                    colspan="2"
+                  />
+                  <td class="font-sans p-2">
                     <ReviewNewComment
                       :members="members"
                       :user="user"

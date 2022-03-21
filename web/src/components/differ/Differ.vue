@@ -1,5 +1,5 @@
 <template>
-  <div id="differ-root" class="w-full z-10 relative ph-no-capture">
+  <div id="differ-root" class="w-full relative ph-no-capture">
     <TooManyFilesChanged v-if="hideDiffsTooMany" :count="diffs.length" />
     <div v-else class="overflow-x-auto flex-grow flex flex-col gap-4">
       <DifferFile

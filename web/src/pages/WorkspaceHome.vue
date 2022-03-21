@@ -363,7 +363,7 @@
           </div>
 
           <section>
-            <div class="flex-grow z-10 relative min-w-0">
+            <div class="flex-grow relative min-w-0">
               <div class="pt-4">
                 <!-- Rebasing -->
                 <Banner

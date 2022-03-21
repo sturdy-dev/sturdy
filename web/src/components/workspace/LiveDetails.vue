@@ -110,7 +110,7 @@
       </div>
     </div>
 
-    <div class="z-10 relative">
+    <div class="relative">
       <TooManyFilesChanged v-if="hideDiffs" :count="diffs.length" />
 
       <div v-else-if="isFetching" class="space-y-8 mt-4">
