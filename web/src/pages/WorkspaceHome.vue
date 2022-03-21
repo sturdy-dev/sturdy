@@ -195,53 +195,7 @@
               </div>
 
               <aside class="mt-8 xl:hidden">
-                <h2 class="sr-only">Details</h2>
-                <div class="space-y-5 md:flex md:space-y-0">
-                  <div class="space-y-5 md:flex-1">
-                    <Comments :workspace="data.workspace" />
-                    <UpdatedAt :workspace="data.workspace" />
-                  </div>
-                  <div class="space-y-5 md:flex-1">
-                    <BasedOn :data="data" :codebase-slug="codebaseSlug" />
-                    <Watching
-                      v-if="user && !isSelfOwnedWorkspace"
-                      :user="user"
-                      :watchers="data.workspace.watchers"
-                      :workspace-id="data.workspace.id"
-                    />
-                    <GitHubPullRequest
-                      :git-hub-integration="data?.workspace?.codebase?.gitHubIntegration"
-                      :git-hub-pull-request="data?.workspace?.gitHubPullRequest"
-                    />
-                  </div>
-                </div>
-                <div
-                  class="mt-6 border-t border-b border-gray-200 py-6 space-y-8 md:space-y-0 md:grid md:grid-cols-2"
-                >
-                  <div>
-                    <h2 class="text-sm font-medium text-gray-500">Author</h2>
-                    <ul role="list" class="mt-3 space-y-3">
-                      <li class="flex justify-start">
-                        <a href="#" class="flex items-center space-x-3">
-                          <div class="flex-shrink-0">
-                            <Avatar :author="data.workspace.author" size="5" />
-                          </div>
-                          <div class="text-sm font-medium text-gray-900">
-                            {{ data.workspace.author.name }}
-                          </div>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <WorkspaceApproval
-                    v-if="showApproval"
-                    :reviews="data.workspace.reviews"
-                    :workspace="data.workspace"
-                    :codebase-id="data.workspace.codebase.id"
-                    :user="user"
-                    :members="data.workspace.codebase.members"
-                  />
-                </div>
+                <WorkspaceDetails :workspace="data.workspace" :user="user" />
               </aside>
 
               <div v-if="showDescription" class="pt-3 relative max-w-prose">
@@ -384,49 +338,7 @@
           </section>
         </div>
         <aside class="hidden xl:block xl:pl-8">
-          <h2 class="sr-only">Details</h2>
-          <div class="space-y-5">
-            <Presence :workspace="data.workspace" :user="user" class="hidden lg:flex" />
-            <Comments :workspace="data.workspace" />
-            <UpdatedAt :workspace="data.workspace" />
-            <BasedOn :data="data" :codebase-slug="codebaseSlug" />
-            <Watching
-              v-if="isAuthorized && !isSelfOwnedWorkspace"
-              :user="user"
-              :watchers="data.workspace.watchers"
-              :workspace-id="data.workspace.id"
-            />
-            <StatusDetails :statuses="data.workspace.statuses" />
-            <GitHubPullRequest
-              :git-hub-integration="data?.workspace?.codebase?.gitHubIntegration"
-              :git-hub-pull-request="data?.workspace?.gitHubPullRequest"
-            />
-          </div>
-          <div class="mt-6 border-t border-gray-200 py-6 space-y-8">
-            <div>
-              <h2 class="text-sm font-medium text-gray-500">Author</h2>
-              <ul role="list" class="mt-3 space-y-3">
-                <li class="flex justify-start">
-                  <a href="#" class="flex items-center space-x-3">
-                    <div class="flex-shrink-0">
-                      <Avatar :author="data.workspace.author" size="5" />
-                    </div>
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ data.workspace.author.name }}
-                    </div>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <WorkspaceApproval
-              v-if="showApproval"
-              :reviews="data.workspace.reviews"
-              :workspace="data.workspace"
-              :codebase-id="data.workspace.codebase.id"
-              :user="user"
-              :members="data.workspace.codebase.members"
-            />
-          </div>
+          <WorkspaceDetails :workspace="data.workspace" :user="user" />
 
           <WorkspaceActivitySidebar
             v-if="showActivity"
@@ -467,28 +379,10 @@ import {
 } from 'vue'
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
-import Avatar from '../components/shared/Avatar.vue'
 import WorkspaceActivitySidebar, {
   WORKSPACE_FRAGMENT as WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT,
 } from '../organisms/WorkspaceActivitySidebar.vue'
-import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
-import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
-import Presence, {
-  WORKSPACE_FRAGMENT as WORKSPACE_PRESENSE_FRAGMENT,
-} from '../components/workspace/Presence.vue'
 import ArchiveButton from '../organisms/workspace/ArchiveButton.vue'
-import GitHubPullRequest, {
-  CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
-  GITHUB_PULL_REQUEST_FRAGMENT,
-} from '../components/workspace/details/GitHubPullRequest.vue'
-import Comments, {
-  WORKSPACE_FRAGMENT as COMMENTS_WORKSPACE_FRAGMENT,
-} from '../components/workspace/details/Comments.vue'
-import UpdatedAt, {
-  WORKSPACE_FRAGMENT as UPDATED_WORKSPACE_FRAGMENT,
-} from '../components/workspace/details/UpdatedAt.vue'
-import BasedOn from '../components/workspace/details/BasedOn.vue'
-import StatusDetails from '../components/statuses/StatusDetails.vue'
 import { useUpdatedComment } from '../subscriptions/useUpdatedComment'
 import { useUpdatedWorkspace } from '../subscriptions/useUpdatedWorkspace'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
@@ -520,6 +414,9 @@ import { DeepMaybeRef } from '@vueuse/core'
 import WorkspaceName, {
   WORKSPACE_FRAGMENT as WORKSPACE_NAME_FRAGMENT,
 } from '../organisms/WorkspaceName.vue'
+import WorkspaceDetails, {
+  WORKSPACE_FRAGMENT as WORKSPACE_DETAILS_FRAGMENT,
+} from '../organisms/WorkspaceDetails.vue'
 
 export default defineComponent({
   components: {
@@ -530,10 +427,7 @@ export default defineComponent({
     ButtonWithDropdown,
     ViewStatusIndicator,
     OnboardingStep,
-    WorkspaceApproval,
-    Watching,
     WorkspaceActivitySidebar,
-    Avatar,
     Spinner,
     Button,
     ResolveConflict,
@@ -542,18 +436,13 @@ export default defineComponent({
     Banner,
     Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
     LightningBoltIcon,
-    GitHubPullRequest,
-    Comments,
-    UpdatedAt,
-    BasedOn,
-    Presence,
-    StatusDetails,
     DesktopComputerIcon,
     MenuItem,
     SearchToolbar,
     OpenInEditor,
     ArchiveButton,
     WorkspaceName,
+    WorkspaceDetails,
   },
   props: {
     user: {
@@ -596,9 +485,7 @@ export default defineComponent({
         query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
           workspace(id: $workspaceID, allowArchived: true) {
             id
-            createdAt
             lastLandedAt
-            updatedAt
             upToDateWithTrunk
             lastActivityAt
             draftDescription
@@ -606,9 +493,6 @@ export default defineComponent({
               id
               name
               avatarUrl
-            }
-            watchers {
-              ...WorkspaceWatcher
             }
             change {
               id
@@ -625,18 +509,6 @@ export default defineComponent({
               title
               trunkCommitID
               createdAt
-              author {
-                id
-                name
-                avatarUrl
-              }
-            }
-            reviews {
-              id
-              grade
-              createdAt
-              isReplaced
-              dismissedAt
               author {
                 id
                 name
@@ -679,16 +551,9 @@ export default defineComponent({
                 }
               }
             }
-            gitHubPullRequest @include(if: $isGitHubEnabled) {
-              ...GitHubPullRequest
-            }
             codebase {
               id
               name
-
-              gitHubIntegration @include(if: $isGitHubEnabled) {
-                ...CodebaseGitHubIntegration
-              }
 
               workspaces {
                 id
@@ -739,25 +604,18 @@ export default defineComponent({
             ...ShareButton
             ...WorkspaceActivity_Workspace
             ...WorkspaceName_Workspace
-            ...Presence_Workspace
-            ...CommentsCount_Workspace
-            ...Updated_Workspace
+            ...WorkspaceDetails_Workspace
           }
         }
 
         ${WORKSPACE_NAME_FRAGMENT}
         ${ViewFragment}
-        ${WORKSPACE_PRESENSE_FRAGMENT}
         ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
-        ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
-        ${GITHUB_PULL_REQUEST_FRAGMENT}
         ${VIEW_STATUS_INDICATOR}
         ${LIVE_DETAILS_WORKSPACE}
-        ${WORKSPACE_WATCHER_FRAGMENT}
         ${SHARE_BUTTON}
         ${RESOLVE_CONFLICT_DIFF}
-        ${COMMENTS_WORKSPACE_FRAGMENT}
-        ${UPDATED_WORKSPACE_FRAGMENT}
+        ${WORKSPACE_DETAILS_FRAGMENT}
       `,
       variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
     })
