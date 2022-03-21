@@ -34,8 +34,8 @@ func (r *repo) GetByCodebaseID(ctx context.Context, codebaseID codebases.ID) (*r
 }
 
 func (r *repo) Create(ctx context.Context, val remote.Remote) error {
-	_, err := r.db.NamedExecContext(ctx, `INSERT INTO remotes (id, codebase_id, name, url, basic_username, basic_password, tracked_branch)
-		VALUES(:id, :codebase_id, :name, :url, :basic_username, :basic_password, :tracked_branch)`, val)
+	_, err := r.db.NamedExecContext(ctx, `INSERT INTO remotes (id, codebase_id, name, url, basic_username, basic_password, tracked_branch, browser_link_repo, browser_link_branch)
+		VALUES(:id, :codebase_id, :name, :url, :basic_username, :basic_password, :tracked_branch, :browser_link_repo, :browser_link_branch)`, val)
 	if err != nil {
 		return fmt.Errorf("failed to create remote: %w", err)
 	}
@@ -49,7 +49,9 @@ func (r *repo) Update(ctx context.Context, val *remote.Remote) error {
 	        url = :url,
 	        basic_username = :basic_username,
 			basic_password = :basic_password,
-			tracked_branch = :tracked_branch
+			tracked_branch = :tracked_branch,
+			browser_link_repo = :browser_link_repo, 
+			browser_link_branch = :browser_link_branch 
 		WHERE id = :id`, val)
 	if err != nil {
 		return fmt.Errorf("failed to update remote: %w", err)

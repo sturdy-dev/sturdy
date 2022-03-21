@@ -2,10 +2,6 @@ import { gql, useMutation } from '@urql/vue'
 import { UpdateResolver } from '@urql/exchange-graphcache'
 import { DeepMaybeRef } from '@vueuse/core'
 import {
-  CreateOrUpdateBuildkiteIntegrationMutation,
-  CreateOrUpdateBuildkiteIntegrationMutationVariables,
-} from './__generated__/useCreateOrUpdateBuildkiteIntegration'
-import {
   CreateOrUpdateCodebaseRemoteMutation,
   CreateOrUpdateCodebaseRemoteMutationVariables,
 } from './__generated__/useCreateOrUpdateGitRemote'
@@ -16,6 +12,12 @@ const CREATE_GIT_REMOTE = gql`
     createOrUpdateCodebaseRemote(input: $input) {
       id
       name
+      url
+      basicAuthUsername
+      basicAuthPassword
+      trackedBranch
+      browserLinkRepo
+      browserLinkBranch
     }
   }
 `

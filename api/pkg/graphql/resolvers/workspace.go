@@ -101,6 +101,7 @@ type WorkspaceRootResolver interface {
 	CreateWorkspace(ctx context.Context, args CreateWorkspaceArgs) (WorkspaceResolver, error)
 	ExtractWorkspace(ctx context.Context, args ExtractWorkspaceArgs) (WorkspaceResolver, error)
 	RemovePatches(context.Context, RemovePatchesArgs) (WorkspaceResolver, error)
+	PushWorkspace(ctx context.Context, args PushWorkspaceArgs) (WorkspaceResolver, error)
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)
@@ -138,4 +139,12 @@ type WorkspaceResolver interface {
 	Diffs(context.Context) ([]FileDiffResolver, error)
 	Change(context.Context) (ChangeResolver, error)
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
+}
+
+type PushWorkspaceArgs struct {
+	Input PushWorkspaceInput
+}
+
+type PushWorkspaceInput struct {
+	WorkspaceID graphql.ID
 }

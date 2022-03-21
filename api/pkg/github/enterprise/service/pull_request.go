@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -22,6 +23,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/vcs"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -162,14 +164,12 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 
 var ErrIntegrationNotEnabled = errors.New("github integration is not enabled")
 
-func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspaces.Workspace, patchIDs []string) (*github.PullRequest, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.User, ws *workspaces.Workspace) (*github.PullRequest, error) {
 	ghRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(ws.CodebaseID)
-	if err != nil {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, ErrIntegrationNotEnabled
+	case err != nil:
 		return nil, err
 	}
 
@@ -183,12 +183,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		return nil, err
 	}
 
-	ghUser, err := svc.gitHubUserRepo.GetByUserID(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := svc.userService.GetByID(ctx, userID)
+	ghUser, err := svc.gitHubUserRepo.GetByUserID(user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +197,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 		zap.Stringer("codebase_id", cb.ID),
 		zap.Int64("github_installation_id", ghInstallation.InstallationID),
 		zap.String("workspace_id", ws.ID),
-		zap.Stringer("user_id", userID),
+		zap.Stringer("user_id", user.ID),
 	)
 
 	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(ws.ID)
@@ -318,7 +313,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, ws *workspace
 			WorkspaceID:        ws.ID,
 			GitHubID:           apiPR.GetID(),
 			GitHubRepositoryID: ghRepo.GitHubRepositoryID,
-			CreatedBy:          userID,
+			CreatedBy:          user.ID,
 			GitHubPRNumber:     apiPR.GetNumber(),
 			Head:               prBranch,
 			HeadSHA:            &prSHA,

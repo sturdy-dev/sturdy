@@ -10,4 +10,6 @@ type Remote struct {
 	BasicAuthUsername string       `db:"basic_username"`
 	BasicAuthPassword string       `db:"basic_password"`
 	TrackedBranch     string       `db:"tracked_branch"`
+	BrowserLinkRepo   string       `db:"browser_link_repo"`
+	BrowserLinkBranch string       `db:"browser_link_branch"`
 }

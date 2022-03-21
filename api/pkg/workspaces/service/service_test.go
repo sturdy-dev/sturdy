@@ -65,6 +65,8 @@ func setup(t *testing.T) *testCollaborators {
 		activityService,
 
 		nil,
+		nil,
+		nil,
 		nil, // activitySender
 		executorProvider,
 		eventsSender,

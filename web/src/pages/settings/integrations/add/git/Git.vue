@@ -57,6 +57,33 @@
               </div>
             </Step>
 
+            <Step name="Links" :status="gitAuthStepStatus">
+              <div class="space-y-4">
+                <p class="text-sm text-gray-500">
+                  Links to use when linking from Sturdy to <strong>{{ gitRemoteName }}</strong>
+                </p>
+
+                <div>
+                  <p class="text-sm text-gray-500">Link to repository</p>
+                  <TextInput
+                    v-model="browserLinkRepo"
+                    placeholder="https://my-host.com/repo/name"
+                  />
+                </div>
+
+                <div>
+                  <p class="text-sm text-gray-500">
+                    Link to branch (template). Use <code>${BRANCH_NAME}</code> as a variable for the
+                    branch name.
+                  </p>
+                  <TextInput
+                    v-model="browserLinkBranch"
+                    placeholder="https://my-host.com/repo/name/branch/${BRANCH_NAME}"
+                  />
+                </div>
+              </div>
+            </Step>
+
             <Step name="Save" :status="saveUpdateStepStatus" :is-last="true">
               <div class="flex flex-col space-y-2">
                 <Banner v-if="error && error.length > 0" status="error">{{ error }}</Banner>
@@ -86,7 +113,7 @@ import TextInput from '../../../../../molecules/TextInput.vue'
 import Step from '../../../../../components/ci/Step.vue'
 import { Status } from '../../../../../components/ci/StepIndicator.vue'
 import { gql, useQuery } from '@urql/vue'
-import { ref, watch } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug } from '../../../../../slug'
 import Pill from '../../../../../components/shared/Pill.vue'
@@ -98,7 +125,25 @@ import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__g
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
 
-export default {
+const defaultLinkRepo = function (gitURL: string): string | null {
+  // GitLab
+  if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
+    return gitURL.substring(0, gitURL.length - 4)
+  }
+
+  return null
+}
+
+const defaultLinkBranch = function (gitURL: string): string | null {
+  // GitLab
+  if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
+    // Example: https://gitlab.com/foo-org/foo-repo/-/tree/sturdy-726608fc-59c0-4475-81b0-28ae5d12d53d
+    return gitURL.substring(0, gitURL.length - 4) + '/-/tree/${BRANCH_NAME}'
+  }
+  return null
+}
+
+export default defineComponent({
   components: {
     SettingsVerticalNavigation,
     PaddedAppLeftSidebar,
@@ -127,6 +172,8 @@ export default {
               trackedBranch
               basicAuthUsername
               basicAuthPassword
+              browserLinkRepo
+              browserLinkBranch
             }
           }
         }
@@ -141,14 +188,17 @@ export default {
     const trackedBranch = ref('')
     const basicAuthUsername = ref('')
     const basicAuthPassword = ref('')
+    const browserLinkRepo = ref('')
+    const browserLinkBranch = ref('')
     const showSuccess = ref(false)
     const error = ref<Error | string | null>(null)
 
-    // Set data from API
+    // Set data from API (only once)
+    let didLoad = false
     watch(
       data,
       (newData) => {
-        if (!newData?.codebase?.remote) {
+        if (!newData?.codebase?.remote || didLoad) {
           return
         }
         gitRemoteURL.value = newData.codebase.remote.url
@@ -156,6 +206,9 @@ export default {
         trackedBranch.value = newData.codebase.remote.trackedBranch
         basicAuthUsername.value = newData.codebase.remote.basicAuthUsername
         basicAuthPassword.value = newData.codebase.remote.basicAuthPassword
+        browserLinkRepo.value = newData.codebase.remote.browserLinkRepo
+        browserLinkBranch.value = newData.codebase.remote.browserLinkBranch
+        didLoad = true
       },
       {
         immediate: true,
@@ -163,6 +216,22 @@ export default {
     )
 
     const createOrUpdateCodebaseRemoteFunc = useCreateOrUpdateCodebaseRemote()
+
+    watch(gitRemoteURL, () => {
+      if (gitRemoteURL.value && !browserLinkRepo.value) {
+        let n = defaultLinkRepo(gitRemoteURL.value)
+        if (n) {
+          browserLinkRepo.value = n
+        }
+      }
+
+      if (gitRemoteURL.value && !browserLinkBranch.value) {
+        let n = defaultLinkBranch(gitRemoteURL.value)
+        if (n) {
+          browserLinkBranch.value = n
+        }
+      }
+    })
 
     return {
       data,
@@ -174,6 +243,8 @@ export default {
       trackedBranch,
       basicAuthUsername,
       basicAuthPassword,
+      browserLinkRepo,
+      browserLinkBranch,
 
       error,
 
@@ -190,6 +261,8 @@ export default {
           trackedBranch: trackedBranch.value,
           basicAuthUsername: basicAuthUsername.value,
           basicAuthPassword: basicAuthPassword.value,
+          browserLinkRepo: browserLinkRepo.value,
+          browserLinkBranch: browserLinkBranch.value,
         }
 
         await createOrUpdateCodebaseRemoteFunc(vars)
@@ -205,7 +278,7 @@ export default {
   },
   computed: {
     gitRemoteUrlStatus(): Status {
-      return this.gitRemoteURL ? 'completed' : 'current'
+      return this.gitRemoteURL && this.trackedBranch && this.gitRemoteName ? 'completed' : 'current'
     },
     gitAuthStepStatus(): Status {
       if (this.basicAuthUsername && this.basicAuthPassword) return 'completed'
@@ -216,5 +289,5 @@ export default {
       return this.gitAuthStepStatus === 'completed' ? 'current' : 'pending'
     },
   },
-}
+})
 </script>

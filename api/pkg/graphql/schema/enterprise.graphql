@@ -43,11 +43,10 @@ extend type Mutation {
   # createOrUpdateCodebaseRemote is experimental
   createOrUpdateCodebaseRemote(input: CreateOrUpdateCodebaseRemoteInput!): Remote!
 
-  # pushWorkspaceToRemote is experimental
-  pushWorkspaceToRemote(input: PushWorkspaceToRemoteInput!): Workspace!
-
-  # fetchRemoteToTrunk is experimental
-  fetchRemoteToTrunk(input: FetchRemoteToTrunkInput!): Codebase!
+  # pushWorkspace is experimental
+  # pushWorkspace pushes the workspace to the configured GitHub Repository or Remote.
+  # If pushing to a GitHub Repository, a pull request will be created.
+  pushWorkspace(input: PushWorkspaceInput!): Workspace!
 }
 
 extend type Subscription {
@@ -299,6 +298,15 @@ type Remote {
   basicAuthUsername: String!
   basicAuthPassword: String!
   trackedBranch: String!
+
+  # Link to use for opening the repository in the browser
+  # Example: "https://github.com/sturdy-dev/sturdy"
+  browserLinkRepo: String!
+
+  # Link to use for opening pushed branches in the browser
+  # Use the variable "${BRANCH_NAME}" to dynamically add the branch name to the URL
+  # Example: "https://github.com/sturdy-dev/sturdy/tree/${BRANCH_NAME}"
+  browserLinkBranch: String!
 }
 
 input CreateOrUpdateCodebaseRemoteInput {
@@ -308,12 +316,11 @@ input CreateOrUpdateCodebaseRemoteInput {
   basicAuthUsername: String!
   basicAuthPassword: String!
   trackedBranch: String!
+
+  browserLinkRepo: String!
+  browserLinkBranch: String!
 }
 
-input PushWorkspaceToRemoteInput {
+input PushWorkspaceInput {
   workspaceID: ID!
-}
-
-input FetchRemoteToTrunkInput {
-  codebaseID: ID!
 }

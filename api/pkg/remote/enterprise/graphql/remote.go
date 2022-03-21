@@ -33,3 +33,11 @@ func (r *resolver) BasicAuthUsername() string {
 func (r *resolver) BasicAuthPassword() string {
 	return r.remote.BasicAuthPassword
 }
+
+func (r *resolver) BrowserLinkRepo() string {
+	return r.remote.BrowserLinkRepo
+}
+
+func (r *resolver) BrowserLinkBranch() string {
+	return r.remote.BrowserLinkBranch
+}

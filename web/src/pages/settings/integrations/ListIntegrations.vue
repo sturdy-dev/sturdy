@@ -31,8 +31,6 @@
                 <Pill v-else color="gray">Not Installed</Pill>
               </div>
 
-
-
               <RouterLinkButton
                 :disabled="!item.enabled"
                 :to="{
@@ -164,26 +162,30 @@ export default defineComponent({
   },
   computed: {
     list() {
-      return [
-        {
-          name: 'Buildkite',
-          description: 'Setup CI/CD with Buildkite',
-          page: 'codebaseSettingsAddBuildkite',
-          enabled: this.isGitHubEnabled,
-          logo: buildkiteLogo,
-          supportMulti: true,
-        },
+      const buildkite = {
+        name: 'Buildkite',
+        description: 'Setup CI/CD with Buildkite',
+        page: 'codebaseSettingsAddBuildkite',
+        enabled: this.isGitHubEnabled,
+        logo: buildkiteLogo,
+        supportMulti: true,
+      }
 
-        // TODO: Uncomment when ready!
-        /*{
-          name: 'Git',
-          description: 'Sync Sturdy with any Git Provider (GitLab, Azure DevOps, etc)',
-          page: 'codebaseSettingsAddGit',
-          enabled: this.isGitHubEnabled,
-          logo: gitLogo,
-          supportMulti: false,
-        },*/
-      ]
+      const git = {
+        name: 'Git',
+        description: 'Sync Sturdy with any Git Provider (GitLab, Azure DevOps, etc)',
+        page: 'codebaseSettingsAddGit',
+        enabled: this.isGitHubEnabled,
+        logo: gitLogo,
+        supportMulti: false,
+      }
+
+      // TODO: Remove this when enabled for all repos
+      if (this.data?.remote?.id) {
+        return [buildkite, git]
+      }
+
+      return [buildkite]
     },
     nonDeletedIntegrations(): Array<IntegrationListItemFragment> {
       let res = this.data?.codebase?.integrations.filter((i) => !i.deletedAt)

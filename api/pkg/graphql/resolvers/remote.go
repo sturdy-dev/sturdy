@@ -3,8 +3,9 @@ package resolvers
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/codebases"
 	"github.com/graph-gophers/graphql-go"
+
+	"getsturdy.com/api/pkg/codebases"
 )
 
 type RemoteRootResolver interface {
@@ -12,8 +13,6 @@ type RemoteRootResolver interface {
 
 	// Mutations
 	CreateOrUpdateCodebaseRemote(ctx context.Context, args CreateOrUpdateCodebaseRemoteArgsArgs) (RemoteResolver, error)
-	PushWorkspaceToRemote(ctx context.Context, args PushWorkspaceToRemoteArgs) (WorkspaceResolver, error)
-	FetchRemoteToTrunk(ctx context.Context, args FetchRemoteToTrunkArgs) (CodebaseResolver, error)
 }
 
 type RemoteResolver interface {
@@ -23,6 +22,8 @@ type RemoteResolver interface {
 	TrackedBranch() string
 	BasicAuthUsername() string
 	BasicAuthPassword() string
+	BrowserLinkRepo() string
+	BrowserLinkBranch() string
 }
 
 type CreateOrUpdateCodebaseRemoteArgsArgs struct {
@@ -36,20 +37,6 @@ type CreateOrUpdateCodebaseRemoteArgsInput struct {
 	BasicAuthUsername string
 	BasicAuthPassword string
 	TrackedBranch     string
-}
-
-type PushWorkspaceToRemoteArgs struct {
-	Input PushWorkspaceToRemoteInput
-}
-
-type PushWorkspaceToRemoteInput struct {
-	WorkspaceID graphql.ID
-}
-
-type FetchRemoteToTrunkArgs struct {
-	Input FetchRemoteToTrunkInput
-}
-
-type FetchRemoteToTrunkInput struct {
-	CodebaseID graphql.ID
+	BrowserLinkRepo   string
+	BrowserLinkBranch string
 }
