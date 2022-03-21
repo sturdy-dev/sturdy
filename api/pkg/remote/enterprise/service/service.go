@@ -31,6 +31,7 @@ type EnterpriseService struct {
 	executorProvider executor.Provider
 	logger           *zap.Logger
 	workspaceReader  db_workspaces.WorkspaceReader
+	workspaceWriter  db_workspaces.WorkspaceWriter
 	snap             snapshotter.Snapshotter
 	changeService    *service_change.Service
 }
@@ -42,6 +43,7 @@ func New(
 	executorProvider executor.Provider,
 	logger *zap.Logger,
 	workspaceReader db_workspaces.WorkspaceReader,
+	workspaceWriter db_workspaces.WorkspaceWriter,
 	snap snapshotter.Snapshotter,
 	changeService *service_change.Service,
 ) *EnterpriseService {
@@ -50,6 +52,7 @@ func New(
 		executorProvider: executorProvider,
 		logger:           logger,
 		workspaceReader:  workspaceReader,
+		workspaceWriter:  workspaceWriter,
 		snap:             snap,
 		changeService:    changeService,
 	}
@@ -174,6 +177,11 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 
 	if err := svc.changeService.UnsetHeadChangeCache(codebaseID); err != nil {
 		return fmt.Errorf("failed to unset head: %w", err)
+	}
+
+	// Allow all workspaces to be rebased/synced on the latest head
+	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(codebaseID); err != nil {
+		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
 	}
 
 	return nil

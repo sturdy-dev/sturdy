@@ -95,6 +95,7 @@ func NewCodebaseRootResolver(
 	codebaseService *service_codebase.Service,
 	organizationService *service_organization.Service,
 	changeService *service_change.Service,
+	remoteService service_remote.Service,
 ) resolvers.CodebaseRootResolver {
 	return &CodebaseRootResolver{
 		codebaseRepo:     codebaseRepo,
@@ -124,6 +125,7 @@ func NewCodebaseRootResolver(
 		codebaseService:     codebaseService,
 		organizationService: organizationService,
 		changeService:       changeService,
+		remoteService:       remoteService,
 	}
 }
 
