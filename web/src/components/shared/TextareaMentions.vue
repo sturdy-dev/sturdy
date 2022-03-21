@@ -1,5 +1,5 @@
 <template>
-  <textarea ref="textarea" v-model="val" class="z-0 sans-serif"></textarea>
+  <textarea ref="textarea" v-model="val" class="sans-serif"></textarea>
 </template>
 
 <script lang="ts">
@@ -88,7 +88,7 @@ export default defineComponent({
         values: this.people,
         selectTemplate: (item: TributeItem<MemberFragment>) => `@${item.original.name}`,
         containerClass:
-          'z-10 mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
+          'mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
         itemClass: 'text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9',
         selectClass: 'item-selected',
         lookup: (i: MemberFragment) => i.name,

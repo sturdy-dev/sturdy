@@ -62,7 +62,7 @@
       </aside>
     </div>
 
-    <section class="flex-grow pt-4 z-10 relative min-w-0">
+    <section class="flex-grow pt-4 relative min-w-0">
       <ChangeDetails v-if="data" :change="data.change" :user="user" />
     </section>
   </PaddedAppRightSidebar>
