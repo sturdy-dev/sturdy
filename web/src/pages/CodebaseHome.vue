@@ -83,12 +83,20 @@
     </main>
 
     <template #sidebar>
-      <AssembleTheTeam
-        :user="user"
-        :members="data.codebase.members"
-        :codebase-id="data.codebase.id"
-        :changes-count="data.codebase.changes.length"
-      />
+      <div class="space-y-4">
+        <PushPullCodebase
+          v-if="data.codebase.remote"
+          :remote="data.codebase.remote"
+          :codebase-id="data.codebase.id"
+        />
+
+        <AssembleTheTeam
+          :user="user"
+          :members="data.codebase.members"
+          :codebase-id="data.codebase.id"
+          :changes-count="data.codebase.changes.length"
+        />
+      </div>
     </template>
   </PaddedAppRightSidebar>
 </template>
@@ -96,7 +104,7 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, inject, onUnmounted, PropType, Ref, ref, watch } from 'vue'
 import SetupNewView from '../components/codebase/SetupNewView.vue'
 import Button from '../components/shared/Button.vue'
 import { useHead } from '@vueuse/head'
@@ -113,13 +121,17 @@ import {
   CodebaseHomeCodebaseQuery,
   CodebaseHomeCodebaseQueryVariables,
 } from './__generated__/CodebaseHome'
-import { Feature } from '../__generated__/types'
+import { Feature, User } from '../__generated__/types'
 import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 import AssembleTheTeam from '../organisms/AssembleTheTeam.vue'
+import PushPullCodebase, {
+  PUSH_PULL_CODEBASE_REMOTE_FRAGMENT,
+} from '../molecules/PushPullCodebase.vue'
 
 export default defineComponent({
   name: 'CodebaseHome',
   components: {
+    PushPullCodebase,
     AssembleTheTeam,
     PaddedAppRightSidebar,
     Directory,
@@ -136,7 +148,11 @@ export default defineComponent({
     WorkspaceList,
     RouterLinkButton,
   },
-  props: ['user'],
+  props: {
+    user: {
+      type: Object as PropType<User>,
+    },
+  },
   setup() {
     let route = useRoute()
     let codebaseSlug = ref(route.params.codebaseSlug)
@@ -147,12 +163,15 @@ export default defineComponent({
       }
     )
 
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+
     let { data, fetching, error, executeQuery } = useQuery<
       CodebaseHomeCodebaseQuery,
       CodebaseHomeCodebaseQueryVariables
     >({
       query: gql`
-        query CodebaseHomeCodebase($shortCodebaseID: ID!) {
+        query CodebaseHomeCodebase($shortCodebaseID: ID!, $isGitHubEnabled: Boolean!) {
           codebase(shortID: $shortCodebaseID) {
             id
             shortID
@@ -185,14 +204,21 @@ export default defineComponent({
               }
             }
             ...TopOfChangelog
+            remote @include(if: $isGitHubEnabled) {
+              ...PushPullCodebaseRemote
+            }
           }
         }
         ${OPEN_DIRECTORY}
         ${TOP_OF_CHANGELOG}
         ${WORKSPACE_LIST}
+        ${PUSH_PULL_CODEBASE_REMOTE_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
-      variables: { shortCodebaseID: codebaseSlug },
+      variables: {
+        shortCodebaseID: codebaseSlug,
+        isGitHubEnabled,
+      },
     })
 
     let codebaseID = ref('')
@@ -237,7 +263,6 @@ export default defineComponent({
       clearInterval(nowInterval)
     })
 
-    const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isMultiTenancyEnabled = computed(() => features?.value?.includes(Feature.MultiTenancy))
 
     return {
