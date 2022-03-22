@@ -17,3 +17,7 @@ func New() remote_service.Service {
 func (*service) Pull(_ context.Context, _ codebases.ID) error {
 	return errors.New("not available")
 }
+
+func (*service) PushTrunk(_ context.Context, _ codebases.ID) error {
+	return errors.New("not available")
+}

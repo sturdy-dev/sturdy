@@ -117,6 +117,11 @@ export default defineComponent({
     ClientOnly,
     Error,
   },
+  provide() {
+    return {
+      emitter: this.emitter,
+    }
+  },
   setup() {
     const route = useRoute()
     useHead({

@@ -17,17 +17,17 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 import Avatar from '../shared/Avatar.vue'
-import { AuthorFragment } from '../shared/__generated__/Avatar'
+import { AuthorFragment } from '../shared/__generated__/AvatarHelper'
 import CodebaseInviteCode from './CodebaseInviteCode.vue'
 
 import { AUTHOR } from '../shared/AvatarHelper'
 
 export { AUTHOR as CODEBASE_MEMBER_FRAGMENT }
 
-export default {
+export default defineComponent({
   components: { Avatar, CodebaseInviteCode },
   props: {
     codebaseId: {
@@ -40,16 +40,21 @@ export default {
     },
     user: {
       type: Object as PropType<AuthorFragment>,
+      required: false,
+      default: null,
     },
   },
   computed: {
-    authenticated() {
-      return !!this.user
+    authenticated(): boolean {
+      if (this.user) {
+        return true
+      }
+      return false
     },
     authorized() {
       const isMember = this.members.some(({ id }) => id === this.user?.id)
       return this.authenticated && isMember
     },
   },
-}
+})
 </script>
