@@ -704,3 +704,20 @@ func (r *CodebaseRootResolver) PullCodebase(ctx context.Context, args resolvers.
 
 	return &CodebaseResolver{c: c, root: r}, nil
 }
+
+func (r *CodebaseRootResolver) PushCodebase(ctx context.Context, args resolvers.PushCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	c, err := r.codebaseRepo.Get(codebases.ID(args.Input.CodebaseID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanWrite(ctx, c); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.remoteService.PushTrunk(ctx, c.ID); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &CodebaseResolver{c: c, root: r}, nil
+}

@@ -10,18 +10,20 @@
     />
 
     <template #sidebar>
-      <PullCodebase
-        v-if="data.codebase.remote"
-        :remote="data.codebase.remote"
-        :codebase-id="data.codebase.id"
-      />
+      <div class="space-y-4">
+        <PushPullCodebase
+          v-if="data.codebase.remote"
+          :remote="data.codebase.remote"
+          :codebase-id="data.codebase.id"
+        />
 
-      <AssembleTheTeam
-        :user="user"
-        :members="data.codebase.members"
-        :codebase-id="data.codebase.id"
-        :changes-count="data.codebase.changes.length"
-      />
+        <AssembleTheTeam
+          :user="user"
+          :members="data.codebase.members"
+          :codebase-id="data.codebase.id"
+          :changes-count="data.codebase.changes.length"
+        />
+      </div>
     </template>
   </PaddedAppRightSidebar>
 </template>
@@ -40,6 +42,8 @@ import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import { ChangelogV2Query, ChangelogV2QueryVariables } from './__generated__/List'
 import { Feature, User } from '../../__generated__/types'
 import PullCodebase, { PULL_CODEBASE_REMOTE_FRAGMENT } from '../../molecules/PullCodebase.vue'
+import PushCodebase from '../../molecules/PushCodebase.vue'
+import PushPullCodebase from '../../molecules/PushPullCodebase.vue'
 
 const PAGE_QUERY = gql`
   query ChangelogV2($codebaseShortId: ID!, $before: ID, $limit: Int!, $isGitHubEnabled: Boolean!) {
@@ -63,7 +67,13 @@ const PAGE_QUERY = gql`
 `
 
 export default {
-  components: { ChangeList, ChangeListEmpty, PaddedAppRightSidebar, AssembleTheTeam, PullCodebase },
+  components: {
+    PushPullCodebase,
+    ChangeList,
+    ChangeListEmpty,
+    PaddedAppRightSidebar,
+    AssembleTheTeam,
+  },
   props: {
     user: {
       type: Object as PropType<User>,

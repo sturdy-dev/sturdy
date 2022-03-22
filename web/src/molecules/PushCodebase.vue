@@ -1,36 +1,36 @@
 <template>
-  <Button v-if="isPulling" :disabled="true" :grouped="true" :first="true">
+  <Button v-if="isPushing" :disabled="true" :grouped="true" :last="true">
     <Spinner class="mr-2" />
-    <span>Pulling</span></Button
+    <span>Pushing</span></Button
   >
-  <Button v-else :grouped="true" :first="true" @click="triggerPull">
-    <ArrowSmDownIcon class="-ml-1 mr-2 h-5 w-5 text-gray-800" />
-    <span>Pull</span>
+  <Button v-else :grouped="true" :last="true" @click="triggerPush">
+    <ArrowSmUpIcon class="-ml-1 mr-2 h-5 w-5 text-gray-800" />
+    <span>Push</span>
   </Button>
 </template>
 
 <script lang="ts">
 import { gql } from '@urql/vue'
 import { defineComponent, inject, PropType, toRef } from 'vue'
-import { PullCodebaseRemoteFragment } from './__generated__/PullCodebase'
-import { usePullCodebase } from '../mutations/usePullCodebase'
+import { PushCodebaseRemoteFragment } from './__generated__/PushCodebase'
+import { usePushCodebase } from '../mutations/usepushCodebase'
 import Spinner from '../components/shared/Spinner.vue'
 import Button from '../components/shared/Button.vue'
-import { ArrowSmDownIcon } from '@heroicons/vue/solid'
+import { ArrowSmUpIcon } from '@heroicons/vue/solid'
 import { Emitter } from 'mitt/src'
 
-export const PULL_CODEBASE_REMOTE_FRAGMENT = gql`
-  fragment PullCodebaseRemote on Remote {
+export const PUSH_CODEBASE_REMOTE_FRAGMENT = gql`
+  fragment PushCodebaseRemote on Remote {
     id
     name
   }
 `
 
 export default defineComponent({
-  components: { Spinner, Button, ArrowSmDownIcon },
+  components: { Spinner, Button, ArrowSmUpIcon },
   props: {
     remote: {
-      type: Object as PropType<PullCodebaseRemoteFragment>,
+      type: Object as PropType<PushCodebaseRemoteFragment>,
       required: true,
     },
     codebaseId: {
@@ -38,21 +38,21 @@ export default defineComponent({
       required: true,
     },
   },
-  setup: function (props) {
-    let { mutating: isPulling, pullCodebase } = usePullCodebase()
+  setup(props) {
+    let { mutating: isPushing, pushCodebase } = usePushCodebase()
 
     const codebaseId = toRef(props, 'codebaseId')
     const remote = toRef(props, 'remote')
 
     let emitter = inject<Emitter>('emitter')
 
-    const triggerPull = async function () {
+    const triggerPush = async function () {
       const input = { codebaseID: codebaseId.value }
 
-      await pullCodebase(input)
+      await pushCodebase(input)
         .catch((e) => {
           let title = 'Failed!'
-          let message = 'Failed to pull'
+          let message = 'Failed to push'
 
           console.error(e)
 
@@ -67,8 +67,8 @@ export default defineComponent({
         .then(() => {
           if (emitter) {
             emitter.emit('notification', {
-              title: 'Pulled!',
-              message: 'Pulled to ' + remote.value.name,
+              title: 'Pushed!',
+              message: 'Pushed changelog to ' + remote.value.name,
               style: 'success',
             })
           }
@@ -76,8 +76,8 @@ export default defineComponent({
     }
 
     return {
-      isPulling,
-      triggerPull,
+      isPushing,
+      triggerPush,
     }
   },
 })
