@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     go build -v -o /usr/bin/ssh getsturdy.com/ssh/cmd/ssh
 
 FROM debian:11.2-slim as ssh
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends --allow-downgrades \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
@@ -28,7 +28,7 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen
 FROM golang:1.18.0-bullseye as api-builder
 # compile libgit2
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     libgit2-dev \
     libssh2-1-dev \
     git=1:2.30.2-1 \
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build \
 
 FROM debian:11.2-slim as api 
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     git-lfs=2.13.2-1+b5 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -78,14 +78,16 @@ ENV PKG_CONFIG_ALLOW_CROSS="1" \
     DEBIAN_FRONTEND="noninteractive" \
     CARGO_BUILD_TARGET="aarch64-unknown-linux-gnu"
 RUN apt-get update \
-    && apt-get -y --no-install-recommends install \
+    && apt-get -y --no-install-recommends --allow-downgrades install \
     musl-tools \
     ca-certificates \
     git \
     && git clone https://github.com/jasonwhite/rudolfs
 WORKDIR /rudolfs
 SHELL ["/bin/bash", "-c"]
-RUN git checkout 0.3.5 \
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/rudolfs/target \
+    git checkout 0.3.5 \
     && rustup target add "${CARGO_BUILD_TARGET}" \
     && cargo build --target "${CARGO_BUILD_TARGET}" --release  \
     && mkdir -p /build \
@@ -95,7 +97,7 @@ RUN git checkout 0.3.5 \
 FROM debian:11.2-slim as rudolfs
 VOLUME ["/data"]
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends  \
+    && apt-get install -y --no-install-recommends --allow-downgrades \
     ca-certificates
 # use the correct binary depending on the architecture. we do this to avoid building amd64 version ourselves, 
 # as it requires us to run qemu emulation which is very slow.
@@ -120,7 +122,7 @@ RUN apk update \
 COPY ./web/package.json ./package.json
 COPY ./web/yarn.lock ./yarn.lock
 # The --network-timeout is here to prevent network issues when building linux/amd64 images on linux/arm64 hosts
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn \
+RUN --mount=type=cache,target=/root/.yarn,id=web-installer-3 YARN_CACHE_FOLDER=/root/.yarn \
     yarn install --frozen-lockfile \
     --network-timeout 1000000000
 # build web
@@ -158,7 +160,7 @@ FROM debian:11.2-slim as oneliner
 # ca-cerificates is needed by ssh to connect to tls hosts
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     curl=7.74.0-1.3+deb11u1 \
     ca-certificates=20210119 \
     gnupg=2.2.27-2 \
@@ -167,9 +169,9 @@ RUN apt-get update \
     | tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main" > /etc/apt/sources.list.d/postgresql.list \
     && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     postgresql-14=14.2-1.pgdg110+1 \
-    openssl=1.1.1k-1+deb11u1 \
+    openssl=1.1.1k-1+deb11u2 \
     git=1:2.30.2-1 \
     git-lfs=2.13.2-1+b5 \
     keychain=2.8.5-2 \

@@ -14,7 +14,7 @@ IMAGE="getsturdy/server"
 VERSION=$(date +%Y-%m-%d-%H-%M-%S)
 DOCKER_VERSION_TAG_ARG=""
 PUSH_ARG=""
-LATEST_VERSION="$(curl -s https://registry.hub.docker.com/v1/repositories/getsturdy/server/tags | jq -r '.[].name' | tail -1)"
+LATEST_VERSION="$(curl -s https://registry.hub.docker.com/v1/repositories/getsturdy/server/tags | jq -r '.[].name' | grep -v cache | tail -1)"
 VERSION=""
 
 while [[ $# -gt 0 ]]; do
@@ -75,6 +75,8 @@ echo
 docker buildx build \
 	--platform linux/arm64,linux/amd64 \
 	--target oneliner \
+	--cache-to=getsturdy/server:cache \
+	--cache-from=getsturdy/server:cache \
 	--build-arg API_BUILD_TAGS=enterprise \
 	--build-arg VERSION="${VERSION}" \
 	--tag "${IMAGE}:latest" \

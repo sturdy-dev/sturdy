@@ -6,6 +6,7 @@ CWD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 docker buildx build --load \
 	--target oneliner \
+	--cache-from=getsturdy/server:cache \
 	--build-arg API_BUILD_TAGS=enterprise \
 	--build-arg VERSION="development" \
 	--tag "sturdy-oneliner:oss" \
