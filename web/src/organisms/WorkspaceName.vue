@@ -93,6 +93,11 @@ export default defineComponent({
       updateTitleTimeout: null as null | ReturnType<typeof setTimeout>,
     }
   },
+  watch: {
+    'workspace.name': function (newName) {
+      this.name = newName
+    },
+  },
   computed: {
     isSuggesting() {
       return !!this.workspace.suggestion
