@@ -68,7 +68,7 @@ export default defineComponent({
           if (emitter) {
             emitter.emit('notification', {
               title: 'Pulled!',
-              message: 'Pulled to ' + remote.value.name,
+              message: 'Pulled from ' + remote.value.name + ', the changelog has been updated!',
               style: 'success',
             })
           }
