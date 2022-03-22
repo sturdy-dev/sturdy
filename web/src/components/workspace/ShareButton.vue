@@ -91,9 +91,7 @@
         <div class="gap-2 flex">
           <ButtonWithDropdown
             color="blue"
-            size="wider"
             :disabled="disabled || pushingWorkspace"
-            :class="[disabled ? 'cursor-default' : '']"
             :show-tooltip="disabled"
             :tooltip-right="true"
             @click="triggerPushWorkspace"
@@ -113,8 +111,9 @@
             <template #tooltip>
               {{ cantSubmitTooltipMessage }}
             </template>
-            <template #dropdown>
-              <MenuItem>
+
+            <template #dropdown="{disabled}">
+              <MenuItem :disabled="disabled">
                 <button
                   class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
                   @click="triggerPushWorkspaceWithMerge"
