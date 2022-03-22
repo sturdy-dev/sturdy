@@ -643,7 +643,7 @@ func (r *CodebaseResolver) Remote(ctx context.Context) (resolvers.RemoteResolver
 	switch {
 	case err == nil:
 		return resolver, nil
-	case errors.Is(err, sql.ErrNoRows):
+	case errors.Is(err, sql.ErrNoRows), errors.Is(err, gqlerrors.ErrNotFound):
 		return nil, nil
 	default:
 		return nil, gqlerrors.Error(err)
