@@ -483,14 +483,20 @@ const haveActivityOrUsage = function (ws: WorkspaceFragment): boolean {
   return hasComments || hasActivity || hasDiffs
 }
 
+const showToLoggedInUser = function (user: User): (ws: WorkspaceFragment) => boolean {
+  return (ws: WorkspaceFragment) => {
+    const isOwnWorkspace = ws.author.id === user.id
+    const reviewRequested = ws.reviews.some(reviewByUserId(user.id))
+    return isOwnWorkspace ? true : reviewRequested || haveActivityOrUsage(ws)
+  }
+}
+
+const showToLoggedOutUser = function (ws: WorkspaceFragment): boolean {
+  return haveActivityOrUsage(ws)
+}
+
 const showTo = function (user: User | undefined): (ws: WorkspaceFragment) => boolean {
-  return user
-    ? (ws: WorkspaceFragment) => {
-        const isOwnWorkspace = ws.author.id === user.id
-        const reviewRequested = ws.reviews.some(reviewByUserId(user.id))
-        return isOwnWorkspace ? true : reviewRequested || haveActivityOrUsage(ws)
-      }
-    : () => true
+  return user ? showToLoggedInUser(user) : showToLoggedOutUser
 }
 
 const nonSuggestingWorkspaces = (ws: WorkspaceFragment) => !ws.suggestion
