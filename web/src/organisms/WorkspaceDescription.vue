@@ -15,6 +15,7 @@
         @updated="onUpdatedDescription"
       >
         <transition
+          v-if="isAuthenticated"
           enter-active-class="transition ease-out duration-75"
           enter-from-class="opacity-0 scale-75"
           enter-to-class="opacity-100 scale-100"

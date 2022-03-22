@@ -16,6 +16,7 @@
                 <div v-if="isAuthorized" class="flex space-x-3 md:mt-0 items-center">
                   <ArchiveButton :workspace-id="data.workspace.id" />
 
+                  <!-- sync button -->
                   <div v-if="showSync">
                     <OnboardingStep
                       id="SyncChanges"
@@ -78,6 +79,7 @@
                       </Tooltip>
                     </OnboardingStep>
                   </div>
+                  <!-- end sync button -->
                 </div>
               </div>
 
@@ -167,7 +169,9 @@
                   </ButtonWithDropdown>
                 </OnboardingStep>
               </div>
+              <!-- end connect button -->
 
+              <!-- connect directory button -->
               <div
                 v-if="
                   viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
@@ -184,6 +188,7 @@
                   </div>
                 </Button>
               </div>
+              <!-- end connect directory button -->
             </div>
 
             <WorkspaceDescription
@@ -203,9 +208,7 @@
               <OpenInEditor :view="displayView" />
             </div>
 
-            <aside class="mt-8 xl:hidden">
-              <WorkspaceDetails :workspace="data.workspace" :user="user" />
-            </aside>
+            <WorkspaceDetails class="mt-8 xl:hidden" :workspace="data.workspace" :user="user" />
           </div>
 
           <section>
