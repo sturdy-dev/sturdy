@@ -346,7 +346,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ['codebase-updated', 'pre-create-change'],
+  emits: ['codebase-updated'],
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))

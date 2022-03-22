@@ -28,7 +28,7 @@ import { removeUserFromCodebaseUpdateResolver } from './useRemoveUserFromCodebas
 import { updateInstallationUpdateResolver } from './useUpdateInstallation'
 import { updateOrganizationResolver } from './useUpdateOrganization'
 import { createOrUpdateCodebaseRemoteUpdateResolver } from './useCreateOrUpdateGitRemote'
-import { updateWorkspaceUpdateResolver } from './useUpdatedWorkspace'
+import { updateWorkspaceUpdateResolver } from './useUpdateWorkspace'
 import { pullCodebaseUpdateResolver } from './usePullCodebase'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {

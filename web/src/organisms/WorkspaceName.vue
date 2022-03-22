@@ -39,7 +39,7 @@ import { defineComponent, PropType, toRefs } from 'vue'
 import { gql } from '@urql/vue'
 import { WorkspaceName_WorkspaceFragment } from './__generated__/WorkspaceName'
 import { Slug } from '../slug'
-import { useUpdateWorkspace } from '../mutations/useUpdatedWorkspace'
+import { useUpdateWorkspace } from '../mutations/useUpdateWorkspace'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment WorkspaceName_Workspace on Workspace {
