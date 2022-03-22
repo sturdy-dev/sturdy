@@ -184,75 +184,28 @@
                   </div>
                 </Button>
               </div>
-
-              <!-- View Connection Status -->
-              <div
-                v-if="displayView && viewConnectionState === 'editing'"
-                class="mt-4 flex space-x-8"
-              >
-                <ViewStatusIndicator :view="displayView" />
-                <OpenInEditor :view="displayView" />
-              </div>
-
-              <aside class="mt-8 xl:hidden">
-                <WorkspaceDetails :workspace="data.workspace" :user="user" />
-              </aside>
-
-              <div v-if="showDescription" class="pt-3 relative max-w-prose">
-                <h2 class="sr-only">Description</h2>
-                <OnboardingStep
-                  id="MakingAChange"
-                  :dependencies="['FindingYourWorkspace', 'WorkspaceChanges']"
-                >
-                  <template #title>Publishing a Change</template>
-                  <template #description>
-                    When you've made edits to your files and feel ready to make a checkpoint, write
-                    a description of your change(s) here.
-                  </template>
-
-                  <Editor
-                    :model-value="workspace_draft_description"
-                    :editable="isAuthorized"
-                    placeholder="Describe the changes in this workspace&hellip;"
-                    @updated="onUpdatedDescription"
-                  >
-                    <transition
-                      enter-active-class="transition ease-out duration-75"
-                      enter-from-class="opacity-0 scale-75"
-                      enter-to-class="opacity-100 scale-100"
-                      leave-active-class="transition ease-in duration-75"
-                      leave-from-class="opacity-100 scale-100"
-                      leave-to-class="opacity-0 scale-75"
-                    >
-                      <ShareButton
-                        v-if="data.workspace"
-                        :workspace="data.workspace"
-                        :all-hunk-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.id))"
-                        :disabled="!canSubmitChange"
-                        :cant-submit-reason="cantSubmitChangeReason"
-                        @pre-create-change="preCreateChange"
-                      />
-                    </transition>
-                  </Editor>
-                </OnboardingStep>
-
-                <transition
-                  enter-active-class="transition ease-out duration-50"
-                  enter-from-class="opacity-0 scale-75"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-25"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-75"
-                >
-                  <div
-                    v-if="justSaved"
-                    class="hidden xl:block text-gray-400 text-sm absolute bottom-full translate-y-1 right-0 origin-bottom-right"
-                  >
-                    Saved
-                  </div>
-                </transition>
-              </div>
             </div>
+
+            <WorkspaceDescription
+              v-if="showDescription"
+              :workspace="data.workspace"
+              :user="user"
+              :diff-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.id))"
+              :selected-hunk-ids="selectedHunkIDs"
+            />
+
+            <!-- View Connection Status -->
+            <div
+              v-if="displayView && viewConnectionState === 'editing'"
+              class="mt-4 flex space-x-8"
+            >
+              <ViewStatusIndicator :view="displayView" />
+              <OpenInEditor :view="displayView" />
+            </div>
+
+            <aside class="mt-8 xl:hidden">
+              <WorkspaceDetails :workspace="data.workspace" :user="user" />
+            </aside>
           </div>
 
           <section>
@@ -331,7 +284,6 @@
                   :is-stale="diffsStale"
                   :is-fetching="diffsFetching"
                   @codebase-updated="refresh"
-                  @pre-create-change="preCreateChange"
                 />
               </div>
             </div>
@@ -364,19 +316,9 @@ import http from '../http'
 import { Banner } from '../atoms'
 import ResolveConflict, { RESOLVE_CONFLICT_DIFF } from '../components/workspace/ResolveConflict.vue'
 import Button from '../components/shared/Button.vue'
-import debounce from '../debounce'
-import { gql, useMutation, useQuery } from '@urql/vue'
+import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  computed,
-  defineAsyncComponent,
-  defineComponent,
-  inject,
-  onUnmounted,
-  ref,
-  Ref,
-  watch,
-} from 'vue'
+import { computed, defineComponent, inject, onUnmounted, ref, Ref, watch } from 'vue'
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
 import WorkspaceActivitySidebar, {
@@ -396,18 +338,12 @@ import { useUpdatedWorkspaceWatchers } from '../subscriptions/useUpdatedWorkspac
 import { useCreateSuggestion } from '../mutations/useCreateSuggestion'
 import SelectedHunksToolbar from '../components/workspace/SelectedHunksToolbar.vue'
 import SearchToolbar from '../components/workspace/SearchToolbar.vue'
-import ShareButton, {
-  CANT_SUBMIT_REASON,
-  SHARE_BUTTON,
-} from '../components/workspace/ShareButton.vue'
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
 import {
   WorkspaceHomeDiffsQuery,
   WorkspaceHomeDiffsQueryVariables,
   WorkspaceHomeQuery,
   WorkspaceHomeQueryVariables,
-  WorkspaceHomeUpdateMutation,
-  WorkspaceHomeUpdateMutationVariables,
 } from './__generated__/WorkspaceHome'
 import { useUpdatedWorkspaceDiffs } from '../subscriptions/useUpdatedWorkspaceDiffs'
 import { DeepMaybeRef } from '@vueuse/core'
@@ -417,10 +353,12 @@ import WorkspaceName, {
 import WorkspaceDetails, {
   WORKSPACE_FRAGMENT as WORKSPACE_DETAILS_FRAGMENT,
 } from '../organisms/WorkspaceDetails.vue'
+import WorkspaceDescription, {
+  WORKSPACE_FRAGMENT as WORKSPACE_DESCRIPTION_FRAGMENT,
+} from '../organisms/WorkspaceDescription.vue'
 
 export default defineComponent({
   components: {
-    ShareButton,
     SelectedHunksToolbar,
     Tooltip,
     FolderAddIcon,
@@ -434,7 +372,6 @@ export default defineComponent({
     LiveDetails,
     AnnotationIcon,
     Banner,
-    Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
     LightningBoltIcon,
     DesktopComputerIcon,
     MenuItem,
@@ -443,6 +380,7 @@ export default defineComponent({
     ArchiveButton,
     WorkspaceName,
     WorkspaceDetails,
+    WorkspaceDescription,
   },
   props: {
     user: {
@@ -488,7 +426,6 @@ export default defineComponent({
             lastLandedAt
             upToDateWithTrunk
             lastActivityAt
-            draftDescription
             author {
               id
               name
@@ -601,10 +538,10 @@ export default defineComponent({
               }
             }
             ...LiveDetailsWorkspace
-            ...ShareButton
             ...WorkspaceActivity_Workspace
             ...WorkspaceName_Workspace
             ...WorkspaceDetails_Workspace
+            ...WorkspaceDescription_Workspace
           }
         }
 
@@ -613,9 +550,9 @@ export default defineComponent({
         ${WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT}
         ${VIEW_STATUS_INDICATOR}
         ${LIVE_DETAILS_WORKSPACE}
-        ${SHARE_BUTTON}
         ${RESOLVE_CONFLICT_DIFF}
         ${WORKSPACE_DETAILS_FRAGMENT}
+        ${WORKSPACE_DESCRIPTION_FRAGMENT}
       `,
       variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
     })
@@ -661,21 +598,6 @@ export default defineComponent({
     )
 
     const openWorkspaceOnViewResult = useOpenWorkspaceOnView()
-
-    const { executeMutation: updateWorkspaceResult } = useMutation<
-      WorkspaceHomeUpdateMutation,
-      WorkspaceHomeUpdateMutationVariables
-    >(gql`
-      mutation WorkspaceHomeUpdate($workspaceID: ID!, $name: String, $draftDescription: String) {
-        updateWorkspace(
-          input: { id: $workspaceID, name: $name, draftDescription: $draftDescription }
-        ) {
-          id
-          name
-          draftDescription
-        }
-      }
-    `)
 
     let displayView = ref(null)
     let displayViewId = ref(null)
@@ -759,17 +681,6 @@ export default defineComponent({
           viewID,
         })
         loadingNewWorkspace.value = false
-      },
-
-      async updateWorkspace(
-        workspaceID: string,
-        name: string | null = null,
-        draftDescription: string | null = null
-      ) {
-        const variables = { workspaceID, name, draftDescription }
-        await updateWorkspaceResult(variables).then((result) => {
-          console.log('update workspace', result)
-        })
       },
     }
   },
@@ -866,30 +777,6 @@ export default defineComponent({
         return 'others'
       }
     },
-    cantSubmitChangeReason(): CANT_SUBMIT_REASON | null {
-      if (this.data?.workspace == null) {
-        return CANT_SUBMIT_REASON.WORKSPACE_NOT_FOUND
-      }
-      if (this.diffs.length === 0) {
-        return CANT_SUBMIT_REASON.NO_DIFFS
-      }
-      // Have to have a change description before sharing
-      if (this.data.workspace.draftDescription.length === 0) {
-        return CANT_SUBMIT_REASON.EMPTY_DESCRIPTION
-      }
-      // Disallow users from sharing when they have selected hunks
-      // (since it might lead them to think they're doing a partial share)
-      if (this.selectedHunkIDs.size > 0) {
-        return CANT_SUBMIT_REASON.HAVE_SELECTED_HUNKS
-      }
-      return null
-    },
-    canSubmitChange(): boolean {
-      if (this.cantSubmitChangeReason === null) {
-        return true
-      }
-      return false
-    },
     rebaseStatus: function () {
       return this.data.workspace.rebaseStatus
     },
@@ -916,15 +803,11 @@ export default defineComponent({
     'data.workspace.codebase.id': function (n) {
       if (n) this.emitter.emit('codebase', n)
     },
-    'data.workspace.draftDescription': function () {
-      this.setDraftDescription()
-    },
   },
   unmounted() {
     this.emitter.off('differ-selected-hunk-ids', this.onSelectedHunkIDs)
   },
   mounted() {
-    this.setDraftDescription()
     this.emitter.on('differ-selected-hunk-ids', this.onSelectedHunkIDs)
   },
   methods: {
@@ -932,14 +815,6 @@ export default defineComponent({
       return {
         workspaceID: this.$route.params.id,
         codebaseSlug: this.$route.params.codebaseSlug,
-
-        workspace_draft_description: null, // v-model (populated from data.workspace.draftDescription)
-        workspace_draft_description_last_saved_val: null,
-        updatedWorkspaceDescriptionDebounce: debounce(this.saveDraftDescription, 800),
-        justSaved: false,
-        unsetJustSavedFunc: debounce(() => {
-          this.justSaved = false
-        }, 4000),
 
         rebasing_complete_no_conflicts: false,
         rebasing_complete_had_conflicts: false,
@@ -981,25 +856,6 @@ export default defineComponent({
     },
     reset() {
       Object.assign(this.$data, this.initialState())
-      this.setDraftDescription()
-    },
-
-    setDraftDescription() {
-      this.workspace_draft_description = this.data?.workspace?.draftDescription
-    },
-
-    async saveDraftDescription() {
-      // Deduplication: avoid making requests if the description has not changed.
-      // This is used to make sure that the client does not send a request to update the description after or during a
-      // a change is being created from the workspace.
-      if (this.workspace_draft_description_last_saved_val === this.workspace_draft_description) {
-        return
-      }
-
-      this.workspace_draft_description_last_saved_val = this.workspace_draft_description
-      this.justSaved = true
-      this.unsetJustSavedFunc()
-      await this.updateWorkspace(this.data.workspace.id, null, this.workspace_draft_description)
     },
 
     initSyncWithTrunk() {
@@ -1104,23 +960,6 @@ export default defineComponent({
 
     completedSync() {
       this.refresh()
-    },
-
-    onUpdatedDescription(ev) {
-      this.workspace_draft_description = ev.content
-      this.justSaved = false
-      this.unsetJustSavedFunc()
-
-      if (ev.shouldSaveImmediately) {
-        this.saveDraftDescription()
-      } else {
-        this.updatedWorkspaceDescriptionDebounce(ev.isInteractiveUpdate)
-      }
-    },
-
-    async preCreateChange() {
-      // Save the description right away
-      await this.saveDraftDescription()
     },
 
     async createViewInDirectory() {
