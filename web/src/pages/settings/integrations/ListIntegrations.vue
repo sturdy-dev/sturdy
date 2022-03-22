@@ -180,12 +180,7 @@ export default defineComponent({
         supportMulti: false,
       }
 
-      // TODO: Remove this when enabled for all repos
-      if (this.data?.remote?.id) {
-        return [buildkite, git]
-      }
-
-      return [buildkite]
+      return [buildkite, git]
     },
     nonDeletedIntegrations(): Array<IntegrationListItemFragment> {
       let res = this.data?.codebase?.integrations.filter((i) => !i.deletedAt)

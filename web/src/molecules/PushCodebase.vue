@@ -13,7 +13,7 @@
 import { gql } from '@urql/vue'
 import { defineComponent, inject, PropType, toRef } from 'vue'
 import { PushCodebaseRemoteFragment } from './__generated__/PushCodebase'
-import { usePushCodebase } from '../mutations/usepushCodebase'
+import { usePushCodebase } from '../mutations/usePushCodebase'
 import Spinner from '../components/shared/Spinner.vue'
 import Button from '../components/shared/Button.vue'
 import { ArrowSmUpIcon } from '@heroicons/vue/solid'
