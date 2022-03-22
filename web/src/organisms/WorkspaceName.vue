@@ -10,7 +10,7 @@
       :class="{
         'animate-pulse': updating,
       }"
-      @input.prevent="onNameInput"
+      @keydown.stop="onKeyDown"
     />
     <p class="mt-2 text-sm text-gray-500">
       By
@@ -102,8 +102,8 @@ export default defineComponent({
     },
   },
   methods: {
-    onNameInput(v: InputEvent) {
-      const target = v.target as HTMLInputElement
+    onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLInputElement
       if (target.value.length === 0) return
 
       if (this.updateTitleTimeout) clearTimeout(this.updateTitleTimeout)
