@@ -418,6 +418,8 @@ import WorkspaceDetails, {
   WORKSPACE_FRAGMENT as WORKSPACE_DETAILS_FRAGMENT,
 } from '../organisms/WorkspaceDetails.vue'
 
+type CodebaseView = WorkspaceHomeQuery['workspace']['codebase']['views'][number]
+
 export default defineComponent({
   components: {
     ShareButton,
@@ -834,20 +836,26 @@ export default defineComponent({
     isSelfOwnedWorkspace() {
       return this.data?.workspace && this.data?.workspace.author.id === this.user?.id
     },
-    mostRecentSelfUserView() {
+    mostRecentSelfUserView(): CodebaseView {
       return this.views[0]
     },
-    views() {
+    views(): CodebaseView[] {
       return (
-        this.data?.workspace.codebase.views?.slice().sort((a, b) => {
+        this.data?.workspace.codebase.views?.slice().sort((a: CodebaseView, b: CodebaseView) => {
           return b.lastUsedAt - a.lastUsedAt
         }) ?? []
       )
     },
-    connectedViews() {
-      return this.views.filter(
-        (v) => v.status != null && v.status.state !== ViewStatusState.Disconnected
-      )
+    connectedViews(): CodebaseView[] {
+      return this.views
+        .filter(
+          (v: CodebaseView) => v.status != null && v.status.state !== ViewStatusState.Disconnected
+        )
+        .sort((a: CodebaseView, b: CodebaseView) => {
+          let aa = a.mountHostname + ' ' + a.shortMountPath
+          let bb = b.mountHostname + ' ' + b.shortMountPath
+          return aa.localeCompare(bb)
+        })
     },
     nonArchivedComments() {
       return this.data?.workspace.comments.filter((c) => !c.deletedAt)
