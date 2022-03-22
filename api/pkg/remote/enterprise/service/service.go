@@ -11,6 +11,8 @@ import (
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/analytics"
+	analytics_service "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes/message"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
@@ -34,6 +36,7 @@ type EnterpriseService struct {
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	snap             snapshotter.Snapshotter
 	changeService    *service_change.Service
+	analyticsService *analytics_service.Service
 }
 
 var _ service.Service = (*EnterpriseService)(nil)
@@ -46,6 +49,7 @@ func New(
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	snap snapshotter.Snapshotter,
 	changeService *service_change.Service,
+	analyticsService *analytics_service.Service,
 ) *EnterpriseService {
 	return &EnterpriseService{
 		repo:             repo,
@@ -55,6 +59,7 @@ func New(
 		workspaceWriter:  workspaceWriter,
 		snap:             snap,
 		changeService:    changeService,
+		analyticsService: analyticsService,
 	}
 }
 
@@ -92,6 +97,9 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 		if err := svc.repo.Update(ctx, rep); err != nil {
 			return nil, fmt.Errorf("failed to update remote: %w", err)
 		}
+
+		svc.analyticsService.Capture(ctx, "updated remote integration", analytics.CodebaseID(codebaseID), analytics.Property("remote_name", rep.Name))
+
 		return rep, nil
 	case errors.Is(err, sql.ErrNoRows):
 		// create
@@ -106,9 +114,13 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 			BrowserLinkRepo:   input.BrowserLinkRepo,
 			BrowserLinkBranch: input.BrowserLinkBranch,
 		}
+
 		if err := svc.repo.Create(ctx, r); err != nil {
 			return nil, fmt.Errorf("failed to add remote: %w", err)
 		}
+
+		svc.analyticsService.Capture(ctx, "created remote integration", analytics.CodebaseID(codebaseID), analytics.Property("remote_name", r.Name))
+
 		return &r, nil
 	default:
 		return nil, fmt.Errorf("failed to set remote: %w", err)
@@ -148,6 +160,8 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 		return fmt.Errorf("failed to push workspace to remote: %w", err)
 	}
 
+	svc.analyticsService.Capture(ctx, "pushed workspace to remote", analytics.CodebaseID(ws.CodebaseID), analytics.Property("workspace_id", ws.ID))
+
 	return nil
 }
 
@@ -176,6 +190,8 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 		return fmt.Errorf("failed to push trunk to remote: %w", err)
 	}
 
+	svc.analyticsService.Capture(ctx, "pushed trunk to remote", analytics.CodebaseID(codebaseID))
+
 	return nil
 }
 
@@ -202,6 +218,8 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	if err := svc.executorProvider.New().GitWrite(pull).ExecTrunk(codebaseID, "pullRemote"); err != nil {
 		return fmt.Errorf("failed to pull: %w", err)
 	}
+
+	svc.analyticsService.Capture(ctx, "pulled trunk from remote", analytics.CodebaseID(codebaseID))
 
 	if err := svc.changeService.UnsetHeadChangeCache(codebaseID); err != nil {
 		return fmt.Errorf("failed to unset head: %w", err)
