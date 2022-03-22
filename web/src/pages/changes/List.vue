@@ -10,7 +10,11 @@
     />
 
     <template #sidebar>
-      <PullCodebase v-if="data.codebase.remote" :remote="data.codebase.remote" :codebase-id="data.codebase.id"/>
+      <PullCodebase
+        v-if="data.codebase.remote"
+        :remote="data.codebase.remote"
+        :codebase-id="data.codebase.id"
+      />
 
       <AssembleTheTeam
         :user="user"
@@ -25,7 +29,7 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import {PropType, ref, watch, computed, inject, Ref} from 'vue'
+import { PropType, ref, watch, computed, inject, Ref } from 'vue'
 import { useHead } from '@vueuse/head'
 import { DeepMaybeRef } from '@vueuse/core'
 import { IdFromSlug } from '../../slug'
@@ -34,9 +38,8 @@ import ChangeListEmpty from '../../organisms/changelog/ChangeList.empty.vue'
 import AssembleTheTeam, { CODEBASE_MEMBER_FRAGMENT } from '../../organisms/AssembleTheTeam.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import { ChangelogV2Query, ChangelogV2QueryVariables } from './__generated__/List'
-import {Feature, User} from '../../__generated__/types'
+import { Feature, User } from '../../__generated__/types'
 import PullCodebase, { PULL_CODEBASE_REMOTE_FRAGMENT } from '../../molecules/PullCodebase.vue'
-
 
 const PAGE_QUERY = gql`
   query ChangelogV2($codebaseShortId: ID!, $before: ID, $limit: Int!, $isGitHubEnabled: Boolean!) {

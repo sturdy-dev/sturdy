@@ -58,7 +58,13 @@ export const defaultLinkBranch = function (gitURL: string): string | null {
   if (gitURL.includes('dev.azure.com') && gitURL.includes('/_git/')) {
     const s = gitURL.indexOf('dev.azure.com/')
     const git = gitURL.indexOf('/_git/')
-    return 'https://' + gitURL.substring(s, git) + '/_git/'+ gitURL.substring(git+6) +'?version=GB${BRANCH_NAME}'
+    return (
+      'https://' +
+      gitURL.substring(s, git) +
+      '/_git/' +
+      gitURL.substring(git + 6) +
+      '?version=GB${BRANCH_NAME}'
+    )
   }
 
   return null

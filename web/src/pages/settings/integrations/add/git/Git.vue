@@ -115,7 +115,7 @@
               </div>
             </Step>
 
-            <Step name="Save" :status="saveUpdateStepStatus" >
+            <Step name="Save" :status="saveUpdateStepStatus">
               <div class="flex flex-col space-y-2">
                 <Banner v-if="error && error.length > 0" status="error">{{ error }}</Banner>
                 <Banner v-if="showSuccess" status="success">Saved!</Banner>
@@ -133,8 +133,16 @@
               </div>
             </Step>
 
-            <Step v-if="webhookTrigger" name="Webhooks (optional)" :is-last="true" :status="saveUpdateStepStatus">
-              <p class="text-sm text-gray-500">For a better (and faster) experience, configure your GitHost to send webhooks to the following URL on pushes and merges.</p>
+            <Step
+              v-if="webhookTrigger"
+              name="Webhooks (optional)"
+              :is-last="true"
+              :status="saveUpdateStepStatus"
+            >
+              <p class="text-sm text-gray-500">
+                For a better (and faster) experience, configure your GitHost to send webhooks to the
+                following URL on pushes and merges.
+              </p>
               <InputCopyToClipboard :value="webhookTrigger" />
             </Step>
           </ol>
@@ -161,7 +169,7 @@ import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__g
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
 import { defaultLinkBranch, defaultLinkRepo } from './Links'
-import InputCopyToClipboard from "../../../../../organisms/InputCopyToClipboard.vue";
+import InputCopyToClipboard from '../../../../../organisms/InputCopyToClipboard.vue'
 
 export default defineComponent({
   components: {
@@ -316,8 +324,14 @@ export default defineComponent({
       return defaultLinkBranch(this.gitRemoteURL)
     },
     webhookTrigger() {
-      return window.location.protocol + "//"+ window.location.host + "/v3/remotes/webhook/sync-codebase/" + this.data.codebase.id
-    }
+      return (
+        window.location.protocol +
+        '//' +
+        window.location.host +
+        '/v3/remotes/webhook/sync-codebase/' +
+        this.data.codebase.id
+      )
+    },
   },
 })
 </script>

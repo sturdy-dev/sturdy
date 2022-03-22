@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="z-40">
     <OnboardingStep
       v-if="shareViaGitHubPR"
       id="SubmittingAPullRequest"
@@ -89,7 +89,7 @@
         </a>
 
         <div class="gap-2 flex">
-          <Button
+          <ButtonWithDropdown
             color="blue"
             size="wider"
             :disabled="disabled || pushingWorkspace"
@@ -99,7 +99,11 @@
             @click="triggerPushWorkspace"
           >
             <template #default>
-              <div v-if="pushingWorkspace" class="flex items-center">
+              <div v-if="pushingWorkspace && isMergingAndPushing" class="flex items-center">
+                <Spinner class="mr-1" />
+                <span>Merging and pushing to {{ remote.name }}</span>
+              </div>
+              <div v-else-if="pushingWorkspace" class="flex items-center">
                 <Spinner class="mr-1" />
                 <span>Pushing to {{ remote.name }}</span>
               </div>
@@ -109,9 +113,18 @@
             <template #tooltip>
               {{ cantSubmitTooltipMessage }}
             </template>
-          </Button>
-
-          <!-- TODO: Merge button -->
+            <template #dropdown>
+              <MenuItem>
+                <button
+                  class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
+                  @click="triggerPushWorkspaceWithMerge"
+                >
+                  <ShareIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <span>Merge and push to {{ remote.name }}</span>
+                </button>
+              </MenuItem>
+            </template>
+          </ButtonWithDropdown>
         </div>
       </div>
     </OnboardingStep>
@@ -160,6 +173,9 @@ import { useCreateOrUpdateGitHubPullRequest } from '../../mutations/useCreateOrU
 import { useMergeGitHubPullRequest } from '../../mutations/useMergeGitHubPullRequest'
 import { GitHubPullRequestState } from '../../__generated__/types'
 import { usePushWorkspace } from '../../mutations/usePushWorkspace'
+import ButtonWithDropdown from '../shared/ButtonWithDropdown.vue'
+import { ShareIcon } from '@heroicons/vue/solid'
+import { MenuItem } from '@headlessui/vue'
 
 export const SHARE_BUTTON = gql`
   fragment ShareButton on Workspace {
@@ -195,7 +211,15 @@ export enum CANT_SUBMIT_REASON {
 }
 
 export default defineComponent({
-  components: { Spinner, Button, OnboardingStep, ExternalLinkIcon },
+  components: {
+    ButtonWithDropdown,
+    Spinner,
+    Button,
+    OnboardingStep,
+    ExternalLinkIcon,
+    ShareIcon,
+    MenuItem,
+  },
   props: {
     workspace: {
       type: Object as PropType<ShareButtonFragment>,
@@ -227,6 +251,7 @@ export default defineComponent({
 
     const { mutating: pushingWorkspace, pushWorkspace } = usePushWorkspace()
     let pushedWorkspace = ref(false)
+    let isMergingAndPushing = ref(false)
 
     return {
       landing,
@@ -240,6 +265,7 @@ export default defineComponent({
 
       pushingWorkspace,
       pushedWorkspace,
+      isMergingAndPushing,
       pushWorkspace,
     }
   },
@@ -392,9 +418,14 @@ export default defineComponent({
       })
     },
 
-    async triggerPushWorkspace() {
+    async triggerPushWorkspace(landOnSturdyAndPushTracked = false) {
       const input = {
         workspaceID: this.workspace.id,
+        landOnSturdyAndPushTracked: landOnSturdyAndPushTracked,
+      }
+
+      if (landOnSturdyAndPushTracked) {
+        this.isMergingAndPushing = true
       }
 
       this.pushedWorkspace = false
@@ -415,6 +446,10 @@ export default defineComponent({
             style: 'error',
           })
         })
+    },
+
+    async triggerPushWorkspaceWithMerge() {
+      await this.triggerPushWorkspace(true)
     },
   },
 })

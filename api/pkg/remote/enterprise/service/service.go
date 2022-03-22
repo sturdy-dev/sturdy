@@ -139,13 +139,41 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 			[]string{refspec},
 		)
 		if err != nil {
-			return fmt.Errorf("failed to pull: %w", err)
+			return fmt.Errorf("failed to push: %w", err)
 		}
 		return nil
 	}
 
 	if err := svc.executorProvider.New().GitWrite(push).ExecTrunk(ws.CodebaseID, "pushRemote"); err != nil {
-		return fmt.Errorf("failed to push from trunk: %w", err)
+		return fmt.Errorf("failed to push workspace to remote: %w", err)
+	}
+
+	return nil
+}
+
+func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebases.ID) error {
+	rem, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
+	if err != nil {
+		return fmt.Errorf("could not get remote: %w", err)
+	}
+
+	refspec := fmt.Sprintf("refs/heads/sturdytrunk:refs/heads/%s", rem.TrackedBranch)
+
+	push := func(repo vcs.RepoGitWriter) error {
+		_, err := repo.PushRemoteUrlWithRefspec(
+			svc.logger,
+			rem.URL,
+			newCredentialsCallback(rem.BasicAuthPassword, rem.BasicAuthPassword),
+			[]string{refspec},
+		)
+		if err != nil {
+			return fmt.Errorf("failed to push: %w", err)
+		}
+		return nil
+	}
+
+	if err := svc.executorProvider.New().GitWrite(push).ExecTrunk(codebaseID, "pushTrunkRemote"); err != nil {
+		return fmt.Errorf("failed to push trunk to remote: %w", err)
 	}
 
 	return nil

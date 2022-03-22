@@ -146,5 +146,6 @@ type PushWorkspaceArgs struct {
 }
 
 type PushWorkspaceInput struct {
-	WorkspaceID graphql.ID
+	WorkspaceID                graphql.ID
+	LandOnSturdyAndPushTracked *bool
 }

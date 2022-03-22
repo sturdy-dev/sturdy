@@ -26,9 +26,10 @@
   </button>
 </template>
 
-<script>
-export default {
-  name: 'Button',
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   props: {
     disabled: {
       type: Boolean,
@@ -135,5 +136,5 @@ export default {
       this.$refs.button.focus()
     }
   },
-}
+})
 </script>

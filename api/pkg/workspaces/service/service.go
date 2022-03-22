@@ -69,6 +69,7 @@ type Service interface {
 	Unarchive(context.Context, *workspaces.Workspace) error
 	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
 	Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error
+	LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error
 }
 
 type WorkspaceService struct {
@@ -947,6 +948,12 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	return nil
 }
 
+var ErrNotAvailable = errors.New("this features is not available in this version of Sturdy")
+
 func (s *WorkspaceService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
-	return fmt.Errorf("Push is not implemented in the OSS version of Sturdy")
+	return ErrNotAvailable
+}
+
+func (s *WorkspaceService) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error {
+	return ErrNotAvailable
 }
