@@ -207,7 +207,7 @@ export class SSHKeys {
     const lineSeparator = process.platform === 'win32' ? '\r\n' : '\n'
 
     await appendFile(knownHostsFile, newTrustRows.map((r) => r + lineSeparator).join(''), {
-      mode: knownHostsFile,
+      mode: knownHostsMode,
     })
     await ensureMode(knownHostsFile, knownHostsMode).catch((e) => {
       this.#logger.error(`Failed to set mode on ${knownHostsFile}: ${e}`)
