@@ -266,8 +266,14 @@ func (r *WorkspaceRootResolver) PushWorkspace(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.workspaceService.Push(ctx, user, ws); err != nil {
-		return nil, gqlerrors.Error(err)
+	if args.Input.LandOnSturdyAndPushTracked != nil && *args.Input.LandOnSturdyAndPushTracked {
+		if err := r.workspaceService.LandOnSturdyAndPushTracked(ctx, ws); err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+	} else {
+		if err := r.workspaceService.Push(ctx, user, ws); err != nil {
+			return nil, gqlerrors.Error(err)
+		}
 	}
 
 	return &WorkspaceResolver{w: ws, root: r}, nil

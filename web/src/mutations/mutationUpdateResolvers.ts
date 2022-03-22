@@ -29,7 +29,7 @@ import { updateInstallationUpdateResolver } from './useUpdateInstallation'
 import { updateOrganizationResolver } from './useUpdateOrganization'
 import { createOrUpdateCodebaseRemoteUpdateResolver } from './useCreateOrUpdateGitRemote'
 import { updateWorkspaceUpdateResolver } from './useUpdatedWorkspace'
-import {pullCodebaseUpdateResolver} from "./usePullCodebase";
+import { pullCodebaseUpdateResolver } from './usePullCodebase'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,

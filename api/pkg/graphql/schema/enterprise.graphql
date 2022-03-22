@@ -324,6 +324,9 @@ input CreateOrUpdateCodebaseRemoteInput {
 
 input PushWorkspaceInput {
   workspaceID: ID!
+
+  # Lands the change using Sturdy, and pushes it to the remote afterwards
+  landOnSturdyAndPushTracked: Boolean
 }
 
 input PullCodebaseInput {

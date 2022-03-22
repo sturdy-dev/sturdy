@@ -26,7 +26,11 @@ describe('Links', () => {
     expect(defaultLinkBranch(link)).toEqual(
       'https://dev.azure.com/gustav0446/yolo_sturdy_test/_git/yolo_sturdy_test?version=GB${BRANCH_NAME}'
     )
-    expect(defaultLinkBranch('https://getsturdy@dev.azure.com/getsturdy/sturdy/_git/sturdy-on-azure')).toEqual('https://dev.azure.com/getsturdy/sturdy/_git/sturdy-on-azure?version=GB${BRANCH_NAME}')
+    expect(
+      defaultLinkBranch('https://getsturdy@dev.azure.com/getsturdy/sturdy/_git/sturdy-on-azure')
+    ).toEqual(
+      'https://dev.azure.com/getsturdy/sturdy/_git/sturdy-on-azure?version=GB${BRANCH_NAME}'
+    )
   })
 
   it('BitBucket', () => {

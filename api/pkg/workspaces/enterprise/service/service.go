@@ -82,3 +82,19 @@ func (s *Service) Push(ctx context.Context, user *users.User, ws *workspaces.Wor
 
 	return nil
 }
+
+func (s *Service) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error {
+	if err := s.remoteService.Pull(ctx, ws.CodebaseID); err != nil {
+		return fmt.Errorf("failed to pull tracked before landing: %w", err)
+	}
+
+	if _, err := s.WorkspaceService.LandChange(ctx, ws, nil); err != nil {
+		return fmt.Errorf("failed to land change: %w", err)
+	}
+
+	if err := s.remoteService.PushTrunk(ctx, ws.CodebaseID); err != nil {
+		return fmt.Errorf("failed to push trunk: %w", err)
+	}
+
+	return nil
+}

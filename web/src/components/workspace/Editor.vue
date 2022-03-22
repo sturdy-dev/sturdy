@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white border w-full rounded-md shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 flex flex-row overflow-hidden"
+    class="bg-white border w-full rounded-md shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 flex flex-row"
   >
     <editor-content :editor="editor" class="flex-1 px-4 py-2" @keydown="keydown" />
 

@@ -35,8 +35,8 @@
         </ul>
       </div>
       <WorkspaceApproval
-        class="flex-1"
         v-if="showApproval"
+        class="flex-1"
         :reviews="workspace.reviews"
         :workspace="workspace"
         :codebase-id="workspace.codebase.id"
