@@ -747,13 +747,13 @@ export default defineComponent({
     isSelfOwnedWorkspace() {
       return this.data?.workspace && this.data?.workspace.author.id === this.user?.id
     },
-    mostRecentSelfUserView(): CodebaseView {
-      return this.views[0]
+    mostRecentSelfUserView(): CodebaseView | undefined {
+      return this.views.length > 0 ? this.views[0] : undefined
     },
     views(): CodebaseView[] {
       return (
         this.data?.workspace.codebase.views?.slice().sort((a: CodebaseView, b: CodebaseView) => {
-          return b.lastUsedAt - a.lastUsedAt
+          return Math.round(b.lastUsedAt / 100) - Math.round(a.lastUsedAt / 100)
         }) ?? []
       )
     },
