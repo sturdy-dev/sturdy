@@ -123,7 +123,8 @@ export default defineComponent({
     const shortCodebaseID = IdFromSlug(route.params.codebaseSlug as string)
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isBuildkiteEnabled = computed(() => features?.value?.includes(Feature.Buildkite))
+    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote))
 
     const { data } = useQuery<GetIntegrationsQuery, GetIntegrationsQueryVariables>({
       query: gql`
@@ -150,7 +151,8 @@ export default defineComponent({
 
     const deleteIntegration = useDeleteIntegration()
     return {
-      isGitHubEnabled,
+      isBuildkiteEnabled,
+      isRemoteEnabled,
 
       data,
       shortCodebaseID,
@@ -166,7 +168,7 @@ export default defineComponent({
         name: 'Buildkite',
         description: 'Setup CI/CD with Buildkite',
         page: 'codebaseSettingsAddBuildkite',
-        enabled: this.isGitHubEnabled,
+        enabled: this.isBuildkiteEnabled,
         logo: buildkiteLogo,
         supportMulti: true,
       }
@@ -175,7 +177,7 @@ export default defineComponent({
         name: 'Git',
         description: 'Sync Sturdy with any Git Provider (GitLab, Azure DevOps, etc)',
         page: 'codebaseSettingsAddGit',
-        enabled: this.isGitHubEnabled,
+        enabled: this.isRemoteEnabled,
         logo: gitLogo,
         supportMulti: false,
       }

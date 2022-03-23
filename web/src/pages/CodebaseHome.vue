@@ -164,14 +164,14 @@ export default defineComponent({
     )
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote))
 
     let { data, fetching, error, executeQuery } = useQuery<
       CodebaseHomeCodebaseQuery,
       CodebaseHomeCodebaseQueryVariables
     >({
       query: gql`
-        query CodebaseHomeCodebase($shortCodebaseID: ID!, $isGitHubEnabled: Boolean!) {
+        query CodebaseHomeCodebase($shortCodebaseID: ID!, $isRemoteEnabled: Boolean!) {
           codebase(shortID: $shortCodebaseID) {
             id
             shortID
@@ -204,7 +204,7 @@ export default defineComponent({
               }
             }
             ...TopOfChangelog
-            remote @include(if: $isGitHubEnabled) {
+            remote @include(if: $isRemoteEnabled) {
               ...PushPullCodebaseRemote
             }
           }
@@ -217,7 +217,7 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
       variables: {
         shortCodebaseID: codebaseSlug,
-        isGitHubEnabled,
+        isRemoteEnabled,
       },
     })
 
