@@ -1,6 +1,7 @@
 package message
 
 import (
+	"html"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -32,6 +33,10 @@ func CommitMessage(draftDescription string) string {
 }
 
 func Title(in string) string {
+	return html.UnescapeString(firstLine(in))
+}
+
+func firstLine(in string) string {
 	if idx := strings.Index(in, "\r\n"); idx > 0 {
 		return strings.TrimSpace(in[0:idx])
 	}

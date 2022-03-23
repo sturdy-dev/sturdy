@@ -19,6 +19,7 @@ func Test_NameOrFallback(t *testing.T) {
 		{Name: pString("name"), DraftDescription: "Test", Out: "Test"},
 		{DraftDescription: "<p>Test</p>", Out: "Test"},
 		{DraftDescription: "<p>Test</p><p>description</p>", Out: "Test"},
+		{DraftDescription: "<p>&lt;3 Test</p><p>description</p>", Out: "<3 Test"},
 	}
 	for i, tc := range testCases {
 		t.Run(fmt.Sprint(i), func(t *testing.T) {

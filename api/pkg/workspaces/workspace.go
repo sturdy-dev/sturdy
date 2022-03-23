@@ -1,6 +1,7 @@
 package workspaces
 
 import (
+	"html"
 	"strings"
 	"time"
 
@@ -80,6 +81,10 @@ var newLiner = strings.NewReplacer(
 func (w Workspace) NameOrFallback() string {
 	replaced := newLiner.Replace(w.DraftDescription)
 	sanitizedDescription := strings.TrimLeft(bluemonday.StrictPolicy().Sanitize(replaced), "\n")
+
+	// UnescapeString replaces "&lt;" with "<" etc.
+	sanitizedDescription = html.UnescapeString(sanitizedDescription)
+
 	if sanitizedDescription == "" {
 		if w.Name != nil {
 			return *w.Name
