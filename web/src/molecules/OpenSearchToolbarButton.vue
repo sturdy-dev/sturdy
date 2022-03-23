@@ -3,7 +3,7 @@
     <template #tooltip>
       <p>
         <b>Search </b>
-        <label v-if="this.darwin || this.linux"> ⌘ + {{ keyToSearch }} </label>
+        <label v-if="darwin || linux"> ⌘ + {{ keyToSearch }} </label>
         <label v-else> Ctrl + {{ keyToSearch }} </label> or /
       </p>
     </template>
@@ -50,6 +50,12 @@ export default defineComponent({
       return this.isApp ? 'F' : 'K'
     },
   },
+  mounted() {
+    this.emitter.on('search-toolbar-button-visible', this.searchToolbarButtonVisible)
+  },
+  unmounted() {
+    this.emitter.on('search-toolbar-button-visible', this.searchToolbarButtonVisible)
+  },
   methods: {
     open() {
       this.emitter.emit('open-search-toolbar')
@@ -57,12 +63,6 @@ export default defineComponent({
     searchToolbarButtonVisible(visible: boolean) {
       this.show = visible
     },
-  },
-  mounted() {
-    this.emitter.on('search-toolbar-button-visible', this.searchToolbarButtonVisible)
-  },
-  unmounted() {
-    this.emitter.on('search-toolbar-button-visible', this.searchToolbarButtonVisible)
   },
 })
 </script>
