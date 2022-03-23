@@ -38,7 +38,7 @@ import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
-import {
+import type {
   ListSubscriptionsPageQuery,
   ListSubscriptionsPageQueryVariables,
 } from './__generated__/ListSubscriptionPage'

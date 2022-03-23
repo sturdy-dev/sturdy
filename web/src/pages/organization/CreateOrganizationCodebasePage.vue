@@ -37,7 +37,7 @@ import { defineComponent } from 'vue'
 import CreateCodebase from '../../organisms/CreateCodebase.vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
-import {
+import type {
   CreateOrganizationCodebasePageQuery,
   CreateOrganizationCodebasePageQueryVariables,
 } from './__generated__/CreateOrganizationCodebasePage'
