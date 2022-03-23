@@ -9,7 +9,6 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
@@ -87,12 +86,7 @@ func (svc *Service) GetMember(ctx context.Context, organizationID string, userID
 	return member, nil
 }
 
-func (svc *Service) Create(ctx context.Context, name string) (*organization.Organization, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (svc *Service) Create(ctx context.Context, userID users.ID, name string) (*organization.Organization, error) {
 	org := organization.Organization{
 		ID:        uuid.NewString(),
 		ShortID:   organization.ShortOrganizationID(shortid.New()),

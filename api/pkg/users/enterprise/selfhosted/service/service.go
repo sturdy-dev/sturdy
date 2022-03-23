@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	service_installations "getsturdy.com/api/pkg/installations/service"
-	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
 	service_oss_selfhosted "getsturdy.com/api/pkg/users/oss/selfhosted/service"
 	"getsturdy.com/api/pkg/users/service"
@@ -16,18 +15,15 @@ const maxUsersWithoutLicense = 10
 type Service struct {
 	*service_oss_selfhosted.Service
 
-	organizationService *service_organization.Service
 	installationService *service_installations.Service
 }
 
 func New(
 	userService *service_oss_selfhosted.Service,
-	organizationService *service_organization.Service,
 	installationService *service_installations.Service,
 ) *Service {
 	return &Service{
 		Service:             userService,
-		organizationService: organizationService,
 		installationService: installationService,
 	}
 }

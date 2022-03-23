@@ -152,7 +152,12 @@ func (r *organizationRootResolver) Organization(ctx context.Context, args resolv
 }
 
 func (r *organizationRootResolver) CreateOrganization(ctx context.Context, args resolvers.CreateOrganizationArgs) (resolvers.OrganizationResolver, error) {
-	org, err := r.service.Create(ctx, args.Input.Name)
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	org, err := r.service.Create(ctx, userID, args.Input.Name)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
