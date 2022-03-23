@@ -811,18 +811,10 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 		return false, nil
 	}
 
+	snapshotBranchName := fmt.Sprintf("snapshot-" + *ws.LatestSnapshotID)
+
 	var hasConflicts bool
 	checkConflicts := func(repo vcs.RepoGitWriter) error {
-		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), it's not conflicting
-		if _, err := repo.BranchCommitID("sturdytrunk"); err != nil {
-			return nil
-		}
-
-		snapshotBranchName := fmt.Sprintf("snapshot-" + *ws.LatestSnapshotID)
-		if err := repo.FetchBranch(snapshotBranchName, "sturdytrunk"); err != nil {
-			return fmt.Errorf("failed to fetch branch: %w", err)
-		}
-
 		idx, err := repo.MergeBranches(snapshotBranchName, "sturdytrunk")
 		if err != nil {
 			return fmt.Errorf("failed to merge branches: %w", err)
@@ -833,6 +825,28 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 		return nil
 	}
 
+	checkConflictsOnView := func(repo vcs.RepoGitWriter) error {
+		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), it's not conflicting
+		if _, err := repo.BranchCommitID("sturdytrunk"); err != nil {
+			return nil
+		}
+
+		if err := repo.FetchBranch(snapshotBranchName, "sturdytrunk"); err != nil {
+			return fmt.Errorf("failed to fetch branch: %w", err)
+		}
+
+		return checkConflicts(repo)
+	}
+
+	checkConflictsOnTrunk := func(repo vcs.RepoGitWriter) error {
+		// If sturdytrunk doesn't exist (such as when an empty repository has been imported), it's not conflicting
+		if _, err := repo.BranchCommitID("sturdytrunk"); err != nil {
+			return nil
+		}
+
+		return checkConflicts(repo)
+	}
+
 	if ws.ViewID == nil {
 		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
 		if err != nil {
@@ -840,13 +854,15 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 		}
 		if err := s.executorProvider.New().
 			Write(vcs_view.CheckoutSnapshot(snapshot)).
-			GitWrite(checkConflicts).
-			ExecTemporaryView(ws.CodebaseID, "workspaceCheckIfConflicts"); err != nil {
+			GitWrite(checkConflictsOnTrunk).
+			ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflictsWithSnapshot"); err != nil {
 			return false, fmt.Errorf("failed to check if conflicts: %w", err)
 		}
 		return hasConflicts, nil
 	} else {
-		if err := s.executorProvider.New().GitWrite(checkConflicts).ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflicts"); err != nil {
+		if err := s.executorProvider.New().
+			GitWrite(checkConflictsOnView).
+			ExecView(ws.CodebaseID, *ws.ViewID, "workspaceCheckIfConflictsOnView"); err != nil {
 			if errors.Is(err, executor.ErrIsRebasing) {
 				return false, nil
 			}
