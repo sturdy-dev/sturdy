@@ -1,4 +1,4 @@
-import { Breadcrumbs, Crumb } from './Breadcrumbs'
+import { Breadcrumbs, type Crumb } from './Breadcrumbs'
 
 describe('Breadcrumbs', () => {
   it('is empty', () => {

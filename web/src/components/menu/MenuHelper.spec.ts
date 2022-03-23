@@ -1,4 +1,4 @@
-import { NavigationWorkspace, WorkspaceIndex } from './MenuHelper'
+import { type NavigationWorkspace, WorkspaceIndex } from './MenuHelper'
 
 function wsWithName(name: string): NavigationWorkspace {
   return {
