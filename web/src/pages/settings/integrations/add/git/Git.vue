@@ -170,6 +170,7 @@ import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCre
 import Button from '../../../../../components/shared/Button.vue'
 import { defaultLinkBranch, defaultLinkRepo } from './Links'
 import InputCopyToClipboard from '../../../../../organisms/InputCopyToClipboard.vue'
+import http from '../../../../../http'
 
 export default defineComponent({
   components: {
@@ -323,14 +324,13 @@ export default defineComponent({
     recommendedLinkBranch() {
       return defaultLinkBranch(this.gitRemoteURL)
     },
-    webhookTrigger() {
-      return (
-        window.location.protocol +
-        '//' +
-        window.location.host +
-        '/v3/remotes/webhook/sync-codebase/' +
-        this.data.codebase.id
-      )
+    webhookTrigger(): string {
+      if (!window.location || !this?.data?.codebase?.id) {
+        return ''
+      }
+      const base = http.url('/v3/remotes/webhook/sync-codebase/' + this.data.codebase.id)
+      // using the current browser location as the base, used if url() returns a relative url
+      return new URL(base, new URL(window.location.href)).href
     },
   },
 })
