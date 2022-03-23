@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="working-in-the-open">Connect with Git</h1>
+        <h1 id="working-in-the-open">Integrate with Git</h1>
 
         <p>
           With the <strong>Git</strong> integration in Sturdy, you can connect Sturdy to any git
