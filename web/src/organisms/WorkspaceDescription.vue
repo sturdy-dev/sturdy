@@ -11,7 +11,7 @@
       <Editor
         :model-value="description"
         :editable="isAuthorized"
-        placeholder="Describe the changes in this workspace&hellip;"
+        placeholder="Describe your changes&hellip;"
         @updated="onUpdatedDescription"
       >
         <transition
