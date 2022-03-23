@@ -4,8 +4,13 @@
     :type="buttonType"
     :class="classes"
     :disabled="disabled"
-    class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5"
+    class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5 gap-2"
   >
+    <Spinner v-if="spinner" />
+    <div v-else-if="icon">
+      <component :is="icon" class="h-5 w-5 text-gray-400"></component>
+    </div>
+
     <slot>Button</slot>
 
     <div
@@ -28,8 +33,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Spinner from './Spinner.vue'
 
 export default defineComponent({
+  components: { Spinner },
   props: {
     disabled: {
       type: Boolean,
@@ -68,6 +75,11 @@ export default defineComponent({
       default: false,
     },
     autoFocus: {
+      type: Boolean,
+      default: false,
+    },
+    icon: Object,
+    spinner: {
       type: Boolean,
       default: false,
     },

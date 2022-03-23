@@ -50,22 +50,12 @@
                             data.workspace.upToDateWithTrunk ||
                             viewConnectionState !== 'editing'
                           "
+                          :icon="lightningBoltIcon"
                           @click="initSyncWithTrunk"
                         >
-                          <div class="inline-flex gap-1 items-center">
-                            <Spinner
-                              v-if="isSyncing"
-                              class="h-5 w-5 text-gray-400"
-                              aria-hidden="true"
-                            />
-                            <LightningBoltIcon
-                              v-else
-                              class="h-5 w-5 text-gray-400"
-                              aria-hidden="true"
-                            />
-                            <span>Sync</span>
-                          </div>
+                          Sync
                         </Button>
+
                         <span
                           v-if="!data.workspace.upToDateWithTrunk && !isSyncing"
                           class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1"
@@ -365,13 +355,11 @@ export default defineComponent({
     ViewStatusIndicator,
     OnboardingStep,
     WorkspaceActivitySidebar,
-    Spinner,
     Button,
     ResolveConflict,
     LiveDetails,
     AnnotationIcon,
     Banner,
-    LightningBoltIcon,
     DesktopComputerIcon,
     MenuItem,
     SearchToolbar,
@@ -690,6 +678,8 @@ export default defineComponent({
         })
         loadingNewWorkspace.value = false
       },
+
+      lightningBoltIcon: LightningBoltIcon,
     }
   },
   data() {

@@ -6,27 +6,20 @@
     @close="hideModal"
     @archiving="setArchiving"
   />
-  <Button @click="showModal">
-    <div class="inline-flex gap-1 items-center">
-      <Spinner v-if="archiving" class="h-5 w-5 text-gray-400" aria-hidden="true" />
-      <ArchiveIcon v-else class="h-5 w-5 text-gray-400" aria-hidden="true" />
-      <span class="hidden sm:block">Archive</span>
-    </div>
+  <Button :icon="archiveIcon" :spinner="archiving" @click="showModal">
+    <span class="hidden sm:block">Archive</span>
   </Button>
 </template>
 
 <script lang="ts">
 import Button from '../../components/shared/Button.vue'
-import Spinner from '../../components/shared/Spinner.vue'
 import { ArchiveIcon } from '@heroicons/vue/solid'
 import ArchiveWorkspaceModal from '../../components/codebase/ArchiveWorkspaceModal.vue'
 
 export default {
   components: {
-    ArchiveIcon,
     ArchiveWorkspaceModal,
     Button,
-    Spinner,
   },
   props: {
     workspaceId: {
@@ -38,6 +31,7 @@ export default {
     return {
       modalOpened: false,
       archiving: false,
+      archiveIcon: ArchiveIcon,
     }
   },
   methods: {
