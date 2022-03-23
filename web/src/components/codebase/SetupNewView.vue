@@ -293,7 +293,7 @@ export default defineComponent({
           description: 'Make your first change to the codebase',
           status:
             this.currentStep === 1 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
-          component: ConnectNewDirectory,
+          component: SetupSturdyGoToWorkspaceStep,
         },
       ]
     },
