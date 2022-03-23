@@ -73,6 +73,10 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 		return existingUser, nil
 	}
 
+	if name == "" {
+		name = users.EmailToName(email)
+	}
+
 	t := time.Now()
 	newUser := &users.User{
 		ID:        users.ID(uuid.New().String()),
