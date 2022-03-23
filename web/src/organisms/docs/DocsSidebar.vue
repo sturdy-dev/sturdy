@@ -40,7 +40,12 @@ const groups = [
 
   {
     name: 'Git',
-    links: [{ route: 'v2DocsHowSturdyInteractsWithGit', title: 'Interacting with Git' }],
+    links: [
+      { route: 'v2DocsHowSturdyInteractsWithGit', title: 'How Sturdy builds on Git' },
+
+      { route: 'docsIntegrationsGit', title: 'Integrate with Git (GitLab, Azure, etc...)' },
+      { route: 'v2DocsUsingSturdy', hash: 'import-a-repository', title: 'Sturdy for GitHub' },
+    ],
   },
 
   {
@@ -79,6 +84,7 @@ const groups = [
       { route: 'docsAccessControl', title: 'Access Control' },
       { route: 'docsSuggestions', title: 'Suggestions' },
       { route: 'docsCICD', title: 'CI / CD' },
+      { route: 'docsIntegrationsGit', title: 'Integrate with Git (GitLab, Azure, etc ...)' },
     ],
   },
 

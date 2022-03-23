@@ -5,7 +5,7 @@
     </template>
     <template #default>
       <div class="prose p-4 max-w-[800px]">
-        <h1 id="how-sturdy-interacts-with-git">Interacting with Git</h1>
+        <h1 id="how-sturdy-interacts-with-git">How Sturdy builds on Git</h1>
 
         <p>
           Sturdy utilizes low-level Git data structures, but what does that mean, and why? In a
