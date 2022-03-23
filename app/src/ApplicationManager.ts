@@ -4,9 +4,8 @@ import { TypedEventEmitter } from './TypedEventEmitter'
 import { MutagenDaemon, MutagenExecutable } from './mutagen'
 import { Logger } from './Logger'
 import { dataPath, resourceBinary } from './resources'
-import { createWriteStream } from 'fs'
+import { createWriteStream, WriteStream } from 'fs'
 import path from 'path'
-import { WriteStream } from 'fs'
 
 export interface ApplicationManagerEvents {
   switch: [application: Application]
@@ -20,6 +19,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     submenu: Menu.buildFromTemplate([]),
     visible: false,
   })
+
   readonly #applications: Map<string, Application> = new Map()
 
   #activeApplication?: string
@@ -133,7 +133,7 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     this.emit('switch', application)
 
     // close all other applications
-    for (let [id, app] of this.#applications) {
+    for (const [id, app] of this.#applications) {
       if (id === host.id) {
         continue
       }
@@ -141,17 +141,23 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
     }
   }
 
-  async open(url?: string) {
+  async open(url?: string, openIfExists: Boolean = true) {
     if (!this.#activeApplication) {
       return
     }
     const application = this.#applications.get(this.#activeApplication)!
     if (url) {
+      console.log('open (with url)', url)
       const sturdyUrl = new URL(url)
       const newUrl = new URL(sturdyUrl.pathname + sturdyUrl.search, application.host.webURL)
       await application.open(newUrl)
     } else {
-      await application.open()
+      console.log('open (no url)')
+      if (!openIfExists) {
+        await application.openOnlyIfNotExists()
+      } else {
+        await application.open()
+      }
     }
   }
 

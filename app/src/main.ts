@@ -114,27 +114,27 @@ app.on('open-url', async (event, url) => {
   }
 })
 
-app.on('second-instance', (event, commandLine, workingDirectory) => {
+app.on('second-instance', async (event, commandLine, workingDirectory) => {
   logger.log('second-instance', commandLine)
 
   // Windows handling for opening protocol links while there is already a window open
   if (process.platform === 'win32') {
     const argWithUrl = commandLine.find((arg) => arg.indexOf(protocol) > -1)
     if (argWithUrl) {
-      manager.open(argWithUrl)
+      await manager.open(argWithUrl)
     } else {
-      manager.open()
+      await manager.open()
     }
   } else {
-    manager.open()
+    await manager.open()
   }
 })
 
-app.on('activate', () => {
+app.on('activate', async () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (process.platform === 'darwin') {
-    manager.open()
+    await manager.open(undefined, false)
   }
 })
 

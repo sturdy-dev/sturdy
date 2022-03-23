@@ -152,6 +152,14 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     }
   }
 
+  async openOnlyIfNotExists(startURL?: URL) {
+    if (this.#window != null) {
+      // do nothing
+      return
+    }
+    return this.open(startURL)
+  }
+
   async open(startURL?: URL) {
     if (!startURL && this.#lastURL) {
       startURL = this.#lastURL
