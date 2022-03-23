@@ -10,17 +10,14 @@
   />
 
   <div class="mx-4 divide-y divide-gray-200 px-4 sm:px-6 gap-2 flex">
-    <Button v-if="codebase.isPublic" color="red" @click="doMakePrivate">
-      <LockClosedIcon class="-ml-1 mr-2 h-5 w-5 text-red-400" />
-      Make this codebase&nbsp;<strong>private</strong>
+    <Button v-if="codebase.isPublic" color="red" :icon="lockClosedIcon" @click="doMakePrivate">
+      Make this codebase <strong>private</strong>
     </Button>
-    <Button v-else color="red" @click="doMakePublic">
-      <LockOpenIcon class="-ml-1 mr-2 h-5 w-5 text-red-400" />
-      Make this codebase&nbsp;<strong>public</strong>
+    <Button v-else color="red" :icon="lockOpenIcon" @click="doMakePublic">
+      Make this codebase <strong>public</strong>
     </Button>
 
-    <Button color="red" @click="showArchiveModal = true">
-      <ArchiveIcon class="-ml-1 mr-2 h-5 w-5 text-red-400" />
+    <Button color="red" :icon="archiveIcon" @click="showArchiveModal = true">
       Archive this codebase
     </Button>
   </div>
@@ -48,10 +45,7 @@ export default defineComponent({
   components: {
     ConfirmModal,
     HorizontalDivider,
-    ArchiveIcon,
     Button,
-    LockOpenIcon,
-    LockClosedIcon,
   },
   props: {
     codebase: {
@@ -114,6 +108,10 @@ export default defineComponent({
           }
         })
       },
+
+      lockClosedIcon: LockClosedIcon,
+      lockOpenIcon: LockOpenIcon,
+      archiveIcon: ArchiveIcon,
     }
   },
   data() {

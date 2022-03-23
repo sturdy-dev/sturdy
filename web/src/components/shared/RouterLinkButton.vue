@@ -7,7 +7,7 @@
   >
     <Spinner v-if="spinner" />
     <div v-else-if="icon">
-      <component :is="icon" class="h-5 w-5 text-gray-400"></component>
+      <component :is="icon" class="h-5 w-5" :class="iconColor"></component>
     </div>
 
     <slot>Button</slot>
@@ -102,6 +102,12 @@ export default defineComponent({
         return 'border border-r-0'
       }
       return 'border'
+    },
+    iconColor() {
+      if (this.color === 'red') {
+        return 'text-red-400'
+      }
+      return 'text-gray-400'
     },
     colors() {
       if (this.color === 'white') {

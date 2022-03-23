@@ -25,14 +25,7 @@
           />
         </div>
         <span class="ml-3">
-          <button
-            type="button"
-            class="bg-white inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-light-blue-500"
-            @click.stop.prevent="inviteMember"
-          >
-            <PlusIcon class="-ml-2 mr-1 h-5 w-5 text-gray-400" />
-            <span>Add</span>
-          </button>
+          <Button :icon="plusIcon" @click.stop.prevent="inviteMember"> Add </Button>
         </span>
       </div>
     </div>
@@ -60,14 +53,14 @@
           </div>
 
           <template v-if="data.codebase.writeable">
-            <Button v-if="member.id === data.user.id" @click="removeMember(member)">
-              <UserRemoveIcon class="-ml-1 mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-              <span>Leave</span>
+            <Button
+              v-if="member.id === data.user.id"
+              :icon="userRemoveIcon"
+              @click="removeMember(member)"
+            >
+              Leave
             </Button>
-            <Button v-else @click="removeMember(member)">
-              <UserRemoveIcon class="mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-              <span>Remove</span>
-            </Button>
+            <Button v-else :icon="userRemoveIcon" @click="removeMember(member)"> Remove </Button>
           </template>
         </li>
       </ul>
@@ -114,7 +107,7 @@ import { useRemoveUserFromCodebase } from '../../mutations/useRemoveUserFromCode
 import Button from '../shared/Button.vue'
 
 export default defineComponent({
-  components: { PlusIcon, Avatar, UserRemoveIcon, Button },
+  components: { Avatar, Button },
   props: ['codebaseID', 'showHeader'],
   setup(props) {
     let { data, executeQuery } = useQuery<
@@ -174,6 +167,9 @@ export default defineComponent({
           requestPolicy: 'network-only',
         })
       },
+
+      userRemoveIcon: UserRemoveIcon,
+      plusIcon: PlusIcon,
     }
   },
   data() {
