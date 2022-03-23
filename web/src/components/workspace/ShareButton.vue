@@ -112,7 +112,7 @@
               {{ cantSubmitTooltipMessage }}
             </template>
 
-            <template #dropdown="{disabled}">
+            <template #dropdown="{ disabled }">
               <MenuItem :disabled="disabled">
                 <button
                   class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"

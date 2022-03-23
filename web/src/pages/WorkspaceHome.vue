@@ -50,17 +50,21 @@
                             data.workspace.upToDateWithTrunk ||
                             viewConnectionState !== 'editing'
                           "
-                          size="wider"
                           @click="initSyncWithTrunk"
                         >
-                          <template v-if="isSyncing">
-                            <Spinner />
-                            <span>Syncing</span>
-                          </template>
-                          <template v-else>
-                            <LightningBoltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                          <div class="inline-flex gap-1 items-center">
+                            <Spinner
+                              v-if="isSyncing"
+                              class="h-5 w-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                            <LightningBoltIcon
+                              v-else
+                              class="h-5 w-5 text-gray-400"
+                              aria-hidden="true"
+                            />
                             <span>Sync</span>
-                          </template>
+                          </div>
                         </Button>
                         <span
                           v-if="!data.workspace.upToDateWithTrunk && !isSyncing"
@@ -177,10 +181,10 @@
 
             <!-- connect directory button -->
             <Button
-              @click="createViewInDirectory"
               v-if="
                 viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
               "
+              @click="createViewInDirectory"
             >
               <div class="flex items-center px-1">
                 <DesktopComputerIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
