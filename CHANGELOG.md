@@ -8,6 +8,24 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.5.0 (2022-03-23)
+
+_Changes since v1.4.0_
+
+* [Improvement] Added git-integration with support for _any_ git hosting provider (GitLab, BitBucket, Azure Dev Ops, etc...). Available from "Codebase Settings > Integrations > Git" (BETA).
+* [Improvement] GitHub-app self-verification. Verifies that the app is setup correctly with the necessary permissions.
+* [Improvement] Workspaces are now completely renamed to "Draft Changes"
+* [Improvement] Much faster workflow when running Sturdy on GitHub
+* [Improvement] Fixed issues with the built-in search on Drafts and Changes (open the search window with `Cmd+F` or `/`)
+* [Improvement] Search for file names in the diff searcher
+* [Improvement] The `getsturdy/server` Docker image now runs on both `linux/amd64` and `linux/arm64` (new).
+* [Improvement] TLS support for self-hosted servers, with built in Let's Encrypt support
+* [Performance] Improved performance when resizing the app-window.
+* [Fix] Improved speed and reliability of updates of events in the sidebar
+* [Fix] Fixed some rendering issues in the Syncer
+* [Fix] Fixed issues with uploading avatars on self-hosted servers
+* [Fix] Fixed a bug where a repository could not be imported twice from GitHub
+
 # Server v1.4.0 (2022-03-08)
 
 * [Improvement] Improvements to the workflow. When sharing a change to trunk, you're now redirected to the change that you created. A workspace (to be renamed to "Draft Changes" in an upcoming release) can now only be used once. After sharing a change Sturdy will automatically create a new workspace on trunk and connect it to your computer.
