@@ -968,6 +968,7 @@ enum Feature {
   SelfHostedLicense # Self hosted, enter, and consume a license
   Emails # email related features are supported
   DownloadChanges # can download changes
+  Remote # can connect to any git server
 }
 
 type Organization implements Writeable {

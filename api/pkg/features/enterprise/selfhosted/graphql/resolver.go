@@ -25,6 +25,7 @@ func (r *FeaturesRootResolver) isGitHubEnabled() bool {
 func (r *FeaturesRootResolver) Features() []resolvers.Feature {
 	ff := []resolvers.Feature{
 		resolvers.FeatureBuildkite,
+		resolvers.FeatureRemote,
 		resolvers.SelfHostedLicense,
 	}
 	if r.isGitHubEnabled() {

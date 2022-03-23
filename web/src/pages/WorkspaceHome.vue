@@ -389,6 +389,7 @@ export default defineComponent({
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote))
 
     let route = useRoute()
     const router = useRouter()
@@ -418,7 +419,11 @@ export default defineComponent({
       DeepMaybeRef<WorkspaceHomeQueryVariables>
     >({
       query: gql`
-        query WorkspaceHome($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
+        query WorkspaceHome(
+          $workspaceID: ID!
+          $isGitHubEnabled: Boolean!
+          $isRemoteEnabled: Boolean!
+        ) {
           workspace(id: $workspaceID, allowArchived: true) {
             id
             lastLandedAt
@@ -552,7 +557,11 @@ export default defineComponent({
         ${WORKSPACE_DETAILS_FRAGMENT}
         ${WORKSPACE_DESCRIPTION_FRAGMENT}
       `,
-      variables: { workspaceID: workspaceID, isGitHubEnabled: isGitHubEnabled },
+      variables: {
+        workspaceID: workspaceID,
+        isGitHubEnabled: isGitHubEnabled,
+        isRemoteEnabled: isRemoteEnabled,
+      },
     })
 
     let {

@@ -188,7 +188,7 @@ export const SHARE_BUTTON = gql`
         owner
         name
       }
-      remote @include(if: $isGitHubEnabled) {
+      remote @include(if: $isRemoteEnabled) {
         id
         name
         browserLinkBranch
