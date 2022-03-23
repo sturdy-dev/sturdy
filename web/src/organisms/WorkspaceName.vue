@@ -3,15 +3,9 @@
     <h1 v-if="isSuggesting" class="text-2xl font-bold text-gray-900">
       Suggesting to {{ workspace.suggestion.for.name }}
     </h1>
-    <input
-      v-model="name"
-      :disabled="disabled"
-      class="w-full text-2xl font-bold text-gray-900 border-0 p-0 border-0 outline-none"
-      :class="{
-        'animate-pulse': updating,
-      }"
-      @keydown.stop="onKeyDown"
-    />
+    <span class="w-full text-2xl font-bold text-gray-900 border-0 p-0 border-0 outline-none">
+      {{ name }}
+    </span>
     <p class="mt-2 text-sm text-gray-500">
       By
       {{ ' ' }}

@@ -6,8 +6,8 @@
     @close="hideModal"
     @archiving="setArchiving"
   />
-  <Button ize="wider" @click="showModal">
-    <div class="flex gap-1">
+  <Button @click="showModal">
+    <div class="inline-flex gap-1 items-center">
       <Spinner v-if="archiving" class="h-5 w-5 text-gray-400" aria-hidden="true" />
       <ArchiveIcon v-else class="h-5 w-5 text-gray-400" aria-hidden="true" />
       <span class="hidden sm:block">Archive</span>
