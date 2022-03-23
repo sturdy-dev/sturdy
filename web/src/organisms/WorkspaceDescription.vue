@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-3 relative max-w-prose">
+  <div>
     <h2 class="sr-only">Description</h2>
     <OnboardingStep id="MakingAChange" :dependencies="['FindingYourWorkspace', 'WorkspaceChanges']">
       <template #title>Publishing a Change</template>

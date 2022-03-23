@@ -3,10 +3,10 @@
     <link-button
       :href="'vscode://file/' + view.mountPath"
       target="_blank"
-      class="inline-flex items-center space-x-1"
+      class="inline-flex items-center gap-1"
     >
-      <span>Open in</span>
       <VisualStudioCode class="h-5 w-5" />
+      <span class="hidden sm:block">Open</span>
     </link-button>
   </div>
 </template>

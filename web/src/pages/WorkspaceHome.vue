@@ -8,205 +8,197 @@
     <div class="py-8">
       <div class="mx-auto px-6 grid grid-cols-1 xl:grid-cols-4">
         <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
-          <div>
-            <div>
-              <div class="flex items-center justify-between gap-4">
-                <WorkspaceName class="grow" :workspace="data.workspace" :disabled="!isAuthorized" />
+          <div class="flex flex-col gap-2">
+            <div class="inline-flex gap-2">
+              <WorkspaceName
+                class="text-ellipsis overflow-hidden"
+                :workspace="data.workspace"
+                :disabled="!isAuthorized"
+              />
+              <div class="flex items-start gap-2">
+                <ArchiveButton v-if="isAuthorized" :workspace-id="data.workspace.id" />
+                <!-- sync button -->
+                <div v-if="isAuthorized && showSync">
+                  <OnboardingStep
+                    id="SyncChanges"
+                    :enabled="!data.workspace.upToDateWithTrunk && !!mutableView"
+                  >
+                    <template #title>Get up to date</template>
+                    <template #description>
+                      The codebase have new changes since this draft was started, and it's fallen
+                      behind. Sync this draft to download all of the new changes.
+                    </template>
 
-                <div v-if="isAuthorized" class="flex space-x-3 md:mt-0 items-center">
-                  <ArchiveButton :workspace-id="data.workspace.id" />
-
-                  <!-- sync button -->
-                  <div v-if="showSync">
-                    <OnboardingStep
-                      id="SyncChanges"
-                      :enabled="!data.workspace.upToDateWithTrunk && !!mutableView"
-                    >
-                      <template #title>Get up to date</template>
-                      <template #description>
-                        The codebase have new changes since this draft was started, and it's fallen
-                        behind. Sync this draft to download all of the new changes.
+                    <Tooltip :disabled="isSyncing" x-direction="left">
+                      <template #tooltip>
+                        <div v-if="data.workspace.upToDateWithTrunk">
+                          This draft change is already up-to-date with the changelog.
+                        </div>
+                        <div v-else-if="viewConnectionState !== 'editing'">
+                          You need to connect a local directory to this draft change before syncing.
+                        </div>
+                        <div v-else>
+                          Get all the latest changes from the changelog into this draft change.
+                        </div>
                       </template>
 
-                      <Tooltip :disabled="isSyncing" x-direction="left">
-                        <template #tooltip>
-                          <div v-if="data.workspace.upToDateWithTrunk">
-                            This draft change is already up-to-date with the changelog.
-                          </div>
-                          <div v-else-if="viewConnectionState !== 'editing'">
-                            You need to connect a local directory to this draft change before
-                            syncing.
-                          </div>
-                          <div v-else>
-                            Get all the latest changes from the changelog into this draft change.
-                          </div>
-                        </template>
-
-                        <div class="relative inline-flex rounded-md shadow-sm">
-                          <Button
-                            :disabled="
-                              !isOnAuthoritativeView ||
-                              isSyncing ||
-                              data.workspace.upToDateWithTrunk ||
-                              viewConnectionState !== 'editing'
-                            "
-                            size="wider"
-                            @click="initSyncWithTrunk"
-                          >
-                            <LightningBoltIcon
-                              class="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                              aria-hidden="true"
-                            />
-                            <div v-if="isSyncing" class="inline-flex space-x-2 items-center">
-                              <span>Syncing</span>
+                      <div class="relative flex rounded-md shadow-sm">
+                        <Button
+                          :disabled="
+                            !isOnAuthoritativeView ||
+                            isSyncing ||
+                            data.workspace.upToDateWithTrunk ||
+                            viewConnectionState !== 'editing'
+                          "
+                          size="wider"
+                          @click="initSyncWithTrunk"
+                        >
+                          <div class="inline-flex gap-1 items-center">
+                            <template v-if="isSyncing">
                               <Spinner />
-                            </div>
-                            <template v-else>
-                              <span class="hidden md:block">Sync changes</span>
-                              <span class="block md:hidden">Sync</span>
+                              <span>Syncing</span>
                             </template>
-                          </Button>
+                            <template v-else>
+                              <LightningBoltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                              <span class="hidden xl:block">Sync changes</span>
+                              <span class="hidden sm:block xl:hidden">Sync</span>
+                            </template>
+                          </div>
+                        </Button>
+                        <span
+                          v-if="!data.workspace.upToDateWithTrunk && !isSyncing"
+                          class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1"
+                        >
                           <span
-                            v-if="!data.workspace.upToDateWithTrunk && !isSyncing"
-                            class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1"
-                          >
-                            <span
-                              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
-                            />
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500" />
-                          </span>
-                        </div>
-                      </Tooltip>
-                    </OnboardingStep>
-                  </div>
-                  <!-- end sync button -->
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
+                          />
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500" />
+                        </span>
+                      </div>
+                    </Tooltip>
+                  </OnboardingStep>
                 </div>
+                <!-- end sync button -->
               </div>
+            </div>
+            <!-- View Connection Status -->
+            <div
+              v-if="displayView && viewConnectionState === 'editing'"
+              class="flex items-center gap-2"
+            >
+              <ViewStatusIndicator :view="displayView" />
+              <OpenInEditor :view="displayView" />
+            </div>
+            <!-- end Connection Status -->
 
-              <!-- Connect Button -->
-              <div
-                v-if="
-                  (viewConnectionState === 'own' || viewConnectionState === 'others') &&
-                  mostRecentSelfUserView
-                "
-                class="mt-5"
+            <!-- Connect Button -->
+            <template
+              v-if="
+                (viewConnectionState === 'own' || viewConnectionState === 'others') &&
+                mostRecentSelfUserView
+              "
+            >
+              <ButtonWithDropdown
+                v-if="viewConnectionState === 'own'"
+                :disabled="loadingNewWorkspace"
+                class="z-20"
+                @click="openWorkspaceOnView(data.workspace.id, mostRecentSelfUserView.id)"
               >
+                <div class="inline-flex items-center gap-1">
+                  <DesktopComputerIcon
+                    class="hidden sm:block -ml-1 h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                  <span>Connect {{ mostRecentSelfUserView.shortMountPath }} for editing</span>
+                </div>
+                <template v-if="connectedViews.length > 1 || mutagenAvailable" #dropdown>
+                  <MenuItem v-for="view in connectedViews" :key="view.id">
+                    <button
+                      class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
+                      :disabled="loadingNewWorkspace"
+                      @click="openWorkspaceOnView(data.workspace.id, view.id)"
+                    >
+                      <ViewStatusIndicator v-if="view" class="pr-1" :view="view" compact />
+                      <span class="font-medium pr-1">{{ view.shortMountPath }}</span>
+                      <span class="text-gray-500"> on {{ view.mountHostname }}</span>
+                    </button>
+                  </MenuItem>
+
+                  <MenuItem v-if="mutagenAvailable">
+                    <button
+                      class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
+                      @click="createViewInDirectory"
+                    >
+                      <FolderAddIcon class="h-5 w-5 pr-0.5 mx-0.5" />
+                      <span class="font-medium">Connect another directory</span>
+                    </button>
+                  </MenuItem>
+                </template>
+              </ButtonWithDropdown>
+
+              <OnboardingStep v-else-if="diffs.length > 0" id="OpenForSuggesting">
+                <template #title>Help {{ data.workspace.author.name }} out</template>
+
+                <template #description>
+                  You're looking at someone else's draft change. If you want to give feedback in
+                  code, you can temporarily connect your local directory to this draft and make
+                  changes locally. These changes will appear as suggestions to
+                  {{ data.workspace.author.name }}.
+                </template>
+
                 <ButtonWithDropdown
-                  v-if="viewConnectionState === 'own'"
+                  color="green"
                   :disabled="loadingNewWorkspace"
                   class="z-20"
-                  @click="openWorkspaceOnView(data.workspace.id, mostRecentSelfUserView.id)"
+                  @click="createSuggestion(data.workspace.id, mostRecentSelfUserView.id)"
                 >
-                  <div class="flex">
-                    <DesktopComputerIcon
-                      class="-ml-1 mr-2 h-5 w-5 text-gray-400"
+                  <div class="inline-flex gap-1">
+                    <AnnotationIcon
+                      class="hidden sm:block -ml-1 h-5 w-5 text-green-700"
                       aria-hidden="true"
                     />
-                    Connect {{ mostRecentSelfUserView.shortMountPath }} for editing
+                    <span>Connect {{ mostRecentSelfUserView.shortMountPath }} for suggesting</span>
                   </div>
-                  <template v-if="connectedViews.length > 1 || mutagenAvailable" #dropdown>
+
+                  <template v-if="connectedViews.length > 1" #dropdown>
                     <MenuItem v-for="view in connectedViews" :key="view.id">
                       <button
                         class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
                         :disabled="loadingNewWorkspace"
-                        @click="openWorkspaceOnView(data.workspace.id, view.id)"
+                        @click="createSuggestion(data.workspace.id, view.id)"
                       >
                         <ViewStatusIndicator v-if="view" class="pr-1" :view="view" compact />
                         <span class="font-medium pr-1">{{ view.shortMountPath }}</span>
                         <span class="text-gray-500"> on {{ view.mountHostname }}</span>
                       </button>
                     </MenuItem>
-
-                    <MenuItem v-if="mutagenAvailable">
-                      <button
-                        class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
-                        @click="createViewInDirectory"
-                      >
-                        <FolderAddIcon class="h-5 w-5 pr-0.5 mx-0.5" />
-                        <span class="font-medium">Connect another directory</span>
-                      </button>
-                    </MenuItem>
                   </template>
                 </ButtonWithDropdown>
+              </OnboardingStep>
+            </template>
+            <!-- end connect button -->
 
-                <OnboardingStep v-else-if="diffs.length > 0" id="OpenForSuggesting">
-                  <template #title>Help {{ data.workspace.author.name }} out</template>
-
-                  <template #description>
-                    You're looking at someone else's draft change. If you want to give feedback in
-                    code, you can temporarily connect your local directory to this draft and make
-                    changes locally. These changes will appear as suggestions to
-                    {{ data.workspace.author.name }}.
-                  </template>
-
-                  <ButtonWithDropdown
-                    color="green"
-                    :disabled="loadingNewWorkspace"
-                    class="z-20"
-                    @click="createSuggestion(data.workspace.id, mostRecentSelfUserView.id)"
-                  >
-                    <div class="flex">
-                      <AnnotationIcon
-                        class="-ml-1 mr-2 h-5 w-5 text-green-700"
-                        aria-hidden="true"
-                      />
-                      Connect {{ mostRecentSelfUserView.shortMountPath }} for suggesting
-                    </div>
-
-                    <template v-if="connectedViews.length > 1" #dropdown>
-                      <MenuItem v-for="view in connectedViews" :key="view.id">
-                        <button
-                          class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
-                          :disabled="loadingNewWorkspace"
-                          @click="createSuggestion(data.workspace.id, view.id)"
-                        >
-                          <ViewStatusIndicator v-if="view" class="pr-1" :view="view" compact />
-                          <span class="font-medium pr-1">{{ view.shortMountPath }}</span>
-                          <span class="text-gray-500"> on {{ view.mountHostname }}</span>
-                        </button>
-                      </MenuItem>
-                    </template>
-                  </ButtonWithDropdown>
-                </OnboardingStep>
+            <!-- connect directory button -->
+            <Button
+              @click="createViewInDirectory"
+              v-if="
+                viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
+              "
+            >
+              <div class="flex items-center px-1">
+                <DesktopComputerIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                Connect directory
               </div>
-              <!-- end connect button -->
-
-              <!-- connect directory button -->
-              <div
-                v-if="
-                  viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
-                "
-                class="mt-5"
-              >
-                <Button @click="createViewInDirectory">
-                  <div class="flex items-center px-1">
-                    <DesktopComputerIcon
-                      class="-ml-1 mr-2 h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    Connect directory
-                  </div>
-                </Button>
-              </div>
-              <!-- end connect directory button -->
-            </div>
+            </Button>
+            <!-- end connect directory button -->
 
             <WorkspaceDescription
-              v-if="showDescription"
+              class="max-w-prose"
               :workspace="data.workspace"
               :user="user"
               :diff-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.id))"
               :selected-hunk-ids="selectedHunkIDs"
             />
-
-            <!-- View Connection Status -->
-            <div
-              v-if="displayView && viewConnectionState === 'editing'"
-              class="mt-4 flex space-x-8"
-            >
-              <ViewStatusIndicator :view="displayView" />
-              <OpenInEditor :view="displayView" />
-            </div>
 
             <WorkspaceDetails class="mt-8 xl:hidden" :workspace="data.workspace" :user="user" />
           </div>
@@ -728,9 +720,6 @@ export default defineComponent({
         (!this.data.workspace || this.data.workspace.author.id === this.user?.id) &&
         !this.isSuggesting
       )
-    },
-    showDescription() {
-      return this.diffs.length > 0 && !this.isSuggesting
     },
     isAuthenticated() {
       return !!this.user

@@ -1,13 +1,15 @@
 package workspaces
 
 import (
-	"fmt"
+	"strings"
 	"time"
 
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
+
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type Workspace struct {
@@ -60,9 +62,33 @@ func (w Workspace) IsArchived() bool {
 	return w.ArchivedAt != nil
 }
 
+var newLiner = strings.NewReplacer(
+	"<ul>", "<ul>\n",
+	"<ol>", "<ol>\n",
+	"</ol>", "</ol>\n",
+	"<li><p>", "<li><p>\n* ",
+	"<h1>", "\n<h1>\n",
+	"<h2>", "\n<h2>\n",
+	"<h3>", "\n<h3>\n",
+	"<h4>", "\n<h4>\n",
+	"<h5>", "\n<h5>\n",
+	"<h6>", "\n<h6>\n",
+	"<br>", "<br>\n",
+	"<p>", "<p>\n",
+)
+
 func (w Workspace) NameOrFallback() string {
-	if w.Name != nil {
-		return *w.Name
+	replaced := newLiner.Replace(w.DraftDescription)
+	sanitizedDescription := strings.TrimLeft(bluemonday.StrictPolicy().Sanitize(replaced), "\n")
+	if sanitizedDescription == "" {
+		if w.Name != nil {
+			return *w.Name
+		}
+		return "Untitled draft"
 	}
-	return fmt.Sprintf("Unnamed Draft %s", w.ID[:8])
+	first, _, found := strings.Cut(sanitizedDescription, "\n")
+	if found {
+		return strings.TrimSpace(first)
+	}
+	return strings.TrimSpace(sanitizedDescription)
 }
