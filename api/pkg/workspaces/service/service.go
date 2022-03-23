@@ -848,14 +848,9 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 	}
 
 	if ws.ViewID == nil {
-		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
-		if err != nil {
-			return false, fmt.Errorf("failed to get snapshot: %w", err)
-		}
 		if err := s.executorProvider.New().
-			Write(vcs_view.CheckoutSnapshot(snapshot)).
 			GitWrite(checkConflictsOnTrunk).
-			ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflictsWithSnapshot"); err != nil {
+			ExecTrunk(ws.CodebaseID, "workspaceCheckIfConflictsOnTrunk"); err != nil {
 			return false, fmt.Errorf("failed to check if conflicts: %w", err)
 		}
 		return hasConflicts, nil
