@@ -14,7 +14,6 @@ exports.handler = (event, context, callback) => {
     '/aoc',
     '/features/access-control',
     '/features/instant-integration',
-    '/docs/syncing',
     '/features/instant-switching',
     '/features/integrations',
     '/features/live',
@@ -64,6 +63,9 @@ exports.handler = (event, context, callback) => {
     '/handbook/code-of-conduct',
     '/handbook/releases',
     '/docs/cli/install',
+    '/docs/integrations/git',
+    '/docs/integrations/git/azure-devops',
+    '/docs/integrations/git/gitlab',
     '/privacy',
     '/terms-of-service',
   ]
