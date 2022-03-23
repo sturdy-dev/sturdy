@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -19,11 +20,19 @@ func TriggerSyncCodebaseWebhook(svc *service.EnterpriseService, logger *zap.Logg
 	return func(c *gin.Context) {
 		logger := logger
 
+		if c.Request.Method != "POST" {
+			c.Status(http.StatusBadRequest)
+			_, _ = c.Writer.WriteString(fmt.Sprintf("Hey! Send a POST request to this endpoint to activate the magic. (got a %s-request)", c.Request.Method))
+			return
+		}
+
 		codebaseID := codebases.ID(c.Param("id"))
 
 		body, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.Status(http.StatusInternalServerError)
+			_, _ = c.Writer.WriteString("Unexpected ID")
+			return
 		}
 		defer c.Request.Body.Close()
 
@@ -33,9 +42,13 @@ func TriggerSyncCodebaseWebhook(svc *service.EnterpriseService, logger *zap.Logg
 
 		ctx := context.Background()
 		if err := svc.Pull(ctx, codebaseID); err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			c.Status(http.StatusInternalServerError)
+			_, _ = c.Writer.WriteString("InternalServerError, please try again later...")
+			return
 		}
 
-		c.AbortWithStatus(http.StatusOK)
+		c.Status(http.StatusOK)
+		_, _ = c.Writer.WriteString("OK!")
+		return
 	}
 }

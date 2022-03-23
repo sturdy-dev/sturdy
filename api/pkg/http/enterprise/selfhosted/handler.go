@@ -45,6 +45,8 @@ func ProvideHandler(
 	publ := ossEngine.Group("")
 	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubWebhooksQueue))
 	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
-	publ.POST("/v3/remotes/webhook/sync-codebase/:id", gin.HandlerFunc(triggerSyncCodebaseWebhookHandler))
+
+	// Using Any to give friendly error messages if sent a non-POST request
+	publ.Any("/v3/remotes/webhook/sync-codebase/:id", gin.HandlerFunc(triggerSyncCodebaseWebhookHandler))
 	return (*Engine)(ossEngine)
 }
