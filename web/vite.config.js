@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-
-const vuePlugin = require('@vitejs/plugin-vue')
-const vueJsx = require('@vitejs/plugin-vue-jsx')
-const { resolve } = require('path')
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
 import { imagetools } from 'vite-imagetools'
 import eslintPlugin from 'vite-plugin-eslint'
 
@@ -13,6 +10,8 @@ const ssrTransformCustomDir = () => {
   }
 }
 
+const isProd = (process.env.VITE_ENV = 'production')
+
 /**
  * @type {import('vite').UserConfig}
  */
@@ -20,8 +19,10 @@ module.exports = {
   plugins: [
     imagetools(),
     eslintPlugin({ cache: false }),
-    vuePlugin({
+    vue({
+      isProduction: isProd,
       template: {
+        isProd,
         ssr: true,
         compilerOptions: {
           directiveTransforms: {
@@ -31,20 +32,6 @@ module.exports = {
         },
       },
     }),
-    vueJsx(),
-    {
-      name: 'virtual',
-      resolveId(id) {
-        if (id === '@foo') {
-          return id
-        }
-      },
-      load(id) {
-        if (id === '@foo') {
-          return `export default { msg: 'hi' }`
-        }
-      },
-    },
   ],
   build: {
     minify: false,

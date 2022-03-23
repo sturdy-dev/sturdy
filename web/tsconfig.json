@@ -11,5 +11,6 @@
     "src/**/*.vue",
     "./jest-setup.ts",
     "../app/src/preload.ts"
-  ]
+  ],
+  "exclude": ["dist", "node_modules"]
 }
