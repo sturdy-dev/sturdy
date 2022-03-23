@@ -129,11 +129,6 @@ export default defineComponent({
       descriptionTimeout: null as null | ReturnType<typeof setTimeout>,
     }
   },
-  watch: {
-    'workspace.draftDescription': function (newDescription) {
-      this.description = newDescription
-    },
-  },
   computed: {
     isAuthenticated() {
       return !!this.user
@@ -162,6 +157,11 @@ export default defineComponent({
     },
     canSubmitChange() {
       return !this.cantSubmitChangeReason
+    },
+  },
+  watch: {
+    'workspace.draftDescription': function (newDescription) {
+      this.description = newDescription
     },
   },
   methods: {
