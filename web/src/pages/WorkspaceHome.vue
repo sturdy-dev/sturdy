@@ -51,6 +51,7 @@
                             viewConnectionState !== 'editing'
                           "
                           :icon="lightningBoltIcon"
+                          :spinner="isSyncing"
                           @click="initSyncWithTrunk"
                         >
                           Sync
