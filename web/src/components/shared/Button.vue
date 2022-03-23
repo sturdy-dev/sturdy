@@ -78,7 +78,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    icon: Object,
+    icon: {
+      type: Function,
+      required: false,
+      default: undefined,
+    },
     spinner: {
       type: Boolean,
       default: false,
