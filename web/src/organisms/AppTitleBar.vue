@@ -27,6 +27,7 @@
 
       <!-- this is the rest of the title bar -->
       <div class="h-full flex flex-1 items-center border-b titlebar">
+        <OpenSearchToolbarButton class="px-2" />
         <AppMutagenStatus class="grow bg-gray-50" />
         <AppShareButton class="px-2" />
 
@@ -49,9 +50,11 @@ import AppShareButton from '../molecules/AppShareButton.vue'
 import AppNavigationButtons from '../molecules/AppNavigationButtons.vue'
 import AppMutagenStatus from '../molecules/AppMutagenStatus.vue'
 import WindowsControls from '../molecules/WindowsControls.vue'
+import OpenSearchToolbarButton from '../molecules/OpenSearchToolbarButton.vue'
 
 export default defineComponent({
   components: {
+    OpenSearchToolbarButton,
     AppShareButton,
     AppNavigationButtons,
     AppMutagenStatus,

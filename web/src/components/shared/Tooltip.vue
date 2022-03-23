@@ -10,7 +10,7 @@
           : 'top-full translate-y-1 group-hover:translate-y-2',
         xDirection === 'left' ? 'right-0' : 'left-0',
       ]"
-      class="absolute flex flex-col transition transition-all group-hover:delay-500 opacity-0 transform group-hover:opacity-100 z-20 pointer-events-none"
+      class="absolute flex flex-col transition transition-all group-hover:delay-500 opacity-0 transform group-hover:opacity-100 z-[100] pointer-events-none"
     >
       <span
         class="relative z-10 px-2 py-1.5 text-xs rounded text-white bg-black shadow-lg w-max max-w-md"

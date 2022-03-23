@@ -174,5 +174,11 @@ export default defineComponent({
       return new Date(this.change.createdAt * 1000)
     },
   },
+  mounted() {
+    this.emitter.emit('search-toolbar-button-visible', true)
+  },
+  unmounted() {
+    this.emitter.emit('search-toolbar-button-visible', false)
+  },
 })
 </script>

@@ -807,9 +807,11 @@ export default defineComponent({
   },
   unmounted() {
     this.emitter.off('differ-selected-hunk-ids', this.onSelectedHunkIDs)
+    this.emitter.emit('search-toolbar-button-visible', false)
   },
   mounted() {
     this.emitter.on('differ-selected-hunk-ids', this.onSelectedHunkIDs)
+    this.emitter.emit('search-toolbar-button-visible', true)
   },
   methods: {
     initialState() {
