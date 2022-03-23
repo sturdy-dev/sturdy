@@ -148,9 +148,9 @@
         <template #default>
           <div v-if="landing" class="flex items-center">
             <Spinner class="mr-1" />
-            <span>Sharing</span>
+            <span>Merging</span>
           </div>
-          <span v-else>Share</span>
+          <span v-else>Merge</span>
         </template>
 
         <template #tooltip>{{ cantSubmitTooltipMessage }}</template>

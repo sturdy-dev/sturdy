@@ -67,10 +67,10 @@
             </SubtleText>
           </li>
           <li id="writing-a-description">
-            After writing a description, the “Share” button will appear
+            After writing a description, the “Merge” button will appear
           </li>
           <li>
-            Click “Share!” to land all of the changes on top of the changelog, and to allow other
+            Click “Merge” to land all of the changes on top of the changelog, and to allow other
             drafts to be based on top of your code
           </li>
           <li>
