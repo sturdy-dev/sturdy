@@ -9,9 +9,9 @@
       <div class="mx-auto px-6 grid grid-cols-1 xl:grid-cols-4">
         <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
           <div class="flex flex-col gap-2">
-            <div class="inline-flex gap-2">
+            <div class="flex justify-between gap-4">
               <WorkspaceName
-                class="text-ellipsis overflow-hidden"
+                class="grow text-ellipsis overflow-hidden"
                 :workspace="data.workspace"
                 :disabled="!isAuthorized"
               />
@@ -42,7 +42,7 @@
                         </div>
                       </template>
 
-                      <div class="relative flex rounded-md shadow-sm">
+                      <div class="relative inline-flex rounded-md shadow-sm">
                         <Button
                           :disabled="
                             !isOnAuthoritativeView ||
@@ -53,17 +53,14 @@
                           size="wider"
                           @click="initSyncWithTrunk"
                         >
-                          <div class="inline-flex gap-1 items-center">
-                            <template v-if="isSyncing">
-                              <Spinner />
-                              <span>Syncing</span>
-                            </template>
-                            <template v-else>
-                              <LightningBoltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                              <span class="hidden xl:block">Sync changes</span>
-                              <span class="hidden sm:block xl:hidden">Sync</span>
-                            </template>
-                          </div>
+                          <template v-if="isSyncing">
+                            <Spinner />
+                            <span>Syncing</span>
+                          </template>
+                          <template v-else>
+                            <LightningBoltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            <span>Sync</span>
+                          </template>
                         </Button>
                         <span
                           v-if="!data.workspace.upToDateWithTrunk && !isSyncing"
