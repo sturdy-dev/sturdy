@@ -1,9 +1,7 @@
 <template>
   <div>
     <div
-      class="fixed z-50 md:pr-64 w-full"
-      :style="isApp ? 'top: calc(env(titlebar-area-height, 2rem) + 1px)' : 'top: 0'"
-    >
+      class="fixed z-50 md:pr-64 w-full">
       <slot name="toolbar" />
     </div>
 
@@ -26,16 +24,5 @@ import PaddedApp from './PaddedApp.vue'
 
 export default defineComponent({
   components: { PaddedApp },
-  data() {
-    const ipc = window.ipc
-    return {
-      ipc,
-    }
-  },
-  computed: {
-    isApp() {
-      return !!this.ipc
-    },
-  },
 })
 </script>
