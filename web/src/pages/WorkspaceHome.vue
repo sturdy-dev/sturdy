@@ -835,6 +835,7 @@ export default defineComponent({
       this.loadingNewWorkspace = true
       this.openWorkspaceOnViewResult(variables)
         .catch((e) => {
+          console.log(e)
           const badRequestErrors = e.graphQLErrors.filter(
             (err) => err.message === 'BadRequestError'
           )

@@ -1,4 +1,4 @@
-import type { OpenWorkspaceOnViewInput, ViewStatusState } from '../__generated__/types'
+import { ViewStatusState, type OpenWorkspaceOnViewInput } from '../__generated__/types'
 import type { OptimisticMutationResolver, UpdateResolver } from '@urql/exchange-graphcache'
 import { gql, useMutation } from '@urql/vue'
 import type {
