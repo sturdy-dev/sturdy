@@ -8,6 +8,12 @@
         <h1 id="working-in-the-open">Connect with Git: Sturdy and GitLab</h1>
 
         <p>
+          <router-link :to="{ name: 'docsIntegrationsGit' }">
+            &laquo; Back to "Integrate with Git"
+          </router-link>
+        </p>
+
+        <p>
           Start by opening Sturdy, and go to the codebase that you want to setup the integration
           with. If you don't have a codebase yet, create the codebase on Sturdy first.
         </p>
@@ -20,9 +26,19 @@
           screenshot below).
         </p>
 
-        <img src="./gitlab-overview.png" height="554" width="1990" />
+        <img
+          src="./gitlab-overview.png"
+          height="554"
+          width="1990"
+          class="w-82 border-2 rounded-md"
+        />
 
-        <img src="./gitlab-url.png" height="558" width="708" />
+        <img
+          src="./gitlab-url.png"
+          height="558"
+          width="708"
+          class="w-[30rem] border-2 rounded-md"
+        />
 
         <p>
           Get your GitLab credentials by generating a new Personal Access Token (here:
@@ -39,7 +55,7 @@
           look something like this:
         </p>
 
-        <img src="./sturdy-gitlab.png" height="1920" width="1616" />
+        <img src="./sturdy-gitlab.png" height="1920" width="1616" class="border-2 rounded-md" />
       </div>
     </template>
   </DocumentationWithTableOfContents>

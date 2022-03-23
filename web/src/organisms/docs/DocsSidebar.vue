@@ -6,7 +6,7 @@
       <br />
       <li v-for="(link, linkIdx) in group.links" :key="linkIdx" class="">
         <router-link
-          :to="{ name: link.route }"
+          :to="{ name: link.route, hash: link.hash }"
           class="border-l pl-4 py-2"
           :class="[
             isCurrent(link)
@@ -42,9 +42,8 @@ const groups = [
     name: 'Git',
     links: [
       { route: 'v2DocsHowSturdyInteractsWithGit', title: 'How Sturdy builds on Git' },
-
-      { route: 'docsIntegrationsGit', title: 'Integrate with Git (GitLab, Azure, etc...)' },
-      { route: 'v2DocsUsingSturdy', hash: 'import-a-repository', title: 'Sturdy for GitHub' },
+      { route: 'v2DocsUsingSturdy', hash: '#import-a-repository', title: 'Sturdy for GitHub' },
+      { route: 'docsIntegrationsGit', title: 'Integrate with Git' },
     ],
   },
 
@@ -84,7 +83,7 @@ const groups = [
       { route: 'docsAccessControl', title: 'Access Control' },
       { route: 'docsSuggestions', title: 'Suggestions' },
       { route: 'docsCICD', title: 'CI / CD' },
-      { route: 'docsIntegrationsGit', title: 'Integrate with Git (GitLab, Azure, etc ...)' },
+      { route: 'docsIntegrationsGit', title: 'Integration: Git' },
     ],
   },
 

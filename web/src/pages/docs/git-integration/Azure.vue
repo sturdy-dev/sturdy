@@ -8,6 +8,12 @@
         <h1 id="working-in-the-open">Connect with Git: Sturdy and Azure DevOps</h1>
 
         <p>
+          <router-link :to="{ name: 'docsIntegrationsGit' }">
+            &laquo; Back to "Integrate with Git"
+          </router-link>
+        </p>
+
+        <p>
           Start by opening Sturdy, and go to the codebase that you want to setup the integration
           with. If you don't have a codebase yet, create the codebase on Sturdy first.
         </p>
@@ -20,9 +26,9 @@
           screenshot below).
         </p>
 
-        <img src="./azure-overview.png" height="462" width="2298" />
+        <img src="./azure-overview.png" height="462" width="2298" class="border-2 rounded-md" />
 
-        <img src="./azure-url.png" height="370" width="952" />
+        <img src="./azure-url.png" height="370" width="952" class="w-[30rem] border-2 rounded-md" />
 
         <p>
           Get your Azure credentials by clicking <strong>Generate git credentials</strong> on Azure.
@@ -33,7 +39,7 @@
           Fill in all of the other fields as instructed, when you're done. The configuration should
           look something like this:
         </p>
-        <img src="./sturdy-azure.png" height="1944" width="1912" />
+        <img src="./sturdy-azure.png" height="1944" width="1912" class="border-2 rounded-md" />
       </div>
     </template>
   </DocumentationWithTableOfContents>
