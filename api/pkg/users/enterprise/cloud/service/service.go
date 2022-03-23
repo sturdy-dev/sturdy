@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	service_onetime "getsturdy.com/api/pkg/onetime/service"
+	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/users/service"
@@ -28,6 +29,7 @@ type Service struct {
 	transactionalEmailSender transactional.EmailSender
 	onetimeService           *service_onetime.Service
 	analyticsService         *service_analytics.Service
+	organizationService      *service_organization.Service
 }
 
 func New(
@@ -38,6 +40,7 @@ func New(
 	transactionalEmailSender transactional.EmailSender,
 	onetimeService *service_onetime.Service,
 	analyticsService *service_analytics.Service,
+	organizationService *service_organization.Service,
 ) *Service {
 	return &Service{
 		UserService: userService,
@@ -48,6 +51,7 @@ func New(
 		transactionalEmailSender: transactionalEmailSender,
 		onetimeService:           onetimeService,
 		analyticsService:         analyticsService,
+		organizationService:      organizationService,
 	}
 }
 
@@ -87,6 +91,11 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 
 	if err := s.userRepo.Create(newUser); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	// create default org for the user
+	if _, err := s.organizationService.Create(ctx, newUser.ID, fmt.Sprintf("%s's project", newUser.Name)); err != nil {
+		return nil, fmt.Errorf("failed to create organization: %w", err)
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
