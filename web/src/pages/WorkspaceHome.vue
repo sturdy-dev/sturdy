@@ -54,7 +54,8 @@
                           :spinner="isSyncing"
                           @click="initSyncWithTrunk"
                         >
-                          Sync
+                          <span v-if="isSyncing">Syncing</span>
+                          <span v-else>Sync</span>
                         </Button>
 
                         <span

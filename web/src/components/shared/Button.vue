@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, type FunctionalComponent, type PropType } from 'vue'
 import Spinner from './Spinner.vue'
 
 export default defineComponent({
@@ -79,7 +79,7 @@ export default defineComponent({
       default: false,
     },
     icon: {
-      type: Function,
+      type: Function as PropType<FunctionalComponent>,
       required: false,
       default: undefined,
     },
