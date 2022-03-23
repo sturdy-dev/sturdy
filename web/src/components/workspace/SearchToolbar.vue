@@ -89,12 +89,20 @@ export default defineComponent({
   mounted() {
     window.addEventListener('keydown', this.globalKeyDown)
     this.emitter.on('search-result', this.onSearchResult)
+    this.emitter.on('open-search-toolbar', this.openSearchToolbar)
   },
   unmounted() {
     window.removeEventListener('keydown', this.globalKeyDown)
     this.emitter.off('search-result', this.onSearchResult)
+    this.emitter.off('open-search-toolbar', this.openSearchToolbar)
   },
   methods: {
+    openSearchToolbar(){
+      this.showSearch = true
+      this.$nextTick(() => {
+        this.$refs.search.focus()
+      })
+    },
     globalKeyDown(event) {
       // Available as cmd+k on the web
       let cmdKeys = [
