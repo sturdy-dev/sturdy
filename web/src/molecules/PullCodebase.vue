@@ -1,11 +1,15 @@
 <template>
-  <Button v-if="isPulling" :disabled="true" :grouped="true" :first="true">
-    <Spinner class="mr-2" />
-    <span>Pulling</span></Button
+  <Button
+    :disabled="isPulling"
+    :grouped="true"
+    :first="true"
+    :icon="arrowSmDownIcon"
+    :spinner="isPulling"
+    color="white"
+    @click="triggerPull"
   >
-  <Button v-else :grouped="true" :first="true" @click="triggerPull">
-    <ArrowSmDownIcon class="-ml-1 mr-2 h-5 w-5 text-gray-800" />
-    <span>Pull</span>
+    <span v-if="isPulling">Pulling</span>
+    <span v-else>Pull</span>
   </Button>
 </template>
 
@@ -15,7 +19,6 @@ import { defineComponent, inject, toRef } from 'vue'
 import type { PropType } from 'vue'
 import type { PullCodebaseRemoteFragment } from './__generated__/PullCodebase'
 import { usePullCodebase } from '../mutations/usePullCodebase'
-import Spinner from '../components/shared/Spinner.vue'
 import Button from '../components/shared/Button.vue'
 import { ArrowSmDownIcon } from '@heroicons/vue/solid'
 import type { Emitter } from 'mitt/src'
@@ -28,7 +31,7 @@ export const PULL_CODEBASE_REMOTE_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { Spinner, Button, ArrowSmDownIcon },
+  components: { Button },
   props: {
     remote: {
       type: Object as PropType<PullCodebaseRemoteFragment>,
@@ -79,6 +82,7 @@ export default defineComponent({
     return {
       isPulling,
       triggerPull,
+      arrowSmDownIcon: ArrowSmDownIcon,
     }
   },
 })

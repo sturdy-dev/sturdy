@@ -1,9 +1,15 @@
 <template>
   <router-link
+    :type="buttonType"
     :class="classes"
     :disabled="disabled"
-    class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5"
+    class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5 gap-2"
   >
+    <Spinner v-if="spinner" />
+    <div v-else-if="icon">
+      <component :is="icon" class="h-5 w-5 text-gray-400"></component>
+    </div>
+
     <slot>Button</slot>
 
     <div
@@ -24,13 +30,20 @@
   </router-link>
 </template>
 
-<script>
-export default {
-  name: 'Button',
+<script lang="ts">
+import { defineComponent } from 'vue'
+import Spinner from './Spinner.vue'
+
+export default defineComponent({
+  components: { Spinner },
   props: {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    buttonType: {
+      type: String,
+      default: 'button',
     },
     color: {
       type: String,
@@ -60,6 +73,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    autoFocus: {
+      type: Boolean,
+      default: false,
+    },
+    icon: Object,
+    spinner: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     classes() {
@@ -86,13 +108,19 @@ export default {
         return 'text-gray-700 bg-white hover:bg-gray-50 border-gray-300'
       }
       if (this.color === 'blue') {
-        return 'text-white bg-blue-600 hover:bg-blue-700 border-transparent'
+        return 'text-white bg-blue-600 hover:bg-blue-700 border-blue-700'
       }
       if (this.color === 'lightblue') {
-        return 'text-gray-800 bg-blue-200 hover:bg-blue-300 border-transparent'
+        return 'text-gray-800 bg-blue-200 hover:bg-blue-300 border-blue-300'
       }
       if (this.color === 'green') {
-        return 'text-green-800 bg-green-100 hover:bg-green-200 border-transparent'
+        return 'text-green-800 bg-green-100 hover:bg-green-200 border-green-200'
+      }
+      if (this.color === 'red') {
+        return 'text-red-800 bg-red-100 hover:bg-red-200 border-red-200'
+      }
+      if (this.color === 'slate') {
+        return 'bg-slate-800 border-slate-200 font-semibold hover:bg-gray-900'
       }
       return ''
     },
@@ -114,5 +142,10 @@ export default {
       return ''
     },
   },
-}
+  mounted() {
+    if (this.autoFocus) {
+      this.$refs.button.focus()
+    }
+  },
+})
 </script>

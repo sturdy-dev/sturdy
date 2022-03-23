@@ -36,18 +36,23 @@
                   <span>Setup</span>
                 </Button>
 
-                <RouterLinkButton :to="{ name: 'codebaseChanges' }" size="wider">
-                  <ViewListIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                  <span>Changelog</span>
+                <RouterLinkButton
+                  :to="{ name: 'codebaseChanges' }"
+                  size="wider"
+                  color="white"
+                  :icon="viewListIcon"
+                >
+                  Changelog
                 </RouterLinkButton>
 
                 <RouterLinkButton
                   v-if="isAuthorized"
                   :to="{ name: 'codebaseSettings' }"
+                  :icon="cogIcon"
                   size="wider"
+                  color="white"
                 >
-                  <CogIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                  <span>Settings</span>
+                  Settings
                 </RouterLinkButton>
               </span>
             </div>
@@ -131,7 +136,6 @@ import PushPullCodebase, {
 } from '../molecules/PushPullCodebase.vue'
 
 export default defineComponent({
-  name: 'CodebaseHome',
   components: {
     PushPullCodebase,
     AssembleTheTeam,
@@ -139,8 +143,6 @@ export default defineComponent({
     Directory,
     SetupNewView,
     Button,
-    ViewListIcon,
-    CogIcon,
     ChevronUpIcon,
     ChevronDownIcon,
     ImportFromGit,
@@ -280,6 +282,9 @@ export default defineComponent({
       codebaseSlug,
 
       isMultiTenancyEnabled,
+
+      cogIcon: CogIcon,
+      viewListIcon: ViewListIcon,
     }
   },
   data() {

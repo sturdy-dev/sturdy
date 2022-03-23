@@ -10,14 +10,12 @@
       />
 
       <div v-if="isAuthorized" class="flex md:flex-col flex-shrink-0 gap-2">
-        <Button size="wider" @click="createWorkspaceHandler(false)">
-          <PlusIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>New draft on this</span>
+        <Button size="wider" :icon="plusIcon" color="white" @click="createWorkspaceHandler(false)">
+          New draft on this
         </Button>
 
-        <Button size="wider" @click="createWorkspaceHandler(true)">
-          <MinusIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <span>Revert change</span>
+        <Button size="wider" :icon="minusIcon" color="white" @click="createWorkspaceHandler(true)">
+          Revert change
         </Button>
       </div>
     </div>
@@ -121,8 +119,6 @@ export default {
   components: {
     Change,
     Button,
-    PlusIcon,
-    MinusIcon,
     Editor: defineAsyncComponent(() => import('../workspace/Editor.vue')),
   },
   props: {
@@ -150,6 +146,9 @@ export default {
           onTopOfChangeWithRevert,
         })
       },
+
+      plusIcon: PlusIcon,
+      minusIcon: MinusIcon,
     }
   },
   data() {

@@ -1,11 +1,15 @@
 <template>
-  <Button v-if="isPushing" :disabled="true" :grouped="true" :last="true">
-    <Spinner class="mr-2" />
-    <span>Pushing</span></Button
+  <Button
+    :disabled="isPushing"
+    :grouped="true"
+    :last="true"
+    :icon="arrowSmUpIcon"
+    :spinner="isPushing"
+    color="white"
+    @click="triggerPush"
   >
-  <Button v-else :grouped="true" :last="true" @click="triggerPush">
-    <ArrowSmUpIcon class="-ml-1 mr-2 h-5 w-5 text-gray-800" />
-    <span>Push</span>
+    <span v-if="isPushing">Pushing</span>
+    <span v-else>Push</span>
   </Button>
 </template>
 
@@ -15,7 +19,6 @@ import { defineComponent, inject, toRef } from 'vue'
 import type { PropType } from 'vue'
 import type { PushCodebaseRemoteFragment } from './__generated__/PushCodebase'
 import { usePushCodebase } from '../mutations/usePushCodebase'
-import Spinner from '../components/shared/Spinner.vue'
 import Button from '../components/shared/Button.vue'
 import { ArrowSmUpIcon } from '@heroicons/vue/solid'
 import type { Emitter } from 'mitt/src'
@@ -28,7 +31,7 @@ export const PUSH_CODEBASE_REMOTE_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { Spinner, Button, ArrowSmUpIcon },
+  components: { Button },
   props: {
     remote: {
       type: Object as PropType<PushCodebaseRemoteFragment>,
@@ -79,6 +82,7 @@ export default defineComponent({
     return {
       isPushing,
       triggerPush,
+      arrowSmUpIcon: ArrowSmUpIcon,
     }
   },
 })
