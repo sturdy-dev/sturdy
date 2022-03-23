@@ -52,13 +52,13 @@
 </template>
 
 <script lang="ts">
-import showdown from 'showdown'
 import highlight from '../../highlight/highlight_file'
 import '../../highlight/highlight_common_languages'
 import { gql } from '@urql/vue'
-import { defineComponent, PropType, ref } from 'vue'
-import { OpenFileFragment } from './__generated__/File'
-import { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
+import { defineComponent, ref } from 'vue'
+import type { PropType } from 'vue'
+import type { OpenFileFragment } from './__generated__/File'
+import type { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 import DirectoryBreadcrumb from './DirectoryBreadcrumb.vue'
 
 import { Marked } from '@ts-stack/markdown'

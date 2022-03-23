@@ -1,9 +1,9 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import { useMutation } from '@urql/vue'
 import gql from 'graphql-tag'
-import { UpdateWorkspaceInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import { Ref } from 'vue'
+import type { UpdateWorkspaceInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { Ref } from 'vue'
 
 const UPDATE_WORKSPACE = gql`
   mutation UpdateWorkspace($input: UpdateWorkspaceInput!) {

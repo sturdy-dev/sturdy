@@ -34,8 +34,9 @@
 <script lang="ts">
 import { PuzzleIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { PropType, toRefs } from 'vue'
-import {
+import { toRefs } from 'vue'
+import type { PropType } from 'vue'
+import type {
   GitHubPullRequestFragment,
   CodebaseGitHubIntegrationFragment,
 } from './__generated__/GitHubPullRequest'

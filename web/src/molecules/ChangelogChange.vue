@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
 import { AUTHOR } from '../components/shared/AvatarHelper'
 import Avatar from '../components/shared/Avatar.vue'
@@ -47,7 +47,7 @@ import ChangeCommentsIndicator, {
 } from '../components/changelog/ChangeCommentsIndicator.vue'
 import RelativeTime from '../atoms/RelativeTime.vue'
 
-import { ChangelogChangeFragment } from './__generated__/ChangelogChange'
+import type { ChangelogChangeFragment } from './__generated__/ChangelogChange'
 
 export const CHANGELOG_CHANGE_FRAGMENT = gql`
   fragment ChangelogChange on Change {

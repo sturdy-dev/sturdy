@@ -87,9 +87,10 @@ import StackedMenu from './components/menu/StackedMenu.vue'
 import Error from './components/Error.vue'
 import Onboarding from './components/onboarding/Onboarding.vue'
 import AppRedirect from './components/AppRedirect.vue'
-import { RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
-import { User, Feature } from './__generated__/types'
-import {
+import { useRoute, useRouter } from 'vue-router'
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import type { User, Feature } from './__generated__/types'
+import type {
   UserQueryQuery,
   UserQueryQueryVariables,
   FeaturesQuery,

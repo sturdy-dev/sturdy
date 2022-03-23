@@ -73,12 +73,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import * as Diff2Html from 'diff2html'
 import highlight from '../../highlight/highlight'
-import { Block, HighlightedBlock } from './event'
+import type { Block, HighlightedBlock } from './event'
 import { gql } from '@urql/vue'
-import { DiffTable_HunkFragment } from './__generated__/DiffTable'
+import type { DiffTable_HunkFragment } from './__generated__/DiffTable'
 
 // This component shares a lot of code with DifferFile, can they be combined and/or split in some nicer way?
 

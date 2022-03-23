@@ -248,7 +248,8 @@
 
 <script lang="ts">
 import { CheckIcon, MinusIcon } from '@heroicons/vue/solid'
-import { defineComponent, Ref, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
+import type { Ref } from 'vue'
 import DocumentationStickyHeader from '../layouts/DocumentationStickyHeader.vue'
 import Button from '../components/shared/Button.vue'
 import PricingTierSummary from '../molecules/pricing/PricingTierSummary.vue'

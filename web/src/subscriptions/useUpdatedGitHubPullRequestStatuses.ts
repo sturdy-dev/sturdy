@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
-import {
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type {
   WorkspaceQuery,
   WorkspaceQueryVariables,
   UpdatedGitHubPullRequestStatusesSubscription,
   UpdatedGitHubPullRequestStatusesSubscriptionVariables,
 } from './__generated__/useUpdatedGitHubPullRequestStatuses'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_GITHUB_PULL_REQUEST_STATUSES = gql`
   subscription UpdatedGitHubPullRequestStatuses($id: ID!) {

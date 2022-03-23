@@ -1,4 +1,4 @@
-import { OptimisticMutationResolver, UpdateResolver } from '@urql/exchange-graphcache'
+import type { OptimisticMutationResolver, UpdateResolver } from '@urql/exchange-graphcache'
 import { createCommentUpdateResolver } from './useCreateComment'
 import { createOrUpdateReviewUpdateResolver } from './useCreateOrUpdateReview'
 import { requestReviewUpdateResolver } from './useRequestReview'

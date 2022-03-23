@@ -1,8 +1,8 @@
 import { gql, useMutation } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
-import { CreateOrUpdateBuildkiteIntegrationInput } from '../__generated__/types'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { CreateOrUpdateBuildkiteIntegrationInput } from '../__generated__/types'
+import type {
   CreateOrUpdateBuildkiteIntegrationMutation,
   CreateOrUpdateBuildkiteIntegrationMutationVariables,
 } from './__generated__/useCreateOrUpdateBuildkiteIntegration'

@@ -3,13 +3,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 // only import type definitions here to support ssr
-import Tribute, { TributeCollection, TributeItem } from 'tributejs/tributejs'
+import type Tribute from 'tributejs/tributejs'
+import type { TributeCollection, TributeItem } from 'tributejs/tributejs'
 import { gql } from '@urql/vue'
-import { MemberFragment, UserFragment } from './__generated__/TextareaMentions'
+import type { MemberFragment, UserFragment } from './__generated__/TextareaMentions'
 import { initials, initialsBgColor } from './AvatarHelper'
-import { Emoji, emojis } from '../emoji/list/emojis'
+import { emojis } from '../emoji/list/emojis'
+import type { Emoji } from '../emoji/list/emojis'
 import { EmojiConvertor } from 'emoji-js'
 
 export const USER_FRAGMENT = gql`

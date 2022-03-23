@@ -39,8 +39,9 @@
 <script lang="ts">
 import Avatar from '../../components/shared/Avatar.vue'
 import RelativeTime from '../../atoms/RelativeTime.vue'
-import { PropType, toRef } from 'vue'
-import { WorkspaceCreatedChangeActivityFragment } from './__generated__/ActivityCreatedChange'
+import type { PropType } from 'vue'
+import { toRef } from 'vue'
+import type { WorkspaceCreatedChangeActivityFragment } from './__generated__/ActivityCreatedChange'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
 import { gql } from '@urql/vue'
 import { useUpdatedChangesStatuses } from '../../subscriptions/useUpdatedChangesStatuses'

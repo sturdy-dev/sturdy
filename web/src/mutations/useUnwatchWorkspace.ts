@@ -1,9 +1,9 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
 import gql from 'graphql-tag'
 import { useMutation } from '@urql/vue'
-import { UnwatchWorkspaceInput } from '../__generated__/types'
-import {
+import type { UnwatchWorkspaceInput } from '../__generated__/types'
+import type {
   UnwatchWorkspaceMutation,
   UnwatchWorkspaceMutationVariables,
   UnwatchWorkspaceWorkspaceWatchersQuery,

@@ -1,11 +1,11 @@
 import { gql, useMutation } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   CreateOrUpdateCodebaseRemoteMutation,
   CreateOrUpdateCodebaseRemoteMutationVariables,
 } from './__generated__/useCreateOrUpdateGitRemote'
-import { CreateOrUpdateCodebaseRemoteInput } from '../__generated__/types'
+import type { CreateOrUpdateCodebaseRemoteInput } from '../__generated__/types'
 
 const CREATE_GIT_REMOTE = gql`
   mutation CreateOrUpdateCodebaseRemote($input: CreateOrUpdateCodebaseRemoteInput!) {

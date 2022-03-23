@@ -105,10 +105,11 @@ import { ChatAltIcon } from '@heroicons/vue/solid'
 import Avatar from '../../shared/Avatar.vue'
 import time from '../../../time'
 import { Slug } from '../../../slug'
-import CommentMessage, { User } from '../../shared/CommentMessage.vue'
+import CommentMessage from '../../shared/CommentMessage.vue'
+import type { User } from '../../shared/CommentMessage.vue'
 import { gql } from '@urql/vue'
-import { NotificationCommentFragment } from './__generated__/CommentNotification'
-import { PropType } from 'vue'
+import type { NotificationCommentFragment } from './__generated__/Comment'
+import type { PropType } from 'vue'
 
 export const NOTIFICATION_COMMENT_FRAGMENT = gql`
   fragment NotificationComment on CommentNotification {

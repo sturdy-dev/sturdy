@@ -4,10 +4,11 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { StatusType } from '../../__generated__/types'
 import { CheckCircleIcon, ClockIcon, XCircleIcon } from '@heroicons/vue/solid'
-import { StatusFragment } from './__generated__/StatusBadge'
+import type { StatusFragment } from './__generated__/StatusBadge'
 
 export const STATUS_FRAGMENT = gql`
   fragment Status on Status {

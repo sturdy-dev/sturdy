@@ -40,8 +40,8 @@ import { Slug } from '../../../slug'
 import { CodeIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
 import Avatar from '../../shared/Avatar.vue'
-import { NewSuggestionNotificationFragment } from './__generated__/NewSuggestionNotification'
-import { PropType } from 'vue'
+import type { NewSuggestionNotificationFragment } from './__generated__/NewSuggestion'
+import type { PropType } from 'vue'
 
 export const NEW_SUGGESTION_NOTIFICATION_FRAGMENT = gql`
   fragment NewSuggestionNotification on NewSuggestionNotification {

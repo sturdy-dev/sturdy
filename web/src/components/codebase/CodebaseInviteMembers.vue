@@ -105,7 +105,7 @@ import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import Avatar from '../shared/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent } from 'vue'
-import {
+import type {
   CodebaseInviteMembersQuery,
   CodebaseInviteMembersQueryVariables,
 } from './__generated__/CodebaseInviteMembers'

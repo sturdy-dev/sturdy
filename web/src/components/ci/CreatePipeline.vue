@@ -17,7 +17,8 @@
 <script lang="ts">
 import LinkButton from '../shared/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'
-import Instructions, { Instruction } from './Instructions.vue'
+import Instructions from './Instructions.vue'
+import type { Instruction } from './Instructions.vue'
 import TextInput from '../../molecules/TextInput.vue'
 import { useCreateServiceToken } from '../../mutations/useCreateServiceToken'
 

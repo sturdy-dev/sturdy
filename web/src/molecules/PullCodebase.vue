@@ -11,13 +11,14 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { defineComponent, inject, PropType, toRef } from 'vue'
-import { PullCodebaseRemoteFragment } from './__generated__/PullCodebase'
+import { defineComponent, inject, toRef } from 'vue'
+import type { PropType } from 'vue'
+import type { PullCodebaseRemoteFragment } from './__generated__/PullCodebase'
 import { usePullCodebase } from '../mutations/usePullCodebase'
 import Spinner from '../components/shared/Spinner.vue'
 import Button from '../components/shared/Button.vue'
 import { ArrowSmDownIcon } from '@heroicons/vue/solid'
-import { Emitter } from 'mitt/src'
+import type { Emitter } from 'mitt/src'
 
 export const PULL_CODEBASE_REMOTE_FRAGMENT = gql`
   fragment PullCodebaseRemote on Remote {

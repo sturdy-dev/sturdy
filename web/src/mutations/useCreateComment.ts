@@ -1,5 +1,5 @@
-import { Entity, UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { Entity, UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   CreateCommentChangeCommentsQuery,
   CreateCommentChangeCommentsQueryVariables,
   CreateCommentMutation,
@@ -8,8 +8,8 @@ import {
   CreateCommentWorkspaceCommentsQueryVariables,
 } from './__generated__/useCreateComment'
 import { gql, useMutation } from '@urql/vue'
-import { CreateCommentInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { CreateCommentInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {

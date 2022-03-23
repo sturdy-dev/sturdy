@@ -58,7 +58,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, defineAsyncComponent, PropType } from 'vue'
+import { defineComponent, defineAsyncComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 
 import ShareButton, {
@@ -68,7 +69,7 @@ import ShareButton, {
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import { AUTHOR } from '../components/shared/AvatarHelper'
 
-import { WorkspaceDescription_WorkspaceFragment } from './__generated__/WorkspaceDescription'
+import type { WorkspaceDescription_WorkspaceFragment } from './__generated__/WorkspaceDescription'
 
 import { useUpdateWorkspace } from '../mutations/useUpdateWorkspace'
 

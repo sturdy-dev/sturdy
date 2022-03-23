@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import {
+import type {
   UpdatedCommentSubscription,
   UpdatedCommentSubscriptionVariables,
   UpdatedCommentWorkspaceCommentsQuery,
   UpdatedCommentWorkspaceCommentsQueryVariables,
 } from './__generated__/useUpdatedComment'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_COMMENT = gql`
   subscription UpdatedComment($workspaceID: ID!, $viewID: ID) {

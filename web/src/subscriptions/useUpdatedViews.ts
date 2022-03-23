@@ -1,12 +1,12 @@
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
 import { gql, useSubscription } from '@urql/vue'
-import {
+import type {
   UpdatedViewAuthorViewsQuery,
   UpdatedViewAuthorViewsQueryVariables,
   UpdatedViewsSubscription,
   UpdatedViewsSubscriptionVariables,
 } from './__generated__/useUpdatedViews'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_VIEWS = gql`
   subscription UpdatedViews {

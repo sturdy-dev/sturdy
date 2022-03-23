@@ -1,4 +1,4 @@
-import { Slot } from 'vue'
+import type { Slot } from 'vue'
 
 export interface Step {
   id: string

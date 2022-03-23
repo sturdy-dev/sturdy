@@ -21,9 +21,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import gql from 'graphql-tag'
-import { NoChangesOwnWorkspaceFragment } from './__generated__/NoChangesOwnWorkspace'
+import type { NoChangesOwnWorkspaceFragment } from './__generated__/NoChangesOwnWorkspace'
 import { FolderIcon, FolderOpenIcon } from '@heroicons/vue/outline'
 
 export const NO_CHANGES_OWN_WORKSPACE = gql`

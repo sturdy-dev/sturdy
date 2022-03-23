@@ -22,9 +22,9 @@ import Spinner from '../components/shared/Spinner.vue'
 
 import { useQuery, gql } from '@urql/vue'
 import { ref, toRefs } from 'vue'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 
-import {
+import type {
   ChangeDetailsDownloadZipQuery,
   ChangeDetailsDownloadZipQueryVariables,
 } from './__generated__/DownloadChangeButton'

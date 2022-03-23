@@ -1,14 +1,14 @@
-import { OpenWorkspaceOnViewInput, ViewStatusState } from '../__generated__/types'
-import { OptimisticMutationResolver, UpdateResolver } from '@urql/exchange-graphcache'
+import type { OpenWorkspaceOnViewInput, ViewStatusState } from '../__generated__/types'
+import type { OptimisticMutationResolver, UpdateResolver } from '@urql/exchange-graphcache'
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   OpenWorkspaceOnViewMutation,
   OpenWorkspaceOnViewMutationVariables,
   UserOpeningWorkspaceQuery,
   UserOpeningWorkspaceQueryVariables,
   WorkspaceToBeOpenedFragment,
 } from './__generated__/useOpenWorkspaceOnView'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const OPEN_WORKSPACE_ON_VIEW = gql`
   mutation OpenWorkspaceOnView($input: OpenWorkspaceOnViewInput!) {

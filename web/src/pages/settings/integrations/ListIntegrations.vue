@@ -75,7 +75,7 @@
 import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug } from '../../../slug'
-import {
+import type {
   GetIntegrationsQuery,
   GetIntegrationsQueryVariables,
   IntegrationListItemFragment,
@@ -87,7 +87,8 @@ import SettingsVerticalNavigation from '../../../components/codebase/settings/Se
 import Header from '../../../molecules/Header.vue'
 import RouterLinkButton from '../../../components/shared/RouterLinkButton.vue'
 import { useDeleteIntegration } from '../../../mutations/useDeleteIntegration'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../../../__generated__/types'
 
 import buildkiteLogo from '../../../components/ci/logos/BuildkiteLogo.svg'

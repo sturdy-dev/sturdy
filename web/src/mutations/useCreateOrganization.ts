@@ -1,8 +1,8 @@
 import { gql, useMutation } from '@urql/vue'
-import { CreateOrganizationInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { CreateOrganizationInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   AllOrganizationsQuery,
   AllOrganizationsQueryVariables,
   CreateOrganizationMutation,

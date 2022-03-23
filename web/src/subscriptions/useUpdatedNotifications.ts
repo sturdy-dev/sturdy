@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import {
+import type {
   UpdatedNotificationsNotificationsQuery,
   UpdatedNotificationsNotificationsQueryVariables,
   UpdatedNotificationsSubscription,
   UpdatedNotificationsSubscriptionVariables,
 } from './__generated__/useUpdatedNotifications'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const UPDATED_NOTIFICATIONS = gql`
   subscription UpdatedNotifications {

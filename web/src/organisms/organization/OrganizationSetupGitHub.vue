@@ -118,10 +118,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { PropType, Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 
-import {
+import type {
   OrganizationSetupGitHub_GitHubAccountFragment,
   OrganizationSetupGitHub_GitHubAppFragment,
   OrganizationSetupGitHub_OrganizationFragment,

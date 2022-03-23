@@ -1,7 +1,7 @@
 import { gql, useSubscription } from '@urql/vue'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   UpdatedReviewsSubscription,
   UpdatedReviewsSubscriptionVariables,
   WorkspaceReviewsQuery,

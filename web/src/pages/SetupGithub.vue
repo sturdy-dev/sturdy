@@ -40,7 +40,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import http, { HttpError } from '../http'
+import http from '../http'
+import type { HttpError } from '../http'
 import { useRoute, useRouter } from 'vue-router'
 import { Banner } from '../atoms'
 import Spinner from '../components/shared/Spinner.vue'

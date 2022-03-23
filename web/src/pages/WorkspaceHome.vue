@@ -314,7 +314,8 @@ import ResolveConflict, { RESOLVE_CONFLICT_DIFF } from '../components/workspace/
 import Button from '../components/shared/Button.vue'
 import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, defineComponent, inject, onUnmounted, ref, Ref, watch } from 'vue'
+import { computed, defineComponent, inject, onUnmounted, ref, watch } from 'vue'
+import type { Ref } from 'vue'
 import { useHead } from '@vueuse/head'
 import Spinner from '../components/shared/Spinner.vue'
 import WorkspaceActivitySidebar, {
@@ -335,14 +336,14 @@ import { useCreateSuggestion } from '../mutations/useCreateSuggestion'
 import SelectedHunksToolbar from '../components/workspace/SelectedHunksToolbar.vue'
 import SearchToolbar from '../components/workspace/SearchToolbar.vue'
 import OpenInEditor from '../components/workspace/OpenInEditor.vue'
-import {
+import type {
   WorkspaceHomeDiffsQuery,
   WorkspaceHomeDiffsQueryVariables,
   WorkspaceHomeQuery,
   WorkspaceHomeQueryVariables,
 } from './__generated__/WorkspaceHome'
 import { useUpdatedWorkspaceDiffs } from '../subscriptions/useUpdatedWorkspaceDiffs'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 import WorkspaceName, {
   WORKSPACE_FRAGMENT as WORKSPACE_NAME_FRAGMENT,
 } from '../organisms/WorkspaceName.vue'

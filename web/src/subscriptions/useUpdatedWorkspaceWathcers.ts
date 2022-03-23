@@ -1,12 +1,12 @@
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
 import { gql, useSubscription } from '@urql/vue'
-import {
+import type {
   UpdatedWorkspaceWatchersSubscription,
   UpdatedWorkspaceWatchersSubscriptionVariables,
   WorkspaceWatchersQuery,
   WorkspaceWatchersQueryVariables,
 } from './__generated__/useUpdatedWorkspaceWathcers'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_WORKSPACE_WATCHERS = gql`
   subscription UpdatedWorkspaceWatchers($workspaceID: ID!) {

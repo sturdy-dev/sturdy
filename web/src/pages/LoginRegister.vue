@@ -30,7 +30,8 @@
 <script lang="ts">
 import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
-import { computed, defineComponent, inject, ref, Ref, PropType, watch } from 'vue'
+import { computed, defineComponent, inject, ref, watch } from 'vue'
+import type { Ref, PropType } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import ServerInfo from '../organisms/auth/ServerInfo.vue'
 

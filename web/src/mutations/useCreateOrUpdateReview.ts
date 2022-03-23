@@ -1,13 +1,13 @@
 import { gql, useMutation } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { CreateReviewInput } from '../__generated__/types'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { CreateReviewInput } from '../__generated__/types'
+import type {
   CreateOrUpdateReviewMutation,
   CreateOrUpdateReviewMutationVariables,
   CreateOrUpdateReviewWorkspaceReviewsQuery,
   CreateOrUpdateReviewWorkspaceReviewsQueryVariables,
 } from './__generated__/useCreateOrUpdateReview'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const CREATE_OR_UPDATE_REVIEW = gql`
   mutation CreateOrUpdateReview($input: CreateReviewInput!) {

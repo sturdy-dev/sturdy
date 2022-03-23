@@ -1,4 +1,4 @@
-import { Hunk } from '../../__generated__/types'
+import type { Hunk } from '../../__generated__/types'
 
 export const getIndicesOf = function (
   searchStr: string,

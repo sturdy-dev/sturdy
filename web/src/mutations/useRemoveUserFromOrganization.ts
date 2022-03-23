@@ -1,8 +1,8 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import { gql, useMutation } from '@urql/vue'
-import { RemoveUserFromOrganizationInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { RemoveUserFromOrganizationInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   RemoveUserFromOrganizationMutation,
   RemoveUserFromOrganizationMutationVariables,
 } from './__generated__/useRemoveUserFromOrganization'

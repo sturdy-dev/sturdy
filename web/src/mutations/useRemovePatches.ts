@@ -1,7 +1,7 @@
 import { gql, useMutation } from '@urql/vue'
-import { DeepMaybeRef } from '@vueuse/core'
-import { RemovePatchesInput } from '../__generated__/types'
-import {
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { RemovePatchesInput } from '../__generated__/types'
+import type {
   RemovePatchesMutation,
   RemovePatchesMutationVariables,
 } from './__generated__/useRemovePatches'

@@ -1,8 +1,8 @@
 import { gql, useMutation } from '@urql/vue'
-import { SetupGitHubRepositoryInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { SetupGitHubRepositoryInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   SetupGitHubRepositoryGitHubRepositoryCodebasesQuery,
   SetupGitHubRepositoryGitHubRepositoryCodebasesQueryVariables,
   SetupGitHubRepositoryMutation,

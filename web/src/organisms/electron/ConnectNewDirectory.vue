@@ -11,11 +11,14 @@
 import { defineComponent } from 'vue'
 import { DesktopComputerIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
-import Button from '../shared/Button.vue'
+import Button from '../../components/shared/Button.vue'
 
 export default defineComponent({
   components: { DesktopComputerIcon, Button },
-  props: ['codebaseId', 'codebaseSlug'],
+  props: {
+    codebaseId: { type: String, required: true },
+    codebaseSlug: { type: String, required: true },
+  },
   setup() {
     const createWorkspaceResult = useCreateWorkspace()
     return {
@@ -36,10 +39,6 @@ export default defineComponent({
   },
   methods: {
     async createViewInDirectory() {
-      if (!this.codebaseId || !this.codebaseSlug) {
-        return
-      }
-
       const oldIsReady = this.mutagenIpc?.isReady && (await this.mutagenIpc.isReady())
       const newIsReady = this.ipc?.state && (await this.ipc.state()) === 'online'
 
@@ -58,7 +57,7 @@ export default defineComponent({
 
       try {
         await this.mutagenIpc.createNewViewWithDialog(res.createWorkspace.id)
-      } catch (e) {
+      } catch (e: any) {
         if (e.message.includes('non-empty')) {
           this.emitter.emit('notification', {
             title: 'Directory is not empty',

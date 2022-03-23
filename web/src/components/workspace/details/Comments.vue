@@ -12,8 +12,9 @@
 <script lang="ts">
 import { ChatAltIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { CommentsCount_WorkspaceFragment } from './__generated__/Comments'
-import { defineComponent, PropType } from 'vue'
+import type { CommentsCount_WorkspaceFragment } from './__generated__/Comments'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment CommentsCount_Workspace on Workspace {

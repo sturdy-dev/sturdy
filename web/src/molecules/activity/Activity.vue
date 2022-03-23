@@ -49,9 +49,10 @@ import WorkspaceActivityComment, {
 import WorkspaceActivityReviewed, {
   WORKSPACE_ACTIVITY_REVIEWED_FRAGMENT,
 } from './ActivityReviewed.vue'
-import { defineComponent, onUnmounted, PropType, toRefs, watch } from 'vue'
+import { defineComponent, onUnmounted, toRefs, watch } from 'vue'
+import type { PropType } from 'vue'
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   WorkspaceActivityCodebaseMemberFragment,
   WorkspaceActivityFragment,
 } from './__generated__/Activity'

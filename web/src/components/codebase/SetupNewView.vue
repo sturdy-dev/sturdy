@@ -134,8 +134,9 @@ import { gql, useQuery } from '@urql/vue'
 import SetupSturdyGoToWorkspaceStep, {
   SETUP_USER_VIEWS,
 } from '../../molecules/setup/SetupSturdyGoToWorkspaceStep.vue'
-import CreateViewAndWorkspace from './CreateViewAndWorkspace.vue'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import ConnectNewDirectory from '../../organisms/electron/ConnectNewDirectory.vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../../__generated__/types'
 
 export default defineComponent({
@@ -274,7 +275,7 @@ export default defineComponent({
             description: 'Create a new directory, and connect Sturdy to it',
             status:
               this.currentStep === 1 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
-            component: CreateViewAndWorkspace,
+            component: ConnectNewDirectory,
           },
         ]
       }
@@ -285,14 +286,14 @@ export default defineComponent({
           description: 'Create a new directory, and connect Sturdy to it',
           status:
             this.currentStep === 0 ? 'current' : this.currentStep > 1 ? 'complete' : 'upcoming',
-          component: CreateViewAndWorkspace,
+          component: ConnectNewDirectory,
         },
         {
           name: 'Start coding',
           description: 'Make your first change to the codebase',
           status:
             this.currentStep === 1 ? 'current' : this.currentStep > 2 ? 'complete' : 'upcoming',
-          component: SetupSturdyGoToWorkspaceStep,
+          component: ConnectNewDirectory,
         },
       ]
     },

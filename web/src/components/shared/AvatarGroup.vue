@@ -11,8 +11,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { Author } from '../differ/event'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { Author } from '../differ/event'
 import Avatar from './Avatar.vue'
 
 export default defineComponent({

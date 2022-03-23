@@ -25,10 +25,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import Banner from '../atoms/Banner.vue'
 import { gql } from '@urql/vue'
-import { GitHubAppErrorsBanner_GithubValidationAppFragment } from './__generated__/GitHubAppErrorsBanner'
+import type { GitHubAppErrorsBanner_GithubValidationAppFragment } from './__generated__/GitHubAppErrorsBanner'
 
 export const GITHUB_APP_ERRORS_BANNER_GITHUB_VALIDATION_APP_FRAGMENT = gql`
   fragment GitHubAppErrorsBanner_GithubValidationApp on GithubValidationApp {

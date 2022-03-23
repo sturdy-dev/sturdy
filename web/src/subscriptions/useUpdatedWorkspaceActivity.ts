@@ -1,10 +1,10 @@
 import { gql, useSubscription } from '@urql/vue'
-import { Entity, UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { Entity, UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   UpdatedWorkspaceActivitySubscription,
   UpdatedWorkspaceActivitySubscriptionVariables,
 } from './__generated__/useUpdatedWorkspaceActivity'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const UPDATED_WORKSPACE_ACTIVITY = gql`
   subscription UpdatedWorkspaceActivity {

@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import Avatar from '../shared/Avatar.vue'
-import { AuthorFragment } from '../shared/__generated__/AvatarHelper'
+import type { AuthorFragment } from '../shared/__generated__/AvatarHelper'
 import CodebaseInviteCode from './CodebaseInviteCode.vue'
 
 import { AUTHOR } from '../shared/AvatarHelper'

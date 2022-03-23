@@ -41,25 +41,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import Button from '../shared/Button.vue'
 import { Banner } from '../../atoms'
 import TextareaAutosize from '../shared/TextareaAutosize.vue'
 import { useCreateComment } from '../../mutations/useCreateComment'
-import { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
+import type { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
 import Avatar from '../shared/Avatar.vue'
 import { gql } from '@urql/vue'
-import {
+import type {
   ReviewNewCommentViewFragment,
   ReviewNewCommentWorkspaceFragment,
   ReviewNewCommentChangeFragment,
 } from './__generated__/ReviewNewComment'
 import { ConvertEmojiToColons } from '../emoji/emoji'
-import {
-  CommentState,
-  SetCommentComposingReply,
-  temporaryNewCommentID,
-} from '../comments/CommentState'
+import { temporaryNewCommentID } from '../comments/CommentState'
+import type { CommentState, SetCommentComposingReply } from '../comments/CommentState'
 
 export const WORKSPACE = gql`
   fragment ReviewNewCommentWorkspace on Workspace {

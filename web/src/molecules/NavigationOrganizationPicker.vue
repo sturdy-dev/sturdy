@@ -53,11 +53,12 @@
 </template>
 
 <script lang="ts">
-import { ref, PropType, defineComponent, toRef } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { OrganizationPickerFragment } from './__generated__/NavigationOrganizationPicker'
+import type { OrganizationPickerFragment } from './__generated__/NavigationOrganizationPicker'
 
 const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationPicker on Organization {

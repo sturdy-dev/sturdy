@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
-import {
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type {
   ChangeQuery,
   ChangeQueryVariables,
   UpdatedChangesStatusesSubscription,
   UpdatedChangesStatusesSubscriptionVariables,
 } from './__generated__/useUpdatedChangesStatuses'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_CHANGES_STATUSES = gql`
   subscription UpdatedChangesStatuses($changeIDs: [ID!]!) {

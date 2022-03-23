@@ -24,11 +24,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { Breadcrumbs } from './Breadcrumbs'
 import Slash from './Slash.vue'
 import { gql } from '@urql/vue'
-import { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
+import type { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 
 export const DIRECTORY_BREADCRUMB = gql`
   fragment DirectoryBreadcrumb on Codebase {

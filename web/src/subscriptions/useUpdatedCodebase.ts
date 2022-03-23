@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import {
+import type {
   UpdatedCodebaseCodebasesQuery,
   UpdatedCodebaseCodebasesQueryVariables,
   UpdatedCodebaseSubscription,
   UpdatedCodebaseSubscriptionVariables,
 } from './__generated__/useUpdatedCodebase'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const UPDATED_CODEBASE = gql`
   subscription UpdatedCodebase {

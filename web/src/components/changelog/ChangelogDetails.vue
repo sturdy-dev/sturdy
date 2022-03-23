@@ -76,7 +76,8 @@
 </template>
 
 <script lang="ts">
-import { ref, inject, computed, Ref, defineComponent, PropType } from 'vue'
+import { ref, inject, computed, defineComponent } from 'vue'
+import type { Ref, PropType } from 'vue'
 
 import RelativeTime from '../../atoms/RelativeTime.vue'
 import Avatar from '../shared/Avatar.vue'
@@ -94,7 +95,7 @@ import { gql } from '@urql/vue'
 import { Feature } from '../../__generated__/types'
 
 import { AUTHOR } from '../shared/AvatarHelper'
-import { ChangelogDetails_ChangeFragment } from './__generated__/ChangelogDetails'
+import type { ChangelogDetails_ChangeFragment } from './__generated__/ChangelogDetails'
 
 export const CHANGE_FRAGMENT = gql`
   fragment ChangelogDetails_Change on Change {

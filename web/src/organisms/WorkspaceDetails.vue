@@ -48,7 +48,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 
 import Presence, {
@@ -72,7 +73,7 @@ import { AUTHOR } from '../components/shared/AvatarHelper'
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 
 import { Slug } from '../slug'
-import { WorkspaceDetails_WorkspaceFragment } from './__generated__/WorkspaceDetails'
+import type { WorkspaceDetails_WorkspaceFragment } from './__generated__/WorkspaceDetails'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment WorkspaceDetails_Workspace on Workspace {

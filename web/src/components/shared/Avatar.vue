@@ -25,9 +25,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { initials, initialsBgColor } from './AvatarHelper'
-import { AuthorFragment } from './__generated__/AvatarHelper'
+import type { AuthorFragment } from './__generated__/AvatarHelper'
 
 export default defineComponent({
   data() {

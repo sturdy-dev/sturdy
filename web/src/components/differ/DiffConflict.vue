@@ -81,9 +81,10 @@
 <script lang="ts">
 import DiffHeader from './DiffHeader.vue'
 import Button from '../shared/Button.vue'
-import { defineAsyncComponent, defineComponent, PropType } from 'vue'
+import { defineAsyncComponent, defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-import { DiffConflictDiffFragment } from './__generated__/DiffConflict'
+import type { DiffConflictDiffFragment } from './__generated__/DiffConflict'
 
 interface Data {
   selected: string | null

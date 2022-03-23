@@ -155,7 +155,7 @@
 <script lang="ts">
 import TextInput from '../../../../../molecules/TextInput.vue'
 import Step from '../../../../../components/ci/Step.vue'
-import { Status } from '../../../../../components/ci/StepIndicator.vue'
+import type { Status } from '../../../../../components/ci/StepIndicator.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -165,7 +165,7 @@ import PaddedAppLeftSidebar from '../../../../../layouts/PaddedAppLeftSidebar.vu
 import SettingsVerticalNavigation from '../../../../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../../../../molecules/Header.vue'
 import { Banner } from '../../../../../atoms'
-import { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__generated__/Git'
+import type { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__generated__/Git'
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../components/shared/Button.vue'
 import { defaultLinkBranch, defaultLinkRepo } from './Links'

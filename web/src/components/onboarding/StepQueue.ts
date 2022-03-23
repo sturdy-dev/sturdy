@@ -1,5 +1,6 @@
-import { Step } from './Step'
-import { ref, Ref } from 'vue'
+import type { Step } from './Step'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 
 export class StepQueue {
   readonly #steps: Ref<Step[]> = ref([])

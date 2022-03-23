@@ -200,7 +200,8 @@ import Avatar from '../shared/Avatar.vue'
 import Button from '../shared/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
-import { computed, defineComponent, inject, PropType, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { PropType, Ref } from 'vue'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -214,7 +215,7 @@ import { useUpdatedSuggestion } from '../../subscriptions/useUpdatedSuggestion'
 import { useDismissSuggestion } from '../../mutations/useDismissSuggestion'
 import { useRemovePatches } from '../../mutations/useRemovePatches'
 import { Feature } from '../../__generated__/types'
-import {
+import type {
   LiveDetailsDiffsFragment,
   LiveDetailsMemberFragment,
   LiveDetailsQuery,
@@ -222,7 +223,7 @@ import {
   LiveDetailsViewFragment,
 } from './__generated__/LiveDetails'
 import Spinner from '../shared/Spinner.vue'
-import { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
+import type { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {

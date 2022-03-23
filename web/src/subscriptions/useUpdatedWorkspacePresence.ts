@@ -1,7 +1,7 @@
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
 import { gql, useSubscription } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   CreatePresenceCodebaseWorkspacePresenceQuery,
   CreatePresenceCodebaseWorkspacePresenceQueryVariables,
   CreatePresenceWorkspacePresenceQuery,

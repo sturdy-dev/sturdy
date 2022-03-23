@@ -3,8 +3,8 @@ import {
   createRouter,
   createWebHashHistory,
   createWebHistory,
-  RouterOptions,
 } from 'vue-router'
+import type { RouterOptions } from 'vue-router'
 import { RoutesDocs } from './router-docs'
 import { RoutesApps, RoutesSelfHosted } from './router-apps'
 

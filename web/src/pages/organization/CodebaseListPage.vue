@@ -156,10 +156,11 @@ import GitHubIcon from '../../components/icons/GitHubIcon.vue'
 import Tooltip from '../../components/shared/Tooltip.vue'
 import Spinner from '../../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../../subscriptions/useUpdatedCodebase'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../../__generated__/types'
 import { useRoute } from 'vue-router'
-import {
+import type {
   CodebaseListPageQuery,
   CodebaseListPageQueryVariables,
 } from './__generated__/CodebaseListPage'

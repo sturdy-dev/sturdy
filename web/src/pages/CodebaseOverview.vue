@@ -145,9 +145,10 @@ import Tooltip from '../components/shared/Tooltip.vue'
 import Spinner from '../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../subscriptions/useUpdatedCodebase'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { computed, defineComponent, inject, ref, Ref, toRefs } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../__generated__/types'
-import {
+import type {
   CodebaseOverviewQuery,
   CodebaseOverviewQueryVariables,
 } from './__generated__/CodebaseOverview'

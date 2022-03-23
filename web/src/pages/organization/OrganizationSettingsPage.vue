@@ -23,7 +23,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { gql, useQuery } from '@urql/vue'
-import {
+import type {
   OrganizationSettingsPageQuery,
   OrganizationSettingsPageQueryVariables,
 } from './__generated__/OrganizationSettingsPage'

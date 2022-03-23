@@ -60,7 +60,7 @@ import OrganizationSettingsHeader from '../../organisms/organization/Organizatio
 import OrganizationListLicenses, {
   ORGANIZATION_LIST_SINGLE_LICENSE,
 } from '../../organisms/organization/OrganizationListLicenses.vue'
-import {
+import type {
   ManageInstallationPageQuery,
   ManageInstallationPageQueryVariables,
 } from './__generated__/ManageInstallationPage'

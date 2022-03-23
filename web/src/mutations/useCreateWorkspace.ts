@@ -1,8 +1,8 @@
-import { CreateWorkspaceInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { CreateWorkspaceInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   CreateWorkspaceMutation,
   CreateWorkspaceMutationVariables,
 } from './__generated__/useCreateWorkspace'

@@ -39,8 +39,9 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { defineComponent, PropType } from 'vue'
-import { WorkspaceListFragment } from './__generated__/WorkspaceList'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { WorkspaceListFragment } from './__generated__/WorkspaceList'
 import Avatar from '../shared/Avatar.vue'
 import time from '../../time'
 

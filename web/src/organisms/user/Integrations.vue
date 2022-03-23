@@ -31,13 +31,13 @@
 
 <script lang="ts">
 import { gql, useMutation } from '@urql/vue'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 import GitHubConnectButton, {
   GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT,
   GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
 } from '../../molecules/GitHubConnectButton.vue'
 import Button from '../../components/shared/Button.vue'
-import {
+import type {
   IntegrationsGitHubAppFragment,
   IntegrationsUserFragment,
 } from './__generated__/Integrations'

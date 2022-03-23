@@ -26,7 +26,10 @@
 <script lang="ts">
 import { defineComponent, toRefs } from 'vue'
 import { gql } from '@urql/vue'
-import { WorkspaceWatcherFragment, WorkspaceWatcherUserFragment } from './__generated__/Watching'
+import type {
+  WorkspaceWatcherFragment,
+  WorkspaceWatcherUserFragment,
+} from './__generated__/Watching'
 import Tooltip from '../../shared/Tooltip.vue'
 import { EyeIcon, EyeOffIcon } from '@heroicons/vue/solid'
 import { useWatchWorkspace } from '../../../mutations/useWatchWorkspace'

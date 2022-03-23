@@ -77,10 +77,10 @@ import { defineComponent } from 'vue'
 import { XIcon } from '@heroicons/vue/solid'
 import Button from '../shared/Button.vue'
 import RenderVnodes from './RenderVnodes'
-import { Step } from './Step'
+import type { Step } from './Step'
 import { StepQueue } from './StepQueue'
 import { CombinedError, gql, useClientHandle, useMutation, useSubscription } from '@urql/vue'
-import {
+import type {
   CompletedOnboardingStepsQuery,
   CompletedOnboardingStepsQueryVariables,
   CompletedOnboardingStepSubscription,

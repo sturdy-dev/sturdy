@@ -55,12 +55,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { PropType, Ref } from 'vue'
 import OrganizationLicenseTierPicker from '../../organisms/organization/OrganizationLicenseTierPicker.vue'
 import { gql } from '@urql/vue'
 import Button from '../../components/shared/Button.vue'
 import { useRouter } from 'vue-router'
-import { OrganizationCreateUserFragment } from './__generated__/OrganizationCreate'
+import type { OrganizationCreateUserFragment } from './__generated__/OrganizationCreate'
 import TextInputWithLabel from '../../molecules/TextInputWithLabel.vue'
 import { useCreateOrganization } from '../../mutations/useCreateOrganization'
 import { Feature } from '../../__generated__/types'

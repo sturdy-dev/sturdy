@@ -1,8 +1,8 @@
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 import gql from 'graphql-tag'
 import { useMutation } from '@urql/vue'
-import { DeleteIntegrationInput } from '../__generated__/types'
-import {
+import type { DeleteIntegrationInput } from '../__generated__/types'
+import type {
   DeleteIntegrationMutation,
   DeleteIntegrationMutationVariables,
 } from './__generated__/useDeleteIntegration'

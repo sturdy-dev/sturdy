@@ -77,8 +77,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { Comment } from './event'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { Comment } from './event'
 import time from '../../time'
 import Avatar from '../shared/Avatar.vue'
 import { Banner } from '../../atoms'
@@ -87,7 +88,7 @@ import Button from '../shared/Button.vue'
 import TextareaAutosize from '../shared/TextareaAutosize.vue'
 import { useUpdateComment } from '../../mutations/useUpdateComment'
 import { useDeleteComment } from '../../mutations/useDeleteComment'
-import { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
+import type { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
 import CommentMessage from '../shared/CommentMessage.vue'
 import mentionify from '../shared/mentionify'
 import { ChevronDoubleUpIcon } from '@heroicons/vue/solid'

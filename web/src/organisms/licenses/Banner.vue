@@ -6,8 +6,8 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { PropType } from 'vue'
-import { BannerLicenseMessageFragment } from './__generated__/Banner'
+import type { PropType } from 'vue'
+import type { BannerLicenseMessageFragment } from './__generated__/Banner'
 import { Banner } from '../../atoms'
 import { LicenseMessageLevel } from '../../__generated__/types'
 

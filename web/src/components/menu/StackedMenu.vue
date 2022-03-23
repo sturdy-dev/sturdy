@@ -249,10 +249,11 @@
 </template>
 
 <script lang="ts">
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 import { CogIcon, PlusSmIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
-import { computed, defineComponent, onUnmounted, PropType } from 'vue'
+import { computed, defineComponent, onUnmounted } from 'vue'
+import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug, Slug } from '../../slug'
 import Avatar from '../shared/Avatar.vue'
@@ -267,7 +268,7 @@ import ViewStatusIndicator, { VIEW_STATUS_INDICATOR } from '../ViewStatusIndicat
 import { useOpenWorkspaceOnView } from '../../mutations/useOpenWorkspaceOnView'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Tooltip from '../shared/Tooltip.vue'
-import {
+import type {
   CodebaseFragment,
   OrganizationFragment,
   PresenceFragment as WorkspacePresence,
@@ -278,15 +279,16 @@ import {
   StackedMenuQueryVariables,
   WorkspaceFragment,
 } from './__generated__/StackedMenu'
-import { ReviewGrade, User, WorkspacePresenceState } from '../../__generated__/types'
+import { ReviewGrade, WorkspacePresenceState } from '../../__generated__/types'
+import type { User } from '../../__generated__/types'
 import { useUpdatedReviews } from '../../subscriptions/useUpdatedReviews'
-import {
+import type {
   NavigationCodebase,
   NavigationSuggestingWorkspace,
   NavigationView,
   NavigationWorkspace,
-  WorkspaceIndex,
 } from './MenuHelper'
+import { WorkspaceIndex } from './MenuHelper'
 import { useUpdatedViews } from '../../subscriptions/useUpdatedViews'
 import NavigationOrganizationPickerMenu, {
   ORGANIZATION_FRAGMENT as NAVIGATION_ORGANIZATION_FRAGMENT,

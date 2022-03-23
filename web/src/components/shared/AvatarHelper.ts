@@ -1,5 +1,5 @@
 import { gql } from '@urql/vue'
-import { AuthorFragment } from './__generated__/Avatar'
+import type { AuthorFragment } from './__generated__/AvatarHelper'
 import { crc32 } from '@foxglove/crc'
 
 export const AUTHOR = gql`

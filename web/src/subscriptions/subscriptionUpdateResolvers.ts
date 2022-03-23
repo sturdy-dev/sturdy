@@ -1,4 +1,4 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import { updatedCommentUpdateResolver } from './useUpdatedComment'
 import { updatedCodebaseUpdateResolver } from './useUpdatedCodebase'
 import { updatedNotificationsUpdateResolver } from './useUpdatedNotifications'

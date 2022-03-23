@@ -52,9 +52,9 @@
 <script lang="ts">
 import { InformationCircleIcon, ThumbUpIcon, UserCircleIcon } from '@heroicons/vue/solid'
 import time from '../../time'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-import { WorkspaceReviewedActivityFragment } from './__generated__/ActivityReviewed'
+import type { WorkspaceReviewedActivityFragment } from './__generated__/ActivityReviewed'
 
 export const WORKSPACE_ACTIVITY_REVIEWED_FRAGMENT = gql`
   fragment WorkspaceReviewedActivity on WorkspaceReviewedActivity {

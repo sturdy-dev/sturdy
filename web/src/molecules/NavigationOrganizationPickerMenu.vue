@@ -262,8 +262,9 @@ import {
   UserGroupIcon,
 } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
-import { NavigationOrganizationPickerMenuFragment } from './__generated__/NavigationOrganizationPickerMenu'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { PropType, Ref } from 'vue'
+import type { NavigationOrganizationPickerMenuFragment } from './__generated__/NavigationOrganizationPickerMenu'
 import { Feature } from '../__generated__/types'
 
 export const ORGANIZATION_FRAGMENT = gql`

@@ -1,11 +1,11 @@
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   TriggerInstantIntegrationMutation,
   TriggerInstantIntegrationMutationVariables,
 } from './__generated__/useTriggerInstantIntegration'
-import { DeepMaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { TriggerInstantIntegrationInput, Status } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { TriggerInstantIntegrationInput, Status } from '../__generated__/types'
 
 const TRIGGER_INSTANT_INTEGRATION = gql`
   mutation TriggerInstantIntegration($input: TriggerInstantIntegrationInput!) {

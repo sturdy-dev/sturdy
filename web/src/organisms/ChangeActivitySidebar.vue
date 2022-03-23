@@ -20,12 +20,13 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 
 import NewComment, { CODEBASE_FRAGMENT } from '../molecules/NewComment.vue'
 import Activity, { WORKSPACE_ACTIVITY_FRAGMENT } from '../molecules/activity/Activity.vue'
 import { MEMBER_FRAGMENT } from '../components/shared/TextareaAutosize.vue'
-import { ChangeActivity_ChangeFragment } from './__generated__/ChangeActivitySidebar'
+import type { ChangeActivity_ChangeFragment } from './__generated__/ChangeActivitySidebar'
 
 type Member = ChangeActivity_ChangeFragment['codebase']['members'][number]
 

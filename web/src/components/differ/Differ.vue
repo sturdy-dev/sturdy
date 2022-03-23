@@ -38,20 +38,21 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, defineComponent, PropType } from 'vue'
-import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
-import {
+import { defineAsyncComponent, defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type {
   ReviewNewCommentChangeFragment,
   ReviewNewCommentViewFragment,
   ReviewNewCommentWorkspaceFragment,
 } from './__generated__/ReviewNewComment'
-import {
+import type {
   CommentState,
   SetCommentComposingReply,
   SetCommentExpandedEvent,
 } from '../comments/CommentState'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
-import { DifferState, SetFileIsHiddenEvent } from './DifferState'
+import type { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
 import {
   DIFFER_FILE_TOP_COMMENT,

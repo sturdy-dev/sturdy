@@ -7,8 +7,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import StepIndicator, { Status } from './StepIndicator.vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import StepIndicator from './StepIndicator.vue'
+import type { Status } from './StepIndicator.vue'
 
 export default defineComponent({
   components: { StepIndicator },

@@ -69,8 +69,9 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onUnmounted, Ref, ref, watch } from 'vue'
-import { DeepMaybeRef } from '@vueuse/core'
+import { computed, defineComponent, inject, onUnmounted, ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import type { DeepMaybeRef } from '@vueuse/core'
 import ChangeDetails, {
   CHANGE_DETAILS_CHANGE_FRAGMENT,
 } from '../../components/changelog/ChangeDetails.vue'
@@ -86,7 +87,7 @@ import ChangeActivitySidebar, {
   CHANGE_FRAGMENT as CHANGE_ACTIVITY_CHANGE_FRAGMENT,
 } from '../../organisms/ChangeActivitySidebar.vue'
 import { Feature } from '../../__generated__/types'
-import { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
+import type { ChangePageQuery, ChangePageQueryVariables } from './__generated__/Change'
 
 const PAGE_QUERY = gql`
   query ChangePage($changeID: ID!, $isGitHubEnabled: Boolean!) {

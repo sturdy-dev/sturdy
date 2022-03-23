@@ -17,13 +17,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, Ref } from 'vue'
+import type { Ref } from 'vue'
+import { defineComponent, inject, ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import FirstTimeUserNoNameTakeover from '../components/user/FirstTimeUserNoNameTakeover.vue'
 import { Feature, LicenseMessageType } from '../__generated__/types'
 import Banner, { BANNER_MESSAGE_FRAGMENT } from '../organisms/licenses/Banner.vue'
 import Fullscreen, { FULLSCREEN_MESSAGE_FRAGMENT } from '../organisms/licenses/Fullscreen.vue'
-import { PaddedAppQuery, PaddedAppQueryVariables } from './__generated__/PaddedApp'
+import type { PaddedAppQuery, PaddedAppQueryVariables } from './__generated__/PaddedApp'
 import FirstTimeSetupSelfHosted from '../organisms/serverstatus/FirstTimeSetupSelfHosted.vue'
 import FirstTimeCreateOrganizationTakeover from '../components/user/FirstTimeCreateOrganizationTakeover.vue'
 

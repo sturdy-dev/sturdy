@@ -11,10 +11,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 import OrganizationCreate from '../../organisms/organization/OrganizationCreate.vue'
-import { FirstTimeCreateOrganizationTakeoverUserFragment } from './__generated__/FirstTimeCreateOrganizationTakeover'
+import type { FirstTimeCreateOrganizationTakeoverUserFragment } from './__generated__/FirstTimeCreateOrganizationTakeover'
 
 export const CREATE_ORGANIZATION_TAKEOVER_USER = gql`
   fragment FirstTimeCreateOrganizationTakeoverUser on User {

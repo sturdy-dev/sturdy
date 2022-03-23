@@ -1,12 +1,12 @@
 import { gql, useSubscription } from '@urql/vue'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
-import {
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type {
   UpdatedWorkspaceAuthorViewQuery,
   UpdatedWorkspaceAuthorViewQueryVariables,
   UpdatedWorkspaceSubscription,
   UpdatedWorkspaceSubscriptionVariables,
 } from './__generated__/useUpdatedWorkspace'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const UPDATED_WORKSPACE = gql`
   subscription UpdatedWorkspace($shortCodebaseID: ID, $workspaceID: ID) {

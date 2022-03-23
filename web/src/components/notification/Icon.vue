@@ -32,20 +32,21 @@
 </template>
 
 <script lang="ts">
-import { toRefs, defineComponent, PropType, inject, Ref, ref, computed } from 'vue'
+import { defineComponent, inject, ref, computed } from 'vue'
+import type { PropType, Ref } from 'vue'
 import { BellIcon as BellIconSolid } from '@heroicons/vue/solid'
 import NotificationOverlay from './Overlay.vue'
 import { NOTIFICATION_FRAGMENT as NOTIFICATION_DATA_FRAGMENT } from './Feed.vue'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import { useUpdatedNotifications } from '../../subscriptions/useUpdatedNotifications'
-import {
+import type {
   User,
   NotificationType,
   NotificationChannel,
   NotificationPreference,
 } from '../../__generated__/types'
 import mentionify from '../shared/mentionify'
-import {
+import type {
   NotificationFragment,
   NotificationIconQuery,
   NotificationIconQueryVariables,

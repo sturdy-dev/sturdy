@@ -18,15 +18,16 @@
 
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
-import { defineComponent, PropType, toRefs } from 'vue'
+import { defineComponent, toRefs } from 'vue'
+import type { PropType } from 'vue'
 import { useCreateOrUpdateBuildkiteIntegration } from '../../mutations/useCreateOrUpdateBuildkiteIntegration'
 import { useTriggerInstantIntegration } from '../../mutations/useTriggerInstantIntegration'
-import {
+import type {
   CreateOrUpdateBuildkiteIntegrationInput,
   IntegrationProvider,
   TriggerInstantIntegrationInput,
 } from '../../__generated__/types'
-import {
+import type {
   BuildkiteHeadChangeFragment,
   BuildkiteIntegrationTestQuery,
   BuildkiteIntegrationTestQueryVariables,

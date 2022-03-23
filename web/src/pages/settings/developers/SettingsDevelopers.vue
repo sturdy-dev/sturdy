@@ -20,7 +20,7 @@ import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../../molecules/Header.vue'
 import SettingsDeveloperCodebaseID from '../../../components/codebase/settings/SettingsDeveloperCodebaseID.vue'
-import {
+import type {
   SettingsDevelopersQuery,
   SettingsDevelopersQueryVariables,
 } from './__generated__/SettingsDevelopers'

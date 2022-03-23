@@ -8,7 +8,6 @@ import { retryExchange } from '@urql/exchange-retry'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { devtoolsExchange } from '@urql/devtools'
 import { createHead } from '@vueuse/head'
-import { RetryExchangeOptions } from '@urql/exchange-retry/dist/types/retryExchange'
 import { cacheExchange } from '@urql/exchange-graphcache'
 import { getIntrospectedSchema, minifyIntrospectionQuery } from '@urql/introspection'
 import { subscriptionUpdateResolvers } from './subscriptions/subscriptionUpdateResolvers'
@@ -31,15 +30,6 @@ export function createApp(ssrApp: boolean) {
 
   app.config.globalProperties.emitter = emitter
 
-  const options: RetryExchangeOptions = {
-    initialDelayMs: 1000,
-    maxDelayMs: 15000,
-    randomDelay: true,
-    maxNumberAttempts: 2,
-    retryIf: (err) =>
-      Boolean(err && err.networkError && err.networkError.message !== 'Unauthorized'),
-  }
-
   const exchanges = [
     dedupExchange,
     cacheExchange({
@@ -54,7 +44,14 @@ export function createApp(ssrApp: boolean) {
     ssrExchange({
       isClient: !import.meta.env.SSR,
     }),
-    retryExchange(options), // Use the retryExchange factory to add a new exchange
+    retryExchange({
+      initialDelayMs: 1000,
+      maxDelayMs: 15000,
+      randomDelay: true,
+      maxNumberAttempts: 2,
+      retryIf: (err) =>
+        Boolean(err && err.networkError && err.networkError.message !== 'Unauthorized'),
+    }), // Use the retryExchange factory to add a new exchange
   ]
 
   const host = import.meta.env.VITE_API_HOST

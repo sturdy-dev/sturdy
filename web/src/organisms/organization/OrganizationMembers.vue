@@ -77,9 +77,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref, PropType } from 'vue'
 import { gql } from '@urql/vue'
-import {
+import type {
   OrganizationMembersOrganizationFragment,
   OrganizationMembersUserFragment,
 } from './__generated__/OrganizationMembers'

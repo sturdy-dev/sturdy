@@ -40,13 +40,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, inject, Ref, ref, computed } from 'vue'
-import {
-  NotificationPreference,
-  NotificationType,
-  NotificationChannel,
-  Feature,
-} from '../../__generated__/types'
+import { defineComponent, inject, ref, computed } from 'vue'
+import type { PropType, Ref } from 'vue'
+import type { NotificationPreference } from '../../__generated__/types'
+import { NotificationType, NotificationChannel, Feature } from '../../__generated__/types'
 import { useUpdateNotificationPreference } from '../../mutations/useUpdateNotificationPreference'
 
 type Preference = {

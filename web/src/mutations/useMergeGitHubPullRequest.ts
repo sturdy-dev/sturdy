@@ -1,8 +1,8 @@
 import { gql, useMutation } from '@urql/vue'
-import { Ref } from 'vue'
-import { MergeGitHubPullRequestInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { Ref } from 'vue'
+import type { MergeGitHubPullRequestInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   MergeGitHubPullRequestMutation,
   MergeGitHubPullRequestMutationVariables,
 } from './__generated__/useMergeGitHubPullRequest'

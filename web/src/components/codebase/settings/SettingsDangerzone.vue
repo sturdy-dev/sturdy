@@ -30,9 +30,10 @@
 import HorizontalDivider from '../../shared/HorizontalDivider.vue'
 import { ArchiveIcon, LockOpenIcon, LockClosedIcon } from '@heroicons/vue/solid'
 import { gql, useMutation } from '@urql/vue'
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import Button from '../../shared/Button.vue'
-import { SettingsDangerzoneFragment } from './__generated__/SettingsDangerzone'
+import type { SettingsDangerzoneFragment } from './__generated__/SettingsDangerzone'
 import ConfirmModal from '../../../molecules/ConfirmModal.vue'
 
 export const SETTINGS_DANGERZONE = gql`

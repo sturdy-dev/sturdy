@@ -1,12 +1,12 @@
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   LandWorkspaceChangeMutation,
   LandWorkspaceChangeMutationVariables,
 } from './__generated__/useLandWorkspaceChange'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
-import { Ref } from 'vue'
-import { LandWorkspaceChangeInput } from '../__generated__/types'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { Ref } from 'vue'
+import type { LandWorkspaceChangeInput } from '../__generated__/types'
 
 export const LAND_WORKSPACE_CHANGE = gql<
   LandWorkspaceChangeMutation,

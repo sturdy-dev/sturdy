@@ -5,9 +5,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { useOnboarding } from './Onboarding.vue'
-import { Step } from './Step'
+import type { Step } from './Step'
 
 export default defineComponent({
   props: {

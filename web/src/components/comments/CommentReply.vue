@@ -29,15 +29,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import Button from '../shared/Button.vue'
 import TextareaAutosize from '../shared/TextareaAutosize.vue'
-import { Comment } from '../differ/event'
-import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type { Comment } from '../differ/event'
+import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
 import { useCreateComment } from '../../mutations/useCreateComment'
 import Spinner from '../shared/Spinner.vue'
-import { ConvertEmojiToColons } from '../emoji/emoji'
-import { CommentState, SetCommentComposingReply } from './CommentState'
+import type { ConvertEmojiToColons } from '../emoji/emoji'
+import type { CommentState, SetCommentComposingReply } from './CommentState'
 
 export default defineComponent({
   components: { Button, TextareaAutosize, Spinner },

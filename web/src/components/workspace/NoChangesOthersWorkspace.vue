@@ -12,9 +12,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import gql from 'graphql-tag'
-import { NoChangesOthersWorkspaceFragment } from './__generated__/NoChangesOthersWorkspace'
+import type { NoChangesOthersWorkspaceFragment } from './__generated__/NoChangesOthersWorkspace'
 import { ChatAlt2Icon } from '@heroicons/vue/outline'
 
 export const NO_CHANGES_OTHERS_WORKSPACE = gql`

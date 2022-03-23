@@ -278,26 +278,27 @@
 
 <script lang="ts">
 import { CheckIcon, PlusIcon, XIcon } from '@heroicons/vue/solid'
-import { defineComponent, PropType, reactive } from 'vue'
-import { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
+import { defineComponent, reactive } from 'vue'
+import type { PropType } from 'vue'
+import type { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
 import DiffTable, { HUNK_FRAGMENT as DIFF_TABLE_HUNK_FRAGMENT } from './DiffTable.vue'
 import Button from '../shared/Button.vue'
 import * as Diff2Html from 'diff2html'
 import DiffHeader, { DIFF_HEADER_FILE_DIFF, DIFF_HEADER_SUGGESTIONS } from './DiffHeader.vue'
 import '../../highlight/highlight_common_languages'
 import highlight from '../../highlight/highlight'
-import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
 import ReviewComment from './ReviewComment.vue'
 import ReviewNewComment from './ReviewNewComment.vue'
-import {
+import type {
   ReviewNewCommentChangeFragment,
   ReviewNewCommentViewFragment,
   ReviewNewCommentWorkspaceFragment,
 } from './__generated__/ReviewNewComment'
-import { CommentState } from '../comments/CommentState'
-import { DifferState, SetFileIsHiddenEvent } from './DifferState'
+import type { CommentState } from '../comments/CommentState'
+import type { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
-import {
+import type {
   DifferFile_TopCommentFragment,
   DifferFile_FileDiffFragment,
   DifferFile_SuggestionFragment,

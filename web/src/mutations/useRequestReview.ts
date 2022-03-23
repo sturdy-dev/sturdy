@@ -1,13 +1,13 @@
-import { RequestReviewInput } from '../__generated__/types'
+import type { RequestReviewInput } from '../__generated__/types'
 import { gql, useMutation } from '@urql/vue'
-import {
+import type {
   RequestReviewMutation,
   RequestReviewMutationVariables,
   RequestReviewWorkspaceReviewsQuery,
   RequestReviewWorkspaceReviewsQueryVariables,
 } from './__generated__/useRequestReview'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const REQUEST_REVIEW = gql`
   mutation RequestReview($input: RequestReviewInput!) {

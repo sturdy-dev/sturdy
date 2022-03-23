@@ -19,9 +19,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from 'graphql-tag'
-import { SetupUserViewsFragment } from '../../components/codebase/__generated__/SetupSturdyGoToWorkspaceStep'
+import type { SetupUserViewsFragment } from './__generated__/SetupSturdyGoToWorkspaceStep'
 import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
 
 export const SETUP_USER_VIEWS = gql`

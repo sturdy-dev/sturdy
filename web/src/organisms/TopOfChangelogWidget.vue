@@ -25,9 +25,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, toRefs } from 'vue'
+import { defineComponent, toRefs } from 'vue'
+import type { PropType } from 'vue'
 import gql from 'graphql-tag'
-import { TopOfChangelogFragment } from './__generated__/TopOfChangelogWidget'
+import type { TopOfChangelogFragment } from './__generated__/TopOfChangelogWidget'
 import { ArrowRightIcon } from '@heroicons/vue/outline'
 import time from '../time'
 import { useUpdatedChangesStatuses } from '../subscriptions/useUpdatedChangesStatuses'

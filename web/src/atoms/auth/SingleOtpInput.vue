@@ -17,7 +17,8 @@
 </template>
 
 <script lang="ts">
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 
 const isCodeNumeric = (charCode: number) =>
   (charCode >= 48 && charCode <= 57) || (charCode >= 96 && charCode <= 105)

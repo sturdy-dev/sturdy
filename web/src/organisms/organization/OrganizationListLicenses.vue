@@ -59,9 +59,10 @@
 
 <script lang="ts">
 import { CalendarIcon, LocationMarkerIcon, UsersIcon } from '@heroicons/vue/solid'
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import { gql } from '@urql/vue'
-import { OrganizationListSingleLicenseFragment } from './__generated__/OrganizationListLicenses'
+import type { OrganizationListSingleLicenseFragment } from './__generated__/OrganizationListLicenses'
 import Pill from '../../components/shared/Pill.vue'
 import { Banner } from '../../atoms'
 

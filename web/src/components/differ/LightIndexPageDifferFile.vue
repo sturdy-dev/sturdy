@@ -103,8 +103,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive } from 'vue'
-import { Block, HighlightedBlock } from './event'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { Block, HighlightedBlock } from './event'
 import * as Diff2Html from 'diff2html'
 import DiffHeader from './DiffHeader.vue'
 import highlight from '../../highlight/highlight'

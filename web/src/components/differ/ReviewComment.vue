@@ -56,16 +56,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { Comment } from './event'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
+import type { Comment } from './event'
 import ReviewCommentChild from './ReviewCommentChild.vue'
 import { useUpdateComment } from '../../mutations/useUpdateComment'
 import { useDeleteComment } from '../../mutations/useDeleteComment'
-import { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
 import CommentReply from '../comments/CommentReply.vue'
 import Avatar from '../shared/Avatar.vue'
 import AvatarGroup from '../shared/AvatarGroup.vue'
-import { CommentState, SetCommentExpandedEvent } from '../comments/CommentState'
+import type { CommentState, SetCommentExpandedEvent } from '../comments/CommentState'
 
 export default defineComponent({
   components: {

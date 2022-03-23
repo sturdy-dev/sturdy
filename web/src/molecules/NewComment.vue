@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 
 import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
@@ -64,7 +64,7 @@ import TextareaAutosize, { MEMBER_FRAGMENT } from '../components/shared/Textarea
 import { Banner } from '../atoms'
 import { ConvertEmojiToColons } from '../components/emoji/emoji'
 
-import { AuthorFragment } from '../components/shared/__generated__/AvatarHelper'
+import type { AuthorFragment } from '../components/shared/__generated__/AvatarHelper'
 
 import { useCreateComment } from '../mutations/useCreateComment'
 

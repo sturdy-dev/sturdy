@@ -1,12 +1,12 @@
 import { gql, useMutation } from '@urql/vue'
-import { Ref } from 'vue'
-import { PushCodebaseInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { Ref } from 'vue'
+import type { PushCodebaseInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   PushCodebaseMutation,
   PushCodebaseMutationVariables,
 } from './__generated__/usePushCodebase'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const PUSH_CODEBASE = gql<PushCodebaseMutation, DeepMaybeRef<PushCodebaseMutationVariables>>`
   mutation PushCodebase($input: PushCodebaseInput!) {

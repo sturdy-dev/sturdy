@@ -1,11 +1,11 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import gql from 'graphql-tag'
 import { useMutation } from '@urql/vue'
-import {
+import type {
   DeleteCommentMutation,
   DeleteCommentMutationVariables,
 } from './__generated__/useDeleteComment'
-import { DeepMaybeRef, MaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef, MaybeRef } from '@vueuse/core'
 
 const DELETE_COMMENT = gql`
   mutation DeleteComment($commentID: ID!) {

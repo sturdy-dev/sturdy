@@ -66,13 +66,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref, toRef } from 'vue'
+import { defineComponent, ref, toRef } from 'vue'
+import type { Ref } from 'vue'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { SelectorIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
 import Avatar from '../shared/Avatar.vue'
 import { useRequestReview } from '../../mutations/useRequestReview'
-import { WorkspaceRequestReviewCodebaseQuery } from './__generated__/WorkspaceRequestReview'
+import type { WorkspaceRequestReviewCodebaseQuery } from './__generated__/WorkspaceRequestReview'
 
 export default defineComponent({
   components: {

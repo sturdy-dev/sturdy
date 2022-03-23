@@ -56,7 +56,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { CheckIcon } from '@heroicons/vue/solid'
 
 export type Status = 'pending' | 'current' | 'completed'

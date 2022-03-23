@@ -69,8 +69,9 @@
 
 <script lang="ts">
 import gql from 'graphql-tag'
-import { defineComponent, onUnmounted, PropType, ref } from 'vue'
-import { ViewStatusIndicatorFragment } from './__generated__/ViewStatusIndicator'
+import { defineComponent, onUnmounted, ref } from 'vue'
+import type { PropType } from 'vue'
+import type { ViewStatusIndicatorFragment } from './__generated__/ViewStatusIndicator'
 import { ViewStatusState } from '../__generated__/types'
 import { ChevronDoubleUpIcon, DesktopComputerIcon } from '@heroicons/vue/outline'
 import Spinner from './shared/Spinner.vue'

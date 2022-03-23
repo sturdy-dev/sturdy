@@ -93,7 +93,7 @@ import { gql, useMutation, useQuery } from '@urql/vue'
 import time from '../../time'
 import Avatar from '../shared/Avatar.vue'
 import { defineComponent } from 'vue'
-import {
+import type {
   RecentlyArchivedWorkspaceFragment,
   RecentlyArchivedWorkspacesQuery,
   RecentlyArchivedWorkspacesQueryVariables,

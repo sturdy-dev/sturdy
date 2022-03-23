@@ -4,7 +4,8 @@
 
 <script lang="ts">
 import VerticalNavigation from '../VerticalNavigation.vue'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { Feature } from '../../__generated__/types'
 

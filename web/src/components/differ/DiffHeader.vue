@@ -112,9 +112,10 @@ import DifferAddButton from './DifferAddButton.vue'
 import { CheckCircleIcon, ClockIcon, DocumentTextIcon } from '@heroicons/vue/outline'
 import RouterLinkButton from '../shared/RouterLinkButton.vue'
 import Avatar from '../shared/Avatar.vue'
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-import {
+import type {
   DiffHeader_FileDiffFragment,
   DiffHeader_SuggestionsFragment,
 } from './__generated__/DiffHeader'

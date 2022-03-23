@@ -1,3 +1,11 @@
+declare global {
+  interface Window {
+    ipc?: IPC
+    appEnvironment?: AppEnvironment
+    mutagenIPC?: MutagenIPC
+  }
+}
+
 interface IPC {
   isAuthenticated: () => Promise<boolean>
   canGoBack: () => Promise<boolean>
@@ -20,9 +28,8 @@ interface AppEnvironment {
   platform: 'linux' | 'darwin' | 'win32'
 }
 
-declare global {
-  interface Window {
-    ipc?: IPC
-    appEnvironment?: AppEnvironment
-  }
+interface MutagenIPC {
+  createView: (workspaceId: string, mountPath: string) => Promise<string>
+  createNewViewWithDialog: (workspaceId: string) => Promise<string>
+  version?: string
 }

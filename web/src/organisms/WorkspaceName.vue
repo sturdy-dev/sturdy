@@ -29,9 +29,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, toRefs } from 'vue'
+import { defineComponent, toRefs } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-import { WorkspaceName_WorkspaceFragment } from './__generated__/WorkspaceName'
+import type { WorkspaceName_WorkspaceFragment } from './__generated__/WorkspaceName'
 import { Slug } from '../slug'
 import { useUpdateWorkspace } from '../mutations/useUpdateWorkspace'
 

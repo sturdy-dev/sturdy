@@ -25,10 +25,10 @@
 
 <script lang="ts">
 import { UserCircleIcon } from '@heroicons/vue/solid'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 import time from '../../time'
 import { gql } from '@urql/vue'
-import { WorkspaceActivityRequestedReviewFragment } from './__generated__/ActivityRequestedReview'
+import type { WorkspaceActivityRequestedReviewFragment } from './__generated__/ActivityRequestedReview'
 
 export const WORKSPACE_ACTIVITY_REQUESTED_REVIEW_FRAGMENT = gql`
   fragment WorkspaceActivityRequestedReview on WorkspaceRequestedReviewActivity {

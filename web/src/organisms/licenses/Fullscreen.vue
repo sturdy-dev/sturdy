@@ -8,8 +8,8 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { PropType } from 'vue'
-import { FullscreenLicenseMessageFragment } from './__generated__/Fullscreen'
+import type { PropType } from 'vue'
+import type { FullscreenLicenseMessageFragment } from './__generated__/Fullscreen'
 
 export const FULLSCREEN_MESSAGE_FRAGMENT = gql`
   fragment FullscreenLicenseMessage on LicenseMessage {

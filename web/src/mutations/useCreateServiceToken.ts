@@ -1,11 +1,11 @@
 import { gql, useMutation } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   CreateServiceTokenMutation,
   CreateServiceTokenMutationVariables,
 } from './__generated__/useCreateServiceToken'
-import { CreateServiceTokenInput, ServiceToken } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
+import type { CreateServiceTokenInput, ServiceToken } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 const CREATE_SERVICE_TOKEN = gql`
   mutation CreateServiceToken($input: CreateServiceTokenInput!) {

@@ -1,12 +1,12 @@
 import { gql, useMutation } from '@urql/vue'
-import { UpdateInstallationInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import {
+import type { UpdateInstallationInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type {
   CreateOrganizationMutation,
   CreateOrganizationMutationVariables,
 } from './__generated__/useCreateOrganization'
-import {
+import type {
   UpdateInstallationMutation,
   UpdateInstallationMutationVariables,
 } from './__generated__/useUpdateInstallation'

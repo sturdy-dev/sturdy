@@ -20,10 +20,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import { gql } from '@urql/vue'
 import LinkButton from '../components/shared/LinkButton.vue'
-import {
+import type {
   GitHubConnectButton_GitHubAccountFragment,
   GitHubConnectButton_GitHubAppFragment,
 } from './__generated__/GitHubConnectButton'

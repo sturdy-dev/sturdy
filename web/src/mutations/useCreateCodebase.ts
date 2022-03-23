@@ -1,13 +1,13 @@
 import { gql, useMutation } from '@urql/vue'
-import { CreateCodebaseInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { CreateCodebaseInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   CreateCodebaseMutation,
   CreateCodebaseMutationVariables,
   CreateCodebaseOrganizationCodebasesQuery,
   CreateCodebaseOrganizationCodebasesQueryVariables,
 } from './__generated__/useCreateCodebase'
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 
 const CREATE_CODEBASE = gql`
   mutation CreateCodebase($input: CreateCodebaseInput!) {

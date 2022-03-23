@@ -3,7 +3,7 @@
  */
 
 import { StepQueue } from './StepQueue'
-import { Step } from './Step'
+import type { Step } from './Step'
 
 function makeStep(id = Math.random().toString(16)): Step {
   const highlightedElement = document.createElement('div')

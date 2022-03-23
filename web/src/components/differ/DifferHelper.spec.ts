@@ -1,5 +1,5 @@
 import { getIndicesOf, searchMatches } from './DifferHelper'
-import { Hunk } from '../../__generated__/types'
+import type { Hunk } from '../../__generated__/types'
 
 describe('DifferHelper', () => {
   it('get indexes length', () => {

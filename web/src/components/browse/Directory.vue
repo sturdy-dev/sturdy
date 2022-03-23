@@ -41,14 +41,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-import { OpenDirectoryFragment } from './__generated__/Directory'
+import type { OpenDirectoryFragment } from './__generated__/Directory'
 import { DocumentTextIcon } from '@heroicons/vue/outline'
 import { FolderIcon } from '@heroicons/vue/solid'
 import File, { OPEN_FILE } from './File.vue'
 import DirectoryBreadcrumb from './DirectoryBreadcrumb.vue'
-import { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
+import type { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 
 export const OPEN_DIRECTORY = gql`
   fragment OpenDirectory on Directory {

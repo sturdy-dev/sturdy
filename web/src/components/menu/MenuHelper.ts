@@ -1,4 +1,4 @@
-import {
+import type {
   PresenceFragment as WorkspacePresence,
   StackedMenu_ViewFragment as View,
   StackedMenu_WorkspaceAuthorFragment as Author,

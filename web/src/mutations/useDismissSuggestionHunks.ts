@@ -1,7 +1,7 @@
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 import { gql, useMutation } from '@urql/vue'
-import { DismissSuggestionHunksInput } from '../__generated__/types'
-import {
+import type { DismissSuggestionHunksInput } from '../__generated__/types'
+import type {
   DismissSuggestionHunksMutation,
   DismissSuggestionHunksMutationVariables,
 } from './__generated__/useDismissSuggestionHunks'

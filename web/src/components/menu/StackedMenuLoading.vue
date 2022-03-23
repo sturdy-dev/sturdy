@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { PlusSmIcon } from '@heroicons/vue/solid'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
 type placeholder = {
   width: string

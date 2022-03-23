@@ -10,10 +10,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import OrganizationCreate from '../organization/OrganizationCreate.vue'
 import { gql } from '@urql/vue'
-import { FirstTimeSetupSelfHostedUserFragment } from './__generated__/FirstTimeSetupSelfHosted'
+import type { FirstTimeSetupSelfHostedUserFragment } from './__generated__/FirstTimeSetupSelfHosted'
 
 export const FIRST_TIME_USER = gql`
   fragment FirstTimeSetupSelfHostedUser on User {

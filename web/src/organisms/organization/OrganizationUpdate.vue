@@ -12,8 +12,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { PropType } from 'vue/dist/vue'
-import { OrganizationMembersOrganizationFragment } from './__generated__/OrganizationMembers'
+import type { PropType } from 'vue/dist/vue'
+import type { OrganizationMembersOrganizationFragment } from './__generated__/OrganizationMembers'
 import TextInput from '../../molecules/TextInput.vue'
 import Button from '../../components/shared/Button.vue'
 import { useUpdateOrganization } from '../../mutations/useUpdateOrganization'

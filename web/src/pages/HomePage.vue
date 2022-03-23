@@ -50,10 +50,11 @@
 import AvatarGroup from '../components/shared/AvatarGroup.vue'
 import { gql, useQuery } from '@urql/vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import { computed, defineComponent, inject, ref, Ref } from 'vue'
+import { computed, defineComponent, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../__generated__/types'
 import { ChevronRightIcon } from '@heroicons/vue/solid'
-import { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
+import type { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
 import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 
 export default defineComponent({

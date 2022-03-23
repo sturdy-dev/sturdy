@@ -1,8 +1,8 @@
-import { DeepMaybeRef } from '@vueuse/core'
+import type { DeepMaybeRef } from '@vueuse/core'
 import { gql, useMutation } from '@urql/vue'
-import { UpdateResolver } from '@urql/exchange-graphcache'
-import { CreateSuggestionInput } from '../__generated__/types'
-import {
+import type { UpdateResolver } from '@urql/exchange-graphcache'
+import type { CreateSuggestionInput } from '../__generated__/types'
+import type {
   CreateSuggestionMutation,
   CreateSuggestionMutationVariables,
   CreateSuggestionSuggestionFragment,

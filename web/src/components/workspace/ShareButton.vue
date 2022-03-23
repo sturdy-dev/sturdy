@@ -160,9 +160,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, PropType, ref } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
 import { gql } from '@urql/vue'
-import { ShareButtonFragment } from './__generated__/ShareButton'
+import type { ShareButtonFragment } from './__generated__/ShareButton'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
 import Button from '../shared/Button.vue'
 import Spinner from '../shared/Spinner.vue'

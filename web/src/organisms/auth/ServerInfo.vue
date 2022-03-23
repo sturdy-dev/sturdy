@@ -14,9 +14,10 @@
 
 <script lang="ts" setup>
 import { gql } from '@urql/vue'
-import { computed, defineProps, inject, Ref, ref } from 'vue'
+import { computed, defineProps, inject, ref } from 'vue'
+import type { Ref } from 'vue'
 import { Feature } from '../../__generated__/types'
-import { ServerInfoFragment } from './__generated__/ServerInfo'
+import type { ServerInfoFragment } from './__generated__/ServerInfo'
 
 const SERVER_INFO = gql`
   fragment ServerInfo on Installation {

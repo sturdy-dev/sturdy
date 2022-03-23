@@ -6,9 +6,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import gql from 'graphql-tag'
-import { ChangeCommentsFragment } from './__generated__/ChangeCommentsIndicator'
+import type { ChangeCommentsFragment } from './__generated__/ChangeCommentsIndicator'
 import { AnnotationIcon } from '@heroicons/vue/solid'
 
 export const CHANGE_COMMENTS = gql`

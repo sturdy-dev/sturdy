@@ -32,8 +32,9 @@ import Avatar from '../shared/Avatar.vue'
 import { AUTHOR } from '../shared/AvatarHelper'
 import Tooltip from '../shared/Tooltip.vue'
 import { gql, useMutation } from '@urql/vue'
-import { computed, defineComponent, onUnmounted, PropType, ref, toRefs, watch } from 'vue'
-import { Presense_WorkspaceFragment } from './__generated__/Presence'
+import { computed, defineComponent, onUnmounted, ref, toRefs, watch } from 'vue'
+import type { PropType } from 'vue'
+import type { Presence_WorkspaceFragment } from './__generated__/Presence'
 import { useUpdatedWorkspacePresence } from '../../subscriptions/useUpdatedWorkspacePresence'
 
 export const WORKSPACE_FRAGMENT = gql`
@@ -55,7 +56,7 @@ export default defineComponent({
   components: { Tooltip, Avatar },
   props: {
     workspace: {
-      type: Object as PropType<Presense_WorkspaceFragment>,
+      type: Object as PropType<Presence_WorkspaceFragment>,
       required: true,
     },
     user: {

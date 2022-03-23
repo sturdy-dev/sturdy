@@ -5,7 +5,7 @@
         <div>
           <div class="flex items-center">
             <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
-            <CreateViewAndWorkspace
+            <ConnectNewDirectory
               v-if="showAppConnectDirectory"
               :codebase-id="data.codebase.id"
               :codebase-slug="codebaseSlug"
@@ -104,7 +104,8 @@
 <script lang="ts">
 import { gql, useQuery } from '@urql/vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, defineComponent, inject, onUnmounted, PropType, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, inject, onUnmounted, ref, watch } from 'vue'
+import type { PropType, Ref } from 'vue'
 import SetupNewView from '../components/codebase/SetupNewView.vue'
 import Button from '../components/shared/Button.vue'
 import { useHead } from '@vueuse/head'
@@ -114,14 +115,15 @@ import { useUpdatedWorkspaceByCodebase } from '../subscriptions/useUpdatedWorksp
 import Directory, { OPEN_DIRECTORY } from '../components/browse/Directory.vue'
 import TopOfChangelogWidget, { TOP_OF_CHANGELOG } from '../organisms/TopOfChangelogWidget.vue'
 import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
-import CreateViewAndWorkspace from '../components/codebase/CreateViewAndWorkspace.vue'
+import ConnectNewDirectory from '../organisms/electron/ConnectNewDirectory.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
 import PaddedAppRightSidebar from '../layouts/PaddedAppRightSidebar.vue'
-import {
+import type {
   CodebaseHomeCodebaseQuery,
   CodebaseHomeCodebaseQueryVariables,
 } from './__generated__/CodebaseHome'
-import { Feature, User } from '../__generated__/types'
+import { Feature } from '../__generated__/types'
+import type { User } from '../__generated__/types'
 import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
 import AssembleTheTeam from '../organisms/AssembleTheTeam.vue'
 import PushPullCodebase, {
@@ -144,7 +146,7 @@ export default defineComponent({
     ImportFromGit,
     TopOfChangelogWidget,
     NoFilesCodebase,
-    CreateViewAndWorkspace,
+    ConnectNewDirectory,
     WorkspaceList,
     RouterLinkButton,
   },

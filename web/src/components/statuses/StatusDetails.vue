@@ -50,11 +50,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 import { StatusType } from '../../__generated__/types'
 import StatusBadge, { STATUS_FRAGMENT } from './StatusBadge.vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { StatusFragment } from './__generated__/StatusBadge'
+import type { StatusFragment } from './__generated__/StatusBadge'
 
 export { STATUS_FRAGMENT }
 

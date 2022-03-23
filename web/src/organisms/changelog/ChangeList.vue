@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts">
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
 import { ArrowRightIcon } from '@heroicons/vue/solid'
 import ChangelogChange, { CHANGELOG_CHANGE_FRAGMENT } from '../../molecules/ChangelogChange.vue'
 
-import { Changelog_ChangeFragment } from './__generated__/ChangeList'
+import type { Changelog_ChangeFragment } from './__generated__/ChangeList'
 
 export { CHANGELOG_CHANGE_FRAGMENT }
 

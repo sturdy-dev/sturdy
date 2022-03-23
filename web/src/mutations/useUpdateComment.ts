@@ -1,9 +1,9 @@
-import { UpdateResolver } from '@urql/exchange-graphcache'
+import type { UpdateResolver } from '@urql/exchange-graphcache'
 import { useMutation } from '@urql/vue'
 import gql from 'graphql-tag'
-import { UpdateCommentInput } from '../__generated__/types'
-import { DeepMaybeRef } from '@vueuse/core'
-import {
+import type { UpdateCommentInput } from '../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
   UpdateCommentMutation,
   UpdateCommentMutationVariables,
 } from './__generated__/useUpdateComment'

@@ -4,12 +4,12 @@
 </template>
 
 <script lang="ts">
-import { OpenFileOrDirectoryFragment } from './__generated__/FileOrDirectory'
-import { PropType } from 'vue'
+import type { OpenFileOrDirectoryFragment } from './__generated__/FileOrDirectory'
+import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 import Directory, { OPEN_DIRECTORY } from './Directory.vue'
 import File, { OPEN_FILE } from './File.vue'
-import { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
+import type { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 
 export const OPEN_FILE_OR_DIRECTORY = gql`
   fragment OpenFileOrDirectory on FileOrDirectory {

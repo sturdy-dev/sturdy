@@ -7,7 +7,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import linkify from 'linkify-string'
 import mentionify from './mentionify'
 import { EmojiConvertor } from 'emoji-js'
