@@ -503,4 +503,22 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'docsCliInstall',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
+  {
+    path: '/docs/integrations/git',
+    component: () => import('./pages/docs/git-integration/ConnectGit.vue'),
+    name: 'docsIntegrationsGit',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/docs/integrations/git/azure-devops',
+    component: () => import('./pages/docs/git-integration/Azure.vue'),
+    name: 'docsIntegrationsGitAzureDevops',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/docs/integrations/git/gitlab',
+    component: () => import('./pages/docs/git-integration/GitLab.vue'),
+    name: 'docsIntegrationsGitGitLab',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
 ]
