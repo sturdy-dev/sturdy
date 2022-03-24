@@ -38,6 +38,7 @@ type RootResolver struct {
 	resolvers.CodebaseGitHubIntegrationRootResolver
 	resolvers.CodebaseRootResolver
 	resolvers.CommentRootResolver
+	resolvers.CryptoRootResolver
 	resolvers.FeaturesRootResolver
 	resolvers.GitHubAppRootResolver
 	resolvers.GitHubPullRequestRootResolver
@@ -77,6 +78,7 @@ func NewRootResolver(
 	codebaseGitHubIntegrationResolver resolvers.CodebaseGitHubIntegrationRootResolver,
 	codebaseResolver resolvers.CodebaseRootResolver,
 	commentsResolver resolvers.CommentRootResolver,
+	cryptoRootResolver resolvers.CryptoRootResolver,
 	featuresRootResolver resolvers.FeaturesRootResolver,
 	gitHubRootResolver resolvers.GitHubRootResolver,
 	githubAppResolver resolvers.GitHubAppRootResolver,
@@ -111,6 +113,7 @@ func NewRootResolver(
 		CodebaseGitHubIntegrationRootResolver:   codebaseGitHubIntegrationResolver,
 		CodebaseRootResolver:                    codebaseResolver,
 		CommentRootResolver:                     commentsResolver,
+		CryptoRootResolver:                      cryptoRootResolver,
 		FeaturesRootResolver:                    featuresRootResolver,
 		GitHubAppRootResolver:                   githubAppResolver,
 		GitHubPullRequestRootResolver:           prResolver,

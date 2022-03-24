@@ -17,6 +17,8 @@ import (
 	service_change "getsturdy.com/api/pkg/changes/service"
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/crypto"
+	db_crypto "getsturdy.com/api/pkg/crypto/db"
 	"getsturdy.com/api/pkg/remote"
 	db_remote "getsturdy.com/api/pkg/remote/enterprise/db"
 	"getsturdy.com/api/pkg/remote/service"
@@ -29,14 +31,15 @@ import (
 )
 
 type EnterpriseService struct {
-	repo             db_remote.Repository
-	executorProvider executor.Provider
-	logger           *zap.Logger
-	workspaceReader  db_workspaces.WorkspaceReader
-	workspaceWriter  db_workspaces.WorkspaceWriter
-	snap             snapshotter.Snapshotter
-	changeService    *service_change.Service
-	analyticsService *analytics_service.Service
+	repo              db_remote.Repository
+	executorProvider  executor.Provider
+	logger            *zap.Logger
+	workspaceReader   db_workspaces.WorkspaceReader
+	workspaceWriter   db_workspaces.WorkspaceWriter
+	snap              snapshotter.Snapshotter
+	changeService     *service_change.Service
+	analyticsService  *analytics_service.Service
+	keyPairRepository db_crypto.KeyPairRepository
 }
 
 var _ service.Service = (*EnterpriseService)(nil)
@@ -50,16 +53,18 @@ func New(
 	snap snapshotter.Snapshotter,
 	changeService *service_change.Service,
 	analyticsService *analytics_service.Service,
+	keyPairRepository db_crypto.KeyPairRepository,
 ) *EnterpriseService {
 	return &EnterpriseService{
-		repo:             repo,
-		executorProvider: executorProvider,
-		logger:           logger,
-		workspaceReader:  workspaceReader,
-		workspaceWriter:  workspaceWriter,
-		snap:             snap,
-		changeService:    changeService,
-		analyticsService: analyticsService,
+		repo:              repo,
+		executorProvider:  executorProvider,
+		logger:            logger,
+		workspaceReader:   workspaceReader,
+		workspaceWriter:   workspaceWriter,
+		snap:              snap,
+		changeService:     changeService,
+		analyticsService:  analyticsService,
+		keyPairRepository: keyPairRepository,
 	}
 }
 
@@ -74,14 +79,35 @@ func (svc *EnterpriseService) Get(ctx context.Context, codebaseID codebases.ID) 
 type SetRemoteInput struct {
 	Name              string
 	URL               string
-	BasicAuthUsername string
-	BasicAuthPassword string
 	TrackedBranch     string
+	BasicAuthUsername *string
+	BasicAuthPassword *string
+	KeyPairID         *crypto.KeyPairID
 	BrowserLinkRepo   string
 	BrowserLinkBranch string
 }
 
 func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebases.ID, input *SetRemoteInput) (*remote.Remote, error) {
+	hasBasic := input.BasicAuthUsername != nil && input.BasicAuthPassword != nil
+	hasKeyPair := input.KeyPairID != nil
+
+	if hasBasic && hasKeyPair {
+		return nil, fmt.Errorf("basic auth and keypair auth are mutually exclusive")
+	}
+	if !hasBasic && !hasKeyPair {
+		return nil, fmt.Errorf("no auth method set")
+	}
+
+	// make sure that only the relevant fields are set
+	if hasBasic {
+		input.KeyPairID = nil
+	} else if hasKeyPair {
+		input.BasicAuthUsername = nil
+		input.BasicAuthPassword = nil
+	} else {
+		return nil, fmt.Errorf("unexpected auth configuration")
+	}
+
 	// update existing if exists
 	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
 	switch {
@@ -89,9 +115,10 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 		// update
 		rep.Name = input.Name
 		rep.URL = input.URL
+		rep.TrackedBranch = input.TrackedBranch
 		rep.BasicAuthUsername = input.BasicAuthUsername
 		rep.BasicAuthPassword = input.BasicAuthPassword
-		rep.TrackedBranch = input.TrackedBranch
+		rep.KeyPairID = input.KeyPairID
 		rep.BrowserLinkRepo = input.BrowserLinkRepo
 		rep.BrowserLinkBranch = input.BrowserLinkBranch
 		if err := svc.repo.Update(ctx, rep); err != nil {
@@ -108,9 +135,10 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 			CodebaseID:        codebaseID,
 			Name:              input.Name,
 			URL:               input.URL,
+			TrackedBranch:     input.TrackedBranch,
 			BasicAuthUsername: input.BasicAuthUsername,
 			BasicAuthPassword: input.BasicAuthPassword,
-			TrackedBranch:     input.TrackedBranch,
+			KeyPairID:         input.KeyPairID,
 			BrowserLinkRepo:   input.BrowserLinkRepo,
 			BrowserLinkBranch: input.BrowserLinkBranch,
 		}
@@ -143,13 +171,13 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdy-%s", localBranchName, ws.ID)
 
+	creds, err := svc.newCredentialsCallback(ctx, rem)
+	if err != nil {
+		return fmt.Errorf("could not get creds: %w", err)
+	}
+
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspec(
-			svc.logger,
-			rem.URL,
-			newCredentialsCallback(rem.BasicAuthPassword, rem.BasicAuthPassword),
-			[]string{refspec},
-		)
+		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
 		if err != nil {
 			return fmt.Errorf("failed to push: %w", err)
 		}
@@ -173,13 +201,13 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 
 	refspec := fmt.Sprintf("refs/heads/sturdytrunk:refs/heads/%s", rem.TrackedBranch)
 
+	creds, err := svc.newCredentialsCallback(ctx, rem)
+	if err != nil {
+		return fmt.Errorf("could not get creds: %w", err)
+	}
+
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspec(
-			svc.logger,
-			rem.URL,
-			newCredentialsCallback(rem.BasicAuthPassword, rem.BasicAuthPassword),
-			[]string{refspec},
-		)
+		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
 		if err != nil {
 			return fmt.Errorf("failed to push: %w", err)
 		}
@@ -203,12 +231,13 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdytrunk", rem.TrackedBranch)
 
+	creds, err := svc.newCredentialsCallback(ctx, rem)
+	if err != nil {
+		return fmt.Errorf("could not get creds: %w", err)
+	}
+
 	pull := func(repo vcs.RepoGitWriter) error {
-		err := repo.FetchUrlRemoteWithCreds(
-			rem.URL,
-			newCredentialsCallback(rem.BasicAuthPassword, rem.BasicAuthPassword),
-			[]string{refspec},
-		)
+		err := repo.FetchUrlRemoteWithCreds(rem.URL, creds, []string{refspec})
 		if err != nil {
 			return fmt.Errorf("failed to pull: %w", err)
 		}
@@ -233,11 +262,26 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	return nil
 }
 
-func newCredentialsCallback(username, password string) git.CredentialsCallback {
-	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
-		cred, _ := git.NewCredentialUserpassPlaintext(username, password)
-		return cred, nil
+func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (git.CredentialsCallback, error) {
+	var cred *git.Credential
+	var err error
+
+	if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
+		cred, err = git.NewCredentialUserpassPlaintext(*rem.BasicAuthUsername, *rem.BasicAuthPassword)
+	} else if rem.KeyPairID != nil {
+		kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
+		if kpErr != nil {
+			return nil, fmt.Errorf("could not get kp: %w", kpErr)
+		}
+		cred, err = git.NewCredentialSSHKeyFromMemory("git", string(kp.PublicKey), string(kp.PrivateKey), "")
 	}
+	if err != nil {
+		return nil, fmt.Errorf("could not create credentials callback: %w", err)
+	}
+
+	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
+		return cred, nil
+	}, nil
 }
 
 func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (commitSha string, err error) {

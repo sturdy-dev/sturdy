@@ -1,13 +1,18 @@
 package graphql
 
 import (
+	"context"
+
 	"github.com/graph-gophers/graphql-go"
 
+	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/remote"
 )
 
 type resolver struct {
 	remote *remote.Remote
+	root   *remoteRootResolver
 }
 
 func (r *resolver) ID() graphql.ID {
@@ -26,11 +31,11 @@ func (r *resolver) TrackedBranch() string {
 	return r.remote.TrackedBranch
 }
 
-func (r *resolver) BasicAuthUsername() string {
+func (r *resolver) BasicAuthUsername() *string {
 	return r.remote.BasicAuthUsername
 }
 
-func (r *resolver) BasicAuthPassword() string {
+func (r *resolver) BasicAuthPassword() *string {
 	return r.remote.BasicAuthPassword
 }
 
@@ -40,4 +45,15 @@ func (r *resolver) BrowserLinkRepo() string {
 
 func (r *resolver) BrowserLinkBranch() string {
 	return r.remote.BrowserLinkBranch
+}
+
+func (r *resolver) KeyPair(ctx context.Context) (resolvers.KeyPairResolver, error) {
+	if r.remote.KeyPairID == nil {
+		return nil, nil
+	}
+	kp, err := r.root.cryptoRootResolver.InternalGetByID(ctx, *r.remote.KeyPairID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	return kp, nil
 }

@@ -297,9 +297,11 @@ type Remote {
   id: ID!
   name: String!
   url: String!
-  basicAuthUsername: String!
-  basicAuthPassword: String!
   trackedBranch: String!
+
+  basicAuthUsername: String
+  basicAuthPassword: String
+  keyPair: PublicKey
 
   # Link to use for opening the repository in the browser
   # Example: "https://github.com/sturdy-dev/sturdy"
@@ -315,9 +317,12 @@ input CreateOrUpdateCodebaseRemoteInput {
   codebaseID: ID!
   name: String!
   url: String!
-  basicAuthUsername: String!
-  basicAuthPassword: String!
   trackedBranch: String!
+
+  # Either basicAuth or keyPairID must be set (mutually exclusive)
+  basicAuthUsername: String
+  basicAuthPassword: String
+  keyPairID: ID
 
   browserLinkRepo: String!
   browserLinkBranch: String!

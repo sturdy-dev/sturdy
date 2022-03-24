@@ -160,6 +160,8 @@ type Mutation {
   removeUserFromOrganization(
     input: RemoveUserFromOrganizationInput!
   ): Organization!
+
+  generateKeyPair(input: GenerateKeyPairInput!): PublicKey!
 }
 
 input RemovePatchesInput {
@@ -1021,4 +1023,17 @@ input AddUserToCodebaseInput {
 input RemoveUserFromCodebaseInput {
   codebaseID: ID!
   userID: ID!
+}
+
+enum KeyPairType {
+  RSA_4096
+}
+
+input GenerateKeyPairInput {
+  keyPairType: KeyPairType!
+}
+
+type PublicKey {
+  id: ID!
+  publicKey: String!
 }

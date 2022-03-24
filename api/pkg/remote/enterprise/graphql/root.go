@@ -15,11 +15,12 @@ import (
 )
 
 type remoteRootResolver struct {
-	service          *service.EnterpriseService
-	workspaceService service_workspace.Service
-	authService      *service_auth.Service
-	codebaseService  *service_codebase.Service
-	userService      service_user.Service
+	service            *service.EnterpriseService
+	workspaceService   service_workspace.Service
+	authService        *service_auth.Service
+	codebaseService    *service_codebase.Service
+	userService        service_user.Service
+	cryptoRootResolver resolvers.CryptoRootResolver
 }
 
 func New(
@@ -28,13 +29,15 @@ func New(
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,
 	userService service_user.Service,
+	cryptoRootResolver resolvers.CryptoRootResolver,
 ) resolvers.RemoteRootResolver {
 	return &remoteRootResolver{
-		service:          service,
-		workspaceService: workspaceService,
-		authService:      authService,
-		codebaseService:  codebaseService,
-		userService:      userService,
+		service:            service,
+		workspaceService:   workspaceService,
+		authService:        authService,
+		codebaseService:    codebaseService,
+		userService:        userService,
+		cryptoRootResolver: cryptoRootResolver,
 	}
 }
 

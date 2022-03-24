@@ -14,6 +14,7 @@ import (
 	module_codebase_acl "getsturdy.com/api/pkg/codebases/acl/module"
 	module_codebase "getsturdy.com/api/pkg/codebases/module"
 	module_comments "getsturdy.com/api/pkg/comments/module"
+	module_crypto "getsturdy.com/api/pkg/crypto/module"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
 	module_emails "getsturdy.com/api/pkg/emails/module"
@@ -105,4 +106,5 @@ func common(c *di.Container) {
 	c.Import(module_workspace_watchers.Module)
 	c.Import(module_vcs.Module)
 	c.Import(module_events_v2.Module)
+	c.Import(module_crypto.Module)
 }

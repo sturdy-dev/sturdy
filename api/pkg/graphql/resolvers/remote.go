@@ -20,8 +20,12 @@ type RemoteResolver interface {
 	Name() string
 	URL() string
 	TrackedBranch() string
-	BasicAuthUsername() string
-	BasicAuthPassword() string
+
+	BasicAuthUsername() *string
+	BasicAuthPassword() *string
+
+	KeyPair(context.Context) (KeyPairResolver, error)
+
 	BrowserLinkRepo() string
 	BrowserLinkBranch() string
 }
@@ -31,12 +35,15 @@ type CreateOrUpdateCodebaseRemoteArgsArgs struct {
 }
 
 type CreateOrUpdateCodebaseRemoteArgsInput struct {
-	CodebaseID        string
-	Name              string
-	Url               string
-	BasicAuthUsername string
-	BasicAuthPassword string
-	TrackedBranch     string
+	CodebaseID    string
+	Name          string
+	Url           string
+	TrackedBranch string
+
+	BasicAuthUsername *string
+	BasicAuthPassword *string
+	KeyPairID         *graphql.ID
+
 	BrowserLinkRepo   string
 	BrowserLinkBranch string
 }
