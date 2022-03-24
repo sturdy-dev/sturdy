@@ -2,6 +2,10 @@ export const removeBasicAuth = function (url: string): string {
   if (!url.includes('@')) {
     return url
   }
+  const isHTTP = url.startsWith('http://') || url.startsWith('https://')
+  if (!isHTTP) {
+    return url
+  }
 
   const slashslash = url.indexOf('://')
   const at = url.indexOf('@')
@@ -12,20 +16,27 @@ export const removeBasicAuth = function (url: string): string {
 export const defaultLinkRepo = function (gitURL: string): string | null {
   gitURL = removeBasicAuth(gitURL)
 
-  // GitLab (example: https://gitlab.com/zegl/sturdy-push.git)
+  // GitLab HTTP
   if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
     return gitURL.substring(0, gitURL.length - 4)
   }
 
-  // BitBucket
+  // GitLab SSH
+  if (gitURL.startsWith('git@gitlab.com:') && gitURL.endsWith('.git')) {
+    return 'https://gitlab.com/' + gitURL.substring(15, gitURL.length - 4)
+  }
+
+  // BitBucket HTTP
   if (gitURL.startsWith('https://bitbucket.org/') && gitURL.endsWith('.git')) {
     return gitURL.substring(0, gitURL.length - 4)
   }
 
-  // Azure
-  // Push URL: https://gustav0446@dev.azure.com/gustav0446/yolo_sturdy_test/_git/yolo_sturdy_test
-  // https://dev.azure.com/gustav0446/yolo_sturdy_test
-  // https://dev.azure.com/gustav0446/_git/yolo_sturdy_test
+  // BitBucket SSH
+  if (gitURL.startsWith('git@bitbucket.org:') && gitURL.endsWith('.git')) {
+    return 'https://bitbucket.org/' + gitURL.substring(18, gitURL.length - 4)
+  }
+
+  // Azure HTTP
   if (gitURL.includes('dev.azure.com') && gitURL.includes('/_git/')) {
     const s = gitURL.indexOf('dev.azure.com/')
     const git = gitURL.indexOf('/_git/')
@@ -35,16 +46,11 @@ export const defaultLinkRepo = function (gitURL: string): string | null {
     }
   }
 
-  // TODO: Example SSH Git Azure URL
-  //  git@ssh.dev.azure.com:v3/getsturdy/gustav-sturdy-haxx/sturdy-on-azure
-  //  repo: https://dev.azure.com/getsturdy/gustav-sturdy-haxx/_git/sturdy-on-azure
-  //  branch: https://dev.azure.com/getsturdy/gustav-sturdy-haxx/_git/sturdy-on-azure?version=GBmain
-
-  // Example BitBucket
-  // git clone git@bitbucket.org:zegl/sturdy-on-bitbucket.git
-  // git clone https://zegl@bitbucket.org/zegl/sturdy-on-bitbucket.git
-  // https://bitbucket.org/zegl/sturdy-on-bitbucket/src/
-  // https://bitbucket.org/zegl/sturdy-on-bitbucket/src/${BRANCH_NAME}
+  // Azure SSH
+  if (gitURL.startsWith('git@ssh.dev.azure.com:v3/')) {
+    const parts = gitURL.substring(25).split('/')
+    return 'https://dev.azure.com/' + parts[0] + '/' + parts[1] + '/_git/' + parts[2]
+  }
 
   return null
 }
@@ -52,20 +58,31 @@ export const defaultLinkRepo = function (gitURL: string): string | null {
 export const defaultLinkBranch = function (gitURL: string): string | null {
   gitURL = removeBasicAuth(gitURL)
 
-  // GitLab (example: https://gitlab.com/zegl/sturdy-push.git)
+  // GitLab HTTP
   if (gitURL.startsWith('https://gitlab.com/') && gitURL.endsWith('.git')) {
-    // Example: https://gitlab.com/foo-org/foo-repo/-/tree/sturdy-726608fc-59c0-4475-81b0-28ae5d12d53d
     return gitURL.substring(0, gitURL.length - 4) + '/-/tree/${BRANCH_NAME}'
   }
 
-  // BitBucket
+  // GitLab SSH
+  if (gitURL.startsWith('git@gitlab.com:') && gitURL.endsWith('.git')) {
+    return (
+      'https://gitlab.com/' + gitURL.substring(15, gitURL.length - 4) + '/-/tree/${BRANCH_NAME}'
+    )
+  }
+
+  // BitBucket HTTP
   if (gitURL.startsWith('https://bitbucket.org/') && gitURL.endsWith('.git')) {
     return gitURL.substring(0, gitURL.length - 4) + '/branch/${BRANCH_NAME}'
   }
 
-  // Azure
-  // Push URL: https://gustav0446@dev.azure.com/gustav0446/yolo_sturdy_test/_git/yolo_sturdy_test
-  // https://dev.azure.com/gustav0446/yolo_sturdy_test
+  // BitBucket SSH
+  if (gitURL.startsWith('git@bitbucket.org:') && gitURL.endsWith('.git')) {
+    return (
+      'https://bitbucket.org/' + gitURL.substring(18, gitURL.length - 4) + '/branch/${BRANCH_NAME}'
+    )
+  }
+
+  // Azure HTTP
   if (gitURL.includes('dev.azure.com') && gitURL.includes('/_git/')) {
     const s = gitURL.indexOf('dev.azure.com/')
     const git = gitURL.indexOf('/_git/')
@@ -74,6 +91,20 @@ export const defaultLinkBranch = function (gitURL: string): string | null {
       gitURL.substring(s, git) +
       '/_git/' +
       gitURL.substring(git + 6) +
+      '?version=GB${BRANCH_NAME}'
+    )
+  }
+
+  // Azure SSH
+  if (gitURL.startsWith('git@ssh.dev.azure.com:v3/')) {
+    const parts = gitURL.substring(25).split('/')
+    return (
+      'https://dev.azure.com/' +
+      parts[0] +
+      '/' +
+      parts[1] +
+      '/_git/' +
+      parts[2] +
       '?version=GB${BRANCH_NAME}'
     )
   }
