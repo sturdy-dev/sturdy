@@ -265,6 +265,11 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 
 func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (git.CredentialsCallback, error) {
 	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
+		logger := svc.logger.With(zap.String("url", url),
+			zap.String("usernameFromUrl", usernameFromUrl),
+			zap.Stringer("allowedTypes", allowedTypes),
+			zap.Stringer("codebase_id", rem.CodebaseID))
+
 		if rem.KeyPairID != nil {
 			kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
 			if kpErr != nil {
@@ -276,10 +281,13 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 				return nil, err
 			}
 
+			logger.Info("git credentials callback (ssh)")
+
 			return cred, nil
 		}
 
 		if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
+			logger.Info("git credentials callback (basic)")
 			return git.NewCredentialUserpassPlaintext(*rem.BasicAuthUsername, *rem.BasicAuthPassword)
 		}
 
@@ -303,7 +311,6 @@ func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranch
 	} else {
 		return "", errors.New("workspace does not have either view nor snapshot")
 	}
-
 }
 
 func (svc *EnterpriseService) prepareBranchForPullRequestFromSnapshot(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {

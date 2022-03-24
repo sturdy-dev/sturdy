@@ -44,7 +44,7 @@ func (r *rootResolver) GenerateKeyPair(ctx context.Context, args resolvers.Gener
 
 	switch args.Input.KeyPairType {
 	case resolvers.KeyPairType_RSA_4096:
-		public, private, err = rsa.GenerateRsaKeypair()
+		public, private, err = rsa.GenerateRsaSSHKeypair()
 	default:
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "unsupported keyPairType")
 	}
