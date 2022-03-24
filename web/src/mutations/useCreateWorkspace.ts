@@ -25,17 +25,12 @@ export function useCreateWorkspace(): (
   >(CREATE_WORKSPACE)
   return async (input) => {
     const result = await executeMutation({ input })
-
     if (result.error) {
       throw result.error
     }
-
-    console.log('create workspace', result)
-
     if (result.data) {
       return result.data
     }
-
     throw new Error('unexpected result')
   }
 }

@@ -30,6 +30,5 @@ interface AppEnvironment {
 
 interface MutagenIPC {
   createView: (workspaceId: string, mountPath: string) => Promise<string>
-  createNewViewWithDialog: (workspaceId: string) => Promise<string>
-  version?: string
+  createNewViewWithDialog: (workspaceId: string, codebaseSlug: string) => Promise<string>
 }

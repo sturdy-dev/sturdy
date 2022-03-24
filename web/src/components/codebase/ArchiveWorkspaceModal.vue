@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts">
-import { gql, useMutation } from '@urql/vue'
 import { defineComponent } from 'vue'
+import { useArchiveWorkspace } from '../../mutations/useArchiveWorkspace'
 import ConfirmModal from '../../molecules/ConfirmModal.vue'
 
 export default defineComponent({
@@ -29,23 +29,10 @@ export default defineComponent({
   },
   emits: ['close', 'archived', 'archiving'],
   setup() {
-    const { executeMutation: archiveWorkspaceResult } = useMutation(gql`
-      mutation ArchiveWorkspaceModal($id: ID!) {
-        archiveWorkspace(id: $id) {
-          id
-          archivedAt
-        }
-      }
-    `)
-
+    const archiveWorkspaceResult = useArchiveWorkspace()
     return {
-      async archiveWorkspace(id) {
-        const variables = { id }
-        await archiveWorkspaceResult(variables).then((result) => {
-          if (result.error) {
-            throw new Error(result.error)
-          }
-        })
+      async archiveWorkspace(id: string) {
+        return archiveWorkspaceResult({ id }).then(({ archiveWorkspace }) => archiveWorkspace)
       },
     }
   },
@@ -64,7 +51,7 @@ export default defineComponent({
     window.addEventListener('keydown', this.onkey)
   },
   methods: {
-    onkey(e) {
+    onkey(e: KeyboardEvent) {
       if (!this.isActive) {
         return
       }

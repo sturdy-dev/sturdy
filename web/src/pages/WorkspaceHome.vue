@@ -102,7 +102,7 @@
                     class="hidden sm:block -ml-1 h-5 w-5 text-gray-400"
                     aria-hidden="true"
                   />
-                  <span>Connect {{ mostRecentSelfUserView.shortMountPath }} for editing</span>
+                  <span>Open in {{ mostRecentSelfUserView.shortMountPath }} for editing</span>
                 </div>
                 <template v-if="connectedViews.length > 1 || mutagenAvailable" #dropdown>
                   <MenuItem v-for="view in connectedViews" :key="view.id">
@@ -123,7 +123,7 @@
                       @click="createViewInDirectory"
                     >
                       <FolderAddIcon class="h-5 w-5 pr-0.5 mx-0.5" />
-                      <span class="font-medium">Connect another directory</span>
+                      <span class="font-medium">Add another directory</span>
                     </button>
                   </MenuItem>
                 </template>
@@ -150,7 +150,7 @@
                       class="hidden sm:block -ml-1 h-5 w-5 text-green-700"
                       aria-hidden="true"
                     />
-                    <span>Connect {{ mostRecentSelfUserView.shortMountPath }} for suggesting</span>
+                    <span>Open in {{ mostRecentSelfUserView.shortMountPath }} for suggesting</span>
                   </div>
 
                   <template v-if="connectedViews.length > 1" #dropdown>
@@ -345,6 +345,7 @@ import WorkspaceDetails, {
 import WorkspaceDescription, {
   WORKSPACE_FRAGMENT as WORKSPACE_DESCRIPTION_FRAGMENT,
 } from '../organisms/WorkspaceDescription.vue'
+import { useArchiveWorkspace } from '../mutations/useArchiveWorkspace'
 
 type CodebaseView = WorkspaceHomeQuery['workspace']['codebase']['views'][number]
 
@@ -641,6 +642,7 @@ export default defineComponent({
 
     const createSuggestionResult = useCreateSuggestion()
     const loadingNewWorkspace = ref(false)
+    const archiveWorkspaceResult = useArchiveWorkspace()
     return {
       fetching,
       data,
@@ -660,6 +662,9 @@ export default defineComponent({
         await executeQuery({
           requestPolicy: 'network-only',
         })
+      },
+      async archiveWorkspace(id: string) {
+        return archiveWorkspaceResult({ id }).then(({ archiveWorkspace }) => archiveWorkspace)
       },
 
       async createSuggestion(workspaceID: string, viewID: string) {
@@ -987,21 +992,21 @@ export default defineComponent({
         return
       }
 
-      try {
-        await this.mutagenIpc.createNewViewWithDialog(this.data.workspace.id)
-      } catch (e) {
-        if (e.message.includes('non-empty')) {
-          this.emitter.emit('notification', {
-            title: 'Directory is not empty',
-            message: 'Please select an empty directory.',
-            style: 'error',
-          })
-        } else if (e.message.includes('Cancelled')) {
-          // User cancelled the dialog. Do nothing
-        } else {
-          throw e
-        }
-      }
+      await this.mutagenIpc
+        .createNewViewWithDialog(this.data.workspace.id, this.data.workspace.codebase.name)
+        .catch(async (e: any) => {
+          if (e.message.includes('non-empty')) {
+            this.emitter.emit('notification', {
+              title: 'Directory is not empty',
+              message: 'Please select an empty directory.',
+              style: 'error',
+            })
+          } else if (e.message.includes('Cancelled')) {
+            await this.archiveWorkspace(this.data.workspace.id)
+          } else {
+            throw e
+          }
+        })
     },
   },
 })

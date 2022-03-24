@@ -185,23 +185,6 @@ export class MutagenManager {
       async createView(workspaceID, mountPath) {
         logger.log(`createView ${workspaceID} at ${mountPath}`)
 
-        const origMountPath = mountPath
-        for (let idx = 2; idx < 100; idx++) {
-          const dirname = path.dirname(mountPath)
-          const baseName = path.basename(mountPath)
-          const content = await readdir(dirname)
-          if (content.find((f) => f === baseName)) {
-            // try again with new name
-            mountPath = `${origMountPath}-${idx}`
-            continue
-          }
-
-          // mount path is ok
-          break
-        }
-
-        logger.log(`createView final name: ${workspaceID} at ${mountPath}`)
-
         const dirname = path.dirname(mountPath)
         const baseName = path.basename(mountPath)
         const content = await readdir(dirname)
@@ -246,56 +229,24 @@ export class MutagenManager {
 
         return viewID
       },
-      async createNewViewWithDialog(workspaceID: string) {
-        const workspaceInfo = client.query(
-          gql`
-            query GetWorkspace($workspaceID: ID!) {
-              workspace(id: $workspaceID) {
-                id
-                codebase {
-                  id
-                  slug
-                }
-              }
-            }
-          `,
-          { workspaceID }
-        )
-
-        const { canceled, filePaths } = await dialog.showOpenDialog(manager.#mainWindow!, {
-          properties: ['openDirectory', 'createDirectory'],
+      async createNewViewWithDialog(workspaceID: string, codebaseSlug: string) {
+        const { canceled, filePath } = await dialog.showSaveDialog(manager.#mainWindow!, {
+          title: 'Select location',
+          defaultPath: path.join(homedir(), codebaseSlug),
+          buttonLabel: 'Select',
+          nameFieldLabel: 'Open As:',
+          showsTagField: false,
+          properties: ['createDirectory', 'showOverwriteConfirmation'],
         })
 
-        if (canceled || filePaths.length === 0) {
-          client
-            .mutation(
-              gql`
-                mutation ArchiveWorkspace($workspaceID: ID!) {
-                  archiveWorkspace(id: $workspaceID) {
-                    id
-                  }
-                }
-              `,
-              { workspaceID }
-            )
-            .toPromise()
-            .catch((e) => {
-              logger.error('failed to archive workspace', e)
-            })
-
+        if (canceled || !filePath) {
           throw new Error('Cancelled by user')
         }
 
-        const { error, data } = await workspaceInfo.toPromise()
-        if (error) {
-          logger.error('failed to get workspace info', error, data)
-          throw new Error('Failed to get workspace info')
-        }
-        const mountPath = path.join(filePaths[0], data.workspace.codebase.slug)
         try {
-          return await this.createView(workspaceID, mountPath)
+          return await this.createView(workspaceID, filePath)
         } catch (e) {
-          logger.error(`failed to create view for workspace ${workspaceID} at ${mountPath}`, e)
+          logger.error(`failed to create view for workspace ${workspaceID} at ${filePath}`, e)
           throw e
         }
       },

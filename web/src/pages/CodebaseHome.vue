@@ -5,11 +5,7 @@
         <div>
           <div class="flex items-center">
             <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
-            <ConnectNewDirectory
-              v-if="showAppConnectDirectory"
-              :codebase-id="data.codebase.id"
-              :codebase-slug="codebaseSlug"
-            />
+            <ConnectNewDirectory v-if="showAppConnectDirectory" :codebase="data.codebase" />
 
             <!-- Spacer to make layout render both in app and in browser -->
             <div class="flex-1"></div>
@@ -120,7 +116,9 @@ import { useUpdatedWorkspaceByCodebase } from '../subscriptions/useUpdatedWorksp
 import Directory, { OPEN_DIRECTORY } from '../components/browse/Directory.vue'
 import TopOfChangelogWidget, { TOP_OF_CHANGELOG } from '../organisms/TopOfChangelogWidget.vue'
 import NoFilesCodebase from '../components/codebase/NoFilesCodebase.vue'
-import ConnectNewDirectory from '../organisms/electron/ConnectNewDirectory.vue'
+import ConnectNewDirectory, {
+  CODEBASE_FRAGMENT as CONNECT_NEW_DIRECTORY_CODEBASE_FRAGMENT,
+} from '../organisms/electron/ConnectNewDirectory.vue'
 import WorkspaceList, { WORKSPACE_LIST } from '../components/codebase/WorkspaceList.vue'
 import PaddedAppRightSidebar from '../layouts/PaddedAppRightSidebar.vue'
 import type {
@@ -134,6 +132,7 @@ import AssembleTheTeam from '../organisms/AssembleTheTeam.vue'
 import PushPullCodebase, {
   PUSH_PULL_CODEBASE_REMOTE_FRAGMENT,
 } from '../molecules/PushPullCodebase.vue'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({
   components: {
@@ -159,11 +158,11 @@ export default defineComponent({
   },
   setup() {
     let route = useRoute()
-    let codebaseSlug = ref(route.params.codebaseSlug)
+    let codebaseSlug = ref(route.params.codebaseSlug as string)
     watch(
       () => route.params.codebaseSlug,
       (slug) => {
-        codebaseSlug.value = slug
+        codebaseSlug.value = slug as string
       }
     )
 
@@ -172,7 +171,7 @@ export default defineComponent({
 
     let { data, fetching, error, executeQuery } = useQuery<
       CodebaseHomeCodebaseQuery,
-      CodebaseHomeCodebaseQueryVariables
+      DeepMaybeRef<CodebaseHomeCodebaseQueryVariables>
     >({
       query: gql`
         query CodebaseHomeCodebase($shortCodebaseID: ID!, $isRemoteEnabled: Boolean!) {
@@ -211,12 +210,14 @@ export default defineComponent({
             remote @include(if: $isRemoteEnabled) {
               ...PushPullCodebaseRemote
             }
+            ...ConnectNewDirectory_Codebase
           }
         }
         ${OPEN_DIRECTORY}
         ${TOP_OF_CHANGELOG}
         ${WORKSPACE_LIST}
         ${PUSH_PULL_CODEBASE_REMOTE_FRAGMENT}
+        ${CONNECT_NEW_DIRECTORY_CODEBASE_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
       variables: {

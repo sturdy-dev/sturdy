@@ -1,31 +1,48 @@
 <template>
-  <Button v-if="mutagenIpc" @click="createViewInDirectory">
-    <div class="flex items-center px-1">
-      <DesktopComputerIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-      Connect new directory
-    </div>
+  <Button
+    v-if="mutagenIpc"
+    :disabled="connecting"
+    :icon="icon"
+    :spinner="connecting"
+    @click="createViewInDirectory"
+  >
+    Open in
   </Button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { DesktopComputerIcon } from '@heroicons/vue/outline'
+import { defineComponent, type PropType } from 'vue'
+import { FolderOpenIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
+import { useArchiveWorkspace } from '../../mutations/useArchiveWorkspace'
 import Button from '../../components/shared/Button.vue'
+import { gql } from '@urql/vue'
+import type { ConnectNewDirectory_CodebaseFragment } from './__generated__/ConnectNewDirectory'
+
+export const CODEBASE_FRAGMENT = gql`
+  fragment ConnectNewDirectory_Codebase on Codebase {
+    id
+    name
+    slug
+  }
+`
 
 export default defineComponent({
-  components: { DesktopComputerIcon, Button },
+  components: { Button },
   props: {
-    codebaseId: { type: String, required: true },
-    codebaseSlug: { type: String, required: true },
+    codebase: { type: Object as PropType<ConnectNewDirectory_CodebaseFragment>, required: true },
   },
   setup() {
     const createWorkspaceResult = useCreateWorkspace()
+    const archiveWorkspaceResult = useArchiveWorkspace()
     return {
-      createWorkspace(codebaseID: string) {
-        return createWorkspaceResult({
-          codebaseID,
-        })
+      async createWorkspace(codebaseId: string) {
+        return createWorkspaceResult({ codebaseID: codebaseId }).then(
+          ({ createWorkspace }) => createWorkspace
+        )
+      },
+      async archiveWorkspace(id: string) {
+        return archiveWorkspaceResult({ id }).then(({ archiveWorkspace }) => archiveWorkspace)
       },
     }
   },
@@ -35,6 +52,8 @@ export default defineComponent({
     return {
       mutagenIpc,
       ipc,
+      icon: FolderOpenIcon,
+      connecting: false,
     }
   },
   methods: {
@@ -53,30 +72,35 @@ export default defineComponent({
         return
       }
 
-      const res = await this.createWorkspace(this.codebaseId)
+      this.connecting = true
+      const workspace = await this.createWorkspace(this.codebase.id)
 
-      try {
-        await this.mutagenIpc.createNewViewWithDialog(res.createWorkspace.id)
-      } catch (e: any) {
-        if (e.message.includes('non-empty')) {
-          this.emitter.emit('notification', {
-            title: 'Directory is not empty',
-            message: 'Please select an empty directory.',
-            style: 'error',
+      await this.mutagenIpc
+        .createNewViewWithDialog(workspace.id, this.codebase.name)
+        .then(() =>
+          this.$router.push({
+            name: 'workspaceHome',
+            params: { codebaseSlug: this.codebase.slug, id: workspace.id },
           })
-          return
-        } else if (e.message.includes('Cancelled')) {
-          // User cancelled the dialog. Do nothing
-          return
-        } else {
-          throw e
-        }
-      }
-
-      await this.$router.push({
-        name: 'workspaceHome',
-        params: { codebaseSlug: this.codebaseSlug, id: res.createWorkspace.id },
-      })
+        )
+        .catch(async (e: any) => {
+          if (e.message.includes('non-empty')) {
+            this.emitter.emit('notification', {
+              title: 'Directory is not empty',
+              message: 'Please select an empty directory.',
+              style: 'error',
+            })
+            return
+          } else if (e.message.includes('Cancelled')) {
+            await this.archiveWorkspace(workspace.id)
+            return
+          } else {
+            throw e
+          }
+        })
+        .finally(() => {
+          this.connecting = false
+        })
     },
   },
 })
