@@ -18,7 +18,10 @@
     />
 
     <!-- Circle -->
-    <div class="relative flex items-start group space-x-4 flex-col flex-1" aria-current="step">
+    <div
+      class="relative flex items-start group space-x-4 flex-col flex-1 max-w-full"
+      aria-current="step"
+    >
       <div class="flex items-center space-x-4">
         <span class="h-9 block" aria-hidden="true">
           <span

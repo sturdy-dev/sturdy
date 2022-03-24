@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="mt-1 flex rounded-md shadow-sm">
+  <div class="w-max-full">
+    <div class="mt-1 flex rounded-md shadow-sm w-max-full">
       <div class="relative flex items-stretch flex-grow focus-within:z-10">
         <input
           id="token"

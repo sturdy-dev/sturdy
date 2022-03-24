@@ -7,7 +7,7 @@ import (
 )
 
 type KeyPair struct {
-	ID         KeyPairID  `db:"ID"`
+	ID         KeyPairID  `db:"id"`
 	PublicKey  PublicKey  `db:"public_key"`
 	PrivateKey PrivateKey `db:"private_key"`
 	CreatedAt  time.Time  `db:"created_at"`

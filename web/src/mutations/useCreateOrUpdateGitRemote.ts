@@ -18,6 +18,10 @@ const CREATE_GIT_REMOTE = gql`
       trackedBranch
       browserLinkRepo
       browserLinkBranch
+      keyPair {
+        id
+        publicKey
+      }
     }
   }
 `

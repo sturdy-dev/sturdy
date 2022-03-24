@@ -46,14 +46,34 @@
             </Step>
 
             <Step name="Authenticate" :status="gitAuthStepStatus">
-              <p class="my-2 max-w-2xl text-sm text-gray-500">
-                Authenticate with the Git Host using Basic Auth.
-              </p>
+              <div v-if="!keyPairID" class="space-y-2">
+                <p class="my-2 max-w-2xl text-sm text-gray-500">
+                  Authenticate with the Git Host using Basic Auth.
+                </p>
 
-              <div class="space-y-2">
                 <TextInput v-model="basicAuthUsername" placeholder="Username" />
 
                 <TextInput v-model="basicAuthPassword" placeholder="Password" />
+
+                <Button
+                  :spinner="generatingPrivateKey"
+                  :disabled="generatingPrivateKey"
+                  @click="generateKeyPair"
+                >
+                  <span v-if="generatingPrivateKey">Generating a new keypair...</span>
+                  <span v-else>Switch to SSH keypair auth</span>
+                </Button>
+              </div>
+
+              <div v-if="keyPairID" class="space-y-2 w-full">
+                <p class="my-2 max-w-2xl text-sm text-gray-500">
+                  Use this Public Key to authenticate Sturdy and {{ gitRemoteName }}
+                </p>
+
+                <InputCopyToClipboard :value="keyPairPublicKey" class="w-full" />
+                <Button @click="unsetKeyPair">
+                  Use Basic Auth (username and password) instead
+                </Button>
               </div>
             </Step>
 
@@ -81,8 +101,8 @@
                       >". Do you want to use it?
                     </p>
                     <Button size="small" class="mt-2" @click="browserLinkRepo = recommendedLinkRepo"
-                      >Yes!</Button
-                    >
+                      >Yes!
+                    </Button>
                   </div>
                 </div>
 
@@ -108,8 +128,8 @@
                       size="small"
                       class="mt-2"
                       @click="browserLinkBranch = recommendedLinkBranch"
-                      >Yes</Button
-                    >
+                      >Yes
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -140,8 +160,8 @@
               :status="saveUpdateStepStatus"
             >
               <p class="text-sm text-gray-500">
-                For a better (and faster) experience, configure your GitHost to send webhooks to the
-                following URL on pushes and merges.
+                For a better (and faster) experience, configure {{ gitRemoteName }} to send webhooks
+                to the following URL on pushes and merges.
               </p>
               <InputCopyToClipboard :value="webhookTrigger" />
             </Step>
@@ -171,6 +191,8 @@ import Button from '../../../../../components/shared/Button.vue'
 import { defaultLinkBranch, defaultLinkRepo } from './Links'
 import InputCopyToClipboard from '../../../../../organisms/InputCopyToClipboard.vue'
 import http from '../../../../../http'
+import { useGenerateKeyPair } from '../../../../../mutations/useGenerateKeyPair'
+import { KeyPairType } from '../../../../../__generated__/types'
 
 export default defineComponent({
   components: {
@@ -202,6 +224,10 @@ export default defineComponent({
               trackedBranch
               basicAuthUsername
               basicAuthPassword
+              keyPair {
+                id
+                publicKey
+              }
               browserLinkRepo
               browserLinkBranch
             }
@@ -216,10 +242,12 @@ export default defineComponent({
     const gitRemoteURL = ref('')
     const gitRemoteName = ref('')
     const trackedBranch = ref('')
-    const basicAuthUsername = ref('')
-    const basicAuthPassword = ref('')
+    const basicAuthUsername = ref<string | null | undefined>(undefined)
+    const basicAuthPassword = ref<string | null | undefined>(undefined)
     const browserLinkRepo = ref('')
     const browserLinkBranch = ref('')
+    const keyPairID = ref<string | null | undefined>(undefined)
+    const keyPairPublicKey = ref<string | null | undefined>('')
     const showSuccess = ref(false)
     const error = ref<Error | string | null>(null)
 
@@ -238,6 +266,8 @@ export default defineComponent({
         basicAuthPassword.value = newData.codebase.remote.basicAuthPassword
         browserLinkRepo.value = newData.codebase.remote.browserLinkRepo
         browserLinkBranch.value = newData.codebase.remote.browserLinkBranch
+        keyPairID.value = newData.codebase.remote?.keyPair?.id
+        keyPairPublicKey.value = newData.codebase.remote?.keyPair?.publicKey
         didLoad = true
       },
       {
@@ -263,6 +293,9 @@ export default defineComponent({
       }
     })
 
+    const { mutating: generatingPrivateKey, generateKeyPair: generateKeyPairFunc } =
+      useGenerateKeyPair()
+
     return {
       data,
       shortCodebaseID,
@@ -276,7 +309,12 @@ export default defineComponent({
       browserLinkRepo,
       browserLinkBranch,
 
+      keyPairID,
+      keyPairPublicKey,
+
       error,
+
+      generatingPrivateKey,
 
       async createOrUpdateCodebaseRemote() {
         if (!data.value?.codebase?.id) {
@@ -293,6 +331,12 @@ export default defineComponent({
           basicAuthPassword: basicAuthPassword.value,
           browserLinkRepo: browserLinkRepo.value,
           browserLinkBranch: browserLinkBranch.value,
+          keyPairID: keyPairID.value,
+        }
+
+        if (vars.keyPairID) {
+          vars.basicAuthUsername = undefined
+          vars.basicAuthPassword = undefined
         }
 
         await createOrUpdateCodebaseRemoteFunc(vars)
@@ -304,6 +348,13 @@ export default defineComponent({
             error.value = e
           })
       },
+
+      async generateKeyPair() {
+        await generateKeyPairFunc({ keyPairType: KeyPairType.Rsa_4096 }).then((kp) => {
+          keyPairID.value = kp.generateKeyPair.id
+          keyPairPublicKey.value = kp.generateKeyPair.publicKey
+        })
+      },
     }
   },
   computed: {
@@ -312,6 +363,7 @@ export default defineComponent({
     },
     gitAuthStepStatus(): Status {
       if (this.basicAuthUsername && this.basicAuthPassword) return 'completed'
+      if (this.keyPairID && this.keyPairPublicKey) return 'completed'
       return this.gitRemoteUrlStatus === 'completed' ? 'current' : 'pending'
     },
     saveUpdateStepStatus(): Status {
@@ -331,6 +383,12 @@ export default defineComponent({
       const base = http.url('/v3/remotes/webhook/sync-codebase/' + this.data.codebase.id)
       // using the current browser location as the base, used if url() returns a relative url
       return new URL(base, new URL(window.location.href)).href
+    },
+  },
+  methods: {
+    unsetKeyPair() {
+      this.keyPairID = undefined
+      this.keyPairPublicKey = undefined
     },
   },
 })

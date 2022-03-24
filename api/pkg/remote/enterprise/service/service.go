@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -263,24 +264,26 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 }
 
 func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (git.CredentialsCallback, error) {
-	var cred *git.Credential
-	var err error
-
-	if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
-		cred, err = git.NewCredentialUserpassPlaintext(*rem.BasicAuthUsername, *rem.BasicAuthPassword)
-	} else if rem.KeyPairID != nil {
-		kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
-		if kpErr != nil {
-			return nil, fmt.Errorf("could not get kp: %w", kpErr)
-		}
-		cred, err = git.NewCredentialSSHKeyFromMemory("git", string(kp.PublicKey), string(kp.PrivateKey), "")
-	}
-	if err != nil {
-		return nil, fmt.Errorf("could not create credentials callback: %w", err)
-	}
-
 	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
-		return cred, nil
+		if rem.KeyPairID != nil {
+			kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
+			if kpErr != nil {
+				return nil, fmt.Errorf("could not get kp: %w", kpErr)
+			}
+
+			cred, err := git.NewCredentialSSHKeyFromMemory(usernameFromUrl, strings.TrimSpace(string(kp.PublicKey)), strings.TrimSpace(string(kp.PrivateKey)), "")
+			if err != nil {
+				return nil, err
+			}
+
+			return cred, nil
+		}
+
+		if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
+			return git.NewCredentialUserpassPlaintext(*rem.BasicAuthUsername, *rem.BasicAuthPassword)
+		}
+
+		return nil, fmt.Errorf("no auth found")
 	}, nil
 }
 

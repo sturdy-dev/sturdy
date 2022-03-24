@@ -35,6 +35,17 @@ export const defaultLinkRepo = function (gitURL: string): string | null {
     }
   }
 
+  // TODO: Example SSH Git Azure URL
+  //  git@ssh.dev.azure.com:v3/getsturdy/gustav-sturdy-haxx/sturdy-on-azure
+  //  repo: https://dev.azure.com/getsturdy/gustav-sturdy-haxx/_git/sturdy-on-azure
+  //  branch: https://dev.azure.com/getsturdy/gustav-sturdy-haxx/_git/sturdy-on-azure?version=GBmain
+
+  // Example BitBucket
+  // git clone git@bitbucket.org:zegl/sturdy-on-bitbucket.git
+  // git clone https://zegl@bitbucket.org/zegl/sturdy-on-bitbucket.git
+  // https://bitbucket.org/zegl/sturdy-on-bitbucket/src/
+  // https://bitbucket.org/zegl/sturdy-on-bitbucket/src/${BRANCH_NAME}
+
   return null
 }
 

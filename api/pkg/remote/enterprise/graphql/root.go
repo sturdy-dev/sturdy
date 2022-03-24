@@ -7,6 +7,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
+	"getsturdy.com/api/pkg/crypto"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/remote/enterprise/service"
@@ -56,7 +57,7 @@ func (r *remoteRootResolver) InternalRemoteByCodebaseID(ctx context.Context, cod
 		return nil, gqlerror.Error(err)
 	}
 
-	return &resolver{remote: rem}, nil
+	return &resolver{remote: rem, root: r}, nil
 }
 
 func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, args resolvers.CreateOrUpdateCodebaseRemoteArgsArgs) (resolvers.RemoteResolver, error) {
@@ -70,6 +71,12 @@ func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, a
 		return nil, gqlerror.Error(err)
 	}
 
+	var keyPairID *crypto.KeyPairID
+	if args.Input.KeyPairID != nil {
+		kpi := crypto.KeyPairID(*args.Input.KeyPairID)
+		keyPairID = &kpi
+	}
+
 	rem, err := r.service.SetRemote(
 		ctx,
 		codebaseID,
@@ -81,11 +88,12 @@ func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, a
 			TrackedBranch:     args.Input.TrackedBranch,
 			BrowserLinkRepo:   args.Input.BrowserLinkRepo,
 			BrowserLinkBranch: args.Input.BrowserLinkBranch,
+			KeyPairID:         keyPairID,
 		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add remote: %w", err)
 	}
 
-	return &resolver{remote: rem}, nil
+	return &resolver{remote: rem, root: r}, nil
 }
