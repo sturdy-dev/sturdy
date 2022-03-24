@@ -267,6 +267,22 @@ export class MutagenManager {
         })
 
         if (canceled || filePaths.length === 0) {
+          client
+            .mutation(
+              gql`
+                mutation ArchiveWorkspace($workspaceID: ID!) {
+                  archiveWorkspace(id: $workspaceID) {
+                    id
+                  }
+                }
+              `,
+              { workspaceID }
+            )
+            .toPromise()
+            .catch((e) => {
+              logger.error('failed to archive workspace', e)
+            })
+
           throw new Error('Cancelled by user')
         }
 
