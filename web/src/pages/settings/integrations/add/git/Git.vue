@@ -48,14 +48,16 @@
             <Step name="Authenticate" :status="gitAuthStepStatus">
               <div v-if="!keyPairID" class="space-y-2">
                 <p class="my-2 max-w-2xl text-sm text-gray-500">
-                  Authenticate with the Git Host using Basic Auth.
+                  Authenticate with <strong>{{ gitRemoteName }}</strong> using Basic Auth.
                 </p>
 
                 <TextInput v-model="basicAuthUsername" placeholder="Username" />
 
                 <TextInput v-model="basicAuthPassword" placeholder="Password" />
 
+                <!-- Disable SSH, we're having some issues with it -->
                 <Button
+                  v-if="false"
                   :spinner="generatingPrivateKey"
                   :disabled="generatingPrivateKey"
                   @click="generateKeyPair"
@@ -67,7 +69,8 @@
 
               <div v-if="keyPairID" class="space-y-2 w-full">
                 <p class="my-2 max-w-2xl text-sm text-gray-500">
-                  Use this Public Key to authenticate Sturdy and {{ gitRemoteName }}
+                  Use this Public Key to authenticate Sturdy and
+                  <strong>{{ gitRemoteName }}</strong>
                 </p>
 
                 <InputCopyToClipboard :value="keyPairPublicKey" class="w-full" />
