@@ -50,11 +50,13 @@ export const searchMatches = function (
     return res
   }
 
-  const endsAt = new Map<string, [[number, number]]>()
+  const endsAt = new Map<string, [[number, number, number, number]]>()
 
   for (const hunk of hunks) {
     let starts = 0,
       ends = 0,
+      blockId = 0,
+      index = 0,
       started = false
     const lines = hunk.patch.split('\n')
     for (const line of lines) {
@@ -68,6 +70,12 @@ export const searchMatches = function (
             started = true
           }
           continue
+        } else {
+          if (line.startsWith('@@ ')) {
+            blockId++
+            index = 0
+            continue
+          }
         }
 
         if (line.includes('No newline at end of file')) {
@@ -76,13 +84,14 @@ export const searchMatches = function (
       }
 
       if (!endsAt.has(hunk.id)) {
-        endsAt.set(hunk.id, [[starts, ends]])
+        endsAt.set(hunk.id, [[starts, ends, index, blockId]])
       } else {
         const ref = endsAt.get(hunk.id)
         if (ref) {
-          ref.push([starts, ends])
+          ref.push([starts, ends, index, blockId])
         }
       }
+      index++
     }
   }
 
@@ -97,11 +106,13 @@ export const searchMatches = function (
       for (let i = 0; i < rangeTuples.length; i++) {
         const tuple = rangeTuples[i],
           starts = tuple[0],
-          ends = tuple[1]
+          ends = tuple[1],
+          rowIndex = tuple[2],
+          blockId = tuple[3]
         if (foundIndex < starts) {
           break
         } else if (foundIndex < ends) {
-          res.add(hunkID + '-' + i)
+          res.add(hunkID + '-' + rowIndex + '-' + blockId)
           break
         }
       }

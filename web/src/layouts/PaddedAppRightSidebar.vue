@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div
-      class="fixed z-50 md:pr-64 w-full">
+    <div class="fixed z-50 md:pr-64 w-full">
       <slot name="toolbar" />
     </div>
 

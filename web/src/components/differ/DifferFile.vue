@@ -202,7 +202,7 @@
 
                       searchIsCurrentSelected(diffs.hunks[hunkIndex].id, rowIndex)
                         ? '!bg-yellow-400 font-bold sturdy-searchmatch'
-                        : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, rowIndex)
+                        : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, blockIndex, rowIndex)
                         ? '!bg-yellow-200 font-bold sturdy-searchmatch'
                         : '',
                     ]"
@@ -887,9 +887,9 @@ export default defineComponent({
       }
       return false
     },
-    hasMatchingSearchOnRow(hunkID: string, rowIndex: number): boolean {
+    hasMatchingSearchOnRow(hunkID: string, blockIndex: number, rowIndex: number): boolean {
       let matchingRows = this.rowsWithSearchMatches
-      return matchingRows.has(hunkID + '-' + rowIndex)
+      return matchingRows.has(hunkID + '-' + rowIndex + '-' + blockIndex)
     },
     searchIsCurrentSelected(hunkID: string, rowIndex: number): boolean {
       return this.searchCurrentSelectedId === hunkID + '-' + rowIndex
