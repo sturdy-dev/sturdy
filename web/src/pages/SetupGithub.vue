@@ -82,6 +82,17 @@ export default defineComponent({
     }
   },
   async mounted() {
+    /*
+    SetupGithub handles redirects from GitHub back to Sturdy.
+
+    It has two paths that are in use:
+    1) Web -> GitHub -> Web (this component)
+    2) App -> GitHub -> App (this component)
+
+    This scenario is also supported, but is not actively used.
+    3) App -> GitHub -> Web (this component) -> App (this component)
+    */
+
     const route = useRoute()
     const router = useRouter()
     // Open this page in the app

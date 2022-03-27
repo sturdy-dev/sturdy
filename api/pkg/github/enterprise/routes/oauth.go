@@ -96,7 +96,13 @@ func Oauth(
 			c.Status(http.StatusInternalServerError)
 			return
 		} else if ghUser.UserID != user.ID {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", user.Email)})
+			existingUser, err := userRepo.Get(ghUser.UserID)
+			if err != nil {
+				logger.Error("failed to lookup other user with this github login", zap.Error(err))
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", existingUser.Email)})
 			return
 		} else {
 			ghUser.AccessToken = token.AccessToken

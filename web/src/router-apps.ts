@@ -59,7 +59,12 @@ export const RoutesApps: RouteRecordRaw[] = [
     path: '/setup-github',
     component: () => import('./pages/SetupGithub.vue'),
     name: 'setupGithub',
-    meta: { selfContainedLayout: true },
+    meta: {
+      selfContainedLayout: true,
+      // SetupGitHub contains it's own app-redirect logic, don't use the global one
+      nonApp: true,
+      neverElectron: true,
+    },
   },
   {
     path: '/:codebaseSlug/settings',
