@@ -49,7 +49,7 @@ export default defineComponent({
 
   data() {
     return {
-      starsCountFormatted: '126',
+      starsCountFormatted: '235',
     }
   },
 
