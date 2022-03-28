@@ -10,7 +10,7 @@
     <mj-body>
         <mj-section padding="0" padding-top="20px">
             <mj-column>
-                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png" alt="Sturdy Logo"></mj-image>
                 <mj-divider border-color="#FBBF24"></mj-divider>
 
                 <mj-text font-size="18px" color="#222" font-family="helvetica">

@@ -70,7 +70,7 @@ func TestRenderNotificationComment_commented(t *testing.T) {
 	})
 
 	// uncomment to make a snapshot
-	os.WriteFile("testdata/notification/comment_commented.html", []byte(output), 0666)
+	// os.WriteFile("testdata/notification/comment_commented.html", []byte(output), 0666)
 
 	assert.NoError(t, err)
 	assert.Equal(t, mustReadFile(t, "testdata/notification/comment_commented.html"), output)
