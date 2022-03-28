@@ -71,9 +71,13 @@ export default defineComponent({
     },
   },
   data() {
-    const { appEnvironment } = window
-    return {
-      appEnvironment,
+    try {
+      const { appEnvironment } = window
+      return {
+        appEnvironment,
+      }
+    } catch {
+      return {}
     }
   },
   computed: {
