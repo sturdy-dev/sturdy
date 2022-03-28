@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lib/pq"
+
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/presence"
 	db_presence "getsturdy.com/api/pkg/presence/db"
@@ -43,6 +45,16 @@ func (p *service) Record(ctx context.Context, userID users.ID, workspaceID strin
 			State:        state,
 		}
 		if err := p.presenceRepo.Create(ctx, newPresence); err != nil {
+			var pqErr pq.Error
+			if errors.As(err, &pqErr) {
+				// Another thread attempted to insert presence for this user/workspace combination in parallel.
+				// Allow it to happen. :-)
+				if pqErr.Code.Name() == "unique_violation" {
+					return &newPresence, nil
+				}
+				return nil, fmt.Errorf("failed to create new presence (code=%s): %w", pqErr.Code.Name(), err)
+			}
+
 			return nil, fmt.Errorf("failed to create new presence: %w", err)
 		}
 
