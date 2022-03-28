@@ -1,5 +1,5 @@
 <template v-if="show">
-  <Tooltip y-direction="down" x-direction="right">
+  <Tooltip y-direction="down" x-direction="left">
     <template #tooltip>
       <p>
         <b>Search </b>

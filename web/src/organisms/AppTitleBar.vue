@@ -27,8 +27,8 @@
 
       <!-- this is the rest of the title bar -->
       <div class="h-full flex flex-1 items-center border-b titlebar justify-between">
-        <OpenSearchToolbarButton class="px-2" />
         <AppMutagenStatus v-if="isAuthenticated" class="grow bg-gray-50" />
+        <OpenSearchToolbarButton class="px-2" />
         <AppShareButton class="px-2" />
 
         <WindowsControls v-if="isFrameless && (windows || linux)" />
