@@ -62,10 +62,7 @@ import { defineComponent, defineAsyncComponent } from 'vue'
 import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 
-import ShareButton, {
-  CANT_SUBMIT_REASON,
-  SHARE_BUTTON,
-} from '../components/workspace/ShareButton.vue'
+import ShareButton, { CANT_SUBMIT_REASON, SHARE_BUTTON } from './WorkspaceShareButton.vue'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import { AUTHOR } from '../components/shared/AvatarHelper'
 

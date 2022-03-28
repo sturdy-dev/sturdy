@@ -128,34 +128,13 @@
       </div>
     </OnboardingStep>
 
-    <OnboardingStep
+    <WorkspaceMergeButton
       v-else
-      id="LandingAChange"
-      :dependencies="['MakingAChange', 'WorkspaceChanges']"
-    >
-      <template #title>Publishing a Change</template>
-      <template #description>
-        When you're ready, use this button to save the changes you've made so far.
-      </template>
-      <Button
-        color="blue"
-        :disabled="landing || disabled"
-        :class="[landing || disabled ? 'cursor-default' : '']"
-        :show-tooltip="disabled"
-        :tooltip-right="true"
-        @click="shareChange"
-      >
-        <template #default>
-          <div v-if="landing" class="flex items-center">
-            <Spinner class="mr-1" />
-            <span>Merging</span>
-          </div>
-          <span v-else>Merge</span>
-        </template>
-
-        <template #tooltip>{{ cantSubmitTooltipMessage }}</template>
-      </Button>
-    </OnboardingStep>
+      :workspace-id="workspace.id"
+      :disabled="disabled"
+      :disabled-tooltip-message="cantSubmitTooltipMessage"
+      :hunk-ids="allHunkIds"
+    />
   </div>
 </template>
 
@@ -163,19 +142,19 @@
 import type { PropType } from 'vue'
 import { defineComponent, nextTick, ref } from 'vue'
 import { gql } from '@urql/vue'
-import type { ShareButtonFragment } from './__generated__/ShareButton'
-import OnboardingStep from '../onboarding/OnboardingStep.vue'
-import Button from '../shared/Button.vue'
-import Spinner from '../shared/Spinner.vue'
+import type { ShareButtonFragment } from './__generated__/WorkspaceShareButton'
+import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
+import Button from '../components/shared/Button.vue'
+import Spinner from '../components/shared/Spinner.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
-import { useLandWorkspaceChange } from '../../mutations/useLandWorkspaceChange'
-import { useCreateOrUpdateGitHubPullRequest } from '../../mutations/useCreateOrUpdateGitHubPullRequest'
-import { useMergeGitHubPullRequest } from '../../mutations/useMergeGitHubPullRequest'
-import { GitHubPullRequestState } from '../../__generated__/types'
-import { usePushWorkspace } from '../../mutations/usePushWorkspace'
-import ButtonWithDropdown from '../shared/ButtonWithDropdown.vue'
+import { useCreateOrUpdateGitHubPullRequest } from '../mutations/useCreateOrUpdateGitHubPullRequest'
+import { useMergeGitHubPullRequest } from '../mutations/useMergeGitHubPullRequest'
+import { GitHubPullRequestState } from '../__generated__/types'
+import { usePushWorkspace } from '../mutations/usePushWorkspace'
+import ButtonWithDropdown from '../components/shared/ButtonWithDropdown.vue'
 import { ShareIcon } from '@heroicons/vue/solid'
 import { MenuItem } from '@headlessui/vue'
+import WorkspaceMergeButton from './WorkspaceMergeButton.vue'
 
 export const SHARE_BUTTON = gql`
   fragment ShareButton on Workspace {
@@ -219,6 +198,7 @@ export default defineComponent({
     ExternalLinkIcon,
     ShareIcon,
     MenuItem,
+    WorkspaceMergeButton,
   },
   props: {
     workspace: {
@@ -243,7 +223,6 @@ export default defineComponent({
     'pre-create-change': () => true,
   },
   setup() {
-    const { mutating: landing, landWorkspaceChange } = useLandWorkspaceChange()
     const { mutating: creatingOrUpdatingPR, createOrUpdateGitHubPullRequest } =
       useCreateOrUpdateGitHubPullRequest()
     const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
@@ -254,9 +233,6 @@ export default defineComponent({
     let isMergingAndPushing = ref(false)
 
     return {
-      landing,
-      landWorkspaceChange,
-
       creatingOrUpdatingPR,
       createOrUpdateGitHubPullRequest,
 
@@ -325,33 +301,13 @@ export default defineComponent({
       if (!rem) {
         return null
       }
-      return rem.browserLinkBranch.replaceAll('${BRANCH_NAME}', 'sturdy-' + this.workspace.id)
+      return rem.browserLinkBranch.replace('${BRANCH_NAME}', 'sturdy-' + this.workspace.id)
     },
   },
   methods: {
-    async shareChange() {
-      // Triggers WorkspaceHome to flush the draft description
-      await this.$emit('pre-create-change')
-
-      const input = {
-        workspaceID: this.workspace.id,
-        patchIDs: this.allHunkIds,
-      }
-
-      nextTick(() =>
-        this.landWorkspaceChange(input).catch((e) => {
-          console.error(e)
-          this.emitter.emit('notification', {
-            title: 'Failed sharing changes',
-            message: 'Sorry about that! You might need to sync first!',
-            style: 'error',
-          })
-        })
-      )
-    },
     async createOrUpdatePR() {
       // Triggers WorkspaceHome to flush the draft description
-      await this.$emit('pre-create-change')
+      this.$emit('pre-create-change')
 
       const input = {
         workspaceID: this.workspace.id,
@@ -435,8 +391,8 @@ export default defineComponent({
           this.pushedWorkspace = true
         })
         .catch((e) => {
-          let title = 'Failed!'
-          let message = 'Failed to push workspace'
+          const title = 'Failed!'
+          const message = 'Failed to push workspace'
 
           console.error(e)
 
