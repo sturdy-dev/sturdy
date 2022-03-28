@@ -171,19 +171,14 @@
             </template>
             <!-- end connect button -->
 
-            <!-- connect directory button -->
-            <Button
-              v-if="
-                viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
-              "
-              @click="createViewInDirectory"
-            >
-              <div class="flex items-center px-1">
-                <DesktopComputerIcon class="-ml-1 mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                Connect directory
-              </div>
-            </Button>
-            <!-- end connect directory button -->
+            <div class="flex items-center">
+              <ConnectNewDirectory
+                v-if="
+                  viewConnectionState === 'own' && mutagenAvailable && connectedViews.length === 0
+                "
+                :codebase="data.workspace.codebase"
+              />
+            </div>
 
             <WorkspaceDescription
               class="max-w-prose"
@@ -309,7 +304,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { computed, defineComponent, inject, onUnmounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useHead } from '@vueuse/head'
-import Spinner from '../components/shared/Spinner.vue'
 import WorkspaceActivitySidebar, {
   WORKSPACE_FRAGMENT as WORKSPACE_ACTIVITY_WORKSPACE_FRAGMENT,
 } from '../organisms/WorkspaceActivitySidebar.vue'
@@ -346,6 +340,9 @@ import WorkspaceDescription, {
   WORKSPACE_FRAGMENT as WORKSPACE_DESCRIPTION_FRAGMENT,
 } from '../organisms/WorkspaceDescription.vue'
 import { useArchiveWorkspace } from '../mutations/useArchiveWorkspace'
+import ConnectNewDirectory, {
+  CODEBASE_FRAGMENT as CONNECT_NEW_DIRECTORY_CODEBASE_FRAGMENT,
+} from '../organisms/electron/ConnectNewDirectory.vue'
 
 type CodebaseView = WorkspaceHomeQuery['workspace']['codebase']['views'][number]
 
@@ -371,6 +368,7 @@ export default defineComponent({
     WorkspaceName,
     WorkspaceDetails,
     WorkspaceDescription,
+    ConnectNewDirectory,
   },
   props: {
     user: {
@@ -517,6 +515,7 @@ export default defineComponent({
                 }
                 ...ViewStatusIndicator
               }
+              ...ConnectNewDirectory_Codebase
             }
             rebaseStatus {
               id
@@ -548,6 +547,7 @@ export default defineComponent({
         ${RESOLVE_CONFLICT_DIFF}
         ${WORKSPACE_DETAILS_FRAGMENT}
         ${WORKSPACE_DESCRIPTION_FRAGMENT}
+        ${CONNECT_NEW_DIRECTORY_CODEBASE_FRAGMENT}
       `,
       variables: {
         workspaceID: workspaceID,
