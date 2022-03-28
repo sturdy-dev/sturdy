@@ -9,6 +9,7 @@ import { ApplicationManager } from './ApplicationManager'
 import { Logger } from './Logger'
 import log from 'electron-log'
 import { Preferences } from './preferences'
+import contextMenu from 'electron-context-menu'
 
 // Start crash reporter before setting up logging
 crashReporter.start({
@@ -70,13 +71,6 @@ const iconTrayDisconnected =
 
 const postHogToken =
   process.env.STURDY_POSTHOG_API_KEY ?? 'ZuDRoGX9PgxGAZqY4RF9CCJJLpx14h3szUPzm7XBWSg'
-
-const runAutoUpdater =
-  app.isPackaged &&
-  !process.env.STURDY_DISABLE_AUTO_UPDATER &&
-  (process.platform === 'darwin' || process.platform === 'win32')
-
-const contextMenu = require('electron-context-menu')
 
 contextMenu({
   showSaveImageAs: true,
@@ -144,6 +138,9 @@ async function main() {
   }
 
   const preferences = await Preferences.open(logger)
+  const updater = await Updater.start(logger, preferences.config.channel)
+
+  preferences.on('channelUpdated', (channel) => updater.setChannel(channel))
 
   const menu = (application: Application) => {
     const menu = new Menu()
@@ -170,11 +167,7 @@ async function main() {
     menu.append(new MenuItem({ type: 'separator' }))
     preferences.appendMenuItem(menu)
     menu.append(new MenuItem({ type: 'separator' }))
-    if (runAutoUpdater) {
-      Updater.start(logger, menu).catch((e) => {
-        logger.error('Auto updater error!', e)
-      })
-    }
+    updater.appendMenuItem(menu)
     menu.append(
       new MenuItem({
         label: 'Quit ' + app.getName(),

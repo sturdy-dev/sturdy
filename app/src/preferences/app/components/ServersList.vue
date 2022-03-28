@@ -43,7 +43,7 @@
 import Server from './Server.vue'
 import ServerInput from './ServerInput.vue'
 import { useStore } from '@nanostores/vue'
-import { servers, add as addServer } from '../stores/servers'
+import { servers, set } from '../stores/servers'
 import ipc from '../ipc'
 
 export default {
@@ -54,7 +54,7 @@ export default {
     }
   },
   setup() {
-    ipc.listHosts().then((hosts) => hosts.forEach(addServer))
+    ipc.listHosts().then((hosts) => set(hosts))
     return {
       servers: useStore(servers),
     }

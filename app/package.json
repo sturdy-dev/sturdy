@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.5.14",
+  "version": "0.5.17-alpha",
   "name": "SturdyDev",
   "author": "Sturdy Team <support@getsturdy.com>",
   "description": "Real-Time Version Control",
@@ -18,6 +18,8 @@
     "dev-mac-x64-prodlike": "rollup -c && electron-builder --mac --x64 --dir -c.mac.identity=null && cross-env STURDY_DISABLE_AUTO_UPDATER=1 ./dist/mac/Sturdy.app/Contents/MacOS/Sturdy"
   },
   "devDependencies": {
+    "@headlessui/vue": "^1.5.0",
+    "@heroicons/vue": "^1.0.6",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
     "@tailwindcss/typography": "^0.5.1",
@@ -46,8 +48,10 @@
     "rollup-plugin-svg": "^2.0.0",
     "rollup-plugin-vue": "^6.0.0",
     "tailwindcss": "^3.0.21",
+    "tar": "^6.1.11",
     "tslib": "^2.3.1",
     "typescript": "^4.4.4",
+    "unzipper": "^0.10.11",
     "vue": "^3.2.30"
   },
   "dependencies": {

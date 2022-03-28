@@ -21,6 +21,9 @@ declare global {
       deleteHostConfig: (cfg: HostConfig) => Promise<void>
       isHostUp: (cfg: HostConfig) => Promise<boolean>
 
+      getChannel: () => Promise<string>
+      setChannel: (channel: string) => Promise<void>
+
       minimize: () => Promise<void>
       maximize: () => Promise<void>
       unmaximize: () => Promise<void>

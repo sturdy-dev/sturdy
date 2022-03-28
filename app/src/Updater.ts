@@ -12,7 +12,7 @@ export class Updater {
 
   #interval?: NodeJS.Timer
 
-  private constructor(logger: Logger, menu: Menu) {
+  constructor(logger: Logger, channel: string) {
     this.#logger = logger.withPrefix('updater')
 
     this.#checkForUpdatesMenuItem = new MenuItem({
@@ -32,13 +32,11 @@ export class Updater {
       visible: false,
     })
 
-    menu.append(this.#checkForUpdatesMenuItem)
-    menu.append(this.#checkingForUpdatesMenuItem)
-    menu.append(this.#restartToApplyMenuItem)
+    autoUpdater.channel = channel
   }
 
-  static async start(logger: Logger, menu: Menu): Promise<Updater> {
-    const updater = new Updater(logger, menu)
+  static async start(logger: Logger, channel: string): Promise<Updater> {
+    const updater = new Updater(logger, channel)
     updater.#listen()
     await updater.checkForUpdates()
     return updater
@@ -92,21 +90,24 @@ export class Updater {
 
   #listen() {
     autoUpdater.on('checking-for-update', () => {
+      this.#logger.log('checking for update on', autoUpdater.channel)
       this.#checkForUpdatesMenuItem.visible = false
       this.#checkingForUpdatesMenuItem.visible = true
       this.#restartToApplyMenuItem.visible = false
     })
     autoUpdater.on('update-not-available', () => {
+      this.#logger.log('update not available')
       this.#checkForUpdatesMenuItem.visible = true
       this.#checkingForUpdatesMenuItem.visible = false
       this.#restartToApplyMenuItem.visible = false
     })
-    autoUpdater.on('download-progress', (progress) => {
-      // this.#checkForUpdatesMenuItem.visible = true
-      // this.#checkingForUpdatesMenuItem.visible = false
-      // this.#restartToApplyMenuItem.visible = false
+    autoUpdater.on('download-progress', (_) => {
+      this.#checkForUpdatesMenuItem.visible = true
+      this.#checkingForUpdatesMenuItem.visible = false
+      this.#restartToApplyMenuItem.visible = false
     })
     autoUpdater.on('update-downloaded', () => {
+      this.#logger.log('update downloader')
       this.#checkForUpdatesMenuItem.visible = false
       this.#checkingForUpdatesMenuItem.visible = false
       this.#restartToApplyMenuItem.visible = true
@@ -118,6 +119,23 @@ export class Updater {
     const result = await autoUpdater.checkForUpdatesAndNotify()
     if (result != null && this.#interval != null) {
       clearInterval(this.#interval)
+    }
+  }
+
+  setChannel(channel: string) {
+    this.#logger.log('setting channel', channel)
+    autoUpdater.channel = channel
+  }
+
+  getChannel() {
+    return autoUpdater.channel
+  }
+
+  appendMenuItem(menu: Menu) {
+    if (process.platform !== 'linux') {
+      menu.append(this.#checkForUpdatesMenuItem)
+      menu.append(this.#checkingForUpdatesMenuItem)
+      menu.append(this.#restartToApplyMenuItem)
     }
   }
 }

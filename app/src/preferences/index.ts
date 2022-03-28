@@ -78,23 +78,32 @@ const validateDetailedHostConfig = (hostConfig: DetailedHostConfig): DetailedHos
   return hostConfig
 }
 
-type migration = (cfg: HostConfig[]) => HostConfig[]
+type Config = {
+  hosts: HostConfig[]
+  appliedMigrations?: string[]
+  channel: string
+}
 
-const updateSelfHosted: migration = (cfg: HostConfig[]) =>
-  cfg.map((host) => {
+type migration = (cfg: Config) => Config
+
+const updateSelfHosted: migration = (cfg: Config) => ({
+  ...cfg,
+  hosts: cfg.hosts.map((host) => {
     if (host.title !== 'Self Hosted') {
       return host
     }
     return { title: host.title, host: 'locahost:30080' }
-  })
+  }),
+})
+
+const setDefaultUpdateChannel: migration = (cfg: Config) => ({
+  ...cfg,
+  channel: 'latest',
+})
 
 const migrations: Record<string, migration> = {
   'update-default-selfhosted-url': updateSelfHosted,
-}
-
-type Config = {
-  hosts: HostConfig[]
-  appliedMigrations?: string[]
+  'set-default-update-channel': setDefaultUpdateChannel,
 }
 
 const development: HostConfig = {
@@ -172,6 +181,7 @@ const hostFromConfig = (hostConfig: HostConfig): Host => {
 }
 
 const defaultConfig = {
+  channel: 'latest',
   hosts:
     process.env.STURDY_DEFAULT_BACKEND === 'development'
       ? [development, cloud, selfhosted]
@@ -183,6 +193,7 @@ const preferencesPath = dataPath('preferences.json')
 export interface PreferencesEvents {
   hostsChanged: [hosts: Host[]]
   open: [host: Host]
+  channelUpdated: [channel: string]
 }
 
 export class Preferences extends TypedEventEmitter<PreferencesEvents> {
@@ -220,7 +231,7 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
 
     cfg = migrationsToApply.reduce((cfg, [migrationName, migrate]) => {
       logger.log(`applying ${migrationName}`)
-      cfg.hosts = migrate(cfg.hosts)
+      cfg = migrate(cfg)
       if (cfg.appliedMigrations) {
         cfg.appliedMigrations.push(migrationName)
       } else {
@@ -326,6 +337,17 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     return this.#config!
   }
 
+  async #getChannel() {
+    return this.#config.channel
+  }
+
+  async #setChannel(channel: string) {
+    if (this.config.channel === channel) return
+    this.#config.channel = channel
+    await this.#saveConfig(this.#config)
+    this.emit('channelUpdated', channel)
+  }
+
   #newWindow() {
     const windowState = ElectronWindowState({
       defaultHeight: 320,
@@ -354,6 +376,9 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
     ipcMain.handle('config:hosts:isUp', (_, hostConfig) => this.#isHostUp(hostConfig))
     ipcMain.handle('config:hosts:open', (_, hostConfig) => this.#openHost(hostConfig))
 
+    ipcMain.handle('config:channel:set', (_, channel) => this.#setChannel(channel))
+    ipcMain.handle('config:channel:get', () => this.#getChannel())
+
     ipcMain.handle('minimize', () => window.minimize())
     ipcMain.handle('maximize', () => window.maximize())
     ipcMain.handle('unmaximize', () => window.unmaximize())
@@ -368,6 +393,9 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
       ipcMain.removeHandler('config:hosts:list')
       ipcMain.removeHandler('config:hosts:isUp')
       ipcMain.removeHandler('config:hosts:open')
+
+      ipcMain.removeHandler('config:channel:set')
+      ipcMain.removeHandler('config:channel:get')
 
       ipcMain.removeHandler('minimize')
       ipcMain.removeHandler('maximize')

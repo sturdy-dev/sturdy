@@ -3,13 +3,40 @@
 set -euo pipefail
 
 DO_UPLOAD=0
-STURDY_SYNC_VERSION="v0.9.0"
 CODESIGN=1
 NOTARIZE=1
 CHANNEL="Beta"
+DO_BUILD=1
+
+ELECTRON_BUILDER_ARCHS=""
+ELECTRON_BUILDER_PLATFORMS=""
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
+	--no-build)
+		DO_BUILD=0
+		shift
+		;;
+	--arm64)
+		ELECTRON_BUILDER_ARCHS="$ELECTRON_BUILDER_ARCHS --arm64"
+		shift
+		;;
+	--amd64)
+		ELECTRON_BUILDER_ARCHS="$ELECTRON_BUILDER_ARCHS --x64"
+		shift
+		;;
+	--windows)
+		ELECTRON_BUILDER_PLATFORMS="$ELECTRON_BUILDER_PLATFORMS --windows"
+		shift
+		;;
+	--linux)
+		ELECTRON_BUILDER_PLATFORMS="$ELECTRON_BUILDER_PLATFORMS --linux"
+		shift
+		;;
+	--mac)
+		ELECTRON_BUILDER_PLATFORMS="$ELECTRON_BUILDER_PLATFORMS --mac"
+		shift
+		;;
 	--sturdy-sync-version)
 		STURDY_SYNC_VERSION="$2"
 		shift
@@ -34,30 +61,25 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
+if [[ -z "$ELECTRON_BUILDER_ARCHS" ]]; then
+	# default amd64 and arm64
+	ELECTRON_BUILDER_ARCHS="--x64 --arm64"
+fi
+
+if [[ -z "$ELECTRON_BUILDER_PLATFORMS" ]]; then
+	# default all platforms
+	ELECTRON_BUILDER_PLATFORMS="--linux --windows --mac"
+fi
+
 source build-common.sh
 
-if [ "$STURDY_SYNC_VERSION" == "" ]; then
-	echoerr "--sturdy-sync-version is not set!"
-	exit 1
-fi
+rm -rf ./assets/bin/*
 
 APP_VERSION="$(jq --raw-output '.version' package.json)"
 validate_version "$APP_VERSION"
 
-if ((NOTARIZE)); then
-	setup_darwin_notarize
+if ((DO_BUILD)); then
+	yarn build
 fi
 
-build darwin amd64
-build darwin arm64
-
-build windows amd64 zip
-
-LINUX_TARGET=rpm build linux amd64
-LINUX_TARGET=deb build linux amd64
-LINUX_TARGET=appImage build linux amd64
-LINUX_TARGET=appImage build linux arm64
-
-if ((DO_UPLOAD)); then
-	invalidate_cloudfront "${CHANNEL}"
-fi
+package "$ELECTRON_BUILDER_ARCHS" "$ELECTRON_BUILDER_PLATFORMS"

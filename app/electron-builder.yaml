@@ -1,0 +1,84 @@
+productName: Sturdy
+appId: com.getsturdy.sturdy
+
+generateUpdatesFilesForAllChannels: true
+detectUpdateChannel: true
+forceCodeSigning: true
+asar: false
+
+extraMetadata:
+  name: Sturdy
+  email: support@getsturdy.com
+  homepage: https://getsturdy.com
+
+afterSign: ./hooks/afterSign.js
+afterPack: ./hooks/afterPack.js
+
+directories:
+  output: electron-dist
+  buildResources: assets
+
+files:
+  - 'dist/*'
+  - 'dist/**/*'
+  - 'assets/*'
+  - 'assets/**/*'
+  - '!assets/bin/*'
+
+mac:
+  category: 'public.app-category.developer-tools'
+  hardenedRuntime: true
+  entitlements: ./entitlements.plist
+  electronUpdaterCompatibility: '>=2.16'
+  extendInfo:
+    LSMultipleInstancesProhibited: true
+  target: ['dmg', 'zip']
+dmg:
+  background: assets/dmg.png
+  window:
+    width: 658
+    height: 498
+  sign: true
+
+win:
+  electronUpdaterCompatibility: '>=2.16'
+  target: ['nsis']
+nsis:
+  menuCategory: false
+  oneClick: true
+  perMachine: false
+  installerHeaderIcon: assets/Sturdy.ico
+  installerIcon: assets/Sturdy.ico
+  uninstallerIcon: assets/Sturdy.ico
+  allowToChangeInstallationDirectory: false
+  runAfterFinish: true
+  artifactName: ${productName}-Installer-${version}.${ext}
+
+linux:
+  electronUpdaterCompatibility: '>=2.16'
+  category: development
+  maintainer: Sturdy
+  executableName: sturdy
+  description: |
+    # Sturdy - Real-Time Version Control
+  desktop:
+    Name: Sturdy
+    Terminal: 'false'
+    Comment: Real-Time Version Control
+    Icon: assets/Sturdy.iconset/icon_256x256.png
+  target: ['appImage', 'rpm', 'deb']
+rpm:
+  packageName: Sturdy
+
+publish:
+  - provider: generic
+    # TODO: strip beta from the url
+    url: https://autoupdate.getsturdy.com/client-beta
+    useMultipleRangeRequest: true
+  - provider: s3
+    bucket: autoupdate.getsturdy.com
+    # TODO: strip beta from the path
+    path: client-beta
+    acl: private
+    region: eu-north-1
+    publishAutoUpdate: true

@@ -1,2 +1,3 @@
-# Auto generated configs
-electron-builder-*.yml
+dist/
+electron-dist/
+assets/bin/
