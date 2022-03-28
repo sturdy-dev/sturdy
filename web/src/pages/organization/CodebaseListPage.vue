@@ -156,8 +156,7 @@ import GitHubIcon from '../../components/icons/GitHubIcon.vue'
 import Tooltip from '../../components/shared/Tooltip.vue'
 import Spinner from '../../components/shared/Spinner.vue'
 import { useUpdatedCodebase } from '../../subscriptions/useUpdatedCodebase'
-import { computed, defineComponent, inject, ref } from 'vue'
-import type { Ref } from 'vue'
+import { computed, defineComponent, inject, ref, type Ref, watch } from 'vue'
 import { Feature } from '../../__generated__/types'
 import { useRoute } from 'vue-router'
 import type {
@@ -170,7 +169,7 @@ import VerticalNavigation from '../../organisms/organization/VerticalNavigation.
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import OrganizationNoCodebasesSetupGitHub from '../../organisms/organization/OrganizationNoCodebasesSetupGitHub.vue'
 import CurvedRightIcon from '../../molecules/icons/CurvedRightIcon.vue'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({
   components: {
@@ -194,9 +193,18 @@ export default defineComponent({
       features?.value?.includes(Feature.GitHubNotConfigured)
     )
 
-    let route = useRoute()
+    const route = useRoute()
+    const organizationSlug = ref(route.params.organizationSlug as string)
+    watch(route, (newRoute) => {
+      if (
+        newRoute.params.organizationSlug &&
+        newRoute.params.organizationSlug !== organizationSlug.value
+      ) {
+        organizationSlug.value = newRoute.params.organizationSlug as string
+      }
+    })
 
-    const result = useQuery<CodebaseListPageQuery, CodebaseListPageQueryVariables>({
+    const result = useQuery<CodebaseListPageQuery, DeepMaybeRef<CodebaseListPageQueryVariables>>({
       query: gql`
         query CodebaseListPage($organizationID: ID!, $isGitHubEnabled: Boolean!) {
           organization(shortID: $organizationID) {
@@ -256,7 +264,7 @@ export default defineComponent({
       `,
       variables: {
         isGitHubEnabled,
-        organizationID: computed(() => route.params.organizationSlug as string),
+        organizationID: organizationSlug,
       },
     })
 
