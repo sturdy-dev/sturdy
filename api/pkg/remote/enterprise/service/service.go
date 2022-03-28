@@ -264,11 +264,20 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 }
 
 func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (git.CredentialsCallback, error) {
+	var attempt int
+
 	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
 		logger := svc.logger.With(zap.String("url", url),
 			zap.String("usernameFromUrl", usernameFromUrl),
 			zap.Stringer("allowedTypes", allowedTypes),
-			zap.Stringer("codebase_id", rem.CodebaseID))
+			zap.Stringer("codebase_id", rem.CodebaseID),
+			zap.Int("attempt", attempt))
+
+		if attempt > 3 {
+			return nil, fmt.Errorf("too many attempts")
+		}
+
+		attempt++
 
 		if rem.KeyPairID != nil {
 			kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)

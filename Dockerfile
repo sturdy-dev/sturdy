@@ -163,7 +163,7 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     curl=7.74.0-1.3+deb11u1 \
     ca-certificates=20210119 \
-    gnupg=2.2.27-2 \
+    gnupg \
     && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | gpg --dearmor \
     | tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null \
