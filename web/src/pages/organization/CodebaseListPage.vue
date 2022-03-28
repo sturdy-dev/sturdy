@@ -194,15 +194,9 @@ export default defineComponent({
     )
 
     const route = useRoute()
-    const organizationSlug = ref(route.params.organizationSlug as string)
-    watch(route, (newRoute) => {
-      if (
-        newRoute.params.organizationSlug &&
-        newRoute.params.organizationSlug !== organizationSlug.value
-      ) {
-        organizationSlug.value = newRoute.params.organizationSlug as string
-      }
-    })
+    const organizationSlug = computed(() =>
+      route.params.organizationSlug ? (route.params.organizationSlug as string) : ''
+    )
 
     const result = useQuery<CodebaseListPageQuery, DeepMaybeRef<CodebaseListPageQueryVariables>>({
       query: gql`

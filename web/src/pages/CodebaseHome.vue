@@ -157,13 +157,9 @@ export default defineComponent({
     },
   },
   setup() {
-    let route = useRoute()
-    let codebaseSlug = ref(route.params.codebaseSlug as string)
-    watch(
-      () => route.params.codebaseSlug,
-      (slug) => {
-        codebaseSlug.value = slug as string
-      }
+    const route = useRoute()
+    const codebaseSlug = computed(() =>
+      route.params.codebaseSlug ? (route.params.codebaseSlug as string) : ''
     )
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
