@@ -1,72 +1,12 @@
 <template>
   <div class="z-40">
-    <OnboardingStep
+    <WorkspaceMergeGitHubButton
       v-if="shareViaGitHubPR"
-      id="SubmittingAPullRequest"
-      :dependencies="['MakingAChange', 'WorkspaceChanges']"
-    >
-      <template #title>Submitting to GitHub</template>
-      <template #description>
-        When you're ready, use this button to create a pull request on GitHub. If you don't want to
-        create a PR, but rather have GitHub just receive updates from Sturdy, update your GitHub
-        Integration settings.
-      </template>
-      <div class="flex flex-col gap-2 items-end">
-        <a
-          v-if="hasGitHubPR && hasOpenGitHubPR"
-          :href="gitHubPRLink"
-          target="_blank"
-          class="flex items-center text-sm text-blue-800"
-        >
-          <span>Go to pull request</span>
-          <ExternalLinkIcon class="w-4 h-4 ml-1" />
-        </a>
-
-        <div class="gap-2 flex">
-          <Button
-            color="blue"
-            size="wider"
-            :disabled="creatingOrUpdatingPR || disabled || isMerging"
-            :class="[creatingOrUpdatingPR || disabled ? 'cursor-default' : '']"
-            :show-tooltip="disabled"
-            :tooltip-right="true"
-            @click="createOrUpdatePR"
-          >
-            <template #default>
-              <div v-if="creatingOrUpdatingPR" class="flex items-center">
-                <Spinner class="mr-1" />
-                <span v-if="!hasOpenGitHubPR">Creating pull request</span>
-                <span v-else> Updating pull request </span>
-              </div>
-              <span v-else-if="!hasOpenGitHubPR">Create pull request</span>
-              <span v-else> Update pull request </span>
-            </template>
-
-            <template #tooltip>
-              {{ cantSubmitTooltipMessage }}
-            </template>
-          </Button>
-
-          <Button
-            v-if="hasGitHubPR && hasOpenGitHubPR"
-            color="green"
-            :disabled="isMerging"
-            :show-tooltip="isMerging"
-            :tooltip-right="true"
-            @click="triggerMergePullRequest"
-          >
-            <template #tooltip>Hang on, we are waiting for GitHub to call back to us...</template>
-            <template #default>
-              <div v-if="isMerging" class="flex items-center">
-                <Spinner class="mr-1" />
-                <span>Merging</span>
-              </div>
-              <span v-else>Merge</span>
-            </template>
-          </Button>
-        </div>
-      </div>
-    </OnboardingStep>
+      :workspace="workspace"
+      :hunk-ids="allHunkIds"
+      :disabled="disabled"
+      :disabledTooltipMessage="cantSubmitTooltipMessage"
+    />
 
     <OnboardingStep
       v-else-if="shareViaRemote"
@@ -140,46 +80,35 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { gql } from '@urql/vue'
 import type { ShareButtonFragment } from './__generated__/WorkspaceShareButton'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import Button from '../components/shared/Button.vue'
 import Spinner from '../components/shared/Spinner.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
-import { useCreateOrUpdateGitHubPullRequest } from '../mutations/useCreateOrUpdateGitHubPullRequest'
-import { useMergeGitHubPullRequest } from '../mutations/useMergeGitHubPullRequest'
-import { GitHubPullRequestState } from '../__generated__/types'
 import { usePushWorkspace } from '../mutations/usePushWorkspace'
 import ButtonWithDropdown from '../components/shared/ButtonWithDropdown.vue'
 import { ShareIcon } from '@heroicons/vue/solid'
 import { MenuItem } from '@headlessui/vue'
 import WorkspaceMergeButton from './WorkspaceMergeButton.vue'
+import WorkspaceMergeGitHubButton, {
+  WORKSPACE_FRAGMENT as MERGE_GITHUB_BUTTON_WORKSPACE_FRAGMENT,
+} from './WorkspaceMergeGitHubButton.vue'
 
 export const SHARE_BUTTON = gql`
   fragment ShareButton on Workspace {
     id
     codebase {
       id
-      gitHubIntegration @include(if: $isGitHubEnabled) {
-        id
-        enabled
-        gitHubIsSourceOfTruth
-        owner
-        name
-      }
       remote @include(if: $isRemoteEnabled) {
         id
         name
         browserLinkBranch
       }
     }
-    gitHubPullRequest @include(if: $isGitHubEnabled) {
-      id
-      pullRequestNumber
-      state
-    }
+    ...MergeGitHubButton_Workspace
   }
+  ${MERGE_GITHUB_BUTTON_WORKSPACE_FRAGMENT}
 `
 
 export enum CANT_SUBMIT_REASON {
@@ -193,12 +122,12 @@ export default defineComponent({
   components: {
     ButtonWithDropdown,
     Spinner,
-    Button,
     OnboardingStep,
     ExternalLinkIcon,
     ShareIcon,
     MenuItem,
     WorkspaceMergeButton,
+    WorkspaceMergeGitHubButton,
   },
   props: {
     workspace: {
@@ -223,22 +152,11 @@ export default defineComponent({
     'pre-create-change': () => true,
   },
   setup() {
-    const { mutating: creatingOrUpdatingPR, createOrUpdateGitHubPullRequest } =
-      useCreateOrUpdateGitHubPullRequest()
-    const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
-      useMergeGitHubPullRequest()
-
     const { mutating: pushingWorkspace, pushWorkspace } = usePushWorkspace()
     let pushedWorkspace = ref(false)
     let isMergingAndPushing = ref(false)
 
     return {
-      creatingOrUpdatingPR,
-      createOrUpdateGitHubPullRequest,
-
-      mergingGitHubPullRequest,
-      mergeGitHubPullRequest,
-
       pushingWorkspace,
       pushedWorkspace,
       isMergingAndPushing,
@@ -246,12 +164,6 @@ export default defineComponent({
     }
   },
   computed: {
-    isMerging() {
-      return (
-        this.mergingGitHubPullRequest ||
-        this.workspace.gitHubPullRequest?.state === GitHubPullRequestState.Merging
-      )
-    },
     shareViaGitHubPR() {
       if (this.workspace.codebase.gitHubIntegration?.enabled) {
         if (this.workspace.codebase.gitHubIntegration?.gitHubIsSourceOfTruth) {
@@ -266,19 +178,7 @@ export default defineComponent({
       }
       return false
     },
-    hasGitHubPR() {
-      return Boolean(this.workspace.gitHubPullRequest?.pullRequestNumber)
-    },
-    hasOpenGitHubPR() {
-      const isOpen = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Open
-      const isMerging = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Merging
-      return isOpen || isMerging
-    },
-    gitHubPRLink() {
-      const { owner, name } = this.workspace.codebase.gitHubIntegration ?? {}
-      const { pullRequestNumber } = this.workspace.gitHubPullRequest ?? {}
-      return `https://github.com/${owner}/${name}/pull/${pullRequestNumber}`
-    },
+
     cantSubmitTooltipMessage(): string {
       switch (this.cantSubmitReason) {
         case CANT_SUBMIT_REASON.WORKSPACE_NOT_FOUND:
@@ -305,75 +205,6 @@ export default defineComponent({
     },
   },
   methods: {
-    async createOrUpdatePR() {
-      // Triggers WorkspaceHome to flush the draft description
-      this.$emit('pre-create-change')
-
-      const input = {
-        workspaceID: this.workspace.id,
-        patchIDs: this.allHunkIds,
-      }
-
-      nextTick(() =>
-        this.createOrUpdateGitHubPullRequest(input).catch((e) => {
-          let message = 'Failed to create or update pull request'
-
-          // Server generated error if the push fails (due to branch protection rules, etc)
-          if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-            if (e.graphQLErrors[0].extensions?.pushFailure) {
-              message = e.graphQLErrors[0].extensions.pushFailure
-            } else if (e.graphQLErrors[0].extensions?.createPullRequestFailure) {
-              message = e.graphQLErrors[0].extensions.createPullRequestFailure
-            } else if (e.graphQLErrors[0].extensions?.getPullRequestFailure) {
-              message = e.graphQLErrors[0].extensions.getPullRequestFailure
-            } else if (e.graphQLErrors[0].extensions?.updatePullRequestFailure) {
-              message = e.graphQLErrors[0].extensions.updatePullRequestFailure
-            } else if (e.graphQLErrors[0].extensions?.message) {
-              message = e.graphQLErrors[0].extensions.message
-            } else {
-              console.error(e)
-            }
-          } else {
-            console.error(e)
-          }
-
-          this.emitter.emit('notification', {
-            title: 'Failed!',
-            message,
-            style: 'error',
-          })
-        })
-      )
-    },
-    async triggerMergePullRequest() {
-      const input = {
-        workspaceID: this.workspace.id,
-      }
-
-      await this.mergeGitHubPullRequest(input).catch((e) => {
-        let title = 'Failed!'
-        let message = 'Failed to merge pull request'
-
-        // Server generated error if the push fails (due to branch protection rules, etc)
-        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-          if (e.graphQLErrors[0].extensions?.message) {
-            title = 'GitHub error'
-            message = e.graphQLErrors[0].extensions.message
-          } else {
-            console.error(e)
-          }
-        } else {
-          console.error(e)
-        }
-
-        this.emitter.emit('notification', {
-          title: title,
-          message,
-          style: 'error',
-        })
-      })
-    },
-
     async triggerPushWorkspace(landOnSturdyAndPushTracked = false) {
       const input = {
         workspaceID: this.workspace.id,
