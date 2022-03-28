@@ -26,9 +26,9 @@
       </div>
 
       <!-- this is the rest of the title bar -->
-      <div class="h-full flex flex-1 items-center border-b titlebar">
+      <div class="h-full flex flex-1 items-center border-b titlebar justify-between">
         <OpenSearchToolbarButton class="px-2" />
-        <AppMutagenStatus class="grow bg-gray-50" />
+        <AppMutagenStatus v-if="isAuthenticated" class="grow bg-gray-50" />
         <AppShareButton class="px-2" />
 
         <WindowsControls v-if="isFrameless && (windows || linux)" />
@@ -65,6 +65,10 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+    user: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     const { appEnvironment } = window
@@ -73,6 +77,9 @@ export default defineComponent({
     }
   },
   computed: {
+    isAuthenticated() {
+      return !!this.user
+    },
     isApp() {
       return !!this.appEnvironment
     },
