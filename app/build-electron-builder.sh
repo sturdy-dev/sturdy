@@ -73,11 +73,6 @@ fi
 
 source build-common.sh
 
-rm -rf ./assets/bin/*
-
-APP_VERSION="$(jq --raw-output '.version' package.json)"
-validate_version "$APP_VERSION"
-
 if ((DO_BUILD)); then
 	yarn build
 fi

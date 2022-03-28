@@ -72,13 +72,11 @@ rpm:
 
 publish:
   - provider: generic
-    # TODO: strip beta from the url
-    url: https://autoupdate.getsturdy.com/client-beta
+    url: https://autoupdate.getsturdy.com/client
     useMultipleRangeRequest: true
   - provider: s3
     bucket: autoupdate.getsturdy.com
-    # TODO: strip beta from the path
-    path: client-beta
+    path: client
     acl: private
     region: eu-north-1
     publishAutoUpdate: true

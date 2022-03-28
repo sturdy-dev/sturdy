@@ -7,6 +7,9 @@ echoerr() { echo "$@" 1>&2; }
 function package() {
 	BUILDER_ARGS="$@"
 
+	APP_VERSION=$(jq --raw-output '.version' package.json)
+	validate_version "$APP_VERSION"
+
 	CODESIGN_EXTRA_ARGS=""
 
 	if ((CODESIGN)) && [[ "$BUILDER_ARGS" =~ "--mac" ]]; then
@@ -26,13 +29,12 @@ function package() {
 
 	yarn electron-builder $PUBLISH_ARGS $CODESIGN_EXTRA_ARGS $@
 
-	if ((DO_UPLOAD)); then
+	if ((DO_UPLOAD)) && [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
 		create_latest "$BUILDER_ARGS"
 		invalidate_cloudfront "$BUILDER_ARGS"
 	fi
 }
 
-# TODO: remove beta from paths
 function invalidate_cloudfront() {
 	echo "--- Invalidating cloudfront cache..."
 
@@ -42,51 +44,51 @@ function invalidate_cloudfront() {
 
 	if [[ "$BUILDER_ARGS" =~ "--mac" ]]; then
 		if [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
-			paths+=("/client-beta/Sturdy-${app_version}.dmg")
-			paths+=("/client-beta/darwin/amd64/Install*")
+			paths+=("/client/Sturdy-${app_version}.dmg")
+			paths+=("/client/darwin/amd64/Install*")
 		fi
 
 		if [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
-			paths+=("/client-beta/Sturdy-${app_version}-arm64.dmg")
-			paths+=("/client-beta/darwin/arm64/Install*")
+			paths+=("/client/Sturdy-${app_version}-arm64.dmg")
+			paths+=("/client/darwin/arm64/Install*")
 		fi
 
-		paths+=("/client-beta/alpha-mac.yml")
-		paths+=("/client-beta/beta-mac.yml")
-		paths+=("/client-beta/latest-mac.yml")
+		paths+=("/client/alpha-mac.yml")
+		paths+=("/client/beta-mac.yml")
+		paths+=("/client/latest-mac.yml")
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--windows" ]]; then
-		paths+=("/client-beta/Sturdy-Installer-${app_version}.exe")
-		paths+=("/client-beta/windows/amd64/Sturdy-Installer.exe")
-		paths+=("/client-beta/alpha.yml")
-		paths+=("/client-beta/beta.yml")
-		paths+=("/client-beta/latest.yml")
+		paths+=("/client/Sturdy-Installer-${app_version}.exe")
+		paths+=("/client/windows/amd64/Sturdy-Installer.exe")
+		paths+=("/client/alpha.yml")
+		paths+=("/client/beta.yml")
+		paths+=("/client/latest.yml")
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--linux" ]]; then
 		if [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
-			paths+=("/client-beta/Sturdy_${app_version}_amd64.deb")
-			paths+=("/client-beta/linux/amd64/Sturdy-Latest.deb")
-			paths+=("/client-beta/Sturdy-${app_version}.x86_64.rpm")
-			paths+=("/client-beta/linux/amd64/Sturdy-Latest.rpm")
-			paths+=("/client-beta/Sturdy-${app_version}.AppImage")
-			paths+=("/client-beta/linux/amd64/Sturdy.AppImage")
-			paths+=("/client-beta/alpha-linux.yml")
-			paths+=("/client-beta/beta-linux.yml")
-			paths+=("/client-beta/latest-linux.yml")
+			paths+=("/client/Sturdy_${app_version}_amd64.deb")
+			paths+=("/client/linux/amd64/Sturdy-Latest.deb")
+			paths+=("/client/Sturdy-${app_version}.x86_64.rpm")
+			paths+=("/client/linux/amd64/Sturdy-Latest.rpm")
+			paths+=("/client/Sturdy-${app_version}.AppImage")
+			paths+=("/client/linux/amd64/Sturdy.AppImage")
+			paths+=("/client/alpha-linux.yml")
+			paths+=("/client/beta-linux.yml")
+			paths+=("/client/latest-linux.yml")
 		fi
 
 		if [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
-			paths+=("/client-beta/Sturdy_${app_version}_arm64.deb")
-			paths+=("/client-beta/linux/arm64/Sturdy-Latest.deb")
-			paths+=("/client-beta/Sturdy-${app_version}.aarch64.rpm")
-			paths+=("/client-beta/linux/arm64/Sturdy-Latest.rpm")
-			paths+=("/client-beta/Sturdy-${app_version}-arm64.AppImage")
-			paths+=("/client-beta/linux/arm64/Sturdy.AppImage")
-			paths+=("/client-beta/alpha-linux-arm64.yml")
-			paths+=("/client-beta/beta-linux-arm64.yml")
-			paths+=("/client-beta/latest-linux-arm64.yml")
+			paths+=("/client/Sturdy_${app_version}_arm64.deb")
+			paths+=("/client/linux/arm64/Sturdy-Latest.deb")
+			paths+=("/client/Sturdy-${app_version}.aarch64.rpm")
+			paths+=("/client/linux/arm64/Sturdy-Latest.rpm")
+			paths+=("/client/Sturdy-${app_version}-arm64.AppImage")
+			paths+=("/client/linux/arm64/Sturdy.AppImage")
+			paths+=("/client/alpha-linux-arm64.yml")
+			paths+=("/client/beta-linux-arm64.yml")
+			paths+=("/client/latest-linux-arm64.yml")
 		fi
 	fi
 
@@ -121,7 +123,6 @@ function validate_version() {
 	(echo "$version" | grep -Eq "$SEMVER_REGEX") || (echo "$version: invalid semver, see https://semver.org/" && exit 1)
 }
 
-# TODO: remove beta from paths
 function create_latest() {
 	BUILDER_ARGS="$@"
 	app_version=$(jq --raw-output '.version' package.json)
@@ -130,48 +131,48 @@ function create_latest() {
 
 	if [[ "$BUILDER_ARGS" =~ "--mac" ]] && [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}.dmg" \
-			"s3://autoupdate.getsturdy.com/client-beta/darwin/amd64/Install Sturdy.dmg"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}.dmg" \
+			"s3://autoupdate.getsturdy.com/client/darwin/amd64/Install Sturdy.dmg"
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--mac" ]] && [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}-arm64.dmg" \
-			"s3://autoupdate.getsturdy.com/client-beta/darwin/arm64/Install Sturdy.dmg"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}-arm64.dmg" \
+			"s3://autoupdate.getsturdy.com/client/darwin/arm64/Install Sturdy.dmg"
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--windows" ]] && [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-Installer-${app_version}.exe" \
-			"s3://autoupdate.getsturdy.com/client-beta/windows/amd64/Sturdy-Installer.exe"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-Installer-${app_version}.exe" \
+			"s3://autoupdate.getsturdy.com/client/windows/amd64/Sturdy-Installer.exe"
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--linux" ]] && [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy_${app_version}_amd64.deb" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/amd64/Sturdy-Latest.deb"
+			"s3://autoupdate.getsturdy.com/client/Sturdy_${app_version}_amd64.deb" \
+			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.deb"
 
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}.x86_64.rpm" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/amd64/Sturdy-Latest.rpm"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}.x86_64.rpm" \
+			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy-Latest.rpm"
 
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}.AppImage" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/amd64/Sturdy.AppImage"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}.AppImage" \
+			"s3://autoupdate.getsturdy.com/client/linux/amd64/Sturdy.AppImage"
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--linux" ]] && [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy_${app_version}_arm64.deb" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/arm64/Sturdy-Latest.deb"
+			"s3://autoupdate.getsturdy.com/client/Sturdy_${app_version}_arm64.deb" \
+			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy-Latest.deb"
 
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}.aarch64.rpm" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/arm64/Sturdy-Latest.rpm"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}.aarch64.rpm" \
+			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy-Latest.rpm"
 
 		aws s3 cp \
-			"s3://autoupdate.getsturdy.com/client-beta/Sturdy-${app_version}-arm64.AppImage" \
-			"s3://autoupdate.getsturdy.com/client-beta/linux/arm64/Sturdy.AppImage"
+			"s3://autoupdate.getsturdy.com/client/Sturdy-${app_version}-arm64.AppImage" \
+			"s3://autoupdate.getsturdy.com/client/linux/arm64/Sturdy.AppImage"
 	fi
 }
 

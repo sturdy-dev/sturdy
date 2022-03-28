@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.5.17-alpha",
+  "version": "0.5.17",
   "name": "SturdyDev",
   "author": "Sturdy Team <support@getsturdy.com>",
   "description": "Real-Time Version Control",
