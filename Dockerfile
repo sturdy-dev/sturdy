@@ -46,6 +46,9 @@ WORKDIR /static
 COPY --chmod=0744 scripts/docker/build_libgit2.sh .
 RUN ./build_libgit2.sh build_libgit2
 
+# TODO(gustav): figure out why running this step above (before building libgit2) breaks things
+RUN apt-get update && apt-get install -y libssh2-1-dev && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /go/src/api
 
 # build api
@@ -55,8 +58,6 @@ COPY ./api ./
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 ENV CGO_ENABLED=1
-
-RUN apt-get update && apt-get install -y libssh2-1-dev && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build \
     --mount=type=cache,target=/root/.cache/go-mod,id=go-cache \
