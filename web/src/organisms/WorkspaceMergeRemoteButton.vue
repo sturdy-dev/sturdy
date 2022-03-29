@@ -41,11 +41,13 @@
         <template #dropdown="{ disabled }">
           <MenuItem :disabled="disabled">
             <Button
-              class="text-sm text-left py-2 px-4 flex hover:bg-gray-50"
+              class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+              :disabled="disabled"
               :icon="shareIcon"
+              :spinner="isMergingAndPushing"
               @click="triggerPushWorkspaceWithMerge"
             >
-              Merge and push to {{ remote.name }}
+              Merge and push to {{ workspace.codebase.remote.name }}
             </Button>
           </MenuItem>
         </template>
@@ -62,7 +64,7 @@ import { ShareIcon } from '@heroicons/vue/solid'
 import { MenuItem } from '@headlessui/vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import ButtonWithDropdown from '../atoms/ButtonWithDropdown.vue'
+import ButtonWithDropdown from '../molecules/ButtonWithDropdown.vue'
 import Button from '../atoms/Button.vue'
 
 import type { MergeRemoteButton_WorkspaceFragment } from './__generated__/WorkspaceMergeRemoteButton'
