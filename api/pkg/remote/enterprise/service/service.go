@@ -79,6 +79,19 @@ func (svc *EnterpriseService) Get(ctx context.Context, codebaseID codebases.ID) 
 	return rep, nil
 }
 
+func (svc *EnterpriseService) GetWithFixedURL(ctx context.Context, codebaseID codebases.ID) (*remote.Remote, error) {
+	rep, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
+	if err != nil {
+		return nil, err
+	}
+
+	if rep.KeyPairID != nil {
+		rep.URL = rewriteSshUrl(rep.URL)
+	}
+
+	return rep, nil
+}
+
 type SetRemoteInput struct {
 	Name              string
 	URL               string
@@ -159,7 +172,7 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 }
 
 func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
-	rem, err := svc.repo.GetByCodebaseID(ctx, ws.CodebaseID)
+	rem, err := svc.GetWithFixedURL(ctx, ws.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
 	}
@@ -202,7 +215,7 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 }
 
 func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebases.ID) error {
-	rem, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
+	rem, err := svc.GetWithFixedURL(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
 	}
@@ -237,7 +250,7 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 }
 
 func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID) error {
-	rem, err := svc.repo.GetByCodebaseID(ctx, codebaseID)
+	rem, err := svc.GetWithFixedURL(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
 	}
