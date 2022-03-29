@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
+	"io/ioutil"
+	"os"
+	"path"
 	"time"
 
 	"github.com/google/uuid"
@@ -172,10 +174,15 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdy-%s", localBranchName, ws.ID)
 
-	creds, err := svc.newCredentialsCallback(ctx, rem)
+	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
+	defer func() {
+		if err := cleanup(); err != nil {
+			svc.logger.Error("failed to cleanup after push", zap.Error(err))
+		}
+	}()
 
 	push := func(repo vcs.RepoGitWriter) error {
 		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
@@ -202,10 +209,15 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 
 	refspec := fmt.Sprintf("refs/heads/sturdytrunk:refs/heads/%s", rem.TrackedBranch)
 
-	creds, err := svc.newCredentialsCallback(ctx, rem)
+	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
+	defer func() {
+		if err := cleanup(); err != nil {
+			svc.logger.Error("failed to cleanup after push trunk", zap.Error(err))
+		}
+	}()
 
 	push := func(repo vcs.RepoGitWriter) error {
 		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
@@ -232,10 +244,15 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdytrunk", rem.TrackedBranch)
 
-	creds, err := svc.newCredentialsCallback(ctx, rem)
+	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
+	defer func() {
+		if err := cleanup(); err != nil {
+			svc.logger.Error("failed to cleanup after pull", zap.Error(err))
+		}
+	}()
 
 	pull := func(repo vcs.RepoGitWriter) error {
 		err := repo.FetchUrlRemoteWithCreds(rem.URL, creds, []string{refspec})
@@ -263,7 +280,41 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	return nil
 }
 
-func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (git.CredentialsCallback, error) {
+func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (cb git.CredentialsCallback, cleanup func() error, err error) {
+	cleanup = func() error { return nil }
+
+	var publicKeyFilePath, privateKeyFilePath string
+
+	if rem.KeyPairID != nil {
+		kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
+		if kpErr != nil {
+			return nil, cleanup, fmt.Errorf("could not get kp: %w", kpErr)
+		}
+
+		tmpDir, err := os.MkdirTemp("", "pk")
+		if err != nil {
+			return nil, cleanup, err
+		}
+
+		publicKeyFilePath = path.Join(tmpDir, "pk.pub")
+		privateKeyFilePath = path.Join(tmpDir, "pk.priv")
+
+		if err := ioutil.WriteFile(publicKeyFilePath, []byte(kp.PublicKey), 0400); err != nil {
+			return nil, cleanup, err
+		}
+
+		if err := ioutil.WriteFile(privateKeyFilePath, []byte(kp.PrivateKey), 0400); err != nil {
+			return nil, cleanup, err
+		}
+
+		cleanup = func() error {
+			if err := os.RemoveAll(tmpDir); err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+
 	var attempt int
 
 	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
@@ -280,19 +331,8 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 		attempt++
 
 		if rem.KeyPairID != nil {
-			kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
-			if kpErr != nil {
-				return nil, fmt.Errorf("could not get kp: %w", kpErr)
-			}
-
-			cred, err := git.NewCredentialSSHKeyFromMemory(usernameFromUrl, strings.TrimSpace(string(kp.PublicKey)), strings.TrimSpace(string(kp.PrivateKey)), "")
-			if err != nil {
-				return nil, err
-			}
-
 			logger.Info("git credentials callback (ssh)")
-
-			return cred, nil
+			return git.NewCredentialSSHKey(usernameFromUrl, publicKeyFilePath, privateKeyFilePath, "")
 		}
 
 		if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
@@ -301,7 +341,7 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 		}
 
 		return nil, fmt.Errorf("no auth found")
-	}, nil
+	}, cleanup, nil
 }
 
 func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (commitSha string, err error) {

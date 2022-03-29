@@ -1,4 +1,9 @@
 # syntax=docker/dockerfile:1
+
+ARG XX_VERSION=1.1.0
+
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+
 FROM golang:1.18.0-bullseye as ssh-builder
 WORKDIR /go/src/ssh
 COPY ./ssh/scripts/build-mutagen.sh ./scripts/build-mutagen.sh
@@ -26,47 +31,50 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 
 FROM golang:1.18.0-bullseye as api-builder
-# compile libgit2
+
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
-    libgit2-dev \
-    libssh2-1-dev \
-    git=1:2.30.2-1 \
-    ca-certificates=20210119 \
-    gcc=4:10.2.1-1 \
-    make=4.3-4.1 \
-    python3 \
-    cmake=3.18.4-2+deb11u1 \
-    libssl-dev=1.1.1k-1+deb11u2 \
-    && rm -rf /var/lib/apt/lists/*
-WORKDIR /libgit2
-RUN git clone https://github.com/libgit2/libgit2.git . && git checkout v1.3.0
-WORKDIR /libgit2/build
-RUN cmake .. -DGIT_SSH=TRUE -DGIT_SSH_MEMORY_CREDENTIALS=TRUE && cmake --build . --target install
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    build-essential \
+    clang \
+    libssl-dev \
+    libz-dev \
+    cmake
+
+COPY --from=xx / /
+
+WORKDIR /static
+COPY --chmod=0744 scripts/docker/build_libgit2.sh .
+RUN ./build_libgit2.sh build_libgit2
+
 WORKDIR /go/src/api
-# cache api dependencies
-COPY ./api/go.mod ./go.mod
-COPY ./api/go.sum ./go.sum
+
 # build api
 ARG API_BUILD_TAGS
 ARG VERSION
 COPY ./api ./
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV CGO_ENABLED=1
+
+RUN apt-get update && apt-get install -y libssh2-1-dev && rm -rf /var/lib/apt/lists/*
+
 RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build \
     --mount=type=cache,target=/root/.cache/go-mod,id=go-cache \
-    GOMODCACHE=/root/.cache/go-mod \
+    export LIBRARY_PATH="/usr/local/$(xx-info triple):/usr/local/$(xx-info triple)/lib64:${LIBRARY_PATH}" && \
+    export PKG_CONFIG_PATH="/usr/local/$(xx-info triple)/lib/pkgconfig:/usr/local/$(xx-info triple)/lib64/pkgconfig:${PKG_CONFIG_PATH}" && \
+    export FLAGS="$(pkg-config --static --libs --cflags libssh2 openssl libgit2)" && \
+    export CGO_LDFLAGS="${FLAGS} -static" && \
     go build \
-    -tags "${API_BUILD_TAGS},static,system_libgit2" \
+    -tags "${API_BUILD_TAGS},netgo,osusergo,static_build" \
     -ldflags "-X getsturdy.com/api/pkg/version.Version=${VERSION}" \
-    -v -o /usr/bin/api getsturdy.com/api/cmd/api
+    -v -o /usr/bin/api  getsturdy.com/api/cmd/api
 
-FROM debian:11.2-slim as api 
+FROM debian:11.2-slim as api
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades \
     git-lfs=2.13.2-1+b5 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
-ENV LD_LIBRARY_PATH=/usr/local/lib
 COPY --from=api-builder /usr/bin/api /usr/bin/api
 ENTRYPOINT [ "/usr/bin/api" ]
 
@@ -179,8 +187,6 @@ RUN apt-get update \
     bash \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=api-builder /usr/local/lib/libgit2* /usr/local/lib/
-ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # s6-overlay
 ARG S6_OVERLAY_VERSION="3.0.0.2" \
@@ -233,6 +239,7 @@ COPY --from=sslmux-builder /go/bin/sslmux /usr/bin/sslmux
 COPY --from=ssh-builder /usr/bin/ssh /usr/bin/ssh
 COPY --from=web-builder /web/dist/oneliner /web/dist
 COPY --from=api-builder /usr/bin/api /usr/bin/api
+
 
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
