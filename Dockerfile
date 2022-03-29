@@ -65,6 +65,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build,id=go-build \
     export PKG_CONFIG_PATH="/usr/local/$(xx-info triple)/lib/pkgconfig:/usr/local/$(xx-info triple)/lib64/pkgconfig:${PKG_CONFIG_PATH}" && \
     export FLAGS="$(pkg-config --static --libs --cflags libssh2 openssl libgit2)" && \
     export CGO_LDFLAGS="${FLAGS} -static" && \
+    export GOMODCACHE=/root/.cache/go-mod && \
     go build \
     -tags "${API_BUILD_TAGS},netgo,osusergo,static_build" \
     -ldflags "-X getsturdy.com/api/pkg/version.Version=${VERSION}" \

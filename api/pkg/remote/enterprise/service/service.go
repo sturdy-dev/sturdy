@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
+	ssh2 "golang.org/x/crypto/ssh"
 
 	"getsturdy.com/api/pkg/analytics"
 	analytics_service "getsturdy.com/api/pkg/analytics/service"
@@ -303,6 +304,8 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 		if err != nil {
 			return nil, err
 		}
+
+		am.HostKeyCallback = ssh2.InsecureIgnoreHostKey()
 
 		return am, nil
 	}
