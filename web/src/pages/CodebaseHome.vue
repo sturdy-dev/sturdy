@@ -345,11 +345,6 @@ export default defineComponent({
     error: function (err) {
       if (err) throw err
     },
-    '$route.params.codebaseSlug': function () {
-      if (this.$route.params.codebaseSlug) {
-        this.refresh()
-      }
-    },
   },
 })
 </script>
