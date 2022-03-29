@@ -163,7 +163,7 @@ export default defineComponent({
     }
 
     const router = useRouter()
-    const ipcExists = false // !!window.ipc
+    const ipcExists = !!window.ipc
 
     function onChangeRoute(currentRoute: RouteLocationNormalizedLoaded) {
       if (ipcExists && currentRoute.meta.nonApp && !currentRoute.meta.isAuth) {
