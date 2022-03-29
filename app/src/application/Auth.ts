@@ -37,6 +37,17 @@ export class Auth extends TypedEventEmitter<AuthEvents> {
       domain: this.#graphqlURL.hostname,
     })
 
+    this.#session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            `script-src 'self' ${this.#graphqlURL.origin} https://umami.getsturdy.com`,
+          ],
+        },
+      })
+    })
+
     for (const cookie of cookies) {
       try {
         const jwt = decode(cookie.value, { json: true })
