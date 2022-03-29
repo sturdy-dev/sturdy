@@ -8,6 +8,14 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.6.0 (2022-03-29)
+
+_Changes since v1.5.0_
+
+* [Improvement] Added SSH authentication support for the git-integration.
+* [Improvement] Added Search button on Drafts and Changes
+* [Fix] Multiple fixes and improvements in the application
+
 # Server v1.5.0 (2022-03-23)
 
 _Changes since v1.4.0_
