@@ -82,8 +82,6 @@ export const WORKSPACE_FRAGMENT = gql`
       id
       gitHubIntegration @include(if: $isGitHubEnabled) {
         id
-        enabled
-        gitHubIsSourceOfTruth
         owner
         name
       }
