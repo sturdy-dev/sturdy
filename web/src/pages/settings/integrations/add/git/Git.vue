@@ -55,9 +55,7 @@
 
                 <TextInput v-model="basicAuthPassword" placeholder="Password" />
 
-                <!-- Disable SSH, we're having some issues with it -->
                 <Button
-                  v-if="false"
                   :spinner="generatingPrivateKey"
                   :disabled="generatingPrivateKey"
                   @click="generateKeyPair"
