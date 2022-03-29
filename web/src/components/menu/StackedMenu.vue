@@ -807,12 +807,6 @@ export default defineComponent({
   },
 
   watch: {
-    $route: function (newRoute) {
-      this.shortCodebaseID = newRoute.params.codebaseSlug
-        ? IdFromSlug(newRoute.params.codebaseSlug as string)
-        : ''
-    },
-
     currentCodebaseOrWorkspace: function (newCurrent) {
       this.$nextTick(() => {
         if (this.$refs && this.$refs[newCurrent]) {
