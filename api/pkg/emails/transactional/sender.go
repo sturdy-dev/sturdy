@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"getsturdy.com/api/pkg/organization"
 	"strings"
 	"time"
 
@@ -39,10 +38,12 @@ type EmailSender interface {
 	SendNotification(context.Context, *users.User, *notification.Notification) error
 	SendConfirmEmail(context.Context, *users.User) error
 	SendMagicLink(context.Context, *users.User, string) error
-	SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, organization *organization.Organization) error
+	SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, codebase *codebases.Codebase) error
 }
 
 var ErrNotSupported = errors.New("notification type not supported")
+
+var _ EmailSender = (*Sender)(nil)
 
 type Sender struct {
 	logger *zap.Logger

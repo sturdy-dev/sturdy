@@ -13,6 +13,8 @@ import (
 	"getsturdy.com/api/pkg/users"
 )
 
+var _ transactional.EmailSender = (*Sender)(nil)
+
 type Sender struct {
 	*transactional.Sender
 
