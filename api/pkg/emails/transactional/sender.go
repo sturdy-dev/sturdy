@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"getsturdy.com/api/pkg/organization"
 	"strings"
 	"time"
 
@@ -38,6 +39,7 @@ type EmailSender interface {
 	SendNotification(context.Context, *users.User, *notification.Notification) error
 	SendConfirmEmail(context.Context, *users.User) error
 	SendMagicLink(context.Context, *users.User, string) error
+	SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, organization *organization.Organization) error
 }
 
 var ErrNotSupported = errors.New("notification type not supported")
@@ -121,6 +123,15 @@ func (e *Sender) SendConfirmEmail(ctx context.Context, user *users.User) error {
 	return e.Send(ctx, user, title, templates.VerifyEmailTemplate, &templates.VerifyEmailTemplateData{
 		User:  user,
 		Token: token,
+	})
+}
+
+func (e *Sender) SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, codebase *codebases.Codebase) error {
+	title := fmt.Sprintf("%s invited you to join %s", invitingUser.Name, codebase.Name)
+	return e.SendToSomeone(ctx, invitingUser, invitedUser, title, templates.InviteNewUserTemplate, &templates.InviteNewUserTemplateData{
+		InvitingUser: invitingUser,
+		InvitedUser:  invitedUser,
+		Codebase:     codebase,
 	})
 }
 
@@ -439,6 +450,41 @@ func (e *Sender) Send(
 	}
 
 	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(u.ID.String()),
+		analytics.Property("template", string(template)),
+		analytics.Property("subject", subject),
+	)
+
+	return nil
+}
+
+func (e *Sender) SendToSomeone(
+	ctx context.Context,
+	invitingUser *users.User,
+	invitedUser *users.User,
+	subject string,
+	template templates.Template,
+	data any,
+) error {
+	content, err := templates.Render(template, data)
+	if err != nil {
+		return fmt.Errorf("failed to render email: %w", err)
+	}
+
+	e.logger.Info(
+		"sending email",
+		zap.Stringer("user_id", invitingUser.ID),
+		zap.String("template", string(template)),
+	)
+
+	if err := e.sender.Send(ctx, &emails.Email{
+		To:      invitedUser.Email,
+		Subject: subject,
+		Html:    content,
+	}); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(invitingUser.ID.String()),
 		analytics.Property("template", string(template)),
 		analytics.Property("subject", subject),
 	)

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"getsturdy.com/api/pkg/organization"
 	"time"
 
 	"getsturdy.com/api/pkg/analytics"
@@ -194,5 +195,12 @@ func (s *Service) setEmailVerified(ctx context.Context, user *users.User) error 
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
+	return nil
+}
+
+func (s *Service) InviteNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, organization *organization.Organization) error {
+	if err := s.transactionalEmailSender.SendInviteToNewUser(ctx, invitingUser, invitedUser, organization); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
 	return nil
 }
