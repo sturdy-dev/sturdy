@@ -123,7 +123,7 @@ func (svc *Service) Update(ctx context.Context, organizationID string, newName s
 		return nil, fmt.Errorf("could not update organization: %w", err)
 	}
 
-	if err := svc.eventsSender.OrganizationUpdated(ctx, events.Organization((organizationID)), org); err != nil {
+	if err := svc.eventsSender.OrganizationUpdated(ctx, events.Organization(organizationID), org); err != nil {
 		return nil, fmt.Errorf("failed to send event: %w", err)
 	}
 

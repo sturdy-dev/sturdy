@@ -30,6 +30,28 @@ func TestRenderWelcome(t *testing.T) {
 	assert.Equal(t, mustReadFile(t, "testdata/welcome.html"), output)
 }
 
+func TestInviteNewUser(t *testing.T) {
+	output, err := Render(InviteNewUserTemplate, InviteNewUserTemplateData{
+		InvitingUser: &users.User{
+			Name:  "Joao",
+			Email: "test@email.com",
+		},
+		InvitedUser: &users.User{
+			Email: "joao.wip@gmail.com",
+		},
+		Codebase: &codebases.Codebase{
+			Name:            "imported",
+			ShortCodebaseID: "123456",
+		},
+	})
+
+	// uncomment make a snapshot
+	// os.WriteFile("testdata/invite_new_user.html", []byte(output), 0666)
+
+	assert.NoError(t, err)
+	assert.Equal(t, mustReadFile(t, "testdata/invite_new_user.html"), output)
+}
+
 func TestRenderGitHubRepositoryImported(t *testing.T) {
 	output, err := Render(NotificationGitHubRepositoryImportedTemplate, NotificationGitHubRepositoryImportedTemplateData{
 		GitHubRepo: &github.Repository{

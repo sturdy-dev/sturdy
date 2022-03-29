@@ -50,6 +50,7 @@ const (
 	NotificationReviewTemplate                   Template = "review.template.html"
 	VerifyEmailTemplate                          Template = "verify_email.template.html"
 	MagicLinkTemplate                            Template = "magic_link.template.html"
+	InviteNewUserTemplate                        Template = "invite_new_user.template.html"
 )
 
 type WelcomeTemplateData struct {
@@ -108,6 +109,12 @@ type VerifyEmailTemplateData struct {
 	User *users.User
 
 	Token *jwt.Token
+}
+
+type InviteNewUserTemplateData struct {
+	InvitingUser *users.User
+	InvitedUser  *users.User
+	Codebase     *codebases.Codebase
 }
 
 func Render(template Template, data any) (string, error) {

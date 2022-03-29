@@ -15,3 +15,4 @@ yarn run mjml "${CWD}/notification/requested_review.template.mjml" -o "${CWD}/ou
 yarn run mjml "${CWD}/notification/review.template.mjml" -o "${CWD}/output/notification/review.template.html"
 yarn run mjml "${CWD}/verify_email.template.mjml" -o "${CWD}/output/verify_email.template.html"
 yarn run mjml "${CWD}/magic_link.template.mjml" -o "${CWD}/output/magic_link.template.html"
+yarn run mjml "${CWD}/invite_new_user.template.mjml" -o "${CWD}/output/invite_new_user.template.html"
