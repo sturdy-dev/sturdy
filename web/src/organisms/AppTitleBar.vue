@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, inject } from 'vue'
 
 import AppShareButton from '../molecules/AppShareButton.vue'
 import AppNavigationButtons from '../molecules/AppNavigationButtons.vue'
@@ -65,10 +65,12 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    user: {
-      type: Object,
-      required: false,
-    },
+  },
+  setup() {
+    let user = inject('user')
+    return {
+      user
+    }
   },
   data() {
     try {

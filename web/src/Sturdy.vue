@@ -6,7 +6,7 @@
 
     <template v-else-if="!isApp && isAuthPage">
       <ClientOnly>
-        <AppTitleBar :user="user" :show-sidebar="showSidebar">
+        <AppTitleBar :show-sidebar="showSidebar">
           <router-view :user="user" :features="features" />
         </AppTitleBar>
       </ClientOnly>
@@ -24,7 +24,7 @@
     <template v-else>
       <!-- Bottom section -->
       <ClientOnly>
-        <AppTitleBar :user="user" :show-sidebar="showSidebar">
+        <AppTitleBar :show-sidebar="showSidebar">
           <!-- Narrow sidebar-->
           <StackedMenu
             v-if="showSidebar"
