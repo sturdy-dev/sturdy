@@ -64,7 +64,7 @@ import { gql } from '@urql/vue'
 
 import ShareButton, { CANT_SUBMIT_REASON, SHARE_BUTTON } from './WorkspaceShareButton.vue'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import { AUTHOR } from '../components/shared/AvatarHelper'
+import { AUTHOR } from '../atoms/AvatarHelper'
 
 import type { WorkspaceDescription_WorkspaceFragment } from './__generated__/WorkspaceDescription'
 

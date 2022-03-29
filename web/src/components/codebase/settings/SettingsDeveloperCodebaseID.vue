@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import HorizontalDivider from '../../shared/HorizontalDivider.vue'
+import HorizontalDivider from '../../../atoms/HorizontalDivider.vue'
 import { defineProps } from 'vue'
 
 interface Props {

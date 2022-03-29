@@ -117,7 +117,7 @@ curl -v -H "Authorization: bearer {{ token }}" \
 <script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
 import http from '../../http'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 import { ClientOnly } from 'vite-ssr/vue'
 import { onMounted, ref } from 'vue'
 

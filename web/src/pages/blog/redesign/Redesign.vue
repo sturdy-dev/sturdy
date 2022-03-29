@@ -160,7 +160,7 @@
 <script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../gustav.jpeg'
-import Pill from '../../../components/shared/Pill.vue'
+import Pill from '../../../atoms/Pill.vue'
 
 const author = {
   name: 'Gustav Westling',

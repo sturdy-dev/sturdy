@@ -45,7 +45,7 @@ import type {
   NotificationChannel,
   NotificationPreference,
 } from '../../__generated__/types'
-import mentionify from '../shared/mentionify'
+import mentionify from '../../atoms/mentionify'
 import type {
   NotificationFragment,
   NotificationIconQuery,

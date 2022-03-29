@@ -243,7 +243,7 @@
 <script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
 import { CheckIcon, XIcon } from '@heroicons/vue/outline'
-import Pill from '../../components/shared/Pill.vue'
+import Pill from '../../atoms/Pill.vue'
 
 const plans = [
   {

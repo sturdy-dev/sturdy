@@ -98,7 +98,7 @@
 </template>
 
 <script lang="ts" setup>
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 import StaticPage from '../../layouts/StaticPage.vue'
 import Permissions from '../../components/github/Permissions.vue'
 </script>

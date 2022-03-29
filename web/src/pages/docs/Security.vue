@@ -113,5 +113,5 @@
 
 <script lang="ts" setup>
 import StaticPage from '../../layouts/StaticPage.vue'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 </script>

@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { useHead } from '@vueuse/head'
-import LinkButton from '../../../components/shared/LinkButton.vue'
+import LinkButton from '../../../atoms/LinkButton.vue'
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/vue/solid'
 import Documentation from '../../../layouts/Documentation.vue'
 
