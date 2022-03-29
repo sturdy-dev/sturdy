@@ -29,8 +29,10 @@ function package() {
 
 	yarn electron-builder $PUBLISH_ARGS $CODESIGN_EXTRA_ARGS $@
 
-	if ((DO_UPLOAD)) && [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
-		create_latest "$BUILDER_ARGS"
+	if ((DO_UPLOAD)); then
+		if [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
+			create_latest "$BUILDER_ARGS"
+		fi
 		invalidate_cloudfront "$BUILDER_ARGS"
 	fi
 }
@@ -43,14 +45,16 @@ function invalidate_cloudfront() {
 	declare -a paths
 
 	if [[ "$BUILDER_ARGS" =~ "--mac" ]]; then
-		if [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
-			paths+=("/client/Sturdy-${app_version}.dmg")
-			paths+=("/client/darwin/amd64/Install*")
-		fi
+		if [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
+			if [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
+				paths+=("/client/Sturdy-${app_version}.dmg")
+				paths+=("/client/darwin/amd64/Install*")
+			fi
 
-		if [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
-			paths+=("/client/Sturdy-${app_version}-arm64.dmg")
-			paths+=("/client/darwin/arm64/Install*")
+			if [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
+				paths+=("/client/Sturdy-${app_version}-arm64.dmg")
+				paths+=("/client/darwin/arm64/Install*")
+			fi
 		fi
 
 		paths+=("/client/alpha-mac.yml")
@@ -59,8 +63,10 @@ function invalidate_cloudfront() {
 	fi
 
 	if [[ "$BUILDER_ARGS" =~ "--windows" ]]; then
-		paths+=("/client/Sturdy-Installer-${app_version}.exe")
-		paths+=("/client/windows/amd64/Sturdy-Installer.exe")
+		if [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
+			paths+=("/client/Sturdy-Installer-${app_version}.exe")
+			paths+=("/client/windows/amd64/Sturdy-Installer.exe")
+		fi
 		paths+=("/client/alpha.yml")
 		paths+=("/client/beta.yml")
 		paths+=("/client/latest.yml")
@@ -68,24 +74,28 @@ function invalidate_cloudfront() {
 
 	if [[ "$BUILDER_ARGS" =~ "--linux" ]]; then
 		if [[ "$BUILDER_ARGS" =~ "--x64" ]]; then
-			paths+=("/client/Sturdy_${app_version}_amd64.deb")
-			paths+=("/client/linux/amd64/Sturdy-Latest.deb")
-			paths+=("/client/Sturdy-${app_version}.x86_64.rpm")
-			paths+=("/client/linux/amd64/Sturdy-Latest.rpm")
-			paths+=("/client/Sturdy-${app_version}.AppImage")
-			paths+=("/client/linux/amd64/Sturdy.AppImage")
+			if [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
+				paths+=("/client/Sturdy_${app_version}_amd64.deb")
+				paths+=("/client/linux/amd64/Sturdy-Latest.deb")
+				paths+=("/client/Sturdy-${app_version}.x86_64.rpm")
+				paths+=("/client/linux/amd64/Sturdy-Latest.rpm")
+				paths+=("/client/Sturdy-${app_version}.AppImage")
+				paths+=("/client/linux/amd64/Sturdy.AppImage")
+			fi
 			paths+=("/client/alpha-linux.yml")
 			paths+=("/client/beta-linux.yml")
 			paths+=("/client/latest-linux.yml")
 		fi
 
 		if [[ "$BUILDER_ARGS" =~ "--arm64" ]]; then
-			paths+=("/client/Sturdy_${app_version}_arm64.deb")
-			paths+=("/client/linux/arm64/Sturdy-Latest.deb")
-			paths+=("/client/Sturdy-${app_version}.aarch64.rpm")
-			paths+=("/client/linux/arm64/Sturdy-Latest.rpm")
-			paths+=("/client/Sturdy-${app_version}-arm64.AppImage")
-			paths+=("/client/linux/arm64/Sturdy.AppImage")
+			if [[ ! "$APP_VERSION" =~ "alpha" ]] && [[ ! "$APP_VERSION" =~ "beta" ]]; then
+				paths+=("/client/Sturdy_${app_version}_arm64.deb")
+				paths+=("/client/linux/arm64/Sturdy-Latest.deb")
+				paths+=("/client/Sturdy-${app_version}.aarch64.rpm")
+				paths+=("/client/linux/arm64/Sturdy-Latest.rpm")
+				paths+=("/client/Sturdy-${app_version}-arm64.AppImage")
+				paths+=("/client/linux/arm64/Sturdy.AppImage")
+			fi
 			paths+=("/client/alpha-linux-arm64.yml")
 			paths+=("/client/beta-linux-arm64.yml")
 			paths+=("/client/latest-linux-arm64.yml")
