@@ -17,7 +17,10 @@ replace github.com/graph-gophers/graphql-transport-ws => github.com/sturdy-dev/g
 // Custom fork of go-flags to avoid tags name conflict
 replace github.com/jessevdk/go-flags => github.com/sturdy-dev/go-flags v1.5.1-0.20220203104421-967e8bff1baf
 
+replace github.com/go-git/go-git/v5 => github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c
+
 require (
+	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
 	github.com/aws/aws-sdk-go v1.38.47
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
@@ -31,6 +34,7 @@ require (
 	github.com/gin-contrib/gzip v0.0.5
 	github.com/gin-contrib/zap v0.0.2
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-git/go-git/v5 v5.4.3
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/gofrs/flock v0.8.1
 	github.com/golang-migrate/migrate/v4 v4.15.1
@@ -69,7 +73,9 @@ require (
 )
 
 require (
-	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5 // indirect
+	github.com/Microsoft/go-winio v0.5.0 // indirect
+	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
+	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -79,7 +85,10 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/go-git/gcfg v1.5.0 // indirect
+	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -89,14 +98,18 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
+	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -106,7 +119,9 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
+	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/goleak v1.1.11 // indirect
@@ -119,6 +134,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

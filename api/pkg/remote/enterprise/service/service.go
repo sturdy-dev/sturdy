@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path"
 	"time"
 
+	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/transport"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/google/uuid"
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
@@ -187,22 +189,21 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdy-%s", localBranchName, ws.ID)
 
-	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
+	creds, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
-	defer func() {
-		if err := cleanup(); err != nil {
-			svc.logger.Error("failed to cleanup after push", zap.Error(err))
-		}
-	}()
 
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
-		if err != nil {
+		_, err := repo.PushRemoteUrlWithRefspecGogit(svc.logger, rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		switch {
+		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
+			return nil
+		case err != nil:
 			return fmt.Errorf("failed to push: %w", err)
+		default:
+			return nil
 		}
-		return nil
 	}
 
 	if err := svc.executorProvider.New().GitWrite(push).ExecTrunk(ws.CodebaseID, "pushRemote"); err != nil {
@@ -222,22 +223,21 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 
 	refspec := fmt.Sprintf("refs/heads/sturdytrunk:refs/heads/%s", rem.TrackedBranch)
 
-	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
+	creds, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
-	defer func() {
-		if err := cleanup(); err != nil {
-			svc.logger.Error("failed to cleanup after push trunk", zap.Error(err))
-		}
-	}()
 
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspec(svc.logger, rem.URL, creds, []string{refspec})
-		if err != nil {
+		_, err := repo.PushRemoteUrlWithRefspecGogit(svc.logger, rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		switch {
+		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
+			return nil
+		case err != nil:
 			return fmt.Errorf("failed to push: %w", err)
+		default:
+			return nil
 		}
-		return nil
 	}
 
 	if err := svc.executorProvider.New().GitWrite(push).ExecTrunk(codebaseID, "pushTrunkRemote"); err != nil {
@@ -257,22 +257,21 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdytrunk", rem.TrackedBranch)
 
-	creds, cleanup, err := svc.newCredentialsCallback(ctx, rem)
+	creds, err := svc.newCredentialsCallback(ctx, rem)
 	if err != nil {
 		return fmt.Errorf("could not get creds: %w", err)
 	}
-	defer func() {
-		if err := cleanup(); err != nil {
-			svc.logger.Error("failed to cleanup after pull", zap.Error(err))
-		}
-	}()
 
 	pull := func(repo vcs.RepoGitWriter) error {
-		err := repo.FetchUrlRemoteWithCreds(rem.URL, creds, []string{refspec})
-		if err != nil {
+		err := repo.FetchUrlRemoteWithCredsGogit(rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		switch {
+		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
+			return nil
+		case err != nil:
 			return fmt.Errorf("failed to pull: %w", err)
+		default:
+			return nil
 		}
-		return nil
 	}
 
 	if err := svc.executorProvider.New().GitWrite(pull).ExecTrunk(codebaseID, "pullRemote"); err != nil {
@@ -293,75 +292,29 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	return nil
 }
 
-func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (cb git.CredentialsCallback, cleanup func() error, err error) {
-	cleanup = func() error { return nil }
-
-	var publicKeyFilePath, privateKeyFilePath string
-
+func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *remote.Remote) (cb transport.AuthMethod, err error) {
 	if rem.KeyPairID != nil {
 		kp, kpErr := svc.keyPairRepository.Get(ctx, *rem.KeyPairID)
 		if kpErr != nil {
-			return nil, cleanup, fmt.Errorf("could not get kp: %w", kpErr)
+			return nil, fmt.Errorf("could not get kp: %w", kpErr)
 		}
 
-		tmpDir, err := os.MkdirTemp("", "pk")
+		am, err := ssh.NewPublicKeys("git", []byte(kp.PrivateKey), "")
 		if err != nil {
-			return nil, cleanup, err
+			return nil, err
 		}
 
-		publicKeyFilePath = path.Join(tmpDir, "pk.pub")
-		privateKeyFilePath = path.Join(tmpDir, "pk.priv")
-
-		if err := ioutil.WriteFile(publicKeyFilePath, []byte(kp.PublicKey), 0400); err != nil {
-			return nil, cleanup, err
-		}
-
-		if err := ioutil.WriteFile(privateKeyFilePath, []byte(kp.PrivateKey), 0400); err != nil {
-			return nil, cleanup, err
-		}
-
-		cleanup = func() error {
-			if err := os.RemoveAll(tmpDir); err != nil {
-				return err
-			}
-			return nil
-		}
+		return am, nil
 	}
 
-	var attempt int
+	if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
+		return &http.BasicAuth{
+			Username: *rem.BasicAuthUsername,
+			Password: *rem.BasicAuthPassword,
+		}, nil
+	}
 
-	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
-		// fallback if not set
-		username := usernameFromUrl
-		if username == "" {
-			username = "git"
-		}
-
-		logger := svc.logger.With(zap.String("url", url),
-			zap.String("usernameFromUrl", usernameFromUrl),
-			zap.String("username", username),
-			zap.Stringer("allowedTypes", allowedTypes),
-			zap.Stringer("codebase_id", rem.CodebaseID),
-			zap.Int("attempt", attempt))
-
-		if attempt > 3 {
-			return nil, fmt.Errorf("too many attempts")
-		}
-
-		attempt++
-
-		if rem.KeyPairID != nil {
-			logger.Info("git credentials callback (ssh)")
-			return git.NewCredentialSSHKey(username, publicKeyFilePath, privateKeyFilePath, "")
-		}
-
-		if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
-			logger.Info("git credentials callback (basic)")
-			return git.NewCredentialUserpassPlaintext(*rem.BasicAuthUsername, *rem.BasicAuthPassword)
-		}
-
-		return nil, fmt.Errorf("no auth found")
-	}, cleanup, nil
+	return nil, errors.New("no auth method found")
 }
 
 func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (commitSha string, err error) {

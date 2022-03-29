@@ -11,10 +11,14 @@ import (
 	"strings"
 	"time"
 
-	"getsturdy.com/api/pkg/codebases"
+	gogit "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/codebases"
 
 	git "github.com/libgit2/git2go/v33"
 )
@@ -574,6 +578,35 @@ func (r *repository) ForcePush(logger *zap.Logger, branchName string) error {
 	return nil
 }
 
+func (r *repository) PushRemoteUrlWithRefspecGogit(logger *zap.Logger, remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error) {
+	defer getMeterFunc("PushRemoteUrlWithRefspecGogit")()
+
+	gg, err := gogit.PlainOpen(r.path)
+	if err != nil {
+		return "", err
+	}
+
+	remote, err := gg.CreateRemoteAnonymous(&config.RemoteConfig{
+		Name: "anonymous",
+		URLs: []string{remoteUrl},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	err = remote.Push(&gogit.PushOptions{
+		RemoteName: "anonymous",
+		RefSpecs:   refspecs,
+		Auth:       creds,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
+}
+
 func (r *repository) PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error) {
 	defer getMeterFunc("PushRemoteUrlWithRefspec")()
 
@@ -802,6 +835,35 @@ func (r *repository) FetchUrlRemoteWithCreds(url string, creds git.CredentialsCa
 	defer remote.Free()
 
 	err = remote.Fetch(refspecs, opts, "")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *repository) FetchUrlRemoteWithCredsGogit(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) error {
+	defer getMeterFunc("FetchUrlRemoteWithCredsGogit")()
+
+	gg, err := gogit.PlainOpen(r.path)
+	if err != nil {
+		return err
+	}
+
+	remote, err := gg.CreateRemoteAnonymous(&config.RemoteConfig{
+		Name: "anonymous",
+		URLs: []string{remoteUrl},
+	})
+	if err != nil {
+		return err
+	}
+
+	err = remote.Fetch(&gogit.FetchOptions{
+		RefSpecs: refspecs,
+		Auth:     creds,
+		Progress: os.Stderr,
+		Depth:    100,
+	})
 	if err != nil {
 		return err
 	}

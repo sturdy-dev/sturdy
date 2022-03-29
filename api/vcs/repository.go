@@ -1,9 +1,12 @@
 package vcs
 
 import (
-	"getsturdy.com/api/pkg/codebases"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
+
+	"getsturdy.com/api/pkg/codebases"
 )
 
 // RepoGitReader only need access to read .git on the filesystem.
@@ -62,9 +65,11 @@ type RepoGitWriter interface {
 	ForcePush(logger *zap.Logger, branchName string) error
 	PushNamedRemoteWithRefspec(logger *zap.Logger, remoteName string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
 	PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
+	PushRemoteUrlWithRefspecGogit(logger *zap.Logger, remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
 
 	FetchNamedRemoteWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error
 	FetchUrlRemoteWithCreds(remoteUrl string, creds git.CredentialsCallback, refspecs []string) error
+	FetchUrlRemoteWithCredsGogit(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) error
 	FetchBranch(branches ...string) error
 
 	SetDefaultBranch(targetBranch string) error
