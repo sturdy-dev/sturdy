@@ -318,8 +318,15 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 	var attempt int
 
 	return func(url string, usernameFromUrl string, allowedTypes git.CredentialType) (*git.Credential, error) {
+		// fallback if not set
+		username := usernameFromUrl
+		if username == "" {
+			username = "git"
+		}
+
 		logger := svc.logger.With(zap.String("url", url),
 			zap.String("usernameFromUrl", usernameFromUrl),
+			zap.String("username", username),
 			zap.Stringer("allowedTypes", allowedTypes),
 			zap.Stringer("codebase_id", rem.CodebaseID),
 			zap.Int("attempt", attempt))
@@ -332,7 +339,7 @@ func (svc *EnterpriseService) newCredentialsCallback(ctx context.Context, rem *r
 
 		if rem.KeyPairID != nil {
 			logger.Info("git credentials callback (ssh)")
-			return git.NewCredentialSSHKey(usernameFromUrl, publicKeyFilePath, privateKeyFilePath, "")
+			return git.NewCredentialSSHKey(username, publicKeyFilePath, privateKeyFilePath, "")
 		}
 
 		if rem.BasicAuthUsername != nil && rem.BasicAuthPassword != nil {
