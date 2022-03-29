@@ -80,7 +80,7 @@ import { ref, inject, computed, defineComponent } from 'vue'
 import type { Ref, PropType } from 'vue'
 
 import RelativeTime from '../../atoms/RelativeTime.vue'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import {
   CalendarIcon,
   ChatAltIcon,
@@ -90,11 +90,11 @@ import {
 } from '@heroicons/vue/solid'
 import DownloadChangeButton from '../../molecules/DownloadChangeButton.vue'
 import StatusDetails, { STATUS_FRAGMENT } from '../statuses/StatusDetails.vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { gql } from '@urql/vue'
 import { Feature } from '../../__generated__/types'
 
-import { AUTHOR } from '../shared/AvatarHelper'
+import { AUTHOR } from '../../atoms/AvatarHelper'
 import type { ChangelogDetails_ChangeFragment } from './__generated__/ChangelogDetails'
 
 export const CHANGE_FRAGMENT = gql`

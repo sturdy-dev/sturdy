@@ -43,12 +43,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { Banner } from '../../atoms'
-import TextareaAutosize from '../shared/TextareaAutosize.vue'
+import TextareaAutosize from '../../atoms/TextareaAutosize.vue'
 import { useCreateComment } from '../../mutations/useCreateComment'
-import type { UserFragment, MemberFragment } from '../shared/__generated__/TextareaMentions'
-import Avatar from '../shared/Avatar.vue'
+import type { UserFragment, MemberFragment } from '../../atoms/__generated__/TextareaMentions'
+import Avatar from '../../atoms/Avatar.vue'
 import { gql } from '@urql/vue'
 import type {
   ReviewNewCommentViewFragment,

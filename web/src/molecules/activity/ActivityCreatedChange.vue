@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import Avatar from '../../components/shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import RelativeTime from '../../atoms/RelativeTime.vue'
 import type { PropType } from 'vue'
 import { toRef } from 'vue'

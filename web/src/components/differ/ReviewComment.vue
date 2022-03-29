@@ -62,10 +62,10 @@ import type { Comment } from './event'
 import ReviewCommentChild from './ReviewCommentChild.vue'
 import { useUpdateComment } from '../../mutations/useUpdateComment'
 import { useDeleteComment } from '../../mutations/useDeleteComment'
-import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type { MemberFragment, UserFragment } from '../../atoms/__generated__/TextareaMentions'
 import CommentReply from '../comments/CommentReply.vue'
-import Avatar from '../shared/Avatar.vue'
-import AvatarGroup from '../shared/AvatarGroup.vue'
+import Avatar from '../../atoms/Avatar.vue'
+import AvatarGroup from '../../atoms/AvatarGroup.vue'
 import type { CommentState, SetCommentExpandedEvent } from '../comments/CommentState'
 
 export default defineComponent({

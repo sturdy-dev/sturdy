@@ -6,10 +6,10 @@
       class="my-2"
     >
       <h3 class="text-sm font-medium text-yellow-800">
-        The changes are conflicting with changes already shared to the codebase.
+        The changes are conflicting with changes already ../atoms to the codebase.
       </h3>
       <div class="mt-2 text-sm text-yellow-700">
-        <p>You need to sync and fix the conflicts before the changes can be shared.</p>
+        <p>You need to sync and fix the conflicts before the changes can be ../atoms.</p>
       </div>
     </Banner>
 
@@ -196,8 +196,8 @@ import http from '../../http'
 import { XIcon } from '@heroicons/vue/outline'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
 import { Banner } from '../../atoms'
-import Avatar from '../shared/Avatar.vue'
-import Button from '../shared/Button.vue'
+import Avatar from '../../atoms/Avatar.vue'
+import Button from '../../atoms/Button.vue'
 import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import { computed, defineComponent, inject, ref } from 'vue'
@@ -222,7 +222,7 @@ import type {
   LiveDetailsQueryVariables,
   LiveDetailsViewFragment,
 } from './__generated__/LiveDetails'
-import Spinner from '../shared/Spinner.vue'
+import Spinner from '../../atoms/Spinner.vue'
 import type { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
 
 export const LIVE_DETAILS_WORKSPACE = gql`

@@ -38,7 +38,7 @@
 
 <script>
 import { CheckIcon } from '@heroicons/vue/solid/esm'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
 
 export default {

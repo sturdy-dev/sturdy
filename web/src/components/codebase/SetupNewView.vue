@@ -125,7 +125,7 @@
 </template>
 
 <script lang="ts">
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { CheckIcon, DownloadIcon } from '@heroicons/vue/solid'
 import SetupSturdyInitStep from '../../molecules/setup/SetupSturdyInitStep.vue'
 import SetupSturdyInstallCliStep from '../../molecules/setup/SetupSturdyInstallCliStep.vue'

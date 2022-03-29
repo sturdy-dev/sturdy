@@ -15,7 +15,7 @@ import { defineComponent } from 'vue'
 import type { PropType } from 'vue/dist/vue'
 import type { OrganizationMembersOrganizationFragment } from './__generated__/OrganizationMembers'
 import TextInput from '../../molecules/TextInput.vue'
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { useUpdateOrganization } from '../../mutations/useUpdateOrganization'
 
 export default defineComponent({

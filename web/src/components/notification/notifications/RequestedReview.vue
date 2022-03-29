@@ -38,7 +38,7 @@
 
 <script>
 import { ChatAltIcon } from '@heroicons/vue/solid'
-import Avatar from '../../shared/Avatar.vue'
+import Avatar from '../../../atoms/Avatar.vue'
 import time from '../../../time'
 import { Slug } from '../../../slug'
 import { gql } from '@urql/vue'

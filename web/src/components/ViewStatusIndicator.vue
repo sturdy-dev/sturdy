@@ -74,7 +74,7 @@ import type { PropType } from 'vue'
 import type { ViewStatusIndicatorFragment } from './__generated__/ViewStatusIndicator'
 import { ViewStatusState } from '../__generated__/types'
 import { ChevronDoubleUpIcon, DesktopComputerIcon } from '@heroicons/vue/outline'
-import Spinner from './shared/Spinner.vue'
+import Spinner from '../atoms/Spinner.vue'
 import DotDotDot from '../molecules/DotDotDot.vue'
 
 export const VIEW_STATUS_INDICATOR = gql`

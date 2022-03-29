@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import DiffHeader from './DiffHeader.vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { defineAsyncComponent, defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import { gql } from '@urql/vue'

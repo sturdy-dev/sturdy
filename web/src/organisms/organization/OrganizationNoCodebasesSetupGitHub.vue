@@ -101,8 +101,8 @@
 import { CheckIcon } from '@heroicons/vue/solid/esm'
 import GitHubConnectButton from '../../molecules/GitHubConnectButton.vue'
 import { defineComponent } from 'vue'
-import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 
 export default defineComponent({
   components: { GitHubConnectButton, CheckIcon, RouterLinkButton, LinkButton },

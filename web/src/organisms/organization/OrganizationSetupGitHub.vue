@@ -129,17 +129,17 @@ import type {
   OrganizationSetupGitHubQuery,
   OrganizationSetupGitHubQueryVariables,
 } from './__generated__/OrganizationSetupGitHub'
-import Spinner from '../../components/shared/Spinner.vue'
-import Button from '../../components/shared/Button.vue'
+import Spinner from '../../atoms/Spinner.vue'
+import Button from '../../atoms/Button.vue'
 import { Slug } from '../../slug'
-import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 import GitHubConnectButton, {
   GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
 } from '../../molecules/GitHubConnectButton.vue'
 import { useSetupGitHubRepository } from '../../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { Feature } from '../../__generated__/types'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 
 export const ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT = gql`
   fragment OrganizationSetupGitHub_GitHubApp on GitHubApp {

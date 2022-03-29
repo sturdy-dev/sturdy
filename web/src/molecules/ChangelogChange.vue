@@ -39,8 +39,8 @@
 import { gql } from '@urql/vue'
 import type { PropType } from 'vue'
 
-import { AUTHOR } from '../components/shared/AvatarHelper'
-import Avatar from '../components/shared/Avatar.vue'
+import { AUTHOR } from '../components/../atoms/AvatarHelper'
+import Avatar from '../components/../atoms/Avatar.vue'
 import StatusBadge, { STATUS_FRAGMENT } from '../components/statuses/StatusBadge.vue'
 import ChangeCommentsIndicator, {
   CHANGE_COMMENTS,

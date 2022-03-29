@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import AvatarGroup from '../components/shared/AvatarGroup.vue'
+import AvatarGroup from '../atoms/AvatarGroup.vue'
 import { gql, useQuery } from '@urql/vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
 import { computed, defineComponent, inject, ref } from 'vue'
@@ -55,7 +55,7 @@ import type { Ref } from 'vue'
 import { Feature } from '../__generated__/types'
 import { ChevronRightIcon } from '@heroicons/vue/solid'
 import type { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
-import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 
 export default defineComponent({
   components: {

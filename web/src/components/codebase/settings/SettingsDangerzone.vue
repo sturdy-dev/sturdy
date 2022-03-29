@@ -24,12 +24,12 @@
 </template>
 
 <script lang="ts">
-import HorizontalDivider from '../../shared/HorizontalDivider.vue'
+import HorizontalDivider from '../../../atoms/HorizontalDivider.vue'
 import { ArchiveIcon, LockOpenIcon, LockClosedIcon } from '@heroicons/vue/solid'
 import { gql, useMutation } from '@urql/vue'
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import Button from '../../shared/Button.vue'
+import Button from '../../../atoms/Button.vue'
 import type { SettingsDangerzoneFragment } from './__generated__/SettingsDangerzone'
 import ConfirmModal from '../../../molecules/ConfirmModal.vue'
 

@@ -110,7 +110,7 @@ import { defineComponent, inject, ref } from 'vue'
 import type { Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
-import Button from '../components/shared/Button.vue'
+import Button from '../atoms/Button.vue'
 import RandomName from '../components/codebase/create/random-name.js'
 import { useCreateCodebase } from '../mutations/useCreateCodebase'
 import type {

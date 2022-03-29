@@ -108,7 +108,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { computed, defineComponent, inject, onUnmounted, ref, watch } from 'vue'
 import type { PropType, Ref } from 'vue'
 import SetupNewView from '../components/codebase/SetupNewView.vue'
-import Button from '../components/shared/Button.vue'
+import Button from '../atoms/Button.vue'
 import { useHead } from '@vueuse/head'
 import { ChevronDownIcon, ChevronUpIcon, CogIcon, ViewListIcon } from '@heroicons/vue/solid'
 import ImportFromGit from '../components/codebase/ImportFromGit.vue'
@@ -127,7 +127,7 @@ import type {
 } from './__generated__/CodebaseHome'
 import { Feature } from '../__generated__/types'
 import type { User } from '../__generated__/types'
-import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import AssembleTheTeam from '../organisms/AssembleTheTeam.vue'
 import PushPullCodebase, {
   PUSH_PULL_CODEBASE_REMOTE_FRAGMENT,

@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { ArchiveIcon } from '@heroicons/vue/solid'
 import ArchiveWorkspaceModal from '../../components/codebase/ArchiveWorkspaceModal.vue'
 

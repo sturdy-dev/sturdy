@@ -26,7 +26,7 @@
 import { defineComponent, type PropType } from 'vue'
 
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import Button from '../components/shared/Button.vue'
+import Button from '../atoms/Button.vue'
 
 import { useLandWorkspaceChange } from '../mutations/useLandWorkspaceChange'
 

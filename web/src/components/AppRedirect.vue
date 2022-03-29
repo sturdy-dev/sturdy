@@ -23,7 +23,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Spinner from './shared/Spinner.vue'
+import Spinner from '../atoms/Spinner.vue'
 
 async function onBlurOnce() {
   await new Promise((resolve) => window.addEventListener('blur', resolve, { once: true }))

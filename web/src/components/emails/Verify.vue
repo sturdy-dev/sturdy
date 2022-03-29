@@ -21,7 +21,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useVerifyEmail } from '../../mutations/useVerifyEmail'
-import Spinner from '../shared/Spinner.vue'
+import Spinner from '../../atoms/Spinner.vue'
 import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({

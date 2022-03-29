@@ -38,12 +38,12 @@ import Change from '../differ/Change.vue'
 import debounce from '../../debounce'
 import { defineAsyncComponent } from 'vue'
 import type { PropType } from 'vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { MinusIcon, PlusIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 import { gql } from '@urql/vue'
 import type { ChangeDetails_ChangeFragment } from './__generated__/ChangeDetails'
-import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
+import { MEMBER_FRAGMENT } from '../../atoms/TextareaMentions.vue'
 
 export const CHANGE_DETAILS_CHANGE_FRAGMENT = gql`
   fragment ChangeDetails_Change on Change {

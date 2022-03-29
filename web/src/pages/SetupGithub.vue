@@ -44,9 +44,9 @@ import http from '../http'
 import type { HttpError } from '../http'
 import { useRoute, useRouter } from 'vue-router'
 import { Banner } from '../atoms'
-import Spinner from '../components/shared/Spinner.vue'
+import Spinner from '../atoms/Spinner.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
-import RouterLinkButton from '../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import AppTitleBar from '../organisms/AppTitleBar.vue'
 
 const openInAppUrl = (): string | undefined => {

@@ -36,7 +36,7 @@ import GitHubConnectButton, {
   GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT,
   GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
 } from '../../molecules/GitHubConnectButton.vue'
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import type {
   IntegrationsGitHubAppFragment,
   IntegrationsUserFragment,

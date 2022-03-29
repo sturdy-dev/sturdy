@@ -17,8 +17,8 @@
 
 <script lang="ts">
 import DownloadIcon from '@heroicons/vue/outline/DownloadIcon'
-import Button from '../components/shared/Button.vue'
-import Spinner from '../components/shared/Spinner.vue'
+import Button from '../atoms/Button.vue'
+import Spinner from '../atoms/Spinner.vue'
 
 import { useQuery, gql } from '@urql/vue'
 import { ref, toRefs } from 'vue'

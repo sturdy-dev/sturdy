@@ -42,7 +42,7 @@ import { gql } from '@urql/vue'
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import type { WorkspaceListFragment } from './__generated__/WorkspaceList'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import time from '../../time'
 
 export const WORKSPACE_LIST = gql`

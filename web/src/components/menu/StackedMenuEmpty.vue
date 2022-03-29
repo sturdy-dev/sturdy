@@ -35,7 +35,7 @@
 <script lang="ts">
 import { PlusIcon } from '@heroicons/vue/outline'
 import { defineComponent } from 'vue'
-import RouterLinkButton from '../shared/RouterLinkButton.vue'
+import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 
 export default defineComponent({
   components: { PlusIcon, RouterLinkButton },

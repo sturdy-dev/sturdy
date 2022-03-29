@@ -30,7 +30,7 @@ import type {
   WorkspaceWatcherFragment,
   WorkspaceWatcherUserFragment,
 } from './__generated__/Watching'
-import Tooltip from '../../shared/Tooltip.vue'
+import Tooltip from '../../../atoms/Tooltip.vue'
 import { EyeIcon, EyeOffIcon } from '@heroicons/vue/solid'
 import { useWatchWorkspace } from '../../../mutations/useWatchWorkspace'
 import { useUnwatchWorkspace } from '../../../mutations/useUnwatchWorkspace'

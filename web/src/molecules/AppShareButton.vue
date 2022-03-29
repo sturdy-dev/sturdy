@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { LinkIcon } from '@heroicons/vue/outline'
-import Tooltip from '../components/shared/Tooltip.vue'
+import Tooltip from '../components/../atoms/Tooltip.vue'
 
 export default defineComponent({
   components: { Tooltip, LinkIcon },

@@ -23,7 +23,7 @@ import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import { gql } from 'graphql-tag'
 import type { SetupUserViewsFragment } from './__generated__/SetupSturdyGoToWorkspaceStep'
-import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 
 export const SETUP_USER_VIEWS = gql`
   fragment SetupUserViews on User {

@@ -85,8 +85,8 @@ import type {
   OrganizationMembersUserFragment,
 } from './__generated__/OrganizationMembers'
 import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
-import Avatar from '../../components/shared/Avatar.vue'
-import Button from '../../components/shared/Button.vue'
+import Avatar from '../../atoms/Avatar.vue'
+import Button from '../../atoms/Button.vue'
 import { Banner } from '../../atoms'
 import { Feature } from '../../__generated__/types'
 import { useAddUserToOrganization } from '../../mutations/useAddUserToOrganization'

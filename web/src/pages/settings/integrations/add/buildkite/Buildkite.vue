@@ -103,7 +103,7 @@
 <script lang="ts">
 import TextInput from '../../../../../molecules/TextInput.vue'
 import Step from '../../../../../components/ci/Step.vue'
-import LinkButton from '../../../../../components/shared/LinkButton.vue'
+import LinkButton from '../../../../../atoms/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'
 import type { Status } from '../../../../../components/ci/StepIndicator.vue'
 import Instructions from '../../../../../components/ci/Instructions.vue'
@@ -118,7 +118,7 @@ import type {
   GetBuildkiteIntegrationsQuery,
   GetBuildkiteIntegrationsQueryVariables,
 } from './__generated__/Buildkite'
-import Pill from '../../../../../components/shared/Pill.vue'
+import Pill from '../../../../../atoms/Pill.vue'
 import PaddedAppLeftSidebar from '../../../../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../../../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../../../../molecules/Header.vue'

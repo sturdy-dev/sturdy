@@ -95,7 +95,7 @@
 
 <script lang="ts">
 import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent } from 'vue'
 import type {
@@ -104,7 +104,7 @@ import type {
 } from './__generated__/CodebaseInviteMembers'
 import { useAddUserToCodebase } from '../../mutations/useAddUserToCodebase'
 import { useRemoveUserFromCodebase } from '../../mutations/useRemoveUserFromCodebase'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 
 export default defineComponent({
   components: { Avatar, Button },

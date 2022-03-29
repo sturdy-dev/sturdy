@@ -68,8 +68,8 @@ import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
   GITHUB_PULL_REQUEST_FRAGMENT,
 } from '../components/workspace/details/GitHubPullRequest.vue'
-import Avatar from '../components/shared/Avatar.vue'
-import { AUTHOR } from '../components/shared/AvatarHelper'
+import Avatar from '../atoms/Avatar.vue'
+import { AUTHOR } from '../atoms/AvatarHelper'
 import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
 
 import { Slug } from '../slug'

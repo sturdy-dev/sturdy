@@ -39,7 +39,7 @@ import time from '../../../time'
 import { Slug } from '../../../slug'
 import { CodeIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
-import Avatar from '../../shared/Avatar.vue'
+import Avatar from '../../../atoms/Avatar.vue'
 import type { NewSuggestionNotificationFragment } from './__generated__/NewSuggestion'
 import type { PropType } from 'vue'
 

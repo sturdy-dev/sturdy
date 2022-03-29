@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import Button from '../../shared/Button.vue'
+import Button from '../../../atoms/Button.vue'
 import { Banner } from '../../../atoms'
 import { toRef, ref, watch } from 'vue'
 import { gql, useMutation } from '@urql/vue'

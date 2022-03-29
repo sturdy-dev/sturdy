@@ -36,7 +36,7 @@
 <script>
 import http from '../../../http'
 import { Banner } from '../../../atoms'
-import Spinner from '../../../components/shared/Spinner.vue'
+import Spinner from '../../../atoms/Spinner.vue'
 
 export default {
   components: { Spinner, Banner },

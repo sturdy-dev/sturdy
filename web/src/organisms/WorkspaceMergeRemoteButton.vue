@@ -62,8 +62,8 @@ import { ShareIcon } from '@heroicons/vue/solid'
 import { MenuItem } from '@headlessui/vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import ButtonWithDropdown from '../components/shared/ButtonWithDropdown.vue'
-import Button from '../components/shared/Button.vue'
+import ButtonWithDropdown from '../atoms/ButtonWithDropdown.vue'
+import Button from '../atoms/Button.vue'
 
 import type { MergeRemoteButton_WorkspaceFragment } from './__generated__/WorkspaceMergeRemoteButton'
 

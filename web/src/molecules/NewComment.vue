@@ -59,12 +59,12 @@ import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
 
 import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
-import Avatar from '../components/shared/Avatar.vue'
-import TextareaAutosize, { MEMBER_FRAGMENT } from '../components/shared/TextareaAutosize.vue'
+import Avatar from '../atoms/Avatar.vue'
+import TextareaAutosize, { MEMBER_FRAGMENT } from '../components/../atoms/TextareaAutosize.vue'
 import { Banner } from '../atoms'
 import { ConvertEmojiToColons } from '../components/emoji/emoji'
 
-import type { AuthorFragment } from '../components/shared/__generated__/AvatarHelper'
+import type { AuthorFragment } from '../atoms/__generated__/AvatarHelper'
 
 import { useCreateComment } from '../mutations/useCreateComment'
 

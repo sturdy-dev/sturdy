@@ -102,11 +102,11 @@
 
 <script lang="ts">
 import { ChatAltIcon } from '@heroicons/vue/solid'
-import Avatar from '../../shared/Avatar.vue'
+import Avatar from '../../../atoms/Avatar.vue'
 import time from '../../../time'
 import { Slug } from '../../../slug'
-import CommentMessage from '../../shared/CommentMessage.vue'
-import type { User } from '../../shared/CommentMessage.vue'
+import CommentMessage from '../../../atoms/CommentMessage.vue'
+import type { User } from '../../../atoms/CommentMessage.vue'
 import { gql } from '@urql/vue'
 import type { NotificationCommentFragment } from './__generated__/Comment'
 import type { PropType } from 'vue'

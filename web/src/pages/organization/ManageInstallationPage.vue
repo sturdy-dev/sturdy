@@ -65,7 +65,7 @@ import type {
   ManageInstallationPageQueryVariables,
 } from './__generated__/ManageInstallationPage'
 import TextInput from '../../molecules/TextInput.vue'
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { useUpdateInstallation } from '../../mutations/useUpdateInstallation'
 import { Banner } from '../../atoms'
 

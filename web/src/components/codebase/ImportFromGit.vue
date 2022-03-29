@@ -103,9 +103,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, onUnmounted, ref, toRef } from 'vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { Banner } from '../../atoms'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import { gql, useQuery } from '@urql/vue'
 
 export default defineComponent({

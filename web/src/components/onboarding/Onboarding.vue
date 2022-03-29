@@ -75,7 +75,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { XIcon } from '@heroicons/vue/solid'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import RenderVnodes from './RenderVnodes'
 import type { Step } from './Step'
 import { StepQueue } from './StepQueue'

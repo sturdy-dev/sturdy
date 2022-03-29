@@ -24,7 +24,7 @@ import type { PropType } from 'vue'
 
 import NewComment, { CODEBASE_FRAGMENT } from '../molecules/NewComment.vue'
 import WorkspaceActivity, { WORKSPACE_ACTIVITY_FRAGMENT } from '../molecules/activity/Activity.vue'
-import { MEMBER_FRAGMENT } from '../components/shared/TextareaAutosize.vue'
+import { MEMBER_FRAGMENT } from '../atoms/TextareaAutosize.vue'
 import type { WorkspaceActivity_WorkspaceFragment } from './__generated__/WorkspaceActivitySidebar'
 
 type Member = WorkspaceActivity_WorkspaceFragment['codebase']['members'][number]

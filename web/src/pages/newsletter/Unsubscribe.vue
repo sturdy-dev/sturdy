@@ -48,7 +48,7 @@
 <script>
 import http from '../../http'
 import { CheckIcon, XIcon } from '@heroicons/vue/outline'
-import Spinner from '../../components/shared/Spinner.vue'
+import Spinner from '../../atoms/Spinner.vue'
 
 export default {
   components: { CheckIcon, XIcon, Spinner },

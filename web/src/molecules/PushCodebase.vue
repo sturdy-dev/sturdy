@@ -19,7 +19,7 @@ import { defineComponent, inject, toRef } from 'vue'
 import type { PropType } from 'vue'
 import type { PushCodebaseRemoteFragment } from './__generated__/PushCodebase'
 import { usePushCodebase } from '../mutations/usePushCodebase'
-import Button from '../components/shared/Button.vue'
+import Button from '../atoms/Button.vue'
 import { ArrowSmUpIcon } from '@heroicons/vue/solid'
 import type { Emitter } from 'mitt/src'
 

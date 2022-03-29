@@ -63,7 +63,7 @@ import type { PropType } from 'vue'
 import { defineComponent } from 'vue'
 import { gql } from '@urql/vue'
 import type { OrganizationListSingleLicenseFragment } from './__generated__/OrganizationListLicenses'
-import Pill from '../../components/shared/Pill.vue'
+import Pill from '../../atoms/Pill.vue'
 import { Banner } from '../../atoms'
 
 export const ORGANIZATION_LIST_SINGLE_LICENSE = gql`

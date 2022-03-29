@@ -32,7 +32,7 @@ import type {
   BuildkiteIntegrationTestQuery,
   BuildkiteIntegrationTestQueryVariables,
 } from './__generated__/TestIntegration'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { Banner } from '../../atoms'
 
 export const BUILDKITE_HEAD_CHANGE = gql`

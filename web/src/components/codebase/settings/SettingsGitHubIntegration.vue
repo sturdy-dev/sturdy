@@ -93,7 +93,7 @@
 import { gql, useMutation } from '@urql/vue'
 import { toRef, ref, watch } from 'vue'
 import { Banner } from '../../../atoms'
-import HorizontalDivider from '../../shared/HorizontalDivider.vue'
+import HorizontalDivider from '../../../atoms/HorizontalDivider.vue'
 import {
   RadioGroup,
   RadioGroupDescription,
@@ -112,7 +112,7 @@ const gitHubIntegrationSettings = [
   {
     name: 'Sturdy is the source of truth',
     description:
-      'Workspaces are shared directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
+      'Workspaces are ../atoms directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
     vals: { enabled: true, gitHubIsSourceOfTruth: false },
   },
   {

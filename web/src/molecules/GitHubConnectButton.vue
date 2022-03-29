@@ -23,7 +23,7 @@
 import type { PropType } from 'vue'
 import { defineComponent } from 'vue'
 import { gql } from '@urql/vue'
-import LinkButton from '../components/shared/LinkButton.vue'
+import LinkButton from '../atoms/LinkButton.vue'
 import type {
   GitHubConnectButton_GitHubAccountFragment,
   GitHubConnectButton_GitHubAppFragment,

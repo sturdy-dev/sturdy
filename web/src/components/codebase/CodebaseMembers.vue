@@ -19,11 +19,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import Avatar from '../shared/Avatar.vue'
-import type { AuthorFragment } from '../shared/__generated__/AvatarHelper'
+import Avatar from '../../atoms/Avatar.vue'
+import type { AuthorFragment } from '../../atoms/__generated__/AvatarHelper'
 import CodebaseInviteCode from './CodebaseInviteCode.vue'
 
-import { AUTHOR } from '../shared/AvatarHelper'
+import { AUTHOR } from '../../atoms/AvatarHelper'
 
 export { AUTHOR as CODEBASE_MEMBER_FRAGMENT }
 

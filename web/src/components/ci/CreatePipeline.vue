@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import LinkButton from '../shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/solid'
 import Instructions from './Instructions.vue'
 import type { Instruction } from './Instructions.vue'

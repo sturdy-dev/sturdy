@@ -80,12 +80,12 @@ import type {
   GetIntegrationsQueryVariables,
   IntegrationListItemFragment,
 } from './__generated__/ListIntegrations'
-import Pill from '../../../components/shared/Pill.vue'
-import Button from '../../../components/shared/Button.vue'
+import Pill from '../../../atoms/Pill.vue'
+import Button from '../../../atoms/Button.vue'
 import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
 import SettingsVerticalNavigation from '../../../components/codebase/settings/SettingsVerticalNavigation.vue'
 import Header from '../../../molecules/Header.vue'
-import RouterLinkButton from '../../../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../../../atoms/RouterLinkButton.vue'
 import { useDeleteIntegration } from '../../../mutations/useDeleteIntegration'
 import { computed, defineComponent, inject, ref } from 'vue'
 import type { Ref } from 'vue'

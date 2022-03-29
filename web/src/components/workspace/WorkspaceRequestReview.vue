@@ -71,7 +71,7 @@ import type { Ref } from 'vue'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { SelectorIcon } from '@heroicons/vue/solid'
 import { gql, useQuery } from '@urql/vue'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import { useRequestReview } from '../../mutations/useRequestReview'
 import type { WorkspaceRequestReviewCodebaseQuery } from './__generated__/WorkspaceRequestReview'
 

@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { SearchIcon } from '@heroicons/vue/solid'
-import Tooltip from '../components/shared/Tooltip.vue'
+import Tooltip from '../atoms/Tooltip.vue'
 
 export default defineComponent({
   components: { Tooltip, SearchIcon },

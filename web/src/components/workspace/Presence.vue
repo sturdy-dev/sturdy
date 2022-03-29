@@ -28,9 +28,9 @@
 </template>
 
 <script lang="ts">
-import Avatar from '../shared/Avatar.vue'
-import { AUTHOR } from '../shared/AvatarHelper'
-import Tooltip from '../shared/Tooltip.vue'
+import Avatar from '../../atoms/Avatar.vue'
+import { AUTHOR } from '../../atoms/AvatarHelper'
+import Tooltip from '../../atoms/Tooltip.vue'
 import { gql, useMutation } from '@urql/vue'
 import { computed, defineComponent, onUnmounted, ref, toRefs, watch } from 'vue'
 import type { PropType } from 'vue'

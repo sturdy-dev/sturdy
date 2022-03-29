@@ -11,8 +11,8 @@ import type { TributeCollection, TributeItem } from 'tributejs/tributejs'
 import { gql } from '@urql/vue'
 import type { MemberFragment, UserFragment } from './__generated__/TextareaMentions'
 import { initials, initialsBgColor } from './AvatarHelper'
-import { emojis } from '../emoji/list/emojis'
-import type { Emoji } from '../emoji/list/emojis'
+import { emojis } from '../components/emoji/list/emojis'
+import type { Emoji } from '../components/emoji/list/emojis'
 import { EmojiConvertor } from 'emoji-js'
 
 export const USER_FRAGMENT = gql`

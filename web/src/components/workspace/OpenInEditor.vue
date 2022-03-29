@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import LinkButton from '../shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 import VisualStudioCode from './icons/VisualStudioCode.vue'
 
 export default defineComponent({

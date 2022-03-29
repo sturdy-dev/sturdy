@@ -53,7 +53,7 @@
 
 <script>
 import { gql, useMutation, useQuery } from '@urql/vue'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 
 export default {
   name: 'CodebaseInviteCode',

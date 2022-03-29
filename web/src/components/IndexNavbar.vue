@@ -415,7 +415,7 @@ import {
   LockClosedIcon,
 } from '@heroicons/vue/outline'
 import { ChevronDownIcon, ArrowCircleRightIcon } from '@heroicons/vue/solid'
-import Pill from './shared/Pill.vue'
+import Pill from '../atoms/Pill.vue'
 import { useRouter } from 'vue-router'
 
 const features = [

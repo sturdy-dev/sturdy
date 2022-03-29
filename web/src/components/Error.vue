@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import Button from './shared/Button.vue'
+import Button from '../atoms/Button.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent } from 'vue'
 

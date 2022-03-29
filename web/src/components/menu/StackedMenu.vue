@@ -256,7 +256,7 @@ import { computed, defineComponent, onUnmounted } from 'vue'
 import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug, Slug } from '../../slug'
-import Avatar from '../shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import NavDropdown from '../NavDropdown.vue'
 import NotificationIcon from '../notification/Icon.vue'
 import StackedMenuEmpty from './StackedMenuEmpty.vue'
@@ -267,7 +267,7 @@ import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 import ViewStatusIndicator, { VIEW_STATUS_INDICATOR } from '../ViewStatusIndicator.vue'
 import { useOpenWorkspaceOnView } from '../../mutations/useOpenWorkspaceOnView'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
-import Tooltip from '../shared/Tooltip.vue'
+import Tooltip from '../../atoms/Tooltip.vue'
 import type {
   CodebaseFragment,
   OrganizationFragment,

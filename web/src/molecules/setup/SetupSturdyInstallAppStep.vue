@@ -8,7 +8,7 @@
 </template>
 <script lang="ts">
 import { DownloadIcon } from '@heroicons/vue/solid'
-import LinkButton from '../../components/shared/LinkButton.vue'
+import LinkButton from '../../atoms/LinkButton.vue'
 import { Slug } from '../../slug'
 import { defineComponent } from 'vue'
 

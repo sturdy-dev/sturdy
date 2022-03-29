@@ -15,7 +15,7 @@ import { defineComponent, type PropType } from 'vue'
 import { FolderOpenIcon } from '@heroicons/vue/outline'
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 import { useArchiveWorkspace } from '../../mutations/useArchiveWorkspace'
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { gql } from '@urql/vue'
 import type { ConnectNewDirectory_CodebaseFragment } from './__generated__/ConnectNewDirectory'
 

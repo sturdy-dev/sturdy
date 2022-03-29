@@ -198,7 +198,7 @@
 import http from '../http'
 import { Banner } from '../atoms'
 import { gql, useMutation, useQuery } from '@urql/vue'
-import Button from '../components/shared/Button.vue'
+import Button from '../atoms/Button.vue'
 import { ref, watch, defineComponent, inject, computed } from 'vue'
 import type { Ref } from 'vue'
 import NotificationPreferences from '../components/user/NotificationPreferences.vue'

@@ -42,8 +42,8 @@ import 'prismjs/themes/prism-tomorrow.css'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import { toRef, ref, watch } from 'vue'
 
-import HorizontalDivider from '../../shared/HorizontalDivider.vue'
-import Button from '../../shared/Button.vue'
+import HorizontalDivider from '../../../atoms/HorizontalDivider.vue'
+import Button from '../../../atoms/Button.vue'
 import { Banner } from '../../../atoms'
 
 export default {

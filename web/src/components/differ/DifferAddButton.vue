@@ -70,7 +70,7 @@
 <script lang="ts">
 import { ChevronDownIcon } from '@heroicons/vue/solid'
 import { IsFocusChildOfElementWithClass } from '../../focus'
-import Button from '../shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({

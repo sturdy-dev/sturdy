@@ -13,7 +13,7 @@
 </template>
 <script lang="ts">
 import { DownloadIcon } from '@heroicons/vue/solid'
-import RouterLinkButton from '../../components/shared/RouterLinkButton.vue'
+import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 import { Slug } from '../../slug'
 import { defineComponent } from 'vue'
 

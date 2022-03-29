@@ -80,7 +80,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ChangelogDetails, { CHANGE_FRAGMENT } from '../../components/changelog/ChangelogDetails.vue'
 import ChangelogDetailsFetching from '../../components/changelog/ChangelogDetails.fetching.vue'
 import { STATUS_FRAGMENT } from '../../components/statuses/StatusBadge.vue'
-import { MEMBER_FRAGMENT } from '../../components/shared/TextareaMentions.vue'
+import { MEMBER_FRAGMENT } from '../../atoms/TextareaMentions.vue'
 import SearchToolbar from '../../components/workspace/SearchToolbar.vue'
 import PaddedAppRightSidebar from '../../layouts/PaddedAppRightSidebar.vue'
 import ChangeActivitySidebar, {

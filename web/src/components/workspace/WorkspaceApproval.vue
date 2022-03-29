@@ -104,9 +104,9 @@
   </div>
 </template>
 <script>
-import Avatar from '../shared/Avatar.vue'
-import Tooltip from '../shared/Tooltip.vue'
-import Button from '../shared/Button.vue'
+import Avatar from '../../atoms/Avatar.vue'
+import Tooltip from '../../atoms/Tooltip.vue'
+import Button from '../../atoms/Button.vue'
 import { gql, useMutation } from '@urql/vue'
 import { ClockIcon, InformationCircleIcon, ThumbUpIcon, XIcon } from '@heroicons/vue/solid'
 import WorkspaceRequestReview from './WorkspaceRequestReview.vue'

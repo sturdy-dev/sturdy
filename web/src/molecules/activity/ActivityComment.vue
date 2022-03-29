@@ -53,17 +53,17 @@
 </template>
 
 <script lang="ts">
-import Avatar from '../../components/shared/Avatar.vue'
+import Avatar from '../../atoms/Avatar.vue'
 import { ChatAltIcon, ReplyIcon } from '@heroicons/vue/solid'
 import time from '../../time'
 import CommentCodeContext from '../../components/workspace/CommentCodeContext.vue'
-import type { User } from '../../components/shared/CommentMessage.vue'
-import CommentMessage from '../../components/shared/CommentMessage.vue'
+import type { User } from '../../atoms/CommentMessage.vue'
+import CommentMessage from '../../atoms/CommentMessage.vue'
 import { gql } from '@urql/vue'
 import type { PropType } from 'vue'
 import { defineComponent } from 'vue'
 import type { WorkspaceCommentActivityFragment } from './__generated__/ActivityComment'
-import Button from '../../components/shared/Button.vue'
+import Button from '../../atoms/Button.vue'
 import CommentReply from '../../components/comments/CommentReply.vue'
 
 export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`

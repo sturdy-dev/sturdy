@@ -47,7 +47,7 @@ import { gql, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import FileOrDirectory, { OPEN_FILE_OR_DIRECTORY } from '../components/browse/FileOrDirectory.vue'
 import { ref, watch } from 'vue'
-import Spinner from '../components/shared/Spinner.vue'
+import Spinner from '../atoms/Spinner.vue'
 import { DIRECTORY_BREADCRUMB } from '../components/browse/DirectoryBreadcrumb.vue'
 import PaddedApp from '../layouts/PaddedApp.vue'
 
