@@ -30,7 +30,7 @@ COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta6 /usr/bin/mutagen
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.12.0-beta7 /usr/bin/mutagen-agent-v0.12.0-beta7
 COPY --from=ssh-builder /go/src/ssh/mutagen-agent-v0.13.0-beta2 /usr/bin/mutagen-agent-v0.13.0-beta2
 
-FROM golang:1.18.0-bullseye as api-builder
+FROM golang:1.18.0-bullseye as libgit-builder
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -48,6 +48,8 @@ RUN ./build_libgit2.sh build_libgit2
 
 # TODO(gustav): figure out why running this step above (before building libgit2) breaks things
 RUN apt-get update && apt-get install -y libssh2-1-dev && rm -rf /var/lib/apt/lists/*
+
+FROM libgit-builder as api-builder
 
 WORKDIR /go/src/api
 
