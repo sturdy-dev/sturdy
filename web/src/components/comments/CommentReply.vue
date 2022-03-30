@@ -37,7 +37,7 @@ import type { Comment } from '../differ/event'
 import type { MemberFragment, UserFragment } from '../../atoms/__generated__/TextareaMentions'
 import { useCreateComment } from '../../mutations/useCreateComment'
 import Spinner from '../../atoms/Spinner.vue'
-import type { ConvertEmojiToColons } from '../emoji/emoji'
+import { ConvertEmojiToColons } from '../emoji/emoji'
 import type { CommentState, SetCommentComposingReply } from './CommentState'
 
 export default defineComponent({
