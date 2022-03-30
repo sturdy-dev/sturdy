@@ -196,7 +196,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       webPreferences: {
         spellcheck: true,
         preload: path.join(__dirname, 'preload.js'),
-        devTools: !this.#isAppPackaged,
+        devTools: true,
       },
       frame: false,
       titleBarStyle: 'hidden',
