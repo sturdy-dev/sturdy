@@ -19,8 +19,8 @@
       <Select id="merge-remote-method" color="blue">
         <template #selected="{ item }">
           <component
-            color="blue"
             :is="item"
+            color="blue"
             :show-tooltip="disabled"
             :disabled="disabled || pushingWorkspace || isMergingAndPushing"
             :spinner="pushingWorkspace || isMergingAndPushing"

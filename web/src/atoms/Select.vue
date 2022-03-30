@@ -1,10 +1,10 @@
 <template>
   <Listbox
+    v-slot="{ open }"
     v-model="selected"
     class="inline-block relative flex border rounded-md"
     as="div"
     :class="wrapperStyle"
-    v-slot="{ open }"
   >
     <slot name="selected" :item="selected" />
     <ListboxButton
@@ -31,7 +31,7 @@
           class="cursor-pointer"
           @click="onOptionSelected(i)"
         >
-          <component class="w-full pointer-events-none" :is="option" />
+          <component :is="option" class="w-full pointer-events-none" />
         </ListboxOption>
       </ListboxOptions>
     </transition>
@@ -77,6 +77,18 @@ export default defineComponent({
       selected: slots.options()[selectedIdx || 0],
     }
   },
+  computed: {
+    wrapperStyle() {
+      switch (this.color) {
+        case 'green':
+          return 'divide-green-200 bg-green-100 border-green-200'
+        case 'blue':
+          return 'divide-blue-700 bg-blue-600 border-blue-700 text-white'
+        default:
+          return 'divide-gray-200 bg-white border-gray-200 text-gray-700'
+      }
+    },
+  },
   methods: {
     buttonStyle(open: boolean) {
       switch (this.color) {
@@ -91,18 +103,6 @@ export default defineComponent({
     onOptionSelected(index: number) {
       if (this.id) {
         localStorage.setItem(this.id, index.toString())
-      }
-    },
-  },
-  computed: {
-    wrapperStyle() {
-      switch (this.color) {
-        case 'green':
-          return 'divide-green-200 bg-green-100 border-green-200'
-        case 'blue':
-          return 'divide-blue-700 bg-blue-600 border-blue-700 text-white'
-        default:
-          return 'divide-gray-200 bg-white border-gray-200 text-gray-700'
       }
     },
   },
