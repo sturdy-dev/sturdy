@@ -36,7 +36,7 @@
       </div>
     </div>
 
-    <div v-if="comment.replies.length === 0 || isExpanded" class="px-4 py-2">
+    <div v-if="isAuthenticated && (comment.replies.length === 0 || isExpanded)" class="px-4 py-2">
       <div class="flex gap-2 transition-all rounded-md w-full items-start text-sm">
         <Avatar :author="user" size="8" />
         <CommentReply
