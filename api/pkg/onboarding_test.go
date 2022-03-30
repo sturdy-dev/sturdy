@@ -234,6 +234,15 @@ func TestCreate(t *testing.T) {
 	}}}
 	assert.Equal(t, expectedDiffs, diffs)
 
+	// Check if conflicts
+	{
+		ws, err := workspaceService.GetByID(context.Background(), workspaceID)
+		assert.NoError(t, err)
+		conflicts, err := workspaceService.HasConflicts(context.Background(), ws)
+		assert.NoError(t, err)
+		assert.False(t, conflicts)
+	}
+
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
