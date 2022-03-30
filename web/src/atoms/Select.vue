@@ -6,7 +6,7 @@
     as="div"
     :class="wrapperStyle"
   >
-    <slot name="selected" :item="selected" />
+    <slot name="selected" :option="selected" />
     <ListboxButton
       class="hover:bg-gray-50 px-1.5 py-2 border-l rounded-r-md focus:z-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       :class="buttonStyle(open)"

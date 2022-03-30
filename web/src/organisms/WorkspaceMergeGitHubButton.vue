@@ -17,7 +17,55 @@
         <ExternalLinkIcon class="w-4 h-4 ml-1" />
       </a>
 
-      <div class="gap-2 flex">
+      <Select v-if="!hasOpenGitHubPR || creatingAndMergingPR" id="merge-github-method" color="blue">
+        <template #selected="{ option }">
+          <component
+            :is="option"
+            size="wider"
+            color="blue"
+            :disabled="disabled || isMerging || creatingOrUpdatingPR || creatingAndMergingPR"
+            :show-tooltip="disabled"
+            :tooltip-right="true"
+            :spinner="isMerging || creatingOrUpdatingPR || creatingAndMergingPR"
+            class="rounded-r-none"
+          />
+        </template>
+        <template #options>
+          <Button
+            class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+            @click="createOrUpdatePR"
+          >
+            <template #default>
+              {{ creatingOrUpdatingPR ? 'Creating Pull Request' : 'Create Pull Request' }}
+            </template>
+
+            <template v-if="disabled" #tooltip>
+              {{ disabledTooltipMessage }}
+            </template>
+          </Button>
+
+          <Button
+            class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+            @click="createAndMergePR"
+          >
+            <template #default>
+              {{
+                creatingAndMergingPR && creatingOrUpdatingPR
+                  ? 'Creating Pull Request'
+                  : creatingAndMergingPR && isMerging
+                  ? 'Merging Pull Request'
+                  : 'Create and merge Pull Request'
+              }}
+            </template>
+
+            <template v-if="disabled" #tooltip>
+              {{ disabledTooltipMessage }}
+            </template>
+          </Button>
+        </template>
+      </Select>
+
+      <div v-else class="gap-2 flex">
         <Button
           color="blue"
           size="wider"
@@ -28,12 +76,7 @@
           @click="createOrUpdatePR"
         >
           <template #default>
-            <template v-if="creatingOrUpdatingPR">
-              <template v-if="!hasOpenGitHubPR">Creating pull request</template>
-              <template v-else> Updating pull request </template>
-            </template>
-            <template v-else-if="!hasOpenGitHubPR">Create pull request</template>
-            <template v-else>Update pull request</template>
+            {{ creatingOrUpdatingPR ? 'Updating pull request' : 'Update pull request' }}
           </template>
 
           <template v-if="disabled" #tooltip>
@@ -42,12 +85,12 @@
         </Button>
 
         <Button
-          v-if="hasOpenGitHubPR"
           color="green"
-          :disabled="isMerging"
+          :disabled="isMerging || creatingOrUpdatingPR"
           :show-tooltip="isMerging"
           :submitting-a-pull-request="isMerging"
           :tooltip-right="true"
+          :spinner="isMerging"
           @click="triggerMergePullRequest"
         >
           <template #tooltip>Hang on, we are waiting for GitHub to call back to us...</template>
@@ -67,6 +110,7 @@ import { gql } from '@urql/vue'
 
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import Button from '../atoms/Button.vue'
+import Select from '../atoms/Select.vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
 
 import { useCreateOrUpdateGitHubPullRequest } from '../mutations/useCreateOrUpdateGitHubPullRequest'
@@ -99,6 +143,7 @@ export default defineComponent({
     OnboardingStep,
     Button,
     ExternalLinkIcon,
+    Select,
   },
   props: {
     workspace: {
@@ -132,6 +177,11 @@ export default defineComponent({
       mergeGitHubPullRequest,
     }
   },
+  data() {
+    return {
+      creatingAndMergingPR: false,
+    }
+  },
   computed: {
     gitHubPRLink() {
       const { owner, name } = this.workspace.codebase.gitHubIntegration ?? {}
@@ -150,6 +200,15 @@ export default defineComponent({
     },
   },
   methods: {
+    async createAndMergePR() {
+      this.creatingAndMergingPR = true
+      await this.createOrUpdatePR()
+        .then(this.triggerMergePullRequest)
+        .catch(() => {
+          this.creatingAndMergingPR = false
+        })
+    },
+
     async createOrUpdatePR() {
       await this.createOrUpdateGitHubPullRequest({
         workspaceID: this.workspace.id,

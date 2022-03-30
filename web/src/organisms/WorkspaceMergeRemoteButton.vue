@@ -17,10 +17,10 @@
       </a>
 
       <Select id="merge-remote-method" color="blue">
-        <template #selected="{ item }">
+        <template #selected="{ option }">
           <component
-            :is="item"
             color="blue"
+            :is="option"
             :show-tooltip="disabled"
             :disabled="disabled || pushingWorkspace || isMergingAndPushing"
             :spinner="pushingWorkspace || isMergingAndPushing"
