@@ -62,7 +62,7 @@ func module(c *di.Container) {
 		return ctx
 	})
 
-	c.Import(module_api.Module)
+	c.Import(module_api.TestingModule)
 	c.Import(module_configuration.TestingModule)
 	c.Import(module_snapshots.TestingModule)
 
@@ -120,7 +120,7 @@ func TestCreate(t *testing.T) {
 	repoProvider := d.RepoProvider
 
 	logger := d.Logger
-	analyticsSerivce := d.AnalyticsService
+	analyticsService := d.AnalyticsService
 	codebaseUserRepo := d.CodebaseUserRepo
 	workspaceRepo := d.WorkspaceRepo
 	viewRepo := d.ViewRepo
@@ -128,7 +128,7 @@ func TestCreate(t *testing.T) {
 
 	createCodebaseRoute := routes_v3_codebase.Create(logger, codebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(logger, workspaceService, codebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsSerivce, workspaceRepo, executorProvider, d.ViewService)
+	createViewRoute := routes_v3_view.Create(logger, viewRepo, codebaseUserRepo, analyticsService, workspaceRepo, executorProvider, d.ViewService)
 
 	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
 	assert.NoError(t, userRepo.Create(&createUser))
