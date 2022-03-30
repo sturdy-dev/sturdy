@@ -1,7 +1,7 @@
 <template>
   <div
     :id="diffs.id"
-    class="d2h-file-wrapper bg-white rounded-md border border-gray-200 z-0 relative overflow-y-hidden overflow-x-auto"
+    class="d2h-file-wrapper bg-white rounded-md border border-gray-200 z-0 relative"
     :class="[extraClasses]"
     :style="[fileDropdownOpen ? 'min-height: 180px' : '']"
     @mouseleave="hideMakeNewCommentPill"
@@ -21,7 +21,7 @@
       :show-suggestions="showSuggestions"
       :is-added="isAdded"
       :have-live-changes="haveLiveChanges"
-      :showing-suggestions-by-user="showingSuggestionsByUser"
+      :showing-suggestions-by-user="showingSuggestionsByUser ?? undefined"
       :can-ignore-file="canIgnoreFile"
       :can-take-suggestions="canTakeSuggestions"
       :show-full-file-button="showFullFileButton"
@@ -99,179 +99,174 @@
       </template>
     </template>
 
-    <div v-if="isReadyToDisplay && !differState.isHidden && !showSuggestions && !diffs.isLarge">
-      <div class="d2h-code-wrapper">
-        <table
-          class="d2h-diff-table leading-4"
-          style="border-collapse: separate; border-spacing: 0"
+    <div
+      v-if="isReadyToDisplay && !differState.isHidden && !showSuggestions && !diffs.isLarge"
+      class="d2h-code-wrapper overflow-x-scroll"
+    >
+      <table class="d2h-diff-table leading-4" style="border-collapse: separate; border-spacing: 0">
+        <tbody
+          v-for="(hunk, hunkIndex) in parsedHunks"
+          :key="hunkIndex"
+          :class="[
+            'd2h-diff-tbody d2h-file-diff',
+            checkedHunks.get(diffs.hunks[hunkIndex].id) ? 'opacity-70' : '',
+            differState.isHidden ? 'hidden' : '',
+          ]"
         >
-          <tbody
-            v-for="(hunk, hunkIndex) in parsedHunks"
-            :key="hunkIndex"
-            :class="[
-              'd2h-diff-tbody d2h-file-diff',
-              checkedHunks.get(diffs.hunks[hunkIndex].id) ? 'opacity-70' : '',
-              differState.isHidden ? 'hidden' : '',
-            ]"
+          <template
+            v-for="(block, blockIndex) in highlightedBlocks(hunk.blocks, hunk.language)"
+            :key="block.header"
           >
-            <template
-              v-for="(block, blockIndex) in highlightedBlocks(hunk.blocks, hunk.language)"
-              :key="block.header"
-            >
-              <tr class="h-full overflow-hidden">
+            <tr class="h-full overflow-hidden">
+              <td
+                class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+              >
+                <label
+                  v-if="showAddButton"
+                  class="ml-2.5 inline-flex items-center gap-1.5 font-sans text-sm font-medium"
+                >
+                  <input
+                    :id="'add-' + fileKey + '-' + hunkIndex"
+                    :checked="checkedHunks.get(diffs.hunks[hunkIndex].id)"
+                    :value="hunkIndex"
+                    type="checkbox"
+                    class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded"
+                    @change="updatedHunkSelection"
+                  />
+
+                  Select
+                </label>
+              </td>
+              <td class="bg-blue-50" />
+              <td class="d2h-info h-full bg-blue-50 left-0 w-full">
+                <div class="flex items-center sticky left-0">
+                  <div class="d2h-code-line d2h-info text-gray-500">
+                    &nbsp;&nbsp;{{ block.header }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <template v-for="(row, rowIndex) in block.lines" :key="rowIndex">
+              <tr
+                :data-row-index="rowIndex"
+                :data-preferred-name="diffs.preferredName"
+                :data-line-oldnum="row.oldNumber"
+                :data-line-newnum="row.newNumber"
+                @mouseover="setShowCommentPill(hunkIndex, blockIndex, rowIndex)"
+              >
                 <td
-                  class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+                  class="d2h-code-linenumber bg-white sticky left-0 z-20"
+                  :class="[
+                    row.type === 'insert' ? 'bg-green-50 border-r border-l border-green-500' : '',
+                    row.type === 'delete' ? 'bg-red-50 border-r border-l border-red-500' : '',
+                    searchMatchesHunk(diffs.hunks[hunkIndex].id) ? '!bg-yellow-100' : '',
+                  ]"
                 >
                   <label
-                    v-if="showAddButton"
-                    class="ml-2.5 inline-flex items-center gap-1.5 font-sans text-sm font-medium"
+                    :for="'add-' + fileKey + '-' + hunkIndex"
+                    class="cursor-pointer select-none text-gray-600 flex"
                   >
-                    <input
-                      :id="'add-' + fileKey + '-' + hunkIndex"
-                      :checked="checkedHunks.get(diffs.hunks[hunkIndex].id)"
-                      :value="hunkIndex"
-                      type="checkbox"
-                      class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded"
-                      @change="updatedHunkSelection"
-                    />
-
-                    Select
+                    <div class="line-num">{{ row.oldNumber }}</div>
+                    <div class="line-num">{{ row.newNumber }}</div>
                   </label>
                 </td>
-                <td class="bg-blue-50" />
-                <td class="d2h-info h-full bg-blue-50 left-0 w-full">
-                  <div class="flex items-center sticky left-0">
-                    <div class="d2h-code-line d2h-info text-gray-500">
-                      &nbsp;&nbsp;{{ block.header }}
-                    </div>
+
+                <td
+                  :class="[
+                    row.type === 'insert' ? 'bg-green-50' : '',
+                    row.type === 'delete' ? 'bg-red-50' : '',
+                  ]"
+                >
+                  <button
+                    v-if="canComment && showMakeNewCommentPillAt(hunkIndex, blockIndex, rowIndex)"
+                    class="absolute z-40 -mt-2 -ml-2 w-4 h-4 inline-flex items-center rounded-md border border-blue-500 bg-blue-400 text-sm font-medium text-gray-500 hover:bg-blue-500 focus:outline-none focus:ring-0"
+                    @click.stop.prevent="composeNewComment(hunkIndex, blockIndex, rowIndex)"
+                  >
+                    <PlusIcon class="text-white" />
+                  </button>
+                </td>
+
+                <td
+                  :id="diffs.hunks[hunkIndex].id + '-' + rowIndex"
+                  class="code-row-wrapper relative z-10"
+                  :class="[
+                    row.type === 'insert' ? 'bg-green-50' : '',
+                    row.type === 'delete' ? 'bg-red-50' : '',
+                    row.newNumber && newRowsWithComments.has(row.newNumber) ? '!bg-blue-100' : '',
+                    row.oldNumber && oldRowsWithComments.has(row.oldNumber) ? '!bg-blue-100' : '',
+                    hasCommentHighlightOnRow(row.oldNumber, row.newNumber, hoveringCommentID)
+                      ? '!bg-blue-200'
+                      : '',
+
+                    searchIsCurrentSelected(diffs.hunks[hunkIndex].id, rowIndex)
+                      ? '!bg-yellow-400 font-bold sturdy-searchmatch'
+                      : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, blockIndex, rowIndex)
+                      ? '!bg-yellow-200 font-bold sturdy-searchmatch'
+                      : '',
+                  ]"
+                >
+                  <div class="d2h-code-line relative px-4">
+                    <span class="d2h-code-line-prefix">
+                      <template v-if="row.type === 'context'">&nbsp;</template>
+                      <template v-else>{{ row.prefix }}</template>
+                    </span>
+
+                    <span
+                      v-if="row.content"
+                      class="d2h-code-line-ctn whitespace-pre"
+                      v-html="row.content"
+                    />
+                    <span v-else class="d2h-code-line-ctn whitespace-pre">{{
+                      row.originalContent
+                    }}</span>
                   </div>
                 </td>
               </tr>
-
-              <template v-for="(row, rowIndex) in block.lines" :key="rowIndex">
-                <tr
-                  :data-row-index="rowIndex"
-                  :data-preferred-name="diffs.preferredName"
-                  :data-line-oldnum="row.oldNumber"
-                  :data-line-newnum="row.newNumber"
-                  @mouseover="setShowCommentPill(hunkIndex, blockIndex, rowIndex)"
-                >
-                  <td
-                    class="d2h-code-linenumber bg-white sticky left-0 z-20"
-                    :class="[
-                      row.type === 'insert' ? 'bg-green-50 border-r border-l border-green-500' : '',
-                      row.type === 'delete' ? 'bg-red-50 border-r border-l border-red-500' : '',
-                      searchMatchesHunk(diffs.hunks[hunkIndex].id) ? '!bg-yellow-100' : '',
-                    ]"
-                  >
-                    <label
-                      :for="'add-' + fileKey + '-' + hunkIndex"
-                      class="cursor-pointer select-none text-gray-600 flex"
-                    >
-                      <div class="line-num">{{ row.oldNumber }}</div>
-                      <div class="line-num">{{ row.newNumber }}</div>
-                    </label>
-                  </td>
-
-                  <td
-                    :class="[
-                      row.type === 'insert' ? 'bg-green-50' : '',
-                      row.type === 'delete' ? 'bg-red-50' : '',
-                    ]"
-                  >
-                    <button
-                      v-if="canComment && showMakeNewCommentPillAt(hunkIndex, blockIndex, rowIndex)"
-                      class="absolute z-40 -mt-2 -ml-2 w-4 h-4 inline-flex items-center rounded-md border border-blue-500 bg-blue-400 text-sm font-medium text-gray-500 hover:bg-blue-500 focus:outline-none focus:ring-0"
-                      @click.stop.prevent="composeNewComment(hunkIndex, blockIndex, rowIndex)"
-                    >
-                      <PlusIcon class="text-white" />
-                    </button>
-                  </td>
-
-                  <td
-                    :id="diffs.hunks[hunkIndex].id + '-' + rowIndex"
-                    class="code-row-wrapper relative z-10"
-                    :class="[
-                      row.type === 'insert' ? 'bg-green-50' : '',
-                      row.type === 'delete' ? 'bg-red-50' : '',
-                      row.newNumber && newRowsWithComments.has(row.newNumber) ? '!bg-blue-100' : '',
-                      row.oldNumber && oldRowsWithComments.has(row.oldNumber) ? '!bg-blue-100' : '',
-                      hasCommentHighlightOnRow(row.oldNumber, row.newNumber, hoveringCommentID)
-                        ? '!bg-blue-200'
-                        : '',
-
-                      searchIsCurrentSelected(diffs.hunks[hunkIndex].id, rowIndex)
-                        ? '!bg-yellow-400 font-bold sturdy-searchmatch'
-                        : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, blockIndex, rowIndex)
-                        ? '!bg-yellow-200 font-bold sturdy-searchmatch'
-                        : '',
-                    ]"
-                  >
-                    <div class="d2h-code-line relative px-4">
-                      <span class="d2h-code-line-prefix">
-                        <template v-if="row.type === 'context'">&nbsp;</template>
-                        <template v-else>{{ row.prefix }}</template>
-                      </span>
-
-                      <span
-                        v-if="row.content"
-                        class="d2h-code-line-ctn whitespace-pre"
-                        v-html="row.content"
-                      />
-                      <span v-else class="d2h-code-line-ctn whitespace-pre">{{
-                        row.originalContent
-                      }}</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr
-                  v-for="comment in commentsOnRow(row.oldNumber, row.newNumber)"
-                  :key="comment.id"
-                >
-                  <td
-                    class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
-                    colspan="2"
+              <tr v-for="comment in commentsOnRow(row.oldNumber, row.newNumber)" :key="comment.id">
+                <td
+                  class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+                  colspan="2"
+                />
+                <td class="font-sans p-2">
+                  <ReviewComment
+                    :comment="comment"
+                    :members="members"
+                    :user="user"
+                    :comment-state="getCommentState(comment.id)"
+                    @set-comment-expanded="$emit('set-comment-expanded', $event)"
+                    @set-comment-composing-reply="$emit('set-comment-composing-reply', $event)"
                   />
-                  <td class="font-sans p-2">
-                    <ReviewComment
-                      :comment="comment"
-                      :members="members"
-                      :user="user"
-                      :comment-state="getCommentState(comment.id)"
-                      @set-comment-expanded="$emit('set-comment-expanded', $event)"
-                      @set-comment-composing-reply="$emit('set-comment-composing-reply', $event)"
-                    />
-                  </td>
-                </tr>
-                <tr v-if="isComposingNewCommentAt(hunkIndex, blockIndex, rowIndex)">
-                  <td
-                    class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
-                    colspan="2"
+                </td>
+              </tr>
+              <tr v-if="isComposingNewCommentAt(hunkIndex, blockIndex, rowIndex)">
+                <td
+                  class="d2h-code-linenumber d2h-info h-full sticky left-0 z-20 bg-white min-w-[80px]"
+                  colspan="2"
+                />
+                <td class="font-sans p-2">
+                  <ReviewNewComment
+                    :members="members"
+                    :user="user"
+                    :path="diffs.preferredName"
+                    :old-path="diffs.origName"
+                    :line-is-new="!!row.newNumber"
+                    :line-start="row.oldNumber || row.newNumber"
+                    :line-end="row.oldNumber || row.newNumber"
+                    :change="change"
+                    :view="view"
+                    :workspace="workspace"
+                    :comments-state="commentsState"
+                    @cancel="onCancelComposeNewComment"
+                    @submitted="onSubmitNewComment"
+                    @set-comment-composing-reply="$emit('set-comment-composing-reply', $event)"
                   />
-                  <td class="font-sans p-2">
-                    <ReviewNewComment
-                      :members="members"
-                      :user="user"
-                      :path="diffs.preferredName"
-                      :old-path="diffs.origName"
-                      :line-is-new="!!row.newNumber"
-                      :line-start="row.oldNumber || row.newNumber"
-                      :line-end="row.oldNumber || row.newNumber"
-                      :change="change"
-                      :view="view"
-                      :workspace="workspace"
-                      :comments-state="commentsState"
-                      @cancel="onCancelComposeNewComment"
-                      @submitted="onSubmitNewComment"
-                      @set-comment-composing-reply="$emit('set-comment-composing-reply', $event)"
-                    />
-                  </td>
-                </tr>
-              </template>
+                </td>
+              </tr>
             </template>
-          </tbody>
-        </table>
-      </div>
+          </template>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -576,7 +571,7 @@ export default defineComponent({
       return searchMatches(this.searchResult, this.diffs.hunks)
     },
     canIgnoreFile() {
-      return this.diffs.isNew && this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')
+      return this.diffs.isNew && !!this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')
     },
   },
   created() {
