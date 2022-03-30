@@ -59,7 +59,6 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import { gql } from '@urql/vue'
-
 import { ShareIcon } from '@heroicons/vue/solid'
 import { MenuItem } from '@headlessui/vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
@@ -124,6 +123,15 @@ export default defineComponent({
             'sturdy-' + this.workspace.id
           )
         : null
+    },
+  },
+  watch: {
+    workspace: function (a, b) {
+      // reset local state on navigation
+      if (a?.id !== b?.id) {
+        this.isMergingAndPushing = false
+        this.pushedWorkspace = false
+      }
     },
   },
   methods: {
