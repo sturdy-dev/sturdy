@@ -6,8 +6,8 @@
       :class="[wrapperStyle]"
     >
       <Button
-        :grouped="true"
-        :first="true"
+        :grouped="!!$slots.dropdown"
+        :first="!!$slots.dropdown"
         :disabled="disabled"
         :color="color"
         :spinner="spinner"
