@@ -46,7 +46,7 @@
           color="green"
           :disabled="isMerging"
           :show-tooltip="isMerging"
-          :SubmittingAPullRequest="isMerging"
+          :submitting-a-pull-request="isMerging"
           :tooltip-right="true"
           @click="triggerMergePullRequest"
         >
@@ -119,6 +119,19 @@ export default defineComponent({
       required: true,
     },
   },
+  setup() {
+    const { mutating: creatingOrUpdatingPR, createOrUpdateGitHubPullRequest } =
+      useCreateOrUpdateGitHubPullRequest()
+    const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
+      useMergeGitHubPullRequest()
+    return {
+      creatingOrUpdatingPR,
+      createOrUpdateGitHubPullRequest,
+
+      mergingGitHubPullRequest,
+      mergeGitHubPullRequest,
+    }
+  },
   computed: {
     gitHubPRLink() {
       const { owner, name } = this.workspace.codebase.gitHubIntegration ?? {}
@@ -135,19 +148,6 @@ export default defineComponent({
       const isOpen = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Open
       return isOpen || this.isMerging
     },
-  },
-  setup() {
-    const { mutating: creatingOrUpdatingPR, createOrUpdateGitHubPullRequest } =
-      useCreateOrUpdateGitHubPullRequest()
-    const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
-      useMergeGitHubPullRequest()
-    return {
-      creatingOrUpdatingPR,
-      createOrUpdateGitHubPullRequest,
-
-      mergingGitHubPullRequest,
-      mergeGitHubPullRequest,
-    }
   },
   methods: {
     async createOrUpdatePR() {

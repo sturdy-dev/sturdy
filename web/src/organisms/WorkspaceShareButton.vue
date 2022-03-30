@@ -4,7 +4,7 @@
       v-if="shareViaGitHubPR"
       :workspace="workspace"
       :disabled="disabled"
-      :disabledTooltipMessage="cantSubmitTooltipMessage"
+      :disabled-tooltip-message="cantSubmitTooltipMessage"
       :hunk-ids="allHunkIds"
     />
 
@@ -12,7 +12,7 @@
       v-else-if="shareViaRemote"
       :workspace="workspace"
       :disabled="disabled"
-      :disabledTooltipMessage="cantSubmitTooltipMessage"
+      :disabled-tooltip-message="cantSubmitTooltipMessage"
     />
 
     <WorkspaceMergeButton

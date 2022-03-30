@@ -11,9 +11,9 @@
         :disabled="disabled"
         :color="color"
         :spinner="spinner"
-        :showTooltip="showTooltip"
+        :show-tooltip="showTooltip"
         :size="size"
-        :tooltipRight="tooltipRight"
+        :tooltip-right="tooltipRight"
         @click="$emit('click')"
       >
         <template #tooltip>

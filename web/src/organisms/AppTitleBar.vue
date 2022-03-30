@@ -69,7 +69,7 @@ export default defineComponent({
   setup() {
     let user = inject('user')
     return {
-      user
+      user,
     }
   },
   data() {
