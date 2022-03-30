@@ -30,6 +30,7 @@ import (
 	module_github "getsturdy.com/api/pkg/github/module"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	module_remote "getsturdy.com/api/pkg/remote/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -68,6 +69,7 @@ func module(c *di.Container) {
 
 	// OSS version
 	c.Import(module_github.Module)
+	c.Import(module_remote.Module)
 }
 
 func TestCreate(t *testing.T) {

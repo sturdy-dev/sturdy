@@ -11,29 +11,26 @@ import (
 // The returned index must be freed by the caller.
 func (r *repository) MergeBranches(ourBranchName, theirBranchName string) (*git.Index, error) {
 	defer getMeterFunc("MergeBranches")()
-	ourRef, err := r.r.References.Lookup("refs/remotes/origin/" + ourBranchName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to look up reference %s: %w", ourBranchName, err)
-	}
-	defer ourRef.Free()
 
-	ourCommit, err := r.r.LookupCommit(ourRef.Branch().Target())
+	ourBranch, err := r.r.LookupBranch(ourBranchName, git.BranchAll)
 	if err != nil {
-		return nil, fmt.Errorf("failed to look up commit: %w", err)
+		return nil, fmt.Errorf("failed to look up our branch %s: %w", ourBranchName, err)
 	}
-	defer ourCommit.Free()
 
-	theirRef, err := r.r.References.Lookup("refs/remotes/origin/" + theirBranchName)
+	ourCommit, err := r.r.LookupCommit(ourBranch.Target())
 	if err != nil {
-		return nil, fmt.Errorf("failed to look up reference %s: %w", theirBranchName, err)
+		return nil, fmt.Errorf("failed to look up our commit: %w", err)
 	}
-	defer theirRef.Free()
 
-	theirCommit, err := r.r.LookupCommit(theirRef.Branch().Target())
+	theirBranch, err := r.r.LookupBranch(theirBranchName, git.BranchAll)
 	if err != nil {
-		return nil, fmt.Errorf("failed to look up commit: %w", err)
+		return nil, fmt.Errorf("failed to look up their branch %s: %w", theirBranchName, err)
 	}
-	defer theirCommit.Free()
+
+	theirCommit, err := r.r.LookupCommit(theirBranch.Target())
+	if err != nil {
+		return nil, fmt.Errorf("failed to look up their commit: %w", err)
+	}
 
 	opts, err := git.DefaultMergeOptions()
 	if err != nil {
@@ -44,6 +41,7 @@ func (r *repository) MergeBranches(ourBranchName, theirBranchName string) (*git.
 	if err != nil {
 		return nil, err
 	}
+
 	return idx, nil
 }
 

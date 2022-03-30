@@ -283,6 +283,12 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("failed to archive workspace: %w", err)
 	}
 
+	// ws might have been modified (reload)
+	ws, err = svc.workspaceReader.Get(pr.WorkspaceID)
+	if err != nil {
+		return fmt.Errorf("failed to reload workpsace: %w", err)
+	}
+
 	hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
 	if err != nil {
 		return fmt.Errorf("failed to check for conflicts: %w", err)
