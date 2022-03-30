@@ -63,7 +63,7 @@
     "@graphql-codegen/typescript-operations": "~2.2.0",
     "@graphql-codegen/typescript-vue-urql": "~2.2.0",
     "@graphql-codegen/urql-introspection": "2.1.0",
-    "@headlessui/vue": "~1.4.0",
+    "@headlessui/vue": "~1.5.0",
     "@heroicons/vue": "~1.0.3",
     "@tailwindcss/forms": "~0.4.0",
     "@tailwindcss/line-clamp": "~0.3.1",

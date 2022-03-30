@@ -1,9 +1,9 @@
 <template>
   <OnboardingStep id="SubmittingToRemoteGit" :dependencies="['MakingAChange', 'WorkspaceChanges']">
-    <template #title>Submit to {{ workspace.codebase.remote.name }}</template>
+    <template #title>Submit to {{ workspace.codebase.remote?.name }}</template>
     <template #description>
       When you're ready, use this button to push this workspace as a branch to
-      {{ workspace.codebase.remote.name }}.
+      {{ workspace.codebase.remote?.name }}.
     </template>
     <div class="flex flex-col gap-2 items-end">
       <a
@@ -16,42 +16,54 @@
         <ExternalLinkIcon class="w-4 h-4 ml-1" />
       </a>
 
-      <ButtonWithDropdown
-        color="blue"
-        :disabled="disabled || pushingWorkspace"
-        :show-tooltip="disabled"
-        :spinner="pushingWorkspace"
-        :tooltip-right="true"
-        @click="triggerPushWorkspace"
-      >
-        <template #default>
-          <template v-if="pushingWorkspace">
-            <template v-if="isMergingAndPushing"
-              >Merging and pushing to {{ workspace.codebase.remote.name }}</template
-            >
-            <template v-else>Pushing to {{ workspace.codebase.remote.name }}</template>
-          </template>
-          <template v-else>Push to {{ workspace.codebase.remote.name }}</template>
+      <Select id="merge-remote-method" color="blue">
+        <template #selected="{ item }">
+          <component
+            color="blue"
+            :is="item"
+            :show-tooltip="disabled"
+            :disabled="disabled || pushingWorkspace || isMergingAndPushing"
+            :spinner="pushingWorkspace || isMergingAndPushing"
+            :tooltip-right="true"
+            class="rounded-r-none"
+          />
         </template>
 
-        <template v-if="disabled" #tooltip>
-          {{ disabledTooltipMessage }}
-        </template>
+        <template #options>
+          <Button
+            class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+            @click="() => triggerPushWorkspace()"
+          >
+            <template #default>
+              {{
+                pushingWorkspace
+                  ? `Pushing to ${workspace.codebase.remote?.name}`
+                  : `Push to ${workspace.codebase.remote?.name}`
+              }}
+            </template>
+            <template v-if="disabled" #tooltip>
+              {{ disabledTooltipMessage }}
+            </template>
+          </Button>
 
-        <template #dropdown="{ disabled }">
-          <MenuItem :disabled="disabled">
-            <Button
-              class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
-              :disabled="disabled"
-              :icon="shareIcon"
-              :spinner="isMergingAndPushing"
-              @click="triggerPushWorkspaceWithMerge"
-            >
-              Merge and push to {{ workspace.codebase.remote.name }}
-            </Button>
-          </MenuItem>
+          <Button
+            class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+            @click="triggerPushWorkspaceWithMerge"
+          >
+            <template #default>
+              {{
+                isMergingAndPushing
+                  ? `Merging and pushing to ${workspace.codebase.remote?.name}`
+                  : `Merge and push to ${workspace.codebase.remote?.name}`
+              }}
+            </template>
+
+            <template v-if="disabled" #tooltip>
+              {{ disabledTooltipMessage }}
+            </template>
+          </Button>
         </template>
-      </ButtonWithDropdown>
+      </Select>
     </div>
   </OnboardingStep>
 </template>
@@ -60,11 +72,10 @@
 import { defineComponent, type PropType } from 'vue'
 import { gql } from '@urql/vue'
 import { ShareIcon } from '@heroicons/vue/solid'
-import { MenuItem } from '@headlessui/vue'
 import { ExternalLinkIcon } from '@heroicons/vue/outline'
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
-import ButtonWithDropdown from '../molecules/ButtonWithDropdown.vue'
 import Button from '../atoms/Button.vue'
+import Select from '../atoms/Select.vue'
 
 import type { MergeRemoteButton_WorkspaceFragment } from './__generated__/WorkspaceMergeRemoteButton'
 
@@ -85,7 +96,12 @@ export const WORKSPACE_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { MenuItem, OnboardingStep, ButtonWithDropdown, Button, ExternalLinkIcon },
+  components: {
+    OnboardingStep,
+    Button,
+    ExternalLinkIcon,
+    Select,
+  },
   props: {
     workspace: {
       type: Object as PropType<MergeRemoteButton_WorkspaceFragment>,
