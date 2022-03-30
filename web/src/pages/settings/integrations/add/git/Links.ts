@@ -13,6 +13,16 @@ export const removeBasicAuth = function (url: string): string {
   return url.substring(0, slashslash + 3) + url.substring(at + 1)
 }
 
+export const linkLooksLikeHttp = function (url: string): boolean {
+  const isHTTP = url.startsWith('http://') || url.startsWith('https://')
+  return isHTTP
+}
+
+export const linkLooksLikeSSH = function (url: string): boolean {
+  const isSSH = url.startsWith('ssh://')
+  return isSSH
+}
+
 export const defaultLinkRepo = function (gitURL: string): string | null {
   gitURL = removeBasicAuth(gitURL)
 

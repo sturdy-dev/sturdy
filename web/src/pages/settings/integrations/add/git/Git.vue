@@ -26,6 +26,15 @@
                 placeholder="https://"
               />
 
+              <Banner v-if="warnHttpWithSshAuth" status="warning" class="my-2">
+                Ooops! It looks like you're about to setup a remote with a HTTP-like URL using SSH
+                authentication. Did you enter the correct URL for SSH?
+              </Banner>
+              <Banner v-if="warnSshWithHttpAuth" status="warning" class="my-2">
+                Ooops! It looks like you're about to setup a remote with a SSH-like URL using HTTP
+                authentication. Did you enter the correct URL for HTTP(s)?
+              </Banner>
+
               <p class="my-2 max-w-2xl text-sm text-gray-500">
                 Which branch should Sturdy import as the trunk?
               </p>
@@ -189,7 +198,7 @@ import { Banner } from '../../../../../atoms'
 import type { GetGitIntegrationsQuery, GetGitIntegrationsQueryVariables } from './__generated__/Git'
 import { useCreateOrUpdateCodebaseRemote } from '../../../../../mutations/useCreateOrUpdateGitRemote'
 import Button from '../../../../../atoms/Button.vue'
-import { defaultLinkBranch, defaultLinkRepo } from './Links'
+import { defaultLinkBranch, defaultLinkRepo, linkLooksLikeHttp, linkLooksLikeSSH } from './Links'
 import InputCopyToClipboard from '../../../../../organisms/InputCopyToClipboard.vue'
 import http from '../../../../../http'
 import { useGenerateKeyPair } from '../../../../../mutations/useGenerateKeyPair'
@@ -384,6 +393,18 @@ export default defineComponent({
       const base = http.url('/v3/remotes/webhook/sync-codebase/' + this.data.codebase.id)
       // using the current browser location as the base, used if url() returns a relative url
       return new URL(base, new URL(window.location.href)).href
+    },
+    warnHttpWithSshAuth(): boolean {
+      if (this.gitRemoteURL && linkLooksLikeHttp(this.gitRemoteURL) && this.keyPairID) {
+        return true
+      }
+      return false
+    },
+    warnSshWithHttpAuth(): boolean {
+      if (this.gitRemoteURL && linkLooksLikeSSH(this.gitRemoteURL) && this.basicAuthUsername) {
+        return true
+      }
+      return false
     },
   },
   methods: {
