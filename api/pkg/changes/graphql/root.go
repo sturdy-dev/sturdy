@@ -77,7 +77,7 @@ func NewResolver(
 	}
 }
 
-func (r *ChangeRootResolver) IntenralListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]resolvers.ChangeResolver, error) {
+func (r *ChangeRootResolver) InternalListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]resolvers.ChangeResolver, error) {
 	var beforeChange *changes.ID
 	if before != nil {
 		changeID := changes.ID(*before)

@@ -11,7 +11,7 @@ import (
 )
 
 type ChangeRootResolver interface {
-	IntenralListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]ChangeResolver, error)
+	InternalListChanges(ctx context.Context, codebaseID codebases.ID, limit int, before *graphql.ID) ([]ChangeResolver, error)
 
 	Change(ctx context.Context, args ChangeArgs) (ChangeResolver, error)
 }

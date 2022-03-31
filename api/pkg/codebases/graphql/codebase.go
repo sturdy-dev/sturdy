@@ -577,7 +577,7 @@ func (r *CodebaseResolver) Changes(ctx context.Context, args *resolvers.Codebase
 
 		before = args.Input.Before
 	}
-	return r.root.changeRootResolver.IntenralListChanges(ctx, r.c.ID, limit, before)
+	return r.root.changeRootResolver.InternalListChanges(ctx, r.c.ID, limit, before)
 }
 
 func (r *CodebaseResolver) Readme(ctx context.Context) (resolvers.FileResolver, error) {
