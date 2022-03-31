@@ -9,7 +9,7 @@ import (
 )
 
 type Referer interface {
-	URL() *url.URL
+	URL() string
 }
 
 type gitHubPullRequestReferer struct {
@@ -20,12 +20,13 @@ func GitHubPullRequestReferer(pr *github.PullRequest) *gitHubPullRequestReferer 
 	return &gitHubPullRequestReferer{pr: pr}
 }
 
-func (ghpr *gitHubPullRequestReferer) URL() *url.URL {
-	return &url.URL{
+func (ghpr *gitHubPullRequestReferer) URL() string {
+	u := url.URL{
 		Scheme: "referer",
 		Host:   "github",
 		Path:   fmt.Sprintf("%d/prs/%s", ghpr.pr.GitHubRepositoryID, ghpr.pr.ID),
 	}
+	return u.String()
 }
 
 type userReferer struct {
@@ -36,10 +37,11 @@ func UserReferer(u *users.User) *userReferer {
 	return &userReferer{u: u}
 }
 
-func (ur *userReferer) URL() *url.URL {
-	return &url.URL{
+func (ur *userReferer) URL() string {
+	u := url.URL{
 		Scheme: "referer",
 		Host:   "users",
 		Path:   ur.u.ID.String(),
 	}
+	return u.String()
 }

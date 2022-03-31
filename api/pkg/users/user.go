@@ -1,7 +1,6 @@
 package users
 
 import (
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -32,9 +31,8 @@ type User struct {
 	PasswordHash  string     `db:"password" json:"-"`
 	CreatedAt     *time.Time `db:"created_at" json:"created_at"`
 	AvatarURL     *string    `db:"avatar_url" json:"avatar_url"`
-
-	Status  Status   `db:"status" json:"-"`
-	Referer *url.URL `db:"referer" json:"-"`
+	Status        Status     `db:"status" json:"-"`
+	Referer       string     `db:"referer" json:"-"`
 }
 
 var nonAlpha = regexp.MustCompile(`[^a-zA-Z]+`)

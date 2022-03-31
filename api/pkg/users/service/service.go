@@ -38,6 +38,7 @@ type Service interface {
 	GetFirstUser(ctx context.Context) (*users.User, error)
 	GetAsAuthor(context.Context, users.ID) (*author.Author, error)
 	Activate(context.Context, *users.User) error
+	CreateShadow(ctx context.Context, email string, referer Referer) (*users.User, error)
 }
 
 func New(
