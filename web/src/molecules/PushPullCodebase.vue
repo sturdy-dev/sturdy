@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="remote && remote.enabled">
     <h2 class="text-sm font-medium text-gray-500">Connected to {{ remote.name }}</h2>
 
     <PullCodebase :codebase-id="codebaseId" :remote="remote" />
@@ -19,6 +19,7 @@ export const PUSH_PULL_CODEBASE_REMOTE_FRAGMENT = gql`
   fragment PushPullCodebaseRemote on Remote {
     id
     name
+    enabled
   }
 `
 

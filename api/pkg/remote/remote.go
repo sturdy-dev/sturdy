@@ -16,4 +16,5 @@ type Remote struct {
 	TrackedBranch     string            `db:"tracked_branch"`
 	BrowserLinkRepo   string            `db:"browser_link_repo"`
 	BrowserLinkBranch string            `db:"browser_link_branch"`
+	Enabled           bool              `db:"enabled"`
 }

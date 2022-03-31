@@ -311,6 +311,8 @@ type Remote {
   # Use the variable "${BRANCH_NAME}" to dynamically add the branch name to the URL
   # Example: "https://github.com/sturdy-dev/sturdy/tree/${BRANCH_NAME}"
   browserLinkBranch: String!
+
+  enabled: Boolean!
 }
 
 input CreateOrUpdateCodebaseRemoteInput {
@@ -326,6 +328,8 @@ input CreateOrUpdateCodebaseRemoteInput {
 
   browserLinkRepo: String!
   browserLinkBranch: String!
+
+  enabled: Boolean!
 }
 
 input PushWorkspaceInput {

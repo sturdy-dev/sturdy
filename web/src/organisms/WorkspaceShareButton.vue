@@ -50,6 +50,7 @@ export const SHARE_BUTTON = gql`
       }
       remote @include(if: $isRemoteEnabled) {
         id
+        enabled
       }
     }
     ...MergeGitHubButton_Workspace
@@ -99,7 +100,7 @@ export default defineComponent({
       )
     },
     shareViaRemote() {
-      return !!this.workspace.codebase.remote
+      return !!this.workspace.codebase.remote && this.workspace.codebase.remote.enabled
     },
     cantSubmitTooltipMessage(): string {
       switch (this.cantSubmitReason) {

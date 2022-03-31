@@ -28,6 +28,8 @@ type RemoteResolver interface {
 
 	BrowserLinkRepo() string
 	BrowserLinkBranch() string
+
+	Enabled() bool
 }
 
 type CreateOrUpdateCodebaseRemoteArgsArgs struct {
@@ -46,4 +48,6 @@ type CreateOrUpdateCodebaseRemoteArgsInput struct {
 
 	BrowserLinkRepo   string
 	BrowserLinkBranch string
+
+	Enabled bool
 }

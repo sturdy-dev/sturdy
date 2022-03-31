@@ -150,6 +150,14 @@
                 <Banner v-if="error && error.length > 0" status="error">{{ error }}</Banner>
                 <Banner v-if="showSuccess" status="success">Saved!</Banner>
 
+                <Checkbox
+                  v-model="enabled"
+                  title="Active"
+                  :description="
+                    enabled ? 'This integration is active' : 'This integration is inactive'
+                  "
+                />
+
                 <div>
                   <Button
                     v-if="data.codebase?.remote?.id"
@@ -203,9 +211,11 @@ import InputCopyToClipboard from '../../../../../organisms/InputCopyToClipboard.
 import http from '../../../../../http'
 import { useGenerateKeyPair } from '../../../../../mutations/useGenerateKeyPair'
 import { KeyPairType } from '../../../../../__generated__/types'
+import Checkbox from '../../../../../atoms/Checkbox.vue'
 
 export default defineComponent({
   components: {
+    Checkbox,
     InputCopyToClipboard,
     SettingsVerticalNavigation,
     PaddedAppLeftSidebar,
@@ -240,6 +250,7 @@ export default defineComponent({
               }
               browserLinkRepo
               browserLinkBranch
+              enabled
             }
           }
         }
@@ -260,6 +271,7 @@ export default defineComponent({
     const keyPairPublicKey = ref<string | null | undefined>('')
     const showSuccess = ref(false)
     const error = ref<Error | string | null>(null)
+    const enabled = ref(true)
 
     // Set data from API (only once)
     let didLoad = false
@@ -278,6 +290,7 @@ export default defineComponent({
         browserLinkBranch.value = newData.codebase.remote.browserLinkBranch
         keyPairID.value = newData.codebase.remote?.keyPair?.id
         keyPairPublicKey.value = newData.codebase.remote?.keyPair?.publicKey
+        enabled.value = newData.codebase.remote?.enabled
         didLoad = true
       },
       {
@@ -318,6 +331,7 @@ export default defineComponent({
       basicAuthPassword,
       browserLinkRepo,
       browserLinkBranch,
+      enabled,
 
       keyPairID,
       keyPairPublicKey,
@@ -342,6 +356,7 @@ export default defineComponent({
           browserLinkRepo: browserLinkRepo.value,
           browserLinkBranch: browserLinkBranch.value,
           keyPairID: keyPairID.value,
+          enabled: enabled.value,
         }
 
         if (vars.keyPairID) {

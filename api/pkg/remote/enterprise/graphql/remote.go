@@ -57,3 +57,7 @@ func (r *resolver) KeyPair(ctx context.Context) (resolvers.KeyPairResolver, erro
 	}
 	return kp, nil
 }
+
+func (r *resolver) Enabled() bool {
+	return r.remote.Enabled
+}

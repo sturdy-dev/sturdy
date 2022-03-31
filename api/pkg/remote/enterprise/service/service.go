@@ -104,6 +104,7 @@ type SetRemoteInput struct {
 	KeyPairID         *crypto.KeyPairID
 	BrowserLinkRepo   string
 	BrowserLinkBranch string
+	Enabled           bool
 }
 
 func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebases.ID, input *SetRemoteInput) (*remote.Remote, error) {
@@ -140,6 +141,7 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 		rep.KeyPairID = input.KeyPairID
 		rep.BrowserLinkRepo = input.BrowserLinkRepo
 		rep.BrowserLinkBranch = input.BrowserLinkBranch
+		rep.Enabled = input.Enabled
 		if err := svc.repo.Update(ctx, rep); err != nil {
 			return nil, fmt.Errorf("failed to update remote: %w", err)
 		}
@@ -160,6 +162,7 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 			KeyPairID:         input.KeyPairID,
 			BrowserLinkRepo:   input.BrowserLinkRepo,
 			BrowserLinkBranch: input.BrowserLinkBranch,
+			Enabled:           input.Enabled,
 		}
 
 		if err := svc.repo.Create(ctx, r); err != nil {
@@ -174,10 +177,15 @@ func (svc *EnterpriseService) SetRemote(ctx context.Context, codebaseID codebase
 	}
 }
 
+var ErrRemoteDisabled = errors.New("this remote is disabled")
+
 func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
 	rem, err := svc.GetWithFixedURL(ctx, ws.CodebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
+	}
+	if !rem.Enabled {
+		return ErrRemoteDisabled
 	}
 
 	localBranchName := "sturdy-" + ws.ID
@@ -221,6 +229,9 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
 	}
+	if !rem.Enabled {
+		return ErrRemoteDisabled
+	}
 
 	refspec := fmt.Sprintf("refs/heads/sturdytrunk:refs/heads/%s", rem.TrackedBranch)
 
@@ -254,6 +265,9 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	rem, err := svc.GetWithFixedURL(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("could not get remote: %w", err)
+	}
+	if !rem.Enabled {
+		return ErrRemoteDisabled
 	}
 
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/sturdytrunk", rem.TrackedBranch)

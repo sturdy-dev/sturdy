@@ -89,6 +89,7 @@ func (r *remoteRootResolver) CreateOrUpdateCodebaseRemote(ctx context.Context, a
 			BrowserLinkRepo:   args.Input.BrowserLinkRepo,
 			BrowserLinkBranch: args.Input.BrowserLinkBranch,
 			KeyPairID:         keyPairID,
+			Enabled:           args.Input.Enabled,
 		},
 	)
 	if err != nil {

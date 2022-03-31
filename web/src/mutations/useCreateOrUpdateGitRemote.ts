@@ -22,6 +22,7 @@ const CREATE_GIT_REMOTE = gql`
         id
         publicKey
       }
+      enabled
     }
   }
 `
