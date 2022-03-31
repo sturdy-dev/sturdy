@@ -22,7 +22,7 @@ type PullRequest struct {
 	MergedAt       *time.Time `json:"merged_at,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 	Body           *string    `json:"body,omitempty"`
-	Sender         *User      `json:"sender,omitempty"`
+	User           *User      `json:"user,omitempty"`
 
 	Head *PullRequestBranch `json:"head,omitempty"`
 	Base *PullRequestBranch `json:"base,omitempty"`
@@ -41,16 +41,16 @@ func ConvertPullRequest(pr *github.PullRequest) *PullRequest {
 		MergedAt:       pr.MergedAt,
 		CreatedAt:      pr.CreatedAt,
 		Body:           pr.Body,
-		Sender:         ConvertUser(pr.User),
+		User:           ConvertUser(pr.User),
 		Head:           ConvertPullReqestBranch(pr.Head),
 		Base:           ConvertPullReqestBranch(pr.Base),
 	}
 }
-func (pr *PullRequest) GetSender() *User {
+func (pr *PullRequest) GetUser() *User {
 	if pr == nil {
 		return nil
 	}
-	return pr.Sender
+	return pr.User
 }
 
 func (pr *PullRequest) GetTitle() string {

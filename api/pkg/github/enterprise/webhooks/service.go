@@ -20,6 +20,7 @@ import (
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	service_codebases "getsturdy.com/api/pkg/codebases/service"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -28,10 +29,13 @@ import (
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	vcs_github "getsturdy.com/api/pkg/github/enterprise/vcs"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
+	"getsturdy.com/api/pkg/users"
+	service_users "getsturdy.com/api/pkg/users/service"
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -66,10 +70,13 @@ type Service struct {
 
 	syncService      *service_sync.Service
 	workspaceService service_workspace.Service
+	codebaseService  *service_codebases.Service
 	commentsService  *service_comments.Service
 	activityService  *service_activity.Service
 	changeService    *service_change.Service
 	statusService    *service_statuses.Service
+	githubService    *service_github.Service
+	usersService     service_users.Service
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -101,10 +108,13 @@ func New(
 
 	syncService *service_sync.Service,
 	workspaceService service_workspace.Service,
+	codebaseService *service_codebases.Service,
 	commentsService *service_comments.Service,
 	activityService *service_activity.Service,
 	changeService *service_change.Service,
 	statusService *service_statuses.Service,
+	githubService *service_github.Service,
+	usersService service_users.Service,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
@@ -135,10 +145,13 @@ func New(
 
 		syncService:      syncService,
 		workspaceService: workspaceService,
+		codebaseService:  codebaseService,
 		commentsService:  commentsService,
 		activityService:  activityService,
 		changeService:    changeService,
 		statusService:    statusService,
+		githubService:    githubService,
+		usersService:     usersService,
 
 		buildQueue: buildQueue,
 	}
@@ -155,6 +168,82 @@ func getPRStatus(apiPR *api.PullRequest) github.PullRequestState {
 		return github.PullRequestStateClosed
 	default:
 		return github.PullRequestStateUnknown
+	}
+}
+
+func (svc *Service) getPullRequestAuthor(
+	ctx context.Context,
+	repo *github.Repository,
+	event *PullRequestEvent,
+) (*users.User, error) {
+	githubClient, _, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, repo.InstallationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get github client: %w", err)
+	}
+
+	// get a fresh user from the api, because it might contain users's email address, if it's public
+	gitHubUser, _, err := githubClient.Users.Get(ctx, event.GetPullRequest().GetUser().GetLogin())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get github user: %w", err)
+	}
+
+	email := gitHubUser.GetEmail()
+	if email == "" {
+		// if email is not public, make one up from the user's login, similar to what github does
+		// see https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-email-preferences/setting-your-commit-email-address
+		email = fmt.Sprintf("%d+%s@users.noreply.github.com.com", gitHubUser.GetID(), gitHubUser.GetLogin())
+	}
+
+	if user, err := svc.usersService.GetByEmail(ctx, email); errors.Is(err, sql.ErrNoRows) {
+		// not found, will create
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	} else {
+		// found, return
+		return user, nil
+	}
+
+	name := gitHubUser.GetName()
+	user, err := svc.usersService.CreateShadow(ctx, gitHubUser.GetEmail(),
+		service_users.GitHubPullRequestReferer(event.GetRepo().GetID(), event.GetPullRequest().GetID()), &name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create shadow user: %w", err)
+	}
+
+	return user, nil
+}
+
+func (svc *Service) importNewPullRequest(
+	ctx context.Context,
+	logger *zap.Logger,
+	repo *github.Repository,
+	event *PullRequestEvent,
+) error {
+	user, err := svc.getPullRequestAuthor(ctx, repo, event)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if _, err := svc.codebaseService.AddUser(ctx, repo.CodebaseID, user); err != nil {
+		return fmt.Errorf("failed to add user to codebase: %w", err)
+	}
+
+	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
+	if err != nil {
+		return fmt.Errorf("could not get installation: %w", err)
+	}
+
+	accessToken, err := svc.accessToken(ctx, repo.InstallationID, repo.GitHubRepositoryID)
+	if err != nil {
+		return fmt.Errorf("failed to get access token: %w", err)
+	}
+
+	if err := svc.githubService.ImportPullRequest(user.ID, event.GetPullRequest(), repo, installation, accessToken); err == service_github.ErrAlreadyImported {
+		return nil
+	} else if err != nil {
+		return err
+	} else {
+		return nil
 	}
 }
 
@@ -181,22 +270,32 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 
 	logger = logger.With(zap.Stringer("codebase_id", repo.CodebaseID), zap.String("gh_repo_id", repo.ID))
 
-	apiPR := event.GetPullRequest()
-	pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(apiPR.GetID(), repo.CodebaseID)
-	if errors.Is(err, sql.ErrNoRows) {
-		logger.Info("pull request not found")
-		return nil // noop
+	if pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(event.GetPullRequest().GetID(), repo.CodebaseID); errors.Is(err, sql.ErrNoRows) {
+		logger.Info("pull request not found, importing")
+		if err := svc.importNewPullRequest(ctx, logger, repo, event); err != nil {
+			return fmt.Errorf("failed to import new pull request: %w", err)
+		}
+		return nil
 	} else if err != nil {
 		return fmt.Errorf("failed to get github pull request from db: %w", err)
+	} else {
+		logger.Info("pull request found, updating")
+		return svc.updateExistingPullRequest(ctx, logger.With(zap.String("pr_id", pr.ID)), repo, event, pr)
 	}
+}
 
-	logger = logger.With(zap.String("pr_id", pr.ID))
-
+func (svc *Service) updateExistingPullRequest(
+	ctx context.Context,
+	logger *zap.Logger,
+	repo *github.Repository,
+	event *PullRequestEvent,
+	pr *github.PullRequest,
+) error {
 	now := time.Now()
 	pr.UpdatedAt = &now
-	pr.ClosedAt = apiPR.ClosedAt
-	pr.MergedAt = apiPR.MergedAt
-	pr.State = getPRStatus(apiPR)
+	pr.ClosedAt = event.GetPullRequest().ClosedAt
+	pr.MergedAt = event.GetPullRequest().MergedAt
+	pr.State = getPRStatus(event.GetPullRequest())
 	if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
 		return fmt.Errorf("failed to update github pull request in db: %w", err)
 	}
@@ -221,27 +320,27 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		svc.logger.Warn("handled a github pull request webhook for non-existing workspace",
 			zap.String("workspace_id", pr.WorkspaceID),
 			zap.String("github_pr_id", pr.ID),
-			zap.String("github_pr_link", apiPR.GetHTMLURL()),
+			zap.String("github_pr_link", event.GetPullRequest().GetHTMLURL()),
 		)
 		return nil // noop
 	} else if err != nil {
 		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
 
-	accessToken, err := svc.accessToken(event.GetInstallation().GetID(), event.GetRepo().GetID())
+	accessToken, err := svc.accessToken(ctx, event.GetInstallation().GetID(), event.GetRepo().GetID())
 	if err != nil {
 		return fmt.Errorf("failed to get github access token: %w", err)
 	}
 
 	// pull from github if sturdy doesn't have the commits
 	if err := svc.pullFromGitHubIfCommitNotExists(pr.CodebaseID, []string{
-		apiPR.GetMergeCommitSHA(),
+		event.GetPullRequest().GetMergeCommitSHA(),
 		event.GetPullRequest().GetBase().GetSHA(),
 	}, accessToken, repo.TrackedBranch); err != nil {
 		return fmt.Errorf("failed to pullFromGitHubIfCommitNotExists: %w", err)
 	}
 
-	ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, apiPR.GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
+	ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, event.GetPullRequest().GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
 	if err != nil {
 		return fmt.Errorf("failed to create change: %w", err)
 	}
@@ -346,7 +445,7 @@ func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error
 		return nil
 	}
 
-	accessToken, err := svc.accessToken(installationID, repoID)
+	accessToken, err := svc.accessToken(ctx, installationID, repoID)
 	if err != nil {
 		if strings.Contains(err.Error(), "The permissions requested are not granted to this installation") {
 			logger.Info("did not have permissions to get a github token")
@@ -414,7 +513,7 @@ func (svc *Service) pullFromGitHubIfCommitNotExists(codebaseID codebases.ID, com
 	return nil
 }
 
-func (svc *Service) accessToken(installationID, repositoryID int64) (string, error) {
+func (svc *Service) accessToken(ctx context.Context, installationID, repositoryID int64) (string, error) {
 	repo, err := svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
 	if err != nil {
 		return "", fmt.Errorf("failed to get github repo from db: %w", err)
@@ -425,7 +524,7 @@ func (svc *Service) accessToken(installationID, repositoryID int64) (string, err
 		return "", fmt.Errorf("could not get installation: %w", err)
 	}
 
-	accessToken, err := github_client.GetAccessToken(context.Background(), svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
+	accessToken, err := github_client.GetAccessToken(ctx, svc.logger, svc.gitHubAppConfig, installation, repo.GitHubRepositoryID, svc.gitHubRepositoryRepo, svc.gitHubInstallationClientProvider)
 	if err != nil {
 		return "", fmt.Errorf("failed to get access token: %w", err)
 	}

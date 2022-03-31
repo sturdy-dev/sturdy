@@ -265,23 +265,29 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID,
 	if err != nil {
 		return nil, fmt.Errorf("could not get user: %w", err)
 	}
+	return svc.AddUser(ctx, codebaseID, inviteUser)
+}
 
+func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *users.User) (*codebases.CodebaseUser, error) {
 	// Check that the user isn't already a member
-	_, err = svc.codebaseUserRepo.GetByUserAndCodebase(inviteUser.ID, codebaseID)
-	if err == nil {
-		return nil, fmt.Errorf("already a member")
+	if codebaseUser, err := svc.codebaseUserRepo.GetByUserAndCodebase(user.ID, codebaseID); errors.Is(err, sql.ErrNoRows) {
+		// continue
+	} else if err != nil {
+		return nil, fmt.Errorf("could not get codebase user: %w", err)
+	} else {
+		// already a member
+		return codebaseUser, nil
 	}
 
 	t := time.Now()
 	member := codebases.CodebaseUser{
 		ID:         uuid.New().String(),
-		UserID:     inviteUser.ID,
+		UserID:     user.ID,
 		CodebaseID: codebaseID,
 		CreatedAt:  &t,
 	}
 
-	err = svc.codebaseUserRepo.Create(member)
-	if err != nil {
+	if err := svc.codebaseUserRepo.Create(member); err != nil {
 		return nil, fmt.Errorf("could not add user: %w", err)
 	}
 
@@ -292,7 +298,7 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID,
 
 	svc.analyticsService.Capture(ctx, "add user to codebase",
 		analytics.CodebaseID(codebaseID),
-		analytics.Property("user_id", inviteUser.ID),
+		analytics.Property("user_id", user.ID),
 	)
 
 	return &member, nil

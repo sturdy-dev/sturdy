@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -13,18 +12,19 @@ type Referer interface {
 }
 
 type gitHubPullRequestReferer struct {
-	pr *github.PullRequest
+	repoID int64
+	prID   int64
 }
 
-func GitHubPullRequestReferer(pr *github.PullRequest) *gitHubPullRequestReferer {
-	return &gitHubPullRequestReferer{pr: pr}
+func GitHubPullRequestReferer(repoID, prID int64) *gitHubPullRequestReferer {
+	return &gitHubPullRequestReferer{repoID: repoID, prID: prID}
 }
 
 func (ghpr *gitHubPullRequestReferer) URL() string {
 	u := url.URL{
 		Scheme: "referer",
 		Host:   "github",
-		Path:   fmt.Sprintf("%d/prs/%s", ghpr.pr.GitHubRepositoryID, ghpr.pr.ID),
+		Path:   fmt.Sprintf("%d/prs/%d", ghpr.repoID, ghpr.prID),
 	}
 	return u.String()
 }

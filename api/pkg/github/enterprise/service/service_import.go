@@ -140,26 +140,6 @@ func (svc *Service) ImportPullRequest(
 		return fmt.Errorf("failed to fetch pull to trunk: %w", err)
 	}
 
-	if err := svc.executorProvider.New().
-		Write(vcs_view.CheckoutBranch(importBranchName)).
-		Write(func(repo vcs.RepoWriter) error {
-			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
-				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
-			}
-			if _, err := repo.AddAndCommit(fmt.Sprintf("Import from GitHub Pull Request %d", gitHubPR.GetNumber())); err != nil {
-				return fmt.Errorf("failed to commit for snapshot: %w", err)
-			}
-			if err := repo.CreateNewBranchOnHEAD(importedTemporaryBranchName); err != nil {
-				return fmt.Errorf("failed to create branch for snapshot: %w", err)
-			}
-			if err := repo.Push(svc.logger, importedTemporaryBranchName); err != nil {
-				return fmt.Errorf("failed to push branch for snapshot: %w", err)
-			}
-			return nil
-		}).ExecTemporaryView(codebaseID, "gitHubImportBranch"); err != nil {
-		return fmt.Errorf("failed to create workspace from pr: %w", err)
-	}
-
 	t := time.Now()
 	// Create the workspace
 	ws := workspaces.Workspace{
@@ -170,43 +150,48 @@ func (svc *Service) ImportPullRequest(
 		DraftDescription: pullRequestDescription,
 		CreatedAt:        &t,
 	}
-	err = svc.workspaceWriter.Create(ws)
-	if err != nil {
+	if err := svc.workspaceWriter.Create(ws); err != nil {
 		return fmt.Errorf("failed to create workspace: %w", err)
 	}
 
-	// Create a snapshot
-	makeSnapshotExec := svc.executorProvider.New().FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
-		wsHead, err := repo.BranchCommitID(importedTemporaryBranchName)
-		if err != nil {
-			return fmt.Errorf("failed to get head of imported branch: %w", err)
-		}
+	// make a snapshot
+	//
+	// step1:
+	//   reset to the head of the branch. that will make all changes from pr NOT staged (not index)
+	//   just what a usual sturdy user would have
+	// step2:
+	//   make a snapshot
+	if err := svc.executorProvider.New().
+		Write(vcs_view.CheckoutBranch(importBranchName)).
+		Write(func(repo vcs.RepoWriter) error {
+			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
+			}
 
-		svc.logger.Info("HEAD IS", zap.String("wsHead", wsHead), zap.String("branch", importedTemporaryBranchName))
+			if _, err := svc.snap.Snapshot(codebaseID, workspaceID,
+				snapshots.ActionSyncCompleted,
+				snapshotter.WithMarkAsLatestInWorkspace(),
+				snapshotter.WithOnView(*repo.ViewID()),
+				snapshotter.WithOnRepo(repo), // Re-use repo context
+			); err != nil {
+				return fmt.Errorf("failed to create snapshot: %w", err)
+			}
 
-		// Create a snapshot
-		if _, err := svc.snap.Snapshot(codebaseID, workspaceID,
-			snapshots.ActionSyncCompleted,
-			snapshotter.WithOnTemporaryView(),
-			snapshotter.WithMarkAsLatestInWorkspace(),
-			snapshotter.WithOnExistingCommit(wsHead),
-			snapshotter.WithOnRepo(repo), // Re-use repo context
-		); err != nil {
-			return fmt.Errorf("failed to create snapshot: %w", err)
-		}
+			return nil
+		}).ExecTemporaryView(codebaseID, "gitHubImportBranch"); err != nil {
+		return fmt.Errorf("failed to create workspace from pr: %w", err)
+	}
 
+	if err := svc.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
 		if err := repo.DeleteBranch(importBranchName); err != nil {
 			return fmt.Errorf("failed to delete importBranchName: %w", err)
 		}
-
 		if err := repo.DeleteBranch(importedTemporaryBranchName); err != nil {
 			return fmt.Errorf("failed to delete importedTemporaryBranchName: %w", err)
 		}
-
 		return nil
-	})
-	if err := makeSnapshotExec.ExecTrunk(codebaseID, "gitHubImportBranchFetch"); err != nil {
-		return fmt.Errorf("failed to fetch pull to trunk: %w", err)
+	}).ExecTrunk(codebaseID, "gitHubImportBranchCleanup"); err != nil {
+		return fmt.Errorf("failed to cleanup import branch: %w", err)
 	}
 
 	// GitHub apps can only push to the repository where the app is installed, and not to it's forks.
