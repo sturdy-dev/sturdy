@@ -20,7 +20,7 @@ type AddPublicKeyRequest struct {
 	PublicKey string `json:"public_key" binding:"required"`
 }
 
-func AddPublicKey(repo db.Repo) func(c *gin.Context) {
+func AddPublicKey(repo db.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req AddPublicKeyRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -64,7 +64,7 @@ type VerifyPublicKeyRequest struct {
 	UserID    users.ID `json:"user_id" binding:"required"`
 }
 
-func Verify(repo db.Repo) func(c *gin.Context) {
+func Verify(repo db.Repository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req VerifyPublicKeyRequest
 		if err := c.ShouldBindJSON(&req); err != nil {

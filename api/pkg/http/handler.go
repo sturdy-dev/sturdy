@@ -88,7 +88,7 @@ func ProvideHandler(
 	codebaseUserRepo db_codebases.CodebaseUserRepository,
 	viewRepo db_view.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
-	userPublicKeyRepo db_pki.Repo,
+	userPublicKeyRepo db_pki.Repository,
 	snapshotterQueue worker_snapshots.Queue,
 	snapshotRepo db_snapshots.Repository,
 	changeRepo db_change.Repository,

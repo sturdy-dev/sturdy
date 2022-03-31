@@ -14,11 +14,11 @@ import (
 )
 
 type pkiRootResolver struct {
-	repo  db.Repo
+	repo  db.Repository
 	users resolvers.UserRootResolver
 }
 
-func NewResolver(repo db.Repo, users resolvers.UserRootResolver) resolvers.PKIRootResolver {
+func NewResolver(repo db.Repository, users resolvers.UserRootResolver) resolvers.PKIRootResolver {
 	return &pkiRootResolver{
 		repo:  repo,
 		users: users,

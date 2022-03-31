@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Repo interface {
+type Repository interface {
 	Create(upk pki.UserPublicKey) error
 	GetByPublicKeyAndUserID(publicKey string, userID users.ID) (*pki.UserPublicKey, error)
 	GetKeyByUserID(users.ID) ([]pki.UserPublicKey, error)
@@ -19,7 +19,7 @@ type dbrepo struct {
 	db *sqlx.DB
 }
 
-func NewRepo(db *sqlx.DB) Repo {
+func NewRepo(db *sqlx.DB) Repository {
 	return &dbrepo{db: db}
 }
 
