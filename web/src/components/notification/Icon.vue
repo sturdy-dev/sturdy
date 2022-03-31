@@ -39,11 +39,11 @@ import NotificationOverlay from './Overlay.vue'
 import { NOTIFICATION_FRAGMENT as NOTIFICATION_DATA_FRAGMENT } from './Feed.vue'
 import { gql, useMutation, useQuery } from '@urql/vue'
 import { useUpdatedNotifications } from '../../subscriptions/useUpdatedNotifications'
-import type {
-  User,
+import {
+  type User,
   NotificationType,
   NotificationChannel,
-  NotificationPreference,
+  type NotificationPreference,
 } from '../../__generated__/types'
 import mentionify from '../../atoms/mentionify'
 import type {
