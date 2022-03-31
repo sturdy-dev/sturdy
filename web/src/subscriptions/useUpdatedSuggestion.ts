@@ -37,7 +37,8 @@ const UPDATED_SUGGESTION = gql`
         isMoved
 
         hunks {
-          id
+          _id
+          hunkID
           patch
 
           isOutdated

@@ -85,7 +85,8 @@ import type { DiffTable_HunkFragment } from './__generated__/DiffTable'
 
 export const HUNK_FRAGMENT = gql`
   fragment DiffTable_Hunk on Hunk {
-    id
+    _id
+    hunkID
     patch
   }
 `

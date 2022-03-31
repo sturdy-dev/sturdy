@@ -55,15 +55,15 @@
           <template v-for="(diff, diffIdx) in suggestion.diffs" :key="diffIdx">
             <DiffTable
               v-for="hunk in diff.hunks"
-              :key="hunk.id"
+              :key="hunk._id"
               :unparsed-diff="hunk"
               :grayed-out="hunk.isApplied || hunk.isOutdated || hunk.isDismissed"
             >
               <template #blockIndexAction>
                 <div class="relative flex items-start justify-center w-full">
-                  <span v-if="hunk.isApplied" class="text-sm font-medium text-green-600"
-                    >Taken</span
-                  >
+                  <span v-if="hunk.isApplied" class="text-sm font-medium text-green-600">
+                    Taken
+                  </span>
                   <span v-else-if="hunk.isDismissed" class="text-sm font-medium text-red-600">
                     Dismissed
                   </span>
@@ -109,7 +109,7 @@
           :key="hunkIndex"
           :class="[
             'd2h-diff-tbody d2h-file-diff',
-            checkedHunks.get(diffs.hunks[hunkIndex].id) ? 'opacity-70' : '',
+            checkedHunks.get(diffs.hunks[hunkIndex].hunkID) ? 'opacity-70' : '',
             differState.isHidden ? 'hidden' : '',
           ]"
         >
@@ -127,7 +127,7 @@
                 >
                   <input
                     :id="'add-' + fileKey + '-' + hunkIndex"
-                    :checked="checkedHunks.get(diffs.hunks[hunkIndex].id)"
+                    :checked="checkedHunks.get(diffs.hunks[hunkIndex].hunkID)"
                     :value="hunkIndex"
                     type="checkbox"
                     class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded"
@@ -160,7 +160,7 @@
                   :class="[
                     row.type === 'insert' ? 'bg-green-50 border-r border-l border-green-500' : '',
                     row.type === 'delete' ? 'bg-red-50 border-r border-l border-red-500' : '',
-                    searchMatchesHunk(diffs.hunks[hunkIndex].id) ? '!bg-yellow-100' : '',
+                    searchMatchesHunk(diffs.hunks[hunkIndex].hunkID) ? '!bg-yellow-100' : '',
                   ]"
                 >
                   <label
@@ -188,7 +188,7 @@
                 </td>
 
                 <td
-                  :id="diffs.hunks[hunkIndex].id + '-' + rowIndex"
+                  :id="diffs.hunks[hunkIndex].hunkID + '-' + rowIndex"
                   class="code-row-wrapper relative z-10"
                   :class="[
                     row.type === 'insert' ? 'bg-green-50' : '',
@@ -199,9 +199,9 @@
                       ? '!bg-blue-200'
                       : '',
 
-                    searchIsCurrentSelected(diffs.hunks[hunkIndex].id, rowIndex)
+                    searchIsCurrentSelected(diffs.hunks[hunkIndex].hunkID, rowIndex)
                       ? '!bg-yellow-400 font-bold sturdy-searchmatch'
-                      : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].id, blockIndex, rowIndex)
+                      : hasMatchingSearchOnRow(diffs.hunks[hunkIndex].hunkID, blockIndex, rowIndex)
                       ? '!bg-yellow-200 font-bold sturdy-searchmatch'
                       : '',
                   ]"
@@ -312,7 +312,8 @@ export const DIFFER_FILE_SUGGESTION = gql`
       id
       isLarge
       hunks {
-        id
+        _id
+        hunkID
         ...DiffTable_Hunk
         isApplied
         isOutdated
@@ -341,7 +342,8 @@ export const DIFFER_FILE_FILE_DIFF = gql`
     isLarge
 
     hunks {
-      id
+      _id
+      hunkID
       patch
 
       isOutdated
@@ -518,7 +520,7 @@ export default defineComponent({
   },
   computed: {
     hunkIds() {
-      return new Set([...this.diffs.hunks.flatMap((hunk) => hunk.id)])
+      return new Set([...this.diffs.hunks.flatMap((hunk) => hunk.hunkID)])
     },
     parsedHunks() {
       return this.diffs.hunks.flatMap(({ patch }) =>
@@ -760,14 +762,14 @@ export default defineComponent({
     },
     setAllHunks(setTo: boolean) {
       this.diffs.hunks.forEach((val) => {
-        this.checkedHunks.set(val.id, setTo)
+        this.checkedHunks.set(val.hunkID, setTo)
       })
     },
     updatedHunkSelection(event: Event) {
       let el = event.target as HTMLInputElement
       let hunkIndex = parseInt(el.value)
 
-      this.checkedHunks.set(this.diffs.hunks[hunkIndex].id, el.checked)
+      this.checkedHunks.set(this.diffs.hunks[hunkIndex].hunkID, el.checked)
 
       // Update isAdded
       let total = this.parsedHunks.length
@@ -823,13 +825,13 @@ export default defineComponent({
     ) {
       this.$emit('dismissHunkedSuggestion', {
         suggestionId: suggestion.id,
-        hunks: [hunk.id],
+        hunks: [hunk.hunkID],
       })
     },
     onClickApplyHunkedSuggestion(hunk: SuggestionHunk, suggestion: DifferFile_SuggestionFragment) {
       this.$emit('applyHunkedSuggestion', {
         suggestionId: suggestion.id,
-        hunks: [hunk.id],
+        hunks: [hunk.hunkID],
       })
     },
     onSuggestionsAvatarClick(userID: string) {

@@ -752,7 +752,13 @@ type LargeFileInfo {
 }
 
 type Hunk {
-  id: ID!
+  # _id is a "stable" id, and is only used to aid in caching
+  _id: ID!
+
+  id: ID! @deprecated(reason: "use _id and hunkID instead")
+
+  # hunkID is unique for the patch, use this ID in requests (to undo, create changes, etc)
+  hunkID: ID!
   patch: String!
 
   # only used for suggestions

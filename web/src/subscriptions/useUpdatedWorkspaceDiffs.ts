@@ -13,7 +13,8 @@ const UPDATED_WORKSPACE_DIFFS = gql`
       id
       preferredName
       hunks {
-        id
+        _id
+        hunkID
         patch
       }
     }

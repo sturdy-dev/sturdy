@@ -39,7 +39,8 @@ const CREATE_SUGGESTION_SUGGESTION_FRAGMENT = gql`
       isMoved
 
       hunks {
-        id
+        _id
+        hunkID
         patch
 
         isOutdated

@@ -1,6 +1,8 @@
 package graphql
 
 import (
+	"fmt"
+
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/unidiff"
 
@@ -74,16 +76,24 @@ func (f *fileDiffResolver) IsHidden() bool {
 func (f *fileDiffResolver) Hunks() ([]resolvers.HunkResolver, error) {
 	res := make([]resolvers.HunkResolver, len(f.diff.Hunks), len(f.diff.Hunks))
 	for k, v := range f.diff.Hunks {
-		res[k] = &hunkResolver{hunk: v}
+		res[k] = &hunkResolver{
+			id:   fmt.Sprintf("%s-%d", f.ID(), k),
+			hunk: v,
+		}
 	}
 	return res, nil
 }
 
 type hunkResolver struct {
+	id   string
 	hunk unidiff.Hunk
 }
 
 func (h *hunkResolver) ID() graphql.ID {
+	return graphql.ID(h.id)
+}
+
+func (h *hunkResolver) HunkID() graphql.ID {
 	return graphql.ID(h.hunk.ID)
 }
 

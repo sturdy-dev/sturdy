@@ -23,7 +23,8 @@ const DISMISS_SUGGESTION_HUNKS = gql`
         isMoved
 
         hunks {
-          id
+          _id
+          hunkID
           patch
 
           isOutdated

@@ -202,6 +202,7 @@ import { CombinedError, gql, useMutation, useQuery } from '@urql/vue'
 import { useRoute } from 'vue-router'
 import { computed, defineComponent, inject, ref } from 'vue'
 import type { PropType, Ref } from 'vue'
+import type { DeepMaybeRef } from '@vueuse/core'
 import { useUpdatedWorkspace } from '../../subscriptions/useUpdatedWorkspace'
 import { useUpdatedGitHubPullRequest } from '../../subscriptions/useUpdatedGitHubPullRequest'
 import OnboardingStep from '../onboarding/OnboardingStep.vue'
@@ -249,7 +250,8 @@ export const LIVE_DETAILS_DIFFS = gql`
     isHidden
 
     hunks {
-      id
+      _id
+      hunkID
       patch
 
       isOutdated
@@ -357,7 +359,7 @@ export default defineComponent({
 
     let { data, fetching, error, executeQuery } = useQuery<
       LiveDetailsQuery,
-      LiveDetailsQueryVariables
+      DeepMaybeRef<LiveDetailsQueryVariables>
     >({
       query: gql`
         query LiveDetails($workspaceID: ID!, $isGitHubEnabled: Boolean!) {
@@ -391,7 +393,9 @@ export default defineComponent({
                 isHidden
 
                 hunks {
-                  id
+                  _id
+
+                  hunkID
                   patch
 
                   isOutdated

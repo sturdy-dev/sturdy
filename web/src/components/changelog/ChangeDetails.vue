@@ -76,7 +76,8 @@ export const CHANGE_DETAILS_CHANGE_FRAGMENT = gql`
       isHidden
 
       hunks {
-        id
+        _id
+        hunkID
         patch
       }
     }

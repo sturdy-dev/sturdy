@@ -72,6 +72,7 @@ type LargeFileInfoResolver interface {
 
 type HunkResolver interface {
 	ID() graphql.ID
+	HunkID() graphql.ID
 	Patch() string
 	IsOutdated() bool
 	IsApplied() bool

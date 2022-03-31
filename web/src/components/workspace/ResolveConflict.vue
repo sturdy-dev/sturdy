@@ -38,7 +38,8 @@ export const RESOLVE_CONFLICT_DIFF = gql`
     isMoved
 
     hunks {
-      id
+      _id
+      hunkID
       patch
 
       isOutdated
