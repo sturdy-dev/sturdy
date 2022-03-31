@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/author"
 	"getsturdy.com/api/pkg/users"
@@ -36,6 +37,7 @@ type Service interface {
 	UsersCount(context.Context) (uint64, error)
 	GetFirstUser(ctx context.Context) (*users.User, error)
 	GetAsAuthor(context.Context, users.ID) (*author.Author, error)
+	Activate(context.Context, *users.User) error
 }
 
 func New(
@@ -64,6 +66,49 @@ func (s *UserService) GetFirstUser(ctx context.Context) (*users.User, error) {
 		return nil, ErrNotFound
 	}
 	return uu[0], nil
+}
+
+func (s *UserService) Activate(ctx context.Context, user *users.User) error {
+	if user.Status == users.StatusActive {
+		return nil
+	}
+
+	user.Status = users.StatusActive
+	if err := s.userRepo.Update(user); err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	s.analyticsService.Capture(ctx, "created account")
+
+	return nil
+}
+
+func (s *UserService) CreateShadow(ctx context.Context, email string, referer Referer) (*users.User, error) {
+	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {
+		// all good
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to get user by email: %w", err)
+	} else {
+		return nil, ErrExists
+	}
+
+	t := time.Now()
+	newUser := &users.User{
+		ID:        users.ID(uuid.New().String()),
+		Email:     email,
+		CreatedAt: &t,
+		Status:    users.StatusShadow,
+		Referer:   referer.URL(),
+	}
+
+	if err := s.userRepo.Create(newUser); err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	s.analyticsService.IdentifyUser(ctx, newUser)
+	s.analyticsService.Capture(ctx, "created shadow account", analytics.Property("referer", referer.URL()))
+
+	return newUser, nil
 }
 
 func (s *UserService) CreateWithPassword(ctx context.Context, name, password, email string) (*users.User, error) {

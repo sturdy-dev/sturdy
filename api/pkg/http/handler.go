@@ -163,7 +163,7 @@ func ProvideHandler(
 	// Private endpoints, requires a valid auth cookie
 	auth := r.Group("")
 	auth.Use(authz.GinMiddleware(logger, jwtService))
-	publ.POST("/v3/auth", routes_v3_user.Login(logger, userRepo, analyticsService, jwtService))
+	publ.POST("/v3/auth", routes_v3_user.Login(logger, userService, analyticsService, jwtService))
 	publ.POST("/v3/users", routes_v3_user.Signup(logger, userService, jwtService, analyticsService))
 	publ.POST("/v3/auth/destroy", routes_v3_user.AuthDestroy)
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))

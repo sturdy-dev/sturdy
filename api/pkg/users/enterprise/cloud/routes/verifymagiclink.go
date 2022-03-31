@@ -46,6 +46,12 @@ func VerifyMagicLink(logger *zap.Logger, userService *service_user.Service, jwtS
 			return
 		}
 
+		if err := userService.Activate(c.Request.Context(), user); err != nil {
+			logger.Error("failed to update user's status", zap.Error(err))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
 		auth.SetAuthCookieForUser(c, user.ID, jwtService)
 	}
 }

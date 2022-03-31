@@ -8,14 +8,14 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
-	"getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_analytics.Service, jwtService *service_jwt.Service) func(c *gin.Context) {
+func Login(logger *zap.Logger, userService service_users.Service, analyticsService *service_analytics.Service, jwtService *service_jwt.Service) func(c *gin.Context) {
 	type request struct {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -32,7 +32,7 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_ana
 		req.Email = strings.TrimSpace(req.Email)
 
 		// Get user by email
-		getUser, err := repo.GetByEmail(req.Email)
+		getUser, err := userService.GetByEmail(c.Request.Context(), req.Email)
 		if err != nil {
 			logger.Warn("failed to get user", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid email or password, please check the input and try again"})
@@ -50,6 +50,12 @@ func Login(logger *zap.Logger, repo db.Repository, analyticsService *service_ana
 
 		if err := auth.SetAuthCookieForUser(c, getUser.ID, jwtService); err != nil {
 			logger.Error("failed to set auth cookie", zap.Error(err))
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		if err := userService.Activate(c.Request.Context(), getUser); err != nil {
+			logger.Error("failed to activate user", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}

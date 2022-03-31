@@ -28,8 +28,8 @@ func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
 
 // The ID value is set inside this method
 func (r *repo) Create(newUser *users.User) error {
-	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at)
-		VALUES (:id, :name, :email, :email_verified, :password, :created_at)`, &newUser)
+	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at, status, referer)
+		VALUES (:id, :name, :email, :email_verified, :password, :created_at, :status, :referer)`, &newUser)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
@@ -44,7 +44,9 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, er
 		email_verified,
 		password,
 		created_at,
-		avatar_url
+		avatar_url,
+		status,
+		referer
 	FROM 
 		users where id = ANY($1)`, pq.Array(ids))
 	if err != nil {
@@ -86,7 +88,8 @@ func (r *repo) Update(u *users.User) error {
 		SET name = :name,
 		    email = :email,
 		    email_verified = :email_verified,
-		    avatar_url = :avatar_url
+		    avatar_url = :avatar_url,
+			status = :status
 		WHERE id = :id`, u)
 	if err != nil {
 		return fmt.Errorf("failed to update %w", err)

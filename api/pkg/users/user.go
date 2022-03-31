@@ -1,6 +1,7 @@
 package users
 
 import (
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -12,6 +13,17 @@ func (id ID) String() string {
 	return string(id)
 }
 
+type Status string
+
+const (
+	StatusUndefined Status = ""
+	// StatusActive means the user has logged in and least once.
+	StatusActive Status = "active"
+	// StatusShadow means the user never logged in, see Referer field to know
+	// why it's created.
+	StatusShadow Status = "shadow"
+)
+
 type User struct {
 	ID            ID         `db:"id" json:"id"`
 	Name          string     `db:"name" json:"name"`
@@ -20,6 +32,9 @@ type User struct {
 	PasswordHash  string     `db:"password" json:"-"`
 	CreatedAt     *time.Time `db:"created_at" json:"created_at"`
 	AvatarURL     *string    `db:"avatar_url" json:"avatar_url"`
+
+	Status  Status   `db:"status" json:"-"`
+	Referer *url.URL `db:"referer" json:"-"`
 }
 
 var nonAlpha = regexp.MustCompile(`[^a-zA-Z]+`)
