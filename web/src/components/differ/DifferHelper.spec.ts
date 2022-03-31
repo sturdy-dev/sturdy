@@ -147,7 +147,9 @@ index 48533da..f627f7d 100644
         isApplied: false,
         isDismissed: false,
         isOutdated: false,
-        id: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
+        _id: 'whatever1',
+        id: 'whatever1',
+        hunkID: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
         patch: str1,
       }
       const map1 = new Map<string, number[]>()
@@ -160,7 +162,9 @@ index 48533da..f627f7d 100644
         isApplied: false,
         isDismissed: false,
         isOutdated: false,
-        id: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
+        _id: 'whatever2',
+        id: 'whatever2',
+        hunkID: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
         patch: str2,
       }
 
