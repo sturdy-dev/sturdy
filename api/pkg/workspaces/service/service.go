@@ -62,7 +62,7 @@ type Service interface {
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
-	RemovePatches(context.Context, *unidiff.Allower, *workspaces.Workspace, ...string) error
+	RemovePatches(context.Context, *workspaces.Workspace, ...string) error
 	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
 	Archive(context.Context, *workspaces.Workspace) error
 	ArchiveWithChange(context.Context, *workspaces.Workspace, *changes.Change) error
@@ -761,13 +761,23 @@ func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebas
 	return nil
 }
 
-func (s *WorkspaceService) RemovePatches(ctx context.Context, allower *unidiff.Allower, ws *workspaces.Workspace, hunkIDs ...string) error {
+func (s *WorkspaceService) RemovePatches(ctx context.Context, ws *workspaces.Workspace, hunkIDs ...string) error {
 	removePatches := vcs_workspace.Remove(s.logger, hunkIDs...)
 
 	if ws.ViewID != nil {
 		if err := s.executorProvider.New().Write(removePatches).ExecView(ws.CodebaseID, *ws.ViewID, "removePatches"); err != nil {
 			return fmt.Errorf("failed to remove patches: %w", err)
 		}
+
+		view, err := s.viewService.GetByID(ctx, *ws.ViewID)
+		if err != nil {
+			return fmt.Errorf("failed to get view: %w", err)
+		}
+
+		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ws.CodebaseID), view); err != nil {
+			return fmt.Errorf("failed to send event about updated view view: %w", err)
+		}
+
 		return nil
 	}
 

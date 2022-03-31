@@ -19,11 +19,6 @@ func (r *WorkspaceRootResolver) RemovePatches(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 
-	allower, err := r.authService.GetAllower(ctx, ws)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	suggestion, err := r.suggestionsService.GetByWorkspaceID(ctx, ws.ID)
 	switch {
 	case err == nil:
@@ -31,7 +26,7 @@ func (r *WorkspaceRootResolver) RemovePatches(ctx context.Context, args resolver
 			return nil, gqlerrors.Error(err)
 		}
 	case errors.Is(err, sql.ErrNoRows):
-		if err := r.workspaceService.RemovePatches(ctx, allower, ws, args.Input.HunkIDs...); err != nil {
+		if err := r.workspaceService.RemovePatches(ctx, ws, args.Input.HunkIDs...); err != nil {
 			return nil, gqlerrors.Error(err)
 		}
 	default:
