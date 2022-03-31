@@ -24,6 +24,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/api"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
@@ -143,7 +144,7 @@ func New(
 	}
 }
 
-func getPRStatus(apiPR *PullRequest) github.PullRequestState {
+func getPRStatus(apiPR *api.PullRequest) github.PullRequestState {
 	switch apiPR.GetState() {
 	case "open":
 		return github.PullRequestStateOpen
@@ -562,7 +563,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	return nil
 }
 
-func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *Repository) error {
+func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *api.Repository) error {
 	ctx := context.Background()
 
 	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue

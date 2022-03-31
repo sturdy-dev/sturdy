@@ -10,6 +10,7 @@ import (
 	"getsturdy.com/api/pkg/changes/message"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
+	"getsturdy.com/api/pkg/github/api"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
@@ -69,7 +70,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 		svc.logger.Info("importing pull request", zap.Stringer("codebase_id", codebaseID), zap.Int("pr_number", pr.GetNumber()))
 
-		err := svc.importPullRequest(codebaseID, userID, pr, repo, installation, accessToken)
+		err := svc.ImportPullRequest(userID, api.ConvertPullRequest(pr), repo, installation, accessToken)
 		switch {
 		case errors.Is(err, ErrAlreadyImported):
 			continue
@@ -83,7 +84,14 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
-func (svc *Service) importPullRequest(codebaseID codebases.ID, userID users.ID, gitHubPR *gh.PullRequest, ghRepo *github.Repository, ghInstallation *github.Installation, accessToken string) error {
+func (svc *Service) ImportPullRequest(
+	userID users.ID,
+	gitHubPR *api.PullRequest,
+	ghRepo *github.Repository,
+	ghInstallation *github.Installation,
+	accessToken string,
+) error {
+	codebaseID := ghRepo.CodebaseID
 	// check that this pull request hasn't been imported before
 	if _, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(gitHubPR.GetID(), codebaseID); err == nil {
 		return ErrAlreadyImported

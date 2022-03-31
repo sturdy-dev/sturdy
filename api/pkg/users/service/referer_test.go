@@ -11,10 +11,10 @@ import (
 
 func Test_UserReferer(t *testing.T) {
 	u := &users.User{ID: "testid"}
-	assert.Equal(t, "referer://users/testid", service_users.UserReferer(u).URL().String())
+	assert.Equal(t, "referer://users/testid", service_users.UserReferer(u).URL())
 }
 
 func Test_GitHubPullRequestReferer(t *testing.T) {
 	pr := &github.PullRequest{ID: "testid", GitHubRepositoryID: 1234}
-	assert.Equal(t, "referer://github/1234/prs/testid", service_users.GitHubPullRequestReferer(pr).URL().String())
+	assert.Equal(t, "referer://github/1234/prs/testid", service_users.GitHubPullRequestReferer(pr).URL())
 }

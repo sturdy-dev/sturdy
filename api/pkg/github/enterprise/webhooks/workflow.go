@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/github/api"
 	"getsturdy.com/api/pkg/statuses"
 )
 
@@ -35,14 +36,14 @@ var conclusionHealthy = map[string]bool{
 	"success": true,
 }
 
-func getJobTime(job *WorkflowJob) time.Time {
+func getJobTime(job *api.WorkflowJob) time.Time {
 	if job.CompletedAt != nil {
 		return job.GetCompletedAt().Time
 	}
 	return job.GetStartedAt().Time
 }
 
-func getJobType(job *WorkflowJob) statuses.Type {
+func getJobType(job *api.WorkflowJob) statuses.Type {
 	status := job.GetStatus()         // queued, in_progress, completed
 	conclution := job.GetConclusion() // success, failure, neutral, cancelled, timed_out, action_required, stale
 	switch {
