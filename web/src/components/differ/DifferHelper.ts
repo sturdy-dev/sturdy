@@ -1,36 +1,45 @@
-import type { Hunk } from '../../__generated__/types'
+export interface SearchableHunk {
+  hunkID: string
+  patch: string
+}
 
 export const getIndicesOf = function (
   searchStr: string,
   str: string,
   caseSensitive: boolean
 ): number[] {
-  const searchStrLen = searchStr.length
-  if (searchStrLen === 0) {
+  if (searchStr.length === 0) {
     return []
   }
-  const indices = []
+
   if (!caseSensitive) {
     str = str.toLowerCase()
     searchStr = searchStr.toLowerCase()
   }
-  let length = 0,
-    started = false
+
+  const indices = []
+
+  let length = 0
+  let started = false
+
   const lines = str.split('\n')
+
   for (const line of lines) {
     length += line.length + 1
-    // Conditions to keep forward
-    {
-      if (!started) {
-        if (line.startsWith('@@ ')) {
-          started = true
-        }
-        continue
-      } else if (line.includes('no newline at end of file')) {
-        continue
+
+    if (!started) {
+      if (line.startsWith('@@ ')) {
+        started = true
       }
+      continue
     }
+
+    if (line.includes('no newline at end of file')) {
+      continue
+    }
+
     const index = line.indexOf(searchStr)
+
     if (index > -1) {
       const currentIndex = length - line.length < 0 ? 0 : length - line.length
       indices.push(currentIndex + index)
@@ -40,9 +49,16 @@ export const getIndicesOf = function (
   return indices
 }
 
+type endsVal = {
+  starts: number
+  ends: number
+  rowIndex: number
+  blockId: number
+}
+
 export const searchMatches = function (
   searchResult: Map<string, number[]> | undefined,
-  hunks: Hunk[]
+  hunks: SearchableHunk[]
 ): Set<string> {
   const res = new Set<string>()
 
@@ -50,73 +66,82 @@ export const searchMatches = function (
     return res
   }
 
-  const endsAt = new Map<string, [[number, number, number, number]]>()
+  const endsAt = new Map<string, [endsVal]>()
 
   for (const hunk of hunks) {
-    let starts = 0,
-      ends = 0,
-      blockId = 0,
-      index = 0,
-      started = false
+    let starts = 0
+    let ends = 0
+    let blockId = 0
+    let rowIndex = 0
+    let started = false
+
     const lines = hunk.patch.split('\n')
+
     for (const line of lines) {
       starts = ends
       ends += line.length + 1 // add trimmed newline
 
       // Conditions to keep forward
-      {
-        if (!started) {
-          if (line.startsWith('@@ ')) {
-            started = true
-          }
-          continue
-        } else {
-          if (line.startsWith('@@ ')) {
-            blockId++
-            index = 0
-            continue
-          }
-        }
 
-        if (line.includes('No newline at end of file')) {
-          continue
+      if (!started) {
+        if (line.startsWith('@@ ')) {
+          started = true
         }
+        continue
       }
 
-      if (!endsAt.has(hunk.id)) {
-        endsAt.set(hunk.id, [[starts, ends, index, blockId]])
+      if (line.startsWith('@@ ')) {
+        blockId++
+        rowIndex = 0
+        continue
+      }
+
+      if (line.includes('No newline at end of file')) {
+        continue
+      }
+
+      const val: endsVal = {
+        starts,
+        ends,
+        rowIndex,
+        blockId,
+      }
+
+      if (!endsAt.has(hunk.hunkID)) {
+        endsAt.set(hunk.hunkID, [val])
       } else {
-        const ref = endsAt.get(hunk.id)
+        const ref = endsAt.get(hunk.hunkID)
         if (ref) {
-          ref.push([starts, ends, index, blockId])
+          ref.push(val)
         }
       }
-      index++
+
+      rowIndex++
     }
   }
 
   for (const [hunkID, foundIndexes] of searchResult) {
-    const rangeTuples = endsAt.get(hunkID)
-    if (!rangeTuples) {
-      continue
-    } else if (rangeTuples.length <= 0) {
+    const ranges = endsAt.get(hunkID)
+
+    if (!ranges) {
       continue
     }
+
     for (const foundIndex of foundIndexes) {
-      for (let i = 0; i < rangeTuples.length; i++) {
-        const tuple = rangeTuples[i],
-          starts = tuple[0],
-          ends = tuple[1],
-          rowIndex = tuple[2],
-          blockId = tuple[3]
+      for (let i = 0; i < ranges.length; i++) {
+        const { starts, ends, rowIndex, blockId } = ranges[i]
+
         if (foundIndex < starts) {
           break
-        } else if (foundIndex < ends) {
+        }
+
+        if (foundIndex < ends) {
           res.add(hunkID + '-' + rowIndex + '-' + blockId)
           break
         }
       }
     }
   }
+
   return res
 }

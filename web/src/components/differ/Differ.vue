@@ -184,7 +184,7 @@ export default defineComponent({
         for (const hunk of diff.hunks) {
           const idx = getIndicesOf(this.searchQuery, hunk.patch, false)
           if (idx.length > 0) {
-            result.set(hunk.id, idx)
+            result.set(hunk.hunkID, idx)
             matchesCount += idx.length
           }
         }

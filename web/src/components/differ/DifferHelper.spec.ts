@@ -1,5 +1,4 @@
-import { getIndicesOf, searchMatches } from './DifferHelper'
-import type { Hunk } from '../../__generated__/types'
+import { getIndicesOf, type SearchableHunk, searchMatches } from './DifferHelper'
 
 describe('DifferHelper', () => {
   it('get indexes length', () => {
@@ -143,33 +142,23 @@ index 48533da..f627f7d 100644
     expect(getIndicesOf('vue', str2, false).length).toEqual(34)
 
     {
-      const hunk1: Hunk = {
-        isApplied: false,
-        isDismissed: false,
-        isOutdated: false,
-        _id: 'whatever1',
-        id: 'whatever1',
+      const hunk1: SearchableHunk = {
         hunkID: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
         patch: str1,
       }
       const map1 = new Map<string, number[]>()
-      map1.set(hunk1.id, getIndicesOf('testing', hunk1.patch, false))
+      map1.set(hunk1.hunkID, getIndicesOf('testing', hunk1.patch, false))
       expect(searchMatches(map1, [hunk1]).size).toEqual(5)
     }
 
     {
-      const hunk2: Hunk = {
-        isApplied: false,
-        isDismissed: false,
-        isOutdated: false,
-        _id: 'whatever2',
-        id: 'whatever2',
+      const hunk2: SearchableHunk = {
         hunkID: 'd320fd593ace289810cb0991e437fec054ef34d4215bf8e07a429c17fa1fea36',
         patch: str2,
       }
 
       const map2 = new Map<string, number[]>()
-      map2.set(hunk2.id, getIndicesOf('urql', hunk2.patch, false))
+      map2.set(hunk2.hunkID, getIndicesOf('urql', hunk2.patch, false))
       const matches = searchMatches(map2, [hunk2])
       const rowsIndexes: [string, string][] = []
       matches.forEach((x) => {
