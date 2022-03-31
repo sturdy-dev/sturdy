@@ -9,13 +9,14 @@
   ></TextareaMentions>
 </template>
 
-<script>
+<script lang="ts">
 import TextareaMentions, { MEMBER_FRAGMENT } from './TextareaMentions.vue'
+import { defineComponent, type PropType } from 'vue'
+import type { UserFragment } from './__generated__/TextareaMentions'
 
 export { MEMBER_FRAGMENT }
 
-export default {
-  name: 'TextareaAutosize',
+export default defineComponent({
   components: { TextareaMentions },
   props: {
     members: {
@@ -23,7 +24,7 @@ export default {
       required: true,
     },
     user: {
-      type: Object,
+      type: Object as PropType<UserFragment>,
     },
     modelValue: {
       type: [String, Number],
@@ -131,5 +132,5 @@ export default {
       return this
     },
   },
-}
+})
 </script>
