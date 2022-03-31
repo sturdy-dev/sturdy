@@ -1,17 +1,18 @@
 version: "3.9"
 services:
-  runner:
+  go:
     environment:
       E2E_TEST: 1
       E2E_PSQL_HOST: "db:5432"
       E2E_LFS_HOSTNAME: "lfs:50001"
-    command: "go test -v -race ./..."
+    command: "go test -race -v ./..."
+    working_dir: /sturdy/api
     depends_on:
       - db
       - lfs
 
   db:
-    image: postgres:latest
+    image: postgres:14
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: mash

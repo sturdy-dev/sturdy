@@ -3,6 +3,3 @@ services:
   go:
     command: "go test -v -race ./..."
     working_dir: /sturdy/api
-
-volumes:
-  go-modules:

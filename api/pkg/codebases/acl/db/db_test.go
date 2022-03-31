@@ -105,7 +105,7 @@ func Test_GetByCodebaseID(t *testing.T) {
 
 	assert.Equal(t, entity.ID, fromDB.ID)
 	assert.Equal(t, entity.CodebaseID, fromDB.CodebaseID)
-	assert.True(t, entity.CreatedAt.Equal(fromDB.CreatedAt))
+	assert.Equal(t, entity.CreatedAt.Unix(), fromDB.CreatedAt.Unix())
 	assert.Equal(t, entity.Policy, fromDB.Policy)
 }
 
@@ -156,7 +156,7 @@ func Test_Update(t *testing.T) {
 
 	assert.Equal(t, entity.ID, fromDB.ID)
 	assert.Equal(t, entity.CodebaseID, fromDB.CodebaseID)
-	assert.True(t, entity.CreatedAt.Equal(fromDB.CreatedAt))
+	assert.Equal(t, entity.CreatedAt.Unix(), fromDB.CreatedAt.Unix())
 	assert.Equal(t, entity.RawPolicy, fromDB.RawPolicy)
 }
 

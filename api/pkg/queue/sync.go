@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 
@@ -12,17 +13,21 @@ import (
 var _ Queue = &Sync{}
 
 type Sync struct {
-	chans map[names.IncompleteQueueName][]chan<- Message
+	chansGuard *sync.RWMutex
+	chans      map[names.IncompleteQueueName][]chan<- Message
 }
 
 func NewSync() *Sync {
 	return &Sync{
-		chans: make(map[names.IncompleteQueueName][]chan<- Message),
+		chansGuard: &sync.RWMutex{},
+		chans:      make(map[names.IncompleteQueueName][]chan<- Message),
 	}
 }
 
 func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg any) error {
+	q.chansGuard.RLock()
 	chs, ok := q.chans[name]
+	q.chansGuard.RUnlock()
 	if !ok {
 		return nil
 	}
@@ -44,7 +49,9 @@ func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg 
 }
 
 func (q *Sync) Subscribe(ctx context.Context, name names.IncompleteQueueName, mesasges chan<- Message) error {
+	q.chansGuard.Lock()
 	q.chans[name] = append(q.chans[name], mesasges)
+	q.chansGuard.Unlock()
 	<-ctx.Done()
 	return nil
 }
