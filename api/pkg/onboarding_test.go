@@ -470,8 +470,9 @@ func TestCreate(t *testing.T) {
 		WorkspaceID: gid(graphql.ID(workspaceID)),
 		ViewID:      gid(graphql.ID(viewRes.ID)),
 	}})
-	assert.NoError(t, err)
-	assert.Equal(t, "Comment!", createdCommentResolver.Message())
+	if assert.NoError(t, err, errors.Unwrap(err)) {
+		assert.Equal(t, "Comment!", createdCommentResolver.Message())
+	}
 
 	// Get comment from workspace
 	{

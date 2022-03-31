@@ -20,7 +20,21 @@ func NewRepo(db *sqlx.DB) Repository {
 
 func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
 	users := []*users.User{}
-	if err := r.db.SelectContext(ctx, &users, "SELECT * FROM users ORDER BY created_at DESC LIMIT $1", limit); err != nil {
+	if err := r.db.SelectContext(ctx, &users, `
+		SELECT
+			id,
+			name,
+			email,
+			email_verified,
+			password,
+			created_at,
+			avatar_url,
+			status,
+			referer
+		FROM users
+		ORDER BY created_at DESC
+		LIMIT $1
+	`, limit); err != nil {
 		return nil, fmt.Errorf("failed to select: %w", err)
 	}
 	return users, nil
@@ -56,7 +70,7 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, er
 	var uu []*users.User
 	for rows.Next() {
 		u := new(users.User)
-		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.EmailVerified, &u.PasswordHash, &u.CreatedAt, &u.AvatarURL); err != nil {
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.EmailVerified, &u.PasswordHash, &u.CreatedAt, &u.AvatarURL, &u.Status, &u.Referer); err != nil {
 			return nil, err
 		}
 		uu = append(uu, u)
@@ -67,7 +81,17 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, er
 
 func (r *repo) Get(id users.ID) (*users.User, error) {
 	var res users.User
-	err := r.db.Get(&res, `SELECT * FROM users WHERE id=$1`, id)
+	err := r.db.Get(&res, `SELECT
+			id,
+			name,
+			email,
+			email_verified,
+			password,
+			created_at,
+			avatar_url,
+			status,
+			referer
+		FROM users WHERE id=$1`, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed tow query table: %w", err)
 	}
@@ -76,7 +100,18 @@ func (r *repo) Get(id users.ID) (*users.User, error) {
 
 func (r *repo) GetByEmail(email string) (*users.User, error) {
 	var res users.User
-	err := r.db.Get(&res, `SELECT * FROM users WHERE email=$1`, email)
+	err := r.db.Get(&res, `SELECT 
+			id,
+			name,
+			email,
+			email_verified,
+			password,
+			created_at,
+			avatar_url,
+			status,
+			referer
+		FROM users WHERE email=$1
+	`, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed tow query table: %w", err)
 	}
