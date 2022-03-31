@@ -704,13 +704,18 @@ func EnsureCodebaseStatus(repo vcs.RepoGitWriter) error {
 	return nil
 }
 
-const readMeTemplate = `# __CODEBASE__NAME__
+const readMeTemplate = `# __CODEBASE__NAME__ 🐣
+
+🥚 This change is about to be your first in __CODEBASE__NAME__, but it has not been merged to the changelog yet!
+
+🥚 Click the **merge** button above, to merge this change. 🚀
+
 `
 
 const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <ul>
-	<li><p>This is a workspace - it's where you're <strong>coding</strong>, and can give and take <strong>feedback</strong> from your team</p></li>
-	<li><p><strong>Share</strong> this draft to land the changes to the README on the trunk, and to make the file available to all collaborators</p></li>
+	<li><p>This is a draft change - it's where you're <strong>coding</strong>, and can give and take <strong>feedback</strong> from your team</p></li>
+	<li><p><strong>Merge</strong> this draft to land the changes to the README on the trunk, and to make the file available to all collaborators</p></li>
 </ul>
 
 <p>Happy hacking!</p>
