@@ -38,7 +38,7 @@ type Service interface {
 	GetFirstUser(ctx context.Context) (*users.User, error)
 	GetAsAuthor(context.Context, users.ID) (*author.Author, error)
 	Activate(context.Context, *users.User) error
-	CreateShadow(ctx context.Context, email string, referer Referer) (*users.User, error)
+	CreateShadow(ctx context.Context, email string, referer Referer, name *string) (*users.User, error)
 }
 
 func New(
@@ -84,7 +84,7 @@ func (s *UserService) Activate(ctx context.Context, user *users.User) error {
 	return nil
 }
 
-func (s *UserService) CreateShadow(ctx context.Context, email string, referer Referer) (*users.User, error) {
+func (s *UserService) CreateShadow(ctx context.Context, email string, referer Referer, name *string) (*users.User, error) {
 	if _, err := s.userRepo.GetByEmail(email); errors.Is(err, sql.ErrNoRows) {
 		// all good
 	} else if err != nil {
@@ -94,12 +94,19 @@ func (s *UserService) CreateShadow(ctx context.Context, email string, referer Re
 	}
 
 	t := time.Now()
+	ref := referer.URL()
 	newUser := &users.User{
 		ID:        users.ID(uuid.New().String()),
 		Email:     email,
 		CreatedAt: &t,
 		Status:    users.StatusShadow,
-		Referer:   referer.URL(),
+		Referer:   &ref,
+	}
+
+	if name != nil {
+		newUser.Name = *name
+	} else {
+		newUser.Name = users.EmailToName(email)
 	}
 
 	if err := s.userRepo.Create(newUser); err != nil {
