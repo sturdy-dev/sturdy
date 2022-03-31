@@ -184,7 +184,7 @@
               class="max-w-prose"
               :workspace="data.workspace"
               :user="user"
-              :diff-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.id))"
+              :diff-ids="diffs.flatMap((diff) => diff.hunks.map((hunk) => hunk.hunkID))"
               :selected-hunk-ids="selectedHunkIDs"
             />
 
