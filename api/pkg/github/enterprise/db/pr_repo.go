@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type GitHubPRRepo interface {
+type GitHubPRRepository interface {
 	Create(pr github.PullRequest) error
 	Get(id string) (*github.PullRequest, error)
 	GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID codebases.ID) (*github.PullRequest, error)
@@ -25,7 +25,7 @@ type gitHubPRRepo struct {
 	db *sqlx.DB
 }
 
-func NewGitHubPRRepo(db *sqlx.DB) GitHubPRRepo {
+func NewGitHubPRRepository(db *sqlx.DB) GitHubPRRepository {
 	return &gitHubPRRepo{db: db}
 }
 

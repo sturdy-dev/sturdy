@@ -19,7 +19,7 @@ type dbrepo struct {
 	db *sqlx.DB
 }
 
-func NewRepo(db *sqlx.DB) Repository {
+func New(db *sqlx.DB) Repository {
 	return &dbrepo{db: db}
 }
 

@@ -26,7 +26,7 @@ type activityRepo struct {
 	db *sqlx.DB
 }
 
-func NewActivityRepo(db *sqlx.DB) ActivityRepository {
+func NewActivityRepository(db *sqlx.DB) ActivityRepository {
 	return &activityRepo{db: db}
 }
 

@@ -16,7 +16,7 @@ type WaitingListRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo WaitingListRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo WaitingListRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 

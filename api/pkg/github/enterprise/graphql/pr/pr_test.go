@@ -139,13 +139,13 @@ func TestPRHighLevel(t *testing.T) {
 		CommentsService               *service_comments.Service
 		EventsSender                  events.EventSender
 		ExecutorProvider              executor.Provider
-		GitHubInstallationRepo        db_github.GitHubInstallationRepo
-		GitHubPRRepo                  db_github.GitHubPRRepo
+		GitHubInstallationRepo        db_github.GitHubInstallationRepository
+		GitHubPRRepo                  db_github.GitHubPRRepository
 		GitHubPullRequestRootResolver resolvers.GitHubPullRequestRootResolver
-		GitHubRepositoryRepo          db_github.GitHubRepositoryRepo
+		GitHubRepositoryRepo          db_github.GitHubRepositoryRepository
 		GitHubService                 *service_github.Service
 		GitHubWebhookService          *service_github_webhooks.Service
-		GitHubUserRepo                db_github.GitHubUserRepo
+		GitHubUserRepo                db_github.GitHubUserRepository
 		Logger                        *zap.Logger
 		RepoProvider                  provider.RepoProvider
 		ReviewsRepo                   db_review.ReviewRepository

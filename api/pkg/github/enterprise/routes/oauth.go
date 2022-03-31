@@ -26,7 +26,7 @@ func Oauth(
 	logger *zap.Logger,
 	config *config.GitHubAppConfig,
 	userRepo db_user.Repository,
-	gitHubUserRepo db.GitHubUserRepo,
+	gitHubUserRepo db.GitHubUserRepository,
 	gitHubService *service_github.Service,
 ) func(*gin.Context) {
 	type GitHubAuthReq struct {

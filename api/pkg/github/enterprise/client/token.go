@@ -49,7 +49,7 @@ func GetFirstAccessToken(ctx context.Context, gitHubAppConfig *config.GitHubAppC
 	return installToken, nil
 }
 
-func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.Installation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepo, githubClientProvider InstallationClientProvider) (string, error) {
+func GetAccessToken(ctx context.Context, logger *zap.Logger, gitHubAppConfig *config.GitHubAppConfig, installation *github.Installation, gitHubRepositoryID int64, repo db.GitHubRepositoryRepository, githubClientProvider InstallationClientProvider) (string, error) {
 	// Check if we already have a valid token in the database
 	ghr, err := repo.GetByInstallationAndGitHubRepoID(installation.InstallationID, gitHubRepositoryID)
 	if err != nil {

@@ -26,7 +26,7 @@ type Engine gin.Engine
 func ProvideHandler(
 	logger *zap.Logger,
 	userRepo db_user.Repository,
-	gitHubUserRepo db_github.GitHubUserRepo,
+	gitHubUserRepo db_github.GitHubUserRepository,
 	gitHubAppConfig *config.GitHubAppConfig,
 	statusesService *service_statuses.Service,
 	jwtService *service_jwt.Service,

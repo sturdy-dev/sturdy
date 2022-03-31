@@ -45,10 +45,10 @@ type ClonerQueue interface {
 type Service struct {
 	logger *zap.Logger
 
-	gitHubRepositoryRepo   db_github.GitHubRepositoryRepo
-	gitHubInstallationRepo db_github.GitHubInstallationRepo
-	gitHubUserRepo         db_github.GitHubUserRepo
-	gitHubPullRequestRepo  db_github.GitHubPRRepo
+	gitHubRepositoryRepo   db_github.GitHubRepositoryRepository
+	gitHubInstallationRepo db_github.GitHubInstallationRepository
+	gitHubUserRepo         db_github.GitHubUserRepository
+	gitHubPullRequestRepo  db_github.GitHubPRRepository
 
 	gitHubPullRequestImporterQueue *ImporterQueue
 	gitHubCloneQueue               *ClonerQueue
@@ -85,10 +85,10 @@ type Service struct {
 func New(
 	logger *zap.Logger,
 
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	gitHubInstallationRepo db_github.GitHubInstallationRepo,
-	gitHubUserRepo db_github.GitHubUserRepo,
-	gitHubPullRequestRepo db_github.GitHubPRRepo,
+	gitHubRepositoryRepo db_github.GitHubRepositoryRepository,
+	gitHubInstallationRepo db_github.GitHubInstallationRepository,
+	gitHubUserRepo db_github.GitHubUserRepository,
+	gitHubPullRequestRepo db_github.GitHubPRRepository,
 	gitHubAppConfig *config_github.GitHubAppConfig,
 	gitHubInstallationClientProvider github_client.InstallationClientProvider,
 	gitHubPersonalClientProvider github_client.PersonalClientProvider,

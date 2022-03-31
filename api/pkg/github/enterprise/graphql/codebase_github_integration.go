@@ -23,8 +23,8 @@ import (
 )
 
 type codebaseGitHubIntegrationRootResolver struct {
-	gitHubRepositoryRepo   db_github.GitHubRepositoryRepo
-	gitHubInstallationRepo db_github.GitHubInstallationRepo
+	gitHubRepositoryRepo   db_github.GitHubRepositoryRepository
+	gitHubInstallationRepo db_github.GitHubInstallationRepository
 	codebaseService        *service_codebase.Service
 	gitExecutorProvider    executor.Provider
 	logger                 *zap.Logger
@@ -43,8 +43,8 @@ type codebaseGitHubIntegrationRootResolver struct {
 }
 
 func NewCodebaseGitHubIntegrationRootResolver(
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	gitHubInstallationRepo db_github.GitHubInstallationRepo,
+	gitHubRepositoryRepo db_github.GitHubRepositoryRepository,
+	gitHubInstallationRepo db_github.GitHubInstallationRepository,
 	gitExecutorProvider executor.Provider,
 	logger *zap.Logger,
 	gitHubAppConfig *config.GitHubAppConfig,

@@ -3,22 +3,23 @@ package graphql
 import (
 	"context"
 
+	"github.com/graph-gophers/graphql-go"
+
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/users"
-	"github.com/graph-gophers/graphql-go"
 )
 
 type GitHubAccountRootResolver struct {
-	gitHubUserRepo db.GitHubUserRepo
+	gitHubUserRepo db.GitHubUserRepository
 	personalClient client.PersonalClientProvider
 }
 
 func NewGitHubAccountRootResolver(
-	gitHubUserRepo db.GitHubUserRepo,
+	gitHubUserRepo db.GitHubUserRepository,
 	personalClient client.PersonalClientProvider,
 ) *GitHubAccountRootResolver {
 	return &GitHubAccountRootResolver{

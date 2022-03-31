@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type GitHubRepositoryRepo interface {
+type GitHubRepositoryRepository interface {
 	GetByInstallationAndGitHubRepoID(installationID, gitHubRepositoryID int64) (*github.Repository, error)
 	GetByInstallationAndName(installationID int64, name string) (*github.Repository, error)
 	GetByCodebaseID(codebases.ID) (*github.Repository, error)
@@ -24,7 +24,7 @@ type gitHubRepositoryRepo struct {
 	db *sqlx.DB
 }
 
-func NewGitHubRepositoryRepo(db *sqlx.DB) GitHubRepositoryRepo {
+func NewGitHubRepositoryRepository(db *sqlx.DB) GitHubRepositoryRepository {
 	return &gitHubRepositoryRepo{db}
 }
 

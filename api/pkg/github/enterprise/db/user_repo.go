@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type GitHubUserRepo interface {
+type GitHubUserRepository interface {
 	Create(user github.User) error
 	GetByUsername(username string) (*github.User, error)
 	GetByUserID(users.ID) (*github.User, error)
@@ -20,7 +20,7 @@ type gitHubUserRepo struct {
 	db *sqlx.DB
 }
 
-func NewGitHubUserRepo(db *sqlx.DB) GitHubUserRepo {
+func NewGitHubUserRepository(db *sqlx.DB) GitHubUserRepository {
 	return &gitHubUserRepo{db: db}
 }
 

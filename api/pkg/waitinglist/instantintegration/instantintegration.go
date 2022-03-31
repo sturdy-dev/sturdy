@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type InstantIntegrationInterestRepo interface {
+type InstantIntegrationInterestRepository interface {
 	Insert(email string) error
 }
 
@@ -23,7 +23,7 @@ type repo struct {
 	db *sqlx.DB
 }
 
-func NewInstantIntegrationInterestRepo(db *sqlx.DB) InstantIntegrationInterestRepo {
+func NewInstantIntegrationInterestRepository(db *sqlx.DB) InstantIntegrationInterestRepository {
 	return &repo{db}
 }
 
@@ -40,7 +40,7 @@ type IIAccessRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo InstantIntegrationInterestRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo InstantIntegrationInterestRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 

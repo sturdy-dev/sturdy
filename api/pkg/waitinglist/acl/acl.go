@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type ACLInterestRepo interface {
+type ACLInterestRepository interface {
 	Insert(email string) error
 }
 
@@ -23,7 +23,7 @@ type repo struct {
 	db *sqlx.DB
 }
 
-func NewACLInterestRepo(db *sqlx.DB) ACLInterestRepo {
+func NewACLInterestRepository(db *sqlx.DB) ACLInterestRepository {
 	return &repo{db}
 }
 
@@ -40,7 +40,7 @@ type ACLAccessRequest struct {
 	Email string `json:"email" binding:"required"`
 }
 
-func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo ACLInterestRepo) func(c *gin.Context) {
+func Insert(logger *zap.Logger, analyticsService *service_analytics.Service, repo ACLInterestRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		logger := logger
 

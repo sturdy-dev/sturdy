@@ -42,9 +42,9 @@ import (
 type Service struct {
 	logger *zap.Logger
 
-	gitHubPullRequestRepo  db_github.GitHubPRRepo
-	gitHubRepositoryRepo   db_github.GitHubRepositoryRepo
-	gitHubInstallationRepo db_github.GitHubInstallationRepo
+	gitHubPullRequestRepo  db_github.GitHubPRRepository
+	gitHubRepositoryRepo   db_github.GitHubRepositoryRepository
+	gitHubInstallationRepo db_github.GitHubInstallationRepository
 
 	workspaceWriter db_workspaces.WorkspaceWriter
 	workspaceReader db_workspaces.WorkspaceReader
@@ -77,9 +77,9 @@ type Service struct {
 func New(
 	logger *zap.Logger,
 
-	gitHubPullRequestRepo db_github.GitHubPRRepo,
-	gitHubRepositoryRepo db_github.GitHubRepositoryRepo,
-	gitHubInstallationRepo db_github.GitHubInstallationRepo,
+	gitHubPullRequestRepo db_github.GitHubPRRepository,
+	gitHubRepositoryRepo db_github.GitHubRepositoryRepository,
+	gitHubInstallationRepo db_github.GitHubInstallationRepository,
 
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	workspaceReader db_workspaces.WorkspaceReader,

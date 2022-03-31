@@ -45,12 +45,12 @@ type prRootResolver struct {
 
 	gitHubAppConfig *config.GitHubAppConfig
 
-	gitHubUserRepo         db.GitHubUserRepo
+	gitHubUserRepo         db.GitHubUserRepository
 	workspaceReader        db_workspaces.WorkspaceReader
 	viewRepo               db_view.Repository
-	gitHubPRRepo           db.GitHubPRRepo
-	gitHubInstallationRepo db.GitHubInstallationRepo
-	gitHubRepositoryRepo   db.GitHubRepositoryRepo
+	gitHubPRRepo           db.GitHubPRRepository
+	gitHubInstallationRepo db.GitHubInstallationRepository
+	gitHubRepositoryRepo   db.GitHubRepositoryRepository
 
 	gitHubClientProvider         client.InstallationClientProvider
 	gitHubPersonalClientProvider client.PersonalClientProvider
@@ -74,10 +74,10 @@ func NewResolver(
 
 	gitHubAppConfig *config.GitHubAppConfig,
 
-	gitHubUserRepo db.GitHubUserRepo,
-	gitHubPRRepo db.GitHubPRRepo,
-	gitHubInstallationRepo db.GitHubInstallationRepo,
-	gitHubRepositoryRepo db.GitHubRepositoryRepo,
+	gitHubUserRepo db.GitHubUserRepository,
+	gitHubPRRepo db.GitHubPRRepository,
+	gitHubInstallationRepo db.GitHubInstallationRepository,
+	gitHubRepositoryRepo db.GitHubRepositoryRepository,
 
 	gitHubClientProvider client.InstallationClientProvider,
 	gitHubPersonalClientProvider client.PersonalClientProvider,

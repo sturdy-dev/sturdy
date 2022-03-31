@@ -24,7 +24,7 @@ type RootResolver struct {
 	logger        *zap.Logger
 	statusService *service_statuses.Service
 	authService   *service_auth.Service
-	githHubPRRepo db_github.GitHubPRRepo
+	githHubPRRepo db_github.GitHubPRRepository
 	eventsReader  *eventsv2.Subscriber
 }
 
@@ -34,7 +34,7 @@ func New(
 	logger *zap.Logger,
 	statusService *service_statuses.Service,
 	authService *service_auth.Service,
-	githHubPRRepo db_github.GitHubPRRepo,
+	githHubPRRepo db_github.GitHubPRRepository,
 	eventsReader *eventsv2.Subscriber,
 ) *RootResolver {
 	return &RootResolver{

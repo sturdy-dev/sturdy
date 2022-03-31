@@ -20,7 +20,7 @@ type activityReadsRepo struct {
 	db *sqlx.DB
 }
 
-func NewActivityReadsRepo(db *sqlx.DB) ActivityReadsRepository {
+func NewActivityReadsRepository(db *sqlx.DB) ActivityReadsRepository {
 	return &activityReadsRepo{db: db}
 }
 

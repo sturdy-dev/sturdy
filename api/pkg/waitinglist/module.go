@@ -7,7 +7,7 @@ import (
 )
 
 func Module(c *di.Container) {
-	c.Register(NewWaitingListRepo)
-	c.Register(acl.NewACLInterestRepo)
-	c.Register(instantintegration.NewInstantIntegrationInterestRepo)
+	c.Register(NewWaitingListRepository)
+	c.Register(acl.NewACLInterestRepository)
+	c.Register(instantintegration.NewInstantIntegrationInterestRepository)
 }

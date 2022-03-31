@@ -19,13 +19,13 @@ type Sender struct {
 	*transactional.Sender
 
 	codebaseRepo         db_codebases.CodebaseRepository
-	githubRepositoryRepo db_github.GitHubRepositoryRepo
+	githubRepositoryRepo db_github.GitHubRepositoryRepository
 }
 
 func New(
 	ossSender *transactional.Sender,
 	codebaseRepo db_codebases.CodebaseRepository,
-	githubRepositoryRepo db_github.GitHubRepositoryRepo,
+	githubRepositoryRepo db_github.GitHubRepositoryRepository,
 ) *Sender {
 	return &Sender{
 		Sender:               ossSender,

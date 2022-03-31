@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type WaitingListRepo interface {
+type WaitingListRepository interface {
 	Insert(email string) error
 	ToSendInvitesTo() ([]WaitingListEntry, error)
 	MarkEmailAsInvited(email string) error
@@ -16,7 +16,7 @@ type waitingListRepo struct {
 	db *sqlx.DB
 }
 
-func NewWaitingListRepo(db *sqlx.DB) WaitingListRepo {
+func NewWaitingListRepository(db *sqlx.DB) WaitingListRepository {
 	return &waitingListRepo{db}
 }
 
