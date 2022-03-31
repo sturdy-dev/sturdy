@@ -12,9 +12,9 @@
     >
       <!-- this is a left side, above the sidebar -->
       <div
-        class="h-full w-64 flex titlebar border-b"
+        class="h-full md:w-64 flex titlebar border-b"
         :class="{
-          'md:bg-gray-200 md:border-r md:border-b-0 border-gray-300': showSidebar,
+          'md:bg-gray-200 md:border-r md:border-b-0 border-gray-200': showSidebar,
           'md:border-r-0': windows && showSidebar,
 
           'border-b': !showSidebar,
@@ -27,8 +27,9 @@
 
       <!-- this is the rest of the title bar -->
       <div class="h-full flex flex-1 items-center border-b titlebar justify-between">
-        <AppMutagenStatus v-if="isAuthenticated" class="grow bg-gray-50" />
         <OpenSearchToolbarButton class="px-2" />
+        <AppMutagenStatus v-if="isAuthenticated" class="grow bg-gray-50" />
+        <div v-else class="md:grow bg-blue-200"></div>
         <AppShareButton class="px-2" />
 
         <WindowsControls v-if="isFrameless && (windows || linux)" />
@@ -73,13 +74,8 @@ export default defineComponent({
     }
   },
   data() {
-    try {
-      const { appEnvironment } = window
-      return {
-        appEnvironment,
-      }
-    } catch {
-      return {}
+    return {
+      appEnvironment: window?.appEnvironment,
     }
   },
   computed: {
