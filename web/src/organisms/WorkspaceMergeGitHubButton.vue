@@ -150,11 +150,6 @@ export default defineComponent({
       type: Object as PropType<MergeGitHubButton_WorkspaceFragment>,
       required: true,
     },
-    hunkIDs: {
-      type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
-    },
     disabled: {
       type: Boolean,
       required: false,
@@ -212,7 +207,6 @@ export default defineComponent({
     async createOrUpdatePR() {
       await this.createOrUpdateGitHubPullRequest({
         workspaceID: this.workspace.id,
-        patchIDs: this.hunkIDs,
       }).catch((e) => {
         let message = 'Failed to create or update pull request'
 

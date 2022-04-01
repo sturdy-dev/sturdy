@@ -5,7 +5,6 @@
       :workspace="workspace"
       :disabled="disabled"
       :disabled-tooltip-message="cantSubmitTooltipMessage"
-      :hunk-ids="allHunkIds"
     />
 
     <WorkspaceMergeRemoteButton
@@ -20,7 +19,6 @@
       :workspace-id="workspace.id"
       :disabled="disabled"
       :disabled-tooltip-message="cantSubmitTooltipMessage"
-      :hunk-ids="allHunkIds"
     />
   </div>
 </template>
@@ -77,10 +75,6 @@ export default defineComponent({
     workspace: {
       type: Object as PropType<ShareButtonFragment>,
       required: true,
-    },
-    allHunkIds: {
-      type: Array as PropType<string[]>,
-      default: () => [],
     },
     cantSubmitReason: {
       type: Number as PropType<CANT_SUBMIT_REASON>,

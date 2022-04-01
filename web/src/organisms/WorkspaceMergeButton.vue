@@ -48,11 +48,6 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    hunkIds: {
-      type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
-    },
   },
   setup() {
     const { mutating: merging, landWorkspaceChange } = useLandWorkspaceChange()
@@ -65,7 +60,6 @@ export default defineComponent({
     shareChange() {
       return this.landWorkspaceChange({
         workspaceID: this.workspaceId,
-        patchIDs: this.hunkIds,
       })
     },
   },

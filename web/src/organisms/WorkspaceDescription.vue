@@ -25,7 +25,6 @@
         >
           <ShareButton
             :workspace="workspace"
-            :all-hunk-ids="diffIds"
             :disabled="!canSubmitChange"
             :cant-submit-reason="cantSubmitChangeReason"
           />
@@ -97,12 +96,12 @@ export default defineComponent({
       type: Object as PropType<WorkspaceDescription_WorkspaceFragment>,
       required: true,
     },
-    diffIds: {
-      type: Array as PropType<string[]>,
-      required: true,
-    },
     selectedHunkIds: {
       type: Object as PropType<Set<string>>,
+      required: true,
+    },
+    haveDiffs: {
+      type: Boolean,
       required: true,
     },
   },
@@ -139,7 +138,7 @@ export default defineComponent({
       if (this.workspace == null) {
         return CANT_SUBMIT_REASON.WORKSPACE_NOT_FOUND
       }
-      if (this.diffIds.length === 0) {
+      if (!this.haveDiffs) {
         return CANT_SUBMIT_REASON.NO_DIFFS
       }
       // Have to have a change description before sharing
