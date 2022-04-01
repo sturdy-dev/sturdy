@@ -38,9 +38,11 @@ import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
+  ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
 } from '../../organisms/organization/OrganizationSetupGitHub.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import { Feature } from '../../__generated__/types'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({
   components: {
@@ -58,13 +60,14 @@ export default defineComponent({
 
     let { data } = useQuery<
       OrganizationSetupGitHubPageQuery,
-      OrganizationSetupGitHubPageQueryVariables
+      DeepMaybeRef<OrganizationSetupGitHubPageQueryVariables>
     >({
       query: gql`
         query OrganizationSetupGitHubPage($shortID: ID!, $isGitHubEnabled: Boolean!) {
           organization(shortID: $shortID) {
             id
             name
+            ...OrganizationSetupGitHub_Organization
           }
 
           gitHubApp @include(if: $isGitHubEnabled) {
@@ -85,6 +88,7 @@ export default defineComponent({
         }
 
         ${ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT}
+        ${ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
       variables: {

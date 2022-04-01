@@ -9,8 +9,17 @@
     </template>
 
     <template #default>
+      <div v-if="!data.organization.writeable">
+        <p class="text-sm text-gray-500">
+          You don't have permissions to create a new codebase in this organization. Ask an
+          administrator for help if you want to create a new codebase in
+          <strong>{{ data.organization.name }}</strong
+          >.
+        </p>
+      </div>
+
       <CreateCodebase
-        v-if="data"
+        v-if="data && data.organization.writeable"
         :create-in-organization-id="data.organization.id"
         bottom-bg="bg-gray-100"
         main-bg="bg-gray-100"
@@ -44,6 +53,7 @@ import type {
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
+import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({
   components: {
@@ -57,13 +67,14 @@ export default defineComponent({
 
     let { data } = useQuery<
       CreateOrganizationCodebasePageQuery,
-      CreateOrganizationCodebasePageQueryVariables
+      DeepMaybeRef<CreateOrganizationCodebasePageQueryVariables>
     >({
       query: gql`
         query CreateOrganizationCodebasePage($shortID: ID!) {
           organization(shortID: $shortID) {
             id
             name
+            writeable
           }
         }
       `,
