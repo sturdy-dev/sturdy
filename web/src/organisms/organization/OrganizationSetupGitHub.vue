@@ -34,86 +34,96 @@
       </ul>
     </div>
 
-    <GitHubConnectButton
-      v-if="isGitHubEnabled"
-      already-installed-text="Update GitHub-app installation"
-      not-connected-text="Login with GitHub"
-      color="blue"
-      :git-hub-app="gitHubApp"
-      :git-hub-account="gitHubAccount"
-    />
-    <LinkButton
-      v-else
-      href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
-      target="_blank"
-    >
-      Read the docs
-    </LinkButton>
+    <div v-if="!organization.writeable">
+      <p class="text-sm text-gray-500">
+        You don't have permissions to connect GitHub repositories in this organization, ask an admin
+        for help if you want to setup a GitHub connection.
+      </p>
+    </div>
 
-    <template v-if="data && data.gitHubRepositories.length > 0 && gitHubApp.validation.ok">
-      <div class="text-sm p-4">
-        <p>
-          Click <em>Setup</em> to create a new codebase that's connected to the selected repository.
-        </p>
-        <p>
-          Not seeing the repository you want to install setup? Update the app installation above to
-          install <em>Sturdy for GitHub</em> on more organizations or repositories.
-        </p>
-      </div>
+    <template v-if="organization.writeable">
+      <GitHubConnectButton
+        v-if="isGitHubEnabled"
+        already-installed-text="Update GitHub-app installation"
+        not-connected-text="Login with GitHub"
+        color="blue"
+        :git-hub-app="gitHubApp"
+        :git-hub-account="gitHubAccount"
+      />
+      <LinkButton
+        v-else
+        href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+        target="_blank"
+      >
+        Read the docs
+      </LinkButton>
 
-      <div class="border-b border-gray-200">
-        <ul role="list" class="divide-y divide-gray-200">
-          <li
-            v-for="repo in data.gitHubRepositories"
-            :key="repo.id"
-            class="py-4 flex justify-between items-center"
-          >
-            <div class="ml-3 flex flex-col">
-              <span class="font-medium text-gray-900">
-                {{ repo.gitHubOwner }}/{{ repo.gitHubName }}
-              </span>
-              <span
-                v-if="
-                  repo?.codebase?.organization?.id &&
-                  repo.codebase.organization.id === organization.id
-                "
-                class="text-sm text-gray-500"
-              >
-                {{ repo.gitHubName }} is connected to {{ organization.name }}
-              </span>
-              <span
-                v-else-if="
-                  repo?.codebase?.organization?.id &&
-                  repo.codebase.organization.id !== organization.id
-                "
-                class="text-sm text-gray-500"
-              >
-                Connected to: {{ repo.codebase.organization.name }}
-              </span>
-            </div>
-            <div v-if="repo?.codebase?.isReady">
-              <RouterLinkButton
-                :to="{ name: 'codebaseHome', params: { codebaseSlug: slug(repo.codebase) } }"
-                color="green"
-              >
-                Open
-              </RouterLinkButton>
-            </div>
-            <div v-else-if="repo?.codebase" class="flex items-center space-x-2">
-              <Spinner />
-              <span>Getting ready&hellip;</span>
-            </div>
-            <div v-else>
-              <Button @click="installRepo(repo)">Setup</Button>
-            </div>
-          </li>
-        </ul>
+      <template v-if="data && data.gitHubRepositories.length > 0 && gitHubApp.validation.ok">
+        <div class="text-sm p-4">
+          <p>
+            Click <em>Setup</em> to create a new codebase that's connected to the selected
+            repository.
+          </p>
+          <p>
+            Not seeing the repository you want to install setup? Update the app installation above
+            to install <em>Sturdy for GitHub</em> on more organizations or repositories.
+          </p>
+        </div>
+
+        <div class="border-b border-gray-200">
+          <ul role="list" class="divide-y divide-gray-200">
+            <li
+              v-for="repo in data.gitHubRepositories"
+              :key="repo.id"
+              class="py-4 flex justify-between items-center"
+            >
+              <div class="ml-3 flex flex-col">
+                <span class="font-medium text-gray-900">
+                  {{ repo.gitHubOwner }}/{{ repo.gitHubName }}
+                </span>
+                <span
+                  v-if="
+                    repo?.codebase?.organization?.id &&
+                    repo.codebase.organization.id === organization.id
+                  "
+                  class="text-sm text-gray-500"
+                >
+                  {{ repo.gitHubName }} is connected to {{ organization.name }}
+                </span>
+                <span
+                  v-else-if="
+                    repo?.codebase?.organization?.id &&
+                    repo.codebase.organization.id !== organization.id
+                  "
+                  class="text-sm text-gray-500"
+                >
+                  Connected to: {{ repo.codebase.organization.name }}
+                </span>
+              </div>
+              <div v-if="repo?.codebase?.isReady">
+                <RouterLinkButton
+                  :to="{ name: 'codebaseHome', params: { codebaseSlug: slug(repo.codebase) } }"
+                  color="green"
+                >
+                  Open
+                </RouterLinkButton>
+              </div>
+              <div v-else-if="repo?.codebase" class="flex items-center space-x-2">
+                <Spinner />
+                <span>Getting ready&hellip;</span>
+              </div>
+              <div v-else>
+                <Button @click="installRepo(repo)">Setup</Button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </template>
+      <div v-else-if="fetching" class="flex items-center space-x-2">
+        <Spinner />
+        <span>Loading repositories, please wait&hellip;</span>
       </div>
     </template>
-    <div v-else-if="fetching" class="flex items-center space-x-2">
-      <Spinner />
-      <span>Loading repositories, please wait&hellip;</span>
-    </div>
   </div>
 </template>
 
@@ -163,6 +173,7 @@ export const ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationSetupGitHub_Organization on Organization {
     id
     name
+    writeable
   }
 `
 
