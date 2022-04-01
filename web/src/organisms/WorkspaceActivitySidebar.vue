@@ -7,7 +7,6 @@
         :user="user"
         :members="workspace.codebase.members"
         :workspace-id="workspace.id"
-        :change-id="changeId"
       />
       <WorkspaceActivity
         :activity="workspace.activity"
@@ -53,10 +52,6 @@ export default defineComponent({
   props: {
     workspace: {
       type: Object as PropType<WorkspaceActivity_WorkspaceFragment>,
-      required: true,
-    },
-    changeId: {
-      type: String,
       required: true,
     },
     codebaseSlug: {
