@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <p
     class="mt-2 text-gray-700 space-y-4 break-words whitespace-pre-wrap"
     :class="[isOnlyEmoji ? 'text-2xl' : 'text-sm']"
@@ -32,6 +33,8 @@ export default defineComponent({
     },
     user: {
       type: Object as PropType<User>,
+      required: false,
+      default: null,
     },
   },
   data() {

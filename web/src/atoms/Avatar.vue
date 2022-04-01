@@ -31,16 +31,21 @@ import { initials, initialsBgColor } from './AvatarHelper'
 import type { AuthorFragment } from './__generated__/AvatarHelper'
 
 export default defineComponent({
-  data() {
-    return {}
-  },
   props: {
-    url: String,
+    url: {
+      type: String,
+      required: false,
+      default: null,
+    },
     author: {
       type: Object as PropType<AuthorFragment>,
       required: true,
     },
-    size: String,
+    size: {
+      type: String,
+      required: false,
+      default: null,
+    },
     showOnline: {
       type: Boolean,
       default: false,
@@ -50,6 +55,9 @@ export default defineComponent({
       type: String,
       default: 'h-1.5 w-1.5',
     },
+  },
+  data() {
+    return {}
   },
   computed: {
     sizeClasses() {

@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import type { Ref } from 'vue'
 
 const isCodeNumeric = (charCode: number) =>
@@ -26,13 +26,17 @@ const isCodeNumeric = (charCode: number) =>
 const isCodeAlpha = (charCode: number) =>
   (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)
 
-export default {
+export default defineComponent({
   props: {
     value: {
-      type: [String],
+      type: String,
+      required: false,
+      default: null,
     },
     inputClass: {
       type: String,
+      required: false,
+      default: '',
     },
     focus: {
       type: Boolean,
@@ -103,5 +107,5 @@ export default {
       this.$emit('blur')
     },
   },
-}
+})
 </script>

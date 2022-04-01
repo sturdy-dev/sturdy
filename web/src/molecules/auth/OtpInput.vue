@@ -20,33 +20,40 @@
 
 <script lang="ts">
 import { SingleOtpInput } from '../../atoms/auth'
+import { defineComponent } from 'vue'
 
 const BACKSPACE = 8
 const LEFT_ARROW = 37
 const RIGHT_ARROW = 39
 const DELETE = 46
 
-export default {
+export default defineComponent({
   components: {
     SingleOtpInput,
   },
   props: {
     numInputs: {
+      type: Number,
+      required: false,
       default: 6,
     },
     shouldAutoFocus: {
+      type: Boolean,
+      required: false,
       default: true,
     },
     inputClasses: {
       type: String,
+      required: false,
+      default: '',
     },
   },
   emits: ['complete', 'change'],
   data() {
     return {
       activeInput: 0,
-      otp: Array(this.numInputs).fill(''),
-      oldOtp: Array(this.numInputs).fill(''),
+      otp: Array<string>(this.numInputs).fill(''),
+      oldOtp: Array<string>(this.numInputs).fill(''),
     }
   },
   methods: {
@@ -71,7 +78,7 @@ export default {
     focusPrevInput() {
       this.focusInput(this.activeInput - 1)
     },
-    changeCodeAtFocus(value: number | string) {
+    changeCodeAtFocus(value: string) {
       this.oldOtp = Object.assign([], this.otp)
       this.otp[this.activeInput] = value
       if (this.oldOtp.join('') !== this.otp.join('')) {
@@ -79,8 +86,11 @@ export default {
         this.checkFilledAllInputs()
       }
     },
-    handleOnPaste(event: any) {
+    handleOnPaste(event: ClipboardEvent) {
       event.preventDefault()
+      if (!event.clipboardData) {
+        return
+      }
       const pastedData = event.clipboardData
         .getData('text/plain')
         .replace('-', '')
@@ -95,16 +105,9 @@ export default {
       this.focusInput(combinedWithPastedData.slice(0, this.numInputs).length)
       return this.checkFilledAllInputs()
     },
-    handleOnChange(index: number) {
-      this.changeCodeAtFocus(index)
+    handleOnChange(value: string) {
+      this.changeCodeAtFocus(value)
       this.focusNextInput()
-    },
-    clearInput() {
-      if (this.otp.length > 0) {
-        this.$emit('change', '')
-      }
-      this.otp = []
-      this.activeInput = 0
     },
     handleOnKeyDown(event: KeyboardEvent) {
       switch (event.keyCode) {
@@ -130,5 +133,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

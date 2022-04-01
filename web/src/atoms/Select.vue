@@ -51,16 +51,6 @@ import { ChevronDownIcon } from '@heroicons/vue/solid'
 import { defineComponent, toRefs, type PropType } from 'vue'
 
 export default defineComponent({
-  props: {
-    color: {
-      type: String as PropType<'white' | 'green' | 'blue'>,
-      default: 'white',
-    },
-    id: {
-      type: String,
-      required: false,
-    },
-  },
   components: {
     ChevronDownIcon,
     Listbox,
@@ -69,12 +59,23 @@ export default defineComponent({
     ListboxOption,
     ListboxLabel,
   },
+  props: {
+    color: {
+      type: String as PropType<'white' | 'green' | 'blue'>,
+      default: 'white',
+    },
+    id: {
+      type: String,
+      required: false,
+      default: null,
+    },
+  },
   setup(props, { slots }) {
     const { id } = toRefs(props)
     const selectedIdx = localStorage.getItem(id.value)
     return {
-      options: slots.options(),
-      selected: slots.options()[selectedIdx || 0],
+      options: slots?.options(),
+      selected: slots?.options()[selectedIdx || 0],
     }
   },
   computed: {
