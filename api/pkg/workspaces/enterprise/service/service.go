@@ -36,7 +36,7 @@ func New(
 	}
 }
 
-func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
+func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
 	gitHubRepository, err := s.gitHubService.GetRepositoryByCodebaseID(ctx, ws.CodebaseID)
 	switch {
 	case err == nil, errors.Is(err, sql.ErrNoRows):
@@ -48,7 +48,7 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, patc
 		return nil, fmt.Errorf("landing disallowed when a github integration exists for codebase (github is source of truth)")
 	}
 
-	change, err := s.WorkspaceService.LandChange(ctx, ws, patchIDs, diffOpts...)
+	change, err := s.WorkspaceService.LandChange(ctx, ws, diffOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *Service) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces
 		return fmt.Errorf("failed to pull tracked before landing: %w", err)
 	}
 
-	if _, err := s.WorkspaceService.LandChange(ctx, ws, nil); err != nil {
+	if _, err := s.WorkspaceService.LandChange(ctx, ws); err != nil {
 		return fmt.Errorf("failed to land change: %w", err)
 	}
 

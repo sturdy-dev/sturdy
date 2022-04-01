@@ -48,7 +48,9 @@ type LandWorkspaceArgs struct {
 
 type LandWorkspaceInput struct {
 	WorkspaceID graphql.ID
-	PatchIDs    []string
+
+	// PatchIDs is deprecated and is not used
+	PatchIDs *[]string
 
 	// DiffMaxSize is not on the public API
 	// TODO: move this to a more appropriate place

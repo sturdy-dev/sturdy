@@ -537,7 +537,7 @@ input ExtractWorkspaceInput {
 
 input LandWorkspaceChangeInput {
   workspaceID: ID!
-  patchIDs: [String!]!
+  patchIDs: [String!] @deprecated(reason: "No longer used")
 }
 
 # View.

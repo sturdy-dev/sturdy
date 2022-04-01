@@ -58,7 +58,7 @@ type Service interface {
 	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error)
 	GetByID(context.Context, string) (*workspaces.Workspace, error)
 	GetByViewID(context.Context, string) (*workspaces.Workspace, error)
-	LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOptions ...vcs.DiffOption) (*changes.Change, error)
+	LandChange(ctx context.Context, ws *workspaces.Workspace, diffOptions ...vcs.DiffOption) (*changes.Change, error)
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error
 	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
@@ -514,7 +514,7 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	return ch, nil
 }
 
-func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, patchIDs []string, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
+func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
 	user, err := s.userRepo.Get(ws.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -535,7 +535,7 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 			s.logger,
 			ws.CodebaseID,
 			ws.ID,
-			patchIDs,
+			nil,
 			gitCommitMessage,
 			signature,
 			diffOpts...,

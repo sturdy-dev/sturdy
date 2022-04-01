@@ -239,7 +239,7 @@ func (r *WorkspaceRootResolver) LandWorkspaceChange(ctx context.Context, args re
 		diffOpts = append(diffOpts, vcs.WithGitMaxSize(args.Input.DiffMaxSize))
 	}
 
-	if _, err := r.workspaceService.LandChange(ctx, ws, args.Input.PatchIDs, diffOpts...); err != nil {
+	if _, err := r.workspaceService.LandChange(ctx, ws, diffOpts...); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
 	}
 

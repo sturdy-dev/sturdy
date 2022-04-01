@@ -451,20 +451,12 @@ func TestResolveHighLevelV2(t *testing.T) {
 				makeChanges(changes)
 
 				// Get diff
-				diffs, _, err := workspaceService.Diffs(authenticatedUserContext, string(workspaceID))
+				_, _, err := workspaceService.Diffs(authenticatedUserContext, string(workspaceID))
 				assert.NoError(t, err)
-
-				var patchIds []string
-				for _, d := range diffs {
-					for _, h := range d.Hunks {
-						patchIds = append(patchIds, h.ID)
-					}
-				}
 
 				// Land the changes
 				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: workspaceID,
-					PatchIDs:    patchIds,
 				}})
 				return err
 			}

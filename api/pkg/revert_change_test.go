@@ -148,7 +148,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		workspaceID := getWorkspaceID()
 
 		// Get diff
-		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID)
+		_, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceID)
 		assert.NoError(t, err)
 
 		// Set workspace draft description
@@ -160,7 +160,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
-			PatchIDs:    []string{diffs[0].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
 	}
@@ -194,7 +193,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 	// Land the change
 	// Get diff
-	diffs, _, err := workspaceService.Diffs(authenticatedUserContext, revertedWs.ID)
+	_, _, err = workspaceService.Diffs(authenticatedUserContext, revertedWs.ID)
 	assert.NoError(t, err)
 
 	// Set workspace draft description
@@ -206,7 +205,6 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: revertedWsResolver.ID(),
-		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
 	//nolint:errorlint
@@ -342,7 +340,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		workspaceID := getWorkspaceID()
 
 		// Get diff
-		diffs, _, err := workspaceService.Diffs(authenticatedUserContext, workspaceID)
+		_, _, err = workspaceService.Diffs(authenticatedUserContext, workspaceID)
 		assert.NoError(t, err)
 
 		// Set workspace draft description
@@ -354,7 +352,6 @@ func TestRevertChangeFromView(t *testing.T) {
 		// Apply and land
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
-			PatchIDs:    []string{diffs[0].Hunks[0].ID},
 		}})
 		assert.NoError(t, err)
 	}
@@ -395,7 +392,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 	// Land the change
 	// Get diff
-	diffs, _, err := workspaceService.Diffs(authenticatedUserContext, string(revertedWs.ID()))
+	_, _, err = workspaceService.Diffs(authenticatedUserContext, string(revertedWs.ID()))
 	assert.NoError(t, err)
 
 	// Set workspace draft description
@@ -407,7 +404,6 @@ func TestRevertChangeFromView(t *testing.T) {
 	// Apply and land
 	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: revertedWs.ID(),
-		PatchIDs:    []string{diffs[0].Hunks[0].ID},
 	}})
 	assert.NoError(t, err)
 
