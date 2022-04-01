@@ -74,8 +74,14 @@ export default defineComponent({
     }
   },
   data() {
+    let appEnvironment = undefined
+
+    if (!import.meta.env.SSR && window?.appEnvironment) {
+      appEnvironment = window?.appEnvironment
+    }
+
     return {
-      appEnvironment: window?.appEnvironment,
+      appEnvironment,
     }
   },
   computed: {
