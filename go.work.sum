@@ -6,6 +6,6 @@ github.com/zegl/go-git/v5 v5.0.0-20220329131411-2d8f8973e954 h1:GY2C5lLU6xfhnssS
 github.com/zegl/go-git/v5 v5.0.0-20220329131411-2d8f8973e954/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
 github.com/zegl/go-git/v5 v5.0.0-20220329131657-91a9994544e7 h1:a/QpoecakuG3nHlTTkZigFP35SiDWp+kHicKeoVwxFE=
 github.com/zegl/go-git/v5 v5.0.0-20220329131657-91a9994544e7/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
-github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c h1:4YL3zbOd14XmkPK3LiG4iTlUXseA1yYCZmoQdmLP9Bc=
-github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
+github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd h1:69XlZeas3xnxpA8UbkZKes1eAszHBQV80gD4L4jZ8Gc=
+github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=

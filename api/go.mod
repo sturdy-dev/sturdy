@@ -17,7 +17,11 @@ replace github.com/graph-gophers/graphql-transport-ws => github.com/sturdy-dev/g
 // Custom fork of go-flags to avoid tags name conflict
 replace github.com/jessevdk/go-flags => github.com/sturdy-dev/go-flags v1.5.1-0.20220203104421-967e8bff1baf
 
-replace github.com/go-git/go-git/v5 => github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c
+// Custom fork of go-git
+//
+// * Patches to support Azure DevOps
+// * Patches to handle push/pull to new references
+replace github.com/go-git/go-git/v5 => github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd
 
 require (
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
