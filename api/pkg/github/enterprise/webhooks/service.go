@@ -174,11 +174,7 @@ func getPRStatus(apiPR *api.PullRequest) github.PullRequestState {
 	}
 }
 
-func (svc *Service) getPullRequestAuthor(
-	ctx context.Context,
-	repo *github.Repository,
-	event *PullRequestEvent,
-) (*users.User, error) {
+func (svc *Service) getPullRequestAuthor(ctx context.Context, repo *github.Repository, event *PullRequestEvent) (*users.User, error) {
 	if ghUser, err := svc.gitHubUserRepo.GetByUsername(event.GetPullRequest().GetUser().GetLogin()); errors.Is(err, sql.ErrNoRows) {
 		// user with this username doesn't exist yet, will create shadow
 	} else if err != nil {
