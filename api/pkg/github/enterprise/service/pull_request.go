@@ -361,6 +361,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 	t0 := time.Now()
 	currentPR.UpdatedAt = &t0
 	currentPR.HeadSHA = &prSHA
+	currentPR.Importing = false // stop importing changes
 	// Only updated_at time saved?
 	if err := svc.gitHubPullRequestRepo.Update(ctx, currentPR); err != nil {
 		return nil, err

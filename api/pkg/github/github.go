@@ -86,6 +86,9 @@ type PullRequest struct {
 	ClosedAt   *time.Time       `db:"closed_at"`
 	MergedAt   *time.Time       `db:"merged_at"`
 	State      PullRequestState `db:"state"`
+
+	// If importing is true, sturdy will force update workspace with data from github.
+	Importing bool `db:"importing" json:"-"`
 }
 
 type CloneRepositoryEvent struct {
