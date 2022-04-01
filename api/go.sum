@@ -1073,6 +1073,8 @@ github.com/yvasiyarov/gorelic v0.0.0-20141212073537-a9bba5b9ab50/go.mod h1:NUSPS
 github.com/yvasiyarov/newrelic_platform_go v0.0.0-20140908184405-b21fdbd4370f/go.mod h1:GlGEuHIJweS1mbCqG+7vt2nvWLzLLnRHbXz5JKd/Qbg=
 github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c h1:4YL3zbOd14XmkPK3LiG4iTlUXseA1yYCZmoQdmLP9Bc=
 github.com/zegl/go-git/v5 v5.0.0-20220329131819-62ef6b76921c/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
+github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd h1:69XlZeas3xnxpA8UbkZKes1eAszHBQV80gD4L4jZ8Gc=
+github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd/go.mod h1:U7oc8MDRtQhVD6StooNkBMVsh/Y4J/2Vl36Mo4IclvM=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 gitlab.com/nyarla/go-crypt v0.0.0-20160106005555-d9a5dc2b789b/go.mod h1:T3BPAOm2cqquPa0MKWeNkmOM5RQsRhkrwMWonFMN7fE=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
