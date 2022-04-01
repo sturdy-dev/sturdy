@@ -17,7 +17,7 @@
 
 ## Versions
 
-- [Sturdy Cloud](https://getsturdy.com/) - Let's you use all Sturdy features, fully managed by the team behind Sturdy. Ship code to your projects, review, and ship code. Using 100% Sturdy, or Sturdy on top of GitHub. Get started for **free**.
+- [Sturdy Cloud](https://getsturdy.com/) - Lets you use all Sturdy features, fully managed by the team behind Sturdy. Ship code to your projects, review, and ship code. Using 100% Sturdy, or Sturdy on top of GitHub. Get started for **free**.
 - [Sturdy Enterprise](https://getsturdy.com/docs/self-hosted) - Run Sturdy in your own environment.
 - [Sturdy OSS](https://getsturdy.com/docs/self-hosted) - The fully Open Source version of Sturdy! Provides all the core functionality for free, and completely Open Source.
 
