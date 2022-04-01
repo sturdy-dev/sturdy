@@ -308,13 +308,6 @@ func (svc *Service) updateExistingPullRequest(
 		return fmt.Errorf("failed to get github access token: %w", err)
 	}
 
-	if pr.State != github.PullRequestStateMerged {
-		// if the PR is not merged, fetch the latest PR data from GitHub
-		return svc.githubService.UpdatePullRequest(ctx, pr, accessToken)
-	}
-
-	// import / sync workpsace
-
 	ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
 		svc.logger.Warn("handled a github pull request webhook for non-existing workspace",
@@ -326,6 +319,23 @@ func (svc *Service) updateExistingPullRequest(
 	} else if err != nil {
 		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
+
+	if shouldArchive := pr.State == github.PullRequestStateClosed && pr.Importing; shouldArchive {
+		// if pr is closed and importing, archive it
+		return svc.workspaceService.Archive(ctx, ws)
+	}
+
+	if shouldUnarchive := pr.State == github.PullRequestStateOpen && pr.Importing; shouldUnarchive {
+		// if pr is open and not importing, unarchive it
+		return svc.workspaceService.Unarchive(ctx, ws)
+	}
+
+	if shouldUpdate := pr.State != github.PullRequestStateMerged; shouldUpdate {
+		// if the PR is not merged, fetch the latest PR data from GitHub
+		return svc.githubService.UpdatePullRequest(ctx, pr, accessToken)
+	}
+
+	// merge PR
 
 	// pull from github if sturdy doesn't have the commits
 	if err := svc.pullFromGitHubIfCommitNotExists(pr.CodebaseID, []string{
