@@ -47,7 +47,8 @@ func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 		merged_at,
 		state,
 		open,
-		merged
+		merged,
+		importing
 		) VALUES (
 		:id,
 		:workspace_id,
@@ -65,7 +66,8 @@ func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 		:merged_at, 
 		:state,
 		:state = 'open',
-		:state = 'merged'
+		:state = 'merged',
+		:importing
 	)`, &pr)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
@@ -77,7 +79,7 @@ func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID
 	var pr github.PullRequest
 	if err := r.db.GetContext(ctx, &pr, `
 		SELECT
-			*
+			id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM
 			github_pull_requests
 		WHERE
@@ -92,7 +94,7 @@ func (r gitHubPRRepo) GetByCodebaseIDaAndHeadSHA(ctx context.Context, codebaseID
 func (r *gitHubPRRepo) Get(id string) (*github.PullRequest, error) {
 	var pr github.PullRequest
 	err := r.db.Get(&pr, `SELECT
-		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state 
+		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM github_pull_requests WHERE id=$1`, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -103,7 +105,7 @@ func (r *gitHubPRRepo) Get(id string) (*github.PullRequest, error) {
 func (r *gitHubPRRepo) GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID codebases.ID) (*github.PullRequest, error) {
 	var pr github.PullRequest
 	err := r.db.Get(&pr, `SELECT
-		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state
+		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM github_pull_requests WHERE github_id=$1 AND codebase_id = $2 `, gitHubID, codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -114,7 +116,7 @@ func (r *gitHubPRRepo) GetByGitHubIDAndCodebaseID(gitHubID int64, codebaseID cod
 func (r *gitHubPRRepo) ListOpenedByWorkspace(workspaceID string) ([]*github.PullRequest, error) {
 	var entities []*github.PullRequest
 	err := r.db.Select(&entities, `SELECT
-		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state
+		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM github_pull_requests WHERE workspace_id = $1 and open = true`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -125,7 +127,7 @@ func (r *gitHubPRRepo) ListOpenedByWorkspace(workspaceID string) ([]*github.Pull
 func (r *gitHubPRRepo) GetMostRecentlyClosedByWorkspace(workspaceID string) (*github.PullRequest, error) {
 	var pr github.PullRequest
 	err := r.db.Get(&pr, `SELECT 
-		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state
+		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM github_pull_requests WHERE workspace_id=$1 ORDER BY closed_at DESC LIMIT 1`, workspaceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -136,7 +138,7 @@ func (r *gitHubPRRepo) GetMostRecentlyClosedByWorkspace(workspaceID string) (*gi
 func (r *gitHubPRRepo) ListByHeadAndRepositoryID(head string, repositoryID int64) ([]*github.PullRequest, error) {
 	var entities []*github.PullRequest
 	err := r.db.Select(&entities, `SELECT 
-		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state
+		id, workspace_id, github_id, github_repository_id, created_by, github_pr_number, head, head_sha, codebase_id, base, created_at, updated_at, closed_at, merged_at, state, importing
 		FROM github_pull_requests WHERE head = $1 AND github_repository_id = $2`, head, repositoryID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -152,7 +154,8 @@ func (r *gitHubPRRepo) Update(ctx context.Context, pr *github.PullRequest) error
 			head_sha = :head_sha,
 			state = :state,
 			open = (:state = 'open'),
-			merged = (:state = 'merged')
+			merged = (:state = 'merged'),
+			importing = :importing
 		WHERE id = :id
 	`, pr)
 	if err != nil {

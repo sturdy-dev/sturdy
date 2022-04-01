@@ -303,9 +303,14 @@ func (svc *Service) updateExistingPullRequest(
 		}
 	}()
 
+	accessToken, err := svc.accessToken(ctx, event.GetInstallation().GetID(), event.GetRepo().GetID())
+	if err != nil {
+		return fmt.Errorf("failed to get github access token: %w", err)
+	}
+
 	if pr.State != github.PullRequestStateMerged {
-		// no need to sync if PR is not merged
-		return nil
+		// if the PR is not merged, fetch the latest PR data from GitHub
+		return svc.githubService.UpdatePullRequest(ctx, pr, accessToken)
 	}
 
 	// import / sync workpsace
@@ -320,11 +325,6 @@ func (svc *Service) updateExistingPullRequest(
 		return nil // noop
 	} else if err != nil {
 		return fmt.Errorf("failed to get workspace from db: %w", err)
-	}
-
-	accessToken, err := svc.accessToken(ctx, event.GetInstallation().GetID(), event.GetRepo().GetID())
-	if err != nil {
-		return fmt.Errorf("failed to get github access token: %w", err)
 	}
 
 	// pull from github if sturdy doesn't have the commits

@@ -153,11 +153,11 @@ func (r *prRootResolver) InternalGitHubPullRequestByWorkspaceID(ctx context.Cont
 func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, args resolvers.CreateOrUpdateGitHubPullRequestArgs) (resolvers.GitHubPullRequestResolver, error) {
 	ws, err := r.workspaceReader.Get(string(args.Input.WorkspaceID))
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.Error(err)
 	}
 
 	if err := r.authService.CanWrite(ctx, ws); err != nil {
-		return nil, err
+		return nil, gqlerrors.Error(err)
 	}
 
 	userID, err := auth.UserID(ctx)

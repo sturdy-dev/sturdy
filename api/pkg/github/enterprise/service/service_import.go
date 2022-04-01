@@ -84,6 +84,52 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
+func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.PullRequest, accessToken string) error {
+	if !pullRequest.Importing {
+		return nil
+	}
+
+	importBranchName := fmt.Sprintf("import-pull-request-%d-%s", pullRequest.GitHubPRNumber, uuid.NewString())
+	refspec := fmt.Sprintf("+refs/pull/%d/head:refs/heads/%s", pullRequest.GitHubPRNumber, importBranchName)
+
+	var trunkHeadCommitID string
+	if err := svc.executorProvider.New().
+		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
+		Write(func(repo vcs.RepoWriter) error {
+			headCommit, err := repo.HeadCommit()
+			if err != nil {
+				return fmt.Errorf("failed to get head: %w", err)
+			}
+			trunkHeadCommitID = headCommit.Id().String()
+			return nil
+		}).
+		ExecTrunk(pullRequest.CodebaseID, "gitHubImportFetchBranch"); err != nil {
+		return err
+	}
+
+	if err := svc.executorProvider.New().
+		Write(vcs_view.CheckoutBranch(importBranchName)).
+		Write(func(repo vcs.RepoWriter) error {
+			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+				return fmt.Errorf("failed to reset hard: %w", err)
+			}
+			if _, err := svc.snap.Snapshot(pullRequest.CodebaseID, pullRequest.WorkspaceID,
+				snapshots.ActionSyncCompleted,
+				snapshotter.WithMarkAsLatestInWorkspace(),
+				snapshotter.WithOnView(*repo.ViewID()),
+				snapshotter.WithOnRepo(repo), // Re-use repo context
+			); err != nil {
+				return fmt.Errorf("failed to create snapshot: %w", err)
+			}
+			return nil
+		}).
+		ExecTemporaryView(pullRequest.CodebaseID, "gitHubUpdatePullRequest"); err != nil {
+		return fmt.Errorf("failed to create temporary view: %w", err)
+	}
+
+	return nil
+}
+
 func (svc *Service) ImportPullRequest(
 	userID users.ID,
 	gitHubPR *api.PullRequest,
@@ -216,6 +262,7 @@ func (svc *Service) ImportPullRequest(
 			UpdatedAt:          nil,
 			ClosedAt:           nil,
 			MergedAt:           nil,
+			Importing:          true,
 		}
 
 		if err := svc.gitHubPullRequestRepo.Create(sturdyPR); err != nil {
