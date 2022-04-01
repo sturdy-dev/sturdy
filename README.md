@@ -1,5 +1,8 @@
 <p align="center"><img src="https://getsturdy.com/assets/Web/Logo/DuckAndName.png" height="128"></p>
 
+[![Go Report Card](https://goreportcard.com/badge/getsturdy.com/api?)](https://goreportcard.com/report/getsturdy.com/api)
+[![Releases](https://img.shields.io/github/release-pre/sturdy-dev/sturdy.svg)](https://github.com/zsturdy-dev/sturdy/releases)
+
 # Welcome to Sturdy! 📣🐣
 
 **Real-time code collaboration.**
