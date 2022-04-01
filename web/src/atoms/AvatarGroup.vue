@@ -11,24 +11,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import type { Author } from '../differ/event'
+import { defineComponent } from 'vue'
 import Avatar from './Avatar.vue'
+import type { AuthorFragment } from './__generated__/AvatarHelper'
 
 export default defineComponent({
   components: { Avatar },
-  data() {
-    return {}
-  },
   props: {
     authors: {
-      type: Object as PropType<Array<Author>>,
+      type: Object as PropType<Array<AuthorFragment>>,
+      required: true,
     },
     max: {
       type: Number,
       default: 5,
     },
+  },
+  data() {
+    return {}
   },
   computed: {
     inRangeAuthors() {

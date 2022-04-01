@@ -25,6 +25,8 @@ export default defineComponent({
     },
     user: {
       type: Object as PropType<UserFragment>,
+      required: false,
+      default: null,
     },
     modelValue: {
       type: [String, Number],
