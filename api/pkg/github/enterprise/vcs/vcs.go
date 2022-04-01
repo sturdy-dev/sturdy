@@ -10,14 +10,12 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
-
-	"go.uber.org/zap"
 )
 
 func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
 		refspec := fmt.Sprintf("+%s:refs/heads/sturdytrunk", ref)
-		if err := repo.FetchNamedRemoteWithCredsGogit("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
+		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 
@@ -32,27 +30,27 @@ func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) 
 
 func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
-		if err := repo.FetchNamedRemoteWithCredsGogit("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
+		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 		return nil
 	}
 }
 
-func PushTrackedToGitHub(logger *zap.Logger, repo vcs.RepoGitWriter, accessToken, trackedBranchName string) (userError string, err error) {
+func PushTrackedToGitHub(repo vcs.RepoGitWriter, accessToken, trackedBranchName string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/sturdytrunk:refs/heads/%s", trackedBranchName)
-	userError, err = repo.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
+	userError, err = repo.PushNamedRemoteWithRefspec("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 	if err != nil {
 		return userError, fmt.Errorf("failed to push %s: %w", refspec, err)
 	}
 	return "", nil
 }
 
-func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
+func PushBranchToGithubWithForce(executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
-		userError, err = r.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
+		userError, err = r.PushNamedRemoteWithRefspec("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
 		}
@@ -64,11 +62,11 @@ func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.P
 	return userError, nil
 }
 
-func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
+func PushBranchToGithubSafely(executorProvider executor.Provider, codebaseID codebases.ID, sturdyBranchName, remoteBranchName, accessToken string) (userError string, err error) {
 	refspec := fmt.Sprintf("refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
-		userError, err = r.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
+		userError, err = r.PushNamedRemoteWithRefspec("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
 		}
