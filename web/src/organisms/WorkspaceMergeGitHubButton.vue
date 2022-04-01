@@ -36,7 +36,7 @@
             @click="createOrUpdatePR"
           >
             <template #default>
-              {{ creatingOrUpdatingPR ? 'Creating Pull Request' : 'Create Pull Request' }}
+              {{ creatingOrUpdatingPR ? 'Creating pull request' : 'Create pull request' }}
             </template>
 
             <template v-if="disabled" #tooltip>
@@ -51,10 +51,10 @@
             <template #default>
               {{
                 creatingAndMergingPR && creatingOrUpdatingPR
-                  ? 'Creating Pull Request'
+                  ? 'Creating pull request'
                   : creatingAndMergingPR && isMerging
-                  ? 'Merging Pull Request'
-                  : 'Create and merge Pull Request'
+                  ? 'Merging pull request'
+                  : 'Create and merge pull request'
               }}
             </template>
 

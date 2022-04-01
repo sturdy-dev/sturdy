@@ -63,11 +63,11 @@ type RepoGitWriter interface {
 	CleanStaged() error
 	Push(logger *zap.Logger, branchName string) error
 	ForcePush(logger *zap.Logger, branchName string) error
-	PushNamedRemoteWithRefspec(logger *zap.Logger, remoteName string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
+	PushNamedRemoteWithRefspecGogit(logger *zap.Logger, remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
 	PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
 	PushRemoteUrlWithRefspecGogit(logger *zap.Logger, remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
 
-	FetchNamedRemoteWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error
+	FetchNamedRemoteWithCredsGogit(remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) error
 	FetchUrlRemoteWithCreds(remoteUrl string, creds git.CredentialsCallback, refspecs []string) error
 	FetchUrlRemoteWithCredsGogit(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) error
 	FetchBranch(branches ...string) error

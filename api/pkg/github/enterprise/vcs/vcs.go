@@ -3,18 +3,21 @@ package vcs
 import (
 	"fmt"
 
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/transport"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
+
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
-	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
 )
 
 func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
 		refspec := fmt.Sprintf("+%s:refs/heads/sturdytrunk", ref)
-		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
+		if err := repo.FetchNamedRemoteWithCredsGogit("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 
@@ -29,7 +32,7 @@ func FetchTrackedToSturdytrunk(accessToken, ref string) func(vcs.RepoGitWriter) 
 
 func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter) error {
 	return func(repo vcs.RepoGitWriter) error {
-		if err := repo.FetchNamedRemoteWithCreds("origin", newCredentialsCallback(accessToken), []string{refspec}); err != nil {
+		if err := repo.FetchNamedRemoteWithCredsGogit("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)}); err != nil {
 			return fmt.Errorf("failed to perform remote fetch: %w", err)
 		}
 		return nil
@@ -38,7 +41,7 @@ func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter)
 
 func PushTrackedToGitHub(logger *zap.Logger, repo vcs.RepoGitWriter, accessToken, trackedBranchName string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/sturdytrunk:refs/heads/%s", trackedBranchName)
-	userError, err = repo.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
+	userError, err = repo.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 	if err != nil {
 		return userError, fmt.Errorf("failed to push %s: %w", refspec, err)
 	}
@@ -49,7 +52,7 @@ func PushBranchToGithubWithForce(logger *zap.Logger, executorProvider executor.P
 	refspec := fmt.Sprintf("+refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
-		userError, err = r.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
+		userError, err = r.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
 		}
@@ -65,7 +68,7 @@ func PushBranchToGithubSafely(logger *zap.Logger, executorProvider executor.Prov
 	refspec := fmt.Sprintf("refs/heads/%s:refs/heads/%s", sturdyBranchName, remoteBranchName)
 
 	err = executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
-		userError, err = r.PushNamedRemoteWithRefspec(logger, "origin", newCredentialsCallback(accessToken), []string{refspec})
+		userError, err = r.PushNamedRemoteWithRefspecGogit(logger, "origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 		if err != nil {
 			return fmt.Errorf("failed to push %s: %w", refspec, err)
 		}
@@ -91,9 +94,9 @@ func HaveTrackedBranch(executorProvider executor.Provider, codebaseID codebases.
 	return nil
 }
 
-func newCredentialsCallback(token string) git.CredentialsCallback {
-	return func(url string, username string, allowedTypes git.CredentialType) (*git.Credential, error) {
-		cred, _ := git.NewCredentialUserpassPlaintext("x-access-token", token)
-		return cred, nil
+func newCredentialsCallback(token string) transport.AuthMethod {
+	return &http.BasicAuth{
+		Username: "x-access-token",
+		Password: token,
 	}
 }

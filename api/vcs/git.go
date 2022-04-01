@@ -638,16 +638,31 @@ func (r *repository) pushNamedRemote(logger *zap.Logger, branchName, remoteName,
 	return r.pushRemoteWithRefSpec(logger, remote, creds, []string{rs})
 }
 
-func (r *repository) PushNamedRemoteWithRefspec(logger *zap.Logger, remoteName string, creds git.CredentialsCallback, refspecs []string) (userError string, err error) {
-	defer getMeterFunc("PushNamedRemoteWithRefspec")()
+func (r *repository) PushNamedRemoteWithRefspecGogit(logger *zap.Logger, remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error) {
+	defer getMeterFunc("PushNamedRemoteWithRefspecGogit")()
 
-	remote, err := r.r.Remotes.Lookup(remoteName)
+	gg, err := gogit.PlainOpen(r.path)
 	if err != nil {
-		return fmt.Sprintf("Push failed: %s", err.Error()), err
+		return "", fmt.Errorf("failed to open gogit: %w", err)
 	}
-	defer remote.Free()
 
-	return r.pushRemoteWithRefSpec(logger, remote, creds, refspecs)
+	remote, err := gg.Remote(remoteName)
+	if err != nil {
+		return "", fmt.Errorf("failed to get remote: %w", err)
+	}
+
+	err = remote.Push(&gogit.PushOptions{
+		RemoteName: remoteName,
+		RefSpecs:   refspecs,
+		Auth:       creds,
+	})
+	if err != nil && strings.Contains(err.Error(), "protected branch hook declined") {
+		return fmt.Sprintf("GitHub rejected the push as the branch is protected by branch protection rules."), fmt.Errorf("failed to push to github: stopped by branch protection rules")
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to push: %w", err)
+	}
+	return "", nil
 }
 
 func (r *repository) pushRemoteWithRefSpec(logger *zap.Logger, remote *git.Remote, creds git.CredentialsCallback, refspecs []string) (userError string, err error) {
@@ -786,29 +801,27 @@ func (r *repository) MoveBranchToHEAD(branchName string) error {
 	return nil
 }
 
-func (r *repository) FetchNamedRemoteWithCreds(remoteName string, creds git.CredentialsCallback, refspecs []string) error {
-	defer getMeterFunc("FetchNamedRemoteWithCreds")()
+func (r *repository) FetchNamedRemoteWithCredsGogit(remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) error {
+	defer getMeterFunc("FetchNamedRemoteWithCredsGogit")()
 
-	opts := &git.FetchOptions{
-		RemoteCallbacks: git.RemoteCallbacks{
-			CredentialsCallback:      creds,
-			CertificateCheckCallback: func(cert *git.Certificate, valid bool, hostname string) error { return nil },
-			CompletionCallback: func(rc git.RemoteCompletion) error {
-				log.Printf("completion: %+v", rc)
-				return nil
-			},
-		},
+	gg, err := gogit.PlainOpen(r.path)
+	if err != nil {
+		return fmt.Errorf("failed to open gogit: %w", err)
 	}
 
-	remote, err := r.r.Remotes.Lookup(remoteName)
+	remote, err := gg.Remote(remoteName)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get remote: %w", err)
 	}
-	defer remote.Free()
 
-	err = remote.Fetch(refspecs, opts, "")
+	err = remote.Fetch(&gogit.FetchOptions{
+		RefSpecs: refspecs,
+		Auth:     creds,
+		Progress: os.Stderr,
+		Depth:    100,
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch: %w", err)
 	}
 
 	return nil
