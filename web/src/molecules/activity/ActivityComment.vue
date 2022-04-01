@@ -14,7 +14,10 @@
             <ReplyIcon class="h-3 w-3 text-gray-500 hover:text-gray-900" />
           </Button>
         </div>
-        <p v-if="item.comment.codeContext" class="mt-0.5 text-sm text-gray-500">
+        <p
+          v-if="item.comment.codeContext"
+          class="mt-0.5 text-sm text-gray-500 text-ellipsis overflow-hidden"
+        >
           <router-link :to="selfRoute" class="underline">
             Commented on {{ item.comment.codeContext.path }}
           </router-link>
