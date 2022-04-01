@@ -948,6 +948,10 @@ func (s *WorkspaceService) archive(ctx context.Context, ws *workspaces.Workspace
 }
 
 func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspace) error {
+	if ws.UnarchivedAt != nil {
+		return nil // noop
+	}
+
 	t := time.Now()
 	ws.ArchivedAt = nil
 	ws.UnarchivedAt = &t
