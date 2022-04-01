@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -15,7 +16,7 @@ func (r *repository) PushRemoteUrlWithRefspec(remoteUrl string, creds transport.
 
 	gg, err := gogit.PlainOpen(r.path)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to open gogit: %w", err)
 	}
 
 	remote, err := gg.CreateRemoteAnonymous(&config.RemoteConfig{
@@ -23,19 +24,21 @@ func (r *repository) PushRemoteUrlWithRefspec(remoteUrl string, creds transport.
 		URLs: []string{remoteUrl},
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create remote: %w", err)
 	}
 
 	err = remote.Push(&gogit.PushOptions{
 		RemoteName: "anonymous",
 		RefSpecs:   refspecs,
 		Auth:       creds,
+		Force:      true,
 	})
-
-	if err != nil {
-		return "", err
+	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+		return "", nil
 	}
-
+	if err != nil {
+		return "", fmt.Errorf("failed to push: %w", err)
+	}
 	return "", nil
 }
 
@@ -47,18 +50,17 @@ func (r *repository) PushNamedRemoteWithRefspec(remoteName string, creds transpo
 		return "", fmt.Errorf("failed to open gogit: %w", err)
 	}
 
-	remote, err := gg.Remote(remoteName)
-	if err != nil {
-		return "", fmt.Errorf("failed to get remote: %w", err)
-	}
-
-	err = remote.Push(&gogit.PushOptions{
+	err = gg.Push(&gogit.PushOptions{
 		RemoteName: remoteName,
 		RefSpecs:   refspecs,
 		Auth:       creds,
+		Force:      true,
 	})
 	if err != nil && strings.Contains(err.Error(), "protected branch hook declined") {
 		return fmt.Sprintf("GitHub rejected the push as the branch is protected by branch protection rules."), fmt.Errorf("failed to push to github: stopped by branch protection rules")
+	}
+	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+		return "", nil
 	}
 	if err != nil {
 		return "", fmt.Errorf("failed to push: %w", err)
@@ -74,17 +76,17 @@ func (r *repository) FetchNamedRemoteWithCreds(remoteName string, creds transpor
 		return fmt.Errorf("failed to open gogit: %w", err)
 	}
 
-	remote, err := gg.Remote(remoteName)
-	if err != nil {
-		return fmt.Errorf("failed to get remote: %w", err)
-	}
-
-	err = remote.Fetch(&gogit.FetchOptions{
-		RefSpecs: refspecs,
-		Auth:     creds,
-		Progress: os.Stderr,
-		Depth:    100,
+	err = gg.Fetch(&gogit.FetchOptions{
+		RemoteName: remoteName,
+		RefSpecs:   refspecs,
+		Auth:       creds,
+		Progress:   os.Stderr,
+		Depth:      100,
+		Force:      true,
 	})
+	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+		return nil
+	}
 	if err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
@@ -97,7 +99,7 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 
 	gg, err := gogit.PlainOpen(r.path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open gogit: %w", err)
 	}
 
 	remote, err := gg.CreateRemoteAnonymous(&config.RemoteConfig{
@@ -105,7 +107,7 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 		URLs: []string{remoteUrl},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create remote: %w", err)
 	}
 
 	err = remote.Fetch(&gogit.FetchOptions{
@@ -113,9 +115,13 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 		Auth:     creds,
 		Progress: os.Stderr,
 		Depth:    100,
+		Force:    true,
 	})
+	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+		return nil
+	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch: %w", err)
 	}
 
 	return nil
