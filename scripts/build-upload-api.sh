@@ -14,6 +14,8 @@ ECR_NAME="902160009014.dkr.ecr.eu-north-1.amazonaws.com/api:${VERSION}"
 docker buildx build \
   --platform linux/amd64 \
   --tag "$ECR_NAME" \
+  --cache-to=getsturdy/server:cache \
+  --cache-from=getsturdy/server:cache \
   --build-arg API_BUILD_TAGS=cloud \
   --build-arg VERSION="${VERSION}" \
   --target api \
