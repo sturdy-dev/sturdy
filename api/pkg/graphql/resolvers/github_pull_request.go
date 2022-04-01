@@ -3,8 +3,9 @@ package resolvers
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/codebases"
 	"github.com/graph-gophers/graphql-go"
+
+	"getsturdy.com/api/pkg/codebases"
 )
 
 type GitHubPullRequestRootResolver interface {
@@ -26,7 +27,9 @@ type CreateOrUpdateGitHubPullRequestArgs struct {
 
 type CreateOrUpdateGitHubPullRequestInput struct {
 	WorkspaceID graphql.ID
-	PatchIDs    []string
+
+	// PatchIDs is deprecated and not used
+	PatchIDs *[]string
 }
 
 type GitHubPullRequestArgs struct {

@@ -452,7 +452,6 @@ func TestPRHighLevel(t *testing.T) {
 				resolvers.CreateOrUpdateGitHubPullRequestArgs{
 					Input: resolvers.CreateOrUpdateGitHubPullRequestInput{
 						WorkspaceID: graphql.ID(workspaceID),
-						PatchIDs:    hunkIDs,
 					}},
 			)
 			if !assert.NoError(t, err, errors.Unwrap(err)) {

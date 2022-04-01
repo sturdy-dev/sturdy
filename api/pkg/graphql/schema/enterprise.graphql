@@ -166,7 +166,7 @@ type GitHubPullRequest {
 
 input CreateOrUpdateGitHubPullRequestInput {
   workspaceID: ID!
-  patchIDs: [String!]!
+  patchIDs: [String!] @deprecated(reason: "not used")
 }
 
 input MergeGitHubPullRequestInput {
