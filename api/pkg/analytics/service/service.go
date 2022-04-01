@@ -84,8 +84,9 @@ func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
 	if err := s.client.Enqueue(posthog.Identify{
 		DistinctId: id.String(),
 		Properties: map[string]any{
-			"name":  user.Name,
-			"email": user.Email,
+			"name":   user.Name,
+			"email":  user.Email,
+			"status": user.Status,
 		},
 	}); err != nil {
 		s.logger.Error("failed to identify user", zap.Error(err))
