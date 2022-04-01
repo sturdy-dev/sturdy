@@ -286,3 +286,39 @@ func (svc *Service) CheckPermissions(ctx context.Context) (bool, []string, []str
 
 	return !hasErrors, missingPermissions, missingEvents, nil
 }
+
+func (svc *Service) InheritShadowData(
+	ctx context.Context,
+	gitHubUser *github.User,
+	realUser *users.User,
+	shadowUser *users.User,
+) error {
+	if gitHubUser.UserID == realUser.ID {
+		// noop
+		return nil
+	}
+
+	// inherit workspaces
+	workspaces, err := svc.workspaceReader.ListByUserID(ctx, gitHubUser.UserID)
+	if err != nil {
+		return fmt.Errorf("failed to list workspaces: %w", err)
+	}
+
+	for _, workspace := range workspaces {
+		if err := svc.workspaceWriter.UpdateFields(ctx, workspace.ID, db_workspaces.SetUserID(realUser.ID)); err != nil {
+			return fmt.Errorf("failed to update workspace: %w", err)
+		}
+	}
+
+	// inherit github user
+	gitHubUser.UserID = realUser.ID
+	if err := svc.gitHubUserRepo.Update(gitHubUser); err != nil {
+		return fmt.Errorf("failed to update github user: %w", err)
+	}
+
+	if err := svc.userService.Inherit(ctx, realUser.ID, shadowUser); err != nil {
+		return fmt.Errorf("failed to deactivate shadow user: %w", err)
+	}
+
+	return nil
+}

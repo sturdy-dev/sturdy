@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -91,6 +92,9 @@ func (f *memory) UpdateFields(_ context.Context, workspaceID string, fields ...U
 		if opts.nameSet {
 			ws.Name = opts.name
 		}
+		if opts.userIDSet {
+			ws.UserID = opts.userID
+		}
 		return nil
 	}
 	return sql.ErrNoRows
@@ -108,4 +112,14 @@ func (f *memory) GetByViewID(viewId string, includeArchived bool) (*workspaces.W
 
 func (f *memory) GetBySnapshotID(id string) (*workspaces.Workspace, error) {
 	panic("not implemented")
+}
+
+func (f *memory) ListByUserID(_ context.Context, userID users.ID) ([]*workspaces.Workspace, error) {
+	ww := []*workspaces.Workspace{}
+	for _, workspace := range f.workspaces {
+		if workspace.UserID == userID {
+			ww = append(ww, workspace)
+		}
+	}
+	return ww, nil
 }

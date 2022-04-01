@@ -1,12 +1,12 @@
 package graphql
 
-//go:generate mockgen -destination internal/mock_db/user_repository_mock.go getsturdy.com/api/pkg/users/db Repository
+//go:generate mockgen -destination internal/mock_service/user_service_mock.go getsturdy.com/api/pkg/users/service Service
 
 import (
 	"context"
 	"testing"
 
-	"getsturdy.com/api/pkg/author/graphql/internal/mock_db"
+	"getsturdy.com/api/pkg/author/graphql/internal/mock_service"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	"getsturdy.com/api/pkg/users"
 
@@ -18,11 +18,11 @@ import (
 
 func TestDataloader(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock_db.NewMockRepository(ctrl)
+	db := mock_service.NewMockService(ctrl)
 
-	db.EXPECT().Get(gomock.Eq(users.ID("user-id"))).
+	db.EXPECT().GetByID(gomock.Any(), gomock.Eq(users.ID("user-id"))).
 		Return(&users.User{ID: users.ID("user-id"), Name: "foo"}, nil).Times(1)
-	db.EXPECT().Get(gomock.Eq(users.ID("user-id2"))).
+	db.EXPECT().GetByID(gomock.Any(), gomock.Eq(users.ID("user-id2"))).
 		Return(&users.User{ID: users.ID("user-id2"), Name: "foo"}, nil).Times(0)
 
 	root := NewResolver(db, zap.NewNop())
@@ -38,9 +38,9 @@ func TestDataloader(t *testing.T) {
 
 func TestDataloaderRequestedOncePerCtx(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock_db.NewMockRepository(ctrl)
+	db := mock_service.NewMockService(ctrl)
 
-	db.EXPECT().Get(gomock.Eq(users.ID("user-id"))).Do(func(userID users.ID) {
+	db.EXPECT().GetByID(gomock.Any(), gomock.Eq(users.ID("user-id"))).Do(func(_ context.Context, userID users.ID) {
 		t.Log("CALLED", userID)
 	}).Return(&users.User{ID: users.ID("user-id"), Name: "foo"}, nil).Times(5)
 

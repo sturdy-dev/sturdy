@@ -6,25 +6,25 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/users"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
 )
 
 type AuthorRootResolver struct {
-	userRepo db_user.Repository
+	userService service_users.Service
 }
 
-func NewResolver(userRepo db_user.Repository, logger *zap.Logger) resolvers.AuthorRootResolver {
+func NewResolver(userService service_users.Service, logger *zap.Logger) resolvers.AuthorRootResolver {
 	userRoot := &AuthorRootResolver{
-		userRepo: userRepo,
+		userService: userService,
 	}
 	return NewDataloader(userRoot, logger)
 }
 
-func (r *AuthorRootResolver) Author(id users.ID) (resolvers.AuthorResolver, error) {
-	uu, err := r.userRepo.Get(id)
+func (r *AuthorRootResolver) Author(ctx context.Context, id users.ID) (resolvers.AuthorResolver, error) {
+	uu, err := r.userService.GetByID(ctx, id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

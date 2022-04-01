@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 
 	"github.com/gin-gonic/gin"
@@ -95,15 +96,25 @@ func Oauth(
 			logger.Error("failed to lookup github user repo in db", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
-		} else if ghUser.UserID != user.ID {
-			existingUser, err := userRepo.Get(ghUser.UserID)
+		} else if isConflict := ghUser.UserID != user.ID; isConflict {
+			conflictingUser, err := userRepo.Get(ghUser.UserID)
 			if err != nil {
 				logger.Error("failed to lookup other user with this github login", zap.Error(err))
 				c.Status(http.StatusInternalServerError)
 				return
 			}
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", existingUser.Email)})
-			return
+
+			if isConflictingWithShadow := conflictingUser.Status == users.StatusShadow; isConflictingWithShadow {
+				ghUser.AccessToken = &token.AccessToken
+				if err := gitHubService.InheritShadowData(c.Request.Context(), ghUser, user, conflictingUser); err != nil {
+					logger.Error("failed to connect shadow user to github user", zap.Error(err))
+					c.Status(http.StatusInternalServerError)
+					return
+				}
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", conflictingUser.Email)})
+				return
+			}
 		} else {
 			ghUser.AccessToken = &token.AccessToken
 			if err := gitHubUserRepo.Update(ghUser); err != nil {

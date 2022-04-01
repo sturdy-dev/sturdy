@@ -54,6 +54,7 @@ func (r *gitHubUserRepo) GetByUserID(userID users.ID) (*github.User, error) {
 func (r *gitHubUserRepo) Update(ouser *github.User) error {
 	_, err := r.db.NamedExec(`UPDATE github_users
 		SET username = :username,
+			user_id = :user_id,
 		    access_token = :access_token,
 		    access_token_last_validated_at = :access_token_last_validated_at
 		WHERE id=:id`, ouser)

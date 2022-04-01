@@ -77,8 +77,12 @@ func (s *Service) IdentifyCodebase(ctx context.Context, cb *codebases.Codebase) 
 }
 
 func (s *Service) IdentifyUser(ctx context.Context, user *users.User) {
+	id := user.ID
+	if user.Is != nil {
+		id = *user.Is
+	}
 	if err := s.client.Enqueue(posthog.Identify{
-		DistinctId: user.ID.String(),
+		DistinctId: id.String(),
 		Properties: map[string]any{
 			"name":  user.Name,
 			"email": user.Email,

@@ -169,7 +169,7 @@ func ProvideHandler(
 	auth.POST("/v3/auth/client-token", routes_v3_user.ClientToken(userRepo, jwtService))
 	auth.POST("/v3/auth/renew-token", routes_v3_user.RenewToken(logger, userRepo, jwtService))
 	auth.POST("/v3/user/update-avatar", routes_v3_user.UpdateAvatar(logger, userRepo, uploader))                                                        // Used by the web (2021-10-04)
-	auth.GET("/v3/user", routes_v3_user.GetSelf(userRepo, jwtService))                                                                                  // Used by the command line client
+	auth.GET("/v3/user", routes_v3_user.GetSelf(userService, jwtService))                                                                               // Used by the command line client
 	auth.POST("/v3/codebases", routes_v3_codebase.Create(logger, codebaseService))                                                                      // Used by the web (2021-10-04)
 	auth.GET("/v3/codebases/:id", routes_v3_codebase.Get(codebaseRepo, codebaseUserRepo, logger, userService))                                          // Used by the command line client
 	auth.POST("/v3/codebases/:id/invite", routes_v3_codebase.Invite(codebaseService, authService))                                                      // No longer used (after 2022-01-31)

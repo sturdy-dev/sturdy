@@ -38,6 +38,7 @@ type Service interface {
 	GetFirstUser(ctx context.Context) (*users.User, error)
 	GetAsAuthor(context.Context, users.ID) (*author.Author, error)
 	Activate(context.Context, *users.User) error
+	Inherit(context.Context, users.ID, *users.User) error
 	CreateShadow(ctx context.Context, email string, referer Referer, name *string) (*users.User, error)
 }
 
@@ -66,7 +67,30 @@ func (s *UserService) GetFirstUser(ctx context.Context) (*users.User, error) {
 	if len(uu) == 0 {
 		return nil, ErrNotFound
 	}
-	return uu[0], nil
+	return s.getRealUser(ctx, uu[0])
+}
+
+// Inherit makes userID owner of all of the user's data.
+func (s *UserService) Inherit(ctx context.Context, userID users.ID, user *users.User) error {
+	if user.Is != nil && *user.Is == userID {
+		return nil
+	} else if user.Is != nil {
+		return fmt.Errorf("user is already inherited")
+	}
+
+	if user.Status != users.StatusShadow {
+		return fmt.Errorf("can't inherit non-shadow user")
+	}
+
+	user.Is = &userID
+	if err := s.userRepo.Update(user); err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	s.analyticsService.IdentifyUser(ctx, user)
+	s.analyticsService.Capture(ctx, "user inherited", analytics.Property("by", userID))
+
+	return nil
 }
 
 func (s *UserService) Activate(ctx context.Context, user *users.User) error {
@@ -159,15 +183,47 @@ func (s *UserService) CreateWithPassword(ctx context.Context, name, password, em
 }
 
 func (s *UserService) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, error) {
-	return s.userRepo.GetByIDs(ctx, ids...)
+	uu, err := s.userRepo.GetByIDs(ctx, ids...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get users: %w", err)
+	}
+	dedup := map[users.ID]bool{}
+	realUU := make([]*users.User, 0, len(uu))
+	for _, u := range uu {
+		realU, err := s.getRealUser(ctx, u)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get real user: %w", err)
+		}
+		if dedup[realU.ID] {
+			continue
+		}
+		dedup[realU.ID] = true
+		realUU = append(realUU, realU)
+	}
+	return realUU, nil
 }
 
-func (s *UserService) GetByID(_ context.Context, id users.ID) (*users.User, error) {
-	return s.userRepo.Get(id)
+func (s *UserService) GetByID(ctx context.Context, id users.ID) (*users.User, error) {
+	user, err := s.userRepo.Get(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	return s.getRealUser(ctx, user)
 }
 
-func (s *UserService) GetByEmail(_ context.Context, email string) (*users.User, error) {
-	return s.userRepo.GetByEmail(email)
+func (s *UserService) getRealUser(ctx context.Context, user *users.User) (*users.User, error) {
+	if user.Is != nil {
+		return s.GetByID(ctx, *user.Is)
+	}
+	return user, nil
+}
+
+func (s *UserService) GetByEmail(ctx context.Context, email string) (*users.User, error) {
+	user, err := s.userRepo.GetByEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	return s.getRealUser(ctx, user)
 }
 
 func (s *UserService) UsersCount(ctx context.Context) (uint64, error) {

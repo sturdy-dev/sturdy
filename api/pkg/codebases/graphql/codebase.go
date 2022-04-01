@@ -486,10 +486,15 @@ func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseM
 		return strings.Compare(string(ids[i]), string(ids[j])) < 0
 	})
 
+	seen := map[graphql.ID]bool{}
 	for _, userID := range ids {
 		author, err := r.root.authorResolver.Author(ctx, graphql.ID(userID))
 		switch {
 		case err == nil:
+			if seen[author.ID()] {
+				continue
+			}
+			seen[author.ID()] = true
 			resolvers = append(resolvers, author)
 		case errors.Is(err, sql.ErrNoRows):
 			continue

@@ -29,7 +29,7 @@ import (
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
-	user_db "getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 	service_view "getsturdy.com/api/pkg/view/service"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
@@ -79,13 +79,13 @@ type WorkspaceService struct {
 	workspaceWriter db.WorkspaceWriter
 	workspaceReader db.WorkspaceReader
 
-	userRepo   user_db.Repository
 	reviewRepo db_review.ReviewRepository
 
 	commentService  *service_comments.Service
 	changeService   *service_change.Service
 	activityService *service_activity.Service
 	viewService     *service_view.Service
+	usersService    service_users.Service
 
 	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
@@ -103,13 +103,13 @@ func New(
 	workspaceWriter db.WorkspaceWriter,
 	workspaceReader db.WorkspaceReader,
 
-	userRepo user_db.Repository,
 	reviewRepo db_review.ReviewRepository,
 
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
 	activityService *service_activity.Service,
 	viewService *service_view.Service,
+	usersService service_users.Service,
 
 	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
@@ -126,13 +126,13 @@ func New(
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
 
-		userRepo:   userRepo,
 		reviewRepo: reviewRepo,
 
 		commentService:  commentsService,
 		changeService:   changeService,
 		activityService: activityService,
 		viewService:     viewService,
+		usersService:    usersService,
 
 		activitySender:   activitySender,
 		executorProvider: executorProvider,
@@ -515,7 +515,7 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 }
 
 func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
-	user, err := s.userRepo.Get(ws.UserID)
+	user, err := s.usersService.GetByID(ctx, ws.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}

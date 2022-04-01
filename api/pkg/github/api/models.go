@@ -238,15 +238,25 @@ func (i *Installation) GetAccount() *User {
 }
 
 type User struct {
+	ID    *int64  `json:"id,omitempty"`
 	Login *string `json:"login,omitempty"`
 	Email *string `json:"email,omitempty"`
+	Name  *string `json:"name,omitempty"`
 }
 
 func ConvertUser(user *github.User) *User {
 	return &User{
+		ID:    user.ID,
 		Login: user.Login,
 		Email: user.Email,
 	}
+}
+
+func (u *User) GetID() int64 {
+	if u == nil || u.ID == nil {
+		return 0
+	}
+	return *u.ID
 }
 
 func (u *User) GetLogin() string {
@@ -254,6 +264,13 @@ func (u *User) GetLogin() string {
 		return ""
 	}
 	return *u.Login
+}
+
+func (u *User) GetName() string {
+	if u == nil || u.Name == nil {
+		return ""
+	}
+	return *u.Name
 }
 
 func (u *User) GetEmail() string {

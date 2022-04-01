@@ -15,7 +15,6 @@ import (
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
-	db_users "getsturdy.com/api/pkg/users/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -44,7 +43,6 @@ func setup(t *testing.T) *testCollaborators {
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)
 	suggestionsRepo := db_suggestions.NewMemory()
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, nil, executorProvider, logger, analyticsService)
-	userRepo := db_users.NewMemory()
 	queue := queue.NewNoop()
 	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
 	activityRepo := db_activity.NewInMemoryRepo()
@@ -57,14 +55,14 @@ func setup(t *testing.T) *testCollaborators {
 		workspaceRepo,
 		workspaceRepo,
 
-		userRepo,
 		nil, // reviewRepo
 
 		nil, // commentService
 		nil, // changeService
 		activityService,
-
 		nil,
+
+		nil, // userService
 		nil, // activitySender
 		executorProvider,
 		eventsSender,

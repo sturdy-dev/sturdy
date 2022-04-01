@@ -33,6 +33,10 @@ type User struct {
 	AvatarURL     *string    `db:"avatar_url" json:"avatar_url"`
 	Status        Status     `db:"status" json:"-"`
 	Referer       *string    `db:"referer" json:"-"`
+
+	// Is contains id of another user who this user is actually is. Usually means, it was a shadow that is
+	// now a real user.
+	Is *ID `db:"is" json:"-"`
 }
 
 var nonAlpha = regexp.MustCompile(`[^a-zA-Z]+`)
