@@ -72,7 +72,7 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, er
 	var uu []*users.User
 	for rows.Next() {
 		u := new(users.User)
-		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.EmailVerified, &u.PasswordHash, &u.CreatedAt, &u.AvatarURL, &u.Status, &u.Referer); err != nil {
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.EmailVerified, &u.PasswordHash, &u.CreatedAt, &u.AvatarURL, &u.Status, &u.Referer, &u.Is); err != nil {
 			return nil, err
 		}
 		uu = append(uu, u)
