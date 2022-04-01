@@ -125,7 +125,7 @@ export default defineComponent({
   props: {
     createInOrganizationId: {
       type: String,
-      required: false,
+      required: true,
     },
     showSetupGitHub: {
       type: Boolean,

@@ -154,6 +154,8 @@ export default defineComponent({
     },
     user: {
       type: Object as PropType<Author>,
+      required: false,
+      default: null,
     },
   },
   computed: {

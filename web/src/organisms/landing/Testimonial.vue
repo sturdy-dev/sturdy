@@ -44,9 +44,8 @@ export default defineComponent({
     title: {
       type: String,
       required: false,
+      default: '',
     },
   },
 })
 </script>
-
-<style scoped></style>

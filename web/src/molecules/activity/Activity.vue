@@ -87,7 +87,7 @@ export const WORKSPACE_ACTIVITY_FRAGMENT = gql`
 `
 
 export const WORKSPACE_ACTIVITY_CODEBASE_MEMBER_FRAGMENT = gql`
-  fragment WorkspaceActivityCodebaseMember on User {
+  fragment WorkspaceActivityCodebaseMember on Author {
     id
     name
     avatarUrl

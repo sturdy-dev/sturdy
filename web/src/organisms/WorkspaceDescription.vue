@@ -88,9 +88,16 @@ export const WORKSPACE_FRAGMENT = gql`
 type Author = WorkspaceDescription_WorkspaceFragment['codebase']['members'][number]
 
 export default defineComponent({
+  components: {
+    ShareButton,
+    OnboardingStep,
+    Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
+  },
   props: {
     user: {
       type: Object as PropType<Author>,
+      required: false,
+      default: null,
     },
     workspace: {
       type: Object as PropType<WorkspaceDescription_WorkspaceFragment>,
@@ -104,11 +111,6 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-  },
-  components: {
-    ShareButton,
-    OnboardingStep,
-    Editor: defineAsyncComponent(() => import('../components/workspace/Editor.vue')),
   },
   setup() {
     const { updateWorkspace, mutating: saving } = useUpdateWorkspace()

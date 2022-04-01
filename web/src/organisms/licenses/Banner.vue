@@ -23,6 +23,10 @@ export default {
   props: {
     messages: {
       type: Array as PropType<BannerLicenseMessageFragment[]>,
+      required: false,
+      default: function () {
+        return []
+      },
     },
   },
   methods: {
