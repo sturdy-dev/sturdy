@@ -6,10 +6,10 @@
       class="my-2"
     >
       <h3 class="text-sm font-medium text-yellow-800">
-        The changes are conflicting with changes already ../atoms to the codebase.
+        The changes are conflicting with changes already landed on the codebase.
       </h3>
       <div class="mt-2 text-sm text-yellow-700">
-        <p>You need to sync and fix the conflicts before the changes can be ../atoms.</p>
+        <p>You need to sync and fix the conflicts before the changes can be landed.</p>
       </div>
     </Banner>
 
