@@ -106,13 +106,13 @@ const gitHubIntegrationSettings = [
   {
     name: 'GitHub is the source of truth',
     description:
-      'Workspaces on Sturdy are merged through GitHub pull requests. When PRs are merged on GitHub, they will be synced to Sturdy. This mode allows you to incrementally migrate to Sturdy.',
+      'Draft changes on Sturdy are merged through GitHub pull requests. When PRs are merged on GitHub, they will be synced to Sturdy. This mode allows you to incrementally migrate to Sturdy.',
     vals: { enabled: true, gitHubIsSourceOfTruth: true },
   },
   {
     name: 'Sturdy is the source of truth',
     description:
-      'Workspaces are merged directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
+      'Draft changes are merged directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
     vals: { enabled: true, gitHubIsSourceOfTruth: false },
   },
   {
