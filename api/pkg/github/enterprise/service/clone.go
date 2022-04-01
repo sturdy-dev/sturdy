@@ -142,8 +142,12 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID users.ID) ([]
 		return nil, fmt.Errorf("failed to get github user: %w", err)
 	}
 
+	if existingGitHubUser.AccessToken == nil {
+		return nil, fmt.Errorf("no access token found for user %s", userID)
+	}
+
 	bgCtx := context.Background()
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: existingGitHubUser.AccessToken})
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: *existingGitHubUser.AccessToken})
 	tc := oauth2.NewClient(bgCtx, ts)
 	userAuthClient := gh.NewClient(tc)
 

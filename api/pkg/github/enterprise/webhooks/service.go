@@ -49,6 +49,7 @@ type Service struct {
 	gitHubPullRequestRepo  db_github.GitHubPRRepository
 	gitHubRepositoryRepo   db_github.GitHubRepositoryRepository
 	gitHubInstallationRepo db_github.GitHubInstallationRepository
+	gitHubUserRepo         db_github.GitHubUserRepository
 
 	workspaceWriter db_workspaces.WorkspaceWriter
 	workspaceReader db_workspaces.WorkspaceReader
@@ -87,6 +88,7 @@ func New(
 	gitHubPullRequestRepo db_github.GitHubPRRepository,
 	gitHubRepositoryRepo db_github.GitHubRepositoryRepository,
 	gitHubInstallationRepo db_github.GitHubInstallationRepository,
+	gitHubUserRepo db_github.GitHubUserRepository,
 
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	workspaceReader db_workspaces.WorkspaceReader,
@@ -124,6 +126,7 @@ func New(
 		gitHubPullRequestRepo:  gitHubPullRequestRepo,
 		gitHubRepositoryRepo:   gitHubRepositoryRepo,
 		gitHubInstallationRepo: gitHubInstallationRepo,
+		gitHubUserRepo:         gitHubUserRepo,
 
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
@@ -208,6 +211,15 @@ func (svc *Service) getPullRequestAuthor(
 		service_users.GitHubPullRequestReferer(event.GetRepo().GetID(), event.GetPullRequest().GetID()), &name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create shadow user: %w", err)
+	}
+
+	if err := svc.gitHubUserRepo.Create(github.User{
+		ID:        uuid.NewString(),
+		UserID:    user.ID,
+		Username:  gitHubUser.GetLogin(),
+		CreatedAt: time.Now(),
+	}); err != nil {
+		return nil, fmt.Errorf("failed to create github user: %w", err)
 	}
 
 	return user, nil

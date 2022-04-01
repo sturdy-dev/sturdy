@@ -46,6 +46,10 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 		return fmt.Errorf("failed to get github user: %w", err)
 	}
 
+	if existingGitHubUser.AccessToken == nil {
+		return fmt.Errorf("no github access token found for user %s", userID)
+	}
+
 	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(ws.ID)
 	if err != nil {
 		return fmt.Errorf("pull request not found: %w", err)
@@ -67,7 +71,7 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 	}
 
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: existingGitHubUser.AccessToken},
+		&oauth2.Token{AccessToken: *existingGitHubUser.AccessToken},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	userAuthClient := gh.NewClient(tc)
@@ -188,6 +192,10 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 		return nil, err
 	}
 
+	if ghUser.AccessToken == nil {
+		return nil, fmt.Errorf("gitub user has no access token")
+	}
+
 	cb, err := svc.codebaseRepo.Get(ws.CodebaseID)
 	if err != nil {
 		return nil, err
@@ -256,7 +264,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 		logger.Info("github have a default branch, not pushing sturdytrunk")
 	}
 
-	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(logger, svc.executorProvider, ws.CodebaseID, prBranch, remoteBranchName, ghUser.AccessToken)
+	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(logger, svc.executorProvider, ws.CodebaseID, prBranch, remoteBranchName, *ghUser.AccessToken)
 	if pushErr != nil {
 		logger.Error("failed to push to github (github is source of truth)", zap.Error(pushErr))
 
@@ -281,7 +289,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 
 	// GitHub Client to be used on behalf of this user
 	// TODO: Fallback to make these requests with the tokenClient if the users Access Token is invalid? (or they don't have one?)
-	personalClient, err := svc.gitHubPersonalClientProvider(ghUser.AccessToken)
+	personalClient, err := svc.gitHubPersonalClientProvider(*ghUser.AccessToken)
 	if err != nil {
 		return nil, err
 	}

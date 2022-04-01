@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -313,9 +314,10 @@ func TestPRHighLevel(t *testing.T) {
 				InstallationAccessTokenExpiresAt: &expT,
 			}
 			ghu := &github.User{
-				ID:       uuid.NewString(),
-				UserID:   userID,
-				Username: uuid.NewString(),
+				ID:          uuid.NewString(),
+				UserID:      userID,
+				Username:    uuid.NewString(),
+				AccessToken: str("let's assume this is valid"),
 			}
 
 			in := &github.Installation{
@@ -453,7 +455,7 @@ func TestPRHighLevel(t *testing.T) {
 						PatchIDs:    hunkIDs,
 					}},
 			)
-			if !assert.NoError(t, err) {
+			if !assert.NoError(t, err, errors.Unwrap(err)) {
 				//nolint:errorlint
 				t.Logf("err=%+v", err.(*gqlerrors.SturdyGraphqlError).OriginalError())
 			}

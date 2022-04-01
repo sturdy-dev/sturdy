@@ -43,10 +43,12 @@ type Repository struct {
 }
 
 type User struct {
-	ID                         string    `json:"id" db:"id"`
-	UserID                     users.ID  `json:"user_id" db:"user_id"`
-	Username                   string    `json:"username" db:"username"`
-	AccessToken                string    `json:"-" db:"access_token"`
+	ID       string   `json:"id" db:"id"`
+	UserID   users.ID `json:"user_id" db:"user_id"`
+	Username string   `json:"username" db:"username"`
+	// Might be nil if the user was imported from github, but never authenticated.
+	// For example, via pull requests webhook.
+	AccessToken                *string   `json:"-" db:"access_token"`
 	AccessTokenLastValidatedAt time.Time `json:"-" db:"access_token_last_validated_at"`
 	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
 }

@@ -83,7 +83,7 @@ func Oauth(
 				ID:          uuid.NewString(),
 				UserID:      user.ID,
 				Username:    ghApiUser.GetLogin(),
-				AccessToken: token.AccessToken,
+				AccessToken: &token.AccessToken,
 				CreatedAt:   time.Now(),
 			}
 			if err := gitHubUserRepo.Create(*ghUser); err != nil {
@@ -105,7 +105,7 @@ func Oauth(
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("This GitHub account is already used by another Sturdy user (%s)", existingUser.Email)})
 			return
 		} else {
-			ghUser.AccessToken = token.AccessToken
+			ghUser.AccessToken = &token.AccessToken
 			if err := gitHubUserRepo.Update(ghUser); err != nil {
 				logger.Error("failed to update github user repo in db", zap.Error(err))
 				c.Status(http.StatusInternalServerError)

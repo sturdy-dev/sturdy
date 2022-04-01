@@ -27,7 +27,11 @@ func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID users.ID) e
 }
 
 func (svc *Service) AddUserToCodebases(ctx context.Context, ghUser *github.User) error {
-	githubOAuth2Client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: ghUser.AccessToken}))
+	if ghUser.AccessToken == nil {
+		return fmt.Errorf("github user has no access token")
+	}
+
+	githubOAuth2Client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: *ghUser.AccessToken}))
 	githubAPIClient := gh.NewClient(githubOAuth2Client)
 
 	installations, err := svc.listAllUserInstallations(ctx, githubAPIClient)

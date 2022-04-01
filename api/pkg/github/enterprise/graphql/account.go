@@ -55,7 +55,11 @@ func (r *gitHubAccountResolver) Login() string {
 }
 
 func (r *gitHubAccountResolver) IsValid(ctx context.Context) bool {
-	personalClient, err := r.personalClient(r.githubUser.AccessToken)
+	if r.githubUser.AccessToken == nil {
+		return false
+	}
+
+	personalClient, err := r.personalClient(*r.githubUser.AccessToken)
 	if err != nil {
 		return false
 	}
