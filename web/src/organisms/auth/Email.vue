@@ -70,6 +70,10 @@
           Entered the wrong email?
           <a href="#" class="text-yellow-600" @click="waitingForEmailCode = false">Try again</a>.
         </div>
+
+        <div class="text-gray-500 text-sm mt-2">
+          Didn't receive any email? Please check your spam-folder.
+        </div>
       </div>
 
       <button
