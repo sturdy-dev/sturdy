@@ -112,7 +112,7 @@ const gitHubIntegrationSettings = [
   {
     name: 'Sturdy is the source of truth',
     description:
-      'Workspaces are ../atoms directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
+      'Workspaces are merged directly on Sturdy. After a change is created on Sturdy, it will be pushed to the HEAD branch on GitHub. Changes made directly on GitHub will not be synced to Sturdy.',
     vals: { enabled: true, gitHubIsSourceOfTruth: false },
   },
   {
