@@ -30,7 +30,8 @@ func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
 			created_at,
 			avatar_url,
 			status,
-			referer
+			referer,
+		    "is"
 		FROM users
 		ORDER BY created_at DESC
 		LIMIT $1
@@ -42,8 +43,8 @@ func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
 
 // The ID value is set inside this method
 func (r *repo) Create(newUser *users.User) error {
-	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at, status, referer)
-		VALUES (:id, :name, :email, :email_verified, :password, :created_at, :status, :referer)`, &newUser)
+	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at, status, referer, "is")
+		VALUES (:id, :name, :email, :email_verified, :password, :created_at, :status, :referer, :is)`, &newUser)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
@@ -60,7 +61,8 @@ func (r *repo) GetByIDs(ctx context.Context, ids ...users.ID) ([]*users.User, er
 		created_at,
 		avatar_url,
 		status,
-		referer
+		referer,
+		"is"
 	FROM 
 		users where id = ANY($1)`, pq.Array(ids))
 	if err != nil {
@@ -90,7 +92,8 @@ func (r *repo) Get(id users.ID) (*users.User, error) {
 			created_at,
 			avatar_url,
 			status,
-			referer
+			referer,
+			"is"
 		FROM users WHERE id=$1`, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed tow query table: %w", err)
@@ -109,7 +112,8 @@ func (r *repo) GetByEmail(email string) (*users.User, error) {
 			created_at,
 			avatar_url,
 			status,
-			referer
+			referer,
+			"is"
 		FROM users WHERE email=$1
 	`, email)
 	if err != nil {
@@ -124,7 +128,8 @@ func (r *repo) Update(u *users.User) error {
 		    email = :email,
 		    email_verified = :email_verified,
 		    avatar_url = :avatar_url,
-			status = :status
+			status = :status,
+			"is" = :is
 		WHERE id = :id`, u)
 	if err != nil {
 		return fmt.Errorf("failed to update %w", err)

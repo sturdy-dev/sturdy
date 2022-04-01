@@ -47,7 +47,7 @@ func batchFunction(resolver *AuthorRootResolver) dataloader.BatchFunc {
 		)
 
 		for _, key := range keys {
-			res, err := resolver.Author(users.ID(key.String()))
+			res, err := resolver.Author(ctx, users.ID(key.String()))
 			if err != nil {
 				results = append(results, &dataloader.Result{Error: err})
 			} else {

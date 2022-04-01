@@ -6,12 +6,12 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
-	"getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetSelf(repo db.Repository, jwtService *service_jwt.Service) func(c *gin.Context) {
+func GetSelf(userService service_users.Service, jwtService *service_jwt.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())
 		if err != nil {
@@ -19,7 +19,7 @@ func GetSelf(repo db.Repository, jwtService *service_jwt.Service) func(c *gin.Co
 			return
 		}
 
-		u, err := repo.Get(userID)
+		u, err := userService.GetByID(c.Request.Context(), userID)
 		if err != nil {
 			log.Println(err)
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to get user"})

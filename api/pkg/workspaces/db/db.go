@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/jmoiron/sqlx"
@@ -108,6 +109,34 @@ func (r *repo) GetByViewID(viewID string, includeArchived bool) (*workspaces.Wor
 		return nil, fmt.Errorf("failed to GetByViewID: %w", err)
 	}
 	return &entity, nil
+}
+
+func (r *repo) ListByUserID(ctx context.Context, userID users.ID) ([]*workspaces.Workspace, error) {
+	var entities []*workspaces.Workspace
+	if err := r.db.SelectContext(ctx, &entities, `SELECT 
+		id,
+		user_id, 
+		codebase_id, 
+		name, 
+		created_at, 
+		last_landed_at, 
+		archived_at, 
+		unarchived_at, 
+		updated_at, 
+		draft_description, 
+		view_id, 
+		latest_snapshot_id, 
+		up_to_date_with_trunk, 
+		head_change_id, 
+		head_change_computed, 
+		diffs_count, 
+		change_id
+	FROM workspaces
+	WHERE user_id=$1
+	AND archived_at IS NULL`, userID); err != nil {
+		return nil, fmt.Errorf("failed to ListByUserID: %w", err)
+	}
+	return entities, nil
 }
 
 func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error) {
@@ -218,6 +247,9 @@ func (r *repo) UpdateFields(ctx context.Context, workspaceID string, fields ...U
 	}
 	if opts.nameSet {
 		query.Set("name", opts.name)
+	}
+	if opts.userIDSet {
+		query.Set("user_id", opts.userID)
 	}
 
 	if _, err := r.db.NamedExecContext(ctx, query.String(workspaceID), query.args); err != nil {

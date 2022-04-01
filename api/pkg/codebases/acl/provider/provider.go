@@ -12,7 +12,7 @@ import (
 	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/users"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 
 	"github.com/google/uuid"
 	"github.com/tailscale/hujson"
@@ -20,19 +20,19 @@ import (
 
 type Provider struct {
 	aclDB          db_acl.ACLRepository
-	usersDB        db_user.Repository
 	codebaseUserDB db_codebases.CodebaseUserRepository
+	usersService   service_users.Service
 }
 
 func New(
 	aclRepo db_acl.ACLRepository,
 	codebaseUserDB db_codebases.CodebaseUserRepository,
-	usersDB db_user.Repository,
+	usersService service_users.Service,
 ) *Provider {
 	return &Provider{
 		aclDB:          aclRepo,
 		codebaseUserDB: codebaseUserDB,
-		usersDB:        usersDB,
+		usersService:   usersService,
 	}
 }
 
@@ -93,7 +93,7 @@ func (p *Provider) getUserEmailsForCodebase(ctx context.Context, codebaseID code
 		userIDs = append(userIDs, u.UserID)
 	}
 
-	users, err := p.usersDB.GetByIDs(ctx, userIDs...)
+	users, err := p.usersService.GetByIDs(ctx, userIDs...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query users: %w", err)
 	}

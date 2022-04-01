@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
 
@@ -25,6 +26,7 @@ type WorkspaceReader interface {
 	Get(id string) (*workspaces.Workspace, error)
 	ListByCodebaseIDs(codebaseIDs []codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error)
 	ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error)
+	ListByUserID(context.Context, users.ID) ([]*workspaces.Workspace, error)
 	GetByViewID(viewID string, includeArchived bool) (*workspaces.Workspace, error)
 	GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
 }
@@ -68,6 +70,9 @@ type UpdateOptions struct {
 
 	name    *string
 	nameSet bool
+
+	userID    users.ID
+	userIDSet bool
 }
 
 type UpdateOption func(*UpdateOptions)
@@ -170,5 +175,12 @@ func SetName(name *string) UpdateOption {
 	return func(opts *UpdateOptions) {
 		opts.name = name
 		opts.nameSet = true
+	}
+}
+
+func SetUserID(userID users.ID) UpdateOption {
+	return func(opts *UpdateOptions) {
+		opts.userID = userID
+		opts.userIDSet = true
 	}
 }

@@ -179,44 +179,31 @@ func (svc *Service) getPullRequestAuthor(
 	repo *github.Repository,
 	event *PullRequestEvent,
 ) (*users.User, error) {
-	githubClient, _, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, repo.InstallationID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get github client: %w", err)
-	}
-
-	// get a fresh user from the api, because it might contain users's email address, if it's public
-	gitHubUser, _, err := githubClient.Users.Get(ctx, event.GetPullRequest().GetUser().GetLogin())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get github user: %w", err)
-	}
-
-	email := gitHubUser.GetEmail()
-	if email == "" {
-		// if email is not public, make one up from the user's login, similar to what github does
-		// see https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-email-preferences/setting-your-commit-email-address
-		email = fmt.Sprintf("%d+%s@users.noreply.github.com.com", gitHubUser.GetID(), gitHubUser.GetLogin())
-	}
-
-	if user, err := svc.usersService.GetByEmail(ctx, email); errors.Is(err, sql.ErrNoRows) {
-		// not found, will create
+	if ghUser, err := svc.gitHubUserRepo.GetByUsername(event.GetPullRequest().GetUser().GetLogin()); errors.Is(err, sql.ErrNoRows) {
+		// user with this username doesn't exist yet, will create shadow
 	} else if err != nil {
-		return nil, fmt.Errorf("failed to get user by email: %w", err)
+		return nil, fmt.Errorf("failed to get github user: %w", err)
 	} else {
-		// found, return
-		return user, nil
+		// user exists, return it
+		return svc.usersService.GetByID(ctx, ghUser.UserID)
 	}
 
-	name := gitHubUser.GetName()
-	user, err := svc.usersService.CreateShadow(ctx, gitHubUser.GetEmail(),
-		service_users.GitHubPullRequestReferer(event.GetRepo().GetID(), event.GetPullRequest().GetID()), &name)
+	// make up email from the user's login, similar to what github does
+	// see https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-email-preferences/setting-your-commit-email-address
+	email := fmt.Sprintf("%d+%s@users.noreply.github.com.com", event.GetPullRequest().GetUser().GetID(), event.GetPullRequest().GetUser().GetLogin())
+	name := event.GetPullRequest().GetUser().GetLogin()
+	referer := service_users.GitHubPullRequestReferer(event.GetRepo().GetID(), event.GetPullRequest().GetID())
+	user, err := svc.usersService.CreateShadow(ctx, email, referer, &name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create shadow user: %w", err)
 	}
 
+	// save shadow user <-> github connection
+	// this will be used to connect shadow user's data with real user once the real use signs up
 	if err := svc.gitHubUserRepo.Create(github.User{
 		ID:        uuid.NewString(),
 		UserID:    user.ID,
-		Username:  gitHubUser.GetLogin(),
+		Username:  event.GetPullRequest().GetUser().GetLogin(),
 		CreatedAt: time.Now(),
 	}); err != nil {
 		return nil, fmt.Errorf("failed to create github user: %w", err)
@@ -250,7 +237,7 @@ func (svc *Service) importNewPullRequest(
 		return fmt.Errorf("failed to get access token: %w", err)
 	}
 
-	if err := svc.githubService.ImportPullRequest(user.ID, event.GetPullRequest(), repo, installation, accessToken); err == service_github.ErrAlreadyImported {
+	if err := svc.githubService.ImportPullRequest(user.ID, event.GetPullRequest(), repo, installation, accessToken); errors.Is(err, service_github.ErrAlreadyImported) {
 		return nil
 	} else if err != nil {
 		return err

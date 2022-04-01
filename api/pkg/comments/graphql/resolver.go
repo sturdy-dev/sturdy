@@ -29,7 +29,7 @@ import (
 	notification_sender "getsturdy.com/api/pkg/notification/sender"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/users"
-	db_user "getsturdy.com/api/pkg/users/db"
+	service_users "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
@@ -54,7 +54,6 @@ var (
 type CommentRootResolver struct {
 	executorProvider executor.Provider
 
-	userRepo                 db_user.Repository
 	commentsRepo             db_comments.Repository
 	snapshotRepo             db_snapshots.Repository
 	workspaceReader          db_workspaces.WorkspaceReader
@@ -63,6 +62,7 @@ type CommentRootResolver struct {
 	workspaceWatchersService *service_workspace_watchers.Service
 	authService              *service_auth.Service
 	changeService            *service_change.Service
+	userService              service_users.Service
 
 	eventsReader       events.EventReader
 	eventsSubscriber   *eventsv2.Subscriber
@@ -79,7 +79,6 @@ type CommentRootResolver struct {
 }
 
 func NewResolver(
-	userRepo db_user.Repository,
 	commentsRepo db_comments.Repository,
 	snapshotRepo db_snapshots.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
@@ -94,6 +93,7 @@ func NewResolver(
 	eventsReader events.EventReader,
 	notificationSender notification_sender.NotificationSender,
 	activitySender sender_workspace_activity.ActivitySender,
+	userService service_users.Service,
 
 	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
@@ -106,7 +106,6 @@ func NewResolver(
 	return &CommentRootResolver{
 		executorProvider: executroProvider,
 
-		userRepo:                 userRepo,
 		commentsRepo:             commentsRepo,
 		snapshotRepo:             snapshotRepo,
 		workspaceReader:          workspaceReader,
@@ -115,6 +114,7 @@ func NewResolver(
 		workspaceWatchersService: workspaceWatchersService,
 		authService:              authService,
 		changeService:            changeService,
+		userService:              userService,
 
 		eventsSender:       eventsSender,
 		eventsSubscriber:   eventsSubscriber,
@@ -357,7 +357,7 @@ func (r *CommentRootResolver) getUsersByCodebaseID(ctx context.Context, codebase
 		userIDs = append(userIDs, codebaseUser.UserID)
 	}
 
-	users, err := r.userRepo.GetByIDs(ctx, userIDs...)
+	users, err := r.userService.GetByIDs(ctx, userIDs...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get users: %w", err)
 	}
