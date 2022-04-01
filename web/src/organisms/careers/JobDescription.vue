@@ -109,6 +109,7 @@
             <dt class="text-lg leading-6 font-medium text-gray-900">
               {{ faq.question }}
             </dt>
+            <!-- eslint-disable-next-line vue/no-v-html -->
             <dd class="mt-2 text-base text-gray-500" v-html="faq.answer"></dd>
           </div>
         </dl>

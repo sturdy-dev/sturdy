@@ -61,6 +61,7 @@ export default defineComponent({
     link: {
       type: String,
       required: false,
+      default: null,
     },
     accent: {
       type: String,
@@ -73,5 +74,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped></style>

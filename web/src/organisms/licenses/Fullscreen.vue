@@ -21,6 +21,10 @@ export default {
   props: {
     messages: {
       type: Array as PropType<FullscreenLicenseMessageFragment[]>,
+      required: false,
+      default: function () {
+        return []
+      },
     },
   },
 }

@@ -20,8 +20,8 @@
 
 <script lang="ts">
 import { gql } from '@urql/vue'
-import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 
 import NewComment, { CODEBASE_FRAGMENT } from '../molecules/NewComment.vue'
 import Activity, { WORKSPACE_ACTIVITY_FRAGMENT } from '../molecules/activity/Activity.vue'
@@ -32,6 +32,7 @@ type Member = ChangeActivity_ChangeFragment['codebase']['members'][number]
 
 export const CHANGE_FRAGMENT = gql`
   fragment ChangeActivity_Change on Change {
+    id
     activity {
       ...WorkspaceActivity
     }
@@ -55,8 +56,15 @@ export default defineComponent({
       type: Object as PropType<ChangeActivity_ChangeFragment>,
       required: true,
     },
-    codebaseSlug: { type: String, required: true },
-    user: { type: Object as PropType<Member> },
+    codebaseSlug: {
+      type: String,
+      required: true,
+    },
+    user: {
+      type: Object as PropType<Member>,
+      required: false,
+      default: null,
+    },
   },
   computed: {
     isAuthenticated() {
