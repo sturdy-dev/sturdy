@@ -95,8 +95,8 @@
         >
           <template #tooltip>Hang on, we are waiting for GitHub to call back to us...</template>
           <template #default>
-            <template v-if="isMerging"> Merging </template>
-            <template v-else> Merge </template>
+            <template v-if="isMerging"> Merging</template>
+            <template v-else> Merge</template>
           </template>
         </Button>
       </div>
@@ -105,7 +105,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue'
+import { defineComponent, inject, type PropType } from 'vue'
 import { gql } from '@urql/vue'
 
 import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
@@ -118,6 +118,7 @@ import { useMergeGitHubPullRequest } from '../mutations/useMergeGitHubPullReques
 
 import type { MergeGitHubButton_WorkspaceFragment } from './__generated__/WorkspaceMergeGitHubButton'
 import { GitHubPullRequestState } from '../__generated__/types'
+import JSConfetti from 'js-confetti'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment MergeGitHubButton_Workspace on Workspace {
@@ -164,12 +165,17 @@ export default defineComponent({
       useCreateOrUpdateGitHubPullRequest()
     const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
       useMergeGitHubPullRequest()
+
+    const jsConfetti = inject<JSConfetti>('jsConfetti')
+
     return {
       creatingOrUpdatingPR,
       createOrUpdateGitHubPullRequest,
 
       mergingGitHubPullRequest,
       mergeGitHubPullRequest,
+
+      jsConfetti,
     }
   },
   data() {
@@ -239,28 +245,34 @@ export default defineComponent({
     async triggerMergePullRequest() {
       await this.mergeGitHubPullRequest({
         workspaceID: this.workspace.id,
-      }).catch((e: any) => {
-        let title = 'Failed!'
-        let message = 'Failed to merge pull request'
+      })
+        .then(() => {
+          this.jsConfetti?.addConfetti({
+            emojis: ['🚀', '⚡️', '💥', '✨', '💫', '🌸', '🐥', '💻'],
+          })
+        })
+        .catch((e: any) => {
+          let title = 'Failed!'
+          let message = 'Failed to merge pull request'
 
-        // Server generated error if the push fails (due to branch protection rules, etc)
-        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-          if (e.graphQLErrors[0].extensions?.message) {
-            title = 'GitHub error'
-            message = e.graphQLErrors[0].extensions.message
+          // Server generated error if the push fails (due to branch protection rules, etc)
+          if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+            if (e.graphQLErrors[0].extensions?.message) {
+              title = 'GitHub error'
+              message = e.graphQLErrors[0].extensions.message
+            } else {
+              console.error(e)
+            }
           } else {
             console.error(e)
           }
-        } else {
-          console.error(e)
-        }
 
-        this.emitter.emit('notification', {
-          title: title,
-          message,
-          style: 'error',
+          this.emitter.emit('notification', {
+            title: title,
+            message,
+            style: 'error',
+          })
         })
-      })
     },
   },
 })

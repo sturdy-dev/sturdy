@@ -97,6 +97,7 @@ import type {
   FeaturesQueryVariables,
 } from './__generated__/Sturdy'
 import AppTitleBar from './organisms/AppTitleBar.vue'
+import JSConfetti from 'js-confetti'
 
 type ToastNotificationMessage = {
   id: string
@@ -216,6 +217,9 @@ export default defineComponent({
       'user',
       computed(() => data.value?.user)
     )
+
+    const jsConfetti = new JSConfetti()
+    provide('jsConfetti', jsConfetti)
 
     const platform = window.appEnvironment?.platform
     return {
