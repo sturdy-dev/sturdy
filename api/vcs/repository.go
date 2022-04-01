@@ -63,14 +63,12 @@ type RepoGitWriter interface {
 	CleanStaged() error
 	Push(logger *zap.Logger, branchName string) error
 	ForcePush(logger *zap.Logger, branchName string) error
-	PushNamedRemoteWithRefspecGogit(logger *zap.Logger, remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
-	PushRemoteUrlWithRefspec(logger *zap.Logger, remoteUrl string, creds git.CredentialsCallback, refspecs []string) (userError string, err error)
-	PushRemoteUrlWithRefspecGogit(logger *zap.Logger, remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
-
-	FetchNamedRemoteWithCredsGogit(remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) error
-	FetchUrlRemoteWithCreds(remoteUrl string, creds git.CredentialsCallback, refspecs []string) error
-	FetchUrlRemoteWithCredsGogit(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) error
 	FetchBranch(branches ...string) error
+
+	PushNamedRemoteWithRefspec(remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
+	PushRemoteUrlWithRefspec(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error)
+	FetchNamedRemoteWithCreds(remoteName string, creds transport.AuthMethod, refspecs []config.RefSpec) error
+	FetchUrlRemoteWithCreds(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) error
 
 	SetDefaultBranch(targetBranch string) error
 	CreateAndSetDefaultBranch(headBranchName string) error

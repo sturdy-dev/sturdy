@@ -201,12 +201,7 @@ func (svc *Service) Push(ctx context.Context, gitHubRepository *github.Repositor
 	// Push in a git executor context
 	var userVisibleError string
 	if err := svc.executorProvider.New().GitWrite(func(repo vcs.RepoGitWriter) error {
-		userVisibleError, err = github_vcs.PushTrackedToGitHub(
-			logger,
-			repo,
-			accessToken,
-			gitHubRepository.TrackedBranch,
-		)
+		userVisibleError, err = github_vcs.PushTrackedToGitHub(repo, accessToken, gitHubRepository.TrackedBranch)
 		if err != nil {
 			return err
 		}

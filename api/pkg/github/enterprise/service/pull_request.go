@@ -247,7 +247,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 	// This is done _without_ force, to not screw anything up if we're in the wrong.
 	if err := vcs.HaveTrackedBranch(svc.executorProvider, ws.CodebaseID, ghRepo.TrackedBranch); err != nil {
 		logger.Info("pushing sturdytrunk to github")
-		userVisibleError, pushTrunkErr := vcs.PushBranchToGithubSafely(logger, svc.executorProvider, ws.CodebaseID, "sturdytrunk", ghRepo.TrackedBranch, accessToken)
+		userVisibleError, pushTrunkErr := vcs.PushBranchToGithubSafely(svc.executorProvider, ws.CodebaseID, "sturdytrunk", ghRepo.TrackedBranch, accessToken)
 		if pushTrunkErr != nil {
 			logger.Error("failed to push trunk to github (github is source of truth)", zap.Error(pushTrunkErr))
 
@@ -264,7 +264,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 		logger.Info("github have a default branch, not pushing sturdytrunk")
 	}
 
-	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(logger, svc.executorProvider, ws.CodebaseID, prBranch, remoteBranchName, *ghUser.AccessToken)
+	userVisibleError, pushErr := vcs.PushBranchToGithubWithForce(svc.executorProvider, ws.CodebaseID, prBranch, remoteBranchName, *ghUser.AccessToken)
 	if pushErr != nil {
 		logger.Error("failed to push to github (github is source of truth)", zap.Error(pushErr))
 

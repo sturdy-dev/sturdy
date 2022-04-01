@@ -204,7 +204,7 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 	}
 
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspecGogit(svc.logger, rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		_, err := repo.PushRemoteUrlWithRefspec(rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
 		switch {
 		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
 			return nil
@@ -241,7 +241,7 @@ func (svc *EnterpriseService) PushTrunk(ctx context.Context, codebaseID codebase
 	}
 
 	push := func(repo vcs.RepoGitWriter) error {
-		_, err := repo.PushRemoteUrlWithRefspecGogit(svc.logger, rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		_, err := repo.PushRemoteUrlWithRefspec(rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
 		switch {
 		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
 			return nil
@@ -278,7 +278,7 @@ func (svc *EnterpriseService) Pull(ctx context.Context, codebaseID codebases.ID)
 	}
 
 	pull := func(repo vcs.RepoGitWriter) error {
-		err := repo.FetchUrlRemoteWithCredsGogit(rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
+		err := repo.FetchUrlRemoteWithCreds(rem.URL, creds, []config.RefSpec{config.RefSpec(refspec)})
 		switch {
 		case errors.Is(err, gogit.NoErrAlreadyUpToDate):
 			return nil
