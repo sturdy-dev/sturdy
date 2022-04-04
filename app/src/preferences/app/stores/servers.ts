@@ -12,6 +12,10 @@ export const update = (server: HostConfig) => {
   servers.set(servers.get().map((s) => (s.title === server.title ? server : s)))
 }
 
+export const add = (server: HostConfig) => {
+  servers.set([...servers.get(), server])
+}
+
 export const set = (hosts: HostConfig[]) => {
   servers.set(hosts)
 }

@@ -16,14 +16,56 @@
       />
     </td>
 
-    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+    <td v-if="!isDetailed" class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
       <input
         type="text"
         class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
-        placeholder="127.0.0.1:30080"
+        placeholder="http://localhost:30080"
         v-model="host"
         :class="[
           isHostWarning
+            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
+            : 'focus:ring-blue-500 focus:border-blue-500 ',
+        ]"
+      />
+    </td>
+
+    <td v-if="isDetailed" class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+      <input
+        type="text"
+        class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
+        placeholder="https://getsturdy.com"
+        v-model="webURL"
+        :class="[
+          isWebURLWarning
+            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
+            : 'focus:ring-blue-500 focus:border-blue-500 ',
+        ]"
+      />
+    </td>
+
+    <td v-if="isDetailed" class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+      <input
+        type="text"
+        class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
+        placeholder="https://api.getsturdy.com"
+        v-model="apiURL"
+        :class="[
+          isAPIURLWarning
+            ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
+            : 'focus:ring-blue-500 focus:border-blue-500 ',
+        ]"
+      />
+    </td>
+
+    <td v-if="isDetailed" class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+      <input
+        type="text"
+        class="focus:ring-blue-500 focus:border-blue-500 relative block w-full rounded-none rounded-t-md bg-transparent focus:z-10 sm:text-sm border-gray-300"
+        placeholder="ssh://sync.getsturdy.com"
+        v-model="syncURL"
+        :class="[
+          isSyncURLWarning
             ? 'bg-yellow-50 focus:ring-yellow-500 focus:border-yellow-500'
             : 'focus:ring-blue-500 focus:border-blue-500 ',
         ]"
@@ -42,6 +84,12 @@
 import ipc from '../ipc'
 
 export default {
+  props: {
+    isDetailed: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       title: '',
@@ -49,6 +97,15 @@ export default {
 
       host: '',
       hostActivated: false,
+
+      webURL: '',
+      webURLActivated: false,
+
+      apiURL: '',
+      apiURLActivated: false,
+
+      syncURL: '',
+      syncURLActivated: false,
     }
   },
   emits: ['error', 'success'],
@@ -63,30 +120,105 @@ export default {
         this.hostActivated = true
       }
     },
+    webURL(n) {
+      if (n.length > 0) {
+        this.webURLActivated = true
+      }
+    },
+    apiURL(n) {
+      if (n.length > 0) {
+        this.apiURLActivated = true
+      }
+    },
+    syncURL(n) {
+      if (n.length > 0) {
+        this.syncURLActivated = true
+      }
+    },
   },
   computed: {
+    activated() {
+      return (
+        this.titleActivated ||
+        this.hostActivated ||
+        this.webURLActivated ||
+        this.apiURLActivated ||
+        this.syncURLActivated
+      )
+    },
+
     isTitleWarning() {
-      return this.titleActivated && !this.isTitleValid
+      return this.activated && !this.isTitleValid
     },
     isTitleValid() {
       return this.title.length > 0
     },
 
     isHostWarning() {
-      return this.hostActivated && !this.isHostValid
+      return this.activated && !this.isHostValid
     },
     isHostValid() {
-      return this.host.length > 0
+      try {
+        new URL(this.host)
+        return true
+      } catch {
+        return false
+      }
+    },
+
+    isWebURLWarning() {
+      return this.activated && !this.isWebURLValid
+    },
+    isWebURLValid() {
+      try {
+        new URL(this.webURL)
+        return true
+      } catch {
+        return false
+      }
+    },
+
+    isAPIURLWarning() {
+      return this.activated && !this.isAPIURLValid
+    },
+    isAPIURLValid() {
+      try {
+        new URL(this.apiURL)
+        return true
+      } catch {
+        return false
+      }
+    },
+
+    isSyncURLWarning() {
+      return this.activated && !this.isSyncURLValid
+    },
+    isSyncURLValid() {
+      try {
+        new URL(this.syncURL)
+        return true
+      } catch {
+        return false
+      }
     },
 
     isValid() {
-      return this.isTitleValid && this.isHostValid
+      return this.isDetailed
+        ? this.isTitleValid && this.isWebURLValid && this.isAPIURLValid && this.isSyncURLValid
+        : this.isTitleValid && this.isHostValid
     },
     hostConfig() {
-      return {
-        title: this.title,
-        host: this.host,
-      }
+      return this.isDetailed
+        ? {
+            title: this.title,
+            webURL: this.webURL,
+            apiURL: this.apiURL,
+            syncURL: this.syncURL,
+          }
+        : {
+            title: this.title,
+            host: this.host,
+          }
     },
   },
   methods: {
@@ -108,10 +240,16 @@ export default {
     resetActivated() {
       this.titleActivated = false
       this.hostActivated = false
+      this.webURLActivated = false
+      this.apiURLActivated = false
+      this.syncURLActivated = false
     },
     resetValues() {
       this.title = ''
       this.host = ''
+      this.webURL = ''
+      this.apiURL = ''
+      this.syncURL = ''
     },
   },
 }
