@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
@@ -12,7 +13,8 @@ import (
 )
 
 type Configuration struct {
-	Production bool `long:"production" description:"Production mode"`
+	Production bool   `long:"production" description:"Production mode"`
+	Level      string `long:"level" default:"WARN" description:"Log level (INFO, WARN, ERROR)"`
 }
 
 var (
@@ -21,13 +23,6 @@ var (
 			zapprometheus.Hook,
 		),
 	}
-
-	highPriority = zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= zapcore.ErrorLevel
-	})
-	lowPriority = zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl < zapcore.ErrorLevel
-	})
 
 	consoleDebugging = zapcore.Lock(os.Stdout)
 	consoleErrors    = zapcore.Lock(os.Stderr)
@@ -47,10 +42,32 @@ var (
 	}
 )
 
-func New(cfg *Configuration, sentryClient *raven.Client) *zap.Logger {
+func New(cfg *Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
 	encoderConfig := encoderConfigByEnv[cfg.Production]()
 	isTeminal := term.IsTerminal(int(os.Stdout.Fd()))
 	encoder := encoderByTerminal[isTeminal](encoderConfig)
+
+	loglevel := zapcore.InfoLevel
+	switch cfg.Level {
+	case "INFO":
+		loglevel = zapcore.InfoLevel
+	case "WARN":
+		loglevel = zapcore.WarnLevel
+	case "ERROR":
+		loglevel = zapcore.ErrorLevel
+	default:
+		return nil, fmt.Errorf("unexpected log level: %s (must be one of INFO, WARN, or ERROR)", cfg.Level)
+	}
+
+	atomicLevel := zap.NewAtomicLevelAt(loglevel)
+
+	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return atomicLevel.Enabled(lvl) && lvl >= zapcore.ErrorLevel
+	})
+	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return atomicLevel.Enabled(lvl) && lvl < zapcore.ErrorLevel
+	})
+
 	cores := []zapcore.Core{
 		zapcore.NewCore(encoder, consoleDebugging, lowPriority),
 		zapcore.NewCore(encoder, consoleErrors, highPriority),
@@ -58,5 +75,6 @@ func New(cfg *Configuration, sentryClient *raven.Client) *zap.Logger {
 	if cfg.Production {
 		cores = append(cores, &sentryCore{LevelEnabler: highPriority, sentryClient: sentryClient})
 	}
-	return zap.New(zapcore.NewTee(cores...), options...)
+
+	return zap.New(zapcore.NewTee(cores...), options...), nil
 }
