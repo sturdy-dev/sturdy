@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lib/pq"
-
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/presence"
 	db_presence "getsturdy.com/api/pkg/presence/db"
@@ -37,24 +35,16 @@ func New(presenceRepo db_presence.PresenceRepository, eventSender events.EventSe
 func (p *service) Record(ctx context.Context, userID users.ID, workspaceID string, state presence.State) (*presence.Presence, error) {
 	pre, err := p.presenceRepo.GetByUserAndWorkspace(ctx, userID, workspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
-		newPresence := presence.Presence{
+		newPresence := &presence.Presence{
 			ID:           uuid.NewString(),
 			UserID:       userID,
 			WorkspaceID:  workspaceID,
 			LastActiveAt: time.Now(),
 			State:        state,
 		}
-		if err := p.presenceRepo.Create(ctx, newPresence); err != nil {
-			var pqErr pq.Error
-			if errors.As(err, &pqErr) {
-				// Another thread attempted to insert presence for this user/workspace combination in parallel.
-				// Allow it to happen. :-)
-				if pqErr.Code.Name() == "unique_violation" {
-					return &newPresence, nil
-				}
-				return nil, fmt.Errorf("failed to create new presence (code=%s): %w", pqErr.Code.Name(), err)
-			}
 
+		// There might be a data race here, hence - upsert.
+		if err := p.presenceRepo.Upsert(ctx, newPresence); err != nil {
 			return nil, fmt.Errorf("failed to create new presence: %w", err)
 		}
 
@@ -63,8 +53,7 @@ func (p *service) Record(ctx context.Context, userID users.ID, workspaceID strin
 			return nil, fmt.Errorf("failed to send presence event: %w", err)
 		}
 
-		return &newPresence, nil
-
+		return newPresence, nil
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to record presence: %w", err)
 	}

@@ -13,8 +13,8 @@ import (
 type PresenceRepository interface {
 	GetByUserAndWorkspace(ctx context.Context, userID users.ID, workspaceID string) (*presence.Presence, error)
 	ListByWorkspace(ctx context.Context, workspaceID string) ([]*presence.Presence, error)
-	Create(ctx context.Context, p presence.Presence) error
-	Update(ctx context.Context, p *presence.Presence) error
+	Upsert(context.Context, *presence.Presence) error
+	Update(context.Context, *presence.Presence) error
 }
 
 type repo struct {
@@ -41,8 +41,15 @@ func (r *repo) ListByWorkspace(ctx context.Context, workspaceID string) ([]*pres
 	return res, nil
 }
 
-func (r *repo) Create(ctx context.Context, p presence.Presence) error {
-	if _, err := r.db.NamedExecContext(ctx, `INSERT INTO presence (id, user_id, workspace_id, last_active_at, state) VALUES(:id, :user_id, :workspace_id, :last_active_at, :state)`, p); err != nil {
+func (r *repo) Upsert(ctx context.Context, p *presence.Presence) error {
+	if _, err := r.db.NamedExecContext(ctx, `
+			INSERT INTO presence 
+				(id, user_id, workspace_id, last_active_at, state)
+			VALUES
+				(:id, :user_id, :workspace_id, :last_active_at, :state)
+			ON CONFLICT (user_id, workspace_id) 
+				DO UPDATE SET last_active_at = :last_active_at, state = :state
+	`, p); err != nil {
 		return fmt.Errorf("failed to Create: %w", err)
 	}
 	return nil
