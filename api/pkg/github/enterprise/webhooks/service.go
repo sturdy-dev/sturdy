@@ -362,6 +362,7 @@ func (svc *Service) updateExistingPullRequest(
 		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("workspace_id", ws.ID),
 		analytics.Property("github", true),
+		analytics.Property("importing", pr.Importing),
 	)
 
 	// send change to ci
