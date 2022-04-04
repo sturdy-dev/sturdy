@@ -36,16 +36,14 @@ func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolve
 	}
 
 	if view.UserID != ws.UserID {
-		return r.CopyWorkspaceToView(ctx, resolvers.CopyViewArgs{Input: resolvers.CopyWorkspaceOnViewInput{
-			ViewID:      args.Input.ViewID,
-			WorkspaceID: args.Input.WorkspaceID,
-		}})
-	} else {
-		if err := r.viewService.OpenWorkspace(ctx, view, ws); errors.Is(err, service.ErrRebasing) {
-			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
-		} else if err != nil {
-			return nil, gqlerrors.Error(err)
-		}
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "You can only open your own workspaces. Start a suggestion to open someone elses workspace.")
 	}
+
+	if err := r.viewService.OpenWorkspace(ctx, view, ws); errors.Is(err, service.ErrRebasing) {
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
+	} else if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	return r.resolveView(ctx, args.Input.ViewID)
 }
