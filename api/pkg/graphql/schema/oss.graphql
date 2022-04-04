@@ -73,12 +73,6 @@ type Query {
 type Mutation {
   # Opens a workspace on a a View (a connection to a user workstation)
   openWorkspaceOnView(input: OpenWorkspaceOnViewInput!): View!
-    # Opens a copy of a workspace to a view.
-    # This can by all members of a codebase, and not only the workspaces owner.
-    @deprecated(
-      reason: "All usages of this API have been replaced by openWorkspaceOnView. This API will soon be deleted."
-    )
-  copyWorkspaceToView(input: CopyWorkspaceToViewInput!): View!
 
   # Experimental
   repairView(id: ID!): View!

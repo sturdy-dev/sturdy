@@ -3,9 +3,10 @@ package resolvers
 import (
 	"context"
 
+	"github.com/graph-gophers/graphql-go"
+
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
-	"github.com/graph-gophers/graphql-go"
 )
 
 type ViewRootResolver interface {
@@ -17,7 +18,6 @@ type ViewRootResolver interface {
 
 	// Mutations
 	OpenWorkspaceOnView(ctx context.Context, args OpenViewArgs) (ViewResolver, error)
-	CopyWorkspaceToView(ctx context.Context, args CopyViewArgs) (ViewResolver, error)
 	RepairView(ctx context.Context, args struct{ ID graphql.ID }) (ViewResolver, error)
 	CreateView(ctx context.Context, args CreateViewArgs) (ViewResolver, error)
 
