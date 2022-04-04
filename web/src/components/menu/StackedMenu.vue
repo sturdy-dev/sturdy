@@ -57,7 +57,7 @@
                 ? 'bg-warmgray-50  hover:text-gray-900'
                 : 'hover:bg-warmgray-100  hover:text-gray-900',
 
-              'flex items-center pl-3 pr-1 py-2 text-sm font-medium rounded-md mx-1 justify-between transition whitespace-nowrap space-x-2 h-10 cursor-pointer text-gray-700 my-0.5',
+              'flex items-center pl-3 pr-1 py-2 text-sm font-semibold rounded-md mx-1 justify-between transition whitespace-nowrap space-x-2 h-10 cursor-pointer text-gray-700 my-0.5',
             ]"
           >
             <span class="flex-1 overflow-hidden text-ellipsis flex-shrink-0">
