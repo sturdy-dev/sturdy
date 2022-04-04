@@ -260,7 +260,11 @@ export default {
           name: 'Token',
           value: 'Choose "Send an HMAC signature in the X-Buildkite-Signature header"',
         },
-        { name: 'Events', value: 'pine, build.scheduled, build.running, build.finished' },
+        {
+          name: 'Events',
+          value:
+            'ping, build.scheduled, build.running, build.finished, job.scheduled, job.running, job.finished, job.activated',
+        },
       ]
     },
 
