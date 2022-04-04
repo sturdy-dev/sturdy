@@ -115,7 +115,11 @@ func WebhookHandler(
 			return
 		}
 
-		logger := logger.With(zap.String("pipeline_repository", *payload.Pipeline.Repository), zap.String("x-buildkite-signature", c.GetHeader("X-Buildkite-Signature")))
+		logger := logger.With(
+			zap.String("pipeline_repository", *payload.Pipeline.Repository),
+			zap.String("x-buildkite-signature", c.GetHeader("X-Buildkite-Signature")),
+			zap.String("x-buildkite-event", c.GetHeader("X-Buildkite-Event")),
+		)
 
 		// Parse the pipeline URL, to extract service token
 		pipelineUrl, err := url.Parse(*payload.Pipeline.Repository)
