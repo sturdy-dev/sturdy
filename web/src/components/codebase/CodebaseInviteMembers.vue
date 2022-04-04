@@ -48,7 +48,10 @@
         <li v-for="member in data.codebase.directMembers" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
           <div class="ml-3 flex flex-col flex-1">
-            <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
+            <span class="text-sm font-medium text-gray-900">
+              {{ member.name }}
+              <Pill v-if="!isActive(member.status)" color="gray">Pending invitation</Pill>
+            </span>
             <span class="text-sm text-gray-500">{{ member.email }}</span>
           </div>
 
@@ -83,7 +86,10 @@
           <li v-for="member in data.codebase.indirectMembers" :key="member.id" class="py-4 flex">
             <Avatar :author="member" size="10" />
             <div class="ml-3 flex flex-col">
-              <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
+              <span class="text-sm font-medium text-gray-900">
+                {{ member.name }}
+                <Pill v-if="!isActive(member.status)" color="gray">Pending invitation</Pill>
+              </span>
               <span class="text-sm text-gray-500">{{ member.email }}</span>
             </div>
           </li>
@@ -96,6 +102,7 @@
 <script lang="ts">
 import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import Avatar from '../../atoms/Avatar.vue'
+import Pill from '../../atoms/Pill.vue'
 import { gql, useQuery } from '@urql/vue'
 import { defineComponent } from 'vue'
 import type {
@@ -105,9 +112,10 @@ import type {
 import { useAddUserToCodebase } from '../../mutations/useAddUserToCodebase'
 import { useRemoveUserFromCodebase } from '../../mutations/useRemoveUserFromCodebase'
 import Button from '../../atoms/Button.vue'
+import { UserStatus } from '../../__generated__/types'
 
 export default defineComponent({
-  components: { Avatar, Button },
+  components: { Avatar, Button, Pill },
   props: ['codebaseID', 'showHeader'],
   setup(props) {
     let { data, executeQuery } = useQuery<
@@ -125,6 +133,7 @@ export default defineComponent({
               email
               name
               avatarUrl
+              status
             }
 
             indirectMembers: members(filterDirectAccess: false) {
@@ -132,6 +141,7 @@ export default defineComponent({
               email
               name
               avatarUrl
+              status
             }
 
             writeable
@@ -204,6 +214,9 @@ export default defineComponent({
           })
         })
         .finally(this.refresh)
+    },
+    isActive(status: UserStatus) {
+      return status == UserStatus.Active
     },
   },
 })
