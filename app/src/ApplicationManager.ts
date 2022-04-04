@@ -26,7 +26,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
 
   readonly #mutagenExecutable: MutagenExecutable
   readonly #postHogToken: string
-  readonly #isAppPackaged: boolean
   readonly #protocol: string
   readonly #logger: Logger
   readonly #daemon: MutagenDaemon
@@ -35,7 +34,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
 
   constructor(
     postHogToken: string,
-    isAppPackaged: boolean,
     protocol: string,
     logger: Logger,
     status: Status,
@@ -71,7 +69,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
 
     this.#mutagenExecutable = mutagenExecutable
     this.#postHogToken = postHogToken
-    this.#isAppPackaged = isAppPackaged
     this.#protocol = protocol
     this.#logger = logger
     this.#daemon = daemon
@@ -105,7 +102,6 @@ export class ApplicationManager extends TypedEventEmitter<ApplicationManagerEven
       host,
       mutagenExecutable: this.#mutagenExecutable,
       postHogToken: this.#postHogToken,
-      isAppPackaged: this.#isAppPackaged,
       protocol: this.#protocol,
       status: this.#status,
       logger: this.#logger,

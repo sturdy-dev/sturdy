@@ -80,14 +80,7 @@ contextMenu({
 
 const status = new Status(logger)
 
-const manager = new ApplicationManager(
-  postHogToken,
-  app.isPackaged,
-  protocol,
-  logger,
-  status,
-  logsDir
-)
+const manager = new ApplicationManager(postHogToken, protocol, logger, status, logsDir)
 
 app.on('window-all-closed', () => {
   // Don't do anything

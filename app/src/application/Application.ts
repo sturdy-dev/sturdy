@@ -19,7 +19,6 @@ interface ApplicationEvents {
 export class Application extends TypedEventEmitter<ApplicationEvents> {
   readonly #host: Host
   readonly #auth: Auth
-  readonly #isAppPackaged: boolean
   readonly #protocol: string
   readonly #mutagenManager: MutagenManager
   readonly #postHogTracker: PostHogTracker
@@ -32,7 +31,6 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
   private constructor(
     host: Host,
     auth: Auth,
-    isAppPackaged: boolean,
     protocol: string,
     mutagenManager: MutagenManager,
     postHogTracker: PostHogTracker,
@@ -42,7 +40,6 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     super()
     this.#host = host
     this.#auth = auth
-    this.#isAppPackaged = isAppPackaged
     this.#protocol = protocol
     this.#postHogTracker = postHogTracker
     this.#mutagenManager = mutagenManager
@@ -54,7 +51,6 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     host,
     mutagenExecutable,
     postHogToken,
-    isAppPackaged,
     protocol,
     logger,
     daemon,
@@ -63,7 +59,6 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
     host: Host
     mutagenExecutable: MutagenExecutable
     postHogToken: string
-    isAppPackaged: boolean
     protocol: string
     logger: Logger
     daemon: MutagenDaemon
@@ -133,16 +128,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       mutagenManager.start()
     }
 
-    return new Application(
-      host,
-      auth,
-      isAppPackaged,
-      protocol,
-      mutagenManager,
-      postHogTracker,
-      status,
-      logger
-    )
+    return new Application(host, auth, protocol, mutagenManager, postHogTracker, status, logger)
   }
 
   async close() {
