@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts">
+import type { DeepMaybeRef } from '@vueuse/core'
 import { defineComponent, inject, ref, computed } from 'vue'
 import type { PropType, Ref } from 'vue'
 import { BellIcon as BellIconSolid } from '@heroicons/vue/solid'
@@ -201,7 +202,7 @@ export default defineComponent({
 
     let { data, fetching, error, executeQuery } = useQuery<
       NotificationIconQuery,
-      NotificationIconQueryVariables
+      DeepMaybeRef<NotificationIconQueryVariables>
     >({
       query: gql`
         query NotificationIcon($isGitHubEnabled: Boolean!) {
@@ -273,6 +274,9 @@ export default defineComponent({
       if (notifications) {
         this.sendNotifications(notifications)
       }
+    },
+    nonArchivedNotifications: function (unreadNotifications) {
+      if (window?.ipc?.setBadgeCount) window.ipc.setBadgeCount(unreadNotifications?.length)
     },
   },
   methods: {

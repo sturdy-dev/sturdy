@@ -21,6 +21,7 @@ interface IPC {
   isMinimized: () => Promise<boolean>
   isMaximized: () => Promise<boolean>
   isNormal: () => Promise<boolean>
+  setBadgeCount: (count: number) => Promise<boolean>
 }
 
 interface AppEnvironment {
