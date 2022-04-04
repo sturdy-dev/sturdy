@@ -12,7 +12,7 @@
             :key="page.id"
             :href="`#${page.id}`"
             class="flex flex-inline font-medium hover:bg-gray-200 rounded-md p-2 cursor-pointer"
-            @click="() => (this.selected = page)"
+            @click="onPageSelected(page)"
           >
             {{ page.title }}
           </span>
@@ -49,6 +49,11 @@ export default {
       pages,
       selected,
     }
+  },
+  methods: {
+    onPageSelected: function (page) {
+      this.selected = page
+    },
   },
 }
 </script>

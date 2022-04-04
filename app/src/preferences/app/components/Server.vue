@@ -10,7 +10,7 @@
     <td
       v-for="field in fields"
       :key="field"
-      class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900"
+      class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-ellipsis overflow-hidden"
     >
       {{ field }}
     </td>
@@ -56,6 +56,10 @@ export default {
     ServerStatus,
   },
   props: {
+    isDetailed: {
+      type: Boolean,
+      default: false,
+    },
     server: {
       type: Object,
       required: true,
@@ -67,10 +71,20 @@ export default {
   },
   computed: {
     fields() {
-      if (this.server.host) {
-        return [this.server.title, this.server.host]
-      }
-      return [this.server.title, new URL(this.server.webURL).host]
+      const isServerActuallyDetailed = !!this.server.apiURL
+      const displayDetailed = this.isDetailed
+      return isServerActuallyDetailed
+        ? displayDetailed
+          ? [this.server.title, this.server.webURL, this.server.apiURL, this.server.syncURL]
+          : [this.server.title, this.server.webURL]
+        : displayDetailed
+        ? [
+            this.server.title,
+            this.server.host,
+            this.server.host,
+            this.server.host.replace('https', 'ssh').replace('http', 'ssh'),
+          ]
+        : [this.server.title, this.server.host]
     },
     isImmutable() {
       return {

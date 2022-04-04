@@ -86,10 +86,20 @@ type Config = {
 
 type migration = (cfg: Config) => Config
 
+const setSelfHostedScheme: migration = (cfg: Config) => ({
+  ...cfg,
+  hosts: cfg.hosts.map((host) => {
+    if (host.title !== 'Self-hosted') {
+      return host
+    }
+    return { title: host.title, host: 'http://localhost:30080' }
+  }),
+})
+
 const updateSelfHosted: migration = (cfg: Config) => ({
   ...cfg,
   hosts: cfg.hosts.map((host) => {
-    if (host.title !== 'Self Hosted') {
+    if (host.title !== 'Self-hosted') {
       return host
     }
     return { title: host.title, host: 'locahost:30080' }
@@ -101,10 +111,11 @@ const setDefaultUpdateChannel: migration = (cfg: Config) => ({
   channel: 'latest',
 })
 
-const migrations: Record<string, migration> = {
-  'update-default-selfhosted-url': updateSelfHosted,
-  'set-default-update-channel': setDefaultUpdateChannel,
-}
+const migrations: { title: string; migrate: migration }[] = [
+  { title: 'update-default-selfhosted-url', migrate: updateSelfHosted },
+  { title: 'set-default-update-channel', migrate: setDefaultUpdateChannel },
+  { title: 'set-selfhosted-scheme', migrate: setSelfHostedScheme },
+]
 
 const development: HostConfig = {
   title: 'Development',
@@ -222,20 +233,20 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
   }
 
   static async migrate(logger: Logger, cfg: Config): Promise<Config> {
-    const migrationsToApply = Object.entries(migrations).filter(
-      ([key, _]) => !cfg.appliedMigrations?.includes(key)
+    const migrationsToApply = migrations.filter(
+      ({ title }) => !cfg.appliedMigrations?.includes(title)
     )
     if (migrationsToApply.length === 0) {
       return cfg
     }
 
-    cfg = migrationsToApply.reduce((cfg, [migrationName, migrate]) => {
-      logger.log(`applying ${migrationName}`)
+    cfg = migrationsToApply.reduce((cfg, { title, migrate }) => {
+      logger.log(`applying ${title}`)
       cfg = migrate(cfg)
       if (cfg.appliedMigrations) {
-        cfg.appliedMigrations.push(migrationName)
+        cfg.appliedMigrations.push(title)
       } else {
-        cfg.appliedMigrations = [migrationName]
+        cfg.appliedMigrations = [title]
       }
       return cfg
     }, cfg)
@@ -350,12 +361,12 @@ export class Preferences extends TypedEventEmitter<PreferencesEvents> {
 
   #newWindow() {
     const windowState = ElectronWindowState({
+      defaultWidth: 1048,
       defaultHeight: 320,
-      defaultWidth: 640,
       file: 'preference-window.json',
     })
     const window = new BrowserWindow({
-      minWidth: 640,
+      minWidth: 1048,
       minHeight: 320,
       ...windowState,
       webPreferences: {
