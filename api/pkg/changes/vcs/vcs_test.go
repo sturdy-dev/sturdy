@@ -54,15 +54,8 @@ func TestCreateAndLandFromView(t *testing.T) {
 	repo, err := repoProvider.ViewRepo(codebaseID, viewID)
 	assert.NoError(t, err)
 
-	// calculate patch ids
 	diffs := getDiffs(t, repo)
 	assert.Len(t, diffs, 1)
-	patchIDs := []string{}
-	for _, diff := range diffs {
-		for _, hunk := range diff.Hunks {
-			patchIDs = append(patchIDs, hunk.ID)
-		}
-	}
 
 	// create change from view
 	commitID, pushFunc, err := vcs_change.CreateAndLandFromView(
@@ -70,7 +63,6 @@ func TestCreateAndLandFromView(t *testing.T) {
 		zap.NewNop(),
 		codebaseID,
 		workspaceID,
-		patchIDs,
 		"commit message",
 		sig,
 	)

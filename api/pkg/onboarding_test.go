@@ -29,6 +29,7 @@ import (
 	service_gc "getsturdy.com/api/pkg/gc/service"
 	module_github "getsturdy.com/api/pkg/github/module"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
+	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	module_remote "getsturdy.com/api/pkg/remote/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -529,6 +530,125 @@ func TestCreate(t *testing.T) {
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
 		assert.NoError(t, err)
+	}
+}
+
+func TestLandEmpty(t *testing.T) {
+	if os.Getenv("E2E_TEST") == "" {
+		t.SkipNow()
+	}
+
+	type deps struct {
+		dig.In
+		UserRepo              db_user.Repository
+		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		CodebaseService       *service_codebase.Service
+		WorkspaceService      service_workspace.Service
+		RepoProvider          provider.RepoProvider
+
+		// Dependencies of Gin Routes
+		CodebaseUserRepo db_codebases.CodebaseUserRepository
+		WorkspaceRepo    db_workspaces.Repository
+		ViewRepo         db_view.Repository
+		ExecutorProvider executor.Provider
+		ViewService      *service_view.Service
+
+		Logger           *zap.Logger
+		AnalyticsService *service_analytics.Service
+	}
+
+	var d deps
+	if !assert.NoError(t, di.Init(&d, module)) {
+		t.FailNow()
+	}
+
+	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
+	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
+
+	createUser := users.User{ID: users.ID(uuid.New().String()), Name: "Test", Email: uuid.New().String() + "@getsturdy.com"}
+	assert.NoError(t, d.UserRepo.Create(&createUser))
+
+	authenticatedUserContext := gqldataloader.NewContext(auth.NewContext(context.Background(), &auth.Subject{Type: auth.SubjectUser, ID: createUser.ID.String()}))
+
+	// Create a codebase
+	var codebaseRes codebases.Codebase
+	request(t, createUser.ID, createCodebaseRoute, routes_v3_codebase.CreateRequest{Name: "testrepo"}, &codebaseRes)
+	assert.Len(t, codebaseRes.ID, 36)
+	assert.Equal(t, "testrepo", codebaseRes.Name)
+	assert.True(t, codebaseRes.IsReady, "codebase is ready")
+
+	// Create a workspace
+	var workspaceResult workspaces.Workspace
+	request(t, createUser.ID, createWorkspaceRoute, routes_v3_workspace.CreateRequest{
+		CodebaseID: codebaseRes.ID,
+	}, &workspaceResult)
+	assert.Len(t, workspaceResult.ID, 36)
+	workspaceID := workspaceResult.ID
+
+	// Create a view
+	var viewRes view.View
+	request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
+		CodebaseID:    codebaseRes.ID,
+		WorkspaceID:   workspaceID,
+		MountPath:     "~/testing",
+		MountHostname: "testing.ftw",
+	}, &viewRes)
+	assert.Len(t, viewRes.ID, 36)
+	assert.True(t, viewRes.CreatedAt.After(time.Now().Add(time.Second*-5)))
+
+	// Get diff
+	{
+		diffs, _, err := d.WorkspaceService.Diffs(context.Background(), workspaceID)
+		assert.NoError(t, err)
+		assert.Empty(t, diffs)
+	}
+
+	// Set workspace draft description
+	_, err := d.WorkspaceRootResolver.UpdateWorkspace(authenticatedUserContext, resolvers.UpdateWorkspaceArgs{Input: resolvers.UpdateWorkspaceInput{
+		ID:               graphql.ID(workspaceID),
+		DraftDescription: str("This is my first change"),
+	}})
+	assert.NoError(t, err)
+
+	// Apply and land
+	_, err = d.WorkspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceID),
+	}})
+	assert.ErrorIs(t, err, gqlerror.ErrInternalServer)
+
+	repo, err := d.RepoProvider.ViewRepo(codebaseRes.ID, viewRes.ID)
+	assert.NoError(t, err)
+
+	{
+		hb, err := repo.HeadBranch()
+		assert.NoError(t, err)
+		assert.Equal(t, hb, workspaceID)
+	}
+
+	// Make some change, should be able to land it now
+	viewPath := d.RepoProvider.ViewPath(codebaseRes.ID, viewRes.ID)
+	err = ioutil.WriteFile(path.Join(viewPath, "hello-world.txt"), []byte("hello\n"), 0o666)
+	assert.NoError(t, err)
+
+	// Get diff
+	{
+		diffs, _, err := d.WorkspaceService.Diffs(context.Background(), workspaceID)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, diffs)
+	}
+
+	// Apply and land
+	_, err = d.WorkspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		WorkspaceID: graphql.ID(workspaceID),
+	}})
+	assert.NoError(t, err)
+
+	// Should be on a new branch now
+	{
+		hb, err := repo.HeadBranch()
+		assert.NoError(t, err)
+		assert.NotEqual(t, hb, workspaceID)
 	}
 }
 

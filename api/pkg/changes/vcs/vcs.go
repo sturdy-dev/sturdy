@@ -25,7 +25,6 @@ func CreateAndLandFromView(
 	logger *zap.Logger,
 	codebaseID codebases.ID,
 	workspaceID string,
-	patchIDs []string,
 	message string,
 	signature git.Signature,
 	diffOpts ...vcs.DiffOption,
@@ -49,6 +48,7 @@ func CreateAndLandFromView(
 		if err == nil {
 			return
 		}
+
 		// if something went wrong, restore the view to how it was
 		logger.Error("create and land failed, trying to restore", zap.Error(err))
 
@@ -72,7 +72,7 @@ func CreateAndLandFromView(
 		logger.Info("successfully restored view after failed landing")
 	}()
 
-	createdCommitID, err := CreateChangeFromPatchesOnRepo(logger, viewRepo, codebaseID, patchIDs, message, signature, diffOpts...)
+	createdCommitID, err := CreateChangeFromPatchesOnRepo(logger, viewRepo, codebaseID, nil, message, signature, diffOpts...)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create the new change: %w", err)
 	}
