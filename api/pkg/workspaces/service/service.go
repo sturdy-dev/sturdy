@@ -535,7 +535,6 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 			s.logger,
 			ws.CodebaseID,
 			ws.ID,
-			nil,
 			gitCommitMessage,
 			signature,
 			diffOpts...,
