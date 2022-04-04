@@ -263,7 +263,14 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string) (*codebases.CodebaseUser, error) {
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("could not get user: %w", err)
+		userID, err := auth.UserID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		userReferer := service_user.UserReferer(userID)
+		if inviteUser, err = svc.userService.CreateShadow(ctx, email, userReferer, nil); err != nil {
+			return nil, fmt.Errorf("could not get or create user: %w", err)
+		}
 	}
 	return svc.AddUser(ctx, codebaseID, inviteUser)
 }

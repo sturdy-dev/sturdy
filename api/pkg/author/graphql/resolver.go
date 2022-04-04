@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"fmt"
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
@@ -37,6 +38,17 @@ func (r *AuthorRootResolver) InternalAuthorFromNameAndEmail(_ context.Context, n
 
 type AuthorResolver struct {
 	user *users.User
+}
+
+func (r *AuthorResolver) Status() (resolvers.UserStatus, error) {
+	switch r.user.Status {
+	case users.StatusActive:
+		return resolvers.UserStatusActive, nil
+	case users.StatusShadow:
+		return resolvers.UserStatusShadow, nil
+	default:
+		return resolvers.UserStatusUndefined, gqlerrors.Error(fmt.Errorf("unknown status: %s", r.user.Status))
+	}
 }
 
 func (r *AuthorResolver) ID() graphql.ID {

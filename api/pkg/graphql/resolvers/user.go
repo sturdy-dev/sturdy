@@ -38,12 +38,21 @@ type VerifyEmailInput struct {
 	Token string
 }
 
+type UserStatus string
+
+const (
+	UserStatusUndefined UserStatus = ""
+	UserStatusActive    UserStatus = "Active"
+	UserStatusShadow    UserStatus = "Shadow"
+)
+
 type UserResolver interface {
 	ID() graphql.ID
 	Name() string
 	Email() string
 	EmailVerified() bool
 	AvatarUrl() *string
+	Status() (UserStatus, error)
 	NotificationPreferences(context.Context) ([]NotificationPreferenceResolver, error)
 	GitHubAccount(context.Context) (GitHubAccountResolver, error)
 	NotificationsReceiveNewsletter() (bool, error)

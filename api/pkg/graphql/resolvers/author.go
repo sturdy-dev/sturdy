@@ -20,4 +20,5 @@ type AuthorResolver interface {
 	Name() string
 	AvatarUrl() *string
 	Email() string
+	Status() (UserStatus, error)
 }

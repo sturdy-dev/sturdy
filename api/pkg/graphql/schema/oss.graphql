@@ -251,6 +251,7 @@ type Author {
   avatarUrl: String
   email: String!
   name: String!
+  status: UserStatus!
 }
 
 enum NotificationChannel {
@@ -272,11 +273,17 @@ type User {
   email: String!
   emailVerified: Boolean!
   avatarUrl: String
+  status: UserStatus!
   notificationsReceiveNewsletter: Boolean!
   notificationPreferences: [NotificationPreference!]!
 
   views: [View!]!
   lastUsedView(codebaseID: ID!): View
+}
+
+enum UserStatus {
+  Active
+  Shadow
 }
 
 input UpdateUserInput {
