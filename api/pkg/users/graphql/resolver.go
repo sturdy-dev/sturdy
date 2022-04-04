@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
@@ -145,6 +146,17 @@ func (r *userRootResolver) VerifyEmail(_ context.Context, _ resolvers.VerifyEmai
 type userResolver struct {
 	root *userRootResolver
 	u    *users.User
+}
+
+func (r *userResolver) Status() (resolvers.UserStatus, error) {
+	switch r.u.Status {
+	case users.StatusActive:
+		return resolvers.UserStatusActive, nil
+	case users.StatusShadow:
+		return resolvers.UserStatusShadow, nil
+	default:
+		return resolvers.UserStatusUndefined, gqlerrors.Error(fmt.Errorf("unknown status: %s", r.u.Status))
+	}
 }
 
 func (r *userResolver) ID() graphql.ID {

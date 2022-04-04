@@ -10,7 +10,7 @@ import (
 
 func Test_UserReferer(t *testing.T) {
 	u := &users.User{ID: "testid"}
-	assert.Equal(t, "referer://users/testid", service_users.UserReferer(u).URL())
+	assert.Equal(t, "referer://users/testid", service_users.UserReferer(u.ID).URL())
 }
 
 func Test_GitHubPullRequestReferer(t *testing.T) {

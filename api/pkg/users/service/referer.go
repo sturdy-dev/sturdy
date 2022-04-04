@@ -30,18 +30,18 @@ func (ghpr *gitHubPullRequestReferer) URL() string {
 }
 
 type userReferer struct {
-	u *users.User
+	userID users.ID
 }
 
-func UserReferer(u *users.User) *userReferer {
-	return &userReferer{u: u}
+func UserReferer(userID users.ID) *userReferer {
+	return &userReferer{userID: userID}
 }
 
 func (ur *userReferer) URL() string {
 	u := url.URL{
 		Scheme: "referer",
 		Host:   "users",
-		Path:   ur.u.ID.String(),
+		Path:   ur.userID.String(),
 	}
 	return u.String()
 }
