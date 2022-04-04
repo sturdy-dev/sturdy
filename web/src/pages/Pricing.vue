@@ -544,6 +544,18 @@ const allSections: Section[] = [
         },
         show: showTrue,
       },
+
+      {
+        name: 'Sturdy for Git',
+        tiers: {
+          'Open Source': false,
+          Free: true,
+          Enterprise: true,
+          Cloud: true,
+        },
+        show: showTrue,
+      },
+
       {
         name: 'Buildkite',
         tiers: {
