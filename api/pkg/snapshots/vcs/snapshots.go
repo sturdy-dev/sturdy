@@ -213,10 +213,10 @@ func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID 
 	if err != nil {
 		return err
 	}
-	return RestoreRepo(logger, repo, codebaseID, workspaceID, snapshotID, snapshotCommitID)
+	return RestoreRepo(logger, repo, workspaceID, snapshotID, snapshotCommitID)
 }
 
-func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, codebaseID codebases.ID, workspaceID, snapshotID, snapshotCommitID string) error {
+func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, workspaceID, snapshotID, snapshotCommitID string) error {
 	if err := repo.FetchBranch("snapshot-" + snapshotID); err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}

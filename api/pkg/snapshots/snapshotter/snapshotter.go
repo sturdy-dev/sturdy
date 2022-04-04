@@ -34,6 +34,7 @@ type Snapshotter interface {
 	Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error)
 	Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error)
 	GetByID(context.Context, string) (*snapshots.Snapshot, error)
+	Restore(*snapshots.Snapshot, vcs.RepoWriter) error
 }
 
 type SnapshotOptions struct {
@@ -596,4 +597,14 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 	}
 
 	return newSnapshot, nil
+}
+
+func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error {
+	if snap.WorkspaceID == nil {
+		return errors.New("can't restore snapshot that's not on a workspace")
+	}
+	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, *snap.WorkspaceID, snap.ID, snap.CommitID); err != nil {
+		return fmt.Errorf("failed to restore: %w", err)
+	}
+	return nil
 }

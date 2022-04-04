@@ -9,113 +9,14 @@ import (
 	"path"
 
 	"getsturdy.com/api/pkg/codebases"
-	vcs_sync "getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	git "github.com/libgit2/git2go/v33"
 )
-
-func CreateAndLandFromView(
-	viewRepo vcs.RepoWriter,
-	logger *zap.Logger,
-	codebaseID codebases.ID,
-	workspaceID string,
-	message string,
-	signature git.Signature,
-	diffOpts ...vcs.DiffOption,
-) (string, func(vcs.RepoGitWriter) error, error) {
-	preCreateBranchHead, err := viewRepo.BranchCommitID(workspaceID)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to get branch head: %w", err)
-	}
-	creationBranchName := fmt.Sprintf("create-change-%s", uuid.NewString())
-
-	logger = logger.With(zap.String("creation_branch_name", creationBranchName))
-
-	if err := viewRepo.CreateNewBranchAt(creationBranchName, preCreateBranchHead); err != nil {
-		return "", nil, fmt.Errorf("failed to create new branch to use during creation: %w", err)
-	}
-	if err := viewRepo.CheckoutBranchSafely(creationBranchName); err != nil {
-		return "", nil, fmt.Errorf("failed to checkout the new branch: %w", err)
-	}
-
-	defer func() {
-		if err == nil {
-			return
-		}
-
-		// if something went wrong, restore the view to how it was
-		logger.Error("create and land failed, trying to restore", zap.Error(err))
-
-		if err := viewRepo.CheckoutBranchWithForce(creationBranchName); err != nil {
-			logger.Error("failed to checkout the creation branch", zap.Error(err))
-		}
-		if err := viewRepo.ResetMixed(preCreateBranchHead); err != nil {
-			logger.Error("failed to reset to the pre create head", zap.Error(err))
-		}
-		if err := viewRepo.MoveBranchToHEAD(workspaceID); err != nil {
-			logger.Error("failed to move the head", zap.Error(err))
-		}
-		if err := viewRepo.CheckoutBranchSafely(workspaceID); err != nil {
-			logger.Error("failed to checkout the workspace branch", zap.Error(err))
-		}
-		if err := viewRepo.LargeFilesPull(); err != nil {
-			// Log and continue (repo can have LFS files from outside of Sturdy)
-			logger.Warn("failed to pull large files", zap.Error(err))
-		}
-
-		logger.Info("successfully restored view after failed landing")
-	}()
-
-	createdCommitID, err := CreateChangeFromPatchesOnRepo(logger, viewRepo, codebaseID, nil, message, signature, diffOpts...)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to create the new change: %w", err)
-	}
-
-	if err = vcs_sync.FastLand(viewRepo, createdCommitID); err != nil {
-		return "", nil, fmt.Errorf("landing failed: %w", err)
-	}
-
-	// move the workspace branch to be the same as the new sturdytrunk
-	if err := viewRepo.MoveBranch(workspaceID, "sturdytrunk"); err != nil {
-		return "", nil, fmt.Errorf("failed to move workspace to new trunk: %w", err)
-	}
-
-	if err := viewRepo.CheckoutBranchWithForce(workspaceID); err != nil {
-		return "", nil, fmt.Errorf("failed to checkout workspace branch: %w", err)
-	}
-
-	// LFS Pull
-	if err := viewRepo.LargeFilesPull(); err != nil {
-		// Log and continue (repo can have LFS files from outside of Sturdy)
-		logger.Warn("failed to pull large files", zap.Error(err))
-	}
-
-	newBranchCommit, err := viewRepo.BranchCommitID(workspaceID)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to get commit after land: %w", err)
-	}
-
-	// will be executed once the new state has been recorded in the databases
-	pushFunc := func(viewRepo vcs.RepoGitWriter) error {
-		if err := viewRepo.Push(logger, "sturdytrunk"); err != nil {
-			return fmt.Errorf("push failed: %w", err)
-		}
-
-		if err := viewRepo.ForcePush(logger, workspaceID); err != nil {
-			return fmt.Errorf("failed to push updated workspace branch: %w", err)
-		}
-
-		return nil
-	}
-
-	return newBranchCommit, pushFunc, nil
-}
 
 func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
 	treeID, err := CreateChangesTreeFromPatches(logger, r, codebaseID, patchIDs, diffOpts...)

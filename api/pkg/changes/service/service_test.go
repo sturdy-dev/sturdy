@@ -10,17 +10,16 @@ import (
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 
-	module_change_db "getsturdy.com/api/pkg/changes/db"
+	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	module_configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/installations"
-	"getsturdy.com/api/pkg/internal/inmemory"
-	module_logger "getsturdy.com/api/pkg/logger/module"
+	module_github "getsturdy.com/api/pkg/github/module"
+	module_remote "getsturdy.com/api/pkg/remote/module"
+	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
-	module_vcs "getsturdy.com/api/vcs/module"
 	"getsturdy.com/api/vcs/provider"
 )
 
@@ -30,16 +29,13 @@ func module(c *di.Container) {
 		return ctx
 	})
 
-	c.Register(func() *installations.Installation {
-		return &installations.Installation{ID: uuid.NewString()}
-	})
-
-	c.Import(module_logger.Module)
-	c.Import(module_vcs.Module)
+	c.Import(module_api.TestingModule)
 	c.Import(module_configuration.TestingModule)
-	c.Import(module_change_db.TestModule)
-	c.Import(service.Module)
-	c.Import(inmemory.TestModule)
+	c.Import(module_snapshots.TestingModule)
+
+	// OSS version
+	c.Import(module_github.Module)
+	c.Import(module_remote.Module)
 }
 
 func TestChangelog(t *testing.T) {

@@ -45,6 +45,7 @@ const (
 	ActionFileIgnore                Action = "file_ignore"
 	ActionFileRevert                Action = "file_revert"
 	ActionChangeLand                Action = "change_land"
+	ActionPreChangeLand             Action = "pre_change_land"
 	ActionPreCheckoutOtherView      Action = "pre_checkout_other_view"
 	ActionPreCheckoutOtherWorkspace Action = "pre_checkout_other_workspace"
 	ActionWorkspaceExtract          Action = "workspace_extract"

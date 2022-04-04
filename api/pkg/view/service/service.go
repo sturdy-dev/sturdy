@@ -11,7 +11,6 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
@@ -110,7 +109,7 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 				if err != nil {
 					return fmt.Errorf("failed to get snapshot: %w", err)
 				}
-				if err := vcs2.RestoreRepo(s.logger, repo, ws.CodebaseID, ws.ID, snapshot.ID, snapshot.CommitID); err != nil {
+				if err := s.gitSnapshotter.Restore(snapshot, repo); err != nil {
 					return fmt.Errorf("failed to restore snapshot: %w", err)
 				}
 			} else {
