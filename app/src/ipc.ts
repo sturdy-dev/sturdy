@@ -64,6 +64,7 @@ export var sharedAppIpc = {
   isMaximized: new IPCMethod<[], boolean>('isMaximized'),
   isMinimized: new IPCMethod<[], boolean>('isMinimized'),
   isNormal: new IPCMethod<[], boolean>('isNormal'),
+  setBadgeCount: new IPCMethod<[number], boolean>('setBadgeCount'),
 }
 
 // IPC methods that are only available if there is a mutagen session
