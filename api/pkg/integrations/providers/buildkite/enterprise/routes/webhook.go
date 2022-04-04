@@ -148,13 +148,6 @@ func WebhookHandler(
 			}
 		}
 
-		statusType, ok := buildkiteStateToType[*payload.Build.State]
-		if !ok {
-			logger.Error("invalid status from buildkite", zap.Stringp("status", payload.Build.State))
-			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid status: %s", *payload.Build.State))
-			return
-		}
-
 		// Lookup trunk commit id
 		trunkCommitID, err := ciService.GetTrunkCommitID(c.Request.Context(), serviceToken.CodebaseID, *payload.Build.Commit)
 		if errors.Is(err, sql.ErrNoRows) {
@@ -166,16 +159,23 @@ func WebhookHandler(
 			return
 		}
 
-		// Set status
-		description := fmt.Sprintf("Build #%d %s", *payload.Build.Number, *payload.Build.State)
+		state := payload.State()
+		statusType, ok := buildkiteStateToType[state]
+		if !ok {
+			logger.Error("invalid status from buildkite", zap.String("status", state))
+			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid status: %s", state))
+			return
+		}
+		description := payload.Description()
+		webURL := payload.WebURL()
 		if err := statusesService.Set(c, &statuses.Status{
 			ID:          uuid.NewString(),
 			CommitID:    trunkCommitID,
 			CodebaseID:  serviceToken.CodebaseID,
 			Type:        statusType,
-			Title:       fmt.Sprintf("Buildkite: %s", *payload.Pipeline.Name),
+			Title:       payload.Title(),
 			Description: &description,
-			DetailsURL:  payload.Build.WebURL,
+			DetailsURL:  &webURL,
 			Timestamp:   time.Now(),
 		}); err != nil {
 			logger.Error("failed to update status", zap.Error(err))
@@ -248,5 +248,31 @@ func validateSingleSignature(buildkiteCfg *buildkite.Config, xBuildkiteSignature
 type webhookPayload struct {
 	Event    string      `json:"event"`
 	Build    bk.Build    `json:"build"`
+	Job      *bk.Job     `json:"job"`
 	Pipeline bk.Pipeline `json:"pipeline"`
+}
+
+func (p *webhookPayload) WebURL() string {
+	if p.Job != nil {
+		return p.Job.WebURL
+	}
+	return *p.Build.WebURL
+}
+
+func (p *webhookPayload) Title() string {
+	return fmt.Sprintf("Buildkite: %s", *p.Pipeline.Name)
+}
+
+func (p *webhookPayload) Description() string {
+	if p.Job != nil {
+		return fmt.Sprintf("%s %s", *p.Job.Name, *p.Job.State)
+	}
+	return *p.Build.State
+}
+
+func (p *webhookPayload) State() string {
+	if p.Job != nil {
+		return *p.Job.State
+	}
+	return *p.Build.State
 }
