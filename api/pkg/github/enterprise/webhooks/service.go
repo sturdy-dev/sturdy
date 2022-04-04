@@ -186,7 +186,7 @@ func (svc *Service) getPullRequestAuthor(ctx context.Context, repo *github.Repos
 
 	// make up email from the user's login, similar to what github does
 	// see https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-email-preferences/setting-your-commit-email-address
-	email := fmt.Sprintf("%d+%s@users.noreply.github.com.com", event.GetPullRequest().GetUser().GetID(), event.GetPullRequest().GetUser().GetLogin())
+	email := fmt.Sprintf("%d+%s@users.noreply.github.com", event.GetPullRequest().GetUser().GetID(), event.GetPullRequest().GetUser().GetLogin())
 	name := event.GetPullRequest().GetUser().GetLogin()
 	referer := service_users.GitHubPullRequestReferer(event.GetRepo().GetID(), event.GetPullRequest().GetID())
 	user, err := svc.usersService.CreateShadow(ctx, email, referer, &name)
