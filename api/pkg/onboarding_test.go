@@ -690,7 +690,7 @@ func TestLargeFiles(t *testing.T) {
 		ViewService      *service_view.Service
 
 		Logger           *zap.Logger
-		AnalyticsSerivce *service_analytics.Service
+		AnalyticsService *service_analytics.Service
 	}
 
 	var d deps
@@ -704,7 +704,7 @@ func TestLargeFiles(t *testing.T) {
 	workspaceRootResolver := d.WorkspaceRootResolver
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
-	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
+	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 
 	testCases := []struct {
 		name          string
