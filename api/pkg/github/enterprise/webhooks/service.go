@@ -327,7 +327,9 @@ func (svc *Service) updateExistingPullRequest(
 
 	if shouldUnarchive := pr.State == github.PullRequestStateOpen && pr.Importing; shouldUnarchive {
 		// if pr is open and not importing, unarchive it
-		return svc.workspaceService.Unarchive(ctx, ws)
+		if err := svc.workspaceService.Unarchive(ctx, ws); err != nil {
+			return fmt.Errorf("failed to unarchive workspace: %w", err)
+		}
 	}
 
 	if shouldUpdate := pr.State != github.PullRequestStateMerged; shouldUpdate {
