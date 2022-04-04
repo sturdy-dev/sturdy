@@ -40,47 +40,6 @@ func getDiffs(t *testing.T, repo vcs.RepoReader) []unidiff.FileDiff {
 	return diffs
 }
 
-func TestCreateAndLandFromView(t *testing.T) {
-	repoProvider := testutil.TestingRepoProvider(t)
-	codebaseID := codebases.ID("codebaseID")
-	workspaceID := "workspaceID"
-	viewID := "viewID"
-	setupCodebase(t, repoProvider, codebaseID, workspaceID, viewID)
-
-	// add a new file to the view
-	viewPath := repoProvider.ViewPath(codebaseID, viewID)
-	assert.NoError(t, os.WriteFile(path.Join(viewPath, "file"), []byte("content\n"), 0777))
-
-	repo, err := repoProvider.ViewRepo(codebaseID, viewID)
-	assert.NoError(t, err)
-
-	diffs := getDiffs(t, repo)
-	assert.Len(t, diffs, 1)
-
-	// create change from view
-	commitID, pushFunc, err := vcs_change.CreateAndLandFromView(
-		repo,
-		zap.NewNop(),
-		codebaseID,
-		workspaceID,
-		"commit message",
-		sig,
-	)
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
-
-	// push it
-	assert.NoError(t, pushFunc(repo))
-
-	// make sure it is pushed
-	trunk, err := repoProvider.TrunkRepo(codebaseID)
-	assert.NoError(t, err)
-	trunkHeadCommit, err := trunk.HeadCommit()
-	assert.NoError(t, err)
-	assert.Equal(t, commitID, trunkHeadCommit.Id().String())
-}
-
 func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
 	codebaseID := codebases.ID("codebaseID")

@@ -16,7 +16,6 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/changes/message"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	change_vcs "getsturdy.com/api/pkg/changes/vcs"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	service_comments "getsturdy.com/api/pkg/comments/service"
@@ -530,9 +529,8 @@ func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Worksp
 
 	var change *changes.Change
 	creteAndLand := func(viewRepo vcs.RepoWriter) error {
-		createdCommitID, fromViewPushFunc, err := change_vcs.CreateAndLandFromView(
+		createdCommitID, fromViewPushFunc, err := s.changeService.CreateAndLandFromView(
 			viewRepo,
-			s.logger,
 			ws.CodebaseID,
 			ws.ID,
 			gitCommitMessage,

@@ -11,7 +11,6 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/sync"
-	"getsturdy.com/api/pkg/sync/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
@@ -56,6 +55,8 @@ func New(
 		eventsPublisher:  eventsPublisher,
 	}
 }
+
+const unsavedCommitMessage = "Unsaved workspace changes"
 
 // OnTrunk starts a sync of the workspace on top of the current sturdytrunk
 // If the work in progress changes on the workspace conflicts with trunk, a conflicting sync.RebaseStatusResponse is returned
@@ -131,7 +132,7 @@ func (svc *Service) OnTrunk(ctx context.Context, ws *workspaces.Workspace) (*syn
 			When:  time.Now(),
 		}
 
-		unsavedCommitID, err := repo.CommitIndexTree(treeID, vcs.UnsavedCommitMessage, sig)
+		unsavedCommitID, err := repo.CommitIndexTree(treeID, unsavedCommitMessage, sig)
 		if err != nil {
 			return fmt.Errorf("failed to create commit with unsave changes: %w", err)
 		}
