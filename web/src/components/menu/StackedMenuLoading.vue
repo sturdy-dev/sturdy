@@ -19,7 +19,7 @@
     <div class="flex flex-col overflow-hidden text-ellipsis mb-4">
       <template v-for="(workspace, workspaceIdx) in codebase.workspaces" :key="workspaceIdx">
         <div
-          class="whitespace-nowrap text-gray-500 text-sm font-medium py-2 pl-2 pr-2 inline-flex items-center relative rounded-md my-0.5 mx-1 group"
+          class="whitespace-nowrap text-gray-500 text-sm font-medium py-2 pl-3 pr-2 inline-flex items-center relative rounded-md my-0.5 mx-1 group"
         >
           <div
             class="rounded-full h-5 w-5 flex items-center justify-center mr-2 flex-shrink-0 bg-gray-300"
