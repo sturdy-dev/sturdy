@@ -371,6 +371,9 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       isNormal() {
         return window?.isNormal() ?? false
       },
+      setBadgeCount(n: number) {
+        return app.setBadgeCount(n)
+      },
 
       async forceRestartMutagen() {
         try {
