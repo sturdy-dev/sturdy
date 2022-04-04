@@ -214,6 +214,11 @@ func (svc *Service) importNewPullRequest(
 	repo *github.Repository,
 	event *PullRequestEvent,
 ) error {
+	if event.GetPullRequest().GetMerged() {
+		// noop, do not import merged PRs
+		return nil
+	}
+
 	user, err := svc.getPullRequestAuthor(ctx, repo, event)
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
