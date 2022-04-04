@@ -35,7 +35,7 @@
           />
 
           <!-- Main area -->
-          <main class="md:pl-64 flex flex-1 flex-col bg-gray-100">
+          <main class="h-full md:pl-64 flex flex-1 flex-col bg-gray-100">
             <!-- Primary column -->
             <section class="flex-1 flex flex-col overflow-x-auto">
               <router-view v-if="showRoute" :user="user" class="flex-1" />

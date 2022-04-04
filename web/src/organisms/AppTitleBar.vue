@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isApp">
+  <div class="h-full" v-if="!isApp">
     <slot />
   </div>
 
@@ -38,7 +38,7 @@
       </div>
     </header>
 
-    <div class="overflow-auto" :style="{ height: mainHeight }">
+    <div class="h-full overflow-auto" :style="{ height: mainHeight }">
       <slot />
     </div>
   </div>
