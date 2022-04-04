@@ -71,7 +71,9 @@ func TestingModule(c *di.Container) {
 				Git:     &gitserver.Configuration{},
 				Pprof:   &pprof.Configuration{Addr: pprofAddr},
 				Metrics: &metrics.Configuration{Addr: metricsAddr},
-				Logger:  &logger.Configuration{},
+				Logger: &logger.Configuration{
+					Level: "INFO",
+				},
 			},
 
 			Analytics: &proxy.Configuration{Disable: true},
