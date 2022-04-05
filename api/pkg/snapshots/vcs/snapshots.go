@@ -237,17 +237,12 @@ func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, workspaceID, snapshotI
 	t0 := time.Now()
 	if err := repo.LargeFilesPull(); err != nil {
 		logger.Warn("failed to pull large files", zap.Error(err))
-		// return fmt.Errorf("failed to pull large files: %w", err)
 	}
 	logger.Info("snapshot restore large files pulled", zap.Duration("duration", time.Since(t0)))
 
-	// Mixed reset to the snapshot commits parent (a user authored commit)
+	// Mixed reset to the snapshot commits parent
 	if err := repo.ResetMixed(parents[0]); err != nil {
 		return fmt.Errorf("failed to reset mixed: %w", err)
-	}
-
-	if err := repo.ForcePush(logger, workspaceID); err != nil {
-		return fmt.Errorf("failed to push: %w", err)
 	}
 
 	return nil
