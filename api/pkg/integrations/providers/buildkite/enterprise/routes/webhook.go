@@ -34,6 +34,10 @@ var (
 		"build.scheduled": true,
 		"build.running":   true,
 		"build.finished":  true,
+		"job.scheduled":   true,
+		"job.running":     true,
+		"job.finished":    true,
+		"job.activated":   true,
 	}
 
 	// Valid states: running, scheduled, passed, failed, blocked, canceled, canceling, skipped, not_run, finished
