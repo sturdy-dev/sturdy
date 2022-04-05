@@ -112,11 +112,11 @@ func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolv
 }
 
 func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.root.downloadsResovler.InternalContentsDownloadTarGzUrl(ctx, r.ch)
+	return r.root.downloadsResovler.InternalChangeDownloadTarGzUrl(ctx, r.ch)
 }
 
 func (r *ChangeResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.root.downloadsResovler.InternalContentsDownloadZipUrl(ctx, r.ch)
+	return r.root.downloadsResovler.InternalChangeDownloadZipUrl(ctx, r.ch)
 }
 
 func (r *ChangeResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {

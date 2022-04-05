@@ -3,8 +3,8 @@ package cloud
 import (
 	"getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog"
 	aws "getsturdy.com/api/pkg/aws/enterprise/cloud"
-	service_change_downloads "getsturdy.com/api/pkg/changes/downloads/enterprise/cloud/service"
 	"getsturdy.com/api/pkg/configuration"
+	service_change_downloads "getsturdy.com/api/pkg/downloads/enterprise/cloud/service"
 	emails "getsturdy.com/api/pkg/emails/enterprise/cloud"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	queue "getsturdy.com/api/pkg/queue/enterprise/cloud"
@@ -20,7 +20,7 @@ type Configuration struct {
 	Analytics        *posthog.Configuration                  `flags-group:"analytics" namespace:"analytics"`
 	Emails           *emails.Configuration                   `flags-group:"emails" namespace:"emails"`
 	Queue            *queue.Configuration                    `flags-group:"queue" namespace:"queue"`
-	ChangesDownloads *service_change_downloads.Configuration `flags-group:"downloads" namespace:"changes.downloads"`
+	ChangesDownloads *service_change_downloads.Configuration `flags-group:"downloads" namespace:"downloads"`
 }
 
 func New() (Configuration, error) {

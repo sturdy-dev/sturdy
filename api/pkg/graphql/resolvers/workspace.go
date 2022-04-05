@@ -141,6 +141,8 @@ type WorkspaceResolver interface {
 	Diffs(context.Context) ([]FileDiffResolver, error)
 	Change(context.Context) (ChangeResolver, error)
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
+	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
+	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
 }
 
 type PushWorkspaceArgs struct {
