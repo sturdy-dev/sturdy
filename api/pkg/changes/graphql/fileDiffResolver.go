@@ -3,28 +3,45 @@ package graphql
 import (
 	"fmt"
 
+	"github.com/graph-gophers/graphql-go"
+
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/unidiff"
-
-	"github.com/graph-gophers/graphql-go"
+	"getsturdy.com/api/pkg/workspaces"
 )
 
-type FileDiffRootResolver struct{}
-
-func NewFileDiffRootResolver() resolvers.FileDiffRootResolver {
-	return &FileDiffRootResolver{}
+type fileDiffRootResolver struct {
+	fileRootResolver resolvers.FileRootResolver
 }
 
-func (r *FileDiffRootResolver) InternalFileDiff(keyPrefix string, diff *unidiff.FileDiff) resolvers.FileDiffResolver {
+func NewFileDiffRootResolver(fileRootResolver resolvers.FileRootResolver) resolvers.FileDiffRootResolver {
+	return &fileDiffRootResolver{
+		fileRootResolver: fileRootResolver,
+	}
+}
+
+func (r *fileDiffRootResolver) InternalFileDiff(keyPrefix string, diff *unidiff.FileDiff) resolvers.FileDiffResolver {
 	return &fileDiffResolver{
+		root:      r,
 		keyPrefix: keyPrefix,
 		diff:      *diff,
 	}
 }
 
+func (r *fileDiffRootResolver) InternalFileDiffWithWorkspace(keyPrefix string, diff *unidiff.FileDiff, workspace *workspaces.Workspace) resolvers.FileDiffResolver {
+	return &fileDiffResolver{
+		root:      r,
+		keyPrefix: keyPrefix,
+		diff:      *diff,
+		workspace: workspace,
+	}
+}
+
 type fileDiffResolver struct {
+	root      *fileDiffRootResolver
 	keyPrefix string
 	diff      unidiff.FileDiff
+	workspace *workspaces.Workspace
 }
 
 func (f *fileDiffResolver) ID() graphql.ID {
@@ -82,6 +99,22 @@ func (f *fileDiffResolver) Hunks() ([]resolvers.HunkResolver, error) {
 		}
 	}
 	return res, nil
+}
+
+func (f *fileDiffResolver) NewFileInfo() resolvers.FileInfoResolver {
+	// not supported outside of workspaces yet
+	if f.workspace == nil {
+		return nil
+	}
+	return f.root.fileRootResolver.InternalFileInfoInWorkspace(f.ID()+"_new", f.diff.NewName, f.workspace, true)
+}
+
+func (f *fileDiffResolver) OldFileInfo() resolvers.FileInfoResolver {
+	// not supported outside of workspaces yet
+	if f.workspace == nil {
+		return nil
+	}
+	return f.root.fileRootResolver.InternalFileInfoInWorkspace(f.ID()+"_old", f.diff.OrigName, f.workspace, false)
 }
 
 type hunkResolver struct {

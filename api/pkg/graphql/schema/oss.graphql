@@ -750,11 +750,26 @@ type FileDiff {
   isHidden: Boolean!
 
   hunks: [Hunk!]!
+
+  oldFileInfo: FileInfo
+  newFileInfo: FileInfo
 }
 
 type LargeFileInfo {
   id: ID!
   size: Int!
+}
+
+type FileInfo {
+  id: ID!
+  rawURL: String
+  fileType: FileType!
+}
+
+enum FileType {
+  Text
+  Binary
+  Image
 }
 
 type Hunk {

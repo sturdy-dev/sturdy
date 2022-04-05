@@ -19,6 +19,7 @@ import (
 	"getsturdy.com/api/pkg/configuration/flags"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
+	routes_file "getsturdy.com/api/pkg/file/routes"
 	worker_gc "getsturdy.com/api/pkg/gc/worker"
 	"getsturdy.com/api/pkg/ginzap"
 	sturdygrapql "getsturdy.com/api/pkg/graphql"
@@ -32,8 +33,6 @@ import (
 	db_pki "getsturdy.com/api/pkg/pki/db"
 	routes_v3_pki "getsturdy.com/api/pkg/pki/routes"
 	service_presence "getsturdy.com/api/pkg/presence/service"
-	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
@@ -90,11 +89,8 @@ func ProvideHandler(
 	workspaceReader db_workspaces.WorkspaceReader,
 	userPublicKeyRepo db_pki.Repository,
 	snapshotterQueue worker_snapshots.Queue,
-	snapshotRepo db_snapshots.Repository,
 	changeRepo db_change.Repository,
 	gcQueue *worker_gc.Queue,
-	gitSnapshotter snapshotter.Snapshotter,
-	workspaceWriter db_workspaces.WorkspaceWriter,
 	viewUpdatedFunc meta_view.ViewUpdatedFunc,
 	executorProvider executor.Provider,
 	viewStatusRepo db_mutagen.ViewStatusRepository,
@@ -113,6 +109,7 @@ func ProvideHandler(
 	blobsService *service_blobs.Service,
 	uploader uploader.Uploader,
 	viewService *service_view.Service,
+	getFileRoute routes_file.GetFileRoute,
 ) *Engine {
 	logger = logger.With(zap.String("component", "http"))
 	allowOrigins := []string{
@@ -200,6 +197,8 @@ func ProvideHandler(
 	publ.POST("/v3/mutagen/update-status", routes_v3_mutagen.UpdateStatus(logger, viewStatusRepo, viewRepo, eventSenderV2))                                                      // Called from client-side mutagen
 	auth.GET("/v3/mutagen/get-view/:id", routes_v3_mutagen.GetView(logger, viewRepo, codebaseUserRepo, codebaseRepo))                                                            // Called from client-side sturdy-cli
 	publ.POST("/v3/unsubscribe", routes_v3_newsletter.Unsubscribe(logger, userRepo, notificationSettingsRepo))
+
+	auth.GET("/v3/file", gin.HandlerFunc(getFileRoute))
 
 	routes_blobs.Register(publ.Group("/v3/blobs"), logger, blobsService)
 	return (*Engine)(r)

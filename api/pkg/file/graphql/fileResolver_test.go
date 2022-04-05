@@ -146,7 +146,7 @@ func TestFileResolver(t *testing.T) {
 
 	ctx := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})
 
-	root := NewFileRootResolver(executorProvider, authService)
+	root := NewFileRootResolver(executorProvider, authService, nil)
 	fileResolver, err := root.InternalFile(ctx, &codebases.Codebase{ID: codebaseID}, "README.md", "README.markdown")
 	assert.Error(t, err, gqlerrors.ErrNotFound)
 	assert.Nil(t, fileResolver)

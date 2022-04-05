@@ -4,10 +4,14 @@ import (
 	"context"
 	"strings"
 
+	"github.com/graph-gophers/graphql-go"
+
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases"
+	service_file "getsturdy.com/api/pkg/file/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -17,15 +21,18 @@ import (
 type fileRootResolver struct {
 	executorProvider executor.Provider
 	authService      *service_auth.Service
+	fileService      *service_file.Service
 }
 
 func NewFileRootResolver(
 	executorProvider executor.Provider,
 	authService *service_auth.Service,
+	fileService *service_file.Service,
 ) resolvers.FileRootResolver {
 	return &fileRootResolver{
 		executorProvider: executorProvider,
 		authService:      authService,
+		fileService:      fileService,
 	}
 }
 
@@ -83,4 +90,14 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebases
 	}
 
 	return resolver, nil
+}
+
+func (r *fileRootResolver) InternalFileInfoInWorkspace(id graphql.ID, filePath string, workspace *workspaces.Workspace, isNew bool) resolvers.FileInfoResolver {
+	return &fileInfoResolver{
+		root:      r,
+		id:        id,
+		filePath:  filePath,
+		workspace: workspace,
+		isNew:     isNew,
+	}
 }
