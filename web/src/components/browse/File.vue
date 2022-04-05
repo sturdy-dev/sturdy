@@ -6,8 +6,12 @@
       <div v-if="!isMarkdown" class="text-sm text-gray-500">{{ lines.length }} lines</div>
     </div>
 
+    <div v-if="isImage && rawURL" class="m-auto p-4">
+      <img :src="rawURL" class="" />
+    </div>
+
     <div
-      v-if="isMarkdown"
+      v-else-if="isMarkdown"
       class="p-4 prose prose-yellow break-word max-w-[60rem] readme-prose"
       v-html="render"
     />
@@ -55,14 +59,16 @@
 import highlight from '../../highlight/highlight_file'
 import '../../highlight/highlight_common_languages'
 import { gql } from '@urql/vue'
-import { defineComponent, ref } from 'vue'
 import type { PropType } from 'vue'
+import { defineComponent, ref } from 'vue'
 import type { OpenFileFragment } from './__generated__/File'
 import type { DirectoryBreadcrumbFragment } from './__generated__/DirectoryBreadcrumb'
 import DirectoryBreadcrumb from './DirectoryBreadcrumb.vue'
 
 import { Marked } from '@ts-stack/markdown'
 import { SturdyMarkdownRenderer } from './SturdyMarkdownRenderer'
+import { FileType } from '../../__generated__/types'
+import http from '../../http'
 
 Marked.setOptions({
   renderer: new SturdyMarkdownRenderer(),
@@ -81,6 +87,11 @@ export const OPEN_FILE = gql`
     path
     contents
     mimeType
+    info {
+      id
+      fileType
+      rawURL
+    }
   }
 `
 
@@ -143,6 +154,23 @@ export default defineComponent({
         return high.split('\n')
       }
       return false
+    },
+    isImage() {
+      return this.file.info?.fileType === FileType.Image
+    },
+    rawURL() {
+      const url = this.file.info?.rawURL
+      if (url) {
+        return this.apiURL(url)
+      }
+      return undefined
+    },
+  },
+  methods: {
+    apiURL(path: string): string {
+      const base = http.url(path)
+      // using the current browser location as the base, used if url() returns a relative url
+      return new URL(base, new URL(window.location.href)).href
     },
   },
 })
