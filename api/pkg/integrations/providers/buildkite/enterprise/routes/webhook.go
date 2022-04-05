@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -174,17 +175,15 @@ func WebhookHandler(
 			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid status: %s", state))
 			return
 		}
-		description := payload.Description()
 		webURL := payload.WebURL()
 		if err := statusesService.Set(c, &statuses.Status{
-			ID:          uuid.NewString(),
-			CommitID:    trunkCommitID,
-			CodebaseID:  serviceToken.CodebaseID,
-			Type:        statusType,
-			Title:       payload.Title(),
-			Description: &description,
-			DetailsURL:  &webURL,
-			Timestamp:   time.Now(),
+			ID:         uuid.NewString(),
+			CommitID:   trunkCommitID,
+			CodebaseID: serviceToken.CodebaseID,
+			Type:       statusType,
+			Title:      payload.Title(),
+			DetailsURL: &webURL,
+			Timestamp:  time.Now(),
 		}); err != nil {
 			logger.Error("failed to update status", zap.Error(err))
 			c.AbortWithStatus(http.StatusInternalServerError)
@@ -267,15 +266,19 @@ func (p *webhookPayload) WebURL() string {
 	return *p.Build.WebURL
 }
 
-func (p *webhookPayload) Title() string {
-	return fmt.Sprintf("Buildkite: %s", *p.Pipeline.Name)
+var buildkiteEmoji = regexp.MustCompile(`^:([a-z0-9_]+):$`)
+
+func sanitize(s string) string {
+	s = buildkiteEmoji.ReplaceAllString(s, "")
+	s = strings.TrimSpace(s)
+	return s
 }
 
-func (p *webhookPayload) Description() string {
+func (p *webhookPayload) Title() string {
 	if p.Job != nil {
-		return fmt.Sprintf("%s %s", *p.Job.Name, *p.Job.State)
+		return fmt.Sprintf("%s: %s", sanitize(*p.Pipeline.Name), sanitize(*p.Job.Name))
 	}
-	return *p.Build.State
+	return sanitize(*p.Pipeline.Name)
 }
 
 func (p *webhookPayload) State() string {
