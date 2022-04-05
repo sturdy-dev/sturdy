@@ -266,7 +266,7 @@ func (p *webhookPayload) WebURL() string {
 	return *p.Build.WebURL
 }
 
-var buildkiteEmoji = regexp.MustCompile(`^:([a-z0-9_]+):$`)
+var buildkiteEmoji = regexp.MustCompile(`:[a-z0-9_]+:`)
 
 func sanitize(s string) string {
 	s = buildkiteEmoji.ReplaceAllString(s, "")
