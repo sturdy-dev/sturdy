@@ -469,6 +469,11 @@ type Workspace {
   diffs: [FileDiff!]!
 
   rebaseStatus: RebaseStatus
+
+  # Generates download links on demand.
+  # The URL in the result will contain a URL with temporary authentication credentials.
+  downloadTarGz: ContentsDownloadURL!
+  downloadZip: ContentsDownloadURL!
 }
 
 input WatchWorkspaceInput {

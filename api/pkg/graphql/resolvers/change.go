@@ -6,6 +6,7 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/unidiff"
+	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/graph-gophers/graphql-go"
 )
@@ -81,8 +82,11 @@ type HunkResolver interface {
 
 type ContentsDownloadUrlRootResolver interface {
 	// Internal
-	InternalContentsDownloadTarGzUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
-	InternalContentsDownloadZipUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
+	InternalChangeDownloadTarGzUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
+	InternalChangeDownloadZipUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
+
+	InternalWorkspaceDownloadTarGzUrl(context.Context, *workspaces.Workspace) (ContentsDownloadUrlResolver, error)
+	InternalWorkspaceDownloadZipUrl(context.Context, *workspaces.Workspace) (ContentsDownloadUrlResolver, error)
 }
 
 type ContentsDownloadUrlResolver interface {

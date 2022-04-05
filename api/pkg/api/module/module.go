@@ -17,6 +17,7 @@ import (
 	module_crypto "getsturdy.com/api/pkg/crypto/module"
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
+	module_downloads "getsturdy.com/api/pkg/downloads/module"
 	module_emails "getsturdy.com/api/pkg/emails/module"
 	module_email_transactional "getsturdy.com/api/pkg/emails/transactional/module"
 	module_events "getsturdy.com/api/pkg/events"
@@ -70,6 +71,7 @@ func common(c *di.Container) {
 	c.Import(module_codebase.Module)
 	c.Import(module_codebase_acl.Module)
 	c.Import(module_comments.Module)
+	c.Import(module_downloads.Module)
 	c.Import(module_emails.Module)
 	c.Import(module_email_transactional.Module)
 	c.Import(module_events.Module)

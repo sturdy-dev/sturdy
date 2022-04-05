@@ -4,8 +4,8 @@
 package module
 
 import (
-	"getsturdy.com/api/pkg/changes/downloads/enterprise/cloud"
 	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/downloads/enterprise/cloud"
 )
 
 func Module(c *di.Container) {
