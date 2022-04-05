@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
@@ -11,9 +12,11 @@ import (
 )
 
 type fileResolver struct {
+	root       *fileRootResolver
 	codebaseID codebases.ID
 	path       string
 	contents   []byte
+	change     *changes.Change
 }
 
 func (r *fileResolver) ToFile() (resolvers.FileResolver, bool) {
@@ -59,4 +62,8 @@ func (r *fileResolver) MimeType() string {
 	default:
 		return "application/octet-stream"
 	}
+}
+
+func (r *fileResolver) Info() resolvers.FileInfoResolver {
+	return r.root.InternalFileInfoOnChange(r.ID(), r.path, r.change, true)
 }

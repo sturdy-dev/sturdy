@@ -2,11 +2,14 @@ package graphql
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/graph-gophers/graphql-go"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/changes"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	service_file "getsturdy.com/api/pkg/file/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -22,17 +25,20 @@ type fileRootResolver struct {
 	executorProvider executor.Provider
 	authService      *service_auth.Service
 	fileService      *service_file.Service
+	changeService    *service_change.Service
 }
 
 func NewFileRootResolver(
 	executorProvider executor.Provider,
 	authService *service_auth.Service,
 	fileService *service_file.Service,
+	changeService *service_change.Service,
 ) resolvers.FileRootResolver {
 	return &fileRootResolver{
 		executorProvider: executorProvider,
 		authService:      authService,
 		fileService:      fileService,
+		changeService:    changeService,
 	}
 }
 
@@ -42,6 +48,11 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebases
 	allower, err := r.authService.GetAllower(ctx, codebase)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
+	}
+
+	headChange, err := r.changeService.HeadChange(ctx, codebase)
+	if err != nil {
+		return nil, gqlerrors.Error(fmt.Errorf("could not get head change: %w", err))
 	}
 
 	err = r.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
@@ -63,9 +74,11 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebases
 				contents, err := repo.FileContentsAtCommit(headCommit.Id().String(), variantName)
 				if err == nil && allower.IsAllowed(variantName, false) {
 					resolver = &fileResolver{
+						root:       r,
 						codebaseID: codebase.ID,
 						path:       variantName,
 						contents:   contents,
+						change:     headChange,
 					}
 					return nil
 				}
@@ -99,5 +112,15 @@ func (r *fileRootResolver) InternalFileInfoInWorkspace(id graphql.ID, filePath s
 		filePath:  filePath,
 		workspace: workspace,
 		isNew:     isNew,
+	}
+}
+
+func (r *fileRootResolver) InternalFileInfoOnChange(id graphql.ID, filePath string, change *changes.Change, isNew bool) resolvers.FileInfoResolver {
+	return &fileInfoResolver{
+		root:     r,
+		id:       id,
+		filePath: filePath,
+		change:   change,
+		isNew:    isNew,
 	}
 }
