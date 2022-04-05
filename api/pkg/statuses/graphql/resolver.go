@@ -98,7 +98,7 @@ func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateSt
 
 	status := &statuses.Status{
 		ID:          uuid.NewString(),
-		CommitID:    *ch.CommitID,
+		CommitSHA:    *ch.CommitID,
 		CodebaseID:  ch.CodebaseID,
 		Type:        tp,
 		Title:       args.Input.Title,
@@ -155,7 +155,7 @@ func (r *resolver) Timestamp() int32 {
 func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
 	change, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{
 		CodebaseID: (*graphql.ID)(&r.status.CodebaseID),
-		CommitID:   (*graphql.ID)(&r.status.CommitID),
+		CommitID:   (*graphql.ID)(&r.status.CommitSHA),
 	})
 	switch {
 	case err == nil:
@@ -168,7 +168,7 @@ func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error)
 }
 
 func (r *resolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullRequestResolver, error) {
-	if pullRequest, err := r.root.gitHubPrResovler.InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitID); errors.Is(err, gqlerrors.ErrNotFound) {
+	if pullRequest, err := r.root.gitHubPrResovler.InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitSHA); errors.Is(err, gqlerrors.ErrNotFound) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err

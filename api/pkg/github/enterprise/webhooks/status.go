@@ -47,7 +47,7 @@ func (svc *Service) HandleStatusEvent(ctx context.Context, event *StatusEvent) e
 
 	status := &statuses.Status{
 		ID:          uuid.New().String(),
-		CommitID:    event.GetCommit().GetSHA(),
+		CommitSHA:    event.GetCommit().GetSHA(),
 		CodebaseID:  repo.CodebaseID,
 		Type:        getStatusType(event),
 		Title:       event.GetContext(),

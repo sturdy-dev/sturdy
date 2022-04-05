@@ -135,6 +135,10 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 		}
 	case auth.SubjectCI:
 		switch object := obj.(type) {
+		case workspaces.Workspace:
+			return s.canCIAccessWorkspace(ctx, subject.ID, &object)
+		case *workspaces.Workspace:
+			return s.canCIAccessWorkspace(ctx, subject.ID, object)
 		case changes.Change:
 			return s.canCIAccessChange(ctx, subject.ID, &object)
 		case *changes.Change:
@@ -190,6 +194,13 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 	default:
 		return fmt.Errorf("unsupported subject type '%s': %w", subject.Type, auth.ErrForbidden)
 	}
+}
+
+func (s *Service) canCIAccessWorkspace(ctx context.Context, workspaceID string, workspace *workspaces.Workspace) error {
+	if workspaceID != workspace.ID {
+		return fmt.Errorf("ci doesn't have access to the workspace: %w", auth.ErrForbidden)
+	}
+	return nil
 }
 
 func (s *Service) canCIAccessChange(ctx context.Context, changeID string, change *changes.Change) error {

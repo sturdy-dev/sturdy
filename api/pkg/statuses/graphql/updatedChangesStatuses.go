@@ -48,7 +48,7 @@ func (r *RootResolver) UpdatedChangesStatuses(ctx context.Context, args resolver
 	didErrorOut := false
 
 	r.eventsSubscriber.OnStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, status *statuses.Status) error {
-		if !watchCommit[status.CommitID] {
+		if !watchCommit[status.CommitSHA] {
 			return nil
 		}
 

@@ -23,7 +23,7 @@ var ValidType = map[Type]bool{
 
 type Status struct {
 	ID          string       `db:"id" json:"id"`
-	CommitID    string       `db:"commit_id" json:"commit_id"`
+	CommitSHA   string       `db:"commit_id" json:"commit_id"`
 	CodebaseID  codebases.ID `db:"codebase_id" json:"codebase_id"`
 	Type        Type         `db:"type" json:"type"`
 	Title       string       `db:"title" json:"title"`
