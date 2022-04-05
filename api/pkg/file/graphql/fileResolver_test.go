@@ -11,9 +11,13 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	db_change "getsturdy.com/api/pkg/changes/db"
+	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
+	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	service_file "getsturdy.com/api/pkg/file/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	db_users "getsturdy.com/api/pkg/users/db"
@@ -64,6 +68,14 @@ func TestFileResolver(t *testing.T) {
 		aclProvider,
 		nil,
 	)
+
+	fileService := service_file.New(executorProvider)
+
+	changeRepo := db_change.NewInMemoryRepo()
+
+	codebaseRepo := db_codebases.NewMemory()
+
+	changeService := service_change.New(changeRepo, codebaseRepo, logger, executorProvider, nil)
 
 	aclID := uuid.NewString()
 	userID := uuid.NewString()
@@ -146,7 +158,7 @@ func TestFileResolver(t *testing.T) {
 
 	ctx := auth.NewContext(context.Background(), &auth.Subject{ID: userID, Type: auth.SubjectUser})
 
-	root := NewFileRootResolver(executorProvider, authService, nil)
+	root := NewFileRootResolver(executorProvider, authService, fileService, changeService)
 	fileResolver, err := root.InternalFile(ctx, &codebases.Codebase{ID: codebaseID}, "README.md", "README.markdown")
 	assert.Error(t, err, gqlerrors.ErrNotFound)
 	assert.Nil(t, fileResolver)
