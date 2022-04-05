@@ -69,7 +69,7 @@ func (r *RootResolver) UpdatedGitHubPullRequestStatuses(ctx context.Context, arg
 
 	c := make(chan resolvers.StatusResolver, 100)
 	r.eventsReader.OnStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, status *statuses.Status) error {
-		if status.CommitID != *pr.HeadSHA {
+		if status.CommitSHA != *pr.HeadSHA {
 			return nil
 		}
 

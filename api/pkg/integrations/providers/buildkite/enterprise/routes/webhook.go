@@ -157,8 +157,7 @@ func WebhookHandler(
 			}
 		}
 
-		// Lookup trunk commit id
-		trunkCommitID, err := ciService.GetTrunkCommitID(c.Request.Context(), serviceToken.CodebaseID, *payload.Build.Commit)
+		trunkCommitSHA, err := ciService.GetTrunkCommitSHA(c.Request.Context(), serviceToken.CodebaseID, *payload.Build.Commit)
 		if errors.Is(err, sql.ErrNoRows) {
 			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("unknown commit: %s", *payload.Build.Commit))
 			return
@@ -178,7 +177,7 @@ func WebhookHandler(
 		webURL := payload.WebURL()
 		if err := statusesService.Set(c, &statuses.Status{
 			ID:         uuid.NewString(),
-			CommitID:   trunkCommitID,
+			CommitSHA:  trunkCommitSHA,
 			CodebaseID: serviceToken.CodebaseID,
 			Type:       statusType,
 			Title:      payload.Title(),

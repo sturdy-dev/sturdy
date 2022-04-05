@@ -51,4 +51,5 @@ const (
 	ActionWorkspaceExtract          Action = "workspace_extract"
 	ActionChangeReverted            Action = "change_reverted"
 	ActionSuggestionApply           Action = "suggestion_apply"
+	ActionCITrigger                 Action = "ci_trigger"
 )

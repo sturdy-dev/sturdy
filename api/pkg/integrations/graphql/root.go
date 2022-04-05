@@ -64,7 +64,7 @@ func (r *rootResolver) TriggerInstantIntegration(ctx context.Context, args resol
 		}
 	}
 
-	ss, err := r.svc.Trigger(ctx, ch, triggerOptions...)
+	ss, err := r.svc.TriggerChange(ctx, ch, triggerOptions...)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

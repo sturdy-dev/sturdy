@@ -92,7 +92,7 @@ func (svc *Service) HandleWorkflowJobEvent(ctx context.Context, event *WorkflowJ
 
 	status := &statuses.Status{
 		ID:         uuid.New().String(),
-		CommitID:   job.GetHeadSHA(),
+		CommitSHA:  job.GetHeadSHA(),
 		CodebaseID: repo.CodebaseID,
 		Type:       jobType,
 		Title:      job.GetName(),

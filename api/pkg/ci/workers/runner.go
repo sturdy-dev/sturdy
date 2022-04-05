@@ -82,7 +82,7 @@ func (r *BuildQueue) trigger(ctx context.Context, ch *changes.Change) error {
 		zap.Stringer("codebase_id", ch.CodebaseID),
 	)
 
-	if _, err := r.ciService.Trigger(ctx, ch); err != nil {
+	if _, err := r.ciService.TriggerChange(ctx, ch); err != nil {
 		return fmt.Errorf("failed to trigger change: %w", err)
 	}
 
