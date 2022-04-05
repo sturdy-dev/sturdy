@@ -79,10 +79,11 @@ prepare
 
 CHANGE_ID="$(change_id)"
 WORKSPACE_ID="$(workspace_id)"
+
 if [ -n "${WORKSPACE_ID}" ]; then
     download "$(get_workspace_url "$WORKSPACE_ID")"
     extract
-else if [ -n "${CHANGE_ID}" ]; then
+elif [ -n "${CHANGE_ID}" ]; then
     download "$(get_change_url "$CHANGE_ID")"
     extract
 else 
