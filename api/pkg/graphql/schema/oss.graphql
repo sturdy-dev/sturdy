@@ -964,6 +964,7 @@ type File {
   path: String!
   contents: String!
   mimeType: String!
+  info: FileInfo
 }
 
 type Directory {

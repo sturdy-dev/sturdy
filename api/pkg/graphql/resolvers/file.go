@@ -5,6 +5,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/workspaces"
 )
@@ -12,6 +13,7 @@ import (
 type FileRootResolver interface {
 	InternalFile(ctx context.Context, codebase *codebases.Codebase, pathsWithFallback ...string) (FileOrDirectoryResolver, error)
 	InternalFileInfoInWorkspace(id graphql.ID, filePath string, workspace *workspaces.Workspace, isNew bool) FileInfoResolver
+	InternalFileInfoOnChange(id graphql.ID, filePath string, change *changes.Change, isNew bool) FileInfoResolver
 }
 
 type FileOrDirectoryResolver interface {
@@ -25,6 +27,7 @@ type FileResolver interface {
 	Path() string
 	Contents() string
 	MimeType() string
+	Info() FileInfoResolver
 }
 
 type DirectoryResolver interface {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/file"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/workspaces"
@@ -16,10 +17,12 @@ var _ resolvers.FileInfoResolver = (*fileInfoResolver)(nil)
 type fileInfoResolver struct {
 	root *fileRootResolver
 
-	id        graphql.ID
-	filePath  string
+	id       graphql.ID
+	filePath string
+	isNew    bool
+
 	workspace *workspaces.Workspace
-	isNew     bool
+	change    *changes.Change
 }
 
 func (f *fileInfoResolver) ID() graphql.ID {
@@ -38,13 +41,16 @@ func (f *fileInfoResolver) RawURL() *string {
 
 	if f.workspace != nil {
 		q.Set("workspace_id", f.workspace.ID)
-		if f.isNew {
-			q.Set("is_new", "1")
-		} else {
-			q.Set("is_new", "0")
-		}
+	} else if f.change != nil {
+		q.Set("change_id", string(f.change.ID))
 	} else {
 		return nil
+	}
+
+	if f.isNew {
+		q.Set("is_new", "1")
+	} else {
+		q.Set("is_new", "0")
 	}
 
 	r.RawQuery = q.Encode()
@@ -53,7 +59,16 @@ func (f *fileInfoResolver) RawURL() *string {
 }
 
 func (f *fileInfoResolver) FileType(ctx context.Context) (resolvers.FileType, error) {
-	fileType, err := f.root.fileService.WorkspaceFileType(ctx, f.workspace, f.filePath, f.isNew)
+	var err error
+	var fileType file.Type
+
+	if f.workspace != nil {
+		fileType, err = f.root.fileService.WorkspaceFileType(ctx, f.workspace, f.filePath, f.isNew)
+	} else if f.change != nil {
+		fileType, err = f.root.fileService.ChangeFileType(ctx, f.change, f.filePath, f.isNew)
+	} else {
+		return resolvers.FileTypeBinary, nil
+	}
 	if err != nil {
 		return resolvers.FileTypeBinary, nil
 	}

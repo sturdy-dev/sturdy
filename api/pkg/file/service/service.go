@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
+	"log"
 	"path"
 
 	"github.com/h2non/filetype"
 
+	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/comments/live"
 	"getsturdy.com/api/pkg/file"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -28,16 +30,29 @@ func New(executorProvider executor.Provider) *Service {
 }
 
 func (s *Service) ReadWorkspaceFile(ctx context.Context, ws *workspaces.Workspace, filePath string, isNew bool) ([]byte, error) {
-	if filePath != path.Clean(filePath) {
-		return nil, fmt.Errorf("unexpected path: %s", filePath)
-	}
-
-	fs, err := live.WorkspaceFS(s.executorProvider, s.snapshotsRepo, ws, isNew)
+	fsys, err := live.WorkspaceFS(s.executorProvider, s.snapshotsRepo, ws, isNew)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create fs: %w", err)
 	}
 
-	fp, err := fs.Open(filePath)
+	return s.readFile(fsys, filePath)
+}
+
+func (s *Service) ReadChangeFile(ctx context.Context, ch *changes.Change, filePath string, isNew bool) ([]byte, error) {
+	fsys, err := live.ChangeFS(s.executorProvider, ch, isNew)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create fs: %w", err)
+	}
+
+	return s.readFile(fsys, filePath)
+}
+
+func (s *Service) readFile(fsys fs.FS, filePath string) ([]byte, error) {
+	if filePath != path.Clean(filePath) {
+		return nil, fmt.Errorf("unexpected path: %s", filePath)
+	}
+
+	fp, err := fsys.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
@@ -51,26 +66,42 @@ func (s *Service) ReadWorkspaceFile(ctx context.Context, ws *workspaces.Workspac
 }
 
 var fileExtFilter = map[string]struct{}{
-	"jpg":  {},
-	"jpeg": {},
-	"png":  {},
-	"gif":  {},
-	"webp": {},
+	".jpg":  {},
+	".jpeg": {},
+	".png":  {},
+	".gif":  {},
+	".webp": {},
 }
 
 func (s *Service) WorkspaceFileType(ctx context.Context, ws *workspaces.Workspace, filePath string, isNew bool) (file.Type, error) {
-	// ext is not in filter, don't validate it
-	ext := path.Ext(filePath)
-	if _, ok := fileExtFilter[ext]; !ok {
-		return file.UnknownType, nil
-	}
-
-	fs, err := live.WorkspaceFS(s.executorProvider, s.snapshotsRepo, ws, isNew)
+	fsys, err := live.WorkspaceFS(s.executorProvider, s.snapshotsRepo, ws, isNew)
 	if err != nil {
 		return file.UnknownType, fmt.Errorf("failed to create fs: %w", err)
 	}
 
-	fp, err := fs.Open(filePath)
+	return s.detectFileTypeOnFs(fsys, filePath)
+}
+
+func (s *Service) ChangeFileType(ctx context.Context, ch *changes.Change, filePath string, isNew bool) (file.Type, error) {
+	log.Println("CHANGE FILE", ch.ID, ch.CommitID)
+
+	fsys, err := live.ChangeFS(s.executorProvider, ch, isNew)
+	if err != nil {
+		return file.UnknownType, fmt.Errorf("failed to create fs: %w", err)
+	}
+
+	return s.detectFileTypeOnFs(fsys, filePath)
+}
+
+func (s *Service) detectFileTypeOnFs(fsys fs.FS, filePath string) (file.Type, error) {
+	// ext is not in filter, don't validate it
+	ext := path.Ext(filePath)
+	log.Println("EXT", ext)
+	if _, ok := fileExtFilter[ext]; !ok {
+		return file.UnknownType, nil
+	}
+
+	fp, err := fsys.Open(filePath)
 	if err != nil {
 		return file.UnknownType, fmt.Errorf("failed to open file: %w", err)
 	}
