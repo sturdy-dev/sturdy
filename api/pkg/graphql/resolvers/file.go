@@ -3,12 +3,15 @@ package resolvers
 import (
 	"context"
 
-	"getsturdy.com/api/pkg/codebases"
 	"github.com/graph-gophers/graphql-go"
+
+	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/workspaces"
 )
 
 type FileRootResolver interface {
 	InternalFile(ctx context.Context, codebase *codebases.Codebase, pathsWithFallback ...string) (FileOrDirectoryResolver, error)
+	InternalFileInfoInWorkspace(id graphql.ID, filePath string, workspace *workspaces.Workspace, isNew bool) FileInfoResolver
 }
 
 type FileOrDirectoryResolver interface {

@@ -47,6 +47,7 @@ type ChangeResolver interface {
 type FileDiffRootResolver interface {
 	// Internal
 	InternalFileDiff(prefix string, diff *unidiff.FileDiff) FileDiffResolver
+	InternalFileDiffWithWorkspace(keyPrefix string, diff *unidiff.FileDiff, workspace *workspaces.Workspace) FileDiffResolver
 }
 
 type FileDiffResolver interface {
@@ -64,6 +65,9 @@ type FileDiffResolver interface {
 	IsHidden() bool
 
 	Hunks() ([]HunkResolver, error)
+
+	OldFileInfo() FileInfoResolver
+	NewFileInfo() FileInfoResolver
 }
 
 type LargeFileInfoResolver interface {
@@ -92,4 +96,19 @@ type ContentsDownloadUrlRootResolver interface {
 type ContentsDownloadUrlResolver interface {
 	ID() graphql.ID
 	URL() string
+}
+
+type FileType string
+
+const (
+	FileTypeUnknown FileType = ""
+	FileTypeText    FileType = "Text"
+	FileTypeBinary  FileType = "Binary"
+	FileTypeImage   FileType = "Image"
+)
+
+type FileInfoResolver interface {
+	ID() graphql.ID
+	RawURL() *string
+	FileType(ctx context.Context) (FileType, error)
 }
