@@ -80,10 +80,10 @@ prepare
 CHANGE_ID="$(change_id)"
 WORKSPACE_ID="$(workspace_id)"
 
-if [ -n "${WORKSPACE_ID}" ]; then
+if [ -n "${WORKSPACE_ID}" ] && [ "${WORKSPACE_ID}" != "null" ]; then
     download "$(get_workspace_url "$WORKSPACE_ID")"
     extract
-elif [ -n "${CHANGE_ID}" ]; then
+elif [ -n "${CHANGE_ID}" ] && [ "${CHANGE_ID}" != "null" ]; then
     download "$(get_change_url "$CHANGE_ID")"
     extract
 else 
