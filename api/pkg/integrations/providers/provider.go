@@ -38,6 +38,6 @@ const (
 
 type Build struct {
 	Name        string
-	Description string
+	Description *string
 	URL         string
 }

@@ -299,7 +299,7 @@ func (svc *Service) Trigger(ctx context.Context, ch *changes.Change, opts ...Tri
 			CodebaseID:  ch.CodebaseID,
 			Type:        statuses.TypePending,
 			Title:       build.Name,
-			Description: &build.Description,
+			Description: build.Description,
 			DetailsURL:  &build.URL,
 			Timestamp:   time.Now(),
 		}
