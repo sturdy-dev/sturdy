@@ -91,8 +91,6 @@ func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, ti
 		return nil, fmt.Errorf("failed to read contents: %w", err)
 	}
 
-	fmt.Printf("resContents: %s\n", string(resContents))
-
 	var parsedRes createBuildRes
 	if err := json.Unmarshal(resContents, &parsedRes); err != nil {
 		return nil, fmt.Errorf("failed to read response (%s): %w", string(resContents), err)
@@ -103,9 +101,8 @@ func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, ti
 	}
 
 	return &providers.Build{
-		Name:        fmt.Sprintf("Buildkite: %s", parsedRes.Pipeline.Name),
-		Description: fmt.Sprintf("Build #%d scheduled", parsedRes.Number),
-		URL:         parsedRes.WebURL,
+		Name: parsedRes.Pipeline.Name,
+		URL:  parsedRes.WebURL,
 	}, nil
 }
 
