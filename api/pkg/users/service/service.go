@@ -134,12 +134,6 @@ func (s *UserService) CreateShadow(ctx context.Context, email string, referer Re
 		newUser.Name = users.EmailToName(email)
 	}
 
-	if name != nil {
-		newUser.Name = *name
-	} else {
-		newUser.Name = users.EmailToName(email)
-	}
-
 	if err := s.userRepo.Create(newUser); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
