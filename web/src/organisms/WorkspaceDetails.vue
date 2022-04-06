@@ -63,7 +63,7 @@ import UpdatedAt, {
 } from '../components/workspace/details/UpdatedAt.vue'
 import BasedOn from '../components/workspace/details/BasedOn.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
-import StatusDetails from '../components/statuses/StatusDetails.vue'
+import StatusDetails, { STATUS_FRAGMENT } from '../components/statuses/StatusDetails.vue'
 import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
   GITHUB_PULL_REQUEST_FRAGMENT,
@@ -120,10 +120,15 @@ export const WORKSPACE_FRAGMENT = gql`
     suggestion {
       id
     }
+    statuses {
+      id
+      ...Status
+    }
     ...Presence_Workspace
     ...CommentsCount_Workspace
     ...Updated_Workspace
   }
+  ${STATUS_FRAGMENT}
   ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
   ${GITHUB_PULL_REQUEST_FRAGMENT}
   ${WORKSPACE_WATCHER_FRAGMENT}
