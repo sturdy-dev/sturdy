@@ -49,4 +49,10 @@ func TestAddMember(t *testing.T) {
 	assert.NoError(t, repo.Update(ctx, memberToRemove))
 
 	assert.NoError(t, repo.Create(ctx, member))
+
+	memberToTest, err := repo.GetByUserIDAndOrganizationID(ctx, member.UserID, member.OrganizationID)
+	assert.NoError(t, err)
+	assert.Equal(t, memberToRemove.ID, memberToTest.ID)
+	assert.Nil(t, memberToTest.DeletedAt)
+	assert.Nil(t, memberToTest.DeletedBy)
 }
