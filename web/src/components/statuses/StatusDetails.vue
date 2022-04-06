@@ -77,7 +77,8 @@ export default defineComponent({
   },
   computed: {
     sortedStatuses() {
-      return this.statuses.sort((a, b) => a.title.localeCompare(b.title))
+      const copy = this.statuses
+      return copy.sort((a, b) => a.title.localeCompare(b.title))
     },
     unknown(): boolean {
       return this.statuses.length === 0
