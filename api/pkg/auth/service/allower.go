@@ -69,6 +69,10 @@ func (s *Service) GetAllower(ctx context.Context, obj any) (*unidiff.Allower, er
 			return s.getCIChangeAllower(ctx, subject.ID, object)
 		case changes.Change:
 			return s.getCIChangeAllower(ctx, subject.ID, &object)
+		case *workspaces.Workspace:
+			return s.getCIWorkspaceAllower(ctx, subject.ID, object)
+		case workspaces.Workspace:
+			return s.getCIWorkspaceAllower(ctx, subject.ID, &object)
 		}
 
 	case auth.SubjectAnonymous:
@@ -143,6 +147,13 @@ func (s *Service) getUserCodebaseAllower(ctx context.Context, userID users.ID, c
 	)
 
 	return unidiff.NewAllower(append(allowedByEmail, allowedByID...)...)
+}
+
+func (s *Service) getCIWorkspaceAllower(ctx context.Context, workspaceID string, workspace *workspaces.Workspace) (*unidiff.Allower, error) {
+	if workspaceID != workspace.ID {
+		return noneAllowed, nil
+	}
+	return allAllowed, nil
 }
 
 func (s *Service) getCIChangeAllower(ctx context.Context, changeID string, change *changes.Change) (*unidiff.Allower, error) {
