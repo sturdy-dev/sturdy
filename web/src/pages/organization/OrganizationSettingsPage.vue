@@ -28,7 +28,10 @@ import type {
   OrganizationSettingsPageQueryVariables,
 } from './__generated__/OrganizationSettingsPage'
 import { useRoute } from 'vue-router'
-import OrganizationMembers from '../../organisms/organization/OrganizationMembers.vue'
+import OrganizationMembers, {
+  ORGANIZATION_FRAGMENT,
+  USER_FRAGMENT,
+} from '../../organisms/organization/OrganizationMembers.vue'
 import Header from '../../molecules/Header.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
@@ -60,12 +63,16 @@ export default defineComponent({
               avatarUrl
             }
             writeable
+            ...OrganizationMembersOrganization
           }
 
           user {
             id
+            ...OrganizationMembersUser
           }
         }
+        ${ORGANIZATION_FRAGMENT}
+        ${USER_FRAGMENT}
       `,
       requestPolicy: 'cache-and-network',
       variables: {

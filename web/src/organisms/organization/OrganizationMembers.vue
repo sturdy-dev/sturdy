@@ -57,7 +57,10 @@
         <li v-for="member in organization.members" :key="member.id" class="py-4 flex">
           <Avatar :author="member" size="10" />
           <div class="ml-3 flex flex-col flex-1">
-            <span class="text-sm font-medium text-gray-900">{{ member.name }}</span>
+            <span class="text-sm font-medium text-gray-900">
+              {{ member.name }}
+              <Pill v-if="!isActive(member.status)" color="gray">Pending invitation</Pill>
+            </span>
             <span class="text-sm text-gray-500">{{ member.email }}</span>
           </div>
           <template v-if="organization.writeable">
@@ -88,9 +91,10 @@ import { PlusIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import Avatar from '../../atoms/Avatar.vue'
 import Button from '../../atoms/Button.vue'
 import { Banner } from '../../atoms'
-import { Feature } from '../../__generated__/types'
+import { Feature, UserStatus } from '../../__generated__/types'
 import { useAddUserToOrganization } from '../../mutations/useAddUserToOrganization'
 import { useRemoveUserFromOrganization } from '../../mutations/useRemoveUserFromOrganization'
+import Pill from '../../atoms/Pill.vue'
 
 export const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationMembersOrganization on Organization {
@@ -101,6 +105,7 @@ export const ORGANIZATION_FRAGMENT = gql`
       name
       email
       avatarUrl
+      status
     }
     writeable
   }
@@ -113,7 +118,7 @@ export const USER_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { PlusIcon, Avatar, Button, Banner, UserRemoveIcon },
+  components: { PlusIcon, Avatar, Button, Banner, UserRemoveIcon, Pill },
   props: {
     organization: {
       type: Object as PropType<OrganizationMembersOrganizationFragment>,
@@ -171,6 +176,9 @@ export default defineComponent({
           message: member.name + ' was removed from ' + this.organization.name,
         })
       })
+    },
+    isActive(status: UserStatus) {
+      return status == UserStatus.Active
     },
   },
 })
