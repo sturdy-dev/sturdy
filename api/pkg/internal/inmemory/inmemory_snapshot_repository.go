@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
@@ -61,5 +62,9 @@ func (f *snapshotRepo) Update(*snapshots.Snapshot) error {
 }
 
 func (f *snapshotRepo) ListByViewCopiedFromBranchName(copiedFromBranchName string) ([]*snapshots.Snapshot, error) {
+	panic("not implemented")
+}
+
+func (f *snapshotRepo) GetByCommitSHA(_ context.Context, sha string) (*snapshots.Snapshot, error) {
 	panic("not implemented")
 }
