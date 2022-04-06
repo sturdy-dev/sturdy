@@ -7,6 +7,8 @@
 
 **Real-time code collaboration.**
 
+:-)
+
 [Sturdy](https://getsturdy.com/) is an open-source **version control platform** that allows you to interact with your code at a higher abstraction level.
 
 ## Features
