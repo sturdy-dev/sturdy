@@ -208,15 +208,15 @@ func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID, existingCommit
 	return existingCommitID, nil
 }
 
-func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, workspaceID, viewID, snapshotID, snapshotCommitID string) error {
+func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, snapshotID, snapshotCommitID string) error {
 	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
 	if err != nil {
 		return err
 	}
-	return RestoreRepo(logger, repo, workspaceID, snapshotID, snapshotCommitID)
+	return RestoreRepo(logger, repo, snapshotID, snapshotCommitID)
 }
 
-func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, workspaceID, snapshotID, snapshotCommitID string) error {
+func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, snapshotID, snapshotCommitID string) error {
 	if err := repo.FetchBranch("snapshot-" + snapshotID); err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
