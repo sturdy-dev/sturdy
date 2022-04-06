@@ -310,14 +310,14 @@ func TestPRHighLevel(t *testing.T) {
 				CodebaseID:                       codebaseID,
 				GitHubSourceOfTruth:              true,
 				IntegrationEnabled:               true,
-				InstallationAccessToken:          str("token"),
+				InstallationAccessToken:          p[string]("token"),
 				InstallationAccessTokenExpiresAt: &expT,
 			}
 			ghu := &github.User{
 				ID:          uuid.NewString(),
 				UserID:      userID,
 				Username:    uuid.NewString(),
-				AccessToken: str("let's assume this is valid"),
+				AccessToken: p[string]("let's assume this is valid"),
 			}
 
 			in := &github.Installation{
@@ -403,7 +403,7 @@ func TestPRHighLevel(t *testing.T) {
 			_, err = workspaceResolver.UpdateWorkspace(ctx, resolvers.UpdateWorkspaceArgs{
 				Input: resolvers.UpdateWorkspaceInput{
 					ID:               workspaceIDgql,
-					DraftDescription: str("<p><em>draft description</em></p>"),
+					DraftDescription: p[string]("<p><em>draft description</em></p>"),
 				},
 			})
 			assert.NoError(t, err)
@@ -415,10 +415,10 @@ func TestPRHighLevel(t *testing.T) {
 					Message:     fmt.Sprintf("commenting on a workspace i=%d", i),
 					WorkspaceID: &workspaceIDgql,
 					ViewID:      &viewIDgql,
-					Path:        str("a.txt"),
-					LineStart:   i32(1),
-					LineEnd:     i32(1),
-					LineIsNew:   b(true),
+					Path:        p[string]("a.txt"),
+					LineStart:   p[int32](1),
+					LineEnd:     p[int32](1),
+					LineIsNew:   p[bool](true),
 				}})
 				assert.NoError(t, err)
 				//nolint:errorlint
@@ -477,7 +477,7 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:    &gitHubPullRequestID,
-					State: str("closed"),
+					State: p[string]("closed"),
 				},
 				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
@@ -497,7 +497,7 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:    &gitHubPullRequestID,
-					State: str("open"),
+					State: p[string]("open"),
 				},
 				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
@@ -533,8 +533,8 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:             &gitHubPullRequestID,
-					State:          str("closed"),
-					Merged:         b(true),
+					State:          p[string]("closed"),
+					Merged:         p[bool](true),
 					MergeCommitSHA: &mergeCommitSha,
 					Base: &gh.PullRequestBranch{
 						SHA: &preMergeHeadSha,
@@ -555,7 +555,7 @@ func TestPRHighLevel(t *testing.T) {
 
 			// Post-merge push webhook event
 			webhookRepoPush := gh.PushEvent{
-				Ref:          str("refs/heads/master"),
+				Ref:          p[string]("refs/heads/master"),
 				Repo:         &gh.PushEventRepository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
 			}
@@ -567,7 +567,7 @@ func TestPRHighLevel(t *testing.T) {
 			assert.Nil(t, ws.UpToDateWithTrunk)
 
 			// The workspace should no longer have any comments
-			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: b(true)})
+			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: p[bool](true)})
 			assert.NoError(t, err)
 			workspaceComments, err = wsResolver.Comments()
 			assert.NoError(t, err)
@@ -576,7 +576,7 @@ func TestPRHighLevel(t *testing.T) {
 			gqlCodebaseID := graphql.ID(codebaseID)
 			codebaseResolver, err := d.CodebaseRootResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &gqlCodebaseID})
 			assert.NoError(t, err)
-			changeResolvers, err := codebaseResolver.Changes(ctx, &resolvers.CodebaseChangesArgs{Input: &resolvers.CodebaseChangesInput{Limit: i32(50)}})
+			changeResolvers, err := codebaseResolver.Changes(ctx, &resolvers.CodebaseChangesArgs{Input: &resolvers.CodebaseChangesInput{Limit: p[int32](50)}})
 			assert.NoError(t, err)
 
 			var found bool
@@ -639,7 +639,7 @@ func (f *fakeGitHubPullRequestClient) Create(ctx context.Context, owner string, 
 	pr := gh.PullRequest{
 		ID:     &id,
 		Number: &num,
-		State:  str("open"),
+		State:  p[string]("open"),
 		Title:  pull.Title,
 		Body:   pull.Body,
 		Head:   &gh.PullRequestBranch{Ref: pull.Head},
@@ -661,8 +661,8 @@ type fakeGitHubAppsClient struct{}
 
 func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id int64, opts *gh.InstallationTokenOptions) (*gh.InstallationToken, *gh.Response, error) {
 	return &gh.InstallationToken{
-		Token:        str("testingtoken"),
-		ExpiresAt:    t(time.Now().Add(time.Hour * 3)),
+		Token:        p[string]("testingtoken"),
+		ExpiresAt:    p[time.Time](time.Now().Add(time.Hour * 3)),
 		Permissions:  opts.Permissions,
 		Repositories: nil,
 	}, nil, nil
@@ -735,20 +735,4 @@ func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), 
 		err = json.Unmarshal(content, response)
 		assert.NoError(t, err)
 	}
-}
-
-func str(s string) *string {
-	return &s
-}
-
-func t(t time.Time) *time.Time {
-	return &t
-}
-
-func b(b bool) *bool {
-	return &b
-}
-
-func i32(i int32) *int32 {
-	return &i
 }
