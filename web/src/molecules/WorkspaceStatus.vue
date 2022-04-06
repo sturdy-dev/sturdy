@@ -49,22 +49,19 @@ export default defineComponent({
   },
   setup(props) {
     const { workspace } = toRefs(props)
-    useUpdatedWorkspacesStatuses([workspace.value.id])
+    const ciEnabled = workspace.value.codebase.integrations.some(({ provider }) =>
+      ciProviders.includes(provider)
+    )
+    if (ciEnabled) {
+      useUpdatedWorkspacesStatuses([workspace.value.id])
+    }
     const triggerInstantIntegration = useTriggerInstantIntegration()
-    return { triggerInstantIntegration, terminalIcon: TerminalIcon }
+    return { triggerInstantIntegration, terminalIcon: TerminalIcon, ciEnabled }
   },
-
   data() {
     return {
       triggering: false,
     }
-  },
-  computed: {
-    ciEnabled() {
-      return this.workspace.codebase.integrations.some(({ provider }) =>
-        ciProviders.includes(provider)
-      )
-    },
   },
   methods: {
     onTriggerClicked() {
