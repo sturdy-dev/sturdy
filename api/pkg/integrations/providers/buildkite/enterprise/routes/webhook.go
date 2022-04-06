@@ -47,6 +47,7 @@ var (
 		"blocked":   statuses.TypePending,
 		"canceling": statuses.TypePending,
 		"scheduled": statuses.TypePending,
+		"assigned":  statuses.TypePending,
 
 		"passed":   statuses.TypeHealty,
 		"skipped":  statuses.TypeHealty,
