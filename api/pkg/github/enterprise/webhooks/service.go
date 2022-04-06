@@ -320,6 +320,19 @@ func (svc *Service) updateExistingPullRequest(
 		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
 
+	// update ws
+	if pr.Importing {
+		newDescription, err := service_github.DescriptionFromPullRequest(event.GetPullRequest())
+		if err != nil {
+			return fmt.Errorf("failed to build description: %w", err)
+		}
+		ws.DraftDescription = newDescription
+		err = svc.workspaceWriter.UpdateFields(ctx, ws.ID, db_workspaces.SetDraftDescription(newDescription))
+		if err != nil {
+			return fmt.Errorf("failed to update workspace: %w", err)
+		}
+	}
+
 	if shouldArchive := pr.State == github.PullRequestStateClosed && pr.Importing; shouldArchive {
 		// if pr is closed and importing, archive it
 		return svc.workspaceService.Archive(ctx, ws)
