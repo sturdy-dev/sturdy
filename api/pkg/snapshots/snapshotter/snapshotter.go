@@ -604,7 +604,7 @@ func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error 
 	if snap.WorkspaceID == nil {
 		return errors.New("can't restore snapshot that's not on a workspace")
 	}
-	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, *snap.WorkspaceID, snap.ID, snap.CommitID); err != nil {
+	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, snap.ID, snap.CommitID); err != nil {
 		return fmt.Errorf("failed to restore: %w", err)
 	}
 	return nil

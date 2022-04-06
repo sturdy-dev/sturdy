@@ -367,7 +367,7 @@ func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspa
 		}
 
 		// TODO: What if we can't make a snapshot because the view is FUBAR?
-		if err := vcs2.Restore(logger, repoProvider, ws.CodebaseID, ws.ID, newView, snapshot.ID, snapshot.CommitID); err != nil {
+		if err := vcs2.Restore(logger, repoProvider, ws.CodebaseID, newView, snapshot.ID, snapshot.CommitID); err != nil {
 			return fmt.Errorf("failed to restore snapshot: %w", err)
 		}
 		decoratedLogger.Info("restored from snapshot", zap.Stringer("codebase_id", snapshot.CodebaseID), zap.String("commit_id", snapshot.CommitID))
