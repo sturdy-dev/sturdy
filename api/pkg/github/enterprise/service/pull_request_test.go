@@ -1,5 +1,5 @@
 //nolint:bodyclose
-package pr_test
+package service_test
 
 import (
 	"bytes"

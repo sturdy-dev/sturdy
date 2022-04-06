@@ -9,6 +9,7 @@ import (
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/transport"
+	git "github.com/libgit2/git2go/v33"
 )
 
 func (r *repository) PushRemoteUrlWithRefspec(remoteUrl string, creds transport.AuthMethod, refspecs []config.RefSpec) (userError string, err error) {
@@ -124,5 +125,25 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
 
+	return nil
+}
+
+func (r *repository) AddNamedRemote(name, url string) error {
+	_, err := r.r.Remotes.Create(name, url)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *repository) CreateRef(name, commitSha string) error {
+	id, err := git.NewOid(commitSha)
+	if err != nil {
+		return err
+	}
+	_, err = r.r.References.Create(name, id, true, "create-ref-"+name)
+	if err != nil {
+		return err
+	}
 	return nil
 }
