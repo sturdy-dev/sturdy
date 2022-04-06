@@ -25,8 +25,9 @@ type TriggerInstantIntegrationArgs struct {
 }
 
 type TriggerInstantIntegrationInput struct {
-	ChangeID  graphql.ID
-	Providers *[]InstantIntegrationProviderType
+	ChangeID    *graphql.ID
+	WorkspaceID *graphql.ID
+	Providers   *[]InstantIntegrationProviderType
 }
 
 type DeleteIntegrationArgs struct {

@@ -41,7 +41,9 @@ extend type Mutation {
   updateInstallation(input: UpdateInstallationInput!): Installation!
 
   # createOrUpdateCodebaseRemote is experimental
-  createOrUpdateCodebaseRemote(input: CreateOrUpdateCodebaseRemoteInput!): Remote!
+  createOrUpdateCodebaseRemote(
+    input: CreateOrUpdateCodebaseRemoteInput!
+  ): Remote!
 
   # pushWorkspace is experimental
   # pushWorkspace pushes the workspace to the configured GitHub Repository or Remote.
@@ -345,4 +347,10 @@ input PullCodebaseInput {
 
 input PushCodebaseInput {
   codebaseID: ID!
+}
+
+input TriggerInstantIntegrationInput {
+  changeID: ID
+  workspaceID: ID
+  providers: [String!]
 }
