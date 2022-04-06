@@ -24,6 +24,7 @@ type WorkspaceWriter interface {
 
 type WorkspaceReader interface {
 	Get(id string) (*workspaces.Workspace, error)
+	ListByIDs(context.Context, ...string) ([]*workspaces.Workspace, error)
 	ListByCodebaseIDs(codebaseIDs []codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error)
 	ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error)
 	ListByUserID(context.Context, users.ID) ([]*workspaces.Workspace, error)

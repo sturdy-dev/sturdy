@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -15,6 +16,7 @@ type Repository interface {
 	ListByView(viewID string) ([]*snapshots.Snapshot, error)
 	LatestInView(viewID string) (*snapshots.Snapshot, error)
 	LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error)
+	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
 	Get(string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
 	ListUndeletedInCodebase(codebaseID codebases.ID, threshold time.Time) ([]*snapshots.Snapshot, error)
@@ -131,4 +133,15 @@ func (r *dbrepo) Update(snapshot *snapshots.Snapshot) error {
 		return fmt.Errorf("failed to update: %w", err)
 	}
 	return nil
+}
+
+// GetByCommitSHA returns snapshots by commit_id
+func (r *dbrepo) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Snapshot, error) {
+	var res snapshots.Snapshot
+	if err := r.db.GetContext(ctx, &res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+		FROM snapshots
+		WHERE commit_id=$1`, sha); err != nil {
+		return nil, fmt.Errorf("failed to get by commit sha: %w", err)
+	}
+	return &res, nil
 }

@@ -72,6 +72,7 @@ type Service interface {
 	// Enterprise only
 	Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error
 	LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error
+	ListByIDs(context.Context, ...string) ([]*workspaces.Workspace, error)
 }
 
 type WorkspaceService struct {
@@ -990,4 +991,8 @@ func (s *WorkspaceService) LandOnSturdyAndPushTracked(ctx context.Context, ws *w
 
 func (s *WorkspaceService) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
 	return s.workspaceReader.ListByCodebaseIDs([]codebases.ID{codebaseID}, includeArchived)
+}
+
+func (s *WorkspaceService) ListByIDs(ctx context.Context, ids ...string) ([]*workspaces.Workspace, error) {
+	return s.workspaceReader.ListByIDs(ctx, ids...)
 }

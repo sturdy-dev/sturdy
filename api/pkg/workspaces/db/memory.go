@@ -123,3 +123,15 @@ func (f *memory) ListByUserID(_ context.Context, userID users.ID) ([]*workspaces
 	}
 	return ww, nil
 }
+
+func (f *memory) ListByIDs(_ context.Context, ids ...string) ([]*workspaces.Workspace, error) {
+	ww := []*workspaces.Workspace{}
+	for _, workspace := range f.workspaces {
+		for _, id := range ids {
+			if workspace.ID == id {
+				ww = append(ww, workspace)
+			}
+		}
+	}
+	return ww, nil
+}

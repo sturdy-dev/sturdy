@@ -224,6 +224,7 @@ type Subscription {
   updatedViews: View!
 
   updatedChangesStatuses(changeIDs: [ID!]!): Status!
+  updatedWorkspacesStatuses(workspaceIds: [ID!]!): Status!
 
   updatedWorkspaceActivity: WorkspaceActivity!
 
@@ -384,8 +385,10 @@ type Status {
   timestamp: Int!
   detailsUrl: String
 
-  # change is set if status is connected to an existing change
+  # change is set if status is connected to a change
   change: Change
+  # workspace is set if status is connected to a workspace
+  workspace: Workspace
 }
 
 input UpdateStatusInput {
