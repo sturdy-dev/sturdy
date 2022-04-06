@@ -147,15 +147,16 @@ func (svc *Service) ImportPullRequest(
 
 	workspaceID := uuid.NewString()
 
+	// Build description
 	pullRequestName := gitHubPR.GetTitle()
 	if pullRequestName == "" {
 		pullRequestName = fmt.Sprintf("PR %d", gitHubPR.GetNumber())
 	}
-
 	pullRequestDescription, err := message.MarkdownToHtml(gitHubPR.GetBody())
 	if err != nil {
 		return fmt.Errorf("failed to render github body: %w", err)
 	}
+	description := "<p>" + pullRequestName + "</p>" + pullRequestDescription
 
 	importBranchName := fmt.Sprintf("import-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
 	importedTemporaryBranchName := fmt.Sprintf("imported-tmp-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
@@ -192,8 +193,7 @@ func (svc *Service) ImportPullRequest(
 		ID:               workspaceID,
 		CodebaseID:       codebaseID,
 		UserID:           userID,
-		Name:             &pullRequestName,
-		DraftDescription: pullRequestDescription,
+		DraftDescription: description,
 		CreatedAt:        &t,
 	}
 	if err := svc.workspaceWriter.Create(ws); err != nil {

@@ -67,6 +67,9 @@ type Service interface {
 	ArchiveWithChange(context.Context, *workspaces.Workspace, *changes.Change) error
 	Unarchive(context.Context, *workspaces.Workspace) error
 	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
+	ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error)
+
+	// Enterprise only
 	Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error
 	LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error
 }
@@ -983,4 +986,8 @@ func (s *WorkspaceService) Push(ctx context.Context, user *users.User, ws *works
 
 func (s *WorkspaceService) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error {
 	return ErrNotAvailable
+}
+
+func (s *WorkspaceService) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
+	return s.workspaceReader.ListByCodebaseIDs([]codebases.ID{codebaseID}, includeArchived)
 }

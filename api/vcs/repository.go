@@ -134,4 +134,7 @@ type RepoWriter interface {
 	ApplyPatchesToWorkdir(patches [][]byte) error
 
 	ResetHard(commitID string) error
+
+	AddNamedRemote(name, url string) error
+	CreateRef(name, commitSha string) error
 }
