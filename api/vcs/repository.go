@@ -35,6 +35,7 @@ type RepoGitReader interface {
 	ShowCommit(id string) (diffs []string, entry *LogEntry, err error)
 	GetCommitDetails(id string) (*CommitDetails, error)
 	BranchHasCommit(branchName, commitID string) (bool, error)
+	CommonAncestor(commitA, commitB string) (string, error)
 
 	FileContentsAtCommit(commitID, filePath string) ([]byte, error)
 	FileBlobAtCommit(commitID, filePath string) (*git.Blob, error)

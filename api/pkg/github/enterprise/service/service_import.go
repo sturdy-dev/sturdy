@@ -84,7 +84,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 var ErrAlreadyImported = errors.New("pull request has already been imported")
 
-func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.PullRequest, accessToken string) error {
+func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.PullRequest, apiPullRequest *api.PullRequest, accessToken string) error {
 	if !pullRequest.Importing {
 		return nil
 	}
@@ -92,15 +92,19 @@ func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.P
 	importBranchName := fmt.Sprintf("import-pull-request-%d-%s", pullRequest.GitHubPRNumber, uuid.NewString())
 	refspec := fmt.Sprintf("+refs/pull/%d/head:refs/heads/%s", pullRequest.GitHubPRNumber, importBranchName)
 
-	var trunkHeadCommitID string
+	var commonAncestor string
 	if err := svc.executorProvider.New().
 		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
-		Write(func(repo vcs.RepoWriter) error {
-			headCommit, err := repo.HeadCommit()
+		GitRead(func(repo vcs.RepoGitReader) error {
+			head, err := repo.HeadCommit()
 			if err != nil {
-				return fmt.Errorf("failed to get head: %w", err)
+				return fmt.Errorf("could not get head: %w", err)
 			}
-			trunkHeadCommitID = headCommit.Id().String()
+
+			commonAncestor, err = repo.CommonAncestor(head.Id().String(), apiPullRequest.GetHead().GetSHA())
+			if err != nil {
+				return fmt.Errorf("could not find common ancestor: %w", err)
+			}
 			return nil
 		}).
 		ExecTrunk(pullRequest.CodebaseID, "gitHubImportFetchBranch"); err != nil {
@@ -110,9 +114,19 @@ func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.P
 	if err := svc.executorProvider.New().
 		Write(vcs_view.CheckoutBranch(importBranchName)).
 		Write(func(repo vcs.RepoWriter) error {
-			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+			// TODO: create workspace branch if not exists?
+			// Move the workspace branch
+			if err := repo.MoveBranchToCommit(pullRequest.WorkspaceID, commonAncestor); err != nil {
+				return fmt.Errorf("failed to move the workspace branch: %w", err)
+			}
+			if err := repo.ForcePush(svc.logger, pullRequest.WorkspaceID); err != nil {
+				return fmt.Errorf("failed to push the workspace branch: %w", err)
+			}
+
+			if err := repo.ResetMixed(apiPullRequest.GetBase().GetSHA()); err != nil {
 				return fmt.Errorf("failed to reset hard: %w", err)
 			}
+
 			if _, err := svc.snap.Snapshot(pullRequest.CodebaseID, pullRequest.WorkspaceID,
 				snapshots.ActionSyncCompleted,
 				snapshotter.WithMarkAsLatestInWorkspace(),
@@ -174,25 +188,27 @@ func (svc *Service) ImportPullRequest(
 	importedTemporaryBranchName := fmt.Sprintf("imported-tmp-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
 	refspec := fmt.Sprintf("+refs/pull/%d/head:refs/heads/%s", gitHubPR.GetNumber(), importBranchName)
 
-	// this is done because the repository does not have a "sturdytrunk" yet
-	var trunkHeadCommitID string
+	var commonAncestor string
 
 	// Fetch to trunk
 	if err := svc.executorProvider.New().
 		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
 		GitWrite(func(repo vcs.RepoGitWriter) error {
+
+			head, err := repo.HeadCommit()
+			if err != nil {
+				return fmt.Errorf("could not get head: %w", err)
+			}
+
+			commonAncestor, err = repo.CommonAncestor(head.Id().String(), gitHubPR.GetHead().GetSHA())
+			if err != nil {
+				return fmt.Errorf("could not find common ancestor: %w", err)
+			}
+
 			// Create the workspace branch
-			if err := repo.CreateNewBranchOnHEAD(workspaceID); err != nil {
+			if err := repo.CreateNewBranchAt(workspaceID, commonAncestor); err != nil {
 				return fmt.Errorf("failed to create workspace branch")
 			}
-
-			// Get trunk head
-			headCommit, err := repo.HeadCommit()
-			if err != nil {
-				return fmt.Errorf("failed to get head: %w", err)
-			}
-
-			trunkHeadCommitID = headCommit.Id().String()
 
 			return nil
 		}).ExecTrunk(codebaseID, "gitHubImportBranchFetch"); err != nil {
@@ -222,7 +238,7 @@ func (svc *Service) ImportPullRequest(
 	if err := svc.executorProvider.New().
 		Write(vcs_view.CheckoutBranch(importBranchName)).
 		Write(func(repo vcs.RepoWriter) error {
-			if err := repo.ResetMixed(trunkHeadCommitID); err != nil {
+			if err := repo.ResetMixed(commonAncestor); err != nil {
 				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
 			}
 

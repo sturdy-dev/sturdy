@@ -18,6 +18,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	service_change "getsturdy.com/api/pkg/changes/service"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/github"
@@ -48,6 +49,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 		UserService      service_user.Service
 		CodebaseService  *service_codebase.Service
 		WorkspaceService service_workspace.Service
+		ChangeService    *service_change.Service
 
 		RepoProvider provider.RepoProvider
 		Logger       *zap.Logger
@@ -89,6 +91,10 @@ func TestService_ImportPullRequest(t *testing.T) {
 	fakeGitHubBarePath := d.RepoProvider.ViewPath("not-a-codebase", "github-"+uuid.NewString())
 	fakeGitHubBareRepo, err := vcs.CreateBareRepoWithRootCommit(fakeGitHubBarePath)
 	assert.NoError(t, err)
+	err = fakeGitHubBareRepo.CreateNewBranchOnHEAD("master")
+	assert.NoError(t, err)
+	err = fakeGitHubBareRepo.SetDefaultBranch("master")
+	assert.NoError(t, err)
 
 	installation := &github.Installation{
 		ID:             uuid.NewString(),
@@ -100,8 +106,9 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	ghRepo := &gh.Repository{
-		ID:       p[int64](rand.Int63n(800_00)),
-		CloneURL: p[string](fakeGitHubBarePath),
+		ID:            p[int64](rand.Int63n(800_00)),
+		CloneURL:      p[string](fakeGitHubBarePath),
+		DefaultBranch: p[string]("master"),
 	}
 
 	sender := &gh.User{Email: p[string]("foobar")}
@@ -116,6 +123,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 		CodebaseID:         cb.ID,
 		InstallationID:     installation.InstallationID,
 		GitHubRepositoryID: rand.Int63n(800_00),
+		TrackedBranch:      "master",
 	}
 
 	apiRepo := api.ConvertRepository(ghRepo)
@@ -124,15 +132,15 @@ func TestService_ImportPullRequest(t *testing.T) {
 	gitHubClonedRepo, err := vcs.CloneRepo(fakeGitHubBarePath, gitHubClonedPath)
 	assert.NoError(t, err)
 
-	createFakePr := func(id int64, number int, title string) (pr *api.PullRequest, branchName string) {
-		err = gitHubClonedRepo.CheckoutBranchWithForce("sturdytrunk")
+	createFakePr := func(id int64, number int, fileName, title string) (pr *api.PullRequest, branchName string) {
+		err = gitHubClonedRepo.CheckoutBranchWithForce("master")
 		assert.NoError(t, err)
 		branchName = fmt.Sprintf("pr-%s", uuid.NewString())
 		err = gitHubClonedRepo.CreateNewBranchOnHEAD(branchName)
 		assert.NoError(t, err)
 		err = gitHubClonedRepo.CheckoutBranchWithForce(branchName)
 		assert.NoError(t, err)
-		err = ioutil.WriteFile(path.Join(gitHubClonedPath, "foobar.txt"), []byte("hello foobar "+branchName), 0644)
+		err = ioutil.WriteFile(path.Join(gitHubClonedPath, fileName), []byte("hello foobar "+fileName), 0644)
 		assert.NoError(t, err)
 		commitSha, err := gitHubClonedRepo.AddAndCommit("commit in pr")
 		assert.NoError(t, err)
@@ -140,13 +148,19 @@ func TestService_ImportPullRequest(t *testing.T) {
 		assert.NoError(t, err)
 		err = fakeGitHubBareRepo.CreateRef(fmt.Sprintf("refs/pull/%d/head", number), commitSha)
 		assert.NoError(t, err)
+
+		masterCommitID, err := gitHubClonedRepo.BranchCommitID("master")
+		assert.NoError(t, err)
+
 		pr = &api.PullRequest{
 			ID:     &id,
 			Number: &number,
 			Title:  &title,
 			Head:   &api.PullRequestBranch{SHA: &commitSha},
+			Base:   &api.PullRequestBranch{SHA: &masterCommitID},
 			State:  p[string](string(github.PullRequestStateOpen)),
 		}
+
 		return
 	}
 
@@ -165,7 +179,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	t.Run("ImportPullRequest", func(t *testing.T) {
-		pr, _ := createFakePr(5000, 1, "hello world")
+		pr, _ := createFakePr(5000, 1, "foobar.txt", "hello world")
 
 		err = d.GitHubService.ImportPullRequest(usr.ID, pr, repo, installation, "testing-access-token")
 		assert.NoError(t, err)
@@ -181,7 +195,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	})
 
 	t.Run("WebhookImport", func(t *testing.T) {
-		pr, prBranchName := createFakePr(6000, 2, "hello webhook")
+		pr, prBranchName := createFakePr(6000, 2, "foobar.txt", "hello webhook")
 
 		err := d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
 			PullRequest:  pr,
@@ -258,6 +272,62 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		// no new workspaces where created
 		assert.Equal(t, len(afterFirstPushWorkspaceList), len(afterThirdPushWorkspaceList))
+	})
+
+	t.Run("ImportedParent", func(t *testing.T) {
+		// create two prs
+		firstPR, firstBranchName := createFakePr(7000, 3, "first.txt", "hello first")
+		secondPR, _ := createFakePr(7001, 4, "second.txt", "hello second")
+
+		// import and merge the first pr
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  firstPR,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		ws := getWorkspace("<p>hello first</p>")
+		assert.NotNil(t, ws)
+
+		mergeCommitSha, err := fakeGitHubBareRepo.MergeBranchInto(firstBranchName, "master")
+		assert.NoError(t, err)
+
+		firstPR.State = p[string]("closed")
+		firstPR.Merged = p[bool](true)
+		firstPR.MergeCommitSHA = &mergeCommitSha
+
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  firstPR,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		// check merged result
+		cb, err = d.CodebaseService.GetByID(ctx, cb.ID) // reload
+		assert.NoError(t, err)
+		headChange, err := d.ChangeService.HeadChange(ctx, cb)
+		assert.NoError(t, err)
+		assert.Equal(t, "hello first", *headChange.Title)
+
+		// open second pr
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  secondPR,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		secondWorkspace := getWorkspace("<p>hello second</p>")
+		assert.NotNil(t, secondWorkspace)
+
+		diffs, _, err := d.WorkspaceService.Diffs(ctx, secondWorkspace.ID)
+		assert.NotNil(t, secondWorkspace)
+		t.Logf("diffs: %+v", diffs)
+		if assert.Len(t, diffs, 1) {
+			assert.Equal(t, "second.txt", diffs[0].NewName)
+		}
 	})
 }
 
