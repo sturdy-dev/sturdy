@@ -41,6 +41,7 @@ docker run --interactive \
 See the [Sturdy Docs](https://getsturdy.com/docs) to learn more about Sturdy and why it's cool!
 
 ## Development
+TEST
 
 See [README_DEVELOPMENT.md](README_DEVELOPMENT.md) for instructions of how to build and develop Sturdy.
 
