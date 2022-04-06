@@ -29,7 +29,6 @@ import OnboardingStep from '../components/onboarding/OnboardingStep.vue'
 import Button from '../atoms/Button.vue'
 
 import { useLandWorkspaceChange } from '../mutations/useLandWorkspaceChange'
-import JSConfetti from 'js-confetti'
 
 export default defineComponent({
   components: {
@@ -53,23 +52,15 @@ export default defineComponent({
   setup() {
     const { mutating: merging, landWorkspaceChange } = useLandWorkspaceChange()
 
-    const jsConfetti = inject<JSConfetti>('jsConfetti')
-
     return {
       merging,
       landWorkspaceChange,
-
-      jsConfetti,
     }
   },
   methods: {
     shareChange() {
       return this.landWorkspaceChange({
         workspaceID: this.workspaceId,
-      }).then(() => {
-        this.jsConfetti?.addConfetti({
-          emojis: ['🚀', '⚡️', '💥', '✨', '💫', '🌸', '🐥', '💻'],
-        })
       })
     },
   },

@@ -118,7 +118,6 @@ import { useMergeGitHubPullRequest } from '../mutations/useMergeGitHubPullReques
 
 import type { MergeGitHubButton_WorkspaceFragment } from './__generated__/WorkspaceMergeGitHubButton'
 import { GitHubPullRequestState } from '../__generated__/types'
-import JSConfetti from 'js-confetti'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment MergeGitHubButton_Workspace on Workspace {
@@ -166,16 +165,12 @@ export default defineComponent({
     const { mutating: mergingGitHubPullRequest, mergeGitHubPullRequest } =
       useMergeGitHubPullRequest()
 
-    const jsConfetti = inject<JSConfetti>('jsConfetti')
-
     return {
       creatingOrUpdatingPR,
       createOrUpdateGitHubPullRequest,
 
       mergingGitHubPullRequest,
       mergeGitHubPullRequest,
-
-      jsConfetti,
     }
   },
   data() {
@@ -245,34 +240,28 @@ export default defineComponent({
     async triggerMergePullRequest() {
       await this.mergeGitHubPullRequest({
         workspaceID: this.workspace.id,
-      })
-        .then(() => {
-          this.jsConfetti?.addConfetti({
-            emojis: ['🚀', '⚡️', '💥', '✨', '💫', '🌸', '🐥', '💻'],
-          })
-        })
-        .catch((e: any) => {
-          let title = 'Failed!'
-          let message = 'Failed to merge pull request'
+      }).catch((e: any) => {
+        let title = 'Failed!'
+        let message = 'Failed to merge pull request'
 
-          // Server generated error if the push fails (due to branch protection rules, etc)
-          if (e.graphQLErrors && e.graphQLErrors.length > 0) {
-            if (e.graphQLErrors[0].extensions?.message) {
-              title = 'GitHub error'
-              message = e.graphQLErrors[0].extensions.message
-            } else {
-              console.error(e)
-            }
+        // Server generated error if the push fails (due to branch protection rules, etc)
+        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+          if (e.graphQLErrors[0].extensions?.message) {
+            title = 'GitHub error'
+            message = e.graphQLErrors[0].extensions.message
           } else {
             console.error(e)
           }
+        } else {
+          console.error(e)
+        }
 
-          this.emitter.emit('notification', {
-            title: title,
-            message,
-            style: 'error',
-          })
+        this.emitter.emit('notification', {
+          title: title,
+          message,
+          style: 'error',
         })
+      })
     },
   },
 })
