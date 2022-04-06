@@ -29,7 +29,7 @@ func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg 
 	chs, ok := q.chans[name]
 	q.chansGuard.RUnlock()
 	if !ok {
-		return nil
+		return fmt.Errorf("no subscriber for %s was found", name)
 	}
 
 	wg, _ := errgroup.WithContext(ctx)
@@ -48,9 +48,9 @@ func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg 
 	return wg.Wait()
 }
 
-func (q *Sync) Subscribe(ctx context.Context, name names.IncompleteQueueName, mesasges chan<- Message) error {
+func (q *Sync) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- Message) error {
 	q.chansGuard.Lock()
-	q.chans[name] = append(q.chans[name], mesasges)
+	q.chans[name] = append(q.chans[name], messages)
 	q.chansGuard.Unlock()
 	<-ctx.Done()
 	return nil

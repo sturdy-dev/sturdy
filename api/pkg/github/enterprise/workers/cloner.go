@@ -42,7 +42,7 @@ func (q *ClonerQueue) Enqueue(ctx context.Context, event *github.CloneRepository
 }
 
 func (q *ClonerQueue) Start(ctx context.Context) error {
-	messages := make(chan queue.Message, 10)
+	messages := make(chan queue.Message)
 	go func() {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -84,17 +84,7 @@ func (q *ClonerQueue) Start(ctx context.Context) error {
 	if err := q.queue.Subscribe(ctx, q.name, messages); err != nil {
 		return fmt.Errorf("could not subscribe to queue: %w", err)
 	}
-	q.logger.Info("queue stoped", zap.Stringer("queue_name", q.name))
+	q.logger.Info("queue stopped", zap.Stringer("queue_name", q.name))
 
-	return nil
-}
-
-type nopCLoner struct{}
-
-func NopCloner() *nopCLoner {
-	return &nopCLoner{}
-}
-
-func (n *nopCLoner) Enqueue(ctx context.Context, event *github.CloneRepositoryEvent) error {
 	return nil
 }

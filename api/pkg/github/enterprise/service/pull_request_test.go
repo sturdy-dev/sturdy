@@ -607,7 +607,7 @@ func prWebhookEvent(t *testing.T, userID users.ID, webhookRoute gin.HandlerFunc,
 
 func clientProvider(gitHubAppConfig *config.GitHubAppConfig, installationID int64) (tokenClient *client.GitHubClients, appsClient client.AppsClient, err error) {
 	return &client.GitHubClients{
-			Repositories: nil,
+			Repositories: FakeGitHubRepositoriesClient,
 			PullRequests: &fakeGitHubPullRequestClient{},
 		},
 		&fakeGitHubAppsClient{}, nil
@@ -669,11 +669,45 @@ func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id i
 }
 
 func (f *fakeGitHubAppsClient) GetInstallation(ctx context.Context, id int64) (*gh.Installation, *gh.Response, error) {
-	panic("implement me")
+	return &gh.Installation{
+		ID: &id,
+	}, nil, nil
 }
 
 func (f *fakeGitHubAppsClient) Get(ctx context.Context, appSlug string) (*gh.App, *gh.Response, error) {
 	panic("implement me")
+}
+
+var FakeGitHubRepositoriesClient = &fakeGitHubRepositoriesClient{
+	repos: make(map[int64]gh.Repository),
+}
+
+type fakeGitHubRepositoriesClient struct {
+	repos map[int64]gh.Repository
+}
+
+func (f fakeGitHubRepositoriesClient) Get(ctx context.Context, owner, repo string) (*gh.Repository, *gh.Response, error) {
+	for _, r := range f.repos {
+		if r.GetOwner().GetLogin() == owner && r.GetName() == repo {
+			return &r, nil, nil
+		}
+	}
+	return nil, nil, fmt.Errorf("fakeGitHubRepositoriesClient.Get: not found")
+}
+
+func (f fakeGitHubRepositoriesClient) GetByID(ctx context.Context, id int64) (*gh.Repository, *gh.Response, error) {
+	if r, ok := f.repos[id]; ok {
+		return &r, nil, nil
+	}
+	return nil, nil, fmt.Errorf("fakeGitHubRepositoriesClient.GetByID: not found")
+}
+
+func (f fakeGitHubRepositoriesClient) ListCollaborators(ctx context.Context, owner, repo string, opts *gh.ListCollaboratorsOptions) ([]*gh.User, *gh.Response, error) {
+	return []*gh.User{}, &gh.Response{
+		FirstPage: 1,
+		LastPage:  1,
+		NextPage:  0,
+	}, nil
 }
 
 func requestWithParams(t *testing.T, userID users.ID, route func(*gin.Context), request, response any, reqType string, params []gin.Param) {

@@ -130,10 +130,7 @@ func (svc *Service) authAsUserOrFallbackAsApp(userID *users.ID, installationID i
 	if userID != nil {
 		gitHubUser, err := svc.gitHubUserRepo.GetByUserID(*userID)
 		// Auth as user if a user could be found
-		if err == nil {
-			if gitHubUser.AccessToken == nil {
-				return nil, fmt.Errorf("no access token found for user %s", gitHubUser.Username)
-			}
+		if err == nil && gitHubUser != nil && gitHubUser.AccessToken != nil {
 			personalClient, err := svc.gitHubPersonalClientProvider(*gitHubUser.AccessToken)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create personal github client: %w", err)

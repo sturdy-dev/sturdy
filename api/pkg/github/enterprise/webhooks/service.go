@@ -208,12 +208,7 @@ func (svc *Service) getPullRequestAuthor(ctx context.Context, repo *github.Repos
 	return user, nil
 }
 
-func (svc *Service) importNewPullRequest(
-	ctx context.Context,
-	logger *zap.Logger,
-	repo *github.Repository,
-	event *PullRequestEvent,
-) error {
+func (svc *Service) importNewPullRequest(ctx context.Context, repo *github.Repository, event *PullRequestEvent) error {
 	if event.GetPullRequest().GetMerged() {
 		// noop, do not import merged PRs
 		return nil
@@ -272,7 +267,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 
 	if pr, err := svc.gitHubPullRequestRepo.GetByGitHubIDAndCodebaseID(event.GetPullRequest().GetID(), repo.CodebaseID); errors.Is(err, sql.ErrNoRows) {
 		logger.Info("pull request not found, importing")
-		if err := svc.importNewPullRequest(ctx, logger, repo, event); err != nil {
+		if err := svc.importNewPullRequest(ctx, repo, event); err != nil {
 			return fmt.Errorf("failed to import new pull request: %w", err)
 		}
 		return nil

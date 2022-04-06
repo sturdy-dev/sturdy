@@ -179,7 +179,7 @@ func (svc *Service) ListAllAccessibleRepositoriesFromGitHub(userID users.ID) ([]
 }
 
 func (svc *Service) CreateNonReadyCodebaseAndCloneByIDs(ctx context.Context, installationID, repositoryID int64, userID users.ID, organizationID string) (*codebases.Codebase, error) {
-	client, _, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
+	client, _, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, installationID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get github client: %w", err)
 	}
@@ -220,7 +220,7 @@ func (svc *Service) CreateNonReadyCodebaseAndClone(ctx context.Context, ghRepo *
 	_, existingInstallationErr := svc.gitHubInstallationRepo.GetByInstallationID(installationID)
 	switch {
 	case errors.Is(existingInstallationErr, sql.ErrNoRows):
-		_, appsClient, err := ghappclient.NewInstallationClient(svc.gitHubAppConfig, installationID)
+		_, appsClient, err := svc.gitHubInstallationClientProvider(svc.gitHubAppConfig, installationID)
 		if err != nil {
 			return nil, fmt.Errorf("could not get github client: %w", err)
 		}
