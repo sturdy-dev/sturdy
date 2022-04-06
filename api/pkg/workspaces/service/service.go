@@ -429,19 +429,15 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 
 	// Add the reverted changes to a snapshot
 	if req.BaseChangeID != nil && baseCommitSha != "" && req.Revert {
-		snapshot, err := s.snap.Snapshot(
+		if _, err := s.snap.Snapshot(
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
 			snapshotter.WithOnTemporaryView(),
+			snapshotter.WithMarkAsLatestInWorkspace(),
 			snapshotter.WithRevertDiff(baseCommitSha, baseCommitParentSha),
-		)
-		if err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
-		}
-		ws.SetSnapshot(snapshot)
-		if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(ws.LatestSnapshotID), db.SetDiffsCount(ws.DiffsCount)); err != nil {
-			return nil, fmt.Errorf("failed to update workspace: %w", err)
 		}
 	}
 
