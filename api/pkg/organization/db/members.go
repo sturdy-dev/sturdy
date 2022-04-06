@@ -62,7 +62,10 @@ func (r *memberRepository) ListByUserID(ctx context.Context, id users.ID) ([]*or
 
 func (r *memberRepository) Create(ctx context.Context, mem organization.Member) error {
 	if _, err := r.db.NamedExecContext(ctx, `INSERT INTO organization_members (id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by)
-		VALUES (:id, :user_id, :organization_id, :created_at, :created_by, :deleted_at, :deleted_by)`,
+		VALUES (:id, :user_id, :organization_id, :created_at, :created_by, :deleted_at, :deleted_by)
+		ON CONFLICT (organization_id, user_id) DO UPDATE
+		SET deleted_at = NULL,
+		    deleted_by = NULL`,
 		mem); err != nil {
 		return fmt.Errorf("failed to create organization: %w", err)
 	}
