@@ -390,46 +390,11 @@ func (svc *Service) updateExistingPullRequest(
 		return fmt.Errorf("failed to migrate comments: %w", err)
 	}
 
-	// optimisticly archive workspace. if everything is ok with it, it will stay archived
-	// if not, we'll unarchive it a later in this function
+	// Archive the workspace
 	if err := svc.workspaceService.ArchiveWithChange(ctx, ws, ch); err != nil {
 		return fmt.Errorf("failed to archive workspace: %w", err)
 	}
 
-	// ws might have been modified (reload)
-	ws, err = svc.workspaceReader.Get(pr.WorkspaceID)
-	if err != nil {
-		return fmt.Errorf("failed to reload workpsace: %w", err)
-	}
-
-	hasConflicts, err := svc.workspaceService.HasConflicts(ctx, ws)
-	if err != nil {
-		return fmt.Errorf("failed to check for conflicts: %w", err)
-	}
-
-	if hasConflicts {
-		// if workspace has conflicts, that probably means that it was changed between the pr was opened and merged
-		// in that case, unarchive workspace and make the user fix it
-		return svc.workspaceService.Unarchive(ctx, ws)
-	}
-
-	// no conflits, so we can sync the workspace with the trunk
-	if _, err := svc.syncService.OnTrunk(ctx, ws); err != nil {
-		return fmt.Errorf("failed to sync workspace: %w", err)
-	}
-
-	diffs, _, err := svc.workspaceService.Diffs(ctx, ws.ID)
-	if err != nil {
-		return fmt.Errorf("failed to get diffs: %w", err)
-	}
-
-	if len(diffs) != 0 {
-		// there are some diffs left after the sync. That means that the workspace was changed between the pr was opened
-		// and merged. in that case, unarchive workspace and make the user fix it
-		return svc.workspaceService.Unarchive(ctx, ws)
-	}
-
-	// workspace is synced with with trunk, has no diffs - very good!
 	return nil
 }
 
