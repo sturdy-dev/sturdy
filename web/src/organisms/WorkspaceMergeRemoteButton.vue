@@ -80,7 +80,6 @@ import Select from '../atoms/Select.vue'
 import type { MergeRemoteButton_WorkspaceFragment } from './__generated__/WorkspaceMergeRemoteButton'
 
 import { usePushWorkspace } from '../mutations/usePushWorkspace'
-import JSConfetti from 'js-confetti'
 
 export const WORKSPACE_FRAGMENT = gql`
   fragment MergeRemoteButton_Workspace on Workspace {
@@ -120,14 +119,11 @@ export default defineComponent({
   setup() {
     const { mutating: pushingWorkspace, pushWorkspace } = usePushWorkspace()
 
-    const jsConfetti = inject<JSConfetti>('jsConfetti')
-
     return {
       pushingWorkspace,
       pushWorkspace,
 
       shareIcon: ShareIcon,
-      jsConfetti,
     }
   },
   data() {
@@ -181,15 +177,9 @@ export default defineComponent({
 
     async triggerPushWorkspaceWithMerge() {
       this.isMergingAndPushing = true
-      await this.triggerPushWorkspace(true)
-        .then(() => {
-          this.jsConfetti?.addConfetti({
-            emojis: ['🚀', '⚡️', '💥', '✨', '💫', '🌸', '🐥', '💻'],
-          })
-        })
-        .finally(() => {
-          this.isMergingAndPushing = false
-        })
+      await this.triggerPushWorkspace(true).finally(() => {
+        this.isMergingAndPushing = false
+      })
     },
   },
 })

@@ -40,7 +40,6 @@
     "graphql": "~15.5.0",
     "graphql-tag": "~2.12.4",
     "highlight.js": "~11.0.0-beta1",
-    "js-confetti": "^0.10.2",
     "katex": "~0.15.1",
     "linkify-string": "~3.0.3",
     "linkifyjs": "~3.0.3",
