@@ -42,8 +42,8 @@ func ConvertPullRequest(pr *github.PullRequest) *PullRequest {
 		CreatedAt:      pr.CreatedAt,
 		Body:           pr.Body,
 		User:           ConvertUser(pr.User),
-		Head:           ConvertPullReqestBranch(pr.Head),
-		Base:           ConvertPullReqestBranch(pr.Base),
+		Head:           ConvertPullRequestBranch(pr.Head),
+		Base:           ConvertPullRequestBranch(pr.Base),
 	}
 }
 func (pr *PullRequest) GetUser() *User {
@@ -152,7 +152,7 @@ type PullRequestBranch struct {
 	User  *User       `json:"user,omitempty"`
 }
 
-func ConvertPullReqestBranch(branch *github.PullRequestBranch) *PullRequestBranch {
+func ConvertPullRequestBranch(branch *github.PullRequestBranch) *PullRequestBranch {
 	return &PullRequestBranch{
 		Label: branch.Label,
 		Ref:   branch.Ref,

@@ -59,7 +59,7 @@ type Service interface {
 	GetByViewID(context.Context, string) (*workspaces.Workspace, error)
 	LandChange(ctx context.Context, ws *workspaces.Workspace, diffOptions ...vcs.DiffOption) (*changes.Change, error)
 	CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error
-	Diffs(context.Context, string, ...DiffsOption) ([]unidiff.FileDiff, bool, error)
+	Diffs(ctx context.Context, workspaceID string, opts ...DiffsOption) ([]unidiff.FileDiff, bool, error)
 	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
 	RemovePatches(context.Context, *workspaces.Workspace, ...string) error
 	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
