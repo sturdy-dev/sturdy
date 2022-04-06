@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -51,7 +52,10 @@ func (r *fileRootResolver) InternalFile(ctx context.Context, codebase *codebases
 	}
 
 	headChange, err := r.changeService.HeadChange(ctx, codebase)
-	if err != nil {
+	switch {
+	case errors.Is(err, service_change.ErrNotFound):
+		return nil, gqlerrors.ErrNotFound
+	case err != nil:
 		return nil, gqlerrors.Error(fmt.Errorf("could not get head change: %w", err))
 	}
 
