@@ -22,10 +22,10 @@ import { defineComponent, toRefs } from 'vue'
 import type { PropType } from 'vue'
 import { useCreateOrUpdateBuildkiteIntegration } from '../../mutations/useCreateOrUpdateBuildkiteIntegration'
 import { useTriggerInstantIntegration } from '../../mutations/useTriggerInstantIntegration'
-import type {
-  CreateOrUpdateBuildkiteIntegrationInput,
+import {
+  type CreateOrUpdateBuildkiteIntegrationInput,
   IntegrationProvider,
-  TriggerInstantIntegrationInput,
+  type TriggerInstantIntegrationInput,
 } from '../../__generated__/types'
 import type {
   BuildkiteHeadChangeFragment,
@@ -122,9 +122,10 @@ export default defineComponent({
   methods: {
     updateIntegration() {
       this.showSuccess = false
+      if (!this.data?.codebase) return
       this.createOrUpdateBuildkiteIntegration({
         integrationID: this.editingIntegrationId,
-        codebaseID: this.data!.codebase.id,
+        codebaseID: this.data.codebase.id,
         apiToken: this.apiToken,
         organizationName: this.organizationName,
         pipelineName: this.pipelineName,
@@ -133,7 +134,6 @@ export default defineComponent({
         .then((res) => {
           this.error = ''
           this.showSuccess = true
-          console.log(res)
           this.$router.replace({
             name: 'codebaseSettingsEditBuildkite',
             params: { integrationId: res.createOrUpdateBuildkiteIntegration.id },

@@ -979,11 +979,6 @@ type ContentsDownloadURL {
   url: String!
 }
 
-input TriggerInstantIntegrationInput {
-  changeID: ID!
-  providers: [String!]
-}
-
 type OnboardingStep {
   id: ID!
 }
