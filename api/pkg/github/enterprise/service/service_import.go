@@ -130,6 +130,24 @@ func (svc *Service) UpdatePullRequest(ctx context.Context, pullRequest *github.P
 	return nil
 }
 
+type PullRequestTitleDescriptioner interface {
+	GetNumber() int
+	GetTitle() string
+	GetBody() string
+}
+
+func DescriptionFromPullRequest(pr PullRequestTitleDescriptioner) (string, error) {
+	pullRequestName := pr.GetTitle()
+	if pullRequestName == "" {
+		pullRequestName = fmt.Sprintf("PR %d", pr.GetNumber())
+	}
+	pullRequestDescription, err := message.MarkdownToHtml(pr.GetBody())
+	if err != nil {
+		return "", fmt.Errorf("failed to render github body: %w", err)
+	}
+	return "<p>" + pullRequestName + "</p>" + pullRequestDescription, nil
+}
+
 func (svc *Service) ImportPullRequest(
 	userID users.ID,
 	gitHubPR *api.PullRequest,
@@ -145,18 +163,12 @@ func (svc *Service) ImportPullRequest(
 		return fmt.Errorf("failed to check if pr is imported: %w", err)
 	}
 
-	workspaceID := uuid.NewString()
-
-	// Build description
-	pullRequestName := gitHubPR.GetTitle()
-	if pullRequestName == "" {
-		pullRequestName = fmt.Sprintf("PR %d", gitHubPR.GetNumber())
-	}
-	pullRequestDescription, err := message.MarkdownToHtml(gitHubPR.GetBody())
+	draftDescription, err := DescriptionFromPullRequest(gitHubPR)
 	if err != nil {
-		return fmt.Errorf("failed to render github body: %w", err)
+		return fmt.Errorf("failed to create description: %w", err)
 	}
-	description := "<p>" + pullRequestName + "</p>" + pullRequestDescription
+
+	workspaceID := uuid.NewString()
 
 	importBranchName := fmt.Sprintf("import-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
 	importedTemporaryBranchName := fmt.Sprintf("imported-tmp-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
@@ -193,7 +205,7 @@ func (svc *Service) ImportPullRequest(
 		ID:               workspaceID,
 		CodebaseID:       codebaseID,
 		UserID:           userID,
-		DraftDescription: description,
+		DraftDescription: draftDescription,
 		CreatedAt:        &t,
 	}
 	if err := svc.workspaceWriter.Create(ws); err != nil {

@@ -124,10 +124,10 @@ func TestService_ImportPullRequest(t *testing.T) {
 	gitHubClonedRepo, err := vcs.CloneRepo(fakeGitHubBarePath, gitHubClonedPath)
 	assert.NoError(t, err)
 
-	createFakePr := func(id int64, number int, title string) *api.PullRequest {
+	createFakePr := func(id int64, number int, title string) (pr *api.PullRequest, branchName string) {
 		err = gitHubClonedRepo.CheckoutBranchWithForce("sturdytrunk")
 		assert.NoError(t, err)
-		branchName := fmt.Sprintf("pr-%s", uuid.NewString())
+		branchName = fmt.Sprintf("pr-%s", uuid.NewString())
 		err = gitHubClonedRepo.CreateNewBranchOnHEAD(branchName)
 		assert.NoError(t, err)
 		err = gitHubClonedRepo.CheckoutBranchWithForce(branchName)
@@ -140,12 +140,14 @@ func TestService_ImportPullRequest(t *testing.T) {
 		assert.NoError(t, err)
 		err = fakeGitHubBareRepo.CreateRef(fmt.Sprintf("refs/pull/%d/head", number), commitSha)
 		assert.NoError(t, err)
-		return &api.PullRequest{
+		pr = &api.PullRequest{
 			ID:     &id,
 			Number: &number,
 			Title:  &title,
 			Head:   &api.PullRequestBranch{SHA: &commitSha},
+			State:  p[string](string(github.PullRequestStateOpen)),
 		}
+		return
 	}
 
 	getWorkspace := func(matchDescription string) *workspaces.Workspace {
@@ -163,7 +165,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	t.Run("ImportPullRequest", func(t *testing.T) {
-		pr := createFakePr(5000, 1, "hello world")
+		pr, _ := createFakePr(5000, 1, "hello world")
 
 		err = d.GitHubService.ImportPullRequest(usr.ID, pr, repo, installation, "testing-access-token")
 		assert.NoError(t, err)
@@ -179,7 +181,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	})
 
 	t.Run("WebhookImport", func(t *testing.T) {
-		pr := createFakePr(6000, 2, "hello webhook")
+		pr, prBranchName := createFakePr(6000, 2, "hello webhook")
 
 		err := d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
 			PullRequest:  pr,
@@ -196,6 +198,66 @@ func TestService_ImportPullRequest(t *testing.T) {
 				assert.Equal(t, diffs[0].NewName, "foobar.txt")
 			}
 		}
+
+		afterFirstPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
+		assert.NoError(t, err)
+
+		// make changes to the pr
+		err = gitHubClonedRepo.CheckoutBranchWithForce(prBranchName)
+		assert.NoError(t, err)
+		err = ioutil.WriteFile(path.Join(gitHubClonedPath, "foobar-other.txt"), []byte("hello foobar updated"), 0644)
+		assert.NoError(t, err)
+		commitSha, err := gitHubClonedRepo.AddAndCommit("commit 2 in pr")
+		assert.NoError(t, err)
+		err = gitHubClonedRepo.ForcePush(d.Logger, prBranchName)
+		assert.NoError(t, err)
+		err = fakeGitHubBareRepo.CreateRef(fmt.Sprintf("refs/pull/%d/head", pr.GetNumber()), commitSha)
+		assert.NoError(t, err)
+		pr.Head.SHA = &commitSha
+
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  pr,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		afterSecondPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
+		assert.NoError(t, err)
+
+		if assert.NotNil(t, ws) {
+			diffs, _, err := d.WorkspaceService.Diffs(ctx, ws.ID)
+			assert.NoError(t, err)
+			if assert.Len(t, diffs, 2) {
+				assert.Equal(t, diffs[0].NewName, "foobar-other.txt")
+				assert.Equal(t, diffs[1].NewName, "foobar.txt")
+			}
+		}
+
+		// no new workspaces where created
+		assert.Equal(t, len(afterFirstPushWorkspaceList), len(afterSecondPushWorkspaceList))
+
+		// updated description and title on github
+		pr.Body = p[string]("hello **body**")
+		pr.Title = p[string]("this is a title")
+
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  pr,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		updatedWs, err := d.WorkspaceService.GetByID(ctx, ws.ID)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "<p>this is a title</p><p>hello <strong>body</strong></p>\n", updatedWs.DraftDescription)
+
+		afterThirdPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
+		assert.NoError(t, err)
+
+		// no new workspaces where created
+		assert.Equal(t, len(afterFirstPushWorkspaceList), len(afterThirdPushWorkspaceList))
 	})
 }
 
