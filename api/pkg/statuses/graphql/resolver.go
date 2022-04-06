@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -11,6 +12,7 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -26,9 +28,11 @@ type RootResolver struct {
 	changeService    *service_changes.Service
 	workspaceService service_workspace.Service
 	authService      *service_auth.Service
+	snapshotsService snapshotter.Snapshotter
 
-	changeRootResolver resolvers.ChangeRootResolver
-	gitHubPrResovler   resolvers.GitHubPullRequestRootResolver
+	changeRootResolver    resolvers.ChangeRootResolver
+	gitHubPrResovler      resolvers.GitHubPullRequestRootResolver
+	workspaceRootResolver *resolvers.WorkspaceRootResolver
 
 	eventsSubscriber *eventsv2.Subscriber
 }
@@ -42,16 +46,20 @@ func New(
 	changeRootResolver resolvers.ChangeRootResolver,
 	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
 	eventsReader *eventsv2.Subscriber,
+	snapshotsService snapshotter.Snapshotter,
+	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 ) *RootResolver {
 	return &RootResolver{
-		logger:             logger,
-		svc:                svc,
-		changeService:      changeService,
-		workspaceService:   workspaceService,
-		authService:        authService,
-		changeRootResolver: changeRootResolver,
-		gitHubPrResovler:   gitHubPrResovler,
-		eventsSubscriber:   eventsReader,
+		logger:                logger,
+		svc:                   svc,
+		changeService:         changeService,
+		workspaceService:      workspaceService,
+		authService:           authService,
+		changeRootResolver:    changeRootResolver,
+		gitHubPrResovler:      gitHubPrResovler,
+		eventsSubscriber:      eventsReader,
+		snapshotsService:      snapshotsService,
+		workspaceRootResolver: workspaceRootResolver,
 	}
 }
 
@@ -131,5 +139,21 @@ func (r *resolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullR
 		return nil, err
 	} else {
 		return pullRequest, nil
+	}
+}
+
+func (r *resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
+	if snapshot, err := r.root.snapshotsService.GetByCommitSHA(ctx, r.status.CommitSHA); errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, gqlerrors.Error(err)
+	} else if snapshot.WorkspaceID == nil {
+		return nil, nil
+	} else {
+		t := true
+		return (*r.root.workspaceRootResolver).Workspace(ctx, resolvers.WorkspaceArgs{
+			ID:            graphql.ID(*snapshot.WorkspaceID),
+			AllowArchived: &t,
+		})
 	}
 }

@@ -35,6 +35,7 @@ type Snapshotter interface {
 	Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error)
 	GetByID(context.Context, string) (*snapshots.Snapshot, error)
 	Restore(*snapshots.Snapshot, vcs.RepoWriter) error
+	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
 }
 
 type SnapshotOptions struct {
@@ -607,4 +608,8 @@ func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error 
 		return fmt.Errorf("failed to restore: %w", err)
 	}
 	return nil
+}
+
+func (s *snap) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Snapshot, error) {
+	return s.snapshotsRepo.GetByCommitSHA(ctx, sha)
 }

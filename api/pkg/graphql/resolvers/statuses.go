@@ -12,6 +12,7 @@ import (
 type StatusesRootResolver interface {
 	// Subscriptions
 	UpdatedChangesStatuses(context.Context, UpdatedChangesStatusesArgs) (<-chan StatusResolver, error)
+	UpdatedWorkspacesStatuses(context.Context, UpdatedWorkspacesStatusesArgs) (<-chan StatusResolver, error)
 	UpdatedGitHubPullRequestStatuses(context.Context, UpdatedGitHubPullRequestStatusesArgs) (<-chan StatusResolver, error)
 
 	// Internal
@@ -21,6 +22,10 @@ type StatusesRootResolver interface {
 
 type UpdatedChangesStatusesArgs struct {
 	ChangeIDs []graphql.ID
+}
+
+type UpdatedWorkspacesStatusesArgs struct {
+	WorkspaceIds []graphql.ID
 }
 
 type UpdatedGitHubPullRequestStatusesArgs struct {
@@ -34,7 +39,9 @@ type StatusResolver interface {
 	Type() (StatusType, error)
 	Timestamp() int32
 	DetailsUrl() *string
+
 	Change(context.Context) (ChangeResolver, error)
+	Workspace(context.Context) (WorkspaceResolver, error)
 	GitHubPullRequest(context.Context) (GitHubPullRequestResolver, error)
 }
 

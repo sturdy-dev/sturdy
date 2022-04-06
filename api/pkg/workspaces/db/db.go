@@ -257,3 +257,30 @@ func (r *repo) UpdateFields(ctx context.Context, workspaceID string, fields ...U
 	}
 	return nil
 }
+
+func (r *repo) ListByIDs(ctx context.Context, ids ...string) ([]*workspaces.Workspace, error) {
+	var entities []*workspaces.Workspace
+	if err := r.db.SelectContext(ctx, &entities, `SELECT 
+		id,
+		user_id, 
+		codebase_id, 
+		name, 
+		created_at, 
+		last_landed_at, 
+		archived_at, 
+		unarchived_at, 
+		updated_at, 
+		draft_description, 
+		view_id, 
+		latest_snapshot_id, 
+		up_to_date_with_trunk, 
+		head_change_id, 
+		head_change_computed, 
+		diffs_count, 
+		change_id
+	FROM workspaces
+	WHERE id IN (:ids)`, map[string]interface{}{"ids": ids}); err != nil {
+		return nil, fmt.Errorf("failed to ListByIDs: %w", err)
+	}
+	return entities, nil
+}
