@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -17,7 +15,6 @@ import (
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 
-	"github.com/google/uuid"
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
 )
@@ -72,46 +69,6 @@ func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Contex
 		rr = append(rr, &resolver{status: s, root: r})
 	}
 	return rr, nil
-}
-
-func (r *RootResolver) UpdateStatus(ctx context.Context, args resolvers.UpdateStatusArgs) (resolvers.StatusResolver, error) {
-	ch, err := r.changeService.GetChangeByID(ctx, changes.ID(args.Input.ChangeID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if err := r.authService.CanWrite(ctx, ch); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	var tp statuses.Type
-	switch args.Input.Type {
-	case resolvers.StatusTypePending:
-		tp = statuses.TypePending
-	case resolvers.StatusTypeFailing:
-		tp = statuses.TypeFailing
-	case resolvers.StatusTypeHealthy:
-		tp = statuses.TypeHealty
-	default:
-		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "unsupported type")
-	}
-
-	status := &statuses.Status{
-		ID:          uuid.NewString(),
-		CommitSHA:    *ch.CommitID,
-		CodebaseID:  ch.CodebaseID,
-		Type:        tp,
-		Title:       args.Input.Title,
-		Description: args.Input.Description,
-		DetailsURL:  args.Input.DetailsUrl,
-		Timestamp:   time.Now(),
-	}
-
-	if err := r.svc.Set(ctx, status); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	return &resolver{root: r, status: status}, nil
 }
 
 type resolver struct {

@@ -10,9 +10,6 @@ import (
 )
 
 type StatusesRootResolver interface {
-	// Mutations
-	UpdateStatus(context.Context, UpdateStatusArgs) (StatusResolver, error)
-
 	// Subscriptions
 	UpdatedChangesStatuses(context.Context, UpdatedChangesStatusesArgs) (<-chan StatusResolver, error)
 	UpdatedGitHubPullRequestStatuses(context.Context, UpdatedGitHubPullRequestStatusesArgs) (<-chan StatusResolver, error)
@@ -28,18 +25,6 @@ type UpdatedChangesStatusesArgs struct {
 
 type UpdatedGitHubPullRequestStatusesArgs struct {
 	ID graphql.ID
-}
-
-type UpdateStatusArgs struct {
-	Input UpdateStatusInput
-}
-
-type UpdateStatusInput struct {
-	ChangeID    graphql.ID
-	Type        StatusType
-	Title       string
-	Description *string
-	DetailsUrl  *string
 }
 
 type StatusResolver interface {
