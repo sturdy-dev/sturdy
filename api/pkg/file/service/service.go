@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
-	"log"
 	"path"
 
 	"github.com/h2non/filetype"
@@ -83,8 +82,6 @@ func (s *Service) WorkspaceFileType(ctx context.Context, ws *workspaces.Workspac
 }
 
 func (s *Service) ChangeFileType(ctx context.Context, ch *changes.Change, filePath string, isNew bool) (file.Type, error) {
-	log.Println("CHANGE FILE", ch.ID, ch.CommitID)
-
 	fsys, err := live.ChangeFS(s.executorProvider, ch, isNew)
 	if err != nil {
 		return file.UnknownType, fmt.Errorf("failed to create fs: %w", err)
@@ -96,7 +93,6 @@ func (s *Service) ChangeFileType(ctx context.Context, ch *changes.Change, filePa
 func (s *Service) detectFileTypeOnFs(fsys fs.FS, filePath string) (file.Type, error) {
 	// ext is not in filter, don't validate it
 	ext := path.Ext(filePath)
-	log.Println("EXT", ext)
 	if _, ok := fileExtFilter[ext]; !ok {
 		return file.UnknownType, nil
 	}
