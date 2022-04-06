@@ -20,7 +20,7 @@
       <MenuItems
         class="origin-top-right absolute right-0 mt-2 min-w-max rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20"
       >
-        <div v-for="status in statuses" :key="status.id">
+        <div v-for="status in sortedStatuses" :key="status.id">
           <MenuItem v-slot="{ active }">
             <div
               :class="[
@@ -76,6 +76,9 @@ export default defineComponent({
     },
   },
   computed: {
+    sortedStatuses() {
+      return this.statuses.sort((a, b) => a.title.localeCompare(b.title))
+    },
     unknown(): boolean {
       return this.statuses.length === 0
     },
