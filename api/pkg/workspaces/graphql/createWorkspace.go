@@ -70,8 +70,8 @@ func (r *WorkspaceRootResolver) CreateWorkspace(ctx context.Context, args resolv
 
 	ws, err := r.workspaceService.Create(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, gqlerrors.Error(err)
 	}
 
-	return r.Workspace(ctx, resolvers.WorkspaceArgs{ID: graphql.ID(ws.ID)})
+	return &WorkspaceResolver{w: ws, root: r}, nil
 }
