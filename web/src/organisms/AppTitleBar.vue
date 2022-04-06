@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full" v-if="!isApp">
+  <div v-if="!isApp" class="h-full">
     <slot />
   </div>
 

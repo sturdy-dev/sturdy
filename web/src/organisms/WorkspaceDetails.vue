@@ -11,7 +11,7 @@
         :watchers="workspace.watchers"
         :workspace-id="workspace.id"
       />
-      <StatusDetails :statuses="workspace.statuses" />
+      <WorkspaceStatus :workspace="workspace" />
       <GitHubPullRequest
         :git-hub-integration="workspace.codebase?.gitHubIntegration"
         :git-hub-pull-request="workspace.gitHubPullRequest"
@@ -62,7 +62,9 @@ import UpdatedAt, {
 } from '../components/workspace/details/UpdatedAt.vue'
 import BasedOn from '../components/workspace/details/BasedOn.vue'
 import Watching, { WORKSPACE_WATCHER_FRAGMENT } from '../components/workspace/details/Watching.vue'
-import StatusDetails, { STATUS_FRAGMENT } from '../components/statuses/StatusDetails.vue'
+import WorkspaceStatus, {
+  WORKSPACE_FRAGMENT as WORKSPACE_STATUS_WORKSPACE_FRAGMENT,
+} from '../molecules/WorkspaceStatus.vue'
 import GitHubPullRequest, {
   CODEBASE_GITHUB_INTEGRATION_FRAGMENT,
   GITHUB_PULL_REQUEST_FRAGMENT,
@@ -120,15 +122,12 @@ export const WORKSPACE_FRAGMENT = gql`
     suggestion {
       id
     }
-    statuses {
-      id
-      ...Status
-    }
     ...Presence_Workspace
     ...CommentsCount_Workspace
     ...Updated_Workspace
+    ...WorkspaceStatus_Workspace
   }
-  ${STATUS_FRAGMENT}
+  ${WORKSPACE_STATUS_WORKSPACE_FRAGMENT}
   ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
   ${GITHUB_PULL_REQUEST_FRAGMENT}
   ${WORKSPACE_WATCHER_FRAGMENT}
@@ -147,7 +146,7 @@ export default defineComponent({
     UpdatedAt,
     BasedOn,
     Watching,
-    StatusDetails,
+    WorkspaceStatus,
     GitHubPullRequest,
     Avatar,
     WorkspaceApproval,
