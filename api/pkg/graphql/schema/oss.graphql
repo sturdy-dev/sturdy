@@ -135,9 +135,6 @@ type Mutation {
   # Service tokens
   createServiceToken(input: CreateServiceTokenInput!): ServiceToken!
 
-  # Status
-  updateStatus(input: UpdateStatusInput!): Status!
-
   # Suggestions v2
   createSuggestion(input: CreateSuggestionInput!): Suggestion!
   dismissSuggestion(input: DismissSuggestionInput!): Suggestion!
