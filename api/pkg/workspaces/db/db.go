@@ -10,6 +10,7 @@ import (
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type repo struct {
@@ -279,7 +280,7 @@ func (r *repo) ListByIDs(ctx context.Context, ids ...string) ([]*workspaces.Work
 		diffs_count, 
 		change_id
 	FROM workspaces
-	WHERE id IN (:ids)`, map[string]interface{}{"ids": ids}); err != nil {
+	WHERE id = ANY($1)`, pq.Array(ids)); err != nil {
 		return nil, fmt.Errorf("failed to ListByIDs: %w", err)
 	}
 	return entities, nil
