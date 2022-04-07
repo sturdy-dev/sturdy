@@ -47,7 +47,6 @@ func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resol
 		snapshot, err := r.snapshotsService.GetByCommitSHA(ctx, status.CommitSHA)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil
-
 		} else if err != nil {
 			return gqlerrors.Error(err)
 		} else if snapshot.WorkspaceID == nil {

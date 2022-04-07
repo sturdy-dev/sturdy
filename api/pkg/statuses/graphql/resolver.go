@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"sync"
@@ -208,11 +209,21 @@ func (r *workspaceResolver) getSnapshot(ctx context.Context) (*snapshots.Snapsho
 }
 
 func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
-	snapshot, err := r.getSnapshot(ctx)
-	if err != nil {
+	if snapshot, err := r.getSnapshot(ctx); errors.Is(err, sql.ErrNoRows) {
+		return true, nil
+	} else if err != nil {
 		return false, gqlerrors.Error(err)
+	} else if snapshot.WorkspaceID == nil {
+		return true, nil
+	} else if ws, err := r.root.workspaceService.GetByID(ctx, *snapshot.WorkspaceID); errors.Is(err, sql.ErrNoRows) {
+		return true, nil
+	} else if err != nil {
+		return false, gqlerrors.Error(err)
+	} else if ws.LatestSnapshotID == nil {
+		return true, nil
+	} else {
+		return snapshot.ID != *ws.LatestSnapshotID, nil
 	}
-	return snapshot.CommitSHA != r.status.CommitSHA, nil
 }
 
 func (r *workspaceResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
