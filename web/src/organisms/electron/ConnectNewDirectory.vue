@@ -133,6 +133,13 @@ export default defineComponent({
               style: 'error',
             })
             return
+          } else if (e.message.includes('view already exists')) {
+            this.emitter.emit('notification', {
+              title: 'Directory is already connected',
+              message: 'You can connect directory twice. Plese select another directory.',
+              style: 'error',
+            })
+            return
           } else if (e.message.includes('Cancelled')) {
             await this.archiveWorkspace(workspace.id)
             return
