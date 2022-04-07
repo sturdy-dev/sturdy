@@ -1,13 +1,11 @@
 <template>
   <Menu v-if="!unknown" as="div" class="relative inline-block text-left">
-    <div>
-      <MenuButton
-        class="rounded-full flex items-center space-x-2 text-gray-400 hover:text-gray-600 focus:outline-none"
-      >
-        <StatusBadge :statuses="statuses" />
-        <p v-if="showText" class="text-gray-900 text-sm font-medium cursor-pointer">{{ text }}</p>
-      </MenuButton>
-    </div>
+    <MenuButton
+      class="rounded-full flex items-center space-x-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+    >
+      <StatusBadge :statuses="statuses" />
+      <p v-if="showText" class="text-gray-900 text-sm font-medium cursor-pointer">{{ text }}</p>
+    </MenuButton>
 
     <transition
       enter-active-class="transition ease-out duration-100"
@@ -25,14 +23,14 @@
             <div
               :class="[
                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                'flex items-center p-3 text-sm cursor-default',
+                'flex items-center p-3 text-sm cursor-default gap-2',
               ]"
             >
-              <div class="mr-3 h-5 w-5 text-gray-400">
-                <StatusBadge :statuses="[status]" />
-              </div>
-              <p>{{ status.title }}</p>
-              <p v-if="status.description" class="ml-1 mr-1">― {{ status.description }}</p>
+              <StatusBadge class="h-5 w-5" :statuses="[status]" />
+              <p>
+                {{ status.title }}
+                <template v-if="status.description">― {{ status.description }}</template>
+              </p>
               <div class="flex-grow"></div>
               <a
                 v-if="status.detailsUrl"

@@ -32,6 +32,7 @@ const WORKSPACE_PULL_REQUEST_STATUSES = gql`
     workspace(id: $id) {
       id
       gitHubPullRequest {
+        id
         statuses {
           id
           title

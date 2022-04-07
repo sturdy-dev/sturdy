@@ -4,7 +4,7 @@
     v-else-if="ciEnabled"
     :icon="terminalIcon"
     :spinner="triggering"
-    class="border-0"
+    class="border-0 -ml-3"
     @click="onTriggerClicked"
     >Trigger CI</Button
   >

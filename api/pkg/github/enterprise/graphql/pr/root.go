@@ -181,6 +181,10 @@ func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, ar
 	}
 }
 
+func (r *prRootResolver) InternalPullRequest(pr *github.PullRequest) (resolvers.GitHubPullRequestResolver, error) {
+	return &prResolver{root: r, pr: pr}, nil
+}
+
 func (r *prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resolvers.UpdatedGitHubPullRequestArgs) (<-chan resolvers.GitHubPullRequestResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {

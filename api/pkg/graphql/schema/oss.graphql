@@ -223,8 +223,8 @@ type Subscription {
 
   updatedViews: View!
 
-  updatedChangesStatuses(changeIDs: [ID!]!): Status!
-  updatedWorkspacesStatuses(workspaceIds: [ID!]!): Status!
+  updatedChangesStatuses(changeIDs: [ID!]!): ChangeStatus!
+  updatedWorkspacesStatuses(workspaceIds: [ID!]!): WorkspaceStatus!
 
   updatedWorkspaceActivity: WorkspaceActivity!
 
@@ -377,7 +377,16 @@ enum StatusType {
   Failing
 }
 
-type Status {
+interface Status {
+  id: ID!
+  type: StatusType!
+  title: String!
+  description: String
+  timestamp: Int!
+  detailsUrl: String
+}
+
+type ChangeStatus implements Status {
   id: ID!
   type: StatusType!
   title: String!
@@ -385,18 +394,19 @@ type Status {
   timestamp: Int!
   detailsUrl: String
 
-  # change is set if status is connected to a change
-  change: Change
-  # workspace is set if status is connected to a workspace
-  workspace: Workspace
+  change: Change!
 }
 
-input UpdateStatusInput {
-  changeID: ID!
+type WorkspaceStatus implements Status {
+  id: ID!
   type: StatusType!
   title: String!
   description: String
+  timestamp: Int!
   detailsUrl: String
+
+  workspace: Workspace!
+  stale: Boolean!
 }
 
 # Workspace
@@ -459,7 +469,7 @@ type Workspace {
   suggestions: [Suggestion!]!
 
   # A list of associated statuses from the ci.
-  statuses: [Status!]!
+  statuses: [WorkspaceStatus!]!
 
   # A list of users watching this workspace.
   watchers: [WorkspaceWatcher!]!
@@ -706,7 +716,7 @@ type Change {
   downloadZip: ContentsDownloadURL!
 
   # A list of associated statuses from the ci.
-  statuses: [Status!]!
+  statuses: [ChangeStatus!]!
 
   # A workspace from which this change was created.
   # It is null if this change was imported.

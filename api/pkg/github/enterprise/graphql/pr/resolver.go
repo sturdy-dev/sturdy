@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/github"
-	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 
 	"github.com/graph-gophers/graphql-go"
@@ -73,15 +72,6 @@ func (r *prResolver) ID() graphql.ID {
 	return graphql.ID(r.pr.ID)
 }
 
-func (r *prResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolver, error) {
-	if r.pr.HeadSHA == nil {
-		return nil, nil
-	}
-
-	ws, err := r.root.workspaceReader.Get(r.pr.WorkspaceID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	return (*r.root.statusesRootResolver).InteralStatusesByCodebaseIDAndCommitID(ctx, ws.CodebaseID, *r.pr.HeadSHA)
+func (r *prResolver) Statuses(ctx context.Context) ([]resolvers.GitHubPullRequestStatusResolver, error) {
+	return (*r.root.statusesRootResolver).InternalGitHubPullRequestStatuses(ctx, r.pr)
 }

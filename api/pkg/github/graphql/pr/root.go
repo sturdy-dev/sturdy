@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/github"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 )
@@ -31,5 +32,8 @@ func (r prRootResolver) UpdatedGitHubPullRequest(ctx context.Context, args resol
 }
 
 func (r *prRootResolver) MergeGitHubPullRequest(ctx context.Context, args resolvers.MergeGitHubPullRequestArgs) (resolvers.GitHubPullRequestResolver, error) {
+	return nil, gqlerrors.ErrNotImplemented
+}
+func (r *prRootResolver) InternalPullRequest(*github.PullRequest) (resolvers.GitHubPullRequestResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
