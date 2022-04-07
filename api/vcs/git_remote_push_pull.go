@@ -82,7 +82,7 @@ func (r *repository) FetchNamedRemoteWithCreds(remoteName string, creds transpor
 		RefSpecs:   refspecs,
 		Auth:       creds,
 		Progress:   os.Stderr,
-		Depth:      100,
+		Depth:      0,
 		Force:      true,
 	})
 	switch {
@@ -115,7 +115,7 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 		RefSpecs: refspecs,
 		Auth:     creds,
 		Progress: os.Stderr,
-		Depth:    100,
+		Depth:    0,
 		Force:    true,
 	})
 	switch {
