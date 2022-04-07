@@ -147,6 +147,8 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 				zap.String("commonAncestor", commonAncestor),
 				zap.String("sturdyTrunkHead", head.Id().String()),
 				zap.String("pullRequestHead", gitHubPR.GetHead().GetSHA()),
+				zap.String("workspaceId", workspace.ID),
+				zap.Stringer("codebaseId", workspace.CodebaseID),
 			)
 
 			// Create the workspace branch
@@ -170,7 +172,7 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 		Write(vcs_view.CheckoutBranch(importBranchName)).
 		Write(func(repo vcs.RepoWriter) error {
 			if err := repo.ResetMixed(commonAncestor); err != nil {
-				return fmt.Errorf("failed to reset temporary view to trunk: %w", err)
+				return fmt.Errorf("failed to reset temporary view to common ancestor: %w", err)
 			}
 
 			if _, err := svc.snap.Snapshot(workspace.CodebaseID, workspace.ID,

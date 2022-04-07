@@ -85,10 +85,10 @@ func (r *repository) FetchNamedRemoteWithCreds(remoteName string, creds transpor
 		Depth:      100,
 		Force:      true,
 	})
-	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+	switch {
+	case errors.Is(err, gogit.NoErrAlreadyUpToDate), errors.Is(err, transport.ErrEmptyUploadPackRequest):
 		return nil
-	}
-	if err != nil {
+	case err != nil:
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
 
@@ -118,10 +118,10 @@ func (r *repository) FetchUrlRemoteWithCreds(remoteUrl string, creds transport.A
 		Depth:    100,
 		Force:    true,
 	})
-	if errors.Is(err, gogit.NoErrAlreadyUpToDate) {
+	switch {
+	case errors.Is(err, gogit.NoErrAlreadyUpToDate), errors.Is(err, transport.ErrEmptyUploadPackRequest):
 		return nil
-	}
-	if err != nil {
+	case err != nil:
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
 
