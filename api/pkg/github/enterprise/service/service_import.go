@@ -133,6 +133,10 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 	if err := svc.executorProvider.New().
 		GitWrite(github_vcs.FetchBranchWithRefspec(accessToken, refspec)).
 		GitWrite(func(repo vcs.RepoGitWriter) error {
+			if err := repo.CreateNewBranchAt(importBranchName, gitHubPR.GetHead().GetSHA()); err != nil {
+				return fmt.Errorf("failed to create import branch")
+			}
+
 			head, err := repo.HeadCommit()
 			if err != nil {
 				return fmt.Errorf("could not get head: %w", err)
