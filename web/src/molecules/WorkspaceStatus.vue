@@ -1,6 +1,6 @@
 <template>
-  <Tooltip v-if="workspace.statuses.length > 0" :disabled="!isStale" x-direction="left">
-    <template #tooltip> Some changes were made to the draft since the last run </template>
+  <Tooltip v-if="workspace.statuses.length > 0" :disabled="!isStale">
+    <template #tooltip> Draft changed since the last run </template>
     <template #default>
       <StatusDetails
         :statuses="workspace.statuses"
