@@ -18,6 +18,7 @@ import (
 	"getsturdy.com/api/pkg/users"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
+	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 
 	gh "github.com/google/go-github/v39/github"
@@ -242,6 +243,12 @@ func (svc *Service) ImportPullRequest(
 
 	// fetch pr branch and create a snapshot
 	if err := svc.fetchAndSnapshotPullRequest(gitHubPR, accessToken, &ws); err != nil {
+
+		// import failed, archive the workspace that we created
+		if err := svc.workspaceWriter.UpdateFields(context.Background(), ws.ID, db_workspaces.SetArchivedAt(&t)); err != nil {
+			return fmt.Errorf("failed to archive workspace after failed import: %w", err)
+		}
+
 		return fmt.Errorf("failed to import pull request: %w", err)
 	}
 
