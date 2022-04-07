@@ -335,7 +335,7 @@ func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snap
 
 	snap := &snapshots.Snapshot{
 		ID:          snapshotID,
-		CommitID:    snapshotCommitID,
+		CommitSHA:    snapshotCommitID,
 		CreatedAt:   time.Now(),
 		WorkspaceID: &workspaceID,
 		CodebaseID:  codebaseID,
@@ -480,7 +480,7 @@ func (s *snap) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ...Di
 
 	var diffs []unidiff.FileDiff
 	if err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
-		snapParent, err := repo.GetCommitParents(snapshot.CommitID)
+		snapParent, err := repo.GetCommitParents(snapshot.CommitSHA)
 		if err != nil {
 			return fmt.Errorf("failed to get commit parents: %w", err)
 		}
@@ -488,7 +488,7 @@ func (s *snap) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ...Di
 			return fmt.Errorf("unexpected number of snapshot parents: %d, expected %d", len(snapParent), 1)
 		}
 
-		gitDiffs, err := repo.DiffCommits(snapParent[0], snapshot.CommitID)
+		gitDiffs, err := repo.DiffCommits(snapParent[0], snapshot.CommitSHA)
 		if err != nil {
 			return fmt.Errorf("failed to get git diffs: %w", err)
 		}
@@ -587,7 +587,7 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 			if err != nil {
 				return fmt.Errorf("failed to snapshot on view repo: %w", err)
 			}
-			newSnapshot.CommitID = commitID
+			newSnapshot.CommitSHA = commitID
 			return nil
 		}).ExecTemporaryView(snapshot.CodebaseID, "copySnapshot"); err != nil {
 		return nil, fmt.Errorf("failed to copy snapshot: %w", err)
@@ -604,7 +604,7 @@ func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error 
 	if snap.WorkspaceID == nil {
 		return errors.New("can't restore snapshot that's not on a workspace")
 	}
-	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, snap.ID, snap.CommitID); err != nil {
+	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, snap.ID, snap.CommitSHA); err != nil {
 		return fmt.Errorf("failed to restore: %w", err)
 	}
 	return nil

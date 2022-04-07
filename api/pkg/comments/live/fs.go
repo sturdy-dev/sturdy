@@ -103,11 +103,11 @@ func (snapshotsFS *SnapshotsFS) Open(path string) (fs.File, error) {
 	return file, snapshotsFS.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		if snapshotsFS.newLines {
 			var err error
-			file, err = fileFromCommit(repo, snapshotsFS.snapshot.CommitID, path)
+			file, err = fileFromCommit(repo, snapshotsFS.snapshot.CommitSHA, path)
 			return err
 		}
 
-		parents, err := repo.GetCommitParents(snapshotsFS.snapshot.CommitID)
+		parents, err := repo.GetCommitParents(snapshotsFS.snapshot.CommitSHA)
 		if err != nil {
 			return fmt.Errorf("failed to get commit parents: %w", err)
 		}

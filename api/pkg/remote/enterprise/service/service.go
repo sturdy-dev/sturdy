@@ -367,7 +367,7 @@ func (svc *EnterpriseService) prepareBranchForPullRequestFromSnapshot(ctx contex
 	var resSha string
 
 	exec := svc.executorProvider.New().GitWrite(func(r vcs.RepoGitWriter) error {
-		sha, err := r.CreateNewCommitBasedOnCommit(prBranchName, snapshot.CommitID, signature, commitMessage)
+		sha, err := r.CreateNewCommitBasedOnCommit(prBranchName, snapshot.CommitSHA, signature, commitMessage)
 		if err != nil {
 			return err
 		}

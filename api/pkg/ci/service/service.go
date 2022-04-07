@@ -122,7 +122,7 @@ func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.S
 	}
 
 	// Load seed files contents from trunk
-	seedFilesContents, err := svc.loadSeedFiles(snapshot.CommitID, snapshot.CodebaseID, seedFiles)
+	seedFilesContents, err := svc.loadSeedFiles(snapshot.CommitSHA, snapshot.CodebaseID, seedFiles)
 	if err != nil {
 		return "", err
 	}
@@ -203,7 +203,7 @@ func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.S
 	if err := svc.ciCommitRepo.Create(ctx, &ci.Commit{
 		ID:              uuid.NewString(),
 		CodebaseID:      snapshot.CodebaseID,
-		TrunkCommitSHA:  snapshot.CommitID,
+		TrunkCommitSHA:  snapshot.CommitSHA,
 		CiRepoCommitSHA: commitSHA,
 		CreatedAt:       time.Now(),
 	}); err != nil {
@@ -404,7 +404,7 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 
 		status := &statuses.Status{
 			ID:          uuid.NewString(),
-			CommitSHA:   snapshot.CommitID,
+			CommitSHA:   snapshot.CommitSHA,
 			CodebaseID:  snapshot.CodebaseID,
 			Type:        statuses.TypePending,
 			Title:       build.Name,

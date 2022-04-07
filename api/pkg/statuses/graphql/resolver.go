@@ -212,7 +212,7 @@ func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, gqlerrors.Error(err)
 	}
-	return snapshot.CommitID == r.resolver.status.CommitSHA, nil
+	return snapshot.CommitSHA != r.status.CommitSHA, nil
 }
 
 func (r *workspaceResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
