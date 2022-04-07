@@ -87,7 +87,7 @@ func (q *WebhooksQueue) Start(ctx context.Context) error {
 	if err := q.queue.Subscribe(ctx, q.name, messages); err != nil {
 		return fmt.Errorf("could not subscribe to queue: %w", err)
 	}
-	q.logger.Info("queue stoped", zap.Stringer("queue_name", q.name))
+	q.logger.Info("queue stopped", zap.Stringer("queue_name", q.name))
 
 	return nil
 }
