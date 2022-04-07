@@ -40,7 +40,7 @@
 <script lang="ts">
 import { defineAsyncComponent, defineComponent } from 'vue'
 import type { PropType } from 'vue'
-import type { MemberFragment, UserFragment } from '../shared/__generated__/TextareaMentions'
+import type { MemberFragment, UserFragment } from '../../atoms/__generated__/TextareaMentions'
 import type {
   ReviewNewCommentChangeFragment,
   ReviewNewCommentViewFragment,
