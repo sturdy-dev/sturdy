@@ -445,7 +445,7 @@ func (s *Service) diffs(
 
 	var diffs []unidiff.FileDiff
 	if err := s.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
-		gitDiffs, err := repo.DiffCommits(baseSnapshot.CommitID, suggestingSnapshot.CommitID)
+		gitDiffs, err := repo.DiffCommits(baseSnapshot.CommitSHA, suggestingSnapshot.CommitSHA)
 		if err != nil {
 			return fmt.Errorf("failed to get diffs: %w", err)
 		}

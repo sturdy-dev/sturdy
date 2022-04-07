@@ -57,7 +57,7 @@ func checkoutBranch(repo vcs.RepoWriter, branchName string) error {
 func CheckoutSnapshot(snapshot *snapshots.Snapshot) func(vcs.RepoWriter) error {
 	return func(repo vcs.RepoWriter) error {
 		copyBranchName := snapshot.BranchName()
-		copyParentCommitsIDs, err := repo.GetCommitParents(snapshot.CommitID)
+		copyParentCommitsIDs, err := repo.GetCommitParents(snapshot.CommitSHA)
 		if err != nil {
 			return fmt.Errorf("failed to get commit parents: %w", err)
 		}
