@@ -219,10 +219,6 @@ func (svc *Service) importNewPullRequest(ctx context.Context, repo *github.Repos
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 
-	if _, err := svc.codebaseService.AddUser(ctx, repo.CodebaseID, user); err != nil {
-		return fmt.Errorf("failed to add user to codebase: %w", err)
-	}
-
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
 	if err != nil {
 		return fmt.Errorf("could not get installation: %w", err)
