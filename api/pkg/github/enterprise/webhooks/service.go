@@ -347,7 +347,7 @@ func (svc *Service) updateExistingPullRequest(
 
 	if shouldUpdate := pr.State != github.PullRequestStateMerged; shouldUpdate {
 		// if the PR is not merged, fetch the latest PR data from GitHub
-		return svc.githubService.UpdatePullRequest(ctx, pr, event.GetPullRequest(), accessToken)
+		return svc.githubService.UpdatePullRequest(ctx, pr, event.GetPullRequest(), accessToken, ws)
 	}
 
 	// merge PR
