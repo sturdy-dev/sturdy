@@ -191,7 +191,7 @@
 </template>
 
 <script lang="ts">
-import Differ from '../differ/Differ.vue'
+import Differ, { DIFFER_FILE_DIFF, DIFFER_SUGGESTION } from '../differ/Differ.vue'
 import http from '../../http'
 import { XIcon } from '@heroicons/vue/outline'
 import TooManyFilesChanged from './TooManyFilesChanged.vue'
@@ -258,7 +258,11 @@ export const LIVE_DETAILS_DIFFS = gql`
       isApplied
       isDismissed
     }
+
+    ...Differ_FileDiff
   }
+
+  ${DIFFER_FILE_DIFF}
 `
 
 export const LIVE_DETAILS_VIEW = gql`
@@ -303,10 +307,12 @@ export default defineComponent({
     view: {
       type: Object as PropType<LiveDetailsViewFragment>,
       required: false,
+      default: null,
     },
     user: {
       type: Object,
       required: false,
+      default: null,
     },
     members: {
       type: Array as PropType<Array<LiveDetailsMemberFragment>>,
@@ -403,6 +409,8 @@ export default defineComponent({
                   isDismissed
                 }
               }
+
+              ...Differ_Suggestion
             }
 
             codebase {
@@ -426,6 +434,8 @@ export default defineComponent({
             }
           }
         }
+
+        ${DIFFER_SUGGESTION}
       `,
       requestPolicy: 'cache-and-network',
       variables: { workspaceID: workspaceID, isGitHubEnabled },
@@ -534,9 +544,6 @@ export default defineComponent({
     }
   },
   computed: {
-    loadedDiffs() {
-      return !!this.diffs
-    },
     hideDiffs() {
       return this.diffs && this.diffs.length > 250
     },
@@ -544,11 +551,6 @@ export default defineComponent({
       const set = new Set<string>()
       this.visible_diffs.map((d) => d.preferredName).forEach((f) => set.add(f))
       return set
-    },
-    showShare() {
-      return (
-        !this.fetching && this.isOnAuthoritativeView && !this.isSuggesting && this.diffs.length > 0
-      )
     },
     isAuthenticated() {
       return !!this.user

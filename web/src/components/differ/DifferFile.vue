@@ -35,6 +35,7 @@
       @unhide="emitIsHidden(false)"
       @showSuggestionsByUser="onSuggestionsAvatarClick"
     />
+
     <div v-if="differState.isHidden && isHiddenTooManyChanges">
       <div class="bg-white">
         <div class="px-4 py-5 sm:px-6">
