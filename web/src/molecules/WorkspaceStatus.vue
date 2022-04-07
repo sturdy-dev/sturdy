@@ -1,7 +1,7 @@
 <template>
   <StatusDetails v-if="workspace.statuses.length > 0" :statuses="workspace.statuses" />
   <Button
-    v-else-if="ciEnabled"
+    v-if="(workspace.statuses.length == 0 && ciEnabled) || isStale"
     :icon="terminalIcon"
     :spinner="triggering"
     class="border-0 -ml-3"
@@ -27,6 +27,8 @@ export const WORKSPACE_FRAGMENT = gql`
   fragment WorkspaceStatus_Workspace on Workspace {
     id
     statuses {
+      id
+      stale
       ...Status
     }
     codebase {
@@ -62,6 +64,11 @@ export default defineComponent({
     return {
       triggering: false,
     }
+  },
+  computed: {
+    isStale() {
+      return this.workspace.statuses.some(({ stale }) => stale)
+    },
   },
   methods: {
     onTriggerClicked() {
