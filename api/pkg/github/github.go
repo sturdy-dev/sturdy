@@ -80,7 +80,7 @@ type PullRequest struct {
 	// HeadSHA is empty for older pull requests.
 	HeadSHA    *string          `db:"head_sha"`
 	CodebaseID codebases.ID     `db:"codebase_id"`
-	Base       string           `db:"base"`
+	Base       string           `db:"base"` // branch name
 	CreatedAt  time.Time        `db:"created_at"`
 	UpdatedAt  *time.Time       `db:"updated_at"`
 	ClosedAt   *time.Time       `db:"closed_at"`

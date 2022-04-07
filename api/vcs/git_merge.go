@@ -125,3 +125,21 @@ func (r *repository) MergeBranchInto(branchName, mergeIntoBranchName string) (me
 
 	return mergeCommit.String(), nil
 }
+
+func (r *repository) CommonAncestor(commitA, commitB string) (string, error) {
+	idA, err := git.NewOid(commitA)
+	if err != nil {
+		return "", fmt.Errorf("could not parse commitA: %w", err)
+	}
+	idB, err := git.NewOid(commitB)
+	if err != nil {
+		return "", fmt.Errorf("could not parse commitB: %w", err)
+	}
+
+	mergeBase, err := r.r.MergeBase(idA, idB)
+	if err != nil {
+		return "", fmt.Errorf("failed to get mergeBase: %w", err)
+	}
+
+	return mergeBase.String(), nil
+}
