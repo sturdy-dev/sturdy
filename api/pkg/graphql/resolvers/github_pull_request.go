@@ -6,10 +6,12 @@ import (
 	"github.com/graph-gophers/graphql-go"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/github"
 )
 
 type GitHubPullRequestRootResolver interface {
 	// Internal
+	InternalPullRequest(*github.PullRequest) (GitHubPullRequestResolver, error)
 	InternalByCodebaseIDAndHeadSHA(context.Context, codebases.ID, string) (GitHubPullRequestResolver, error)
 	InternalGitHubPullRequestByWorkspaceID(ctx context.Context, args GitHubPullRequestArgs) (GitHubPullRequestResolver, error)
 
@@ -56,7 +58,7 @@ type GitHubPullRequestResolver interface {
 	MergedAt() *int32
 	Base() string
 	Workspace(context.Context) (WorkspaceResolver, error)
-	Statuses(context.Context) ([]StatusResolver, error)
+	Statuses(context.Context) ([]GitHubPullRequestStatusResolver, error)
 	State() (GitHubPullRequestState, error)
 }
 

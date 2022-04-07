@@ -104,11 +104,8 @@ func (r *ChangeResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffResolve
 	return res, nil
 }
 
-func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolver, error) {
-	if r.ch.CommitID == nil {
-		return nil, gqlerrors.ErrNotFound
-	}
-	return (*r.root.statusResovler).InteralStatusesByCodebaseIDAndCommitID(ctx, r.ch.CodebaseID, *r.ch.CommitID)
+func (r *ChangeResolver) Statuses(ctx context.Context) ([]resolvers.ChangeStatusResolver, error) {
+	return (*r.root.statusResovler).InternalChangeStatuses(ctx, r.ch)
 }
 
 func (r *ChangeResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {

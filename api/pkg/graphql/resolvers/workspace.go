@@ -133,7 +133,7 @@ type WorkspaceResolver interface {
 	Reviews(ctx context.Context) ([]ReviewResolver, error)
 	Presence(ctx context.Context) ([]PresenceResolver, error)
 	Suggestions(context.Context) ([]SuggestionResolver, error)
-	Statuses(context.Context) ([]StatusResolver, error)
+	Statuses(context.Context) ([]WorkspaceStatusResolver, error)
 	Watchers(context.Context) ([]WorkspaceWatcherResolver, error)
 	Suggestion(context.Context) (SuggestionResolver, error)
 	SuggestingViews() []ViewResolver

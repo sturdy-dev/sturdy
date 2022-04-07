@@ -313,23 +313,8 @@ func (r *WorkspaceResolver) getLatestSnapshot() (*snapshots.Snapshot, error) {
 	return r.latestSnapshot, r.latestSnapshotErr
 }
 
-func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.StatusResolver, error) {
-	if r.w.LatestSnapshotID == nil {
-		return nil, nil
-	}
-
-	lastSnapshot, err := r.getLatestSnapshot()
-	switch {
-	case err == nil:
-		if lastSnapshot != nil {
-			return r.root.statusRootResolver.InteralStatusesByCodebaseIDAndCommitID(ctx, lastSnapshot.CodebaseID, lastSnapshot.CommitID)
-		}
-		return nil, nil
-	case errors.Is(err, sql.ErrNoRows):
-		return nil, nil
-	default:
-		return nil, gqlerrors.Error(err)
-	}
+func (r *WorkspaceResolver) Statuses(ctx context.Context) ([]resolvers.WorkspaceStatusResolver, error) {
+	return r.root.statusRootResolver.InternalWorkspaceStatuses(ctx, r.w.ID)
 }
 
 func (r *WorkspaceResolver) Watchers(ctx context.Context) ([]resolvers.WorkspaceWatcherResolver, error) {
@@ -345,7 +330,7 @@ func (r *WorkspaceResolver) Diffs(ctx context.Context) ([]resolvers.FileDiffReso
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
-	res := make([]resolvers.FileDiffResolver, len(diffs), len(diffs))
+	res := make([]resolvers.FileDiffResolver, len(diffs))
 	for k, diff := range diffs {
 		res[k] = r.root.fileDiffRootResolver.InternalFileDiffWithWorkspace(r.w.ID, &diff, r.w)
 	}

@@ -2,16 +2,19 @@ package graphql
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+	"sync"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
+	"getsturdy.com/api/pkg/github"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -36,6 +39,8 @@ type RootResolver struct {
 
 	eventsSubscriber *eventsv2.Subscriber
 }
+
+var _ resolvers.StatusesRootResolver = &RootResolver{}
 
 func New(
 	logger *zap.Logger,
@@ -63,11 +68,46 @@ func New(
 	}
 }
 
+func (r *RootResolver) InternalGitHubPullRequestStatuses(context.Context, *github.PullRequest) ([]resolvers.GitHubPullRequestStatusResolver, error) {
+	return nil, gqlerrors.ErrNotImplemented
+}
+
+func (r *RootResolver) InternalWorkspaceStatuses(ctx context.Context, workspaceID string) ([]resolvers.WorkspaceStatusResolver, error) {
+	ss, err := r.svc.ListByWorkspaceID(ctx, workspaceID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	rr := make([]resolvers.WorkspaceStatusResolver, 0, len(ss))
+	for _, s := range ss {
+		rr = append(rr, &workspaceResolver{
+			resolver: &resolver{status: s, root: r},
+		})
+	}
+	return rr, nil
+}
+
+func (r *RootResolver) InternalChangeStatuses(ctx context.Context, change *changes.Change) ([]resolvers.ChangeStatusResolver, error) {
+	if change.CommitID == nil {
+		return nil, gqlerrors.ErrNotFound
+	}
+	ss, err := r.svc.List(ctx, change.CodebaseID, *change.CommitID)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	rr := make([]resolvers.ChangeStatusResolver, 0, len(ss))
+	for _, s := range ss {
+		rr = append(rr, &changeResolver{
+			resolver: &resolver{status: s, root: r},
+		})
+	}
+	return rr, nil
+}
+
 func (r *RootResolver) InternalStatus(status *statuses.Status) resolvers.StatusResolver {
 	return &resolver{status: status, root: r}
 }
 
-func (r *RootResolver) InteralStatusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID codebases.ID, commitID string) ([]resolvers.StatusResolver, error) {
+func (r *RootResolver) statusesByCodebaseIDAndCommitID(ctx context.Context, codebaseID codebases.ID, commitID string) ([]resolvers.StatusResolver, error) {
 	ss, err := r.svc.List(ctx, codebaseID, commitID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -117,7 +157,27 @@ func (r *resolver) Timestamp() int32 {
 	return int32(r.status.Timestamp.Unix())
 }
 
-func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
+func (r *resolver) ToGitHubPullRequestStatus() (resolvers.GitHubPullRequestStatusResolver, bool) {
+	return nil, false
+}
+
+func (r *resolver) ToWorkspaceStatus() (resolvers.WorkspaceStatusResolver, bool) {
+	return &workspaceResolver{
+		resolver: &resolver{status: r.status, root: r.root},
+	}, true
+}
+
+func (r *resolver) ToChangeStatus() (resolvers.ChangeStatusResolver, bool) {
+	return &changeResolver{
+		resolver: &resolver{status: r.status, root: r.root},
+	}, true
+}
+
+type changeResolver struct {
+	*resolver
+}
+
+func (r *changeResolver) Change(ctx context.Context) (resolvers.ChangeResolver, error) {
 	change, err := r.root.changeRootResolver.Change(ctx, resolvers.ChangeArgs{
 		CodebaseID: (*graphql.ID)(&r.status.CodebaseID),
 		CommitID:   (*graphql.ID)(&r.status.CommitSHA),
@@ -132,20 +192,31 @@ func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error)
 	}
 }
 
-func (r *resolver) GitHubPullRequest(ctx context.Context) (resolvers.GitHubPullRequestResolver, error) {
-	if pullRequest, err := r.root.gitHubPrResovler.InternalByCodebaseIDAndHeadSHA(ctx, r.status.CodebaseID, r.status.CommitSHA); errors.Is(err, gqlerrors.ErrNotFound) {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	} else {
-		return pullRequest, nil
-	}
+type workspaceResolver struct {
+	*resolver
+
+	snapshot     *snapshots.Snapshot
+	snapshotErr  error
+	snapshotOnce sync.Once
 }
 
-func (r *resolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
-	if snapshot, err := r.root.snapshotsService.GetByCommitSHA(ctx, r.status.CommitSHA); errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	} else if err != nil {
+func (r *workspaceResolver) getSnapshot(ctx context.Context) (*snapshots.Snapshot, error) {
+	r.snapshotOnce.Do(func() {
+		r.snapshot, r.snapshotErr = r.root.snapshotsService.GetByCommitSHA(ctx, r.status.CommitSHA)
+	})
+	return r.snapshot, r.snapshotErr
+}
+
+func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
+	snapshot, err := r.getSnapshot(ctx)
+	if err != nil {
+		return false, gqlerrors.Error(err)
+	}
+	return snapshot.CommitID == r.resolver.status.CommitSHA, nil
+}
+
+func (r *workspaceResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
+	if snapshot, err := r.getSnapshot(ctx); err != nil {
 		return nil, gqlerrors.Error(err)
 	} else if snapshot.WorkspaceID == nil {
 		return nil, nil

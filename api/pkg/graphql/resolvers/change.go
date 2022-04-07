@@ -32,7 +32,7 @@ type ChangeResolver interface {
 	Author(context.Context) (AuthorResolver, error)
 	CreatedAt() int32
 	Diffs(context.Context) ([]FileDiffResolver, error)
-	Statuses(context.Context) ([]StatusResolver, error)
+	Statuses(context.Context) ([]ChangeStatusResolver, error)
 	Workspace(context.Context) (WorkspaceResolver, error)
 	Codebase(context.Context) (CodebaseResolver, error)
 	Activity(context.Context, ActivityArgs) ([]ActivityResolver, error)

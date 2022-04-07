@@ -52,3 +52,7 @@ func (s *Service) Get(ctx context.Context, id string) (*statuses.Status, error) 
 func (s *Service) List(ctx context.Context, codebaseID codebases.ID, commitID string) ([]*statuses.Status, error) {
 	return s.repo.ListByCodebaseIDAndCommitID(ctx, codebaseID, commitID)
 }
+
+func (s *Service) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*statuses.Status, error) {
+	return s.repo.ListByWorkspaceID(ctx, workspaceID)
+}

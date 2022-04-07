@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resolvers.UpdatedWorkspacesStatusesArgs) (<-chan resolvers.StatusResolver, error) {
+func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resolvers.UpdatedWorkspacesStatusesArgs) (<-chan resolvers.WorkspaceStatusResolver, error) {
 	userID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -40,7 +40,7 @@ func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resol
 		watchWorkspaces[w.ID] = true
 	}
 
-	c := make(chan resolvers.StatusResolver, 100)
+	c := make(chan resolvers.WorkspaceStatusResolver, 100)
 	didErrorOut := false
 
 	r.eventsSubscriber.OnStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, status *statuses.Status) error {
@@ -58,7 +58,9 @@ func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resol
 			return nil
 		}
 
-		resolver := &resolver{status: status, root: r}
+		resolver := &workspaceResolver{
+			resolver: &resolver{status: status, root: r},
+		}
 		select {
 		case <-ctx.Done():
 			return events.ErrClientDisconnected

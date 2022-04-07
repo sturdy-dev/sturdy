@@ -56,7 +56,7 @@ extend type Mutation {
 extend type Subscription {
   updatedGitHubPullRequest(workspaceID: ID!): GitHubPullRequest!
 
-  updatedGitHubPullRequestStatuses(id: ID!): Status!
+  updatedGitHubPullRequestStatuses(id: ID!): GitHubPullRequestStatus!
 }
 
 extend type User {
@@ -71,8 +71,15 @@ extend type Codebase {
   remote: Remote
 }
 
-extend type Status {
-  gitHubPullRequest: GitHubPullRequest
+type GitHubPullRequestStatus implements Status {
+  id: ID!
+  type: StatusType!
+  title: String!
+  description: String
+  timestamp: Int!
+  detailsUrl: String
+
+  gitHubPullRequest: GitHubPullRequest!
 }
 
 extend type Workspace {
@@ -162,7 +169,7 @@ type GitHubPullRequest {
   mergedAt: Int
   base: String!
   workspace: Workspace!
-  statuses: [Status!]!
+  statuses: [GitHubPullRequestStatus!]!
   state: GitHubPullRequestState!
 }
 
