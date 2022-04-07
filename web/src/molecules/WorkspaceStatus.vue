@@ -1,5 +1,16 @@
 <template>
-  <StatusDetails v-if="workspace.statuses.length > 0" :statuses="workspace.statuses" />
+  <Tooltip v-if="workspace.statuses.length > 0" :disabled="!isStale" x-direction="left">
+    <template #tooltip> Some changes were made to the draft since the last run </template>
+    <template #default>
+      <StatusDetails
+        :statuses="workspace.statuses"
+        :class="{
+          'opacity-50': isStale,
+        }"
+      />
+    </template>
+  </Tooltip>
+
   <Button
     v-if="(workspace.statuses.length == 0 && ciEnabled) || isStale"
     :icon="terminalIcon"
@@ -16,6 +27,7 @@ import { gql } from '@urql/vue'
 
 import StatusDetails, { STATUS_FRAGMENT } from '../components/statuses/StatusDetails.vue'
 import Button from '../atoms/Button.vue'
+import Tooltip from '../atoms/Tooltip.vue'
 import { TerminalIcon } from '@heroicons/vue/outline'
 
 import type { WorkspaceStatus_WorkspaceFragment } from './__generated__/WorkspaceStatus'
@@ -45,7 +57,7 @@ export const WORKSPACE_FRAGMENT = gql`
 const ciProviders = [IntegrationProvider.Buildkite]
 
 export default defineComponent({
-  components: { StatusDetails, Button },
+  components: { StatusDetails, Button, Tooltip },
   props: {
     workspace: { type: Object as PropType<WorkspaceStatus_WorkspaceFragment>, required: true },
   },
