@@ -1,32 +1,39 @@
 <template>
   <button
-    ref="button"
     :type="buttonType"
     :class="classes"
     :disabled="disabled"
     class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5 gap-2"
   >
     <Spinner v-if="spinner" />
-    <div v-else-if="icon">
-      <component :is="icon" class="h-5 w-5" :class="iconColor"></component>
-    </div>
+    <component v-else-if="icon" :is="icon" class="h-5 w-5" :class="iconColor" />
 
     <slot>Button</slot>
 
     <div
       v-if="showTooltip"
       class="absolute bottom-0 flex-col mb-8 hidden group-hover:flex z-50"
-      :class="[tooltipRight ? 'right-1' : 'left-1']"
+      :class="{
+        'bottom-full -translate-y-1 group-hover:-translate-y-2': tooltipPosition === 'top',
+        'top-full translate-y-1 group-hover:translate-y-2': tooltipPosition === 'bottom',
+        'right-0': tooltipPosition === 'left',
+        'left-0': tooltipPosition === 'right' || tooltipRight,
+      }"
     >
       <span
         class="relative p-2 text-xs leading-none rounded text-white whitespace-nowrap bg-black shadow-lg"
       >
-        <slot name="tooltip"></slot>
+        <slot name="tooltip" />
       </span>
       <div
         class="w-3 h-3 transform rotate-45 bg-black absolute bottom-0 -mb-1"
-        :class="[tooltipRight ? 'right-3' : 'left-3']"
-      ></div>
+        :class="{
+          'top-full -translate-y-2': tooltipPosition === 'top',
+          'bottom-full translate-y-2': tooltipPosition === 'bottom',
+          'left-2': tooltipPosition === 'left',
+          'right-2': tooltipPosition === 'right' || tooltipRight,
+        }"
+      />
     </div>
   </button>
 </template>
@@ -43,7 +50,7 @@ export default defineComponent({
       default: false,
     },
     buttonType: {
-      type: String,
+      type: String as PropType<'button' | 'submit' | 'reset'>,
       default: 'button',
     },
     color: {
@@ -70,9 +77,14 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    // deprecated, use tooltipPosition instead
     tooltipRight: {
       type: Boolean,
       default: false,
+    },
+    tooltipPosition: {
+      type: String as PropType<'left' | 'right' | 'top' | 'bottom'>,
+      default: 'top',
     },
     autoFocus: {
       type: Boolean,
@@ -111,6 +123,9 @@ export default defineComponent({
     iconColor() {
       if (this.color === 'red') {
         return 'text-red-400'
+      }
+      if (this.color === 'blue') {
+        return 'text-white'
       }
       return 'text-gray-400'
     },
@@ -152,11 +167,6 @@ export default defineComponent({
 
       return ''
     },
-  },
-  mounted() {
-    if (this.autoFocus) {
-      this.$refs.button.focus()
-    }
   },
 })
 </script>
