@@ -36,20 +36,18 @@
                     <CheckIcon class="w-5 h-5 text-white" aria-hidden="true" />
                   </span>
                 </span>
-                <span class="ml-4 flex flex-col w-full">
+                <span class="ml-4 flex flex-col w-full gap-2">
                   <span class="text-xs font-semibold tracking-wide uppercase">{{ step.name }}</span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
-                  <div class="mt-2">
-                    <component
-                      :is="step.component"
-                      v-if="step.component"
-                      class="w-full"
-                      :codebase="codebase"
-                      :user="data?.user"
-                      :codebase-slug="codebaseSlug"
-                      :codebase-id="codebase.id"
-                    />
-                  </div>
+                  <component
+                    class="max-w-fit"
+                    :is="step.component"
+                    v-if="step.component"
+                    :codebase="codebase"
+                    :user="data?.user"
+                    :codebase-slug="codebaseSlug"
+                    :codebase-id="codebase.id"
+                  />
                 </span>
               </a>
             </template>
@@ -67,21 +65,20 @@
                     <span class="h-2.5 w-2.5 bg-blue-600 rounded-full" />
                   </span>
                 </span>
-                <span class="ml-4 flex flex-col w-full">
+                <span class="ml-4 flex flex-col w-full gap-2">
                   <span class="text-xs font-semibold tracking-wide uppercase text-blue-600">
                     {{ step.name }}
                   </span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
-                  <div class="mt-2">
-                    <component
-                      :is="step.component"
-                      v-if="step.component"
-                      :codebase="codebase"
-                      :user="data?.user"
-                      :codebase-slug="codebaseSlug"
-                      :codebase-id="codebase.id"
-                    />
-                  </div>
+                  <component
+                    class="max-w-fit"
+                    :is="step.component"
+                    v-if="step.component"
+                    :codebase="codebase"
+                    :user="data?.user"
+                    :codebase-slug="codebaseSlug"
+                    :codebase-id="codebase.id"
+                  />
                 </span>
               </a>
             </template>
@@ -99,21 +96,20 @@
                     <span class="h-2.5 w-2.5 bg-transparent rounded-full group-hover:bg-gray-300" />
                   </span>
                 </span>
-                <span class="ml-4 flex flex-col w-full">
+                <span class="ml-4 flex flex-col w-full gap-2">
                   <span class="text-xs font-semibold tracking-wide uppercase text-gray-500">
                     {{ step.name }}
                   </span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
-                  <div class="mt-2">
-                    <component
-                      :is="step.component"
-                      v-if="step.component"
-                      :codebase="codebase"
-                      :user="data?.user"
-                      :codebase-slug="codebaseSlug"
-                      :codebase-id="codebase.id"
-                    />
-                  </div>
+                  <component
+                    class="max-w-fit"
+                    :is="step.component"
+                    v-if="step.component"
+                    :codebase="codebase"
+                    :user="data?.user"
+                    :codebase-slug="codebaseSlug"
+                    :codebase-id="codebase.id"
+                  />
                 </span>
               </a>
             </template>
