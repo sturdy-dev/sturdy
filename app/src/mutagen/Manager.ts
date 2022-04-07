@@ -229,15 +229,35 @@ export class MutagenManager {
 
         return viewID
       },
-      async createNewViewWithDialog(workspaceID: string, codebaseSlug: string) {
-        const { canceled, filePath } = await dialog.showSaveDialog(manager.#mainWindow!, {
-          title: 'Select location',
-          defaultPath: path.join(homedir(), codebaseSlug),
-          buttonLabel: 'Select',
-          nameFieldLabel: 'Open As:',
-          showsTagField: false,
-          properties: ['createDirectory', 'showOverwriteConfirmation'],
-        })
+      async createNewViewWithDialog(workspaceID: string, codebaseSlug: string, newDir?: boolean) {
+        const defaultPath = path.join(homedir(), codebaseSlug)
+
+        const newDirectory = async (defaultPath: string) => {
+          const { canceled, filePath } = await dialog.showSaveDialog(manager.#mainWindow!, {
+            title: 'Select location',
+            defaultPath,
+            buttonLabel: 'Select',
+            nameFieldLabel: 'Open As:',
+            showsTagField: false,
+            properties: ['createDirectory', 'showOverwriteConfirmation'],
+          })
+          return { canceled, filePath }
+        }
+
+        const existingDirectory = async (defaultPath: string) => {
+          const { canceled, filePaths } = await dialog.showOpenDialog(manager.#mainWindow!, {
+            title: 'Select location',
+            defaultPath,
+            buttonLabel: 'Select',
+            properties: ['openDirectory'],
+          })
+          const filePath = filePaths.length > 0 ? filePaths[0] : undefined
+          return { canceled, filePath }
+        }
+
+        const { canceled, filePath } = newDir
+          ? await newDirectory(defaultPath)
+          : await existingDirectory(defaultPath)
 
         if (canceled || !filePath) {
           throw new Error('Cancelled by user')
