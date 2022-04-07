@@ -31,7 +31,7 @@
           class="cursor-pointer"
           @click="onOptionSelected(i)"
         >
-          <component :is="option" class="w-full pointer-events-none" />
+          <component :is="option" class="pointer-events-none" />
         </ListboxOption>
       </ListboxOptions>
     </transition>
