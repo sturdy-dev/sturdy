@@ -17,6 +17,8 @@ const UPDATED_WORKSPACES_STATUSES = gql`
       description
       timestamp
       detailsUrl
+
+      stale
       workspace {
         id
       }
