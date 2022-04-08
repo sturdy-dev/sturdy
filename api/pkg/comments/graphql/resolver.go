@@ -141,10 +141,27 @@ func (r *CommentRootResolver) Comment(ctx context.Context, args resolvers.Commen
 		return nil, gqlerrors.Error(err)
 	}
 
-	return &CommentResolver{comment: comment, root: r}, nil
+	return r.newCommentResolver(comment)
 }
 
 func (r *CommentRootResolver) PreFetchedComment(c comments.Comment) (resolvers.CommentResolver, error) {
+	return r.newCommentResolver(c)
+}
+
+func (r *CommentRootResolver) newCommentResolver(c comments.Comment) (resolvers.CommentResolver, error) {
+	// get as live
+	if c.WorkspaceID != nil {
+		ws, err := r.workspaceReader.Get(*c.WorkspaceID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		updated, err := live.GetWorkspaceComment(&c, ws, r.executorProvider, r.snapshotRepo)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		return &CommentResolver{comment: *updated, root: r}, nil
+	}
+
 	return &CommentResolver{comment: c, root: r}, nil
 }
 
@@ -156,7 +173,7 @@ func (r *CommentRootResolver) InternalWorkspaceComments(workspace *workspaces.Wo
 
 	var res []resolvers.CommentResolver
 	for _, c := range comms {
-		_ = c
+		c := c
 		res = append(res, &CommentResolver{comment: c, root: r})
 	}
 
