@@ -50,6 +50,12 @@
       </div>
     </div>
 
+    <RichDiffImage
+      v-if="isRichImage"
+      :new-file-info="diffs.newFileInfo"
+      :old-file-info="diffs.oldFileInfo"
+    />
+
     <template v-if="!differState.isHidden && showSuggestions && !diffs.isLarge">
       <template v-for="suggestion in suggestions">
         <template v-if="suggestion.author.id === showingSuggestionsByUser">
@@ -101,7 +107,13 @@
     </template>
 
     <div
-      v-if="isReadyToDisplay && !differState.isHidden && !showSuggestions && !diffs.isLarge"
+      v-if="
+        isReadyToDisplay &&
+        !differState.isHidden &&
+        !showSuggestions &&
+        !diffs.isLarge &&
+        isTextDiff
+      "
       class="d2h-code-wrapper overflow-x-scroll"
     >
       <table class="d2h-diff-table leading-4" style="border-collapse: separate; border-spacing: 0">
@@ -274,8 +286,8 @@
 
 <script lang="ts">
 import { CheckIcon, PlusIcon, XIcon } from '@heroicons/vue/solid'
-import { defineComponent, reactive } from 'vue'
 import type { PropType } from 'vue'
+import { defineComponent, reactive } from 'vue'
 import type { Block, DifferSetHunksWithPrefix, HighlightedBlock } from './event'
 import DiffTable, { HUNK_FRAGMENT as DIFF_TABLE_HUNK_FRAGMENT } from './DiffTable.vue'
 import Button from '../../atoms/Button.vue'
@@ -295,11 +307,13 @@ import type { CommentState } from '../comments/CommentState'
 import type { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
 import type {
-  DifferFile_TopCommentFragment,
   DifferFile_FileDiffFragment,
   DifferFile_SuggestionFragment,
+  DifferFile_TopCommentFragment,
 } from './__generated__/DifferFile'
 import { searchMatches } from './DifferHelper'
+import { FileType } from '../../__generated__/types'
+import RichDiffImage from './RichDiffImage.vue'
 
 type SuggestionHunk = DifferFile_SuggestionFragment['diffs'][number]['hunks'][number]
 
@@ -341,6 +355,18 @@ export const DIFFER_FILE_FILE_DIFF = gql`
     isNew
     isMoved
     isLarge
+
+    oldFileInfo {
+      id
+      fileType
+      rawURL
+    }
+
+    newFileInfo {
+      id
+      fileType
+      rawURL
+    }
 
     hunks {
       _id
@@ -397,6 +423,7 @@ type Position = {
 
 export default defineComponent({
   components: {
+    RichDiffImage,
     ReviewNewComment,
     ReviewComment,
     DiffHeader,
@@ -575,6 +602,21 @@ export default defineComponent({
     },
     canIgnoreFile() {
       return this.diffs.isNew && !!this.diffs.newName && !this.diffs.newName.endsWith('.gitignore')
+    },
+    isRichImage() {
+      if (
+        this.diffs.newFileInfo?.fileType === FileType.Image ||
+        this.diffs.oldFileInfo?.fileType === FileType.Image
+      ) {
+        return true
+      }
+      return false
+    },
+    isTextDiff() {
+      if (this.isRichImage) {
+        return false
+      }
+      return true
     },
   },
   created() {

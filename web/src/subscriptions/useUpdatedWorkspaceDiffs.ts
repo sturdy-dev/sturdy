@@ -17,6 +17,16 @@ const UPDATED_WORKSPACE_DIFFS = gql`
         hunkID
         patch
       }
+      oldFileInfo {
+        id
+        fileType
+        rawURL
+      }
+      newFileInfo {
+        id
+        fileType
+        rawURL
+      }
     }
   }
 `
