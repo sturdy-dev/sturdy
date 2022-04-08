@@ -132,18 +132,21 @@ export default defineComponent({
               message: 'Please select an empty directory.',
               style: 'error',
             })
+            await this.archiveWorkspace(workspace.id)
             return
-          } else if (e.message.includes('view already exists')) {
+          } else if (e.message.includes('already exists')) {
             this.emitter.emit('notification', {
               title: 'Directory is already connected',
-              message: 'You can connect directory twice. Plese select another directory.',
+              message: 'You can connect directory twice in Sturdy.',
               style: 'error',
             })
+            await this.archiveWorkspace(workspace.id)
             return
           } else if (e.message.includes('Cancelled')) {
             await this.archiveWorkspace(workspace.id)
             return
           } else {
+            await this.archiveWorkspace(workspace.id)
             throw e
           }
         })

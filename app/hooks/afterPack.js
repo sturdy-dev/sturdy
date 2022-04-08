@@ -33,6 +33,8 @@ const translateArch = (arch) => {
   }
 }
 
+const downloadFiles = ['sturdy-sync']
+
 /** @type {import('electron-builder').Configuration['beforePack']} */
 module.exports = async function (params) {
   const platform = translatePlatform(params.packager.platform.name)
@@ -62,6 +64,12 @@ module.exports = async function (params) {
     error(`failed to download`)
     throw err
   })
+
+  fs.readdirSync(dest)
+    .filter((file) => !downloadFiles.includes(file))
+    .forEach((file) => {
+      fs.rmSync(path.join(dest, file))
+    })
 
   fs.readdirSync(dest)
     .map((file) => `downloaded: ${path.join(dest, file)}`)
