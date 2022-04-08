@@ -24,9 +24,13 @@ type Service struct {
 	snapshotsRepo    db_snapshots.Repository
 }
 
-func New(executorProvider executor.Provider) *Service {
+func New(
+	executorProvider executor.Provider,
+	snapshotsRepo db_snapshots.Repository,
+) *Service {
 	return &Service{
 		executorProvider: executorProvider,
+		snapshotsRepo:    snapshotsRepo,
 	}
 }
 
@@ -148,7 +152,7 @@ func (s *Service) checksum(fp fs.File) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to calculate checksum")
 	}
-	
+
 	var sum []byte
 	sum = sh.Sum(sum)
 	return fmt.Sprintf("%x", sum), nil
