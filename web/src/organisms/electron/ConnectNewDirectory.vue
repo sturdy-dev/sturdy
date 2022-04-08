@@ -13,14 +13,6 @@
 
     <template #options>
       <Button
-        :icon="folderIcon"
-        class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
-        @click="onClick(false)"
-      >
-        Open existing directory
-        <template #tooltip> Open this codebase in an existing directory on your computer </template>
-      </Button>
-      <Button
         :icon="plusIcon"
         class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
         @click="onClick(true)"
@@ -29,6 +21,15 @@
         <template #tooltip>
           Create a new directory on your hard drive with this codebase's contents
         </template>
+      </Button>
+
+      <Button
+        :icon="folderIcon"
+        class="text-sm text-left py-2 px-4 flex border-0 hover:bg-gray-50"
+        @click="onClick(false)"
+      >
+        Open existing directory
+        <template #tooltip> Open this codebase in an existing directory on your computer </template>
       </Button>
     </template>
   </Select>
