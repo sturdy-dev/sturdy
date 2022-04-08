@@ -109,6 +109,6 @@ const (
 
 type FileInfoResolver interface {
 	ID() graphql.ID
-	RawURL() *string
+	RawURL(ctx context.Context) *string
 	FileType(ctx context.Context) (FileType, error)
 }

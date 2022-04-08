@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"crypto/sha1"
 	"fmt"
+	"io"
 	"io/fs"
 	"io/ioutil"
 	"path"
@@ -124,4 +126,31 @@ func (s *Service) detectFileType(fp fs.File) (file.Type, error) {
 	// TODO: detect text?
 
 	return file.BinaryType, nil
+}
+
+func (s *Service) WorkspaceChecksum(ctx context.Context, ws *workspaces.Workspace, filePath string, isNew bool) (string, error) {
+	fsys, err := live.WorkspaceFS(s.executorProvider, s.snapshotsRepo, ws, isNew)
+	if err != nil {
+		return "", fmt.Errorf("failed to create fs: %w", err)
+	}
+
+	fp, err := fsys.Open(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open file: %w", err)
+	}
+
+	return s.checksum(fp)
+}
+
+func (s *Service) checksum(fp fs.File) (string, error) {
+	sh := sha1.New()
+	_, err := io.Copy(sh, fp)
+	if err != nil {
+		return "", fmt.Errorf("failed to calculate checksum")
+	}
+
+	// var sum [sha1.Size]byte
+	var sum []byte
+	sum = sh.Sum(sum)
+	return fmt.Sprintf("%x", sum), nil
 }

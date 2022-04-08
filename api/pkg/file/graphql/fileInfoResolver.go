@@ -29,7 +29,7 @@ func (f *fileInfoResolver) ID() graphql.ID {
 	return f.id
 }
 
-func (f *fileInfoResolver) RawURL() *string {
+func (f *fileInfoResolver) RawURL(ctx context.Context) *string {
 	if f.filePath == "/dev/null" {
 		return nil
 	}
@@ -41,6 +41,13 @@ func (f *fileInfoResolver) RawURL() *string {
 
 	if f.workspace != nil {
 		q.Set("workspace_id", f.workspace.ID)
+
+		// add checksum
+		sum, err := f.root.fileService.WorkspaceChecksum(ctx, f.workspace, f.filePath, f.isNew)
+		if err != nil {
+			return nil
+		}
+		q.Set("sum", sum)
 	} else if f.change != nil {
 		q.Set("change_id", string(f.change.ID))
 	} else {
