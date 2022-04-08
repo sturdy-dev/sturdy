@@ -308,6 +308,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
 
   #addFallbackMutagenIpc() {
     const ipcImplementation: MutagenIPC = {
+      version: async () => 1,
       async createView(workspaceID, mountPath) {
         throw new Error('mutagen is not available')
       },

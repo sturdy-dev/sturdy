@@ -69,6 +69,7 @@ export var sharedAppIpc = {
 
 // IPC methods that are only available if there is a mutagen session
 export var sharedMutagenIpc = {
+  version: new IPCMethod<[], number>('version'),
   createView: new IPCMethod<[workspaceID: string, mountPath: string], string>('createView'),
   createNewViewWithDialog: new IPCMethod<[workspaceID: string, codebaseSlug: string], string>(
     'createNewViewWithDialog'

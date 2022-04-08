@@ -1,5 +1,5 @@
 import { MutagenExecutable } from './Executable'
-import { mkdir, readdir, stat } from 'fs/promises'
+import { mkdir, stat } from 'fs/promises'
 import path from 'path'
 import { homedir, hostname } from 'os'
 import { BrowserWindow, dialog } from 'electron'
@@ -182,15 +182,16 @@ export class MutagenManager {
     const logger = this.#logger
 
     const ipcImplementation: MutagenIPC = {
-      async createView(workspaceID, mountPath) {
-        logger.log(`createView ${workspaceID} at ${mountPath}`)
+      version: async () => 1,
 
-        const dirname = path.dirname(mountPath)
-        const baseName = path.basename(mountPath)
-        const content = await readdir(dirname)
-        if (content.find((f) => f === baseName)) {
-          throw new Error(`${baseName} already exists`)
-        }
+      async createView(workspaceID, mountPath) {
+        const alreadyConnected = manager.#configFile.data.views.some(({ path }) => {
+          return path === mountPath
+        })
+
+        if (alreadyConnected) throw new Error('view already exists')
+
+        logger.log(`createView ${workspaceID} at ${mountPath}`)
 
         const { error, data } = await client
           .mutation(
