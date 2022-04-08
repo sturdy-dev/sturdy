@@ -1,12 +1,22 @@
 <template>
   <div class="flex">
-    <div v-if="oldFileInfo?.rawURL" class="bg-red-100 p-4 flex flex-col space-y-2">
+    <div
+      v-if="oldFileInfo?.rawURL"
+      class="bg-red-100 p-4 flex flex-col space-y-2 items-center flex-1"
+    >
       <span class="text-center text-red-800">Old</span>
-      <img :src="apiURL(oldFileInfo.rawURL)" />
+      <div>
+        <img :src="apiURL(oldFileInfo.rawURL)" />
+      </div>
     </div>
-    <div v-if="newFileInfo?.rawURL" class="bg-green-100 p-4 flex flex-col space-y-2">
+    <div
+      v-if="newFileInfo?.rawURL"
+      class="bg-green-100 p-4 flex flex-col space-y-2 items-center flex-1"
+    >
       <span class="text-center text-green-800">New</span>
-      <img :src="apiURL(newFileInfo.rawURL)" />
+      <div>
+        <img :src="apiURL(newFileInfo.rawURL)" />
+      </div>
     </div>
   </div>
 </template>
