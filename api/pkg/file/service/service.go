@@ -148,8 +148,7 @@ func (s *Service) checksum(fp fs.File) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to calculate checksum")
 	}
-
-	// var sum [sha1.Size]byte
+	
 	var sum []byte
 	sum = sh.Sum(sum)
 	return fmt.Sprintf("%x", sum), nil
