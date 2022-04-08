@@ -1,36 +1,44 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha1"
 	"fmt"
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"net/http"
 	"path"
+	"strings"
 
 	"github.com/h2non/filetype"
 
 	"getsturdy.com/api/pkg/changes"
+	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/comments/live"
 	"getsturdy.com/api/pkg/file"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs/executor"
+	"getsturdy.com/api/vcs/provider"
 )
 
 type Service struct {
 	executorProvider executor.Provider
 	snapshotsRepo    db_snapshots.Repository
+	vcsConfiguration *provider.Configuration
 }
 
 func New(
 	executorProvider executor.Provider,
 	snapshotsRepo db_snapshots.Repository,
+	vcsConfiguration *provider.Configuration,
 ) *Service {
 	return &Service{
 		executorProvider: executorProvider,
 		snapshotsRepo:    snapshotsRepo,
+		vcsConfiguration: vcsConfiguration,
 	}
 }
 
@@ -40,7 +48,7 @@ func (s *Service) ReadWorkspaceFile(ctx context.Context, ws *workspaces.Workspac
 		return nil, fmt.Errorf("failed to create fs: %w", err)
 	}
 
-	return s.readFile(fsys, filePath)
+	return s.readFile(fsys, filePath, ws.CodebaseID)
 }
 
 func (s *Service) ReadChangeFile(ctx context.Context, ch *changes.Change, filePath string, isNew bool) ([]byte, error) {
@@ -49,10 +57,10 @@ func (s *Service) ReadChangeFile(ctx context.Context, ch *changes.Change, filePa
 		return nil, fmt.Errorf("failed to create fs: %w", err)
 	}
 
-	return s.readFile(fsys, filePath)
+	return s.readFile(fsys, filePath, ch.CodebaseID)
 }
 
-func (s *Service) readFile(fsys fs.FS, filePath string) ([]byte, error) {
+func (s *Service) readFile(fsys fs.FS, filePath string, codebaseID codebases.ID) ([]byte, error) {
 	if filePath != path.Clean(filePath) {
 		return nil, fmt.Errorf("unexpected path: %s", filePath)
 	}
@@ -65,6 +73,26 @@ func (s *Service) readFile(fsys fs.FS, filePath string) ([]byte, error) {
 	data, err := ioutil.ReadAll(fp)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	// if the file LFS pointer, serve the file from the LFS server
+	if len(data) < 2000 && bytes.HasPrefix(data, []byte("version https://git-lfs.github.com/spec/v1\n")) {
+		lines := strings.Split(string(data), "\n")
+		if len(lines) < 2 || len(lines[1]) != 75 {
+			return nil, fmt.Errorf("failed to parse lfs file")
+		}
+		sha := lines[1][len("oid sha256:"):]
+		resp, err := http.Get("http://" + s.vcsConfiguration.LFS.Addr.String() + "/api/sturdy/" + string(codebaseID) + "/object/" + sha)
+		if err != nil {
+			return nil, fmt.Errorf("failed to download file from lfs: %w", err)
+		}
+		defer resp.Body.Close()
+
+		lfsData, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file: %w", err)
+		}
+		return lfsData, nil
 	}
 
 	return data, nil

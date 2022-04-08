@@ -19,7 +19,7 @@ func TestFileType(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		s := New(nil)
+		s := New(nil, nil, nil)
 		fp, err := os.OpenFile(tc.path, os.O_RDONLY, 0o644)
 		assert.NoError(t, err)
 		res, err := s.detectFileType(fp)

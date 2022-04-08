@@ -69,7 +69,7 @@ func TestFileResolver(t *testing.T) {
 		nil,
 	)
 
-	fileService := service_file.New(executorProvider)
+	fileService := service_file.New(executorProvider, nil, nil)
 
 	changeRepo := db_change.NewInMemoryRepo()
 
