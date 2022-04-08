@@ -65,13 +65,19 @@ func (q *WebhooksQueue) Start(ctx context.Context) error {
 			logger.Info("processing")
 
 			ctx := context.Background()
-			if err := q.work(ctx, event); errors.Is(err, errUnknownType) {
+
+			if err := q.work(ctx, event); err != nil {
+
+				retryAllowed := event.Status != nil || event.WorkflowJob != nil || event.Installation != nil || event.InstallationRepositories != nil
+				willRetry := retryAllowed && !errors.Is(err, errUnknownType)
+				if willRetry {
+					logger.Error("failed to process event", zap.Error(err), zap.Bool("will retry", true))
+					// retry
+					continue
+				}
+
 				logger.Error("failed to process event", zap.Error(err), zap.Bool("will retry", false))
 				// No return, ack message
-			} else if err != nil {
-				logger.Error("failed to process event", zap.Error(err), zap.Bool("will retry", true))
-				// retry
-				continue
 			}
 
 			if err := msg.Ack(); err != nil {

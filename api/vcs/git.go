@@ -116,7 +116,7 @@ func CreateEmptyBareRepo(path string) (*repository, error) {
 }
 
 func CloneRepo(source, target string) (*repository, error) {
-	cmd := exec.Command("git", "clone", "--local", source, target)
+	cmd := exec.Command("git", "clone", source, target)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Println(string(output))
