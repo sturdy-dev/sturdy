@@ -149,48 +149,90 @@ func GetWorkspaceComments(
 
 	// fuzzily update line numbers
 	for i, c := range comms {
-		if c.Context == nil || c.ContextStartsAtLine == nil {
-			comms[i].LineStart = -1
-			comms[i].LineEnd = -1
-			continue
-		}
-
-		var (
-			file fs.File
-			err  error
-		)
-		if c.LineIsNew {
-			file, err = newFilesFS.Open(c.Path)
-		} else {
-			if c.OldPath != nil {
-				file, err = oldFilesFS.Open(*c.OldPath)
-			} else {
-				file, err = oldFilesFS.Open(c.Path)
-			}
-		}
-		switch {
-		case err == nil:
-		case errors.Is(err, fs.ErrNotExist), errors.Is(err, executor.ErrIsRebasing):
-			comms[i].LineStart = -1
-			comms[i].LineEnd = -1
-			continue
-		default:
-			return nil, fmt.Errorf("could not open file %s: %w", c.Path, err)
-		}
-
-		contents, err := ioutil.ReadAll(file)
+		updated, err := fuzzyLocation(newFilesFS, oldFilesFS, c)
 		if err != nil {
-			return nil, fmt.Errorf("could not read file contents: %w", err)
+			return nil, fmt.Errorf("failed to update fuzzy location: %w", err)
 		}
-
-		newLoc := fuzzyNewLocation(c, string(contents))
-		comms[i].LineStart = newLoc
-		comms[i].LineEnd = newLoc
-
-		if err := file.Close(); err != nil {
-			return nil, fmt.Errorf("could not close file: %w", err)
-		}
+		comms[i] = *updated
 	}
 
 	return comms, nil
+}
+
+func GetWorkspaceComment(
+	comment *comments.Comment,
+	ws *workspaces.Workspace,
+	executorProvider executor.Provider,
+	snapshotRepo db_snapshots.Repository,
+) (*comments.Comment, error) {
+	newFilesFS, err := WorkspaceFS(executorProvider, snapshotRepo, ws, true)
+	switch {
+	case err == nil:
+	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("could not prepare workspace filesystem for new files: %w", err)
+	}
+
+	oldFilesFS, err := WorkspaceFS(executorProvider, snapshotRepo, ws, false)
+	switch {
+	case err == nil:
+	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("could not prepare workspace filesystem for old files: %w", err)
+	}
+
+	res, err := fuzzyLocation(newFilesFS, oldFilesFS, *comment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get fuzzy location: %w", err)
+	}
+
+	return res, nil
+}
+
+func fuzzyLocation(newFilesFS, oldFilesFS fs.FS, comment comments.Comment) (*comments.Comment, error) {
+	if comment.Context == nil || comment.ContextStartsAtLine == nil {
+		comment.LineStart = -1
+		comment.LineEnd = -1
+		return &comment, nil
+	}
+
+	var (
+		file fs.File
+		err  error
+	)
+	if comment.LineIsNew {
+		file, err = newFilesFS.Open(comment.Path)
+	} else {
+		if comment.OldPath != nil {
+			file, err = oldFilesFS.Open(*comment.OldPath)
+		} else {
+			file, err = oldFilesFS.Open(comment.Path)
+		}
+	}
+	switch {
+	case err == nil:
+	case errors.Is(err, fs.ErrNotExist), errors.Is(err, executor.ErrIsRebasing):
+		comment.LineStart = -1
+		comment.LineEnd = -1
+		return &comment, nil
+	default:
+		return nil, fmt.Errorf("could not open file %s: %w", comment.Path, err)
+	}
+
+	contents, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("could not read file contents: %w", err)
+	}
+
+	newLoc := fuzzyNewLocation(comment, string(contents))
+	comment.LineStart = newLoc
+	comment.LineEnd = newLoc
+
+	if err := file.Close(); err != nil {
+		return nil, fmt.Errorf("could not close file: %w", err)
+	}
+
+	return &comment, nil
 }

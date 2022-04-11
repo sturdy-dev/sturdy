@@ -1,6 +1,8 @@
 package graphql
 
-import "github.com/graph-gophers/graphql-go"
+import (
+	"github.com/graph-gophers/graphql-go"
+)
 
 type CodeCommentContextResolver struct {
 	*CommentResolver
