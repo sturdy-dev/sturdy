@@ -2,5 +2,4 @@
 
 set -euo pipefail
 
-sed 's/^/[sslmux80] /'
-calc
+sed --unbuffered  's/^/[sslmux80] /'
