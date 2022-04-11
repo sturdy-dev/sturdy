@@ -6,7 +6,7 @@
     class="disabled:opacity-50 relative inline-flex items-center text-sm font-medium flex-shrink-0 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 group leading-5 gap-2"
   >
     <Spinner v-if="spinner" />
-    <component v-else-if="icon" :is="icon" class="h-5 w-5" :class="iconColor" />
+    <component :is="icon" v-else-if="icon" class="h-5 w-5" :class="iconColor" />
 
     <slot>Button</slot>
 

@@ -2,8 +2,8 @@
   <Select v-if="mutagenIpc && version > 0" id="codebase-open-buttons" color="blue">
     <template #selected="{ option }">
       <component
-        color="blue"
         :is="option"
+        color="blue"
         :disabled="connecting"
         :spinner="connecting"
         :show-tooltip="true"
