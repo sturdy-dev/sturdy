@@ -26,6 +26,12 @@ DB_USER="${POSTGRESQL_DB_USER}"
 DB_PASS="${POSTGRESQL_DB_PASS}"
 DB_TEMPLATE="template1"
 
+banner() {
+  BLUE='\033[0;34m'
+  NC='\033[0m' # No Color
+  printf "${BLUE}Initializing PostgreSQL, this might take a few minutes...${NC}\n"
+}
+
 log() {
 	echo "[postgresql-prepare] $@"
 }
@@ -117,16 +123,22 @@ create_datadir() {
 }
 
 configure_postgresql() {
+  banner
+
 	create_rundir
 	create_datadir
 	initialize_database
 
 	# start postgres server internally for the creation of users and databases
+	log "‣ Starting postgres server"
 	exec_as_postgres pg_ctl -D ${PG_DATADIR} -w start >/dev/null
+	log "‣ Started postgres server"
 	create_user
 	create_database
 	# stop the postgres server
+	log "‣ Stopping postgres server"
 	exec_as_postgres pg_ctl -D ${PG_DATADIR} -w stop >/dev/null
+	log "‣ Stopped postgres server, configuration completed!"
 }
 
 configure_postgresql
