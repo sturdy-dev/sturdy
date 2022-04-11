@@ -2,6 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/getsturdy.com/api?)](https://goreportcard.com/report/getsturdy.com/api)
 [![Releases](https://img.shields.io/github/release-pre/sturdy-dev/sturdy.svg)](https://github.com/sturdy-dev/sturdy/releases)
+[![Discord](https://img.shields.io/badge/join-Discord-blue.svg)](https://discord.gg/fQcH9QAVpX)
 
 # Welcome to Sturdy! 📣🐣
 
