@@ -75,3 +75,10 @@ func (r *prResolver) ID() graphql.ID {
 func (r *prResolver) Statuses(ctx context.Context) ([]resolvers.GitHubPullRequestStatusResolver, error) {
 	return (*r.root.statusesRootResolver).InternalGitHubPullRequestStatuses(ctx, r.pr)
 }
+
+func (r *prResolver) CanUpdate() bool {
+	if r.pr.Fork {
+		return false
+	}
+	return true
+}

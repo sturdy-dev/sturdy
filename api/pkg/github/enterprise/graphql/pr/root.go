@@ -122,32 +122,21 @@ func (r *prRootResolver) InternalByCodebaseIDAndHeadSHA(ctx context.Context, cod
 	return &prResolver{root: r, pr: pr}, nil
 }
 
-// InternalGitHubPullRequest is only to be used in contexts where the request is already authenticated
+// InternalGitHubPullRequestByWorkspaceID is only to be used in contexts where the request is already authenticated
 func (r *prRootResolver) InternalGitHubPullRequestByWorkspaceID(ctx context.Context, args resolvers.GitHubPullRequestArgs) (resolvers.GitHubPullRequestResolver, error) {
 	if args.WorkspaceID == nil {
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "workspaceID", "can't be empty")
 	}
-	prs, err := r.gitHubPRRepo.ListOpenedByWorkspace(string(*args.WorkspaceID))
-	if err != nil {
+
+	pr, err := r.gitHubService.GetPullRequestForWorkspace(string(*args.WorkspaceID))
+	switch {
+	case errors.Is(err, sql.ErrNoRows), errors.Is(err, service_github.ErrNotFound):
+		return nil, nil
+	case err == nil:
+		return &prResolver{root: r, pr: pr}, nil
+	default:
 		return nil, gqlerrors.Error(err)
 	}
-	if len(prs) == 0 {
-		// There is no currently open Pull request for this workspace, return the one that was most recently closed
-		pr, err := r.gitHubPRRepo.GetMostRecentlyClosedByWorkspace(string(*args.WorkspaceID))
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return nil, nil
-		case err == nil:
-			return &prResolver{root: r, pr: pr}, nil
-		default:
-			return nil, gqlerrors.Error(err)
-		}
-
-	}
-	if len(prs) > 1 {
-		r.logger.Warn("more than one opened pull requests for a workspace - this is an erroneous state", zap.Error(err), zap.String("workspace_id", string(*args.WorkspaceID)))
-	}
-	return &prResolver{root: r, pr: prs[0]}, nil
 }
 
 func (r *prRootResolver) CreateOrUpdateGitHubPullRequest(ctx context.Context, args resolvers.CreateOrUpdateGitHubPullRequestArgs) (resolvers.GitHubPullRequestResolver, error) {

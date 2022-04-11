@@ -256,31 +256,37 @@ func (svc *Service) ImportPullRequest(
 	// If the PR is created from a branch in the "head" repo, Sturdy will _update_ the existing PR.
 	// If the PR is created from a fork, Sturdy will create a new PR instead.
 
-	if gitHubPR.GetHead().GetUser().GetLogin() == ghInstallation.Owner {
-		// Create pull request object, to enable updates to existing PRs
-		sturdyPR := github.PullRequest{
-			ID:                 uuid.NewString(),
-			WorkspaceID:        workspaceID,
-			GitHubID:           gitHubPR.GetID(),
-			GitHubRepositoryID: ghRepo.GitHubRepositoryID,
-			CreatedBy:          userID,
-			GitHubPRNumber:     gitHubPR.GetNumber(),
-			Head:               gitHubPR.GetHead().GetRef(),
-			HeadSHA:            gitHubPR.GetHead().SHA,
-			CodebaseID:         codebaseID,
-			Base:               gitHubPR.GetBase().GetRef(),
-			State:              github.PullRequestStateOpen,
-			CreatedAt:          gitHubPR.GetCreatedAt(),
-			UpdatedAt:          nil,
-			ClosedAt:           nil,
-			MergedAt:           nil,
-			Importing:          true,
-		}
+	isFork := gitHubPR.GetHead().GetUser().GetLogin() != ghInstallation.Owner
 
-		if err := svc.gitHubPullRequestRepo.Create(sturdyPR); err != nil {
-			return fmt.Errorf("failed to save pull request record: %w", err)
-		}
+	// Create pull request object, to enable updates to existing PRs
+	sturdyPR := github.PullRequest{
+		ID:                 uuid.NewString(),
+		WorkspaceID:        workspaceID,
+		GitHubID:           gitHubPR.GetID(),
+		GitHubRepositoryID: ghRepo.GitHubRepositoryID,
+		CreatedBy:          userID,
+		GitHubPRNumber:     gitHubPR.GetNumber(),
+		Head:               gitHubPR.GetHead().GetRef(),
+		HeadSHA:            gitHubPR.GetHead().SHA,
+		CodebaseID:         codebaseID,
+		Base:               gitHubPR.GetBase().GetRef(),
+		State:              github.PullRequestStateOpen,
+		CreatedAt:          gitHubPR.GetCreatedAt(),
+		UpdatedAt:          nil,
+		ClosedAt:           nil,
+		MergedAt:           nil,
+		Importing:          true,
+		Fork:               isFork,
 	}
+
+	if err := svc.gitHubPullRequestRepo.Create(sturdyPR); err != nil {
+		return fmt.Errorf("failed to save pull request record: %w", err)
+	}
+
+	svc.logger.Info("imported pull request",
+		zap.String("id", sturdyPR.ID),
+		zap.String("workspace_id", sturdyPR.WorkspaceID),
+		zap.Bool("fork", sturdyPR.Fork))
 
 	return nil
 }

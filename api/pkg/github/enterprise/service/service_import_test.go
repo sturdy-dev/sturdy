@@ -13,11 +13,13 @@ import (
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
+	"github.com/graph-gophers/graphql-go"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
+	"getsturdy.com/api/pkg/auth"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/di"
@@ -26,6 +28,7 @@ import (
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
+	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -50,6 +53,8 @@ func TestService_ImportPullRequest(t *testing.T) {
 		CodebaseService  *service_codebase.Service
 		WorkspaceService service_workspace.Service
 		ChangeService    *service_change.Service
+
+		WorkspaceRootResolver resolvers.WorkspaceRootResolver
 
 		RepoProvider provider.RepoProvider
 		Logger       *zap.Logger
@@ -86,6 +91,9 @@ func TestService_ImportPullRequest(t *testing.T) {
 	rand.Seed(time.Now().UnixMilli())
 
 	usr, err := d.UserService.CreateWithPassword(ctx, "hello", "foobar", "test+"+uuid.NewString()+"@getsturdy.com")
+	assert.NoError(t, err)
+
+	authenticatedCtx := auth.NewContext(ctx, &auth.Subject{Type: auth.SubjectUser, ID: string(usr.ID)})
 
 	// Create GitHub remote
 	fakeGitHubBarePath := d.RepoProvider.ViewPath("not-a-codebase", "github-"+uuid.NewString())
@@ -125,6 +133,9 @@ func TestService_ImportPullRequest(t *testing.T) {
 		GitHubRepositoryID: rand.Int63n(800_00),
 		TrackedBranch:      "master",
 	}
+
+	_, err = d.CodebaseService.AddUser(ctx, cb.ID, usr)
+	assert.NoError(t, err)
 
 	apiRepo := api.ConvertRepository(ghRepo)
 
@@ -264,7 +275,6 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		updatedWs, err := d.WorkspaceService.GetByID(ctx, ws.ID)
 		assert.NoError(t, err)
-
 		assert.Equal(t, "<p>this is a title</p><p>hello <strong>body</strong></p>\n", updatedWs.DraftDescription)
 
 		afterThirdPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
@@ -272,6 +282,16 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		// no new workspaces where created
 		assert.Equal(t, len(afterFirstPushWorkspaceList), len(afterThirdPushWorkspaceList))
+
+		// pr should be updatable
+		{
+			workspaceResolver, err := d.WorkspaceRootResolver.Workspace(authenticatedCtx, resolvers.WorkspaceArgs{ID: graphql.ID(ws.ID)})
+			assert.NoError(t, err)
+			gitHubPullRequestResolver, err := workspaceResolver.GitHubPullRequest(authenticatedCtx)
+			assert.NoError(t, err)
+			assert.Equal(t, int32(pr.GetNumber()), int32(gitHubPullRequestResolver.PullRequestNumber()))
+			assert.True(t, gitHubPullRequestResolver.CanUpdate())
+		}
 	})
 
 	t.Run("ImportedParent", func(t *testing.T) {
@@ -279,7 +299,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 		firstPR, firstBranchName := createFakePr(7000, 3, "first.txt", "hello first")
 		secondPR, _ := createFakePr(7001, 4, "second.txt", "hello second")
 
-		// import and merge the first pr
+		// import the first pr
 		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
 			PullRequest:  firstPR,
 			Repo:         apiRepo,
@@ -290,6 +310,17 @@ func TestService_ImportPullRequest(t *testing.T) {
 		ws := getWorkspace("<p>hello first</p>")
 		assert.NotNil(t, ws)
 
+		// pr should be updatable
+		{
+			workspaceResolver, err := d.WorkspaceRootResolver.Workspace(authenticatedCtx, resolvers.WorkspaceArgs{ID: graphql.ID(ws.ID)})
+			assert.NoError(t, err)
+			gitHubPullRequestResolver, err := workspaceResolver.GitHubPullRequest(authenticatedCtx)
+			assert.NoError(t, err)
+			assert.Equal(t, int32(firstPR.GetNumber()), int32(gitHubPullRequestResolver.PullRequestNumber()))
+			assert.True(t, gitHubPullRequestResolver.CanUpdate())
+		}
+
+		// merge first pr
 		mergeCommitSha, err := fakeGitHubBareRepo.MergeBranchInto(firstBranchName, "master")
 		assert.NoError(t, err)
 
@@ -327,6 +358,59 @@ func TestService_ImportPullRequest(t *testing.T) {
 		t.Logf("diffs: %+v", diffs)
 		if assert.Len(t, diffs, 1) {
 			assert.Equal(t, "second.txt", diffs[0].NewName)
+		}
+	})
+
+	t.Run("ImportFromFork", func(t *testing.T) {
+		pr, _ := createFakePr(8000, 8, "foobar.txt", "forked PR")
+
+		// some random user
+		pr.Head.User = &api.User{
+			ID:    p[int64](rand.Int63n(1_000_00)),
+			Login: p[string](uuid.NewString()),
+			Email: p[string](uuid.NewString() + "@testing.getsturdy.com"),
+			Name:  p[string](uuid.NewString()),
+		}
+
+		err := d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  pr,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		ws := getWorkspace("<p>forked PR</p>")
+		if assert.NotNil(t, ws) {
+			diffs, _, err := d.WorkspaceService.Diffs(ctx, ws.ID)
+			assert.NoError(t, err)
+			if assert.Len(t, diffs, 1) {
+				assert.Equal(t, diffs[0].NewName, "foobar.txt")
+			}
+		}
+
+		afterFirstPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
+		assert.NoError(t, err)
+
+		// send event again
+		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
+			PullRequest:  pr,
+			Repo:         apiRepo,
+			Installation: apiInstallation,
+		})
+		assert.NoError(t, err)
+
+		afterSecondPushWorkspaceList, err := d.WorkspaceService.ListByCodebaseID(ctx, cb.ID, false)
+		assert.NoError(t, err)
+		assert.Len(t, afterSecondPushWorkspaceList, len(afterFirstPushWorkspaceList))
+
+		// pr is from a fork, and should not be updatable
+		{
+			workspaceResolver, err := d.WorkspaceRootResolver.Workspace(authenticatedCtx, resolvers.WorkspaceArgs{ID: graphql.ID(ws.ID)})
+			assert.NoError(t, err)
+			gitHubPullRequestResolver, err := workspaceResolver.GitHubPullRequest(authenticatedCtx)
+			assert.NoError(t, err)
+			assert.Equal(t, int32(pr.GetNumber()), int32(gitHubPullRequestResolver.PullRequestNumber()))
+			assert.False(t, gitHubPullRequestResolver.CanUpdate())
 		}
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -26,6 +27,9 @@ import (
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
+
+var ErrNotFound = errors.New("not found")
+var ErrIntegrationNotEnabled = errors.New("github integration is not enabled")
 
 type GitHubUserError struct {
 	msg string
@@ -166,7 +170,59 @@ func (svc *Service) MergePullRequest(ctx context.Context, ws *workspaces.Workspa
 	return nil
 }
 
-var ErrIntegrationNotEnabled = errors.New("github integration is not enabled")
+func Filter[T any](in []T, cond func(T) bool) (out []T) {
+	for _, v := range in {
+		if cond(v) {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+func (svc *Service) GetPullRequestForWorkspace(workspaceID string) (*github.PullRequest, error) {
+	prs, err := svc.gitHubPullRequestRepo.ListByWorkspace(workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	return primaryPullRequest(prs)
+}
+
+func primaryPullRequest(prs []*github.PullRequest) (*github.PullRequest, error) {
+	// Priority:
+	// * Any open PR
+	// * Forks over non-forks
+	// * Created At
+
+	// newest first
+	sort.SliceStable(prs, func(i, j int) bool {
+		a, b := prs[i], prs[j]
+
+		// prefer open prs
+		if a.State == github.PullRequestStateOpen && b.State != github.PullRequestStateOpen {
+			return true
+		}
+		if a.State != github.PullRequestStateOpen && b.State == github.PullRequestStateOpen {
+			return false
+		}
+
+		// prefer non-forks
+		if !a.Fork && b.Fork {
+			return true
+		}
+		if a.Fork && !b.Fork {
+			return false
+		}
+
+		// prefer most recently created
+		return prs[i].CreatedAt.After(prs[j].CreatedAt)
+	})
+
+	if len(prs) > 0 {
+		return prs[0], nil
+	}
+
+	return nil, ErrNotFound
+}
 
 func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.User, ws *workspaces.Workspace) (*github.PullRequest, error) {
 	ghRepo, err := svc.gitHubRepositoryRepo.GetByCodebaseID(ws.CodebaseID)
@@ -208,17 +264,24 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 		zap.Stringer("user_id", user.ID),
 	)
 
-	prs, err := svc.gitHubPullRequestRepo.ListOpenedByWorkspace(ws.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	prBranch := "sturdy-pr-" + ws.ID
 	remoteBranchName := prBranch
+	updateExistingPR := false
 
-	// PRs that have been imported to Sturdy have user defined branch names, push update to that branch
-	if len(prs) == 1 && prs[0].Head != "" {
-		remoteBranchName = prs[0].Head
+	existingPR, err := svc.GetPullRequestForWorkspace(ws.ID)
+	switch {
+	case errors.Is(err, ErrNotFound):
+	// do nothing
+	case err != nil:
+		return nil, fmt.Errorf("unable to get existing pr for workspace: %w", err)
+
+	// found open pr
+	case existingPR.State == github.PullRequestStateOpen:
+		if existingPR.Head != "" {
+			remoteBranchName = existingPR.Head
+		}
+		// create new pr if the imported one is from a fork
+		updateExistingPR = !existingPR.Fork
 	}
 
 	gitCommitMessage := message.CommitMessage(ws.DraftDescription)
@@ -305,8 +368,9 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 
 	pullRequestTitle := ws.NameOrFallback()
 
-	if len(prs) == 0 {
-		// Create Pull Request using the personal client
+	// create a new pull request
+	if !updateExistingPR {
+		// using the personal client to create the PR behalf of the user
 		apiPR, _, err := personalClient.PullRequests.Create(ctx, ghInstallation.Owner, ghRepo.Name, &gh.NewPullRequest{
 			Title: &pullRequestTitle,
 			Head:  &prBranch,
@@ -341,29 +405,26 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 
 		return &pr, nil
 	}
-	if len(prs) > 1 {
-		logger.Error("more than one opened pull requests for a workspace - this is an erroneous state", zap.Error(err))
-	}
 
-	currentPR := prs[0]
-	apiPR, _, err := tokenClient.PullRequests.Get(ctx, ghInstallation.Owner, ghRepo.Name, currentPR.GitHubPRNumber)
+	// update an existing pull request
+	apiPR, _, err := tokenClient.PullRequests.Get(ctx, ghInstallation.Owner, ghRepo.Name, existingPR.GitHubPRNumber)
 	if err != nil {
-		return nil, gqlerrors.Error(err, "getPullRequestFailure", fmt.Sprintf("Failed to get Pull Request #%d from GitHub", currentPR.GitHubPRNumber))
+		return nil, gqlerrors.Error(err, "getPullRequestFailure", fmt.Sprintf("Failed to get Pull Request #%d from GitHub", existingPR.GitHubPRNumber))
 	}
 	apiPR.Title = &pullRequestTitle
 	apiPR.Body = pullRequestDescription
-	// Update the Pull Request on behalf of the user
-	_, _, err = personalClient.PullRequests.Edit(ctx, ghInstallation.Owner, ghRepo.Name, currentPR.GitHubPRNumber, apiPR)
+
+	// on behalf of the user
+	_, _, err = personalClient.PullRequests.Edit(ctx, ghInstallation.Owner, ghRepo.Name, existingPR.GitHubPRNumber, apiPR)
 	if err != nil {
-		return nil, gqlerrors.Error(err, "updatePullRequestFailure", fmt.Sprintf("Failed to update Pull Request #%d on GitHub", currentPR.GitHubPRNumber))
+		return nil, gqlerrors.Error(err, "updatePullRequestFailure", fmt.Sprintf("Failed to update Pull Request #%d on GitHub", existingPR.GitHubPRNumber))
 	}
 
 	t0 := time.Now()
-	currentPR.UpdatedAt = &t0
-	currentPR.HeadSHA = &prSHA
-	currentPR.Importing = false // stop importing changes
-	// Only updated_at time saved?
-	if err := svc.gitHubPullRequestRepo.Update(ctx, currentPR); err != nil {
+	existingPR.UpdatedAt = &t0
+	existingPR.HeadSHA = &prSHA
+	existingPR.Importing = false // stop importing changes
+	if err := svc.gitHubPullRequestRepo.Update(ctx, existingPR); err != nil {
 		return nil, err
 	}
 	svc.analyticsService.Capture(ctx, "updated pull request",
@@ -371,7 +432,7 @@ func (svc *Service) CreateOrUpdatePullRequest(ctx context.Context, user *users.U
 		analytics.Property("github", true),
 	)
 
-	return currentPR, nil
+	return existingPR, nil
 }
 
 // GitHub support (some) HTML the Pull Request descriptions, so we don't need to clean that up here.
