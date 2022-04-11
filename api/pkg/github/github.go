@@ -89,6 +89,9 @@ type PullRequest struct {
 
 	// If importing is true, sturdy will force update workspace with data from github.
 	Importing bool `db:"importing" json:"-"`
+
+	// If fork is true, this PR was imported from a fork, and Sturdy can not push to it.
+	Fork bool `db:"fork" json:"-"`
 }
 
 type CloneRepositoryEvent struct {

@@ -60,6 +60,7 @@ type GitHubPullRequestResolver interface {
 	Workspace(context.Context) (WorkspaceResolver, error)
 	Statuses(context.Context) ([]GitHubPullRequestStatusResolver, error)
 	State() (GitHubPullRequestState, error)
+	CanUpdate() bool
 }
 
 type GitHubPullRequestState string

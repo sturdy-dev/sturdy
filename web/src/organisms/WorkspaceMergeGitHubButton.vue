@@ -17,7 +17,11 @@
         <ExternalLinkIcon class="w-4 h-4 ml-1" />
       </a>
 
-      <Select v-if="!hasOpenGitHubPR || creatingAndMergingPR" id="merge-github-method" color="blue">
+      <span v-if="hasOpenGitHubPR && !canUpdatePR" class="text-sm text-gray-400">
+        Imported from a fork
+      </span>
+
+      <Select v-if="!canUpdatePR || creatingAndMergingPR" id="merge-github-method" color="blue">
         <template #selected="{ option }">
           <component
             :is="option"
@@ -134,6 +138,7 @@ export const WORKSPACE_FRAGMENT = gql`
       id
       pullRequestNumber
       state
+      canUpdate
     }
   }
 `
@@ -189,6 +194,9 @@ export default defineComponent({
         this.mergingGitHubPullRequest ||
         this.workspace.gitHubPullRequest?.state === GitHubPullRequestState.Merging
       )
+    },
+    canUpdatePR() {
+      return this.hasOpenGitHubPR && this.workspace.gitHubPullRequest?.canUpdate
     },
     hasOpenGitHubPR() {
       const isOpen = this.workspace.gitHubPullRequest?.state == GitHubPullRequestState.Open

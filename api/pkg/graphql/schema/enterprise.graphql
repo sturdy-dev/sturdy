@@ -171,6 +171,9 @@ type GitHubPullRequest {
   workspace: Workspace!
   statuses: [GitHubPullRequestStatus!]!
   state: GitHubPullRequestState!
+
+  # canUpdate is true when Sturdy can push updates to the PR, and is false if not (such as when the PR is imported from a fork)
+  canUpdate: Boolean!
 }
 
 input CreateOrUpdateGitHubPullRequestInput {
