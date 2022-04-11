@@ -40,9 +40,9 @@
                   <span class="text-xs font-semibold tracking-wide uppercase">{{ step.name }}</span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
                   <component
-                    class="max-w-fit"
                     :is="step.component"
                     v-if="step.component"
+                    class="max-w-fit"
                     :codebase="codebase"
                     :user="data?.user"
                     :codebase-slug="codebaseSlug"
@@ -71,9 +71,9 @@
                   </span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
                   <component
-                    class="max-w-fit"
                     :is="step.component"
                     v-if="step.component"
+                    class="max-w-fit"
                     :codebase="codebase"
                     :user="data?.user"
                     :codebase-slug="codebaseSlug"
@@ -102,9 +102,9 @@
                   </span>
                   <span class="text-sm text-gray-500">{{ step.description }}</span>
                   <component
-                    class="max-w-fit"
                     :is="step.component"
                     v-if="step.component"
+                    class="max-w-fit"
                     :codebase="codebase"
                     :user="data?.user"
                     :codebase-slug="codebaseSlug"
