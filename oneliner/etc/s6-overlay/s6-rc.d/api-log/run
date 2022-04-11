@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-sed 's/^/[api] /'
+sed --unbuffered 's/^/[api] /'

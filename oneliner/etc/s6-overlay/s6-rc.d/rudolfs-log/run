@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-sed 's/^/[rudolfs] /'
+sed --unbuffered 's/^/[rudolfs] /'

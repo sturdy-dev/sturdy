@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-sed 's/^/[reproxy] /'
+sed --unbuffered 's/^/[reproxy] /'
