@@ -8,6 +8,24 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.7.0 (2022-04-11)
+
+_Changes since v1.6.0_
+
+## Workflow
+
+* [Improvement] Added "Create pull request & merge" – allowing you to ship code in just 1 click!
+* [Improvement] Continuous import and sync of Pull Requests to Sturdy. All new and existing pull requests will now be imported (and kept up to date!) to Sturdy. Move your entire review workflow to Sturdy, even if the full team isn't there yet.
+* [Improvement] Trigger CI/CD and tests from a workspace
+* [Improvement] Buildkite – Sturdy now reports jobs statuses in addition to "Pipeline" statuses
+
+## Other
+
+* [Improvement] Rich diffs for images, and render images in the file browser
+* [Improvement] Add unread notifications badge to the app icon (on macOS)
+* [Performance] Improved speed and reliability when merging
+* ... and many other smaller fixes and improvements!
+
 # Server v1.6.0 (2022-03-29)
 
 _Changes since v1.5.0_
