@@ -56,9 +56,11 @@ export default defineComponent({
       const isAppRoute = !currentRoute.meta.nonApp && !currentRoute.meta.neverElectron
 
       const isMobile = !import.meta.env.SSR && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      const disabled = import.meta.env.VITE_DISABLE_WEB_TO_APP_REDIRECT
+      const disabled =
+        import.meta.env.VITE_DISABLE_WEB_TO_APP_REDIRECT ||
+        currentRoute.meta.disableWebToAppRedirect
 
-      if (!import.meta.env.SSR && isAppRoute && !isMobile && ipc == null && !disabled) {
+      if (!import.meta.env.SSR && isAppRoute && !isMobile && !ipc && !disabled) {
         isLoading.value = true
         checkIfBlurs(() => {
           if (import.meta.env.DEV) {

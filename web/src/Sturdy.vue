@@ -1,7 +1,7 @@
 <template>
   <AppRedirect>
     <template v-if="haveSelfContainedLayout">
-      <router-view :user="user" />
+      <router-view :user="user" :features="features" />
     </template>
 
     <template v-else-if="!isApp && isAuthPage">
