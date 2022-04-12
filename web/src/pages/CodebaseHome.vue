@@ -224,7 +224,7 @@ export default defineComponent({
 
     let codebaseID = ref('')
     watch(data, (n) => {
-      if (n && n.codebase === null) {
+      if (n && n.codebase === null && route.params.codebaseSlug) {
         throw new Error('SturdyCodebaseNotFoundError')
       }
 
@@ -309,11 +309,6 @@ export default defineComponent({
         !(this.data?.codebase?.rootDir?.children?.length > 0) ||
         this.showSetupInstructions
       )
-    },
-
-    showDownloadApp() {
-      if (this.thisIsApp) return false
-      return true
     },
 
     showAppConnectDirectory() {
