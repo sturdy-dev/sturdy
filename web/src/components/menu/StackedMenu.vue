@@ -12,8 +12,6 @@
         :user="user"
         @logout="$emit('logout')"
       />
-
-      <NavDropdown v-if="false" :user="user" @logout="$emit('logout')" />
     </div>
 
     <template v-if="false">
@@ -257,7 +255,6 @@ import type { PropType } from 'vue'
 import { useRoute } from 'vue-router'
 import { IdFromSlug, Slug } from '../../slug'
 import Avatar from '../../atoms/Avatar.vue'
-import NavDropdown from '../NavDropdown.vue'
 import NotificationIcon from '../notification/Icon.vue'
 import StackedMenuEmpty from './StackedMenuEmpty.vue'
 import StackedMenuLoading from './StackedMenuLoading.vue'
@@ -553,7 +550,6 @@ export default defineComponent({
     OnboardingStep,
     ViewStatusIndicator,
     StackedMenuEmpty,
-    NavDropdown,
     PlusSmIcon,
     Avatar,
     CogIcon,
