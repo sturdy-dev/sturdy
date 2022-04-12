@@ -5,102 +5,37 @@
     <div class="flex flex-col-reverse lg:flex-row">
       <div class="lg:flex-1">
         <div class="prose max-w-full p-8">
-          <h2 class="text-3xl font-extrabold text-gray-900">About Sturdy</h2>
-          <p>At Sturdy we're replacing Git with real-time collaboration in the cloud!</p>
+          <slot></slot>
 
-          <p>
-            This is a great opportunity to be one of the first employees at a fast moving startup,
-            funded by <a href="https://www.ycombinator.com/companies/sturdy/">Y Combinator</a>!
-            We’re building tech for techies, and naturally really take pride in both the software
-            that we’re writing and the product that we’re building, and hope that you do too!
-          </p>
+          <h2>Benefits</h2>
 
-          <h2>Sturdy is growing</h2>
+          <ul>
+            <li>Work out of our great office in Stockholm, Sweden</li>
+            <li>Flexible working hours – a good work/life balance is really important to us</li>
+            <li>Competitive compensation, stock options, and pension</li>
+            <li>30 days of paid vacation / year</li>
+          </ul>
 
-          <p>
-            We're looking for Backend Engineers with Go experience to join our team, together with
-            the team, you'll play a crucial role in designing Sturdy, and making us known to the
-            world.
-          </p>
-
-          <h2>What we do</h2>
-
-          <p>
-            We're building the future of how coders like you and me are collaborating on code. With
-            Sturdy developers don't have to fight branches, pull requests, or crazy command line
-            arguments to get things done.
-          </p>
-
-          <p>
-            We regularly post about tech and product on our
-            <router-link :to="{ name: 'blog' }">blog</router-link>.
-          </p>
-
-          <h2>About the role</h2>
-          <p>
-            The backend powers the Sturdy real-time version control system that you see in the app.
-            It's built with Go, GraphQL, PostgreSQL, and runs on AWS.
-          </p>
-          <p>
-            You’ll be building and architecting a distributed system to build a kick-ass product
-            that always works, and always makes our users delighted.
-          </p>
-
-          <h2>Qualifications</h2>
+          <h2>What we use</h2>
 
           <ul>
             <li>
-              Desire to learn or existing knowledge of <strong>Go</strong> (concurrency, error
-              handling, testing)
+              Sturdy is built in the public (On
+              <a href="https://getsturdy.com/sturdy-zyTDsnY">Sturdy</a>, with a mirror to
+              <a href="https://github.com/sturdy-dev/sturdy">GitHub</a>)
             </li>
-            <li>Experience of building distributed high-performance systems</li>
-            <li>
-              Knowledge of <strong>Git</strong>
-              <em>
-                (we're using Sturdy to build Sturdy, but the VCS behind the scenes is largely
-                inspired by Git's fundamentals)
-              </em>
-            </li>
-            <li>Experience of SQL-databases (we're using PostgreSQL-compatible AWS Aurora)</li>
+            <li>Our app and frontend is built with Vue, urql, TailwindCSS, and Electron</li>
+            <li>The backend is built with Go, PostgreSQL, and GraphQL</li>
           </ul>
 
-          <h2>Our tech stack</h2>
+          <h2>How to apply</h2>
 
-          <div class="grid grid-cols-2">
-            <div>
-              <h3>Backend</h3>
-              <ul>
-                <li><strong>Sturdy</strong></li>
-                <li>A monolithic <strong>Go</strong> service</li>
-                <li><strong>PostgreSQL</strong>-compatible AWS Aurora</li>
-                <li><strong>GraphQL</strong></li>
-                <li>AWS SQS, SES, EC2 (and more)</li>
-                <li>Prometheus, Grafana, PostHog</li>
-              </ul>
-            </div>
+          <p>Does this role sound like a good fit? Email us at gustav@getsturdy.com</p>
 
-            <div>
-              <h3>Frontend</h3>
-              <ul>
-                <li><strong>Vue 3</strong></li>
-                <li>TypeScript</li>
-                <li>GraphQL (urql)</li>
-                <li>Electron</li>
-                <li>Tailwind CSS</li>
-              </ul>
-            </div>
-          </div>
-
-          <p>
-            We're not expecting you to have experience of our entire tech-stack. But we're expecting
-            you to be willing to learn it, and to help us making it even better!
-          </p>
-
-          <h2>Ready to apply?</h2>
-          <p>
-            Send us an email to <a href="mailto:gustav@getsturdy.com">gustav@getsturdy.com</a>, and
-            attach a CV/resumé.
-          </p>
+          <ul>
+            <li>Include the role's title in your subject line.</li>
+            <li>Send along links that best showcase the relevant things you've built and done.</li>
+          </ul>
         </div>
       </div>
       <div class="bg-gray-50 lg:w-80 p-8 rounded-xl">

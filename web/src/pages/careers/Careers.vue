@@ -10,18 +10,18 @@
             <p>At Sturdy we're replacing Git with real-time collaboration in the cloud!</p>
 
             <p>
-              This is a great opportunity to be one of the first employees at a fast moving startup,
-              funded by <a href="https://www.ycombinator.com/companies/sturdy/">Y Combinator</a>!
-              We’re building tech for techies, and naturally really take pride in both the software
-              that we’re writing and the product that we’re building, and hope that you do too!
+              This is a great opportunity to be one of the first employees at a fast moving and
+              <strong>open-source</strong> startup, funded by
+              <a href="https://www.ycombinator.com/companies/sturdy/">Y Combinator</a>! We’re
+              building tech for techies, and naturally really take pride in both the software that
+              we’re writing and the product that we’re building, and hope that you do too!
             </p>
 
             <h2>Sturdy is growing</h2>
 
             <p>
-              We're looking for Backend Engineers with Go experience to join our team, together with
-              the team, you'll play a crucial role in designing Sturdy, and making us known to the
-              world.
+              We're looking for experienced engineers to join our team, who wants to play a crucial
+              role in designing Sturdy, and making us known to the world!
             </p>
 
             <h2>What we do</h2>
@@ -39,18 +39,23 @@
             </p>
           </div>
         </div>
-        <div class="lg:w-80">
+        <div class="lg:w-[30rem]">
           <div class="bg-gray-50 p-8 rounded-xl prose">
             <h2>Open Positions</h2>
             <ul>
               <li>
-                <router-link :to="{ name: 'careersFoundingBackendEngineer' }">
-                  Founding Backend Engineer
+                <router-link :to="{ name: 'careersSeniorBackendSoftwareEngineer' }">
+                  Senior Backend Software Engineer
                 </router-link>
               </li>
               <li>
-                <router-link :to="{ name: 'careersFoundingFrontendEngineer' }">
-                  Founding Frontend Engineer
+                <router-link :to="{ name: 'careersSeniorFrontendSoftwareEngineer' }">
+                  Senior Frontend Software Engineer
+                </router-link>
+              </li>
+              <li>
+                <router-link :to="{ name: 'careersFullStackEngineer' }">
+                  Full Stack Engineer
                 </router-link>
               </li>
             </ul>
