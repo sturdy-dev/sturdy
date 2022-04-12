@@ -365,14 +365,28 @@ export const RoutesDocs: RouteRecordRaw[] = [
   },
   {
     path: '/careers/founding-backend-engineer',
-    component: () => import('./pages/careers/FoundingBackendEngineer.vue'),
-    name: 'careersFoundingBackendEngineer',
-    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+    redirect: '/careers',
   },
   {
     path: '/careers/founding-frontend-engineer',
-    component: () => import('./pages/careers/FoundingFrontendEngineer.vue'),
-    name: 'careersFoundingFrontendEngineer',
+    redirect: '/careers',
+  },
+  {
+    path: '/careers/senior-backend-software-engineer',
+    component: () => import('./pages/careers/SeniorBackendSoftwareEngineer.vue'),
+    name: 'careersSeniorBackendSoftwareEngineer',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/careers/senior-frontend-software-engineer',
+    component: () => import('./pages/careers/SeniorFrontendSoftwareEngineer.vue'),
+    name: 'careersSeniorFrontendSoftwareEngineer',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
+  {
+    path: '/careers/full-stack-engineer',
+    component: () => import('./pages/careers/FullStackEngineer.vue'),
+    name: 'careersFullStackEngineer',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
   {
