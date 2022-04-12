@@ -24,8 +24,8 @@
         </Banner>
         <div>
           <RouterLinkButton color="green" :to="{ name: 'home' }"
-            >Take me back to safety</RouterLinkButton
-          >
+            >Take me back to safety
+          </RouterLinkButton>
         </div>
       </div>
       <Banner v-else status="info">
@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import http from '../http'
+import { defineComponent, onMounted, ref } from 'vue'
 import type { HttpError } from '../http'
+import http from '../http'
 import { useRoute, useRouter } from 'vue-router'
 import { Banner } from '../atoms'
 import Spinner from '../atoms/Spinner.vue'
@@ -74,87 +74,84 @@ const openInAppUrl = (): string | undefined => {
 
 export default defineComponent({
   components: { AppTitleBar, PaddedApp, Banner, Spinner, RouterLinkButton },
-  data() {
-    return {
-      show_redirected_to_app: false,
-
-      errorMessage: undefined as string | undefined,
-    }
-  },
-  async mounted() {
+  setup() {
     /*
     SetupGithub handles redirects from GitHub back to Sturdy.
 
-    It has two paths that are in use:
-    1) Web -> GitHub -> Web (this component)
-    2) App -> GitHub -> App (this component)
-
-    This scenario is also supported, but is not actively used.
+    It has three paths that are in use:
+    1) OAuth on Web:                Web -> GitHub -> Web (this component)
+    2) OAUth in App:                App -> GitHub -> App (this component)
+    3) Manage installation on web:
     3) App -> GitHub -> Web (this component) -> App (this component)
     */
 
     const route = useRoute()
     const router = useRouter()
-    // Open this page in the app
-    if (typeof ipc === 'undefined' && route.query.state) {
-      let state = route.query.state as string
-      if (state.startsWith('app-') || state.startsWith('app-dev-')) {
-        let url = openInAppUrl()
-        if (url) {
-          location.assign(url)
-          this.show_redirected_to_app = true
-          return
+
+    let errorMessage = ref('')
+    let show_redirected_to_app = ref(false)
+
+    // Open this page in the app (web to app redirect)
+    // http://localhost:8080/setup-github?code=XXXXX&installation_id=XXXXX&setup_action=update&state=app-dev-%2Fuser
+
+    onMounted(() => {
+      if (typeof window?.ipc === 'undefined' && route.query.state) {
+        let state = route.query.state as string
+        if (state.startsWith('app-') || state.startsWith('app-dev-')) {
+          let url = openInAppUrl()
+          if (url) {
+            location.assign(url)
+            show_redirected_to_app.value = true
+            return
+          }
         }
       }
-    }
 
-    // TODO(gustav): remove the following paths
-    // If this request is rendered on the web, open in the app.
-    if (typeof ipc === 'undefined' && route.query.state === 'install-app') {
-      if (import.meta.env.DEV) {
-        location.assign(`sturdy-dev://${location.pathname}${location.search}`)
-      } else {
-        location.assign(`sturdy://${location.pathname}${location.search}`)
+      // if no code, redirect away
+      if (!route.query.code) {
+        router.push({ name: 'home' })
+        return
       }
-      this.show_redirected_to_app = true
-      return
-    }
 
-    await fetch(http.url('v3/github/oauth'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code: route.query.code,
-      }),
-      credentials: 'include',
+      fetch(http.url('v3/github/oauth'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: route.query.code,
+        }),
+        credentials: 'include',
+      })
+        .then(http.checkStatus)
+        .then(() => {
+          const state = route.query.state as string
+
+          if (state === 'user-settings') {
+            router.push({ name: 'user' })
+          } else if (state === 'codebase-overview') {
+            router.push({ name: 'codebaseOverview' })
+          } else if (state.startsWith('web-')) {
+            router.push(state.substring(4))
+          } else {
+            // fallback
+            router.push({ name: 'home' })
+          }
+        })
+        .catch((e) => {
+          const err = e as HttpError
+          if (err.statusCode === 400) {
+            err.response?.json().then((msg) => {
+              errorMessage.value = `Failed to connect: ${msg.error}`
+            })
+          } else {
+            errorMessage.value = 'Something went wrong connecting to GitHub, please try again!'
+          }
+        })
     })
-      .then(http.checkStatus)
-      .then(() => {
-        const state = route.query.state as string
-        if (state === 'user-settings') {
-          router.push({ name: 'user' })
-        } else if (state === 'codebase-overview') {
-          router.push({ name: 'codebaseOverview' })
-        } else if (state.startsWith('web-')) {
-          router.push(state.substring(4))
-        } else if (state.startsWith('app-dev-')) {
-          router.push(state.substring(8))
-        } else if (state.startsWith('app-')) {
-          router.push(state.substring(4))
-        } else {
-          // fallback
-          router.push({ name: 'codebaseOverview' })
-        }
-      })
-      .catch(async (e) => {
-        const err = e as HttpError
-        if (err.statusCode === 400) {
-          const msg = await err.response?.json()
-          this.errorMessage = `Failed to connect: ${msg.error}`
-        } else {
-          this.errorMessage = 'Something went wrong connecting to GitHub, please try again!'
-        }
-      })
+
+    return {
+      show_redirected_to_app,
+      errorMessage,
+    }
   },
 })
 </script>

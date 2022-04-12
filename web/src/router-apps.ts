@@ -62,8 +62,7 @@ export const RoutesApps: RouteRecordRaw[] = [
     meta: {
       selfContainedLayout: true,
       // SetupGitHub contains it's own app-redirect logic, don't use the global one
-      nonApp: true,
-      neverElectron: true,
+      disableWebToAppRedirect: true,
     },
   },
   {
