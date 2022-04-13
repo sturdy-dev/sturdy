@@ -14,31 +14,51 @@
             <ReplyIcon class="h-3 w-3 text-gray-500 hover:text-gray-900" />
           </Button>
         </div>
-        <p
-          v-if="item.comment.codeContext"
-          class="mt-0.5 text-sm text-gray-500 text-ellipsis overflow-hidden"
-        >
-          <router-link :to="selfRoute" class="underline">
-            Commented on {{ item.comment.codeContext.path }}
-          </router-link>
-          {{ friendly_ago(item.createdAt) }}
-        </p>
-        <p v-else-if="item.comment.parent" class="mt-0.5 text-sm text-gray-500">
-          <router-link :to="selfRoute" class="underline">
-            Replied to {{ item.comment.parent.author.name }}
-          </router-link>
-          {{ friendly_ago(item.createdAt) }}
-        </p>
-        <p v-else class="mt-0.5 text-sm text-gray-500">
-          Commented {{ friendly_ago(item.createdAt) }}
-        </p>
+
+        <div class="mt-0.5 text-sm text-gray-500 inline-flex items-center">
+          <span v-if="item.comment.codeContext" class="text-ellipsis overflow-hidden">
+            <router-link :to="selfRoute" class="underline">
+              Commented on {{ item.comment.codeContext.path }}
+            </router-link>
+            {{ friendly_ago(item.createdAt) }}
+          </span>
+          <span v-else-if="item.comment.parent">
+            <router-link :to="selfRoute" class="underline">
+              Replied to {{ item.comment.parent.author.name }}
+            </router-link>
+            {{ friendly_ago(item.createdAt) }}
+          </span>
+          <span v-else> Commented {{ friendly_ago(item.createdAt) }} </span>
+
+          <Tooltip v-if="item.comment.resolved" x-direction="left">
+            <template #default>
+              <CheckIcon class="w-4 h-4 text-green-500 flex-shrink-0" />
+            </template>
+            <template #tooltip> Resolved </template>
+          </Tooltip>
+        </div>
       </div>
       <div class="mt-2 text-sm text-gray-700">
         <CommentCodeContext v-if="item.comment.codeContext" :context="item.comment.codeContext" />
-        <div v-if="item.comment.parent" class="border-l-4 border-gray-400 text-gray-600 px-2">
-          <CommentMessage :message="item.comment.parent.message" :user="user" :members="members" />
+        <div
+          v-if="item.comment.parent"
+          class="border-l-4 px-2"
+          :class="[item.comment.parent.resolved ? 'border-green-400' : 'border-gray-400']"
+        >
+          <CommentMessage
+            :message="item.comment.parent.message"
+            :user="user"
+            :members="members"
+            :resolved="item.comment.parent.resolved"
+          />
         </div>
-        <CommentMessage :message="item.comment.message" :user="user" :members="members" />
+
+        <CommentMessage
+          :message="item.comment.message"
+          :user="user"
+          :members="members"
+          :resolved="item.comment.resolved"
+        />
       </div>
 
       <div v-if="isReplying" class="mt-2">
@@ -57,7 +77,7 @@
 
 <script lang="ts">
 import Avatar from '../../atoms/Avatar.vue'
-import { ChatAltIcon, ReplyIcon } from '@heroicons/vue/solid'
+import { ChatAltIcon, CheckIcon, ReplyIcon } from '@heroicons/vue/solid'
 import time from '../../time'
 import CommentCodeContext from '../../components/workspace/CommentCodeContext.vue'
 import type { User } from '../../atoms/CommentMessage.vue'
@@ -68,6 +88,7 @@ import { defineComponent } from 'vue'
 import type { WorkspaceCommentActivityFragment } from './__generated__/ActivityComment'
 import Button from '../../atoms/Button.vue'
 import CommentReply from '../../components/comments/CommentReply.vue'
+import Tooltip from '../../atoms/Tooltip.vue'
 
 export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
   fragment WorkspaceCommentActivity on WorkspaceCommentActivity {
@@ -110,6 +131,8 @@ export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
           contextStartsAtLine
           path
         }
+
+        resolved
       }
       ... on ReplyComment {
         parent {
@@ -119,6 +142,7 @@ export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
             id
             name
           }
+          resolved
         }
       }
     }
@@ -127,6 +151,7 @@ export const WORKSPACE_ACTIVITY_COMMENT_FRAGMENT = gql`
 
 export default defineComponent({
   components: {
+    Tooltip,
     CommentCodeContext,
     CommentMessage,
     Avatar,
@@ -134,6 +159,7 @@ export default defineComponent({
     Button,
     ReplyIcon,
     CommentReply,
+    CheckIcon,
   },
   props: {
     item: {
@@ -146,6 +172,8 @@ export default defineComponent({
     },
     user: {
       type: Object as PropType<User>,
+      required: false,
+      default: null,
     },
   },
   data() {

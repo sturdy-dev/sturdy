@@ -1,8 +1,8 @@
 <template>
   <!-- eslint-disable vue/no-v-html -->
   <p
-    class="mt-2 text-gray-700 space-y-4 break-words whitespace-pre-wrap"
-    :class="[isOnlyEmoji ? 'text-2xl' : 'text-sm']"
+    class="mt-2 space-y-4 break-words whitespace-pre-wrap"
+    :class="[isOnlyEmoji ? 'text-2xl' : 'text-sm', resolved ? 'text-green-400' : 'text-gray-700']"
     v-html="ify(message)"
   ></p>
 </template>
@@ -35,6 +35,11 @@ export default defineComponent({
       type: Object as PropType<User>,
       required: false,
       default: null,
+    },
+    resolved: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {

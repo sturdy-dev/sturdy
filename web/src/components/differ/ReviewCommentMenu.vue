@@ -82,7 +82,7 @@ export default {
       required: true,
     },
   },
-  emits: ['startEdit', 'delete'],
+  emits: ['start-edit', 'delete'],
   methods: {
     onCopyLink() {
       const currentUrl = new URL(window.location.href)
