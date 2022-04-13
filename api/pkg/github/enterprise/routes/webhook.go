@@ -5,14 +5,13 @@ import (
 	"net/http"
 
 	"getsturdy.com/api/pkg/github/enterprise/webhooks"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 
 	"github.com/gin-gonic/gin"
 	gh "github.com/google/go-github/v39/github"
 	"go.uber.org/zap"
 )
 
-func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gin.Context) {
+func Webhook(logger *zap.Logger, queue *webhooks.Queue) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		payload, err := gh.ValidatePayload(c.Request, nil)
 		if err != nil {
@@ -39,7 +38,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 
 		switch event := event.(type) {
 		case *webhooks.InstallationEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				Installation: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))
@@ -47,7 +46,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *webhooks.InstallationRepositoriesEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				InstallationRepositories: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))
@@ -55,7 +54,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *webhooks.PushEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				Push: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))
@@ -63,7 +62,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *webhooks.PullRequestEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				PullRequest: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))
@@ -71,7 +70,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *webhooks.StatusEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				Status: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))
@@ -79,7 +78,7 @@ func Webhook(logger *zap.Logger, queue *workers_github.WebhooksQueue) func(c *gi
 				return
 			}
 		case *webhooks.WorkflowJobEvent:
-			if err := queue.Enqueue(c.Request.Context(), &workers_github.WebhookEvent{
+			if err := queue.Enqueue(c.Request.Context(), &webhooks.WebhookEvent{
 				WorkflowJob: event,
 			}); err != nil {
 				logger.Error("failed to enqueue webhook", zap.Error(err))

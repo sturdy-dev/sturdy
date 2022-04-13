@@ -17,12 +17,12 @@ import (
 
 type gitHubRootResolver struct {
 	svc                  *service_github.Service
-	codebaseRootResolver resolvers.CodebaseRootResolver
+	codebaseRootResolver *resolvers.CodebaseRootResolver
 }
 
 func NewGitHubRootResolver(
 	svc *service_github.Service,
-	codebaseRootResolver resolvers.CodebaseRootResolver,
+	codebaseRootResolver *resolvers.CodebaseRootResolver,
 ) resolvers.GitHubRootResolver {
 	return &gitHubRootResolver{
 		svc:                  svc,
@@ -76,7 +76,8 @@ func (r *gitHubRootResolver) SetupGitHubRepository(ctx context.Context, args res
 	}
 
 	id := graphql.ID(codebase.ID)
-	return r.codebaseRootResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+
+	return (*r.codebaseRootResolver).Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 }
 
 type gitHubRepositoryResolver struct {
@@ -113,5 +114,5 @@ func (r *gitHubRepositoryResolver) Codebase(ctx context.Context) (resolvers.Code
 		return nil, gqlerrors.Error(err)
 	}
 	id := graphql.ID(ghRepo.CodebaseID)
-	return r.root.codebaseRootResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+	return (*r.root.codebaseRootResolver).Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 }

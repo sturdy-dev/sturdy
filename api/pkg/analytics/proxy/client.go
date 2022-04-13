@@ -2,15 +2,12 @@ package proxy
 
 import (
 	"getsturdy.com/api/pkg/analytics/disabled"
+	"getsturdy.com/api/pkg/analytics/proxy/configuration"
 	"getsturdy.com/api/pkg/installations"
 
 	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
 )
-
-type Configuration struct {
-	Disable bool `long:"disable" description:"Disable analytics"`
-}
 
 type client struct {
 	posthog.Client
@@ -75,7 +72,7 @@ func (c *client) identifyInstallation() {
 }
 
 func NewClient(
-	cfg *Configuration,
+	cfg *configuration.Configuration,
 	installation *installations.Installation,
 	logger *zap.Logger,
 ) (posthog.Client, error) {

@@ -9,5 +9,5 @@ import (
 )
 
 func Module(c *di.Container) {
-	c.Register(selfhosted.New)
+	c.Import(selfhosted.Module)
 }

@@ -7,29 +7,21 @@ import (
 	"os"
 
 	"getsturdy.com/api/pkg/api"
-	module_api "getsturdy.com/api/pkg/api/module"
+	apiModule "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/banner"
-	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	xcontext "getsturdy.com/api/pkg/context"
 	"getsturdy.com/api/pkg/di"
-	module_github "getsturdy.com/api/pkg/github/module"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 )
 
 func main() {
-	ctx := context.Background()
-	mainModule := func(c *di.Container) {
-		c.Register(func() context.Context {
-			return ctx
-		})
-
-		c.Import(module_configuration.Module)
-		c.Import(module_api.Module)
-		c.Import(module_snapshots.Module)
-		c.Import(module_github.Module)
+	app := func(c *di.Container) {
+		c.Import(apiModule.Module)
+		c.Import(xcontext.Module)
 	}
 
 	var apiServer api.Starter
-	if err := di.Init(&apiServer, mainModule); err != nil {
+	var ctx context.Context
+	if err := di.Init(app).To(&apiServer, &ctx); err != nil {
 		fmt.Printf("%+v\n", err)
 		os.Exit(1)
 	}

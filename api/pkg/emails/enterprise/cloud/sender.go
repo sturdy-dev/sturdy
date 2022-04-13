@@ -2,18 +2,13 @@ package cloud
 
 import (
 	"getsturdy.com/api/pkg/emails"
+	"getsturdy.com/api/pkg/emails/enterprise/cloud/configuration"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"go.uber.org/zap"
 )
 
-type Configuration struct {
-	Enable   bool                   `long:"enable" description:"Use AWS SES to send emails"`
-	Provider string                 `long:"provider" description:"Which email provider to use" default:"ses"`
-	Postmark *PostmarkConfiguration `flags-group:"postmark" namespace:"postmark"`
-}
-
-func New(cfg *Configuration, awsSession *session.Session, logger *zap.Logger) emails.Sender {
+func New(cfg *configuration.Configuration, awsSession *session.Session, logger *zap.Logger) emails.Sender {
 	// Not enabled, write emails to log
 	if !cfg.Enable {
 		return NewLogs(logger)

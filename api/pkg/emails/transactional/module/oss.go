@@ -9,5 +9,8 @@ import (
 )
 
 func Module(c *di.Container) {
-	c.Register(transactional.New, new(transactional.EmailSender))
+	c.Import(transactional.Module)
+	c.Register(func(t *transactional.Sender) transactional.EmailSender {
+		return t
+	})
 }

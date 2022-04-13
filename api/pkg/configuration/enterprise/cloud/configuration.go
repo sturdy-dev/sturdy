@@ -1,13 +1,13 @@
 package cloud
 
 import (
-	"getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog"
-	aws "getsturdy.com/api/pkg/aws/enterprise/cloud"
+	posthog "getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog/configuration"
+	aws "getsturdy.com/api/pkg/aws/enterprise/cloud/configuration"
 	"getsturdy.com/api/pkg/configuration"
-	service_change_downloads "getsturdy.com/api/pkg/downloads/enterprise/cloud/service"
-	emails "getsturdy.com/api/pkg/emails/enterprise/cloud"
+	service_change_downloads "getsturdy.com/api/pkg/downloads/enterprise/cloud/service/configuration"
+	emails "getsturdy.com/api/pkg/emails/enterprise/cloud/configuration"
 	"getsturdy.com/api/pkg/github/enterprise/config"
-	queue "getsturdy.com/api/pkg/queue/enterprise/cloud"
+	queue "getsturdy.com/api/pkg/queue/enterprise/cloud/configuration"
 
 	"github.com/jessevdk/go-flags"
 )

@@ -66,7 +66,7 @@ require (
 	github.com/tailscale/hujson v0.0.0-20210818175511-7360507a6e88
 	github.com/tidwall/match v1.0.3
 	github.com/yuin/goldmark v1.4.4
-	go.uber.org/dig v1.13.0
+	go.uber.org/dig v1.14.1
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519

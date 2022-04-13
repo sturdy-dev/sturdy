@@ -21,7 +21,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
+	provider "getsturdy.com/api/vcs/provider/configuration"
 )
 
 type Service struct {

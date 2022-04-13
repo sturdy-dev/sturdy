@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/internal/testmodule"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -24,6 +24,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func module(c *di.Container) {
+	c.Import(executor.Module)
+	c.Import(snapshotter.Module)
+	c.ImportWithForce(configuration.TestModule)
+	c.ImportWithForce(db_snapshots.TestModule)
+	c.ImportWithForce(db_workspaces.TestModule)
+	c.ImportWithForce(db_view.TestModule)
+}
+
 func TestContext(t *testing.T) {
 	type deps struct {
 		di.In
@@ -35,7 +44,7 @@ func TestContext(t *testing.T) {
 		RepoProvider     provider.RepoProvider
 	}
 	var d deps
-	if err := di.Init(&d, testmodule.TestModule); err != nil {
+	if err := di.Init(module).To(&d); err != nil {
 		t.Fatal(err)
 	}
 

@@ -34,14 +34,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type ImporterQueue interface {
-	Enqueue(ctx context.Context, codebaseID codebases.ID, userID users.ID) error
-}
-
-type ClonerQueue interface {
-	Enqueue(context.Context, *github.CloneRepositoryEvent) error
-}
-
 type Service struct {
 	logger *zap.Logger
 
@@ -94,8 +86,8 @@ func New(
 	gitHubPersonalClientProvider github_client.PersonalClientProvider,
 	gitHubAppClientProvider github_client.AppClientProvider,
 
-	gitHubPullRequestImporterQueue *ImporterQueue,
-	gitHubCloneQueue *ClonerQueue,
+	importerQueue *ImporterQueue,
+	clonerQueue *ClonerQueue,
 
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	workspaceReader db_workspaces.WorkspaceReader,
@@ -119,7 +111,7 @@ func New(
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
-	return &Service{
+	svc := &Service{
 		logger: logger,
 
 		gitHubRepositoryRepo:             gitHubRepositoryRepo,
@@ -131,8 +123,8 @@ func New(
 		gitHubPersonalClientProvider:     gitHubPersonalClientProvider,
 		gitHubAppClientProvider:          gitHubAppClientProvider,
 
-		gitHubPullRequestImporterQueue: gitHubPullRequestImporterQueue,
-		gitHubCloneQueue:               gitHubCloneQueue,
+		gitHubPullRequestImporterQueue: importerQueue,
+		gitHubCloneQueue:               clonerQueue,
 
 		workspaceWriter:  workspaceWriter,
 		workspaceReader:  workspaceReader,
@@ -156,6 +148,9 @@ func New(
 
 		buildQueue: buildQueue,
 	}
+	clonerQueue.setService(svc)
+	importerQueue.setService(svc)
+	return svc
 }
 
 func (svc *Service) GetRepositoryByCodebaseID(_ context.Context, codebaseID codebases.ID) (*github.Repository, error) {

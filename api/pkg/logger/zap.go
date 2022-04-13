@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"getsturdy.com/api/pkg/logger/configuration"
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
 
 	"github.com/getsentry/raven-go"
@@ -11,11 +12,6 @@ import (
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/term"
 )
-
-type Configuration struct {
-	Production bool   `long:"production" description:"Production mode"`
-	Level      string `long:"level" default:"WARN" description:"Log level (INFO, WARN, ERROR)"`
-}
 
 var (
 	options = []zap.Option{
@@ -42,7 +38,7 @@ var (
 	}
 )
 
-func New(cfg *Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
+func New(cfg *configuration.Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
 	encoderConfig := encoderConfigByEnv[cfg.Production]()
 	isTeminal := term.IsTerminal(int(os.Stdout.Fd()))
 	encoder := encoderByTerminal[isTeminal](encoderConfig)

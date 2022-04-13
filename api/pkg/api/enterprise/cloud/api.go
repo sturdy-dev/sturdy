@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/api"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	webhooks_github "getsturdy.com/api/pkg/github/enterprise/webhooks"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -13,17 +14,17 @@ import (
 type API struct {
 	ossAPI *api.API
 
-	githubClonerQueue   *workers_github.ClonerQueue
-	githubImporterQueue workers_github.ImporterQueue
-	githubWebhooksQueue *workers_github.WebhooksQueue
+	githubClonerQueue   *service_github.ClonerQueue
+	githubImporterQueue *service_github.ImporterQueue
+	githubWebhooksQueue *webhooks_github.Queue
 }
 
 func ProvideAPI(
 	ossAPI *api.API,
 
-	githubClonerQueue *workers_github.ClonerQueue,
-	githubImporterQueue workers_github.ImporterQueue,
-	githubWebhooksQueue *workers_github.WebhooksQueue,
+	githubClonerQueue *service_github.ClonerQueue,
+	githubImporterQueue *service_github.ImporterQueue,
+	githubWebhooksQueue *webhooks_github.Queue,
 ) *API {
 	return &API{
 		ossAPI:              ossAPI,

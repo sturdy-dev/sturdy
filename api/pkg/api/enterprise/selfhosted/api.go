@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"getsturdy.com/api/pkg/api"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
+	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	webhooks_github "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	workers_license "getsturdy.com/api/pkg/installations/enterprise/selfhosted/worker"
 	worker_installation_statistics "getsturdy.com/api/pkg/installations/statistics/enterprise/selfhosted/worker"
 
@@ -15,21 +16,21 @@ import (
 type API struct {
 	ossAPI *api.API
 
-	githubClonerQueue            *workers_github.ClonerQueue
-	githubImporterQueue          workers_github.ImporterQueue
+	githubClonerQueue            *service_github.ClonerQueue
+	githubImporterQueue          *service_github.ImporterQueue
 	licenseWorker                *workers_license.Worker
 	installationStatisticsWorker *worker_installation_statistics.Worker
-	githubWebhooksQueue          *workers_github.WebhooksQueue
+	githubWebhooksQueue          *webhooks_github.Queue
 }
 
 func ProvideAPI(
 	ossAPI *api.API,
 
-	githubClonerQueue *workers_github.ClonerQueue,
-	githubImporterQueue workers_github.ImporterQueue,
+	githubClonerQueue *service_github.ClonerQueue,
+	githubImporterQueue *service_github.ImporterQueue,
 	licenseWorker *workers_license.Worker,
 	installationStatisticsWorker *worker_installation_statistics.Worker,
-	githubWebhooksQueue *workers_github.WebhooksQueue,
+	githubWebhooksQueue *webhooks_github.Queue,
 ) *API {
 	return &API{
 		ossAPI:                       ossAPI,

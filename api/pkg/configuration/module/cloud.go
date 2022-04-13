@@ -9,5 +9,5 @@ import (
 )
 
 func Module(c *di.Container) {
-	c.Register(cloud.New)
+	c.Import(cloud.Module)
 }

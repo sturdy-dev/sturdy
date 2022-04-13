@@ -5,25 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"getsturdy.com/api/pkg/configuration/flags"
-	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/metrics/configuration"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
-
-type Configuration struct {
-	Addr flags.Addr `long:"addr" description:"Address to listen on" default:"127.0.0.1:2112"`
-}
 
 type Server struct {
 	srv http.Server
 }
 
-func Module(c *di.Container) {
-	c.Register(New)
-}
-
-func New(cfg *Configuration) *Server {
+func New(cfg *configuration.Configuration) *Server {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	return &Server{

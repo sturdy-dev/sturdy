@@ -23,7 +23,7 @@ func (r *resolver) ID() graphql.ID {
 }
 
 func (r *resolver) Author(ctx context.Context) (resolvers.AuthorResolver, error) {
-	return (*r.root.authorRootResolver).Author(ctx, graphql.ID(r.activity.UserID))
+	return r.root.authorRootResolver.Author(ctx, graphql.ID(r.activity.UserID))
 }
 
 func (r *resolver) CreatedAt() int32 {
@@ -114,5 +114,5 @@ func (r *resolver) Change(ctx context.Context) (resolvers.ChangeResolver, error)
 }
 
 func (r *resolver) Review(ctx context.Context) (resolvers.ReviewResolver, error) {
-	return (*r.root.reviewRootResolver).InternalReview(ctx, r.activity.Reference)
+	return r.root.reviewRootResolver.InternalReview(ctx, r.activity.Reference)
 }

@@ -16,8 +16,6 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/dig"
-
 	"github.com/gin-gonic/gin"
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
@@ -33,24 +31,22 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
-	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
-	enterprise "getsturdy.com/api/pkg/github/enterprise/graphql"
-	graphql_pr_enterprise "getsturdy.com/api/pkg/github/enterprise/graphql/pr"
+	graphql_github "getsturdy.com/api/pkg/github/enterprise/graphql"
+	graphql_github_pr "getsturdy.com/api/pkg/github/enterprise/graphql/pr"
 	"getsturdy.com/api/pkg/github/enterprise/routes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
-	"getsturdy.com/api/pkg/github/enterprise/workers"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	module_remote_enterprise "getsturdy.com/api/pkg/remote/enterprise/module"
+	module_queue "getsturdy.com/api/pkg/queue/module"
 	db_review "getsturdy.com/api/pkg/review/db"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
@@ -64,62 +60,22 @@ import (
 	"getsturdy.com/api/vcs/provider"
 )
 
-func module(c *di.Container) {
-	ctx := context.Background()
-	c.Register(func() context.Context {
-		return ctx
-	})
+func testModule(c *di.Container) {
+	c.Import(module_api.Module)
 
-	c.Import(module_api.TestingModule)
-	c.Import(module_configuration.TestingModule)
-	c.Import(module_snapshots.TestingModule)
-
-	c.Import(workers.Module)
-	c.Import(db_github.Module)
-	c.Register(service_github.New)
 	c.Register(service_github_webhooks.New)
+	c.Register(service_github_webhooks.NewWebhooksQueue)
 
-	c.Register(func() (client.InstallationClientProvider, client.PersonalClientProvider, client.AppClientProvider) {
-		return clientProvider, personalClientProvider, appsClientProvider
-	})
+	c.ImportWithForce(service_github.Module)
+	c.ImportWithForce(graphql_github.Module)
+	c.ImportWithForce(graphql_github_pr.Module)
+	c.ImportWithForce(configuration.TestModule)
+	c.ImportWithForce(module_queue.TestModule)
 
-	// todo: hack to solve circular import dependency
-	iq := new(service_github.ImporterQueue)
-	c.Register(func() *service_github.ImporterQueue {
-		return iq
-	})
-
-	type importerHack struct{}
-	c.Register(func(wq workers.ImporterQueue) importerHack {
-		*iq = wq
-		return struct{}{}
-	})
-
-	// todo: hack to solve circular import dependency
-	cq := new(service_github.ClonerQueue)
-	c.Register(func() *service_github.ClonerQueue {
-		return cq
-	})
-	type clonerHack struct{}
-	c.Register(func(wq *workers.ClonerQueue) clonerHack {
-		*cq = wq
-		return struct{}{}
-	})
-
-	c.Register(func() *config.GitHubAppMetadata {
-		return &config.GitHubAppMetadata{}
-	})
-
-	c.Register(enterprise.NewGitHubAccountRootResolver, new(resolvers.GitHubAccountRootResolver))
-	c.Register(enterprise.NewGitHubAppRootResolver)
-	c.Register(enterprise.NewCodebaseGitHubIntegrationRootResolver)
-	c.Register(enterprise.NewGitHubRootResolver)
-	c.Register(graphql_pr_enterprise.NewResolver)
-	c.Import(module_remote_enterprise.Module)
-
-	c.Register(func() *config.GitHubAppConfig {
-		return &config.GitHubAppConfig{}
-	})
+	c.RegisterWithForce(func() client.InstallationClientProvider { return clientProvider })
+	c.RegisterWithForce(func() client.PersonalClientProvider { return personalClientProvider })
+	c.RegisterWithForce(func() client.AppClientProvider { return appsClientProvider })
+	c.RegisterWithForce(func() *config.GitHubAppConfig { return &config.GitHubAppConfig{} })
 }
 
 func TestPRHighLevel(t *testing.T) {
@@ -128,7 +84,7 @@ func TestPRHighLevel(t *testing.T) {
 	}
 
 	type deps struct {
-		dig.In
+		di.In
 
 		ActivitySender                activity_sender.ActivitySender
 		AnalyticsClient               *analytics_service.Service
@@ -158,11 +114,11 @@ func TestPRHighLevel(t *testing.T) {
 		WorkspaceRepo                 db_workspaces.Repository
 		WorkspaceRootResolver         resolvers.WorkspaceRootResolver
 		WorkspaceService              service_workspace.Service
-		WebhooksQueue                 *workers.WebhooksQueue
+		WebhooksQueue                 *service_github_webhooks.Queue
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(testModule).To(&d)) {
 		t.FailNow()
 	}
 
@@ -310,14 +266,14 @@ func TestPRHighLevel(t *testing.T) {
 				CodebaseID:                       codebaseID,
 				GitHubSourceOfTruth:              true,
 				IntegrationEnabled:               true,
-				InstallationAccessToken:          p[string]("token"),
+				InstallationAccessToken:          p("token"),
 				InstallationAccessTokenExpiresAt: &expT,
 			}
 			ghu := &github.User{
 				ID:          uuid.NewString(),
 				UserID:      userID,
 				Username:    uuid.NewString(),
-				AccessToken: p[string]("let's assume this is valid"),
+				AccessToken: p("let's assume this is valid"),
 			}
 
 			in := &github.Installation{
@@ -403,7 +359,7 @@ func TestPRHighLevel(t *testing.T) {
 			_, err = workspaceResolver.UpdateWorkspace(ctx, resolvers.UpdateWorkspaceArgs{
 				Input: resolvers.UpdateWorkspaceInput{
 					ID:               workspaceIDgql,
-					DraftDescription: p[string]("<p><em>draft description</em></p>"),
+					DraftDescription: p("<p><em>draft description</em></p>"),
 				},
 			})
 			assert.NoError(t, err)
@@ -415,10 +371,10 @@ func TestPRHighLevel(t *testing.T) {
 					Message:     fmt.Sprintf("commenting on a workspace i=%d", i),
 					WorkspaceID: &workspaceIDgql,
 					ViewID:      &viewIDgql,
-					Path:        p[string]("a.txt"),
+					Path:        p("a.txt"),
 					LineStart:   p[int32](1),
 					LineEnd:     p[int32](1),
-					LineIsNew:   p[bool](true),
+					LineIsNew:   p(true),
 				}})
 				assert.NoError(t, err)
 				//nolint:errorlint
@@ -477,7 +433,7 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:    &gitHubPullRequestID,
-					State: p[string]("closed"),
+					State: p("closed"),
 				},
 				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
@@ -497,7 +453,7 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:    &gitHubPullRequestID,
-					State: p[string]("open"),
+					State: p("open"),
 				},
 				Repo:         &gh.Repository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
@@ -533,8 +489,8 @@ func TestPRHighLevel(t *testing.T) {
 			prWebhookEvent(t, userID, webhookRoute, gh.PullRequestEvent{
 				PullRequest: &gh.PullRequest{
 					ID:             &gitHubPullRequestID,
-					State:          p[string]("closed"),
-					Merged:         p[bool](true),
+					State:          p("closed"),
+					Merged:         p(true),
 					MergeCommitSHA: &mergeCommitSha,
 					Base: &gh.PullRequestBranch{
 						SHA: &preMergeHeadSha,
@@ -555,7 +511,7 @@ func TestPRHighLevel(t *testing.T) {
 
 			// Post-merge push webhook event
 			webhookRepoPush := gh.PushEvent{
-				Ref:          p[string]("refs/heads/master"),
+				Ref:          p("refs/heads/master"),
 				Repo:         &gh.PushEventRepository{ID: &gitHubRepositoryID},
 				Installation: &gh.Installation{ID: &gitHubInstallationID},
 			}
@@ -567,7 +523,7 @@ func TestPRHighLevel(t *testing.T) {
 			assert.Nil(t, ws.UpToDateWithTrunk)
 
 			// The workspace should no longer have any comments
-			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: p[bool](true)})
+			wsResolver, err = workspaceResolver.Workspace(ctx, resolvers.WorkspaceArgs{ID: gqlID, AllowArchived: p(true)})
 			assert.NoError(t, err)
 			workspaceComments, err = wsResolver.Comments()
 			assert.NoError(t, err)
@@ -639,7 +595,7 @@ func (f *fakeGitHubPullRequestClient) Create(ctx context.Context, owner string, 
 	pr := gh.PullRequest{
 		ID:     &id,
 		Number: &num,
-		State:  p[string]("open"),
+		State:  p("open"),
 		Title:  pull.Title,
 		Body:   pull.Body,
 		Head:   &gh.PullRequestBranch{Ref: pull.Head},
@@ -661,8 +617,8 @@ type fakeGitHubAppsClient struct{}
 
 func (f *fakeGitHubAppsClient) CreateInstallationToken(ctx context.Context, id int64, opts *gh.InstallationTokenOptions) (*gh.InstallationToken, *gh.Response, error) {
 	return &gh.InstallationToken{
-		Token:        p[string]("testingtoken"),
-		ExpiresAt:    p[time.Time](time.Now().Add(time.Hour * 3)),
+		Token:        p("testingtoken"),
+		ExpiresAt:    p(time.Now().Add(time.Hour * 3)),
 		Permissions:  opts.Permissions,
 		Repositories: nil,
 	}, nil, nil

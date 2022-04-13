@@ -12,11 +12,10 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
-	module_github "getsturdy.com/api/pkg/github/module"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
+	queue "getsturdy.com/api/pkg/queue/module"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -33,17 +32,9 @@ import (
 )
 
 func module(c *di.Container) {
-	ctx := context.Background()
-	c.Register(func() context.Context {
-		return ctx
-	})
-
 	c.Import(module_api.Module)
-	c.Import(module_configuration.TestingModule)
-	c.Import(module_snapshots.TestingModule)
-
-	// OSS version
-	c.Import(module_github.Module)
+	c.ImportWithForce(configuration.TestModule)
+	c.ImportWithForce(queue.TestModule)
 }
 
 func TestUpdateViewWorkspace(t *testing.T) {
@@ -65,7 +56,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 

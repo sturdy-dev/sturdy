@@ -17,23 +17,21 @@ import (
 	"go.uber.org/dig"
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	module_api "getsturdy.com/api/pkg/api/module"
+	"getsturdy.com/api/pkg/api"
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
-	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	service_gc "getsturdy.com/api/pkg/gc/service"
-	module_github "getsturdy.com/api/pkg/github/module"
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	module_remote "getsturdy.com/api/pkg/remote/module"
+	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
@@ -59,18 +57,9 @@ import (
 )
 
 func module(c *di.Container) {
-	ctx := context.Background()
-	c.Register(func() context.Context {
-		return ctx
-	})
-
-	c.Import(module_api.TestingModule)
-	c.Import(module_configuration.TestingModule)
-	c.Import(module_snapshots.TestingModule)
-
-	// OSS version
-	c.Import(module_github.Module)
-	c.Import(module_remote.Module)
+	c.Import(api.Module)
+	c.ImportWithForce(configuration.TestModule)
+	c.ImportWithForce(queue.TestModule)
 }
 
 func TestCreate(t *testing.T) {
@@ -79,7 +68,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	type deps struct {
-		dig.In
+		di.In
 		UserRepo              db_user.Repository
 		UserService           service_users.Service
 		CodebaseRootResolver  resolvers.CodebaseRootResolver
@@ -107,7 +96,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 
@@ -529,7 +518,7 @@ func TestCreate(t *testing.T) {
 		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
-		assert.NoError(t, err)
+		assert.NoError(t, err, errors.Unwrap(err))
 	}
 }
 
@@ -558,7 +547,7 @@ func TestLandEmpty(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 
@@ -694,7 +683,7 @@ func TestLargeFiles(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 

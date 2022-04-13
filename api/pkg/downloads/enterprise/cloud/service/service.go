@@ -10,6 +10,7 @@ import (
 
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/downloads/enterprise/cloud/service/configuration"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -30,19 +31,15 @@ type Service struct {
 	logger           *zap.Logger
 }
 
-type Configuration struct {
-	ExportBucketName string `long:"export-bucket-name" description:"The name of the S3 bucket to export change archives to"`
-}
-
 func New(
 	service *service_change.Service,
-	cfg *Configuration,
+	cfg *configuration.Configuration,
 	executorProvider executor.Provider,
 	awsSession *session.Session,
 	logger *zap.Logger,
 ) *Service {
 	if cfg == nil {
-		cfg = &Configuration{}
+		cfg = &configuration.Configuration{}
 	}
 	return &Service{
 		Service:          service,

@@ -1,17 +1,17 @@
 package configuration
 
 import (
-	"getsturdy.com/api/pkg/analytics/proxy"
-	service_ci "getsturdy.com/api/pkg/ci/service"
-	"getsturdy.com/api/pkg/db"
+	proxy "getsturdy.com/api/pkg/analytics/proxy/configuration"
+	service_ci "getsturdy.com/api/pkg/ci/service/configuration"
+	db "getsturdy.com/api/pkg/db/configuration"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/gitserver"
-	"getsturdy.com/api/pkg/http"
-	"getsturdy.com/api/pkg/logger"
-	"getsturdy.com/api/pkg/metrics"
-	"getsturdy.com/api/pkg/pprof"
-	"getsturdy.com/api/pkg/users/avatars/uploader"
-	"getsturdy.com/api/vcs/provider"
+	gitserver "getsturdy.com/api/pkg/gitserver/configuration"
+	http "getsturdy.com/api/pkg/http/configuration"
+	logger "getsturdy.com/api/pkg/logger/configuration"
+	metrics "getsturdy.com/api/pkg/metrics/configuration"
+	pprof "getsturdy.com/api/pkg/pprof/configuration"
+	uploader "getsturdy.com/api/pkg/users/avatars/uploader/configuration"
+	provider "getsturdy.com/api/vcs/provider/configuration"
 
 	"github.com/jessevdk/go-flags"
 )

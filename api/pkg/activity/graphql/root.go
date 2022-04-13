@@ -22,10 +22,10 @@ type root struct {
 	workspaceActivityRepo      db_activity.ActivityRepository
 	workspaceActivityReadsRepo db_activity.ActivityReadsRepository
 
-	authorRootResolver    *resolvers.AuthorRootResolver
+	authorRootResolver    resolvers.AuthorRootResolver
 	commentRootResolver   *resolvers.CommentRootResolver
 	changeRootResolver    *resolvers.ChangeRootResolver
-	reviewRootResolver    *resolvers.ReviewRootResolver
+	reviewRootResolver    resolvers.ReviewRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
 
 	activityService *service_activity.Service
@@ -40,10 +40,10 @@ func New(
 	workspaceActivityRepo db_activity.ActivityRepository,
 	workspaceActivityReadsRepo db_activity.ActivityReadsRepository,
 
-	authorRootResolver *resolvers.AuthorRootResolver,
+	authorRootResolver resolvers.AuthorRootResolver,
 	commentRootResolver *resolvers.CommentRootResolver,
 	changeRootResolver *resolvers.ChangeRootResolver,
-	reviewRootResolver *resolvers.ReviewRootResolver,
+	reviewRootResolver resolvers.ReviewRootResolver,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 
 	activityService *service_activity.Service,

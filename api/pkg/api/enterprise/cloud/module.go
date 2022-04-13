@@ -6,5 +6,6 @@ import (
 )
 
 func Module(c *di.Container) {
+	c.Import(api.Module)
 	c.Register(ProvideAPI, new(api.Starter))
 }

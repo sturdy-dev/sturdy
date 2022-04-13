@@ -3,14 +3,16 @@ package http
 import (
 	"fmt"
 	"net/http"
+
+	"getsturdy.com/api/pkg/http/configuration"
 )
 
 type Server struct {
 	handler http.Handler
-	config  *Configuration
+	config  *configuration.Configuration
 }
 
-func ProvideServer(cfg *Configuration, handler http.Handler) *Server {
+func ProvideServer(cfg *configuration.Configuration, handler http.Handler) *Server {
 	return &Server{
 		handler: handler,
 		config:  cfg,
