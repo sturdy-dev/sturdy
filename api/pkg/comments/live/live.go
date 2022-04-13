@@ -169,7 +169,7 @@ func GetWorkspaceComment(
 	switch {
 	case err == nil:
 	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
-		return nil, nil
+		return comment, nil
 	default:
 		return nil, fmt.Errorf("could not prepare workspace filesystem for new files: %w", err)
 	}
@@ -178,7 +178,7 @@ func GetWorkspaceComment(
 	switch {
 	case err == nil:
 	case errors.Is(err, ErrNoFiles), errors.Is(err, sql.ErrNoRows):
-		return nil, nil
+		return comment, nil
 	default:
 		return nil, fmt.Errorf("could not prepare workspace filesystem for old files: %w", err)
 	}
