@@ -39,6 +39,7 @@ const UPDATED_COMMENT = gql`
           id
           message
         }
+        resolved
       }
 
       ... on ReplyComment {
