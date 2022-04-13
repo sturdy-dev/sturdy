@@ -109,6 +109,7 @@ export const CHANGE_DETAILS_CHANGE_FRAGMENT = gql`
           avatarUrl
         }
       }
+      resolved
     }
   }
   ${MEMBER_FRAGMENT}
@@ -170,7 +171,7 @@ export default {
       return this.isAuthenticated && isMember
     },
     nonArchivedComments() {
-      return this.change?.comments.filter((c) => !c.deletedAt)
+      return this.change?.comments.filter((c) => !c.deletedAt && !c.resolved)
     },
   },
   watch: {
