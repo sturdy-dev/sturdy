@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
@@ -54,5 +55,25 @@ func (s *Service) List(ctx context.Context, codebaseID codebases.ID, commitID st
 }
 
 func (s *Service) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]*statuses.Status, error) {
-	return s.repo.ListByWorkspaceID(ctx, workspaceID)
+	ss, err := s.repo.ListByWorkspaceID(ctx, workspaceID)
+	if err != nil {
+		return nil, err
+	}
+	if len(ss) == 0 {
+		return nil, nil
+	}
+
+	// find latest status
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].Timestamp.After(ss[j].Timestamp)
+	})
+
+	// return only statuses from the latest commit
+	latestStatuses := make([]*statuses.Status, 0, len(ss))
+	for _, s := range ss {
+		if s.CommitSHA == ss[0].CommitSHA {
+			latestStatuses = append(latestStatuses, s)
+		}
+	}
+	return latestStatuses, nil
 }
