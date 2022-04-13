@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"strings"
 	"time"
@@ -20,10 +21,15 @@ func main() {
 
 	pm := postmark.NewClient(*serverToken, "")
 
-	receivers := []string{
-		"gustav@westling.dev",
-		// "gustav@getsturdy.com",
+	// receivers := []string{
+	// 	"gustav@westling.dev",
+	// }
+
+	fd, err := ioutil.ReadFile("output.csv")
+	if err != nil {
+		log.Fatal(err)
 	}
+	receivers := strings.Split(string(fd), "\n")
 
 	subject := "This week at Sturdy #16 – What's new in Sturdy v1.7.0"
 
