@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/installations/service"
 	graphql_licences "getsturdy.com/api/pkg/licenses/graphql"
 	service_organizations "getsturdy.com/api/pkg/organization/service"
@@ -14,5 +13,5 @@ func Module(c *di.Container) {
 	c.Import(graphql_licences.Module)
 	c.Import(service_organizations.Module)
 	c.Import(service_users.Module)
-	c.Register(New, new(resolvers.InstallationsRootResolver))
+	c.Register(New)
 }

@@ -191,7 +191,7 @@ func joinErrors(errors []error) error {
 	for i, err := range errors {
 		errStrings[i] = err.Error()
 	}
-	return fmt.Errorf(strings.Join(errStrings, "\n"))
+	return fmt.Errorf(strings.Join(append([]string{""}, errStrings...), "\n	- "))
 }
 
 // Import imports a module into the container.
@@ -328,7 +328,7 @@ func (c *Container) register(container *dig.Container) error {
 // To builds the container and fetches dest from it, dest must be a pointer.
 func (c *Container) To(dest ...any) error {
 	if err := c.IsValid(); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", c.name, err)
 	}
 
 	container := dig.New()

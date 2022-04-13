@@ -1,3 +1,6 @@
+//go:build !cloud
+// +build !cloud
+
 package graphql
 
 import "getsturdy.com/api/pkg/di"

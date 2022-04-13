@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	graphql_features "getsturdy.com/api/pkg/features/graphql"
 	graphql_github "getsturdy.com/api/pkg/github/graphql"
-	graphql_installations "getsturdy.com/api/pkg/installations/graphql"
+	graphql_installations "getsturdy.com/api/pkg/installations/graphql/module"
 	graphql_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/graphql"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	graphql_licenses "getsturdy.com/api/pkg/licenses/graphql"
