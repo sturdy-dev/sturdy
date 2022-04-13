@@ -6,6 +6,7 @@
         :members="members"
         :user="user"
         :show-collapse-button="isExpanded"
+        :show-resolve-button="true"
         class="rounded-t-lg"
         @collapse="onCollapse"
       />
@@ -83,6 +84,8 @@ export default defineComponent({
     // The logged in user
     user: {
       type: Object as PropType<UserFragment>,
+      required: false,
+      default: null,
     },
     // members of the selected codebase
     members: {

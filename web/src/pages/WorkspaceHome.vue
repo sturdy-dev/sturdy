@@ -470,6 +470,9 @@ export default defineComponent({
                 name
                 avatarUrl
               }
+
+              resolved
+
               replies {
                 id
                 message
@@ -769,7 +772,7 @@ export default defineComponent({
         })
     },
     nonArchivedComments() {
-      return this.data?.workspace.comments.filter((c) => !c.deletedAt)
+      return this.data?.workspace.comments.filter((c) => !c.deletedAt && !c.resolved)
     },
     isSuggesting() {
       return !!this.data?.workspace.suggestion

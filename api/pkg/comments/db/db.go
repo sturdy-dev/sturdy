@@ -54,7 +54,7 @@ func (r *repo) Update(comment comments.Comment) error {
     	    workspace_id = :workspace_id,
     	    change_id = :change_id,
     	    resolved_by = :resolved_by,
-    	    resolved_at = :resolved_at,
+    	    resolved_at = :resolved_at
     	WHERE id = :id`, &comment)
 	if err != nil {
 		return fmt.Errorf("failed to update change: %w", err)

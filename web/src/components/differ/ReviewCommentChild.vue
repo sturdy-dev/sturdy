@@ -26,7 +26,7 @@
             class="group-hover:block hidden"
             :comment="comment"
             :can-edit="canEdit"
-            @startEdit="startEdit"
+            @start-edit="startEdit"
             @delete="archive"
           />
 
@@ -37,6 +37,18 @@
           >
             <ChevronDoubleUpIcon class="h-6 w-6" />
           </div>
+
+          <Tooltip v-if="showResolveButton" x-direction="left">
+            <template #default>
+              <div
+                class="rounded-md text-green-300 p-2 hover:bg-gray-100 cursor-pointer transition-all"
+                @click="resolve"
+              >
+                <CheckIcon class="h-6 w-6" />
+              </div>
+            </template>
+            <template #tooltip> Resolve comment </template>
+          </Tooltip>
         </div>
       </div>
       <Banner v-if="show_delete_failed" status="error" class="my-2">
@@ -91,7 +103,9 @@ import { useDeleteComment } from '../../mutations/useDeleteComment'
 import type { UserFragment, MemberFragment } from '../../atoms/__generated__/TextareaMentions'
 import CommentMessage from '../../atoms/CommentMessage.vue'
 import mentionify from '../../atoms/mentionify'
-import { ChevronDoubleUpIcon } from '@heroicons/vue/solid'
+import { ChevronDoubleUpIcon, CheckIcon } from '@heroicons/vue/solid'
+import { useResolveComment } from '../../mutations/useResolveComment'
+import Tooltip from '../../atoms/Tooltip.vue'
 
 export default defineComponent({
   components: {
@@ -102,6 +116,8 @@ export default defineComponent({
     Button,
     TextareaAutosize,
     ChevronDoubleUpIcon,
+    CheckIcon,
+    Tooltip,
   },
   props: {
     comment: {
@@ -111,6 +127,8 @@ export default defineComponent({
     // The logged in user
     user: {
       type: Object as PropType<UserFragment>,
+      required: false,
+      default: null,
     },
     // members of the selected codebase
     members: {
@@ -124,15 +142,26 @@ export default defineComponent({
         return false
       },
     },
+    showResolveButton: {
+      type: Boolean,
+      required: false,
+      default: () => {
+        return false
+      },
+    },
   },
   emits: ['archived', 'prearchived', 'collapse'],
   setup() {
     const updateCommentResult = useUpdateComment()
     const deleteCommentResult = useDeleteComment()
+    const resolveCommentResult = useResolveComment()
 
     return {
       deleteComment(id: string) {
         return deleteCommentResult(id)
+      },
+      resolveComment(id: string) {
+        return resolveCommentResult(id)
       },
       updateComment(id: string, message: string) {
         return updateCommentResult({ id, message })
@@ -188,6 +217,17 @@ export default defineComponent({
       this.$emit('prearchived')
 
       this.deleteComment(this.comment.id)
+        .then(() => {
+          this.show = false
+          this.$emit('archived')
+        })
+        .catch((err) => {
+          console.error(err)
+          this.show_delete_failed = true
+        })
+    },
+    resolve() {
+      this.resolveComment(this.comment.id)
         .then(() => {
           this.show = false
           this.$emit('archived')
