@@ -385,6 +385,7 @@ export class Application extends TypedEventEmitter<ApplicationEvents> {
       },
     }
 
+    Object.values(sharedAppIpc).forEach((method) => method.clean())
     Object.entries(ipcImplementation).forEach(([channel, implementation]) => {
       sharedAppIpc[channel as keyof AppIPC].implement(implementation.bind(ipcImplementation) as any)
     })
