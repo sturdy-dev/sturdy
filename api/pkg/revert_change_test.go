@@ -71,7 +71,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 
@@ -263,7 +263,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 

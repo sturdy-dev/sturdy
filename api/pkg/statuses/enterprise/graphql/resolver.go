@@ -13,14 +13,13 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/statuses"
-	"getsturdy.com/api/pkg/statuses/graphql"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 
 	"go.uber.org/zap"
 )
 
 type RootResolver struct {
-	*graphql.RootResolver
+	resolvers.StatusesRootResolver
 
 	logger           *zap.Logger
 	statusService    *service_statuses.Service
@@ -31,7 +30,7 @@ type RootResolver struct {
 }
 
 func New(
-	ossResolver *graphql.RootResolver,
+	ossResolver resolvers.StatusesRootResolver,
 
 	logger *zap.Logger,
 	statusService *service_statuses.Service,
@@ -39,9 +38,9 @@ func New(
 	githHubPRRepo db_github.GitHubPRRepository,
 	eventsReader *eventsv2.Subscriber,
 	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
-) *RootResolver {
+) resolvers.StatusesRootResolver {
 	return &RootResolver{
-		RootResolver: ossResolver,
+		StatusesRootResolver: ossResolver,
 
 		logger:           logger,
 		statusService:    statusService,

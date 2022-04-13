@@ -1,7 +1,11 @@
 package provider
 
-import "getsturdy.com/api/pkg/di"
+import (
+	configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/di"
+)
 
 func Module(c *di.Container) {
+	c.Import(configuration.Module)
 	c.Register(FromConfiguration)
 }

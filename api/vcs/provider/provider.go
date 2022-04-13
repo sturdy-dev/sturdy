@@ -5,6 +5,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/vcs"
+	"getsturdy.com/api/vcs/provider/configuration"
 )
 
 // RepoProvider
@@ -54,4 +55,8 @@ func (r *repoProvider) TrunkPath(codebaseID codebases.ID) string {
 
 func (r *repoProvider) ViewPath(codebaseID codebases.ID, viewID string) string {
 	return path.Join(r.reposBasePath, codebaseID.String(), viewID)
+}
+
+func FromConfiguration(cfg *configuration.Configuration) RepoProvider {
+	return New(cfg.ReposPath, cfg.LFS.Addr.String())
 }

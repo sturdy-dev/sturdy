@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/ci"
 	db_ci "getsturdy.com/api/pkg/ci/db"
+	"getsturdy.com/api/pkg/ci/service/configuration"
 	"getsturdy.com/api/pkg/codebases"
 	integrations "getsturdy.com/api/pkg/integrations"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
@@ -51,10 +52,6 @@ type Service struct {
 	snapshotter       snapshotter.Snapshotter
 }
 
-type Configuration struct {
-	PublicAPIHostname string `long:"public-api-hostname" description:"Public API hostname. Used to fetch codebases from CI"`
-}
-
 func New(
 	logger *zap.Logger,
 	executorProvider executor.Provider,
@@ -62,7 +59,7 @@ func New(
 	configRepo db_integrations.IntegrationsRepository,
 	ciCommitRepo db_ci.CommitRepository,
 
-	cfg *Configuration,
+	cfg *configuration.Configuration,
 	statusService *svc_statuses.Service,
 	jwtService *service_jwt.Service,
 	snapshotter snapshotter.Snapshotter,

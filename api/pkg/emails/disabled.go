@@ -2,6 +2,7 @@ package emails
 
 import (
 	"context"
+	"fmt"
 )
 
 type disabledClient struct{}
@@ -11,5 +12,5 @@ func NewDisabled() Sender {
 }
 
 func (*disabledClient) Send(context.Context, *Email) error {
-	return nil
+	return fmt.Errorf("emails are disabled")
 }

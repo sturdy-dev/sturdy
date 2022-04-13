@@ -1,10 +1,10 @@
 package selfhosted
 
 import (
-	"getsturdy.com/api/pkg/analytics/proxy"
+	proxy "getsturdy.com/api/pkg/analytics/proxy/configuration"
 	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/github/enterprise/config"
-	"getsturdy.com/api/pkg/users/avatars/uploader"
+	uploader "getsturdy.com/api/pkg/users/avatars/uploader/configuration"
 
 	"github.com/jessevdk/go-flags"
 )

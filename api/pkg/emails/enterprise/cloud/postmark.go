@@ -7,11 +7,8 @@ import (
 	"github.com/keighl/postmark"
 
 	"getsturdy.com/api/pkg/emails"
+	"getsturdy.com/api/pkg/emails/enterprise/cloud/configuration"
 )
-
-type PostmarkConfiguration struct {
-	ServerToken string `long:"server-token" description:"Postmark Server Token"`
-}
 
 var _ emails.Sender = &postmarkSender{}
 
@@ -19,7 +16,7 @@ type postmarkSender struct {
 	postmarkClient *postmark.Client
 }
 
-func NewPostmarkClient(config *PostmarkConfiguration) *postmarkSender {
+func NewPostmarkClient(config *configuration.PostmarkConfiguration) *postmarkSender {
 	return &postmarkSender{
 		postmarkClient: postmark.NewClient(config.ServerToken, ""),
 	}

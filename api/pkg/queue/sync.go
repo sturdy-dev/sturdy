@@ -29,7 +29,7 @@ func (q *Sync) Publish(ctx context.Context, name names.IncompleteQueueName, msg 
 	chs, ok := q.chans[name]
 	q.chansGuard.RUnlock()
 	if !ok {
-		return fmt.Errorf("no subscriber for %s was found", name)
+		return nil
 	}
 
 	wg, _ := errgroup.WithContext(ctx)

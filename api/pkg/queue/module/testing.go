@@ -5,6 +5,6 @@ import (
 	"getsturdy.com/api/pkg/queue"
 )
 
-func TestingModule(c *di.Container) {
+func TestModule(c *di.Container) {
 	c.Register(queue.NewSync, new(queue.Queue))
 }

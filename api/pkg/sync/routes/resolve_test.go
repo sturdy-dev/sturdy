@@ -19,13 +19,12 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	module_configuration "getsturdy.com/api/pkg/configuration/module"
+	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
-	module_github "getsturdy.com/api/pkg/github/module"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	module_snapshots "getsturdy.com/api/pkg/snapshots/module"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	"getsturdy.com/api/pkg/sync"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
@@ -54,17 +53,9 @@ func str(s string) *string {
 }
 
 func module(c *di.Container) {
-	ctx := context.Background()
-	c.Register(func() context.Context {
-		return ctx
-	})
-
 	c.Import(module_api.Module)
-	c.Import(module_configuration.TestingModule)
-	c.Import(module_snapshots.TestingModule)
-
-	// OSS version
-	c.Import(module_github.Module)
+	c.ImportWithForce(configuration.TestModule)
+	c.ImportWithForce(queue.TestModule)
 }
 
 func TestResolveHighLevelV2(t *testing.T) {
@@ -366,7 +357,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
 

@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/blobs"
 	service_blobs "getsturdy.com/api/pkg/blobs/service"
 	"getsturdy.com/api/pkg/users/avatars"
+	"getsturdy.com/api/pkg/users/avatars/uploader/configuration"
 )
 
 type Blobs struct {
@@ -18,7 +19,7 @@ type Blobs struct {
 	urlPrefix string
 }
 
-func NewBlobs(cfg *Configuration, blobsService *service_blobs.Service) (*Blobs, error) {
+func NewBlobs(cfg *configuration.Configuration, blobsService *service_blobs.Service) (*Blobs, error) {
 	scheme := cfg.URL.Scheme
 	host := cfg.URL.Host
 

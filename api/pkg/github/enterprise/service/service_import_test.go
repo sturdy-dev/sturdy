@@ -27,7 +27,6 @@ import (
 	"getsturdy.com/api/pkg/github/api"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	service_github_webhooks "getsturdy.com/api/pkg/github/enterprise/webhooks"
-	workers_github "getsturdy.com/api/pkg/github/enterprise/workers"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/workspaces"
@@ -46,8 +45,8 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		GitHubService        *service_github.Service
 		GitHubWebhookService *service_github_webhooks.Service
-		GithubClonerQueue    *workers_github.ClonerQueue
-		GithubImporterQueue  workers_github.ImporterQueue
+		GithubClonerQueue    *service_github.ClonerQueue
+		GithubImporterQueue  *service_github.ImporterQueue
 
 		UserService      service_user.Service
 		CodebaseService  *service_codebase.Service
@@ -61,7 +60,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(&d, module)) {
+	if !assert.NoError(t, di.Init(testModule).To(&d)) {
 		t.FailNow()
 	}
 

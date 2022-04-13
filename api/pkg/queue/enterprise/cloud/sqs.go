@@ -19,9 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ queue.Queue = &sqsQueue{}
-
-type sqsQueue struct {
+type SQSQueue struct {
 	logger *zap.Logger
 
 	session     *session.Session
@@ -37,8 +35,8 @@ func NewSQS(
 	awsSession *session.Session,
 	hostname string,
 	queuePrefix string,
-) (*sqsQueue, error) {
-	return &sqsQueue{
+) (*SQSQueue, error) {
+	return &SQSQueue{
 		logger:      logger.Named("sqsQueue"),
 		session:     awsSession,
 		hostname:    hostname,
@@ -49,7 +47,7 @@ func NewSQS(
 	}, nil
 }
 
-func (q *sqsQueue) getPublisher(name names.IncompleteQueueName) (publisher, error) {
+func (q *SQSQueue) getPublisher(name names.IncompleteQueueName) (publisher, error) {
 	q.publishersGuard.RLock()
 	cached, found := q.publishers[name]
 	q.publishersGuard.RUnlock()
@@ -70,7 +68,7 @@ func (q *sqsQueue) getPublisher(name names.IncompleteQueueName) (publisher, erro
 	return publisher, nil
 }
 
-func (q *sqsQueue) Publish(_ context.Context, name names.IncompleteQueueName, v any) error {
+func (q *SQSQueue) Publish(_ context.Context, name names.IncompleteQueueName, v any) error {
 	q.logger.Info("publishing message", zap.String("queue", string(name)))
 
 	publish, err := q.getPublisher(name)
@@ -84,7 +82,7 @@ func (q *sqsQueue) Publish(_ context.Context, name names.IncompleteQueueName, v 
 	return nil
 }
 
-func (q *sqsQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- queue.Message) error {
+func (q *SQSQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- queue.Message) error {
 	q.logger.Info("new subscription", zap.String("queue", string(name)))
 
 	sqsMessages := make(chan queue.Message)

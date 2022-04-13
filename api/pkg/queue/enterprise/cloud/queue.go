@@ -8,15 +8,10 @@ import (
 	"go.uber.org/zap"
 
 	"getsturdy.com/api/pkg/queue"
+	"getsturdy.com/api/pkg/queue/enterprise/cloud/configuration"
 )
 
-type Configuration struct {
-	Local    bool   `long:"local" description:"Use in-memory queue instead of SQS"`
-	Hostname string `long:"hostname" description:"Hostname of the queue"`
-	Prefix   string `long:"prefix" description:"Prefix for queue names"`
-}
-
-func New(awsSession *session.Session, logger *zap.Logger, cfg *Configuration) (queue.Queue, error) {
+func New(awsSession *session.Session, logger *zap.Logger, cfg *configuration.Configuration) (queue.Queue, error) {
 	if cfg.Hostname == "" {
 		defaultHostname, err := os.Hostname()
 		if err != nil {

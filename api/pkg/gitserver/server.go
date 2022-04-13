@@ -13,7 +13,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
-	"getsturdy.com/api/pkg/configuration/flags"
+	"getsturdy.com/api/pkg/gitserver/configuration"
 	"getsturdy.com/api/pkg/gitserver/pack"
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -29,13 +29,9 @@ import (
 	"go.uber.org/zap"
 )
 
-type Configuration struct {
-	Addr flags.Addr `long:"addr" description:"listen address" default:"127.0.0.1:3002"`
-}
-
 type Server struct {
 	logger *zap.Logger
-	cfg    *Configuration
+	cfg    *configuration.Configuration
 
 	serviceTokensService *service_servicetokens.Service
 	jwtTokensService     *service_jwt.Service
@@ -54,7 +50,7 @@ func ginMode() string {
 
 func New(
 	logger *zap.Logger,
-	cfg *Configuration,
+	cfg *configuration.Configuration,
 	serviceTokensService *service_servicetokens.Service,
 	jwtTokensService *service_jwt.Service,
 	codebaeService *service_codebase.Service,

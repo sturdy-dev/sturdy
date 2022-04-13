@@ -5,26 +5,17 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"getsturdy.com/api/pkg/configuration/flags"
-	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/pprof/configuration"
 )
 
-type Configuration struct {
-	Addr flags.Addr `long:"addr" description:"address to listen on" default:"127.0.0.1:6060"`
-}
-
 type Server struct {
-	cfg *Configuration
+	cfg *configuration.Configuration
 }
 
-func New(cfg *Configuration) *Server {
+func New(cfg *configuration.Configuration) *Server {
 	return &Server{
 		cfg: cfg,
 	}
-}
-
-func Module(c *di.Container) {
-	c.Register(New)
 }
 
 func (s *Server) Start() error {
