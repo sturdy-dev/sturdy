@@ -159,12 +159,12 @@ func (r *CommentRootResolver) newCommentResolver(c comments.Comment) (resolvers.
 		if err != nil {
 			return nil, gqlerrors.Error(err)
 		}
+
 		if updated == nil {
 			return nil, nil
 		}
 		return &CommentResolver{comment: *updated, root: r}, nil
 	}
-
 	return &CommentResolver{comment: c, root: r}, nil
 }
 
