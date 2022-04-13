@@ -23,6 +23,9 @@ replace github.com/jessevdk/go-flags => github.com/sturdy-dev/go-flags v1.5.1-0.
 // * Patches to handle push/pull to new references
 replace github.com/go-git/go-git/v5 => github.com/zegl/go-git/v5 v5.4.3-0.20220401122347-e4c6e92beccd
 
+// Custom fork of postmark to add support for message streams
+replace github.com/keighl/postmark => github.com/sturdy-dev/postmark v0.0.0-20220413131856-fc6a9ecca126
+
 require (
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
 	github.com/aws/aws-sdk-go v1.38.47
