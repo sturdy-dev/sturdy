@@ -2,12 +2,7 @@
   <Tooltip v-if="workspace.statuses.length > 0" :disabled="!isStale">
     <template #tooltip> Draft changed since the last run </template>
     <template #default>
-      <StatusDetails
-        :statuses="workspace.statuses"
-        :class="{
-          'opacity-50': isStale,
-        }"
-      />
+      <StatusDetails :statuses="workspace.statuses" :stale="isStale" />
     </template>
   </Tooltip>
 
