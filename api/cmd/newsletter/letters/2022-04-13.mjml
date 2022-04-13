@@ -1,0 +1,156 @@
+<mjml>
+    <mj-head>
+        <mj-preview>
+            Hello world! 🌍 In this newsletter we're sharing some of the biggest updates and new features in
+            Sturdy v1.7, let's get started!
+        </mj-preview>
+    </mj-head>
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="white" padding="0">
+            <mj-column width="20%" vertical-align="middle">
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+            </mj-column>
+
+            <mj-column width="80%" vertical-align="middle">
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Hello world! 🌍 In this newsletter we're sharing some of the biggest updates and new features in
+                    Sturdy v1.7, let's get started!
+                </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2022-04-12-this-week-at-sturdy?ref=newsletter"> &raquo; Read this email on the web</a>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding="0" padding-bottom="20px">
+            <mj-column>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+
+                    <p>
+                        Since
+                        <a href="https://getsturdy.com/blog/2022-03-10-introducing-draft-changes">the last issue</a
+                        >, where we introduced a whole new workflow with Draft Changes, we've release three minor
+                        versions of Sturdy (v1.5.0, v1.6.0, and v1.7.0).
+                        <i>
+                            (Minor releases when speaking in Semver, but major when it comes to what they enable, and
+                            how proud we are of them!)
+                        </i>
+                    </p>
+
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Highlights in v1.5, v1.6, and v1.7</mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+
+                    <p>
+                        Sturdy <code>v1.5.0</code> introduced a new workflow in Sturdy, with Sturdy running on top
+                        of <strong>any</strong> Git repository and provider. Sturdy can now
+                        <router-link :to="{ name: 'docsIntegrationsGit' }">connect natively</router-link>
+                        over the git-protocol to any hosting provider, and brings all of the power and ease-of-use
+                        of using Sturdy to providers such as GitLab, Bitbucket, and Azure DevOps.
+                    </p>
+
+                    <p>
+                        The same release also added a much-needed improvement to the search in Sturdy, and support
+                        for running Sturdy on <code>linux/arm64</code> and automatic TLS support via Let's Encrypt.
+                    </p>
+
+                    <p><code>v1.6.0</code> introduced SSH support for the Git integration.</p>
+
+                    <p>
+                        <code>v1.7.0</code> added a one-click-ship 🚢 feature to GitHub, where Sturdy can create a
+                        PR and merge it for you right away. Shipping your code with Sturdy is now
+                        <i>literally</i> 1-click away. We also focused on code-review in v1.7.0, bringing
+                        code-review of code written outside of Sturdy to Sturdy. Sturdy now makes all open pull
+                        requests to your repository available as <i>draft changes</i> in Sturdy.
+                    </p>
+
+                    <p>
+                        This release also contained support for triggering and running your CI/CD pipelines based on
+                        any draft, at any time. So that you can utilize the powers of your CI runners to run your
+                        tests of your non-commited changes, and keeping my computer fans nice and idle. ;-)
+                    </p>
+
+                    <p>
+                        See
+                        <a href="https://github.com/sturdy-dev/sturdy/blob/main/CHANGELOG.md">the CHANGELOG</a> for
+                        a full list of changes.
+                    </p>
+
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Upgrading our team!</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+
+                    <p>
+                        We now have three open positions to come and join our team! You'll get to work on some
+                        really cool open-source tech, and have fun while doing it!
+                    </p>
+
+                    <ul>
+                        <li>
+                            <a href="https://getsturdy.com/careers/senior-backend-software-engineer">
+                                Senior Backend Software Engineer
+                            </a>
+                            — (Go, PostgreSQL, GraphQL)
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/careers/senior-frontend-software-engineer">
+                                Senior Frontend Software Engineer
+                            </a>
+                            — (Vue, TypeScript, urlq)
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/careers/full-stack-engineer">Full Stack Engineer</a>
+                        </li>
+                    </ul>
+                </mj-text>
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Join our community</mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+
+                    <p>Our Discord community is growing every day, and it the place to be for all things Sturdy. If you haven't joined yet, <a href="https://discord.gg/fQcH9QAVpX">join the Sturdy server now</a>!</p>
+
+                </mj-text>
+
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    Thanks for reading, and until the next update!
+                    <br />
+                    &mdash; Gustav and team Sturdy
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+                </mj-text>
+
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    PS. Any questions? Reply to this email and we'll help you! :-)
+                </mj-text>
+
+                <mj-text font-size="12px" color="#555555" font-family="helvetica">
+                    You're receiving this email because you've signed up for the Sturdy newsletter.
+                    <a href="https://getsturdy.com/unsubscribe/BASE64_ENCODED_EMAIL">
+                        Unsubscribe
+                    </a>
+                </mj-text>
+
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

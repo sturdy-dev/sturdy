@@ -1,39 +1,36 @@
 package main
 
 import (
-	"getsturdy.com/api/pkg/newsletter"
+	"flag"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/keighl/postmark"
+
+	"getsturdy.com/api/pkg/newsletter"
 )
 
 func main() {
-	conf := aws.NewConfig().WithRegion("eu-north-1")
-	sess, err := session.NewSession(conf)
-	if err != nil {
-		log.Fatal(err)
+	serverToken := flag.String("server-token", "", "Postmark server token")
+	flag.Parse()
+	if serverToken == nil || *serverToken == "" {
+		log.Fatal("server-token is required")
 	}
 
-	// receiversTxt, err := ioutil.ReadFile("output.csv")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// receivers := strings.Split(strings.TrimSpace(string(receiversTxt)), "\n")
+	pm := postmark.NewClient(*serverToken, "")
 
 	receivers := []string{
 		"gustav@westling.dev",
-		"gustav@getsturdy.com",
+		// "gustav@getsturdy.com",
 	}
 
-	subject := "This week at Sturdy - Sturdy is now open-source"
+	subject := "This week at Sturdy #16 – What's new in Sturdy v1.7.0"
 
 	for _, receiver := range receivers {
 		receiver = strings.TrimSpace(receiver)
 		log.Println("Sending to", receiver)
-		newsletter.Send(sess, subject, "output/2022-02-21.html", receiver)
+		newsletter.Send(pm, subject, "output/2022-04-13.html", receiver)
 		time.Sleep(time.Second)
 	}
 }
