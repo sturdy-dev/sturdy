@@ -23,7 +23,7 @@
           </div>
 
           <ReviewCommentMenu
-            class="group-hover:block hidden"
+            class="group-hover:block hidden z-20"
             :comment="comment"
             :can-edit="canEdit"
             @start-edit="startEdit"
