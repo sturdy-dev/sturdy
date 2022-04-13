@@ -175,6 +175,17 @@ export const RoutesDocs: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/blog/2022-04-12-this-week-at-sturdy',
+    name: 'blog2022-04-12',
+    component: () => import('./pages/blog/2022-04-12/Post.vue'),
+    meta: {
+      nonApp: true,
+      selfContainedLayout: true,
+      neverElectron: true,
+      blog: { title: '#016 - This week at Sturdy' },
+    },
+  },
+  {
     path: '/blog/2022-03-10-introducing-draft-changes',
     name: 'blog2022-03-10',
     component: () => import('./pages/blog/2022-03-10/Post.vue'),

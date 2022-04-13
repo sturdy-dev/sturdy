@@ -8,11 +8,11 @@
           <div class="lg:self-center">
             <h2 class="text-3xl font-extrabold text-black sm:text-4xl">
               <span class="block">Ready to dive in?</span>
-              <span class="block">Start for free today.</span>
+              <span class="block">Sturdy up your life</span>
             </h2>
             <p class="mt-4 text-lg leading-6 text-black">
-              Get started with Sturdy for free! Migrate from Git and GitHub to Sturdy in just a few
-              seconds.
+              Get started with Sturdy today, use it standalone or on top of your existing Git or
+              GitHub setup.
             </p>
             <router-link
               :to="{ name: 'download' }"
@@ -20,6 +20,9 @@
             >
               Download now
             </router-link>
+            <p class="mt-4 text-sm leading-6 text-gray-600">
+              Pssst, did you know that Sturdy is free and open-source?
+            </p>
           </div>
         </div>
         <div class="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1">
@@ -39,7 +42,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import Image from '../../pages/blog/redesign/newsletter-workspace.png?w=1000'
+import Image from '../../pages/download/app.png?w=1000'
 
 export default defineComponent({
   setup() {
