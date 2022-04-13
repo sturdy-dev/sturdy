@@ -2,6 +2,9 @@
   <Menu v-if="!unknown" as="div" class="relative inline-block text-left">
     <MenuButton
       class="rounded-full flex items-center space-x-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+      :class="{
+        'opacity-50': stale,
+      }"
     >
       <StatusBadge :statuses="statuses" />
       <p v-if="showText" class="text-gray-900 text-sm font-medium cursor-pointer">{{ text }}</p>
@@ -60,6 +63,10 @@ export { STATUS_FRAGMENT }
 export default defineComponent({
   components: { StatusBadge, Menu, MenuButton, MenuItem, MenuItems },
   props: {
+    stale: {
+      type: Boolean as PropType<boolean>,
+      default: false,
+    },
     statuses: {
       type: Array as PropType<StatusFragment[]>,
       default: () => [],
