@@ -67,3 +67,14 @@ func (r *TopCommentResolver) CodeContext() resolvers.CommentCodeContext {
 	}
 	return &CodeCommentContextResolver{r.CommentResolver}
 }
+
+func (r *TopCommentResolver) Resolved() bool {
+	return r.comment.ResolvedAt != nil
+}
+
+func (r *TopCommentResolver) ResolvedBy(ctx context.Context) (resolvers.AuthorResolver, error) {
+	if r.comment.ResolvedBy == nil {
+		return nil, nil
+	}
+	return r.root.authorResolver.Author(ctx, graphql.ID(*r.comment.ResolvedBy))
+}

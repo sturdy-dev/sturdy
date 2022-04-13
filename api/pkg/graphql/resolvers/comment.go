@@ -18,6 +18,7 @@ type CommentRootResolver interface {
 	DeleteComment(ctx context.Context, args DeleteCommentArgs) (CommentResolver, error)
 	UpdateComment(ctx context.Context, args UpdateCommentArgs) (CommentResolver, error)
 	CreateComment(ctx context.Context, args CreateCommentArgs) (CommentResolver, error)
+	ResolveComment(ctx context.Context, args ResolveCommentArgs) (CommentResolver, error)
 
 	// Subscriptions
 	UpdatedComment(ctx context.Context, args UpdatedCommentArgs) (<-chan CommentResolver, error)
@@ -36,6 +37,10 @@ type UpdatedCommentArgs struct {
 }
 
 type DeleteCommentArgs struct {
+	ID graphql.ID
+}
+
+type ResolveCommentArgs struct {
 	ID graphql.ID
 }
 
@@ -87,6 +92,8 @@ type TopCommentResolver interface {
 	Change(ctx context.Context) (ChangeResolver, error)
 	Replies() ([]ReplyCommentResolver, error)
 	CodeContext() CommentCodeContext
+	Resolved() bool
+	ResolvedBy(context.Context) (AuthorResolver, error)
 }
 
 type ReplyCommentResolver interface {

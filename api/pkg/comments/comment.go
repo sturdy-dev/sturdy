@@ -44,4 +44,7 @@ type Comment struct {
 	Context             *string `db:"context"`
 
 	ParentComment *ID `db:"parent_comment_id"`
+
+	ResolvedAt *time.Time `db:"resolved_at"`
+	ResolvedBy *users.ID  `db:"resolved_by"`
 }

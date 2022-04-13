@@ -52,7 +52,9 @@ func (r *repo) Update(comment comments.Comment) error {
     	SET deleted_at = :deleted_at,
 			message = :message,
     	    workspace_id = :workspace_id,
-    	    change_id = :change_id
+    	    change_id = :change_id,
+    	    resolved_by = :resolved_by,
+    	    resolved_at = :resolved_at,
     	WHERE id = :id`, &comment)
 	if err != nil {
 		return fmt.Errorf("failed to update change: %w", err)
@@ -62,7 +64,7 @@ func (r *repo) Update(comment comments.Comment) error {
 
 func (r *repo) GetByCodebaseAndChange(codebaseID codebases.ID, changeID changes.ID) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id, resolved_by, resolved_at
 		FROM comments
 		WHERE codebase_id = $1
 		  AND change_id = $2
@@ -77,7 +79,7 @@ func (r *repo) GetByCodebaseAndChange(codebaseID codebases.ID, changeID changes.
 
 func (r *repo) GetByWorkspace(workspaceID string) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id, resolved_by, resolved_at
 		FROM comments
 		WHERE workspace_id = $1
 		  AND deleted_at IS NULL
@@ -91,7 +93,7 @@ func (r *repo) GetByWorkspace(workspaceID string) ([]comments.Comment, error) {
 
 func (r *repo) GetByParent(id comments.ID) ([]comments.Comment, error) {
 	var res []comments.Comment
-	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id
+	err := r.db.Select(&res, `SELECT id, codebase_id, change_id, user_id, created_at, message, path, old_path, line_start, line_end, line_is_new, workspace_id, context, context_starts_at_line, parent_comment_id, resolved_by, resolved_at
 		FROM comments
 		WHERE parent_comment_id = $1
 		  AND deleted_at IS NULL

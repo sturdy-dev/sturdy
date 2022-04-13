@@ -364,6 +364,50 @@ func (r *CommentRootResolver) DeleteComment(ctx context.Context, args resolvers.
 		return nil, gqlerrors.Error(err)
 	}
 
+	// send events
+	if comm.WorkspaceID != nil {
+		if err := r.eventsSender.Codebase(comm.CodebaseID, events.WorkspaceUpdatedComments, *comm.WorkspaceID); err != nil {
+			r.logger.Error("failed to send event for updated comment", zap.Error(err))
+		}
+	}
+
+	return &CommentResolver{root: r, comment: comm}, nil
+}
+
+func (r *CommentRootResolver) ResolveComment(ctx context.Context, args resolvers.ResolveCommentArgs) (resolvers.CommentResolver, error) {
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	comm, err := r.commentsRepo.Get(comments.ID(args.ID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.authService.CanWrite(ctx, comm); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	r.analyticsService.Capture(ctx, "resolved comment",
+		analytics.CodebaseID(comm.CodebaseID),
+		analytics.Property("comment_id", comm.ID),
+	)
+
+	t := time.Now()
+	comm.ResolvedAt = &t
+	comm.ResolvedBy = &userID
+	if err := r.commentsRepo.Update(comm); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	// send events
+	if comm.WorkspaceID != nil {
+		if err := r.eventsSender.Codebase(comm.CodebaseID, events.WorkspaceUpdatedComments, *comm.WorkspaceID); err != nil {
+			r.logger.Error("failed to send event for updated comment", zap.Error(err))
+		}
+	}
+
 	return &CommentResolver{root: r, comment: comm}, nil
 }
 
