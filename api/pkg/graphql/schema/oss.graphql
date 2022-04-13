@@ -88,6 +88,7 @@ type Mutation {
   extractWorkspace(input: ExtractWorkspaceInput!): Workspace!
 
   deleteComment(id: ID!): Comment!
+  resolveComment(id: ID!): Comment!
   updateComment(input: UpdateCommentInput!): Comment!
   createComment(input: CreateCommentInput!): Comment!
 
@@ -631,6 +632,8 @@ type TopComment implements Comment {
   createdAt: Int!
   deletedAt: Int
   message: String!
+  resolved: Boolean!
+  resolvedBy: Author
 
   # Comments attached to a workspace
   workspace: Workspace
