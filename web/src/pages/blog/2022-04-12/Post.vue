@@ -24,6 +24,8 @@
 
       <h2>Highlights in v1.5, v1.6, and v1.7</h2>
 
+      <img src="./IntegrateWithOtherServices.png" height="297" width="912" />
+
       <p>
         Sturdy <code>v1.5.0</code> introduced a new workflow in Sturdy, with Sturdy running on top
         of <strong>any</strong> Git repository and provider. Sturdy can now
@@ -39,6 +41,8 @@
 
       <p><code>v1.6.0</code> introduced SSH support for the Git integration.</p>
 
+      <img src="./CreateAndMergePullRequest.png" height="159" width="912" />
+
       <p>
         <code>v1.7.0</code> added a one-click-ship 🚢 feature to GitHub, where Sturdy can create a
         PR and merge it for you right away. Shipping your code with Sturdy is now
@@ -46,6 +50,8 @@
         code-review of code written outside of Sturdy to Sturdy. Sturdy now makes all open pull
         requests to your repository available as <i>draft changes</i> in Sturdy.
       </p>
+
+      <img src="./TriggerCI.png" height="108" width="912" />
 
       <p>
         This release also contained support for triggering and running your CI/CD pipelines based on
