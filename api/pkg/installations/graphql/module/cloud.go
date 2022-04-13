@@ -1,4 +1,7 @@
-package cloud
+//go:build cloud
+// +build cloud
+
+package module
 
 import (
 	"getsturdy.com/api/pkg/di"
