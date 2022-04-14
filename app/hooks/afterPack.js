@@ -33,7 +33,7 @@ const translateArch = (arch) => {
   }
 }
 
-const downloadFiles = ['sturdy-sync']
+const downloadFiles = ['sturdy-sync', 'sturdy-sync.exe']
 
 /** @type {import('electron-builder').Configuration['beforePack']} */
 module.exports = async function (params) {
@@ -71,7 +71,7 @@ module.exports = async function (params) {
       fs.rmSync(path.join(dest, file))
     })
 
-  fs.readdirSync(dest)
-    .map((file) => `downloaded: ${path.join(dest, file)}`)
-    .forEach(log)
+  const downloadedFiles = fs.readdirSync(dest)
+  if (downloadedFiles.length === 0) throw new Error('no assets found')
+  downloadedFiles.map((file) => `downloaded: ${path.join(dest, file)}`).forEach(log)
 }
