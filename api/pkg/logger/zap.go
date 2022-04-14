@@ -7,7 +7,8 @@ import (
 	"getsturdy.com/api/pkg/logger/configuration"
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
 
-	"github.com/getsentry/raven-go"
+	"github.com/TheZeroSlave/zapsentry"
+	"github.com/getsentry/sentry-go"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/term"
@@ -38,7 +39,7 @@ var (
 	}
 )
 
-func New(cfg *configuration.Configuration, sentryClient *raven.Client) (*zap.Logger, error) {
+func New(cfg *configuration.Configuration, sentryClient *sentry.Client) (*zap.Logger, error) {
 	encoderConfig := encoderConfigByEnv[cfg.Production]()
 	isTeminal := term.IsTerminal(int(os.Stdout.Fd()))
 	encoder := encoderByTerminal[isTeminal](encoderConfig)
@@ -69,7 +70,15 @@ func New(cfg *configuration.Configuration, sentryClient *raven.Client) (*zap.Log
 		zapcore.NewCore(encoder, consoleErrors, highPriority),
 	}
 	if cfg.Production {
-		cores = append(cores, &sentryCore{LevelEnabler: highPriority, sentryClient: sentryClient})
+		core, err := zapsentry.NewCore(zapsentry.Configuration{
+			Level:             zapcore.ErrorLevel,
+			EnableBreadcrumbs: true,
+			BreadcrumbLevel:   zapcore.InfoLevel,
+		}, zapsentry.NewSentryClientFromClient(sentryClient))
+		if err != nil {
+			return nil, fmt.Errorf("failed to create zapsentry core: %w", err)
+		}
+		cores = append(cores, core)
 	}
 
 	return zap.New(zapcore.NewTee(cores...), options...), nil
