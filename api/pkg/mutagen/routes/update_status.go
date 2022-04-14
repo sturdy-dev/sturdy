@@ -84,8 +84,7 @@ func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, vi
 
 		setStatus(status, input)
 
-		err = viewStatusRepo.Update(status)
-		if err != nil {
+		if err := viewStatusRepo.Update(status); err != nil {
 			logger.Error("failed to update status", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
@@ -93,7 +92,10 @@ func UpdateStatus(logger *zap.Logger, viewStatusRepo db.ViewStatusRepository, vi
 
 		// Send event
 		vw, err := viewRepo.Get(viewID)
-		if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
+			return
+		} else if err != nil {
 			logger.Error("failed to get view", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return
