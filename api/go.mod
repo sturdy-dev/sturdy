@@ -28,6 +28,7 @@ replace github.com/keighl/postmark => github.com/sturdy-dev/postmark v0.0.0-2022
 
 require (
 	github.com/ScaleFT/sshkeys v0.0.0-20200327173127-6142f742bca5
+	github.com/TheZeroSlave/zapsentry v1.10.0
 	github.com/aws/aws-sdk-go v1.38.47
 	github.com/bmatcuk/doublestar/v4 v4.0.2
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
@@ -36,7 +37,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/disintegration/imaging v1.6.2
 	github.com/fatih/color v1.13.0
-	github.com/getsentry/raven-go v0.2.0
+	github.com/getsentry/sentry-go v0.13.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.5
 	github.com/gin-contrib/zap v0.0.2
@@ -73,7 +74,7 @@ require (
 	github.com/yuin/goldmark v1.4.4
 	go.uber.org/dig v1.14.1
 	go.uber.org/multierr v1.7.0
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -89,7 +90,6 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.0.0+incompatible // indirect
-	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a // indirect
@@ -115,7 +115,7 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -133,7 +133,6 @@ require (
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/goleak v1.1.11 // indirect
 	goji.io v2.0.2+incompatible // indirect
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030 // indirect
 	golang.org/x/mod v0.4.2 // indirect

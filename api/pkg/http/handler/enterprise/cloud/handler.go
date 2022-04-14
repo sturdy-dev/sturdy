@@ -14,7 +14,7 @@ import (
 	routes_v3_user "getsturdy.com/api/pkg/users/enterprise/cloud/routes"
 	service_user "getsturdy.com/api/pkg/users/enterprise/cloud/service"
 
-	"github.com/getsentry/raven-go"
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/posthog/posthog-go"
 	"go.uber.org/zap"
@@ -27,7 +27,7 @@ func ProvideHandler(
 	serviceLicenses *service_licenses.Service,
 	serviceValidations *service_validations.Service,
 	serviceStatistics *service_statistics.Service,
-	sentryClient *raven.Client,
+	sentryClient *sentry.Client,
 	jwtService *service_jwt.Service,
 	userService *service_user.Service,
 ) *gin.Engine {
