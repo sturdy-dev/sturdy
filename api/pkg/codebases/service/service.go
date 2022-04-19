@@ -265,7 +265,7 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 	return svc.repo.Count(ctx)
 }
 
-func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string) (*codebases.CodebaseUser, error) {
+func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string, addedBy users.ID) (*codebases.CodebaseUser, error) {
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if errors.Is(err, sql.ErrNoRows) {
 		userID, err := auth.UserID(ctx)
@@ -281,10 +281,10 @@ func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID,
 		return nil, fmt.Errorf("could not get user: %w", err)
 	}
 
-	return svc.AddUser(ctx, codebaseID, inviteUser)
+	return svc.AddUser(ctx, codebaseID, inviteUser, addedBy)
 }
 
-func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *users.User) (*codebases.CodebaseUser, error) {
+func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *users.User, addedBy users.ID) (*codebases.CodebaseUser, error) {
 	// Check that the user isn't already a member
 	if codebaseUser, err := svc.codebaseUserRepo.GetByUserAndCodebase(user.ID, codebaseID); errors.Is(err, sql.ErrNoRows) {
 		// continue
@@ -301,6 +301,7 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *
 		UserID:     user.ID,
 		CodebaseID: codebaseID,
 		CreatedAt:  &t,
+		InvitedBy:  &addedBy,
 	}
 
 	if err := svc.codebaseUserRepo.Create(member); err != nil {

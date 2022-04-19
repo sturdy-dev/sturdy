@@ -133,7 +133,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 		TrackedBranch:      "master",
 	}
 
-	_, err = d.CodebaseService.AddUser(ctx, cb.ID, usr)
+	_, err = d.CodebaseService.AddUser(ctx, cb.ID, usr, usr.ID)
 	assert.NoError(t, err)
 
 	apiRepo := api.ConvertRepository(ghRepo)

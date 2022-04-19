@@ -37,8 +37,8 @@ func (r *codebaseUserRepo) GetByID(ctx context.Context, id string) (*codebases.C
 }
 
 func (r *codebaseUserRepo) Create(entity codebases.CodebaseUser) error {
-	_, err := r.db.NamedExec(`INSERT INTO codebase_users (id, user_id, codebase_id, created_at)
-		VALUES (:id, :user_id, :codebase_id, :created_at)`, &entity)
+	_, err := r.db.NamedExec(`INSERT INTO codebase_users (id, user_id, codebase_id, created_at, invited_by)
+		VALUES (:id, :user_id, :codebase_id, :created_at, :invited_by)`, &entity)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}

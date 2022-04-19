@@ -65,7 +65,7 @@ func TestCanWrite_codebase(t *testing.T) {
 
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	authService := service_auth.New(
 		codebaseService,
@@ -161,11 +161,11 @@ func TestCanRead_codebase(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
-	organizationService := service_organization.New(nil, organizationRepo, organizationMemberRepo, analyticsService)
+	organizationService := service_organization.New(zap.NewNop(), nil, organizationRepo, organizationMemberRepo, analyticsService, nil)
 
 	authService := service_auth.New(
 		codebaseService,
@@ -264,12 +264,12 @@ func TestCanReadWrite_organization(t *testing.T) {
 	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
 	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil)
+	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
 	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
 	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
 
-	organizationService := service_organization.New(nil, organizationRepo, organizationMemberRepo, analyticsService)
+	organizationService := service_organization.New(zap.NewNop(), nil, organizationRepo, organizationMemberRepo, analyticsService, nil)
 
 	authService := service_auth.New(
 		codebaseService,

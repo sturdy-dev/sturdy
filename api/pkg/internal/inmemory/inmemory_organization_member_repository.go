@@ -17,6 +17,15 @@ func NewInMemoryOrganizationMemberRepository() db_organization.MemberRepository 
 	return &inMemoryOrganizationMemberRepository{users: make([]organization.Member, 0)}
 }
 
+func (r *inMemoryOrganizationMemberRepository) GetByID(_ context.Context, id string) (*organization.Member, error) {
+	for _, u := range r.users {
+		if u.ID == id {
+			return &u, nil
+		}
+	}
+	return nil, sql.ErrNoRows
+}
+
 func (r *inMemoryOrganizationMemberRepository) GetByUserIDAndOrganizationID(ctx context.Context, userID users.ID, organizationID string) (*organization.Member, error) {
 	for _, u := range r.users {
 		if u.UserID == userID && u.OrganizationID == organizationID {
