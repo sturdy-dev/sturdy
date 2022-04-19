@@ -16,6 +16,7 @@ type MemberRepository interface {
 	ListByUserID(context.Context, users.ID) ([]*organization.Member, error)
 	Create(ctx context.Context, org organization.Member) error
 	Update(ctx context.Context, org *organization.Member) error
+	GetByID(ctx context.Context, id string) (*organization.Member, error)
 }
 
 type memberRepository struct {
@@ -24,6 +25,17 @@ type memberRepository struct {
 
 func NewMember(db *sqlx.DB) MemberRepository {
 	return &memberRepository{db: db}
+}
+
+func (r *memberRepository) GetByID(ctx context.Context, id string) (*organization.Member, error) {
+	var mem organization.Member
+	if err := r.db.GetContext(ctx, &mem, `SELECT id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by
+		FROM organization_members
+		WHERE id = $1
+		  AND deleted_at IS NULL`, id); err != nil {
+		return nil, fmt.Errorf("failed to get organization_member by id: %w", err)
+	}
+	return &mem, nil
 }
 
 func (r *memberRepository) GetByUserIDAndOrganizationID(ctx context.Context, userID users.ID, organizationID string) (*organization.Member, error) {

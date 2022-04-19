@@ -12,6 +12,7 @@ import (
 
 type CodebaseUserRepository interface {
 	Create(codebases.CodebaseUser) error
+	GetByID(context.Context, string) (*codebases.CodebaseUser, error)
 	GetByUser(users.ID) ([]*codebases.CodebaseUser, error)
 	GetByCodebase(codebases.ID) ([]*codebases.CodebaseUser, error)
 	GetByUserAndCodebase(userID users.ID, codebaseID codebases.ID) (*codebases.CodebaseUser, error)
@@ -24,6 +25,15 @@ type codebaseUserRepo struct {
 
 func NewCodebaseUserRepo(db *sqlx.DB) CodebaseUserRepository {
 	return &codebaseUserRepo{db: db}
+}
+
+func (r *codebaseUserRepo) GetByID(ctx context.Context, id string) (*codebases.CodebaseUser, error) {
+	var cb codebases.CodebaseUser
+	err := r.db.GetContext(ctx, &cb, "SELECT * FROM codebase_users WHERE id = $1", id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query table: %w", err)
+	}
+	return &cb, nil
 }
 
 func (r *codebaseUserRepo) Create(entity codebases.CodebaseUser) error {
