@@ -12,6 +12,8 @@ var (
 		notification.RequestedReviewNotificationType: true,
 		notification.NewSuggestionNotificationType:   true,
 		notification.GitHubRepositoryImported:        true,
+		notification.InvitedToCodebase:               true,
+		notification.InvitedToOrganization:           true,
 	}
 	supportedChannels = map[notification.Channel]bool{
 		notification.ChannelEmail: true,
