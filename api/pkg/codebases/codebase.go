@@ -45,6 +45,8 @@ type CodebaseUser struct {
 	UserID     users.ID   `db:"user_id"`
 	CodebaseID ID         `db:"codebase_id"`
 	CreatedAt  *time.Time `db:"created_at" json:"created_at"`
+	// InvitedBy is empty for older members
+	InvitedBy *users.ID `db:"invited_by"`
 }
 
 type CodebaseWithMetadata struct {

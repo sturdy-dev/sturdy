@@ -305,6 +305,11 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 	return &CodebaseResolver{c: cb, root: r}, nil
 }
 func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resolvers.AddUserToCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	cb, err := r.codebaseService.GetByID(ctx, codebases.ID(args.Input.CodebaseID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
@@ -315,7 +320,7 @@ func (r *CodebaseRootResolver) AddUserToCodebase(ctx context.Context, args resol
 		return nil, gqlerrors.Error(err)
 	}
 
-	if _, err := r.codebaseService.AddUserByEmail(ctx, codebases.ID(args.Input.CodebaseID), args.Input.Email); err != nil {
+	if _, err := r.codebaseService.AddUserByEmail(ctx, codebases.ID(args.Input.CodebaseID), args.Input.Email, userID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 

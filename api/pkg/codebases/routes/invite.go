@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
@@ -21,8 +22,15 @@ func Invite(
 	authService *service_auth.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		codebaseID := codebases.ID(c.Param("id"))
+		ctx := c.Request.Context()
 
+		userID, err := auth.UserID(ctx)
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		codebaseID := codebases.ID(c.Param("id"))
 		cb, err := codebaseService.GetByID(c.Request.Context(), codebaseID)
 		if err != nil && errors.Is(err, sql.ErrNoRows) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -31,8 +39,6 @@ func Invite(
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-
-		ctx := c.Request.Context()
 
 		if err := authService.CanWrite(ctx, cb); err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -45,7 +51,7 @@ func Invite(
 			return
 		}
 
-		member, err := codebaseService.AddUserByEmail(ctx, cb.ID, request.UserEmail)
+		member, err := codebaseService.AddUserByEmail(ctx, cb.ID, request.UserEmail, userID)
 		if err != nil {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return

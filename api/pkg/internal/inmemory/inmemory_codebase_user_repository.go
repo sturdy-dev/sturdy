@@ -17,6 +17,15 @@ func NewInMemoryCodebaseUserRepo() db_codebases.CodebaseUserRepository {
 	return &inMemoryCodebaseUserRepository{users: make([]codebases.CodebaseUser, 0)}
 }
 
+func (r *inMemoryCodebaseUserRepository) GetByID(_ context.Context, id string) (*codebases.CodebaseUser, error) {
+	for _, u := range r.users {
+		if u.ID == id {
+			return &u, nil
+		}
+	}
+	return nil, sql.ErrNoRows
+}
+
 func (r *inMemoryCodebaseUserRepository) Create(entity codebases.CodebaseUser) error {
 	r.users = append(r.users, entity)
 	return nil
