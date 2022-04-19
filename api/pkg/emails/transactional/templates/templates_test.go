@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/jwt"
+	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
@@ -30,8 +31,29 @@ func TestRenderWelcome(t *testing.T) {
 	assert.Equal(t, mustReadFile(t, "testdata/welcome.html"), output)
 }
 
-func TestInviteNewUser(t *testing.T) {
-	output, err := Render(InviteNewUserTemplate, InviteNewUserTemplateData{
+func TestInviteToOrganization(t *testing.T) {
+	output, err := Render(InviteToOrganizationTemplate, InviteToOrganizationTemplateData{
+		InvitingUser: &users.User{
+			Name:  "Joao",
+			Email: "test@email.com",
+		},
+		InvitedUser: &users.User{
+			Email: "joao.wip@gmail.com",
+		},
+		Organization: &organization.Organization{
+			Name: "imported",
+		},
+	})
+
+	// uncomment make a snapshot
+	// os.WriteFile("testdata/invite_to_organization.html", []byte(output), 0666)
+
+	assert.NoError(t, err)
+	assert.Equal(t, mustReadFile(t, "testdata/invite_to_organization.html"), output)
+}
+
+func TestInviteToCodebase(t *testing.T) {
+	output, err := Render(InviteToCodebaseTemplate, InviteToCodebaseTemplateData{
 		InvitingUser: &users.User{
 			Name:  "Joao",
 			Email: "test@email.com",
@@ -46,10 +68,10 @@ func TestInviteNewUser(t *testing.T) {
 	})
 
 	// uncomment make a snapshot
-	// os.WriteFile("testdata/invite_new_user.html", []byte(output), 0666)
+	// os.WriteFile("testdata/invite_to_codebase.html", []byte(output), 0666)
 
 	assert.NoError(t, err)
-	assert.Equal(t, mustReadFile(t, "testdata/invite_new_user.html"), output)
+	assert.Equal(t, mustReadFile(t, "testdata/invite_to_codebase.html"), output)
 }
 
 func TestRenderGitHubRepositoryImported(t *testing.T) {

@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/comments"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/jwt"
+	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
@@ -50,7 +51,8 @@ const (
 	NotificationReviewTemplate                   Template = "review.template.html"
 	VerifyEmailTemplate                          Template = "verify_email.template.html"
 	MagicLinkTemplate                            Template = "magic_link.template.html"
-	InviteNewUserTemplate                        Template = "invite_new_user.template.html"
+	InviteToCodebaseTemplate                     Template = "invite_to_codebase.template.html"
+	InviteToOrganizationTemplate                 Template = "invite_to_organization.template.html"
 )
 
 type WelcomeTemplateData struct {
@@ -111,10 +113,16 @@ type VerifyEmailTemplateData struct {
 	Token *jwt.Token
 }
 
-type InviteNewUserTemplateData struct {
+type InviteToCodebaseTemplateData struct {
 	InvitingUser *users.User
 	InvitedUser  *users.User
 	Codebase     *codebases.Codebase
+}
+
+type InviteToOrganizationTemplateData struct {
+	InvitingUser *users.User
+	InvitedUser  *users.User
+	Organization *organization.Organization
 }
 
 func Render(template Template, data any) (string, error) {
