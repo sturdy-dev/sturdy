@@ -180,7 +180,7 @@ func (r *reviewRootResolver) CreateOrUpdateReview(ctx context.Context, args reso
 	}
 
 	// Send notification to the workspace owner
-	if err := r.notificationSender.User(ctx, ws.UserID, ws.CodebaseID, notification.ReviewNotificationType, rev.ID); err != nil {
+	if err := r.notificationSender.User(ctx, ws.UserID, notification.ReviewNotificationType, rev.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to send notification: %w", err))
 	}
 
@@ -268,7 +268,7 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 	}
 
 	// Send notification to the user that the review was requested from
-	if err := r.notificationSender.User(ctx, users.ID(args.Input.UserID), ws.CodebaseID, notification.RequestedReviewNotificationType, rev.ID); err != nil {
+	if err := r.notificationSender.User(ctx, users.ID(args.Input.UserID), notification.RequestedReviewNotificationType, rev.ID); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to send notification: %w", err))
 	}
 

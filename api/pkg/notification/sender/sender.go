@@ -21,7 +21,7 @@ import (
 
 type NotificationSender interface {
 	Codebase(ctx context.Context, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string, senderUserID users.ID) error
-	User(ctx context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error
+	User(ctx context.Context, userID users.ID, notificationType notification.NotificationType, referenceID string) error
 }
 
 type realNotificationSender struct {
@@ -72,7 +72,6 @@ func (s *realNotificationSender) Codebase(ctx context.Context, codebaseID codeba
 		notif := notification.Notification{
 			ID:               uuid.NewString(),
 			UserID:           codebaseUser.UserID,
-			CodebaseID:       codebaseID,
 			CreatedAt:        time.Now(),
 			NotificationType: notificationType,
 			ReferenceID:      referenceID,
@@ -89,11 +88,10 @@ func (s *realNotificationSender) Codebase(ctx context.Context, codebaseID codeba
 	return nil
 }
 
-func (s *realNotificationSender) User(ctx context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error {
+func (s *realNotificationSender) User(ctx context.Context, userID users.ID, notificationType notification.NotificationType, referenceID string) error {
 	notif := notification.Notification{
 		ID:               uuid.NewString(),
 		UserID:           userID,
-		CodebaseID:       codebaseID,
 		CreatedAt:        time.Now(),
 		NotificationType: notificationType,
 		ReferenceID:      referenceID,
@@ -132,7 +130,7 @@ func (noopNotificationSender) Codebase(_ context.Context, codebaseID codebases.I
 	return nil
 }
 
-func (noopNotificationSender) User(_ context.Context, userID users.ID, codebaseID codebases.ID, notificationType notification.NotificationType, referenceID string) error {
+func (noopNotificationSender) User(_ context.Context, userID users.ID, notificationType notification.NotificationType, referenceID string) error {
 	return nil
 }
 

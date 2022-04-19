@@ -64,7 +64,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID cod
 		// Only send notifications for old connections that have a new github repo imported.
 		createdWithinTheLastHour := gitHubUser.CreatedAt.Add(time.Hour).After(time.Now())
 		if !createdWithinTheLastHour {
-			if err := svc.notificationSender.User(ctx, gitHubUser.UserID, gitHubRepo.CodebaseID, notification.GitHubRepositoryImported, gitHubRepo.ID); err != nil {
+			if err := svc.notificationSender.User(ctx, gitHubUser.UserID, notification.GitHubRepositoryImported, gitHubRepo.ID); err != nil {
 				logger.Error("failed to send github repo imported notification", zap.Error(err))
 			} else {
 				logger.Info("sent notification about the imported codebase")

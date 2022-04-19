@@ -3,13 +3,11 @@ package notification
 import (
 	"time"
 
-	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
 )
 
 type Notification struct {
 	ID               string           `db:"id"`
-	CodebaseID       codebases.ID     `db:"codebase_id"`
 	UserID           users.ID         `db:"user_id"`
 	NotificationType NotificationType `db:"type"`
 	ReferenceID      string           `db:"reference_id"`

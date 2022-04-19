@@ -29,7 +29,7 @@ func NewRepository(db *sqlx.DB) Repository {
 
 func (r *repo) Get(id string) (notification.Notification, error) {
 	var res notification.Notification
-	err := r.db.Get(&res, `SELECT id, codebase_id, user_id, type, reference_id, created_at, archived_at
+	err := r.db.Get(&res, `SELECT id, user_id, type, reference_id, created_at, archived_at
 		FROM notifications
 		WHERE id = $1`, id)
 	if err != nil {
@@ -39,8 +39,8 @@ func (r *repo) Get(id string) (notification.Notification, error) {
 }
 
 func (r *repo) Create(notification notification.Notification) error {
-	_, err := r.db.NamedExec(`INSERT INTO notifications (id, codebase_id, user_id, type, reference_id, created_at, archived_at)
-		VALUES (:id, :codebase_id, :user_id, :type, :reference_id, :created_at, :archived_at)`, &notification)
+	_, err := r.db.NamedExec(`INSERT INTO notifications (id, user_id, type, reference_id, created_at, archived_at)
+		VALUES (:id, :user_id, :type, :reference_id, :created_at, :archived_at)`, &notification)
 	if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
@@ -59,7 +59,7 @@ func (r *repo) Update(notification notification.Notification) error {
 
 func (r *repo) ListByUser(userID users.ID, limit, offset int) ([]notification.Notification, error) {
 	var res []notification.Notification
-	err := r.db.Select(&res, `SELECT id, codebase_id, user_id, type, reference_id, created_at, archived_at
+	err := r.db.Select(&res, `SELECT id, user_id, type, reference_id, created_at, archived_at
 		FROM notifications
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -71,7 +71,7 @@ func (r *repo) ListByUser(userID users.ID, limit, offset int) ([]notification.No
 }
 
 func (r *repo) ListByUserAndIds(userID users.ID, ids []string) ([]notification.Notification, error) {
-	query, args, err := sqlx.In(`SELECT id, codebase_id, user_id, type, reference_id, created_at, archived_at
+	query, args, err := sqlx.In(`SELECT id, user_id, type, reference_id, created_at, archived_at
 	FROM notifications
 	WHERE user_id = ?
 	  AND id IN(?)`,
