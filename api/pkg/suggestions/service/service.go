@@ -87,7 +87,7 @@ func (s *Service) RecordActivity(ctx context.Context, workspaceID string) error 
 	// if the user hasn't been notified yet, notify them
 	shouldNotify := suggestion.NotifiedAt == nil
 	if shouldNotify {
-		if err := s.notificationSender.User(ctx, forWorkspace.UserID, forWorkspace.CodebaseID, notification.NewSuggestionNotificationType, string(suggestion.ID)); err != nil {
+		if err := s.notificationSender.User(ctx, forWorkspace.UserID, notification.NewSuggestionNotificationType, string(suggestion.ID)); err != nil {
 			s.logger.Error("failed to send notification", zap.Error(err))
 		}
 		now := time.Now()

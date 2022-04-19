@@ -487,7 +487,7 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 			sendNotificationsTo[mentionedUser.ID] = struct{}{}
 		}
 		for userID := range sendNotificationsTo {
-			if err := r.notificationSender.User(ctx, userID, comment.CodebaseID, notification.CommentNotificationType, string(comment.ID)); err != nil {
+			if err := r.notificationSender.User(ctx, userID, notification.CommentNotificationType, string(comment.ID)); err != nil {
 				r.logger.Error("failed to send comment notification", zap.Error(err))
 				// do not fail
 			}
@@ -525,7 +525,7 @@ func (r *CommentRootResolver) CreateComment(ctx context.Context, args resolvers.
 		if watcher.UserID == comment.UserID {
 			continue
 		}
-		if err := r.notificationSender.User(ctx, watcher.UserID, comment.CodebaseID, notification.CommentNotificationType, string(comment.ID)); err != nil {
+		if err := r.notificationSender.User(ctx, watcher.UserID, notification.CommentNotificationType, string(comment.ID)); err != nil {
 			r.logger.Error("failed to send comment notification", zap.Error(err))
 			// do not fail
 		}

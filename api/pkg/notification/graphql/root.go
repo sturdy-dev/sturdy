@@ -8,7 +8,6 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
@@ -111,45 +110,21 @@ func (r *notificationRootResolver) Notifications(ctx context.Context) ([]resolve
 		return nil, gqlerrors.Error(err)
 	}
 
-	userCodebases, err := r.codebaseUserRepo.GetByUser(userID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	hasAccessToCodebase := map[codebases.ID]bool{}
-	for _, codebase := range userCodebases {
-		hasAccessToCodebase[codebase.CodebaseID] = true
-	}
-
-	var res []resolvers.NotificationResolver
+	res := make([]resolvers.NotificationResolver, 0, len(notifications))
 	for _, notif := range notifications {
-		if !hasAccessToCodebase[notif.CodebaseID] {
+		notifResolver := &notificationResolver{notif: notif, root: r}
+		// Get the sub-item that this notification is referencing
+		// If it can't be resolved, the notification won't be returned
+		sub, err := notifResolver.sub(ctx)
+		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, auth.ErrForbidden) {
 			continue
-		}
-
-		_, codebaseGetErr := r.codebaseRepo.Get(notif.CodebaseID)
-		switch {
-		case codebaseGetErr == nil:
-			notifResolver := &notificationResolver{notif: notif, root: r}
-
-			// Get the sub-item that this notification is referencing
-			// If it can't be resolved, the notification won't be returned
-			sub, err := notifResolver.sub(ctx)
-			if errors.Is(err, sql.ErrNoRows) {
-				continue
-			} else if err != nil {
-				r.logger.Error("failed to get sub notification item", zap.Any("notif", notif))
-				return nil, gqlerrors.Error(err)
-			}
-
-			notifResolver.subItem = sub
-
-			res = append(res, notifResolver)
-		case errors.Is(codebaseGetErr, sql.ErrNoRows):
-			continue
-		default:
+		} else if err != nil {
+			r.logger.Error("failed to get sub notification item", zap.Any("notif", notif))
 			return nil, gqlerrors.Error(err)
 		}
+		notifResolver.subItem = sub
+		res = append(res, notifResolver)
+
 	}
 	return res, nil
 }
@@ -386,11 +361,6 @@ func (r *notificationResolver) ArchivedAt() *int32 {
 	}
 	t := int32(r.notif.ArchivedAt.Unix())
 	return &t
-}
-
-func (r *notificationResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
-	id := graphql.ID(r.notif.CodebaseID)
-	return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 }
 
 func (r *notificationResolver) sub(ctx context.Context) (any, error) {
