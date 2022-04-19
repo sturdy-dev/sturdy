@@ -23,6 +23,7 @@ import (
 	db_newsletter "getsturdy.com/api/pkg/newsletter/db"
 	"getsturdy.com/api/pkg/notification"
 	service_notification "getsturdy.com/api/pkg/notification/service"
+	db_organizations "getsturdy.com/api/pkg/organization/db"
 	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestion "getsturdy.com/api/pkg/suggestions/db"
@@ -56,6 +57,8 @@ type Sender struct {
 	suggestionRepo                 db_suggestion.Repository
 	reviewRepo                     db_review.ReviewRepository
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository
+	organizationUserRepo           db_organizations.MemberRepository
+	organizationRepo               db_organizations.Repository
 
 	jwtService    *service_jwt.Service
 	changeService *service_change.Service
@@ -76,6 +79,8 @@ func New(
 	suggestionRepo db_suggestion.Repository,
 	reviewRepo db_review.ReviewRepository,
 	notificationSettingsRepository db_newsletter.NotificationSettingsRepository,
+	organizationUserRepo db_organizations.MemberRepository,
+	organizationRepo db_organizations.Repository,
 
 	jwtService *service_jwt.Service,
 	changeService *service_change.Service,
@@ -96,6 +101,8 @@ func New(
 		suggestionRepo:                 suggestionRepo,
 		reviewRepo:                     reviewRepo,
 		notificationSettingsRepository: notificationSettingsRepository,
+		organizationUserRepo:           organizationUserRepo,
+		organizationRepo:               organizationRepo,
 
 		jwtService:    jwtService,
 		changeService: changeService,
@@ -185,9 +192,67 @@ func (e *Sender) SendNotification(ctx context.Context, usr *users.User, notif *n
 			return fmt.Errorf("failed to send review notification: %w", err)
 		}
 		return nil
+	case notification.InvitedToCodebase:
+		if err := e.sendInviteToCodebase(ctx, usr, notif.ReferenceID); err != nil {
+			return fmt.Errorf("failed to send invite to codebase notification: %w", err)
+		}
+		return nil
+	case notification.InvitedToOrganization:
+		if err := e.sendInviteToOrganization(ctx, usr, notif.ReferenceID); err != nil {
+			return fmt.Errorf("failed to send invite to organization notification: %w", err)
+		}
+		return nil
 	default:
 		return ErrNotSupported
 	}
+}
+
+func (e *Sender) sendInviteToOrganization(ctx context.Context, usr *users.User, memberID string) error {
+	member, err := e.organizationUserRepo.GetByID(ctx, memberID)
+	if err != nil {
+		return fmt.Errorf("failed to get organization member: %w", err)
+	}
+	invitedBy, err := e.userRepo.Get(member.CreatedBy)
+	if err != nil {
+		return fmt.Errorf("failed to get invited by user: %w", err)
+	}
+	org, err := e.organizationRepo.Get(ctx, member.OrganizationID)
+	if err != nil {
+		return fmt.Errorf("failed to get organization: %w", err)
+	}
+
+	title := fmt.Sprintf("[Sturdy] You've been invited to %s", org.Name)
+	return e.Send(ctx, usr, title, templates.InviteToOrganizationTemplate, &templates.InviteToOrganizationTemplateData{
+		InvitingUser: invitedBy,
+		InvitedUser:  usr,
+		Organization: org,
+	})
+}
+
+func (e *Sender) sendInviteToCodebase(ctx context.Context, usr *users.User, memberID string) error {
+	member, err := e.codebaseUserRepo.GetByID(ctx, memberID)
+	if err != nil {
+		return fmt.Errorf("failed to get organization member: %w", err)
+	}
+	if member.InvitedBy == nil {
+		// old members, ignore
+		return nil
+	}
+	invitedBy, err := e.userRepo.Get(*member.InvitedBy)
+	if err != nil {
+		return fmt.Errorf("failed to get invited by user: %w", err)
+	}
+	codebase, err := e.codebaseRepo.Get(member.CodebaseID)
+	if err != nil {
+		return fmt.Errorf("failed to get organization: %w", err)
+	}
+
+	title := fmt.Sprintf("[Sturdy] You've been invited to %s", codebase.Name)
+	return e.Send(ctx, usr, title, templates.InviteToCodebaseTemplate, &templates.InviteToCodebaseTemplateData{
+		InvitingUser: invitedBy,
+		InvitedUser:  usr,
+		Codebase:     codebase,
+	})
 }
 
 func (e *Sender) sendReviewNotification(ctx context.Context, usr *users.User, reviewID string) error {
