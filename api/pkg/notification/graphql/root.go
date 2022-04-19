@@ -46,6 +46,7 @@ type notificationRootResolver struct {
 	reviewRootResolver                    resolvers.ReviewRootResolver
 	suggestionRootResolver                resolvers.SuggestionRootResolver
 	codebaseGitHubIntegrationRootResolver resolvers.CodebaseGitHubIntegrationRootResolver
+	organizationResolver                  resolvers.OrganizationRootResolver
 
 	eventsReader events.EventReader
 	eventSender  events.EventSender
@@ -67,6 +68,7 @@ func NewResolver(
 	reviewRootResolver resolvers.ReviewRootResolver,
 	suggestionRootResolver resolvers.SuggestionRootResolver,
 	codebaseGitHubIntegrationRootResolver resolvers.CodebaseGitHubIntegrationRootResolver,
+	organizationResolver resolvers.OrganizationRootResolver,
 
 	eventsReader events.EventReader,
 	eventSender events.EventSender,
@@ -87,6 +89,7 @@ func NewResolver(
 		reviewRootResolver:                    reviewRootResolver,
 		suggestionRootResolver:                suggestionRootResolver,
 		codebaseGitHubIntegrationRootResolver: codebaseGitHubIntegrationRootResolver,
+		organizationResolver:                  organizationResolver,
 
 		eventsReader: eventsReader,
 		eventSender:  eventSender,
@@ -117,9 +120,6 @@ func (r *notificationRootResolver) Notifications(ctx context.Context) ([]resolve
 		// If it can't be resolved, the notification won't be returned
 		sub, err := notifResolver.sub(ctx)
 		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, auth.ErrForbidden) || errors.Is(err, ErrUnknownNotificationType) {
-
-			fmt.Printf("\nnikitag: %+v\n\n", notif.NotificationType)
-
 			continue
 		} else if err != nil {
 			r.logger.Error("failed to get sub notification item", zap.Any("notif", notif))
@@ -155,6 +155,10 @@ func convertNotificationType(in resolvers.NotificationType) (notification.Notifi
 		return notification.RequestedReviewNotificationType, nil
 	case resolvers.NotificationGitHubRepositoryImported:
 		return notification.GitHubRepositoryImported, nil
+	case resolvers.NotificationTypeInvitedToCodebase:
+		return notification.InvitedToCodebase, nil
+	case resolvers.NotificationTypeInvitedToOrganization:
+		return notification.InvitedToOrganization, nil
 	default:
 		return notification.NotificationTypeUndefined, fmt.Errorf("unknown notification type: %s", in)
 	}
@@ -349,6 +353,10 @@ func resolveNotificationType(typ notification.NotificationType) (resolvers.Notif
 		return resolvers.NotificationTypeNewSuggestion, nil
 	case notification.GitHubRepositoryImported:
 		return resolvers.NotificationGitHubRepositoryImported, nil
+	case notification.InvitedToOrganization:
+		return resolvers.NotificationTypeInvitedToOrganization, nil
+	case notification.InvitedToCodebase:
+		return resolvers.NotificationTypeInvitedToCodebase, nil
 	default:
 		return resolvers.NotificationTypeUndefined, fmt.Errorf("unknown notification type")
 	}
@@ -380,9 +388,29 @@ func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 		return r.root.suggestionRootResolver.InternalSuggestionByID(ctx, suggestions.ID(r.notif.ReferenceID))
 	case notification.GitHubRepositoryImported:
 		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(r.notif.ReferenceID)
+	case notification.InvitedToCodebase:
+		id := graphql.ID(r.notif.ReferenceID)
+		return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
+	case notification.InvitedToOrganization:
+		id := graphql.ID(r.notif.ReferenceID)
+		return r.root.organizationResolver.Organization(ctx, resolvers.OrganizationArgs{ID: &id})
 	default:
 		return resolvers.NotificationTypeUndefined, ErrUnknownNotificationType
 	}
+}
+
+func (r *notificationResolver) ToInvitedToOrganizationNotification() (resolvers.InvitedToOrganizationNotificationResolver, bool) {
+	if r.notif.NotificationType != notification.InvitedToOrganization {
+		return nil, false
+	}
+	return &invitedToOrganizationNotificationResolver{notificationResolver: r}, true
+}
+
+func (r *notificationResolver) ToInvitedToCodebaseNotification() (resolvers.InvitedToCodebaseNotificationResolver, bool) {
+	if r.notif.NotificationType != notification.InvitedToCodebase {
+		return nil, false
+	}
+	return &invitedToCodebaseNotificationResolver{notificationResolver: r}, true
 }
 
 func (r *notificationResolver) ToCommentNotification() (resolvers.CommentNotificationResolver, bool) {
@@ -476,4 +504,26 @@ func (r *gitHubRepositoryImportedResolver) Repository(ctx context.Context) (reso
 		return v, nil
 	}
 	return nil, fmt.Errorf("failed to get CodebaseGitHubIntegrationResolver")
+}
+
+type invitedToCodebaseNotificationResolver struct {
+	*notificationResolver
+}
+
+func (r *invitedToCodebaseNotificationResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
+	if v, ok := r.subItem.(resolvers.CodebaseResolver); ok {
+		return v, nil
+	}
+	return nil, fmt.Errorf("failed to get CodebaseResolver")
+}
+
+type invitedToOrganizationNotificationResolver struct {
+	*notificationResolver
+}
+
+func (r *invitedToOrganizationNotificationResolver) Organization(ctx context.Context) (resolvers.OrganizationResolver, error) {
+	if v, ok := r.subItem.(resolvers.OrganizationResolver); ok {
+		return v, nil
+	}
+	return nil, fmt.Errorf("failed to get OrganizationResolver")
 }

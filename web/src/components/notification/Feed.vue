@@ -83,6 +83,14 @@ export const NOTIFICATION_FRAGMENT = gql`
   ${GITHUB_REPOSITORY_IMPORTED_NOTIFICATION_FRAGMENT}
 `
 
+const supportedTypes = {
+  CommentNotification: true,
+  RequestedReviewNotification: true,
+  ReviewNotification: true,
+  NewSuggestionNotification: true,
+  GitHubRepositoryImported: true,
+}
+
 export default {
   components: {
     ReviewNotification,
@@ -122,7 +130,7 @@ export default {
           case n.__typename === 'NewSuggestionNotification':
             return !!n.suggestion.for
           default:
-            return true
+            return supportedTypes[n.__typename]
         }
       }
       return this.notifications.filter(showNotification)
