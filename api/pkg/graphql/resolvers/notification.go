@@ -34,6 +34,8 @@ type NotificationResolver interface {
 	ToReviewNotification() (ReviewNotificationResolver, bool)
 	ToNewSuggestionNotification() (NewSuggestionNotificationResolver, bool)
 	ToGitHubRepositoryImported() (GitHubRepositoryImportedNotificationResovler, bool)
+	ToInvitedToOrganizationNotification() (InvitedToOrganizationNotificationResolver, bool)
+	ToInvitedToCodebaseNotification() (InvitedToCodebaseNotificationResolver, bool)
 
 	commonNotificationResolver
 }
@@ -63,6 +65,16 @@ type GitHubRepositoryImportedNotificationResovler interface {
 	Repository(context.Context) (CodebaseGitHubIntegrationResolver, error)
 }
 
+type InvitedToCodebaseNotificationResolver interface {
+	commonNotificationResolver
+	Codebase(context.Context) (CodebaseResolver, error)
+}
+
+type InvitedToOrganizationNotificationResolver interface {
+	commonNotificationResolver
+	Organization(context.Context) (OrganizationResolver, error)
+}
+
 type ArchiveNotificationsArgs struct {
 	Input ArchiveNotificationsInput
 }
@@ -84,12 +96,14 @@ type UpdateNotificationPreferenceInput struct {
 type NotificationType string
 
 const (
-	NotificationTypeUndefined            NotificationType = ""
-	NotificationTypeComment              NotificationType = "Comment"
-	NotificationTypeReview               NotificationType = "Review"
-	NotificationTypeRequestedReview      NotificationType = "RequestedReview"
-	NotificationTypeNewSuggestion        NotificationType = "NewSuggestion"
-	NotificationGitHubRepositoryImported NotificationType = "GitHubRepositoryImported"
+	NotificationTypeUndefined             NotificationType = ""
+	NotificationTypeComment               NotificationType = "Comment"
+	NotificationTypeReview                NotificationType = "Review"
+	NotificationTypeRequestedReview       NotificationType = "RequestedReview"
+	NotificationTypeNewSuggestion         NotificationType = "NewSuggestion"
+	NotificationGitHubRepositoryImported  NotificationType = "GitHubRepositoryImported"
+	NotificationTypeInvitedToCodebase     NotificationType = "InvitedToCodebase"
+	NotificationTypeInvitedToOrganization NotificationType = "InvitedToOrganization"
 )
 
 type NotificationChannel string

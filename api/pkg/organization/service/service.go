@@ -160,7 +160,7 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
-	if err := svc.notificationsSender.User(ctx, userID, notification.InvitedToOrganization, member.ID); err != nil {
+	if err := svc.notificationsSender.User(ctx, userID, notification.InvitedToOrganization, orgID); err != nil {
 		svc.logger.Error("failed to send notification", zap.Error(err))
 		// do not fail
 	}

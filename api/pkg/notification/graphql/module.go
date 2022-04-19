@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/logger"
 	db_notification "getsturdy.com/api/pkg/notification/db"
 	service_notification "getsturdy.com/api/pkg/notification/service"
+	graphql_organizations "getsturdy.com/api/pkg/organization/graphql"
 	graphql_review "getsturdy.com/api/pkg/review/graphql"
 	graphql_suggestions "getsturdy.com/api/pkg/suggestions/graphql"
 	graphql_workspaces "getsturdy.com/api/pkg/workspaces/graphql"
@@ -31,5 +32,6 @@ func Module(c *di.Container) {
 	c.Import(graphql_review.Module)
 	c.Import(graphql_suggestions.Module)
 	c.Import(graphql_github.Module)
+	c.Import(graphql_organizations.Module)
 	c.Register(NewResolver)
 }

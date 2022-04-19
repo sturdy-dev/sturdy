@@ -823,6 +823,8 @@ enum NotificationType {
   Review
   RequestedReview
   NewSuggestion
+  InvitedToCodebase
+  InvitedToOrganization
 }
 
 # Notification
@@ -831,6 +833,24 @@ interface Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
+}
+
+type InvitedToOrganizationNotification implements Notification {
+  id: ID!
+  type: NotificationType!
+  createdAt: Int!
+  archivedAt: Int
+
+  organization: Organization!
+}
+
+type InvitedToCodebaseNotification implements Notification {
+  id: ID!
+  type: NotificationType!
+  createdAt: Int!
+  archivedAt: Int
+
+  codebase: Codebase!
 }
 
 type NewSuggestionNotification implements Notification {
