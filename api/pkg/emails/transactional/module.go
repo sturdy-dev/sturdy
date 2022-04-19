@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/logger"
 	db_newsletter "getsturdy.com/api/pkg/newsletter/db"
 	service_notification "getsturdy.com/api/pkg/notification/service"
+	db_organizations "getsturdy.com/api/pkg/organization/db"
 	db_review "getsturdy.com/api/pkg/review/db"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	db_users "getsturdy.com/api/pkg/users/db"
@@ -31,5 +32,6 @@ func Module(c *di.Container) {
 	c.Import(service_change.Module)
 	c.Import(service_notification.Module)
 	c.Import(service_analytics.Module)
+	c.Import(db_organizations.Module)
 	c.Register(New)
 }
