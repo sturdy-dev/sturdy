@@ -1,5 +1,10 @@
 productName: Sturdy
 appId: com.getsturdy.sturdy
+copyright: "Copyright © 2022 Sturdy Sweden AB"
+
+protocols:
+  - name: "sturdy"
+    schemes: ["sturdy"]
 
 generateUpdatesFilesForAllChannels: true
 detectUpdateChannel: true
