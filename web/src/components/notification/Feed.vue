@@ -15,6 +15,16 @@
               :user="user"
               @close="$emit('close')"
             />
+            <InvitedToCodebase
+              v-else-if="notification.__typename === 'InvitedToCodebaseNotification'"
+              :data="notification"
+              @close="$emit('close')"
+            />
+            <InvitedToOrganization
+              v-else-if="notification.__typename === 'InvitedToOrganizationNotification'"
+              :data="notification"
+              @close="$emit('close')"
+            />
             <RequestedReviewNotification
               v-else-if="notification.__typename === 'RequestedReviewNotification'"
               :data="notification"
@@ -56,6 +66,12 @@ import GitHubRepositoryImportedNotification, {
   GITHUB_REPOSITORY_IMPORTED_NOTIFICATION_FRAGMENT,
 } from './notifications/GitHubRepositoryImoprted.vue'
 import { gql } from '@urql/vue'
+import InvitedToCodebase, {
+  INVITED_TO_CODEBASE_NOTIFICATION_FRAGMENT,
+} from './notifications/InvitedToCodebase.vue'
+import InvitedToOrganization, {
+  INVITED_TO_ORGANIZATION_NOTIFICATION_FRAGMENT,
+} from './notifications/InvitedToOrganization.vue'
 
 export const NOTIFICATION_FRAGMENT = gql`
   fragment NotificationData on Notification {
@@ -72,10 +88,18 @@ export const NOTIFICATION_FRAGMENT = gql`
     ... on NewSuggestionNotification {
       ...NewSuggestionNotification
     }
+    ... on InvitedToCodebaseNotification {
+      ...InvitedToCodebaseNotification
+    }
+    ... on InvitedToOrganizationNotification {
+      ...InvitedToOrganizationNotification
+    }
     ... on GitHubRepositoryImported @include(if: $isGitHubEnabled) {
       ...GitHubRepositoryImported
     }
   }
+  ${INVITED_TO_ORGANIZATION_NOTIFICATION_FRAGMENT}
+  ${INVITED_TO_CODEBASE_NOTIFICATION_FRAGMENT}
   ${NOTIFICATION_COMMENT_FRAGMENT}
   ${NEW_SUGGESTION_NOTIFICATION_FRAGMENT}
   ${REQUESTED_REVIEW_NOTIFICATION_FRAGMENT}
@@ -89,6 +113,8 @@ const supportedTypes = {
   ReviewNotification: true,
   NewSuggestionNotification: true,
   GitHubRepositoryImported: true,
+  InvitedToCodebaseNotification: true,
+  InvitedToOrganizationNotification: true,
 }
 
 export default {
@@ -98,6 +124,8 @@ export default {
     CommentNotification,
     NewSuggestionNotification,
     GitHubRepositoryImportedNotification,
+    InvitedToCodebase,
+    InvitedToOrganization,
   },
   props: {
     notifications: {

@@ -138,6 +138,10 @@ export default defineComponent({
           return 'Get notified when someone sends you a review'
         case NotificationType.GitHubRepositoryImported:
           return 'Get notified when a new repository is imported'
+        case NotificationType.InvitedToCodebase:
+          return 'Get notified when you are invited to a codebase'
+        case NotificationType.InvitedToOrganization:
+          return 'Get notified when you are invited to an organization'
         default:
           throw Error(`unsupported type ${typ}`)
       }
@@ -155,6 +159,10 @@ export default defineComponent({
           return 'Review received'
         case NotificationType.GitHubRepositoryImported:
           return 'GitHub repository imported'
+        case NotificationType.InvitedToOrganization:
+          return 'Invited to organization'
+        case NotificationType.InvitedToCodebase:
+          return 'Invited to codebase'
         default:
           throw Error(`unsupported type ${typ}`)
       }

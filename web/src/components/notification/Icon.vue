@@ -77,6 +77,10 @@ const notificationTitle = (data: NotificationFragment): string => {
         return data.review.requestedBy.name + ' requested review on ' + data.review.workspace.name
       }
       return 'Review requested on ' + data.review.workspace.name
+    case 'InvitedToCodebaseNotification':
+      return `You have joined ${data.codebase.name}`
+    case 'InvitedToOrganizationNotification':
+      return `You have joined ${data.organization.name}`
     case 'CommentNotification':
       switch (data.comment.__typename) {
         case 'ReplyComment':
@@ -114,6 +118,10 @@ const notificationBody = (data: NotificationFragment): string | undefined => {
         return 'I have some feedback'
       }
       return undefined
+    case 'InvitedToCodebaseNotification':
+      return `You have been invited to ${data.codebase.name}`
+    case 'InvitedToOrganizationNotification':
+      return `You have been invited to ${data.organization.name}`
     default:
       return undefined
   }
@@ -132,6 +140,10 @@ const notificationIcon = (data: NotificationFragment): string => {
       return defaultIcon
     case 'ReviewNotification':
       return data.review.author.avatarUrl ? data.review.author.avatarUrl : defaultIcon
+    case 'InvitedToCodebaseNotification':
+      return defaultIcon
+    case 'InvitedToOrganizationNotification':
+      return defaultIcon
     default:
       return defaultIcon
   }
@@ -149,6 +161,10 @@ const notificationCodebaseMembers = (data: NotificationFragment): User[] => {
       return data.review.workspace.codebase.members as User[]
     case 'ReviewNotification':
       return data.review.workspace.codebase.members as User[]
+    case 'InvitedToCodebaseNotification':
+      return data.codebase.members as User[]
+    case 'InvitedToOrganizationNotification':
+      return data.organization.members as User[]
     default:
       return []
   }

@@ -11,6 +11,8 @@ var (
 		notification.ReviewNotificationType:          true,
 		notification.RequestedReviewNotificationType: true,
 		notification.NewSuggestionNotificationType:   true,
+		notification.InvitedToCodebase:               true,
+		notification.InvitedToOrganization:           true,
 	}
 	supportedChannels = map[notification.Channel]bool{
 		notification.ChannelWeb: true,
