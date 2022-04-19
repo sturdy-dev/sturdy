@@ -38,7 +38,6 @@ type EmailSender interface {
 	SendNotification(context.Context, *users.User, *notification.Notification) error
 	SendConfirmEmail(context.Context, *users.User) error
 	SendMagicLink(context.Context, *users.User, string) error
-	SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, codebase *codebases.Codebase) error
 }
 
 var ErrNotSupported = errors.New("notification type not supported")
@@ -124,15 +123,6 @@ func (e *Sender) SendConfirmEmail(ctx context.Context, user *users.User) error {
 	return e.Send(ctx, user, title, templates.VerifyEmailTemplate, &templates.VerifyEmailTemplateData{
 		User:  user,
 		Token: token,
-	})
-}
-
-func (e *Sender) SendInviteToNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, codebase *codebases.Codebase) error {
-	title := fmt.Sprintf("%s invited you to join %s", invitingUser.Name, codebase.Name)
-	return e.SendToSomeone(ctx, invitingUser, invitedUser, title, templates.InviteNewUserTemplate, &templates.InviteNewUserTemplateData{
-		InvitingUser: invitingUser,
-		InvitedUser:  invitedUser,
-		Codebase:     codebase,
 	})
 }
 
