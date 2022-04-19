@@ -18,6 +18,8 @@ import (
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/notification"
+	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/shortid"
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
@@ -33,11 +35,12 @@ type Service struct {
 	workspaceService service_workspace.Service
 	userService      service_user.Service
 
-	logger           *zap.Logger
-	executorProvider executor.Provider
-	eventsSender     events.EventSender
-	analyticsService *service_analytics.Service
-	changeService    *service_changes.Service
+	logger             *zap.Logger
+	executorProvider   executor.Provider
+	eventsSender       events.EventSender
+	notificationSender sender.NotificationSender
+	analyticsService   *service_analytics.Service
+	changeService      *service_changes.Service
 }
 
 func New(
@@ -51,6 +54,7 @@ func New(
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
 	analyticsService *service_analytics.Service,
+	notificationSender sender.NotificationSender,
 	changeService *service_changes.Service,
 ) *Service {
 	return &Service{
@@ -60,11 +64,12 @@ func New(
 		workspaceService: workspaceService,
 		userService:      userService,
 
-		logger:           logger,
-		executorProvider: executorProvider,
-		eventsSender:     eventsSender,
-		analyticsService: analyticsService,
-		changeService:    changeService,
+		logger:             logger,
+		executorProvider:   executorProvider,
+		eventsSender:       eventsSender,
+		notificationSender: notificationSender,
+		analyticsService:   analyticsService,
+		changeService:      changeService,
 	}
 }
 
@@ -262,16 +267,20 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 
 func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string) (*codebases.CodebaseUser, error) {
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
 		userID, err := auth.UserID(ctx)
 		if err != nil {
 			return nil, err
 		}
 		userReferer := service_user.UserReferer(userID)
-		if inviteUser, err = svc.userService.CreateShadow(ctx, email, userReferer, nil); err != nil {
+		inviteUser, err = svc.userService.CreateShadow(ctx, email, userReferer, nil)
+		if err != nil {
 			return nil, fmt.Errorf("could not get or create user: %w", err)
 		}
+	} else if err != nil {
+		return nil, fmt.Errorf("could not get user: %w", err)
 	}
+
 	return svc.AddUser(ctx, codebaseID, inviteUser)
 }
 
@@ -301,6 +310,11 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *
 	// Send events
 	if err := svc.eventsSender.Codebase(codebaseID, events.CodebaseUpdated, codebaseID.String()); err != nil {
 		svc.logger.Error("failed to send events", zap.Error(err))
+	}
+
+	if err := svc.notificationSender.User(ctx, user.ID, notification.InvitedToCodebase, member.ID); err != nil {
+		svc.logger.Error("failed to send notification", zap.Error(err))
+		// do not fail
 	}
 
 	svc.analyticsService.Capture(ctx, "add user to codebase",

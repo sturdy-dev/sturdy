@@ -1,6 +1,7 @@
 package service
 
 import (
+	sender_notifications "getsturdy.com/api/pkg/activity/sender"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
@@ -21,5 +22,6 @@ func Module(c *di.Container) {
 	c.Import(events.Module)
 	c.Import(service_analytics.Module)
 	c.Import(service_changes.Module)
+	c.Import(sender_notifications.Module)
 	c.Register(New)
 }

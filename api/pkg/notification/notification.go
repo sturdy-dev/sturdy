@@ -24,4 +24,6 @@ const (
 	RequestedReviewNotificationType NotificationType = "requested_review"
 	NewSuggestionNotificationType   NotificationType = "new_suggesion"
 	GitHubRepositoryImported        NotificationType = "github_repository_imported"
+	InvitedToCodebase               NotificationType = "invited_to_codebase"
+	InvitedToOrganization           NotificationType = "invited_to_organization"
 )

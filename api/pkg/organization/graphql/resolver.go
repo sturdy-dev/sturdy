@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"getsturdy.com/api/pkg/auth"
@@ -196,17 +197,23 @@ func (r *organizationRootResolver) AddUserToOrganization(ctx context.Context, ar
 		return nil, gqlerrors.Error(err)
 	}
 
-	user, err := r.userService.GetByEmail(ctx, args.Input.Email)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
 	addedByUserID, err := auth.UserID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := r.service.AddMember(ctx, org.ID, user.ID, addedByUserID); err != nil {
+	invited, err := r.userService.GetByEmail(ctx, args.Input.Email)
+	if errors.Is(err, sql.ErrNoRows) {
+		userReferer := service_user.UserReferer(addedByUserID)
+		invited, err = r.userService.CreateShadow(ctx, args.Input.Email, userReferer, nil)
+		if err != nil {
+			return nil, fmt.Errorf("could not get or create user: %w", err)
+		}
+	} else if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if _, err := r.service.AddMember(ctx, org.ID, invited.ID, addedByUserID); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
