@@ -10,6 +10,7 @@ import { Logger } from './Logger'
 import log from 'electron-log'
 import { Preferences } from './preferences'
 import contextMenu from 'electron-context-menu'
+import { CreateAppImageDesktopFile } from './AppImageHandler'
 
 // Start crash reporter before setting up logging
 crashReporter.start({
@@ -51,9 +52,13 @@ const protocol = process.env.STURDY_PROTOCOL ?? 'sturdy'
 if (!app.isPackaged) {
   if (process.argv.length >= 2) {
     app.setAsDefaultProtocolClient(protocol, process.execPath, [path.resolve(process.argv[1])])
+    console.log('setAsDefaultProtocolClient', protocol, process.execPath, [
+      path.resolve(process.argv[1]),
+    ])
   }
 } else {
   app.setAsDefaultProtocolClient(protocol)
+  console.log('setAsDefaultProtocolClient', protocol)
 }
 
 const iconSm = nativeImage.createFromPath(resourcePath('AppIconSm.png'))
@@ -104,9 +109,9 @@ app.on('open-url', async (event, url) => {
 app.on('second-instance', async (event, commandLine, workingDirectory) => {
   logger.log('second-instance', commandLine)
 
-  // Windows handling for opening protocol links while there is already a window open
-  if (process.platform === 'win32') {
-    const argWithUrl = commandLine.find((arg) => arg.indexOf(protocol) > -1)
+  // Windows and linux handling for opening protocol links while there is already a window open
+  if (process.platform === 'win32' || process.platform === 'linux') {
+    const argWithUrl = commandLine.find((arg) => arg.indexOf(protocol) === 0)
     if (argWithUrl) {
       await manager.open(argWithUrl)
     } else {
@@ -128,6 +133,11 @@ app.on('activate', async () => {
 async function main() {
   if (app.isPackaged) {
     await Updater.finalizePendingUpdate()
+  }
+
+  // create a .desktop file for the app if it's running as an AppImage on Linux
+  if (process.platform === 'linux' && process.env.APPIMAGE) {
+    CreateAppImageDesktopFile(process.env.APPIMAGE)
   }
 
   const preferences = await Preferences.open(logger)
