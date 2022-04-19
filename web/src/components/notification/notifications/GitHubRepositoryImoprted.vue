@@ -10,24 +10,26 @@
           class="underline"
           :to="{
             name: 'codebaseHome',
-            params: { codebaseSlug: codebase_slug },
+            params: { codebaseSlug: codebaseSlug },
           }"
           @click="$emit('close')"
         >
           <strong>{{ data.repository.name }}</strong>
         </router-link>
         is ready
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
     </div>
   </div>
 </template>
 
-<script>
-import time from '../../../time'
+<script lang="ts">
 import { Slug } from '../../../slug'
 import { DownloadIcon } from '@heroicons/vue/solid'
+import RelativeTime from '../../../atoms/RelativeTime.vue'
 import { gql } from '@urql/vue'
+import { defineComponent, type PropType } from 'vue'
+import type { GitHubRepositoryImportedFragment } from './__generated__/GitHubRepositoryImoprted'
 
 export const GITHUB_REPOSITORY_IMPORTED_NOTIFICATION_FRAGMENT = gql`
   fragment GitHubRepositoryImported on GitHubRepositoryImported {
@@ -35,16 +37,6 @@ export const GITHUB_REPOSITORY_IMPORTED_NOTIFICATION_FRAGMENT = gql`
     createdAt
     archivedAt
     type
-    codebase {
-      id
-      name
-      shortID
-
-      members {
-        id
-        name
-      }
-    }
     repository {
       id
       name
@@ -52,27 +44,34 @@ export const GITHUB_REPOSITORY_IMPORTED_NOTIFICATION_FRAGMENT = gql`
         id
         name
         shortID
+        members {
+          id
+          name
+        }
       }
     }
   }
 `
 
-export default {
+export default defineComponent({
   components: {
     DownloadIcon,
+    RelativeTime,
   },
   props: {
-    data: { type: Object, required: true },
-    now: { type: Object, required: true },
+    data: {
+      type: Object as PropType<GitHubRepositoryImportedFragment>,
+      required: true,
+    },
   },
   emits: ['close'],
   computed: {
-    friendly_ago() {
-      return time.getRelativeTime(new Date(this.data.createdAt * 1000), this.now)
+    createdAt() {
+      return new Date(this.data.createdAt * 1000)
     },
-    codebase_slug() {
-      return Slug(this.data.codebase.name, this.data.codebase.shortID)
+    codebaseSlug() {
+      return Slug(this.data.repository.codebase.name, this.data.repository.codebase.shortID)
     },
   },
-}
+})
 </script>

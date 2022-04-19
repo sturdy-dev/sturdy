@@ -26,7 +26,6 @@ type commonNotificationResolver interface {
 	Type() (NotificationType, error)
 	CreatedAt() int32
 	ArchivedAt() *int32
-	Codebase(ctx context.Context) (CodebaseResolver, error)
 }
 
 type NotificationResolver interface {

@@ -22,37 +22,32 @@
           class="underline"
           :to="{
             name: 'workspaceHome',
-            params: { codebaseSlug: codebase_slug, id: data.suggestion.for.id },
+            params: { codebaseSlug: codebaseSlug, id: data.suggestion.for.id },
           }"
           @click="$emit('close')"
         >
           <strong>{{ data.suggestion.for.name }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import time from '../../../time'
+import RelativeTime from '../../../atoms/RelativeTime.vue'
 import { Slug } from '../../../slug'
 import { CodeIcon } from '@heroicons/vue/solid'
 import { gql } from '@urql/vue'
 import Avatar from '../../../atoms/Avatar.vue'
 import type { NewSuggestionNotificationFragment } from './__generated__/NewSuggestion'
-import type { PropType } from 'vue'
+import { type PropType, defineComponent } from 'vue'
 
 export const NEW_SUGGESTION_NOTIFICATION_FRAGMENT = gql`
   fragment NewSuggestionNotification on NewSuggestionNotification {
     id
     type
     createdAt
-    codebase {
-      id
-      shortID
-      name
-    }
     suggestion {
       id
       author {
@@ -63,34 +58,40 @@ export const NEW_SUGGESTION_NOTIFICATION_FRAGMENT = gql`
       for {
         id
         name
+        codebase {
+          id
+          shortID
+          name
+          members {
+            id
+            name
+          }
+        }
       }
     }
   }
 `
 
-export default {
+export default defineComponent({
   components: {
     Avatar,
     CodeIcon,
+    RelativeTime,
   },
   props: {
     data: {
       type: Object as PropType<NewSuggestionNotificationFragment>,
       required: true,
     },
-    now: {
-      type: Object as PropType<Date>,
-      required: true,
-    },
   },
   emits: ['close'],
   computed: {
-    friendly_ago() {
-      return time.getRelativeTime(new Date(this.data.createdAt * 1000), this.now)
+    createdAt() {
+      return new Date(this.data.createdAt * 1000)
     },
-    codebase_slug() {
-      return Slug(this.data.codebase.name, this.data.codebase.shortID)
+    codebaseSlug() {
+      return Slug(this.data.suggestion.for.codebase.name, this.data.suggestion.for.codebase.shortID)
     },
   },
-}
+})
 </script>

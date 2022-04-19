@@ -22,7 +22,7 @@
           :to="{
             name: 'workspaceHome',
             params: {
-              codebaseSlug: codebase_slug,
+              codebaseSlug: codebaseSlug,
               id: data.review.workspace.id,
             },
           }"
@@ -30,35 +30,40 @@
         >
           <strong>{{ data.review.workspace.name }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ChatAltIcon } from '@heroicons/vue/solid'
 import Avatar from '../../../atoms/Avatar.vue'
-import time from '../../../time'
+import RelativeTime from '../../../atoms/RelativeTime.vue'
 import { Slug } from '../../../slug'
 import { gql } from '@urql/vue'
+import { defineComponent, type PropType } from 'vue'
+import type { RequestedReviewNotificationFragment } from './__generated__/RequestedReview'
 
 export const REQUESTED_REVIEW_NOTIFICATION_FRAGMENT = gql`
   fragment RequestedReviewNotification on RequestedReviewNotification {
     id
     type
     createdAt
-    codebase {
-      id
-      shortID
-      name
-    }
-
     review {
       id
       workspace {
         id
         name
+        codebase {
+          id
+          shortID
+          name
+          members {
+            id
+            name
+          }
+        }
       }
       requestedBy {
         id
@@ -69,20 +74,29 @@ export const REQUESTED_REVIEW_NOTIFICATION_FRAGMENT = gql`
   }
 `
 
-export default {
+export default defineComponent({
   components: {
     ChatAltIcon,
     Avatar,
+    RelativeTime,
   },
-  props: ['data', 'now'],
+  props: {
+    data: {
+      type: Object as PropType<RequestedReviewNotificationFragment>,
+      required: true,
+    },
+  },
   emits: ['close'],
   computed: {
-    friendly_ago() {
-      return time.getRelativeTime(new Date(this.data.createdAt * 1000), this.now)
+    createdAt() {
+      return new Date(this.data.createdAt * 1000)
     },
-    codebase_slug() {
-      return Slug(this.data.codebase.name, this.data.codebase.shortID)
+    codebaseSlug() {
+      return Slug(
+        this.data.review.workspace.codebase.name,
+        this.data.review.workspace.codebase.shortID
+      )
     },
   },
-}
+})
 </script>

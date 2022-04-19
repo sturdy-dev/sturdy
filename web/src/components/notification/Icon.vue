@@ -59,13 +59,6 @@ const NOTIFICATION_FRAGMENT = gql`
   fragment Notification on Notification {
     id
     archivedAt
-    codebase {
-      id
-      members {
-        id
-        name
-      }
-    }
     ...NotificationData
   }
   ${NOTIFICATION_DATA_FRAGMENT}
@@ -144,17 +137,34 @@ const notificationIcon = (data: NotificationFragment): string => {
   }
 }
 
+const notificationCodebaseMembers = (data: NotificationFragment): User[] => {
+  switch (data.__typename) {
+    case 'CommentNotification':
+      return data.comment.codebase.members as User[]
+    case 'GitHubRepositoryImported':
+      return data.repository.codebase.members as User[]
+    case 'NewSuggestionNotification':
+      return data.suggestion.for.codebase.members as User[]
+    case 'RequestedReviewNotification':
+      return data.review.workspace.codebase.members as User[]
+    case 'ReviewNotification':
+      return data.review.workspace.codebase.members as User[]
+    default:
+      return []
+  }
+}
+
 const notificationUrl = (data: NotificationFragment): string => {
   switch (data.__typename) {
     case 'CommentNotification':
       switch (data.comment.__typename) {
         case 'ReplyComment':
           if (data.comment.parent.workspace) {
-            return `/${Slug(data.codebase.name, data.codebase.shortID)}/${
+            return `/${Slug(data.comment.codebase.name, data.comment.codebase.shortID)}/${
               data.comment.parent.workspace.id
             }#${data.comment.id}`
           } else if (data.comment.parent.change) {
-            return `/${Slug(data.codebase.name, data.codebase.shortID)}/${
+            return `/${Slug(data.comment.codebase.name, data.comment.codebase.shortID)}/${
               data.comment.parent.change.id
             }#${data.comment.id}`
           } else {
@@ -162,13 +172,13 @@ const notificationUrl = (data: NotificationFragment): string => {
           }
         case 'TopComment':
           if (data.comment.workspace) {
-            return `/${Slug(data.codebase.name, data.codebase.shortID)}/${
+            return `/${Slug(data.comment.codebase.name, data.comment.codebase.shortID)}/${
               data.comment.workspace.id
             }#${data.comment.id}`
           } else if (data.comment.change) {
-            return `/${Slug(data.codebase.name, data.codebase.shortID)}/${data.comment.change.id}#${
-              data.comment.id
-            }`
+            return `/${Slug(data.comment.codebase.name, data.comment.codebase.shortID)}/${
+              data.comment.change.id
+            }#${data.comment.id}`
           } else {
             return '/'
           }
@@ -176,13 +186,21 @@ const notificationUrl = (data: NotificationFragment): string => {
           return '/'
       }
     case 'GitHubRepositoryImported':
-      return `/${Slug(data.codebase.name, data.codebase.shortID)}`
+      return `/${Slug(data.repository.codebase.name, data.repository.codebase.shortID)}`
     case 'NewSuggestionNotification':
-      return `/${Slug(data.codebase.name, data.codebase.shortID)}/${data.suggestion.for.id}`
+      return `/${Slug(data.suggestion.for.codebase.name, data.suggestion.for.codebase.shortID)}/${
+        data.suggestion.for.id
+      }`
     case 'RequestedReviewNotification':
-      return `/${Slug(data.codebase.name, data.codebase.shortID)}/${data.review.workspace.id}`
+      return `/${Slug(
+        data.review.workspace.codebase.name,
+        data.review.workspace.codebase.shortID
+      )}/${data.review.workspace.id}`
     case 'ReviewNotification':
-      return `/${Slug(data.codebase.name, data.codebase.shortID)}/${data.review.workspace.id}`
+      return `/${Slug(
+        data.review.workspace.codebase.name,
+        data.review.workspace.codebase.shortID
+      )}/${data.review.workspace.id}`
     default:
       return '/'
   }
@@ -301,12 +319,9 @@ export default defineComponent({
       if (!this.supportsBrowserNotifications()) return
       const title = notificationTitle(notification)
       const dirtyNotificationBody = notificationBody(notification)
+      const members = notificationCodebaseMembers(notification)
       const body = dirtyNotificationBody
-        ? mentionify(
-            dirtyNotificationBody,
-            '@',
-            [this.user].concat(notification.codebase.members as User[])
-          )
+        ? mentionify(dirtyNotificationBody, '@', [this.user].concat(members))
         : dirtyNotificationBody
       const icon = notificationIcon(notification)
       const url = notificationUrl(notification)

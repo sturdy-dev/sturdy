@@ -8,6 +8,7 @@ import (
 	graphql_changes "getsturdy.com/api/pkg/changes/graphql"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
+	graphql_codebases "getsturdy.com/api/pkg/codebases/graphql"
 	db_comments "getsturdy.com/api/pkg/comments/db"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
@@ -39,6 +40,7 @@ func Module(c *di.Container) {
 	c.Import(service_users.Module)
 	c.Import(graphql_author.Module)
 	c.Import(graphql_changes.Module)
+	c.Import(graphql_codebases.Module)
 	c.Import(resolvers.Module)
 	c.Import(logger.Module)
 	c.Import(service_analytics.Module)

@@ -21,7 +21,7 @@
           :to="{
             name: 'workspaceHome',
             params: {
-              codebaseSlug: codebase_slug,
+              codebaseSlug: codebaseSlug,
               id: data.comment.parent.workspace.id,
             },
             hash: `#${data.comment.id}`,
@@ -37,7 +37,7 @@
 
           <strong>{{ data.comment.parent.workspace.name }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
       <p v-else-if="data.comment.workspace" class="mt-0.5 text-sm text-gray-500">
         <router-link
@@ -45,7 +45,7 @@
           :to="{
             name: 'workspaceHome',
             params: {
-              codebaseSlug: codebase_slug,
+              codebaseSlug: codebaseSlug,
               id: data.comment.workspace.id,
             },
             hash: `#${data.comment.id}`,
@@ -55,7 +55,7 @@
           Commented on
           <strong>{{ data.comment.workspace.name }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
 
       <p v-else-if="data.comment.parent?.change?.id" class="mt-0.5 text-sm text-gray-500">
@@ -64,7 +64,7 @@
           :to="{
             name: 'codebaseChange',
             params: {
-              codebaseSlug: codebase_slug,
+              codebaseSlug: codebaseSlug,
               id: data.comment.parent.change.id,
             },
             hash: `#${data.comment.id}`,
@@ -74,7 +74,7 @@
           Replied to {{ data.comment.parent.author.name }}'s comment on
           <strong>{{ data.comment.parent.change.title }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
       <p v-else-if="data.comment.change?.id" class="mt-0.5 text-sm text-gray-500">
         <router-link
@@ -82,7 +82,7 @@
           :to="{
             name: 'codebaseChange',
             params: {
-              codebaseSlug: codebase_slug,
+              codebaseSlug: codebaseSlug,
               id: data.comment.change.id,
             },
             hash: `#${data.comment.id}`,
@@ -92,24 +92,27 @@
           Commented on
           <strong>{{ data.comment.change.title }}</strong>
         </router-link>
-        {{ friendly_ago }}
+        <RelativeTime :date="createdAt" />
       </p>
-      <p v-else class="mt-0.5 text-sm text-gray-500">Commented {{ friendly_ago }}</p>
+      <p v-else class="mt-0.5 text-sm text-gray-500">
+        Commented
+        <RelativeTime :date="createdAt" />
+      </p>
     </div>
-    <CommentMessage :message="data.comment.message" :user="user" :members="data.codebase.members" />
+    <CommentMessage :message="data.comment.message" :user="user" :members="members" />
   </div>
 </template>
 
 <script lang="ts">
 import { ChatAltIcon } from '@heroicons/vue/solid'
+import RelativeTime from '../../../atoms/RelativeTime.vue'
 import Avatar from '../../../atoms/Avatar.vue'
-import time from '../../../time'
 import { Slug } from '../../../slug'
 import CommentMessage from '../../../atoms/CommentMessage.vue'
 import type { User } from '../../../atoms/CommentMessage.vue'
 import { gql } from '@urql/vue'
 import type { NotificationCommentFragment } from './__generated__/Comment'
-import type { PropType } from 'vue'
+import { type PropType, defineComponent } from 'vue'
 
 export const NOTIFICATION_COMMENT_FRAGMENT = gql`
   fragment NotificationComment on CommentNotification {
@@ -117,20 +120,21 @@ export const NOTIFICATION_COMMENT_FRAGMENT = gql`
     createdAt
     archivedAt
     type
-    codebase {
-      id
-      name
-      shortID
-
-      members {
-        id
-        name
-      }
-    }
     comment {
       id
       message
       createdAt
+
+      codebase {
+        id
+        name
+        shortID
+        members {
+          id
+          name
+        }
+      }
+
       author {
         id
         name
@@ -169,19 +173,16 @@ export const NOTIFICATION_COMMENT_FRAGMENT = gql`
   }
 `
 
-export default {
+export default defineComponent({
   components: {
     ChatAltIcon,
     Avatar,
     CommentMessage,
+    RelativeTime,
   },
   props: {
     data: {
       type: Object as PropType<NotificationCommentFragment>,
-      required: true,
-    },
-    now: {
-      type: Object as PropType<Date>,
       required: true,
     },
     user: {
@@ -191,12 +192,18 @@ export default {
   },
   emits: ['close'],
   computed: {
-    friendly_ago() {
-      return time.getRelativeTime(new Date(this.data.createdAt * 1000), this.now)
+    createdAt() {
+      return new Date(this.data.createdAt * 1000)
     },
-    codebase_slug() {
-      return Slug(this.data.codebase.name, this.data.codebase.shortID)
+    codebaseSlug() {
+      return Slug(this.codebase.name, this.codebase.shortID)
+    },
+    codebase() {
+      return this.data.comment.codebase
+    },
+    members() {
+      return this.codebase.members
     },
   },
-}
+})
 </script>

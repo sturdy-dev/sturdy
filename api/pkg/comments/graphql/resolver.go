@@ -73,6 +73,7 @@ type CommentRootResolver struct {
 	authorResolver    resolvers.AuthorRootResolver
 	workspaceResolver *resolvers.WorkspaceRootResolver
 	changeResolver    resolvers.ChangeRootResolver
+	codebaseResolver  resolvers.CodebaseRootResolver
 
 	logger           *zap.Logger
 	analyticsService *service_analytics.Service
@@ -98,6 +99,7 @@ func NewResolver(
 	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
 	changeResolver resolvers.ChangeRootResolver,
+	codebaseResolver resolvers.CodebaseRootResolver,
 
 	logger *zap.Logger,
 	analyticsService *service_analytics.Service,
@@ -125,6 +127,7 @@ func NewResolver(
 		authorResolver:    authorResolver,
 		workspaceResolver: workspaceResolver,
 		changeResolver:    changeResolver,
+		codebaseResolver:  codebaseResolver,
 
 		logger:           logger,
 		analyticsService: analyticsService,
@@ -746,4 +749,11 @@ func allAreEqual(a ...bool) bool {
 		}
 	}
 	return true
+}
+
+func (r *CommentResolver) Codebase(ctx context.Context) (resolvers.CodebaseResolver, error) {
+	id := graphql.ID(r.comment.CodebaseID)
+	return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{
+		ID: &id,
+	})
 }
