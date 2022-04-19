@@ -15,6 +15,7 @@ import (
 	"getsturdy.com/api/pkg/notification"
 	db_notification "getsturdy.com/api/pkg/notification/db"
 	service_notification "getsturdy.com/api/pkg/notification/service"
+	db_organizations "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/suggestions"
 	"getsturdy.com/api/pkg/users"
 
@@ -34,6 +35,7 @@ var (
 type notificationRootResolver struct {
 	notificationRepository db_notification.Repository
 	codebaseUserRepo       db_codebases.CodebaseUserRepository
+	organizationUserRepo   db_organizations.MemberRepository
 	codebaseRepo           db_codebases.CodebaseRepository
 
 	preferencesService *service_notification.Preferences
@@ -56,6 +58,7 @@ type notificationRootResolver struct {
 func NewResolver(
 	notificationRepository db_notification.Repository,
 	codebaseUserRepo db_codebases.CodebaseUserRepository,
+	organizationUserRepo db_organizations.MemberRepository,
 	codebaseRepo db_codebases.CodebaseRepository,
 
 	preferencesService *service_notification.Preferences,
@@ -77,6 +80,7 @@ func NewResolver(
 	return &notificationRootResolver{
 		notificationRepository: notificationRepository,
 		codebaseUserRepo:       codebaseUserRepo,
+		organizationUserRepo:   organizationUserRepo,
 		codebaseRepo:           codebaseRepo,
 
 		preferencesService: preferencesService,
@@ -389,10 +393,18 @@ func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 	case notification.GitHubRepositoryImported:
 		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(r.notif.ReferenceID)
 	case notification.InvitedToCodebase:
-		id := graphql.ID(r.notif.ReferenceID)
+		member, err := r.root.codebaseUserRepo.GetByID(ctx, r.notif.ReferenceID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get codebase member: %w", err)
+		}
+		id := graphql.ID(member.CodebaseID.String())
 		return r.root.codebaseResolver.Codebase(ctx, resolvers.CodebaseArgs{ID: &id})
 	case notification.InvitedToOrganization:
-		id := graphql.ID(r.notif.ReferenceID)
+		member, err := r.root.organizationUserRepo.GetByID(ctx, r.notif.ReferenceID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get organization member: %w", err)
+		}
+		id := graphql.ID(member.OrganizationID)
 		return r.root.organizationResolver.Organization(ctx, resolvers.OrganizationArgs{ID: &id})
 	default:
 		return resolvers.NotificationTypeUndefined, ErrUnknownNotificationType

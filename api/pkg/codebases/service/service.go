@@ -312,7 +312,7 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
-	if err := svc.notificationSender.User(ctx, user.ID, notification.InvitedToCodebase, codebaseID.String()); err != nil {
+	if err := svc.notificationSender.User(ctx, user.ID, notification.InvitedToCodebase, member.ID); err != nil {
 		svc.logger.Error("failed to send notification", zap.Error(err))
 		// do not fail
 	}
