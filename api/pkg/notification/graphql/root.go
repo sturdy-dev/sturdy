@@ -116,7 +116,10 @@ func (r *notificationRootResolver) Notifications(ctx context.Context) ([]resolve
 		// Get the sub-item that this notification is referencing
 		// If it can't be resolved, the notification won't be returned
 		sub, err := notifResolver.sub(ctx)
-		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, auth.ErrForbidden) {
+		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, auth.ErrForbidden) || errors.Is(err, ErrUnknownNotificationType) {
+
+			fmt.Printf("\nnikitag: %+v\n\n", notif.NotificationType)
+
 			continue
 		} else if err != nil {
 			r.logger.Error("failed to get sub notification item", zap.Any("notif", notif))
@@ -363,6 +366,8 @@ func (r *notificationResolver) ArchivedAt() *int32 {
 	return &t
 }
 
+var ErrUnknownNotificationType = fmt.Errorf("unknown notification type")
+
 func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 	switch r.notif.NotificationType {
 	case notification.CommentNotificationType:
@@ -376,7 +381,7 @@ func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 	case notification.GitHubRepositoryImported:
 		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(r.notif.ReferenceID)
 	default:
-		return resolvers.NotificationTypeUndefined, fmt.Errorf("unknown notification type")
+		return resolvers.NotificationTypeUndefined, ErrUnknownNotificationType
 	}
 }
 

@@ -10,32 +10,41 @@ import (
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/events/v2"
+	"getsturdy.com/api/pkg/notification"
+	service_notifications "getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/organization"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/shortid"
 	"getsturdy.com/api/pkg/users"
+	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 )
 
 type Service struct {
+	logger                       *zap.Logger
 	eventsSender                 *events.Publisher
 	organizationRepository       db_organization.Repository
 	organizationMemberRepository db_organization.MemberRepository
 	analyticsService             *service_analytics.Service
+	notificationsSender          service_notifications.NotificationSender
 }
 
 func New(
+	logger *zap.Logger,
 	eventsSender *events.Publisher,
 	organizationRepository db_organization.Repository,
 	organizationMemberRepository db_organization.MemberRepository,
 	analyticsService *service_analytics.Service,
+	notificationsSender service_notifications.NotificationSender,
 ) *Service {
 	return &Service{
+		logger:                       logger.Named("organizationService"),
 		eventsSender:                 eventsSender,
 		organizationRepository:       organizationRepository,
 		organizationMemberRepository: organizationMemberRepository,
 		analyticsService:             analyticsService,
+		notificationsSender:          notificationsSender,
 	}
 }
 
@@ -131,6 +140,14 @@ func (svc *Service) Update(ctx context.Context, organizationID string, newName s
 }
 
 func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedByUserID users.ID) (*organization.Member, error) {
+	if existing, err := svc.organizationMemberRepository.GetByUserIDAndOrganizationID(ctx, userID, orgID); errors.Is(err, sql.ErrNoRows) {
+		// go on
+	} else if err != nil {
+		return nil, fmt.Errorf("could not get member: %w", err)
+	} else {
+		return existing, nil
+	}
+
 	member := organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: orgID,
@@ -141,6 +158,11 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 
 	if err := svc.organizationMemberRepository.Create(ctx, member); err != nil {
 		return nil, fmt.Errorf("failed to create member: %w", err)
+	}
+
+	if err := svc.notificationsSender.User(ctx, userID, notification.InvitedToOrganization, member.ID); err != nil {
+		svc.logger.Error("failed to send notification", zap.Error(err))
+		// do not fail
 	}
 
 	svc.analyticsService.Capture(ctx, "add member to organization",
