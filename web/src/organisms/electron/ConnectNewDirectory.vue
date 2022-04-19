@@ -57,12 +57,14 @@ import type { ConnectNewDirectory_CodebaseFragment } from './__generated__/Conne
 
 import { useCreateWorkspace } from '../../mutations/useCreateWorkspace'
 import { useArchiveWorkspace } from '../../mutations/useArchiveWorkspace'
+import { Slug } from '../../slug'
 
 export const CODEBASE_FRAGMENT = gql`
   fragment ConnectNewDirectory_Codebase on Codebase {
     id
     name
     slug
+    shortID
   }
 `
 
@@ -123,7 +125,10 @@ export default defineComponent({
         .then(() =>
           this.$router.push({
             name: 'workspaceHome',
-            params: { codebaseSlug: this.codebase.slug, id: workspace.id },
+            params: {
+              codebaseSlug: Slug(this.codebase.slug, this.codebase.shortID),
+              id: workspace.id,
+            },
           })
         )
         .catch(async (e: any) => {
