@@ -80,6 +80,7 @@ type CommentResolver interface {
 	CreatedAt() int32
 	DeletedAt() *int32
 	Message() string
+	Codebase(context.Context) (CodebaseResolver, error)
 }
 
 type TopCommentResolver interface {
@@ -88,6 +89,7 @@ type TopCommentResolver interface {
 	CreatedAt() int32
 	DeletedAt() *int32
 	Message() string
+	Codebase(context.Context) (CodebaseResolver, error)
 	Workspace(ctx context.Context) (WorkspaceResolver, error)
 	Change(ctx context.Context) (ChangeResolver, error)
 	Replies() ([]ReplyCommentResolver, error)
@@ -102,6 +104,7 @@ type ReplyCommentResolver interface {
 	CreatedAt() int32
 	DeletedAt() *int32
 	Message() string
+	Codebase(context.Context) (CodebaseResolver, error)
 	Parent(context.Context) (TopCommentResolver, error)
 }
 

@@ -209,7 +209,6 @@ type GitHubRepositoryImported implements Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 
   repository: CodebaseGitHubIntegration!
 }

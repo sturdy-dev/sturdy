@@ -13,31 +13,26 @@
               v-if="notification.comment"
               :data="notification"
               :user="user"
-              :now="now"
               @close="$emit('close')"
             />
             <RequestedReviewNotification
               v-else-if="notification.__typename === 'RequestedReviewNotification'"
               :data="notification"
-              :now="now"
               @close="$emit('close')"
             />
             <ReviewNotification
               v-else-if="notification.__typename === 'ReviewNotification'"
               :data="notification"
-              :now="now"
               @close="$emit('close')"
             />
             <NewSuggestionNotification
               v-else-if="notification.__typename === 'NewSuggestionNotification'"
               :data="notification"
-              :now="now"
               @close="$emit('close')"
             />
             <GitHubRepositoryImportedNotification
               v-else-if="notification.__typename === 'GitHubRepositoryImported'"
               :data="notification"
-              :now="now"
               @close="$emit('close')"
             />
           </div>

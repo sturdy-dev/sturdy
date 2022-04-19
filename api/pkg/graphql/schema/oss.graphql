@@ -624,6 +624,7 @@ interface Comment {
   createdAt: Int!
   deletedAt: Int
   message: String!
+  codebase: Codebase!
 }
 
 type TopComment implements Comment {
@@ -632,6 +633,8 @@ type TopComment implements Comment {
   createdAt: Int!
   deletedAt: Int
   message: String!
+  codebase: Codebase!
+
   resolved: Boolean!
   resolvedBy: Author
 
@@ -669,6 +672,7 @@ type ReplyComment implements Comment {
   createdAt: Int!
   deletedAt: Int
   message: String!
+  codebase: Codebase!
   parent: TopComment!
 }
 
@@ -827,7 +831,6 @@ interface Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 }
 
 type NewSuggestionNotification implements Notification {
@@ -835,7 +838,6 @@ type NewSuggestionNotification implements Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 
   suggestion: Suggestion!
 }
@@ -845,7 +847,6 @@ type CommentNotification implements Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 
   comment: Comment!
 }
@@ -855,7 +856,6 @@ type RequestedReviewNotification implements Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 
   review: Review!
 }
@@ -865,7 +865,6 @@ type ReviewNotification implements Notification {
   type: NotificationType!
   createdAt: Int!
   archivedAt: Int
-  codebase: Codebase!
 
   review: Review!
 }

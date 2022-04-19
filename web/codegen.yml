@@ -1,26 +1,26 @@
 overwrite: true
-schema: 
-  - "../api/pkg/graphql/schema/schema.graphql"
-  - "../api/pkg/graphql/schema/oss.graphql"
-  - "../api/pkg/graphql/schema/enterprise.graphql"
-  - "../api/pkg/graphql/schema/cloud.graphql"
+schema:
+  - '../api/pkg/graphql/schema/schema.graphql'
+  - '../api/pkg/graphql/schema/oss.graphql'
+  - '../api/pkg/graphql/schema/enterprise.graphql'
+  - '../api/pkg/graphql/schema/cloud.graphql'
 documents:
-  - "src/**/*.vue"
-  - "src/**/*.ts"
-  - "!src/**/__generated__/**/*"
-  - "src/**/*.js"
+  - 'src/**/*.vue'
+  - 'src/**/*.ts'
+  - '!src/**/__generated__/**/*'
+  - 'src/**/*.js'
 generates:
   src/__generated__/types.ts:
     plugins:
-      - "typescript"
+      - 'typescript'
       - typescript-vue-urql
 
   src/:
     preset: near-operation-file
     presetConfig:
-      baseTypesPath: "__generated__/types.ts"
-      folder: "__generated__"
-      extension: ".ts"
+      baseTypesPath: '__generated__/types.ts'
+      folder: '__generated__'
+      extension: '.ts'
     plugins:
       - typescript-operations
       - typescript-vue-urql
