@@ -1,0 +1,30 @@
+<mjml>
+    <mj-body>
+        <mj-section padding="0" padding-top="20px">
+            <mj-column>
+                <mj-image width="100px" alt="Sturdy Logo" src="https://getsturdy.com/assets/Yellow482x.f8fd14b2.png"></mj-image>
+                <mj-divider border-color="#FBBF24"></mj-divider>
+
+                <mj-text font-size="18px" color="#222" font-family="helvetica">
+                    Welcome to Sturdy! 🐣
+                </mj-text>
+                <mj-text font-size="16px" color="#222" font-family="helvetica">
+                    You've been invited by {{ .InvitingUser.Name }} <b>({{ .InvitingUser.Email }})</b> to join to <b>{{ .Organization.Name }}</b> on Sturdy.
+                </mj-text>
+
+                <mj-button font-family="Helvetica" background-color="#FBBF24" color="black" align="left" href="https://getsturdy.com/download">
+                    Download and join Sturdy!
+                </mj-button>
+
+                <mj-text font-size="10px" color="#222" font-family="helvetica">
+                    Button not working? Paste this address to your browser: <a>https://getsturdy.com/download</a>
+                </mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    Thank you,<br/>
+                    <strong>Team Sturdy</strong>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
