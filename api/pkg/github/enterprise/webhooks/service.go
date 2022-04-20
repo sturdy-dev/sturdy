@@ -16,6 +16,7 @@ import (
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/auth"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
@@ -315,6 +316,9 @@ func (svc *Service) updateExistingPullRequest(
 	} else if err != nil {
 		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
+
+	// make context user context to connect all events to the same user
+	ctx = auth.NewUserContext(ctx, ws.UserID)
 
 	// update ws
 	if pr.Importing {
