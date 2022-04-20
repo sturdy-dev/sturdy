@@ -198,7 +198,7 @@ func TestCanRead_codebase(t *testing.T) {
 			if tc.isMemberOfOrganization {
 				org := organization.Organization{ID: orgID}
 				assert.NoError(t, organizationRepo.Create(context.Background(), org))
-				orgmember := organization.Member{ID: uuid.NewString(), OrganizationID: org.ID, UserID: userID}
+				orgmember := &organization.Member{ID: uuid.NewString(), OrganizationID: org.ID, UserID: userID}
 				assert.NoError(t, organizationMemberRepo.Create(context.Background(), orgmember))
 			}
 
@@ -290,7 +290,7 @@ func TestCanReadWrite_organization(t *testing.T) {
 			userID := users.ID(uuid.NewString())
 
 			if tc.isMember {
-				orgmember := organization.Member{ID: uuid.NewString(), OrganizationID: org.ID, UserID: userID}
+				orgmember := &organization.Member{ID: uuid.NewString(), OrganizationID: org.ID, UserID: userID}
 				assert.NoError(t, organizationMemberRepo.Create(bgCtx, orgmember))
 			}
 
