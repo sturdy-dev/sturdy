@@ -382,7 +382,7 @@ func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snap
 		}
 	}
 
-	s.analyticsService.CaptureUser(ctx, ws.UserID, "created snapshot",
+	s.analyticsService.CaptureUser(context.TODO(), ws.UserID, "created snapshot",
 		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("diffs_count", diffsCount),
 	)
