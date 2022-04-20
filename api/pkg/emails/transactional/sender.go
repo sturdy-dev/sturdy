@@ -506,42 +506,7 @@ func (e *Sender) Send(
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 
-	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(u.ID.String()),
-		analytics.Property("template", string(template)),
-		analytics.Property("subject", subject),
-	)
-
-	return nil
-}
-
-func (e *Sender) SendToSomeone(
-	ctx context.Context,
-	invitingUser *users.User,
-	invitedUser *users.User,
-	subject string,
-	template templates.Template,
-	data any,
-) error {
-	content, err := templates.Render(template, data)
-	if err != nil {
-		return fmt.Errorf("failed to render email: %w", err)
-	}
-
-	e.logger.Info(
-		"sending email",
-		zap.Stringer("user_id", invitingUser.ID),
-		zap.String("template", string(template)),
-	)
-
-	if err := e.sender.Send(ctx, &emails.Email{
-		To:      invitedUser.Email,
-		Subject: subject,
-		Html:    content,
-	}); err != nil {
-		return fmt.Errorf("failed to send email: %w", err)
-	}
-
-	e.analyticsService.Capture(ctx, "email_sent", analytics.DistinctID(invitingUser.ID.String()),
+	e.analyticsService.CaptureUser(ctx, u.ID, "email_sent", analytics.DistinctID(u.ID.String()),
 		analytics.Property("template", string(template)),
 		analytics.Property("subject", subject),
 	)

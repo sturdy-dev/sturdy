@@ -7,6 +7,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/emails/transactional"
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
@@ -94,6 +95,8 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
+	ctx = auth.NewUserContext(ctx, newUser.ID)
+
 	// create default org for the user
 	if _, err := s.organizationService.Create(ctx, newUser.ID, fmt.Sprintf("%s's project", newUser.Name)); err != nil {
 		return nil, fmt.Errorf("failed to create organization: %w", err)
@@ -149,6 +152,7 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *users.User, code st
 	if _, err := s.onetimeService.Resolve(ctx, user, code); err != nil {
 		return fmt.Errorf("failed to resolve magic link: %w", err)
 	}
+	ctx = auth.NewUserContext(ctx, user.ID)
 
 	if err := s.setEmailVerified(ctx, user); err != nil {
 		return fmt.Errorf("failed to set email verified: %w", err)
