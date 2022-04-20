@@ -38,15 +38,13 @@
 <script lang="ts">
 import { gql } from '@urql/vue'
 import type { PropType } from 'vue'
-
-import { AUTHOR } from '../components/../atoms/AvatarHelper'
+import { AUTHOR } from '../atoms/AvatarHelper'
 import Avatar from '../components/../atoms/Avatar.vue'
 import StatusBadge, { STATUS_FRAGMENT } from '../components/statuses/StatusBadge.vue'
 import ChangeCommentsIndicator, {
   CHANGE_COMMENTS,
 } from '../components/changelog/ChangeCommentsIndicator.vue'
 import RelativeTime from '../atoms/RelativeTime.vue'
-
 import type { ChangelogChangeFragment } from './__generated__/ChangelogChange'
 
 export const CHANGELOG_CHANGE_FRAGMENT = gql`
@@ -85,7 +83,7 @@ export default {
     },
   },
   computed: {
-    createdAt() {
+    createdAt(): Date {
       return new Date(this.change.createdAt * 1000)
     },
   },
