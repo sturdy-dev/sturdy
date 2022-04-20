@@ -138,8 +138,8 @@ func (s *UserService) CreateShadow(ctx context.Context, email string, referer Re
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	s.analyticsService.Capture(ctx, "created shadow account", analytics.Property("referer", referer.URL()))
 	s.analyticsService.IdentifyUser(ctx, newUser)
+	s.analyticsService.CaptureUser(newUser.ID, "created shadow account")
 
 	return newUser, nil
 }
@@ -172,7 +172,7 @@ func (s *UserService) CreateWithPassword(ctx context.Context, name, password, em
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
-	s.analyticsService.Capture(ctx, "created account")
+	s.analyticsService.CaptureUser(newUser.ID, "created account")
 
 	return newUser, nil
 }

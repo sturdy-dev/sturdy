@@ -100,7 +100,7 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
-	s.analyticsService.Capture(ctx, "created account")
+	s.analyticsService.CaptureUser(newUser.ID, "created account")
 
 	if err := s.transactionalEmailSender.SendWelcome(ctx, newUser); err != nil {
 		s.logger.Error("failed to send welcome email", zap.Error(err))
@@ -155,7 +155,7 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *users.User, code st
 	}
 
 	s.analyticsService.IdentifyUser(ctx, user)
-	s.analyticsService.Capture(ctx, "logged in", analytics.Property("type", "code"))
+	s.analyticsService.CaptureUser(user.ID, "logged in", analytics.Property("type", "code"))
 	return nil
 }
 
@@ -197,10 +197,3 @@ func (s *Service) setEmailVerified(ctx context.Context, user *users.User) error 
 
 	return nil
 }
-
-// func (s *Service) InviteNewUser(ctx context.Context, invitingUser *users.User, invitedUser *users.User, organization *organization.Organization) error {
-// 	if err := s.transactionalEmailSender.SendInviteToNewUser(ctx, invitingUser, invitedUser, organization); err != nil {
-// 		return fmt.Errorf("failed to send email: %w", err)
-// 	}
-// 	return nil
-// }
