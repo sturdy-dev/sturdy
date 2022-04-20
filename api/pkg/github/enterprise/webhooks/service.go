@@ -16,6 +16,7 @@ import (
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/auth"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
@@ -218,6 +219,7 @@ func (svc *Service) importNewPullRequest(ctx context.Context, repo *github.Repos
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
 	}
+	ctx = auth.NewUser(ctx, user.ID)
 
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
 	if err != nil {
@@ -315,6 +317,8 @@ func (svc *Service) updateExistingPullRequest(
 	} else if err != nil {
 		return fmt.Errorf("failed to get workspace from db: %w", err)
 	}
+
+	ctx = auth.NewUser(ctx, ws.UserID)
 
 	// update ws
 	if pr.Importing {
@@ -570,7 +574,7 @@ func (svc *Service) HandleInstallationEvent(ctx context.Context, event *Installa
 		if event.GetAction() == "created" {
 			for _, r := range event.Repositories {
 
-				if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+				if err := svc.handleInstalledRepository(ctx, event.GetInstallation().GetID(), r); err != nil {
 					return err
 				}
 			}
@@ -590,7 +594,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	_, err := svc.gitHubInstallationRepo.GetByInstallationID(event.GetInstallation().GetID())
 	// If the original InstallationEvent webhook was missed (otherwise user has to remove and re-add app)
 	if errors.Is(err, sql.ErrNoRows) {
-		installation := github.Installation{
+		installation := &github.Installation{
 			ID:                     uuid.NewString(),
 			InstallationID:         event.Installation.GetID(),
 			Owner:                  event.Installation.Account.GetLogin(), // "sturdy-dev" or "zegl", etc.
@@ -598,15 +602,17 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 			HasWorkflowsPermission: true,
 		}
 
-		if err := svc.gitHubInstallationRepo.Create(installation); err != nil {
+		if err := svc.gitHubInstallationRepo.Create(*installation); err != nil {
 			return err
 		}
+	} else if err != nil {
+		return fmt.Errorf("failed to get installation: %w", err)
 	}
 
 	if event.GetRepositorySelection() == "selected" || event.GetRepositorySelection() == "all" {
 		// Add new repos
 		for _, r := range event.RepositoriesAdded {
-			if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+			if err := svc.handleInstalledRepository(ctx, event.GetInstallation().GetID(), r); err != nil {
 				return err
 			}
 		}
@@ -644,9 +650,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	return nil
 }
 
-func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *api.Repository) error {
-	ctx := context.Background()
-
+func (svc *Service) handleInstalledRepository(ctx context.Context, installationID int64, ghRepo *api.Repository) error {
 	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue
 	logger := svc.logger.With(zap.String("repo_name", ghRepo.GetName()), zap.Int64("installation_id", installationID))
 	logger.Info("handleInstalledRepository")
