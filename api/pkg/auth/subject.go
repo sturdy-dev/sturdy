@@ -48,10 +48,6 @@ type subjectKeyType struct{}
 
 var subjectKey = subjectKeyType{}
 
-func NewUser(ctx context.Context, id users.ID) context.Context {
-	return NewContext(ctx, &Subject{ID: string(id), Type: SubjectUser})
-}
-
 func NewContext(ctx context.Context, s *Subject) context.Context {
 	return context.WithValue(ctx, subjectKey, s)
 }
