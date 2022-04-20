@@ -69,8 +69,7 @@ func ValidateView(logger *zap.Logger, viewRepo db_view.Repository, analyticsServ
 		}
 
 		if req.IsNewConnection {
-			analyticsService.Capture(c.Request.Context(), "mutagen connection to view",
-				analytics.UserID(req.UserID),
+			analyticsService.CaptureUser(c.Request.Context(), viewObj.UserID, "mutagen connection to view",
 				analytics.CodebaseID(req.CodebaseID),
 				analytics.Property("view_id", req.ViewID),
 				analytics.Property("is_new_connection", req.IsNewConnection), // This is alway true...
