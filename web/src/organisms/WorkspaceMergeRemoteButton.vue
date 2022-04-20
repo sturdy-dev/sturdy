@@ -24,7 +24,6 @@
             :show-tooltip="disabled"
             :disabled="disabled || pushingWorkspace || isMergingAndPushing"
             :spinner="pushingWorkspace || isMergingAndPushing"
-            :tooltip-right="true"
             class="rounded-r-none"
           />
         </template>

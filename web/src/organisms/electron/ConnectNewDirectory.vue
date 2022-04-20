@@ -7,7 +7,7 @@
         :disabled="connecting"
         :spinner="connecting"
         :show-tooltip="true"
-        tooltip-position="bottom"
+        :tooltip-position="tooltipPosition"
       />
     </template>
 
@@ -72,6 +72,7 @@ export default defineComponent({
   components: { Button, Select },
   props: {
     codebase: { type: Object as PropType<ConnectNewDirectory_CodebaseFragment>, required: true },
+    tooltipPosition: { type: String as PropType<'top' | 'bottom'>, default: 'top' },
   },
   setup() {
     const createWorkspaceResult = useCreateWorkspace()
