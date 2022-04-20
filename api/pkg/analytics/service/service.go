@@ -36,20 +36,20 @@ func (s *Service) Capture(ctx context.Context, event string, oo ...analytics.Cap
 }
 
 func (s *Service) CaptureUser(userID users.ID, event string, oo ...analytics.CaptureOption) {
-	options := &analytics.CaptureOptions{
-		DistinctId: userID.String(),
-	}
+	options := &analytics.CaptureOptions{}
 	for _, o := range oo {
 		o(options)
 	}
 
-	if err := s.client.Enqueue(posthog.Capture{
-		DistinctId: options.DistinctId,
+	capture := posthog.Capture{
+		DistinctId: userID.String(),
 		Properties: options.Properties,
 		Event:      event,
 		Groups:     options.Groups,
-	}); err != nil {
-		s.logger.Error("failed to capture user event", zap.Error(err))
+	}
+
+	if err := s.client.Enqueue(capture); err != nil {
+		s.logger.Error("failed to capture user event", zap.Error(err), zap.Any("capture", capture))
 	}
 }
 
