@@ -29,7 +29,6 @@
             color="blue"
             :disabled="disabled || isMerging || creatingOrUpdatingPR || creatingAndMergingPR"
             :show-tooltip="disabled"
-            :tooltip-right="true"
             :spinner="isMerging || creatingOrUpdatingPR || creatingAndMergingPR"
             class="rounded-r-none"
           />

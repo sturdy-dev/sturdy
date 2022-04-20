@@ -1,6 +1,6 @@
 <template>
   <div class="relative group">
-    <slot></slot>
+    <slot />
 
     <div
       v-if="!disabled"
@@ -15,7 +15,7 @@
       <span
         class="relative z-10 px-2 py-1.5 text-xs rounded text-white bg-black shadow-lg w-max max-w-md"
       >
-        <slot name="tooltip"></slot>
+        <slot name="tooltip" />
       </span>
       <div
         :class="[
@@ -23,7 +23,7 @@
           xDirection === 'left' ? 'right-2' : 'left-2',
         ]"
         class="w-3 h-3 transform rotate-45 bg-black absolute"
-      ></div>
+      />
     </div>
   </div>
 </template>

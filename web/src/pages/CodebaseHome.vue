@@ -5,7 +5,11 @@
         <div>
           <div class="flex items-center">
             <!-- For Sturdy the App: Show "Connect Directory" that automatically creates a view + workspace -->
-            <ConnectNewDirectory v-if="showAppConnectDirectory" :codebase="data.codebase" />
+            <ConnectNewDirectory
+              v-if="showAppConnectDirectory"
+              :codebase="data.codebase"
+              tooltip-position="bottom"
+            />
 
             <!-- Spacer to make layout render both in app and in browser -->
             <div class="flex-1"></div>

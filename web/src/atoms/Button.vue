@@ -12,7 +12,7 @@
 
     <div
       v-if="showTooltip"
-      class="absolute bottom-0 flex-col mb-8 hidden group-hover:flex z-50"
+      class="absolute flex flex-col transition transition-all group-hover:delay-500 opacity-0 transform group-hover:opacity-100 z-[100] pointer-events-none"
       :class="{
         'bottom-full -translate-y-1 group-hover:-translate-y-2': tooltipPosition === 'top',
         'top-full translate-y-1 group-hover:translate-y-2': tooltipPosition === 'bottom',
@@ -26,10 +26,10 @@
         <slot name="tooltip" />
       </span>
       <div
-        class="w-3 h-3 transform rotate-45 bg-black absolute bottom-0 -mb-1"
+        class="w-3 h-3 transform rotate-45 bg-black absolute"
         :class="{
-          'top-full -translate-y-2': tooltipPosition === 'top',
-          'bottom-full translate-y-2': tooltipPosition === 'bottom',
+          'top-full -translate-y-2 translate-x-1': tooltipPosition === 'top',
+          'bottom-full translate-y-2 translate-x-1': tooltipPosition === 'bottom',
           'left-2': tooltipPosition === 'left',
           'right-2': tooltipPosition === 'right' || tooltipRight,
         }"
