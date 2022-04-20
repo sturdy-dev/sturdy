@@ -1,7 +1,7 @@
 <template>
   <div v-if="codebase.changes.length > 0" class="grid grid-cols-2 gap-2">
     <ChangelogChange
-      :codebase-slug="codebase.shortID"
+      :codebase-slug="codebaseSlug"
       :change="latestChange"
       :show-description="true"
     />
@@ -12,7 +12,7 @@
       </template>
 
       <router-link
-        :to="{ name: 'codebaseChanges', params: { codebaseSlug: codebase.shortID } }"
+        :to="{ name: 'codebaseChanges', params: { codebaseSlug: codebaseSlug } }"
         class="text-sm flex flex-row items-center gap-1 text-gray-500 hover:bg-gray-100 self-end px-2 py-1 rounded-md"
       >
         Older Changes
@@ -33,10 +33,12 @@ import { ArrowRightIcon } from '@heroicons/vue/outline'
 import time from '../time'
 import { useUpdatedChangesStatuses } from '../subscriptions/useUpdatedChangesStatuses'
 import ChangelogChange, { CHANGELOG_CHANGE_FRAGMENT } from '../molecules/ChangelogChange.vue'
+import { Slug } from '../slug'
 
 export const TOP_OF_CHANGELOG = gql`
   fragment TopOfChangelog on Codebase {
     id
+    name
     shortID
     changes(input: { limit: 4 }) {
       ...ChangelogChange
@@ -65,10 +67,8 @@ export default defineComponent({
     latestChange(): Change {
       return this.codebase.changes[0]
     },
-  },
-  methods: {
-    timeAgo(timestamp: number) {
-      return time.getRelativeTime(new Date(timestamp * 1000))
+    codebaseSlug(): string {
+      return Slug(this.codebase.name, this.codebase.shortID)
     },
   },
 })
