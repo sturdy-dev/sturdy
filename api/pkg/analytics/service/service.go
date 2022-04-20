@@ -37,13 +37,16 @@ func (s *Service) Capture(ctx context.Context, event string, oo ...analytics.Cap
 }
 
 func (s *Service) CaptureUser(ctx context.Context, userID users.ID, event string, oo ...analytics.CaptureOption) {
-	options := &analytics.CaptureOptions{Properties: map[string]interface{}{}}
+	options := &analytics.CaptureOptions{
+		DistinctId: userID.String(),
+		Properties: map[string]interface{}{},
+	}
 	for _, o := range oo {
 		o(options)
 	}
 
 	capture := posthog.Capture{
-		DistinctId: userID.String(),
+		DistinctId: options.DistinctId,
 		Properties: options.Properties,
 		Event:      event,
 		Groups:     options.Groups,
