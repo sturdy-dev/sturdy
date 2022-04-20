@@ -14,7 +14,7 @@ type MemberRepository interface {
 	GetByUserIDAndOrganizationID(ctx context.Context, userID users.ID, organizationID string) (*organization.Member, error)
 	ListByOrganizationID(ctx context.Context, id string) ([]*organization.Member, error)
 	ListByUserID(context.Context, users.ID) ([]*organization.Member, error)
-	Create(ctx context.Context, org organization.Member) error
+	Create(ctx context.Context, org *organization.Member) error
 	Update(ctx context.Context, org *organization.Member) error
 	GetByID(ctx context.Context, id string) (*organization.Member, error)
 }
@@ -31,8 +31,7 @@ func (r *memberRepository) GetByID(ctx context.Context, id string) (*organizatio
 	var mem organization.Member
 	if err := r.db.GetContext(ctx, &mem, `SELECT id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by
 		FROM organization_members
-		WHERE id = $1
-		  AND deleted_at IS NULL`, id); err != nil {
+		WHERE id = $1`, id); err != nil {
 		return nil, fmt.Errorf("failed to get organization_member by id: %w", err)
 	}
 	return &mem, nil
@@ -72,15 +71,16 @@ func (r *memberRepository) ListByUserID(ctx context.Context, id users.ID) ([]*or
 	return res, nil
 }
 
-func (r *memberRepository) Create(ctx context.Context, mem organization.Member) error {
-	if _, err := r.db.NamedExecContext(ctx, `INSERT INTO organization_members (id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by)
-		VALUES (:id, :user_id, :organization_id, :created_at, :created_by, :deleted_at, :deleted_by)
-		ON CONFLICT (organization_id, user_id) DO UPDATE
-		SET deleted_at = NULL,
-		    deleted_by = NULL`,
-		mem); err != nil {
-		return fmt.Errorf("failed to create organization: %w", err)
+func (r *memberRepository) Create(ctx context.Context, mem *organization.Member) error {
+	if err := r.db.GetContext(ctx, mem, `INSERT INTO organization_members (id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by)
+		VALUES ($1, $2, $3, $4, $5, NULL, NULL)
+		ON CONFLICT (user_id, organization_id) DO UPDATE
+		SET deleted_at = NULL, deleted_by = NULL
+		RETURNING id, user_id, organization_id, created_at, created_by, deleted_at, deleted_by`,
+		mem.ID, mem.UserID, mem.OrganizationID, mem.CreatedAt, mem.CreatedBy); err != nil {
+		return fmt.Errorf("failed to create organization_member: %w", err)
 	}
+
 	return nil
 }
 
