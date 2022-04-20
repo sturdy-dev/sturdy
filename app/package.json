@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.5.23-alpha.10",
+  "version": "0.5.25",
   "name": "SturdyDev",
   "author": "Sturdy Team <support@getsturdy.com>",
   "description": "Real-Time Version Control",
@@ -30,7 +30,7 @@
     "autoprefixer": "^10.4.2",
     "cross-env": "^7.0.3",
     "cssnano": "^5.0.17",
-    "electron": "^19.0.0-alpha.1",
+    "electron": "^19.0.0-alpha.3",
     "electron-builder": "^23.0.2",
     "electron-notarize": "^1.1.1",
     "eslint": "^7.32.0",
