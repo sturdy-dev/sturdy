@@ -441,7 +441,7 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 		}
 	}
 
-	s.analyticsService.CaptureUser(ctx, ws.UserID, "create workspace",
+	s.analyticsService.Capture(ctx, "create workspace",
 		analytics.CodebaseID(req.CodebaseID),
 		analytics.Property("id", ws.ID),
 		analytics.Property("at_existing_change", req.BaseChangeID != nil),
