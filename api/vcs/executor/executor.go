@@ -342,6 +342,17 @@ func (e *executor) ExecTemporaryView(codebaseID codebases.ID, actionName string)
 			} else if err != nil {
 				return fmt.Errorf("failed to stat view: %w", err)
 			} else {
+				// checkout sturdy trunk as if it is a new view
+				repo, err := repoProvider.ViewRepo(codebaseID, viewID)
+				if err != nil {
+					return fmt.Errorf("failed to open view repo: %w", err)
+				}
+				if err := repo.FetchBranch("sturdytrunk"); err != nil {
+					return fmt.Errorf("failed to fetch branch: %w", err)
+				}
+				if err := repo.CheckoutBranchWithForce("sturdytrunk"); err != nil {
+					return fmt.Errorf("failed to checkout branch: %w", err)
+				}
 				return nil
 			}
 		},

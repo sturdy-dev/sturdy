@@ -75,11 +75,18 @@ func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower,
 
 	archiveFilePath := fmt.Sprintf("%s/%s%s", codebaseID, commitID, archiveFileExt)
 	if err := svc.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
-		if err := repo.CreateNewBranchAt("archive", commitID); err != nil {
-			return fmt.Errorf("failed to create archive branch: %w", err)
+		branchName, err := repo.HeadBranch()
+		if err != nil {
+			return fmt.Errorf("failed to get branch name: %w", err)
 		}
-		if err := repo.CheckoutBranchWithForce("archive"); err != nil {
-			return fmt.Errorf("failed to checkout archive: %w", err)
+		if branchName != "archive" {
+
+			if err := repo.CreateNewBranchAt("archive", commitID); err != nil {
+				return fmt.Errorf("failed to create archive branch: %w", err)
+			}
+			if err := repo.CheckoutBranchWithForce("archive"); err != nil {
+				return fmt.Errorf("failed to checkout archive: %w", err)
+			}
 		}
 		return repo.LargeFilesPull()
 	}).Read(func(repo vcs.RepoReader) error {
