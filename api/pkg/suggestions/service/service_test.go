@@ -298,7 +298,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 
 func (test *test) run(t *testing.T) {
 	// create codebase trunk repo
-	assert.NoError(t, vcs_codebase.Create(test.repoProvider, test.codebaseID))
+	assert.NoError(t, vcs_codebase.Create(test.codebaseID)(test.repoProvider))
 
 	for _, operation := range test.operations {
 		operation.run(t, test)

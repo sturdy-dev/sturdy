@@ -4,15 +4,88 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/codebases"
+	vcs_codebases "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
 	"getsturdy.com/api/vcs/testutil"
 )
+
+func syncMapSize(m *sync.Map) int {
+	size := 0
+	m.Range(func(_, _ interface{}) bool {
+		size++
+		return true
+	})
+	return size
+}
+
+func TestExecutor_TemporaryView_must_createtwo(t *testing.T) {
+	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t))
+
+	codebaseID := codebases.ID("cb")
+
+	assert.NoError(t, exec.New().
+		AllowRebasingState().
+		Schedule(vcs_codebases.Create(codebaseID)).
+		ExecTrunk(codebaseID, "createTrunk"), "failed to create trunk")
+
+	recordViewIDs := make(chan struct{})
+	viewIDs := &sync.Map{}
+	recordViewID := func(reader vcs.RepoReader) error {
+		<-recordViewIDs
+		viewIDs.Store(*reader.ViewID(), true)
+		return nil
+	}
+
+	viewOneUsed := make(chan struct{})
+	viewTwoUsed := make(chan struct{})
+	go func() {
+		// this will create a new view, becasuse there are no tmp views yet
+		assert.NoError(t, exec.New().Read(recordViewID).ExecTemporaryView(codebaseID, "test1"))
+		close(viewOneUsed)
+	}()
+	go func() {
+		// this should create a new view, becasuse there are no tmp views available
+		assert.NoError(t, exec.New().Read(recordViewID).ExecTemporaryView(codebaseID, "test2"))
+		close(viewTwoUsed)
+	}()
+
+	close(recordViewIDs)
+	<-viewOneUsed
+	<-viewTwoUsed
+
+	// this will reuse one of the existing tmp views
+	assert.NoError(t, exec.New().Read(recordViewID).ExecTemporaryView(codebaseID, "test3"))
+	assert.Equal(t, 2, syncMapSize(viewIDs), "expexted two temporary views")
+}
+
+func TestExecutor_TemporaryView_must_reuse(t *testing.T) {
+	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t))
+
+	codebaseID := codebases.ID("cb")
+
+	assert.NoError(t, exec.New().
+		AllowRebasingState().
+		Schedule(vcs_codebases.Create(codebaseID)).
+		ExecTrunk(codebaseID, "createTrunk"), "failed to create trunk")
+
+	viewIDs := map[string]bool{}
+	recordViewID := func(reader vcs.RepoReader) error {
+		viewIDs[*reader.ViewID()] = true
+		return nil
+	}
+
+	assert.NoError(t, exec.New().Read(recordViewID).ExecTemporaryView(codebaseID, "test1"))
+	assert.NoError(t, exec.New().Read(recordViewID).ExecTemporaryView(codebaseID, "test2"))
+	assert.Len(t, viewIDs, 1, "expected temporary view to be reused")
+}
 
 func TestExecutor_AllowRebasingState(t *testing.T) {
 	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t))

@@ -17,7 +17,7 @@ import (
 func TestCreateView(t *testing.T) {
 	repoProvider := newRepoProvider(t)
 	codebaseID := codebases.ID("codebaseID")
-	err := vcs_codebase.Create(repoProvider, codebaseID)
+	err := vcs_codebase.Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"
@@ -34,7 +34,7 @@ func TestCreateView(t *testing.T) {
 func TestSetWorkspace(t *testing.T) {
 	repoProvider := newRepoProvider(t)
 	codebaseID := codebases.ID("codebaseID")
-	err := vcs_codebase.Create(repoProvider, codebaseID)
+	err := vcs_codebase.Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"

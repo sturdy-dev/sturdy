@@ -13,13 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func Create(trunkProvider provider.TrunkProvider, codebaseID codebases.ID) error {
-	path := trunkProvider.TrunkPath(codebaseID)
-	_, err := vcs.CreateBareRepoWithRootCommit(path)
-	if err != nil {
-		return fmt.Errorf("failed to create trunk: %w", err)
+func Create(codebaseID codebases.ID) func(provider.RepoProvider) error {
+	return func(trunkProvider provider.RepoProvider) error {
+		path := trunkProvider.TrunkPath(codebaseID)
+		if _, err := vcs.CreateBareRepoWithRootCommit(path); err != nil {
+			return fmt.Errorf("failed to create trunk: %w", err)
+		}
+		return nil
 	}
-	return nil
 }
 
 // If no limit is set, a default of 100 is used

@@ -22,7 +22,7 @@ import (
 func TestSnapshot(t *testing.T) {
 	reposBasePath, repoProvider := reposBasePath(t)
 	codebaseID := codebases.ID("codebaseID")
-	err := codebasevcs.Create(repoProvider, codebaseID)
+	err := codebasevcs.Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"
