@@ -87,6 +87,7 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 		Name:      name,
 		Email:     email,
 		CreatedAt: &t,
+		Status:    users.StatusActive,
 	}
 
 	if err := s.userRepo.Create(newUser); err != nil {
