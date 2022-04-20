@@ -1,9 +1,13 @@
 package executor
 
 import (
+	"errors"
 	"fmt"
+	"math/rand"
 	"os"
+	"path"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -232,19 +236,114 @@ func (e *executor) AssertBranchName(name string) Executor {
 var ErrIsRebasing = fmt.Errorf("unexpected git executor state, is rebasing")
 var ErrUnexpectedBranch = fmt.Errorf("unexpected git executor state, on unexpected branch")
 
+const (
+	inUsePrefix = "using-"
+	tmpPrefix   = "tmp-"
+)
+
+func filter[T any](slice []T, f func(T) bool) []T {
+	filtered := make([]T, 0, len(slice))
+	for _, s := range slice {
+		if f(s) {
+			filtered = append(filtered, s)
+		}
+	}
+	return filtered
+}
+
+func isTemporaryView(name string) bool {
+	return strings.HasPrefix(name, tmpPrefix)
+}
+
+func random[T any](slice []T) T {
+	randomIndex := rand.Intn(len(slice))
+	return slice[randomIndex]
+}
+
+func (e *executor) getTemporaryViewID(codebaseID codebases.ID) (string, error) {
+	codebasePath := path.Dir(e.repoProvider.TrunkPath(codebaseID))
+	codebaseDir, err := os.Open(codebasePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open codebase path: %w", err)
+	}
+
+	// get all existing paths
+	viewPaths, err := codebaseDir.Readdirnames(-1)
+	if err != nil {
+		return "", fmt.Errorf("failed to list views: %w", err)
+	}
+
+	// find temporary views among them
+	temporaryViews := filter(viewPaths, isTemporaryView)
+	if len(temporaryViews) == 0 {
+		// add a new tmp view to the pool
+		return fmt.Sprintf("%s%s%s", inUsePrefix, tmpPrefix, uuid.NewString()), nil
+	}
+
+	// re-use existing view from the pool
+	viewID := random(temporaryViews)
+	return e.temporaryViewMarkUsing(codebaseID, viewID)
+}
+
+func (e *executor) temporaryViewMarkUsing(codebaseID codebases.ID, viewID string) (string, error) {
+	if strings.HasPrefix(viewID, inUsePrefix) {
+		return "", fmt.Errorf("view already in use")
+	}
+
+	codebasePath := path.Dir(e.repoProvider.TrunkPath(codebaseID))
+	inUseID := fmt.Sprintf("%s%s", inUsePrefix, viewID)
+	if err := os.Rename(
+		path.Join(codebasePath, viewID),
+		path.Join(codebasePath, inUseID),
+	); err != nil {
+		return "", fmt.Errorf("failed to mark view as in use: %w", err)
+	}
+	return inUseID, nil
+}
+
+func (e *executor) temporaryViewMarkNotUsing(codebaseID codebases.ID, viewID string) (string, error) {
+	if !strings.HasPrefix(viewID, inUsePrefix) {
+		return viewID, nil
+	}
+
+	codebasesDir := path.Dir(e.repoProvider.TrunkPath(codebaseID))
+	notInUse := strings.TrimLeft(viewID, inUsePrefix)
+	if err := os.Rename(
+		path.Join(codebasesDir, viewID),
+		path.Join(codebasesDir, notInUse),
+	); err != nil {
+		return "", fmt.Errorf("failed to mark view as not using: %w", err)
+	}
+	return notInUse, nil
+}
+
 func (e *executor) ExecTemporaryView(codebaseID codebases.ID, actionName string) error {
-	viewID := fmt.Sprintf("tmp-%s", uuid.NewString())
 	e.allowRebasing = true
-	defer os.RemoveAll(e.repoProvider.ViewPath(codebaseID, viewID))
+
+	viewID, err := e.getTemporaryViewID(codebaseID)
+	if err != nil {
+		return err
+	}
+
+	codebasePath := e.repoProvider.TrunkPath(codebaseID)
+	defer func() {
+		if _, err := e.temporaryViewMarkNotUsing(codebaseID, viewID); err != nil {
+			e.logger.Warn("failed to return tmp view to the pool: %w", zap.Error(err))
+		}
+	}()
 	return e.prepend(&executeFunc{
 		fun: func(repoProvider provider.RepoProvider) error {
-			if _, err := vcs.CloneRepo(
-				repoProvider.TrunkPath(codebaseID),
-				repoProvider.ViewPath(codebaseID, viewID),
-			); err != nil {
-				return fmt.Errorf("failed to clone repo: %w", err)
+			viewPath := repoProvider.ViewPath(codebaseID, viewID)
+			if _, err := os.Stat(viewPath); errors.Is(err, os.ErrNotExist) {
+				if _, err := vcs.CloneRepo(codebasePath, viewPath); err != nil {
+					return fmt.Errorf("failed to clone repo: %w", err)
+				}
+				return nil
+			} else if err != nil {
+				return fmt.Errorf("failed to stat view: %w", err)
+			} else {
+				return nil
 			}
-			return nil
 		},
 	}).ExecView(codebaseID, viewID, actionName)
 }

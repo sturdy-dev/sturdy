@@ -95,7 +95,7 @@ func TestAddModifyDeleteBinaryFile(t *testing.T) {
 }
 
 func setupCodebase(t *testing.T, repoProvider provider.RepoProvider, codebaseID codebases.ID, workspaceID, viewID string) {
-	err := codebasevcs.Create(repoProvider, codebaseID)
+	err := codebasevcs.Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 
 	repo, err := repoProvider.TrunkRepo(codebaseID)

@@ -13,7 +13,7 @@ import (
 func TestCreateWorkspace(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
 	codebaseID := codebases.ID("codebaseID")
-	err := codebasevcs.Create(repoProvider, codebaseID)
+	err := codebasevcs.Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 
 	workspaceID := "workspaceID"

@@ -11,14 +11,14 @@ import (
 
 func TestCreateCodebase(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
-	err := Create(repoProvider, "codebaseID")
+	err := Create("codebaseID")(repoProvider)
 	assert.NoError(t, err)
 }
 
 func TestListChangesInCodebaseTrunk(t *testing.T) {
 	repoProvider := testutil.TestingRepoProvider(t)
 	codebaseID := codebases.ID("codebaseID")
-	err := Create(repoProvider, codebaseID)
+	err := Create(codebaseID)(repoProvider)
 	assert.NoError(t, err)
 	repo, err := repoProvider.TrunkRepo(codebaseID)
 	assert.NoError(t, err)

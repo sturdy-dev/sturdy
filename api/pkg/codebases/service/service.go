@@ -23,7 +23,6 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
 )
 
 type Service struct {
@@ -215,10 +214,8 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 
 	if err := svc.executorProvider.New().
 		AllowRebasingState(). // allowed because the repo does not exist yet
-		Schedule(func(trunkProvider provider.RepoProvider) error {
-			return vcs.Create(trunkProvider, cb.ID)
-		}).ExecTrunk(cb.ID, "createCodebase"); err != nil {
-
+		Schedule(vcs.Create(cb.ID)).
+		ExecTrunk(cb.ID, "createCodebase"); err != nil {
 		return nil, fmt.Errorf("failed to create codebase on disk: %w", err)
 	}
 
