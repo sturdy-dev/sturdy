@@ -43,12 +43,14 @@ func (s *Service) CaptureUser(userID users.ID, event string, oo ...analytics.Cap
 		o(options)
 	}
 
-	s.client.Enqueue(posthog.Capture{
+	if err := s.client.Enqueue(posthog.Capture{
 		DistinctId: options.DistinctId,
 		Properties: options.Properties,
 		Event:      event,
 		Groups:     options.Groups,
-	})
+	}); err != nil {
+		s.logger.Error("failed to capture user event", zap.Error(err))
+	}
 }
 
 func (s *Service) IdentifyOrganization(ctx context.Context, org *organization.Organization) {
