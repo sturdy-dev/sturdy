@@ -60,7 +60,7 @@ func Signup(
 
 		ctx := c.Request.Context()
 		analyticsService.IdentifyUser(ctx, newUser)
-		analyticsService.CaptureUser(newUser.ID, "logged in", analytics.Property("type", "password"))
+		analyticsService.CaptureUser(ctx, newUser.ID, "logged in", analytics.Property("type", "password"))
 
 		// Send the user object in the response
 		c.JSON(http.StatusOK, newUser)

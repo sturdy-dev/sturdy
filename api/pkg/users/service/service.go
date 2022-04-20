@@ -139,7 +139,7 @@ func (s *UserService) CreateShadow(ctx context.Context, email string, referer Re
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
-	s.analyticsService.CaptureUser(newUser.ID, "created shadow account")
+	s.analyticsService.CaptureUser(ctx, newUser.ID, "created shadow account")
 
 	return newUser, nil
 }
@@ -172,7 +172,7 @@ func (s *UserService) CreateWithPassword(ctx context.Context, name, password, em
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
-	s.analyticsService.CaptureUser(newUser.ID, "created account")
+	s.analyticsService.CaptureUser(ctx, newUser.ID, "created account")
 
 	return newUser, nil
 }

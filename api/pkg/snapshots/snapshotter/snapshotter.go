@@ -335,7 +335,7 @@ func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snap
 
 	snap := &snapshots.Snapshot{
 		ID:          snapshotID,
-		CommitSHA:    snapshotCommitID,
+		CommitSHA:   snapshotCommitID,
 		CreatedAt:   time.Now(),
 		WorkspaceID: &workspaceID,
 		CodebaseID:  codebaseID,
@@ -382,7 +382,7 @@ func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snap
 		}
 	}
 
-	s.analyticsService.CaptureUser(ws.UserID, "created snapshot",
+	s.analyticsService.CaptureUser(ctx, ws.UserID, "created snapshot",
 		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("diffs_count", diffsCount),
 	)
