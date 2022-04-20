@@ -62,7 +62,7 @@ func Login(logger *zap.Logger, userService service_users.Service, analyticsServi
 
 		ctx := c.Request.Context()
 		analyticsService.IdentifyUser(ctx, getUser)
-		analyticsService.Capture(ctx, "logged in", analytics.Property("type", "password"))
+		analyticsService.CaptureUser(getUser.ID, "logged in", analytics.Property("type", "password"))
 
 		// Send the user object in the response
 		c.JSON(http.StatusOK, getUser)
