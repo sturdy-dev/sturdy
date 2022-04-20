@@ -57,8 +57,8 @@ func (r *inMemoryOrganizationMemberRepository) ListByUserID(ctx context.Context,
 	return res, nil
 }
 
-func (r *inMemoryOrganizationMemberRepository) Create(ctx context.Context, org organization.Member) error {
-	r.users = append(r.users, org)
+func (r *inMemoryOrganizationMemberRepository) Create(ctx context.Context, org *organization.Member) error {
+	r.users = append(r.users, *org)
 	return nil
 }
 
