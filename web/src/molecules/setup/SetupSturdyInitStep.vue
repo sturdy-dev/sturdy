@@ -32,11 +32,31 @@
     </button>
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, type PropType } from 'vue'
+import { gql } from 'graphql-tag'
+import type { InitStepCodebaseFragment } from './__generated__/SetupSturdyInitStep'
+
+export const INIT_STEP_CODEBASE_FRAGMENT = gql`
+  fragment InitStepCodebase on Codebase {
+    id
+    name
+  }
+`
 
 export default defineComponent({
-  props: ['codebase', 'userHaveViews'],
+  props: {
+    codebase: {
+      required: true,
+      type: Object as PropType<InitStepCodebaseFragment>,
+    },
+
+    userHaveViews: {
+      type: Boolean,
+      required: true,
+    },
+  },
   computed: {
     sturdyInitCommand() {
       return 'sturdy init ' + this.codebase?.id + ' ' + this.pathSafeName()
@@ -53,19 +73,16 @@ export default defineComponent({
       }
       return 'unnamed-codebase'
     },
-
     copy() {
       let copyText = document.getElementById('init-command')
       copyText.select()
       copyText.setSelectionRange(0, 99999)
       document.execCommand('copy')
     },
-
     escapeRegex(string) {
       // eslint-disable-next-line
       return string.replace(/[\[\](){}?*+\^$\\.|\-]/g, '\\$&')
     },
-
     trim(str, characters, flags = 'g') {
       if (typeof str !== 'string' || typeof characters !== 'string' || typeof flags !== 'string') {
         throw new TypeError('argument must be string')

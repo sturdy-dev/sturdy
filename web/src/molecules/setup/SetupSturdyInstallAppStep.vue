@@ -9,19 +9,12 @@
 <script lang="ts">
 import { DownloadIcon } from '@heroicons/vue/solid'
 import LinkButton from '../../atoms/LinkButton.vue'
-import { Slug } from '../../slug'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   components: {
     DownloadIcon,
     LinkButton,
-  },
-  props: ['codebase'],
-  computed: {
-    codebaseSlug() {
-      return Slug(this.codebase.name, this.codebase.shortID)
-    },
   },
 })
 </script>

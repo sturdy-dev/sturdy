@@ -8,7 +8,7 @@
       :to="{
         name: 'workspaceHome',
         params: {
-          codebaseSlug: newWorkspace.codebase.shortID,
+          codebaseSlug: slug,
           id: newWorkspace.id,
         },
       }"
@@ -22,8 +22,12 @@
 import { defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import { gql } from 'graphql-tag'
-import type { SetupUserViewsFragment } from './__generated__/SetupSturdyGoToWorkspaceStep'
+import type {
+  GoToWorkspaceStepCodebaseFragment,
+  SetupUserViewsFragment,
+} from './__generated__/SetupSturdyGoToWorkspaceStep'
 import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
+import { Slug } from '../../slug'
 
 export const SETUP_USER_VIEWS = gql`
   fragment SetupUserViews on User {
@@ -34,10 +38,19 @@ export const SETUP_USER_VIEWS = gql`
         name
         codebase {
           id
+          name
           shortID
         }
       }
     }
+  }
+`
+
+export const GO_TO_WORKSPACE_STEP_CODEBASE_FRAGMENT = gql`
+  fragment GoToWorkspaceStepCodebase on Codebase {
+    id
+    name
+    shortID
   }
 `
 
@@ -46,7 +59,7 @@ export default defineComponent({
   props: {
     codebase: {
       required: true,
-      type: Object as PropType<{ id: string }>,
+      type: Object as PropType<GoToWorkspaceStepCodebaseFragment>,
     },
     user: {
       type: Object as PropType<SetupUserViewsFragment | undefined>,
@@ -57,6 +70,9 @@ export default defineComponent({
     newWorkspace(): SetupUserViewsFragment['views'][number]['workspace'] {
       return this.user?.views.filter((view) => view.workspace?.codebase.id === this.codebase.id)[0]
         ?.workspace
+    },
+    slug(): string {
+      return Slug(this.codebase.name, this.codebase.shortID)
     },
   },
 })

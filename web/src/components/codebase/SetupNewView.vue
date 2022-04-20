@@ -123,23 +123,42 @@
 <script lang="ts">
 import Button from '../../atoms/Button.vue'
 import { CheckIcon, DownloadIcon } from '@heroicons/vue/solid'
-import SetupSturdyInitStep from '../../molecules/setup/SetupSturdyInitStep.vue'
-import SetupSturdyInstallCliStep from '../../molecules/setup/SetupSturdyInstallCliStep.vue'
+import SetupSturdyInitStep, {
+  INIT_STEP_CODEBASE_FRAGMENT,
+} from '../../molecules/setup/SetupSturdyInitStep.vue'
+import SetupSturdyInstallCliStep, {
+  INSTALL_CLI_STEP_CODEBASE_FRAGMENT,
+} from '../../molecules/setup/SetupSturdyInstallCliStep.vue'
 import SetupSturdyInstallAppStep from '../../molecules/setup/SetupSturdyInstallAppStep.vue'
 import { gql, useQuery } from '@urql/vue'
 import SetupSturdyGoToWorkspaceStep, {
+  GO_TO_WORKSPACE_STEP_CODEBASE_FRAGMENT,
   SETUP_USER_VIEWS,
 } from '../../molecules/setup/SetupSturdyGoToWorkspaceStep.vue'
 import ConnectNewDirectory from '../../organisms/electron/ConnectNewDirectory.vue'
-import { computed, defineComponent, inject, ref } from 'vue'
+import { computed, defineComponent, inject, type PropType, ref } from 'vue'
 import type { Ref } from 'vue'
 import { Feature } from '../../__generated__/types'
+import type { SetupNewViewFragment } from './__generated__/SetupNewView'
+
+export const SETUP_NEW_VIEW_CODEBASE_FRAGMENT = gql`
+  fragment SetupNewView on Codebase {
+    id
+    ...GoToWorkspaceStepCodebase
+    ...InitStepCodebase
+    ...InstallCliStepCodebase
+  }
+
+  ${GO_TO_WORKSPACE_STEP_CODEBASE_FRAGMENT}
+  ${INIT_STEP_CODEBASE_FRAGMENT}
+  ${INSTALL_CLI_STEP_CODEBASE_FRAGMENT}
+`
 
 export default defineComponent({
   components: { Button, DownloadIcon, CheckIcon },
   props: {
     codebase: {
-      type: Object,
+      type: Object as PropType<SetupNewViewFragment>,
       required: true,
     },
     codebaseSlug: {
