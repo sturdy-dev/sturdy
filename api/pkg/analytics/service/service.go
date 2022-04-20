@@ -100,21 +100,21 @@ func (s *Service) IdentifyGitHubInstallation(ctx context.Context, installationID
 }
 
 func (s *Service) groupIdentify(ctx context.Context, groupIdentify posthog.GroupIdentify) {
-	groupIdentify.Properties.Set("environment", version.Type)
+	groupIdentify.Properties.Set("environment", version.Type.String())
 	if err := s.client.Enqueue(groupIdentify); err != nil {
 		s.logger.Error("failed to group identify", zap.Error(err), zap.Any("groupIdentify", groupIdentify))
 	}
 }
 
 func (s *Service) identify(ctx context.Context, identify posthog.Identify) {
-	identify.Properties.Set("environment", version.Type)
+	identify.Properties.Set("environment", version.Type.String())
 	if err := s.client.Enqueue(identify); err != nil {
 		s.logger.Error("failed to identify", zap.Error(err), zap.Any("identify", identify))
 	}
 }
 
 func (s *Service) capture(ctx context.Context, capture posthog.Capture) {
-	capture.Properties.Set("environment", version.Type)
+	capture.Properties.Set("environment", version.Type.String())
 	if err := s.client.Enqueue(capture); err != nil {
 		s.logger.Error("failed to capture", zap.Error(err), zap.Any("capture", capture))
 	}
