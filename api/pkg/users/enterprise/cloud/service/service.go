@@ -100,7 +100,7 @@ func (s *Service) Create(ctx context.Context, name, email string) (*users.User, 
 	}
 
 	s.analyticsService.IdentifyUser(ctx, newUser)
-	s.analyticsService.CaptureUser(newUser.ID, "created account")
+	s.analyticsService.CaptureUser(ctx, newUser.ID, "created account")
 
 	if err := s.transactionalEmailSender.SendWelcome(ctx, newUser); err != nil {
 		s.logger.Error("failed to send welcome email", zap.Error(err))
@@ -155,7 +155,7 @@ func (s *Service) VerifyMagicLink(ctx context.Context, user *users.User, code st
 	}
 
 	s.analyticsService.IdentifyUser(ctx, user)
-	s.analyticsService.CaptureUser(user.ID, "logged in", analytics.Property("type", "code"))
+	s.analyticsService.CaptureUser(ctx, user.ID, "logged in", analytics.Property("type", "code"))
 	return nil
 }
 
