@@ -268,11 +268,7 @@ func (svc *Service) CodebaseCount(ctx context.Context) (uint64, error) {
 func (svc *Service) AddUserByEmail(ctx context.Context, codebaseID codebases.ID, email string, addedBy users.ID) (*codebases.CodebaseUser, error) {
 	inviteUser, err := svc.userService.GetByEmail(ctx, email)
 	if errors.Is(err, sql.ErrNoRows) {
-		userID, err := auth.UserID(ctx)
-		if err != nil {
-			return nil, err
-		}
-		userReferer := service_user.UserReferer(userID)
+		userReferer := service_user.UserReferer(addedBy)
 		inviteUser, err = svc.userService.CreateShadow(ctx, email, userReferer, nil)
 		if err != nil {
 			return nil, fmt.Errorf("could not get or create user: %w", err)
@@ -313,9 +309,11 @@ func (svc *Service) AddUser(ctx context.Context, codebaseID codebases.ID, user *
 		svc.logger.Error("failed to send events", zap.Error(err))
 	}
 
-	if err := svc.notificationSender.User(ctx, user.ID, notification.InvitedToCodebase, member.ID); err != nil {
-		svc.logger.Error("failed to send notification", zap.Error(err))
-		// do not fail
+	if addedBy != user.ID {
+		if err := svc.notificationSender.User(ctx, user.ID, notification.InvitedToCodebase, member.ID); err != nil {
+			svc.logger.Error("failed to send notification", zap.Error(err))
+			// do not fail
+		}
 	}
 
 	svc.analyticsService.Capture(ctx, "add user to codebase",

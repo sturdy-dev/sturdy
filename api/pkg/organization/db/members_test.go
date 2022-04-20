@@ -3,15 +3,16 @@ package db
 import (
 	"context"
 	"fmt"
+	"os"
+	"testing"
+	"time"
+
 	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/internal/sturdytest"
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/users"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"os"
-	"testing"
-	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -30,7 +31,7 @@ func TestAddMember(t *testing.T) {
 	repo := NewMember(d)
 	ctx := context.Background()
 
-	member := organization.Member{
+	member := &organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: uuid.NewString(),
 		UserID:         users.ID(uuid.NewString()),
@@ -47,7 +48,6 @@ func TestAddMember(t *testing.T) {
 	memberToRemove.DeletedBy = &member.CreatedBy
 
 	assert.NoError(t, repo.Update(ctx, memberToRemove))
-
 	assert.NoError(t, repo.Create(ctx, member))
 
 	memberToTest, err := repo.GetByUserIDAndOrganizationID(ctx, member.UserID, member.OrganizationID)
@@ -55,4 +55,37 @@ func TestAddMember(t *testing.T) {
 	assert.Equal(t, memberToRemove.ID, memberToTest.ID)
 	assert.Nil(t, memberToTest.DeletedAt)
 	assert.Nil(t, memberToTest.DeletedBy)
+}
+
+func TestAddTwoSameMembers_returns_same_id(t *testing.T) {
+	d, err := db.Setup(
+		sturdytest.PsqlDbSourceForTesting(),
+	)
+
+	assert.NoError(t, err)
+	repo := NewMember(d)
+	ctx := context.Background()
+
+	member := &organization.Member{
+		ID:             uuid.NewString(),
+		OrganizationID: uuid.NewString(),
+		UserID:         users.ID(uuid.NewString()),
+		CreatedAt:      time.Now(),
+		CreatedBy:      users.ID(uuid.NewString()),
+	}
+
+	assert.NoError(t, repo.Create(ctx, member))
+
+	time := time.Now()
+	member.DeletedAt = &time
+	member.DeletedBy = &member.CreatedBy
+
+	assert.NoError(t, repo.Update(ctx, member))
+
+	oldID := member.ID
+	newID := uuid.NewString()
+	member.ID = newID
+	assert.NoError(t, repo.Create(ctx, member))
+
+	assert.Equal(t, oldID, member.ID)
 }

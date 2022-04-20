@@ -148,7 +148,7 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 		return existing, nil
 	}
 
-	member := organization.Member{
+	member := &organization.Member{
 		ID:             uuid.NewString(),
 		OrganizationID: orgID,
 		UserID:         userID,
@@ -160,9 +160,11 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
-	if err := svc.notificationsSender.User(ctx, userID, notification.InvitedToOrganization, member.ID); err != nil {
-		svc.logger.Error("failed to send notification", zap.Error(err))
-		// do not fail
+	if addedByUserID != userID {
+		if err := svc.notificationsSender.User(ctx, userID, notification.InvitedToOrganization, member.ID); err != nil {
+			svc.logger.Error("failed to send notification", zap.Error(err))
+			// do not fail
+		}
 	}
 
 	svc.analyticsService.Capture(ctx, "add member to organization",
@@ -170,7 +172,7 @@ func (svc *Service) AddMember(ctx context.Context, orgID string, userID, addedBy
 		analytics.Property("user_id", userID),
 	)
 
-	return &member, nil
+	return member, nil
 }
 
 func (svc *Service) RemoveMember(ctx context.Context, orgID string, userID users.ID, deletedByUserID users.ID) error {

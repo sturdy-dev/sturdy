@@ -167,7 +167,8 @@ func (e *Sender) SendNotification(ctx context.Context, usr *users.User, notif *n
 		return err
 	}
 
-	if !shouldSendNotification {
+	alwaysSend := notif.NotificationType == notification.InvitedToCodebase || notif.NotificationType == notification.InvitedToOrganization
+	if !shouldSendNotification && !alwaysSend {
 		return nil
 	}
 
