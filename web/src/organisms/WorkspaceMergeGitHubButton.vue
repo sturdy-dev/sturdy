@@ -92,7 +92,6 @@
           :disabled="isMerging || creatingOrUpdatingPR"
           :show-tooltip="isMerging"
           :submitting-a-pull-request="isMerging"
-          :tooltip-right="true"
           :spinner="isMerging"
           @click="triggerMergePullRequest"
         >
