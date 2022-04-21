@@ -1,11 +1,10 @@
-package inmemory
+package db
 
 import (
 	"context"
 	"database/sql"
 
 	"getsturdy.com/api/pkg/organization"
-	db_organization "getsturdy.com/api/pkg/organization/db"
 	"getsturdy.com/api/pkg/users"
 )
 
@@ -13,7 +12,7 @@ type inMemoryOrganizationMemberRepository struct {
 	users []organization.Member
 }
 
-func NewInMemoryOrganizationMemberRepository() db_organization.MemberRepository {
+func NewInMemoryOrganizationMemberRepository() MemberRepository {
 	return &inMemoryOrganizationMemberRepository{users: make([]organization.Member, 0)}
 }
 
@@ -66,6 +65,53 @@ func (r *inMemoryOrganizationMemberRepository) Update(ctx context.Context, org *
 	for k, v := range r.users {
 		if v.ID == org.ID {
 			r.users[k] = *org
+		}
+	}
+	return nil
+}
+
+type inMemoryOrganizationRepository struct {
+	orgs []organization.Organization
+}
+
+func NewInMemoryOrganizationRepo() Repository {
+	return &inMemoryOrganizationRepository{orgs: make([]organization.Organization, 0)}
+}
+
+func (r *inMemoryOrganizationRepository) Get(ctx context.Context, id string) (*organization.Organization, error) {
+	for _, org := range r.orgs {
+		if org.ID == id {
+			return &org, nil
+		}
+	}
+	return nil, sql.ErrNoRows
+}
+
+func (r *inMemoryOrganizationRepository) GetByShortID(ctx context.Context, shortID organization.ShortOrganizationID) (*organization.Organization, error) {
+	for _, org := range r.orgs {
+		if org.ShortID == shortID {
+			return &org, nil
+		}
+	}
+	return nil, sql.ErrNoRows
+}
+
+func (r *inMemoryOrganizationRepository) GetFirst(ctx context.Context) (*organization.Organization, error) {
+	if len(r.orgs) > 0 {
+		return &r.orgs[0], nil
+	}
+	return nil, sql.ErrNoRows
+}
+
+func (r *inMemoryOrganizationRepository) Create(ctx context.Context, org organization.Organization) error {
+	r.orgs = append(r.orgs, org)
+	return nil
+}
+
+func (r *inMemoryOrganizationRepository) Update(ctx context.Context, org *organization.Organization) error {
+	for k, v := range r.orgs {
+		if v.ID == org.ID {
+			r.orgs[k] = *org
 		}
 	}
 	return nil

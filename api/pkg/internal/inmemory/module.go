@@ -11,8 +11,6 @@ func TestModule(c *di.Container) {
 	c.Register(NewInMemoryGitHubInstallationRepository)
 	c.Register(NewInMemoryGitHubRepositoryRepo)
 	c.Register(NewInMemoryGitHubUserRepo)
-	c.Register(NewInMemoryOrganizationMemberRepository)
-	c.Register(NewInMemoryOrganizationRepo)
 	c.Register(NewInMemorySnapshotRepo)
 	c.Register(NewInMemoryViewRepo)
 	c.Register(db_workspaces.NewMemory)
