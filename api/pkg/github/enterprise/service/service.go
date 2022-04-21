@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
-	service_activity "getsturdy.com/api/pkg/activity/service"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
@@ -29,7 +28,6 @@ import (
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
-	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
@@ -67,13 +65,11 @@ type Service struct {
 	activitySender     sender_workspace_activity.ActivitySender
 	eventsPublisher    *eventsv2.Publisher
 
-	userService       service_user.Service
-	syncService       *service_sync.Service
-	commentsService   *service_comments.Service
-	changeService     *service_change.Service
-	remoteService     *service_remote.EnterpriseService
-	workspacesService *service_workspaces.Service
-	activityService   *service_activity.Service
+	userService     service_user.Service
+	syncService     *service_sync.Service
+	commentsService *service_comments.Service
+	changeService   *service_change.Service
+	remoteService   *service_remote.EnterpriseService
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -112,8 +108,6 @@ func New(
 	commentsService *service_comments.Service,
 	changeService *service_change.Service,
 	remoteService *service_remote.EnterpriseService,
-	workspacesService *service_workspaces.Service,
-	activityService *service_activity.Service,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
@@ -146,13 +140,11 @@ func New(
 		activitySender:     activitySender,
 		eventsPublisher:    eventsPublisher,
 
-		userService:       userService,
-		syncService:       syncService,
-		commentsService:   commentsService,
-		changeService:     changeService,
-		remoteService:     remoteService,
-		workspacesService: workspacesService,
-		activityService:   activityService,
+		userService:     userService,
+		syncService:     syncService,
+		commentsService: commentsService,
+		changeService:   changeService,
+		remoteService:   remoteService,
 
 		buildQueue: buildQueue,
 	}

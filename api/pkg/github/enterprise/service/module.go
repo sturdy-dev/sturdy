@@ -2,7 +2,6 @@ package service
 
 import (
 	sender_activity "getsturdy.com/api/pkg/activity/sender"
-	service_activity "getsturdy.com/api/pkg/activity/service"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
@@ -24,7 +23,6 @@ import (
 	service_user "getsturdy.com/api/pkg/users/service/module"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	meta_workspaces "getsturdy.com/api/pkg/workspaces/meta"
-	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 )
 
@@ -46,13 +44,11 @@ func Module(c *di.Container) {
 	c.Import(events.Module)
 	c.Import(eventsv2.Module)
 	c.Import(service_user.Module)
-	c.Import(service_workspaces.Module)
 	c.Import(service_sync.Module)
 	c.Import(service_comments.Module)
 	c.Import(service_change.Module)
 	c.Import(service_remote.Module)
 	c.Import(workers_ci.Module)
-	c.Import(service_activity.Module)
 	c.Register(NewClonerQueue)
 	c.Register(NewImporterQueue)
 	c.Register(New)
