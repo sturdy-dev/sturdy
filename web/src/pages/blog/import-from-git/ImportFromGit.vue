@@ -2,6 +2,7 @@
   <BlogPost
     title="Importing from Git!"
     subtitle="Migrating to Sturdy"
+    description="Hey everyone! I hope that you’re doing great, and that May is treating you well!"
     date="May 6, 2021"
     :author="author"
   >

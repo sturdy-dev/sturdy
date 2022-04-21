@@ -65,13 +65,19 @@
 import { defineComponent } from 'vue'
 import Documentation from './Documentation.vue'
 
+type Item = {
+  id: string
+  title: string
+  classes: Array<string>
+}
+
 export default defineComponent({
   components: {
     Documentation,
   },
   data() {
     return {
-      tableOfContents: [],
+      tableOfContents: Array<Item>(),
     }
   },
   mounted() {
@@ -80,15 +86,16 @@ export default defineComponent({
     })
   },
   methods: {
-    buildTable() {
-      let res = []
+    buildTable(): Array<Item> {
+      let res = Array<Item>()
 
       const content = this.$refs.content
       if (!content) {
         return res
       }
 
-      const headings = content.querySelectorAll('h1, h2, h3')
+      const el = content as HTMLElement
+      const headings = el.querySelectorAll<HTMLElement>('h1, h2, h3')
 
       for (const heading of headings) {
         let classes = []
