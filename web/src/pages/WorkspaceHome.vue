@@ -1,11 +1,11 @@
 <template>
-  <main v-if="data" class="bg-white">
+  <main class="bg-white">
     <div class="md:pr-64 fixed z-50 w-full">
       <SelectedHunksToolbar />
       <SearchToolbar />
     </div>
 
-    <div class="py-8">
+    <div v-if="data" class="py-8">
       <div class="mx-auto px-6 grid grid-cols-1 xl:grid-cols-4">
         <div class="xl:col-span-3 xl:pr-8 xl:border-r xl:border-gray-200">
           <div class="flex flex-col gap-2">
@@ -404,7 +404,7 @@ export default defineComponent({
       }
     `
 
-    let { data, fetching, error, executeQuery } = useQuery<
+    let { data, fetching, stale, error, executeQuery } = useQuery<
       WorkspaceHomeQuery,
       DeepMaybeRef<WorkspaceHomeQueryVariables>
     >({
@@ -557,6 +557,7 @@ export default defineComponent({
         isGitHubEnabled: isGitHubEnabled,
         isRemoteEnabled: isRemoteEnabled,
       },
+      requestPolicy: 'cache-and-network',
     })
 
     let {
@@ -648,6 +649,7 @@ export default defineComponent({
     const archiveWorkspaceResult = useArchiveWorkspace()
     return {
       fetching,
+      stale,
       data,
       error,
       displayView,
