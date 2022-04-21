@@ -8,8 +8,6 @@ import (
 
 func TestModule(c *di.Container) {
 	c.Register(NewInMemoryAclRepo)
-	c.Register(NewInMemoryCodebaseRepo)
-	c.Register(NewInMemoryCodebaseUserRepo)
 	c.Register(NewInMemoryGitHubInstallationRepository)
 	c.Register(NewInMemoryGitHubRepositoryRepo)
 	c.Register(NewInMemoryGitHubUserRepo)

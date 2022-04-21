@@ -11,6 +11,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases"
+	db_codebase "getsturdy.com/api/pkg/codebases/db"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/organization"
@@ -63,8 +64,8 @@ func TestCanWrite_codebase(t *testing.T) {
 		},
 	}
 
-	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
-	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
+	codebaseRepo := db_codebase.NewMemory()
+	codebaseUserRepo := db_codebase.NewInMemoryCodebaseUserRepo()
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, nil, nil, nil)
 
 	authService := service_auth.New(
@@ -158,8 +159,8 @@ func TestCanRead_codebase(t *testing.T) {
 		},
 	}
 
-	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
-	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
+	codebaseRepo := db_codebase.NewMemory()
+	codebaseUserRepo := db_codebase.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
@@ -261,8 +262,8 @@ func TestCanReadWrite_organization(t *testing.T) {
 		},
 	}
 
-	codebaseRepo := inmemory.NewInMemoryCodebaseRepo()
-	codebaseUserRepo := inmemory.NewInMemoryCodebaseUserRepo()
+	codebaseRepo := db_codebase.NewMemory()
+	codebaseUserRepo := db_codebase.NewInMemoryCodebaseUserRepo()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
