@@ -6,59 +6,48 @@
       :author="data.review.author"
     />
 
-    <span class="absolute -bottom-0.5 -right-1 bg-white rounded-tl px-0.5 py-px">
-      <ChatAltIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    <span
+      class="absolute -bottom-0.5 -right-1 bg-white rounded px-0.5 py-px"
+      :class="[isApproved ? 'bg-green-300' : '', isRejected ? 'bg-orange-300' : '']"
+    >
+      <ThumbUpIcon v-if="isApproved" class="h-5 w-5 text-gray-400" title="Approved" />
+      <InformationCircleIcon
+        v-else-if="isRejected"
+        class="h-5 w-5 text-gray-400"
+        title="Rejected"
+      />
+      <ChatAltIcon v-else class="h-5 w-5 text-gray-400" aria-hidden="true" />
     </span>
   </div>
   <div class="min-w-0 flex-1 break-words">
     <div>
       <div class="text-sm">
-        <a href="#" class="font-medium text-gray-900">{{ data.review.author.name }}</a>
+        <span class="font-medium text-gray-900">{{ data.review.author.name }}</span>
       </div>
-      <p class="mt-0.5 text-sm text-gray-500">
-        reviewed
-
+      <p class="mt-0.5 text-sm text-gray-500 space-x-1 inline-flex">
         <span
-          class="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5 mx-1"
+          :class="{ 'line-through	': data.review.dismissedAt || data.review.isReplaced }"
+          class="space-x-1 inline-flex"
         >
-          <ThumbUpIcon
-            v-if="data.review.grade === 'Approve'"
-            class="h-5 w-5"
-            :class="[
-              data.review.dismissedAt || data.review.isReplaced
-                ? 'text-gray-500'
-                : 'text-green-400',
-            ]"
-            title="Approved"
-          />
-          <InformationCircleIcon
-            v-else-if="data.review.grade === 'Reject'"
-            e
-            class="h-5 w-5"
-            :class="[
-              data.review.dismissedAt || data.review.isReplaced
-                ? 'text-gray-500'
-                : 'text-orange-400',
-            ]"
-            title="Rejected"
-          />
+          <span v-if="isApproved">approved</span>
+          <span v-else-if="isRejected">has questions about</span>
+          <span v-else>reviewed</span>
+
+          <router-link
+            class="underline"
+            :to="{
+              name: 'workspaceHome',
+              params: {
+                codebaseSlug: codebaseSlug,
+                id: data.review.workspace.id,
+              },
+            }"
+            @click="$emit('close')"
+          >
+            <strong>{{ data.review.workspace.name }}</strong>
+          </router-link>
         </span>
 
-        on
-
-        <router-link
-          class="underline"
-          :to="{
-            name: 'workspaceHome',
-            params: {
-              codebaseSlug: codebaseSlug,
-              id: data.review.workspace.id,
-            },
-          }"
-          @click="$emit('close')"
-        >
-          <strong>{{ data.review.workspace.name }}</strong>
-        </router-link>
         <RelativeTime :date="createdAt" />
       </p>
     </div>
@@ -73,6 +62,7 @@ import { Slug } from '../../../slug'
 import { gql } from '@urql/vue'
 import { defineComponent, type PropType } from 'vue'
 import type { ReviewNotificationFragment } from './__generated__/Review'
+import { ReviewGrade } from '../../../__generated__/types'
 
 export const REVIEW_NOTIFICATION_FRAGMENT = gql`
   fragment ReviewNotification on ReviewNotification {
@@ -133,6 +123,12 @@ export default defineComponent({
         this.data.review.workspace.codebase.name,
         this.data.review.workspace.codebase.shortID
       )
+    },
+    isApproved() {
+      return this.data.review.grade === ReviewGrade.Approve
+    },
+    isRejected() {
+      return this.data.review.grade === ReviewGrade.Reject
     },
   },
 })

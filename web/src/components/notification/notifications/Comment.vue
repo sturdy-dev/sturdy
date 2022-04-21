@@ -13,9 +13,9 @@
   <div class="min-w-0 flex-1 break-words">
     <div>
       <div class="text-sm">
-        <a href="#" class="font-medium text-gray-900">{{ data.comment.author.name }}</a>
+        <span class="font-medium text-gray-900">{{ data.comment.author.name }}</span>
       </div>
-      <p v-if="data.comment.parent?.workspace" class="mt-0.5 text-sm text-gray-500">
+      <p v-if="data.comment.parent?.workspace" class="mt-0.5 text-sm text-gray-500 space-x-1">
         <router-link
           class="underline"
           :to="{
@@ -39,7 +39,7 @@
         </router-link>
         <RelativeTime :date="createdAt" />
       </p>
-      <p v-else-if="data.comment.workspace" class="mt-0.5 text-sm text-gray-500">
+      <p v-else-if="data.comment.workspace" class="mt-0.5 text-sm text-gray-500 space-x-1">
         <router-link
           class="underline"
           :to="{
@@ -58,7 +58,7 @@
         <RelativeTime :date="createdAt" />
       </p>
 
-      <p v-else-if="data.comment.parent?.change?.id" class="mt-0.5 text-sm text-gray-500">
+      <p v-else-if="data.comment.parent?.change?.id" class="mt-0.5 text-sm text-gray-500 space-x-1">
         <router-link
           class="underline"
           :to="{
@@ -76,7 +76,7 @@
         </router-link>
         <RelativeTime :date="createdAt" />
       </p>
-      <p v-else-if="data.comment.change?.id" class="mt-0.5 text-sm text-gray-500">
+      <p v-else-if="data.comment.change?.id" class="mt-0.5 text-sm text-gray-500 space-x-1">
         <router-link
           class="underline"
           :to="{
@@ -94,7 +94,7 @@
         </router-link>
         <RelativeTime :date="createdAt" />
       </p>
-      <p v-else class="mt-0.5 text-sm text-gray-500">
+      <p v-else class="mt-0.5 text-sm text-gray-500 space-x-1">
         Commented
         <RelativeTime :date="createdAt" />
       </p>

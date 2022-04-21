@@ -13,10 +13,10 @@
   <div class="min-w-0 flex-1 break-words">
     <div>
       <div v-if="data.suggestion.author" class="text-sm">
-        <a href="#" class="font-medium text-gray-900">{{ data.suggestion.author.name }}</a>
+        <span class="font-medium text-gray-900">{{ data.suggestion.author.name }}</span>
       </div>
 
-      <p class="mt-0.5 text-sm text-gray-500">
+      <p class="mt-0.5 text-sm text-gray-500 space-x-1">
         Suggested a new change on
         <router-link
           class="underline"
