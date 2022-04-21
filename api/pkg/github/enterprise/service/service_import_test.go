@@ -113,12 +113,12 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	ghRepo := &gh.Repository{
-		ID:            p[int64](rand.Int63n(800_00)),
-		CloneURL:      p[string](fakeGitHubBarePath),
-		DefaultBranch: p[string]("master"),
+		ID:            p(rand.Int63n(800_00)),
+		CloneURL:      p(fakeGitHubBarePath),
+		DefaultBranch: p("master"),
 	}
 
-	sender := &gh.User{Email: p[string]("foobar")}
+	sender := &gh.User{Email: p("foobar")}
 
 	FakeGitHubRepositoriesClient.repos[*ghRepo.ID] = *ghRepo
 
@@ -139,6 +139,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	apiRepo := api.ConvertRepository(ghRepo)
 
 	gitHubClonedPath := d.RepoProvider.ViewPath(cb.ID, "github-cloned")
+	t.Log("Cloning GitHub repo to", gitHubClonedPath)
 	gitHubClonedRepo, err := vcs.CloneRepo(fakeGitHubBarePath, gitHubClonedPath)
 	assert.NoError(t, err)
 
@@ -168,7 +169,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 			Title:  &title,
 			Head:   &api.PullRequestBranch{SHA: &commitSha},
 			Base:   &api.PullRequestBranch{SHA: &masterCommitID},
-			State:  p[string](string(github.PullRequestStateOpen)),
+			State:  p(string(github.PullRequestStateOpen)),
 		}
 
 		return
@@ -262,8 +263,8 @@ func TestService_ImportPullRequest(t *testing.T) {
 		assert.Equal(t, len(afterFirstPushWorkspaceList), len(afterSecondPushWorkspaceList))
 
 		// updated description and title on github
-		pr.Body = p[string]("hello **body**")
-		pr.Title = p[string]("this is a title")
+		pr.Body = p("hello **body**")
+		pr.Title = p("this is a title")
 
 		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
 			PullRequest:  pr,
@@ -323,8 +324,8 @@ func TestService_ImportPullRequest(t *testing.T) {
 		mergeCommitSha, err := fakeGitHubBareRepo.MergeBranchInto(firstBranchName, "master")
 		assert.NoError(t, err)
 
-		firstPR.State = p[string]("closed")
-		firstPR.Merged = p[bool](true)
+		firstPR.State = p("closed")
+		firstPR.Merged = p(true)
 		firstPR.MergeCommitSHA = &mergeCommitSha
 
 		err = d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{
@@ -365,10 +366,10 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		// some random user
 		pr.Head.User = &api.User{
-			ID:    p[int64](rand.Int63n(1_000_00)),
-			Login: p[string](uuid.NewString()),
-			Email: p[string](uuid.NewString() + "@testing.getsturdy.com"),
-			Name:  p[string](uuid.NewString()),
+			ID:    p(rand.Int63n(1_000_00)),
+			Login: p(uuid.NewString()),
+			Email: p(uuid.NewString() + "@testing.getsturdy.com"),
+			Name:  p(uuid.NewString()),
 		}
 
 		err := d.GitHubWebhookService.HandlePullRequestEvent(ctx, &service_github_webhooks.PullRequestEvent{

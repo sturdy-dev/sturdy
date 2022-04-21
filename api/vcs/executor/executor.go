@@ -342,15 +342,36 @@ func (e *executor) ExecTemporaryView(codebaseID codebases.ID, actionName string)
 			} else if err != nil {
 				return fmt.Errorf("failed to stat view: %w", err)
 			} else {
-				// checkout sturdy trunk as if it is a new view
-				repo, err := repoProvider.ViewRepo(codebaseID, viewID)
+				trunkRepo, err := repoProvider.TrunkRepo(codebaseID)
+				if err != nil {
+					return fmt.Errorf("failed to get trunk repo: %w", err)
+				}
+				trunkHeadBranch, err := trunkRepo.HeadBranch()
+				if err != nil {
+					return fmt.Errorf("failed to get default branch: %w", err)
+				}
+				// checkout head branch as if it is a new view
+				viewRepo, err := repoProvider.ViewRepo(codebaseID, viewID)
 				if err != nil {
 					return fmt.Errorf("failed to open view repo: %w", err)
 				}
-				if err := repo.FetchBranch("sturdytrunk"); err != nil {
+				if err := viewRepo.FetchBranch(trunkHeadBranch); err != nil {
 					return fmt.Errorf("failed to fetch branch: %w", err)
 				}
-				if err := repo.CheckoutBranchWithForce("sturdytrunk"); err != nil {
+
+				viewHeadBranch, err := viewRepo.HeadBranch()
+				if err != nil {
+					return fmt.Errorf("failed to get head branch: %w", err)
+				}
+				if trunkHeadBranch == viewHeadBranch {
+					// if we are already on the branch, clean staged changes to reset the state
+					return viewRepo.CleanStaged()
+				}
+
+				if err := viewRepo.CreateBranchTrackingUpstream(trunkHeadBranch); err != nil {
+					return fmt.Errorf("failed to create branch tracking upstream: %w", err)
+				}
+				if err := viewRepo.CheckoutBranchWithForce(trunkHeadBranch); err != nil {
 					return fmt.Errorf("failed to checkout branch: %w", err)
 				}
 				return nil
