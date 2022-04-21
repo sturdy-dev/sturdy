@@ -24,7 +24,6 @@ import (
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	meta_workspaces "getsturdy.com/api/pkg/workspaces/meta"
-	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 )
 
@@ -39,7 +38,6 @@ func Module(c *di.Container) {
 	c.Import(db_view.Module)
 	c.Import(service_analytics.Module)
 	c.Import(service_sync.Module)
-	c.Import(service_workspace.Module)
 	c.Import(service_codebases.Module)
 	c.Import(service_comments.Module)
 	c.Import(service_activity.Module)
