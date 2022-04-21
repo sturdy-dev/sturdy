@@ -1,5 +1,12 @@
 <template>
-  <StaticPage title="Terms of Service" category="About" :wide="true">
+  <StaticPage
+    title="Terms of Service"
+    category="About"
+    :wide="true"
+    metadescription="At Sturdy we take data privacy and security very seriously. This privacy policy will explain
+        how Sturdy uses the personal data we collect from you when you are using the website and
+        service."
+  >
     <div class="text-base max-w-prose mx-auto lg:max-w-none">
       <p class="text-lg text-gray-500">
         At Sturdy we take data privacy and security very seriously. This privacy policy will explain

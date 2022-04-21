@@ -3,6 +3,9 @@
     title="Privacy Policy"
     category="About"
     :narrow="true"
+    metadescription="At Sturdy we take data privacy and security very seriously. This privacy policy will explain
+        how Sturdy uses the personal data we collect from you when you are using the website and
+        service."
     image="https://images.unsplash.com/photo-1531403009284-440f080d1e12?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80"
   >
     <div class="text-base max-w-prose mx-auto lg:max-w-none">
