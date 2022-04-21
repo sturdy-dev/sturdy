@@ -1,20 +1,20 @@
 package vcs
 
 import (
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFileContentsAtCommit(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
-	_, err = CreateBareRepoWithRootCommit(pathBase)
+	_, err := CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}
@@ -45,12 +45,11 @@ func TestFileContentsAtCommit(t *testing.T) {
 }
 
 func TestDirectoryChildrenAtCommit(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
-	_, err = CreateBareRepoWithRootCommit(pathBase)
+	_, err := CreateBareRepoWithRootCommit(pathBase)
 	assert.NoError(t, err)
 	repoA, err := CloneRepo(pathBase, clientA)
 	assert.NoError(t, err)

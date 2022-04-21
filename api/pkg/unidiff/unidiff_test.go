@@ -3,7 +3,6 @@ package unidiff
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path"
 	"testing"
 
@@ -325,8 +324,7 @@ func TestFilterAndApply(t *testing.T) {
 	}
 	assert.Equal(t, expectedDiffs, diffs)
 
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 	repoProvider := provider.New(tmpBase, "")
 	codebaseID := codebases.ID(uuid.NewString())
 	trunkPath := repoProvider.TrunkPath(codebaseID)

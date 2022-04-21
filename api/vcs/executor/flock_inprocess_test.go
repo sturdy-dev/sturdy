@@ -1,17 +1,13 @@
 package executor
 
 import (
-	"io/ioutil"
 	"path/filepath"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestInProcess_RLockNonBlocksRLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 	lock := New(filepath.Join(dir, ".lock"))
 
 	lockSecond := make(chan struct{})
@@ -34,8 +30,7 @@ func TestInProcess_RLockNonBlocksRLock(t *testing.T) {
 }
 
 func TestInProcess_UnlockUnblocksLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 	lock := New(filepath.Join(dir, ".lock"))
 
 	lockSecond := make(chan struct{})
@@ -62,8 +57,7 @@ func TestInProcess_UnlockUnblocksLock(t *testing.T) {
 }
 
 func TestInProcess_LockBlocksLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 	lock := New(filepath.Join(dir, ".lock"))
 	lockSecond := make(chan struct{})
 	secondLocked := make(chan struct{})
@@ -85,8 +79,7 @@ func TestInProcess_LockBlocksLock(t *testing.T) {
 }
 
 func TestInProcess_RLockBlocksLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 	lock := New(filepath.Join(dir, ".lock"))
 
 	lockSecond := make(chan struct{})
@@ -108,8 +101,7 @@ func TestInProcess_RLockBlocksLock(t *testing.T) {
 	}
 }
 func TestInProcess_RUnlockUnblocksLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 
 	lock := New(filepath.Join(dir, ".lock"))
 
@@ -137,8 +129,7 @@ func TestInProcess_RUnlockUnblocksLock(t *testing.T) {
 }
 
 func TestInProcess_LockBlocksRLock(t *testing.T) {
-	dir, err := ioutil.TempDir("", "")
-	assert.NoError(t, err)
+	dir := t.TempDir()
 	lock := New(filepath.Join(dir, ".lock"))
 	rlockSecond := make(chan struct{})
 	secondRLocked := make(chan struct{})

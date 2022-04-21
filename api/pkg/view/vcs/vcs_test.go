@@ -1,8 +1,6 @@
 package vcs_test
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"getsturdy.com/api/pkg/codebases"
@@ -56,7 +54,6 @@ func TestSetWorkspace(t *testing.T) {
 }
 
 func newRepoProvider(t *testing.T) provider.RepoProvider {
-	reposBasePath, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	reposBasePath := t.TempDir()
 	return provider.New(reposBasePath, "")
 }

@@ -116,7 +116,6 @@ func TestSnapshot(t *testing.T) {
 }
 
 func reposBasePath(t *testing.T) (string, provider.RepoProvider) {
-	reposBasePath, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	reposBasePath := t.TempDir()
 	return reposBasePath, provider.New(reposBasePath, "")
 }
