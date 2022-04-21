@@ -3,6 +3,9 @@
     title="Introducing Draft changes"
     subtitle="This week at Sturdy"
     date="March 10, 2022"
+    description="Hey everyone! In this week's update I would like to share with you an update to the Sturdy
+      workflow with Draft changes, as well as the release of Sturdy for Linux. Today is also an
+      exciting day for us because we are launching Sturdy on Product Hunt!"
     :author="author"
     :image="ogImageFull"
   >
@@ -98,7 +101,9 @@ import ogImage from './skip-the-git-overhead.png'
 
 import { computed } from 'vue'
 
-let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
+let ogImageFull = computed(
+  () => new URL(ogImage, import.meta.env.VITE_WEB_HOST as string | undefined).href
+)
 
 const author = {
   name: 'Gustav Westling',

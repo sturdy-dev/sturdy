@@ -3,7 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "types": ["vite/client", "@types/jest"],
-    "allowJs": true
+    "allowJs": true,
+    "importsNotUsedAsValues": "preserve"
   },
   "include": [
     "src/**/*.ts",

@@ -92,7 +92,7 @@ interface Props {
   subtitle?: string
   date: string
   description: string
-  author: Author
+  author?: Author
   readingTime?: string
   diveInBanner?: boolean
   image?: string
@@ -104,6 +104,7 @@ const props = withDefaults(defineProps<Props>(), {
   subtitle: undefined,
   readingTime: undefined,
   image: undefined,
+  author: undefined,
 })
 
 useHead({

@@ -3,6 +3,8 @@
     title="This week at Sturdy #16"
     subtitle="This week at Sturdy"
     date="April 12, 2022"
+    description="Hello world! In this newsletter we're sharing some of the biggest updates and new features in
+      Sturdy v1.7, let's get started!"
     :author="author"
     :image="ogImageFull"
   >
@@ -106,7 +108,9 @@ import ogImage from './og_image_oss.png'
 
 import { computed } from 'vue'
 
-let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
+let ogImageFull = computed(
+  () => new URL(ogImage, import.meta.env.VITE_WEB_HOST as string | undefined).href
+)
 
 const author = {
   name: 'Gustav Westling',

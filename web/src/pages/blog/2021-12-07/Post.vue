@@ -3,6 +3,8 @@
     title="Launching Sturdy for Desktop!"
     subtitle="This week at Sturdy"
     date="December 7, 2021"
+    description="Hey! Here’s a summary of all of the latest and greatest features available in the latest
+      version of Sturdy."
     :author="author"
   >
     <template #introduction>

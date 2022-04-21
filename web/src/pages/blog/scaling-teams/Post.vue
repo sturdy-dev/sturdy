@@ -414,7 +414,9 @@ const author = {
   link: 'https://twitter.com/krlvi',
 }
 
-let ogImageFull = computed(() => new URL(ogImage, import.meta.env.VITE_WEB_HOST).href)
+let ogImageFull = computed(
+  () => new URL(ogImage, import.meta.env.VITE_WEB_HOST as string | undefined).href
+)
 
 let amdahl = computed(() =>
   katex.renderToString(String.raw`Speedup(n) = \frac{1}{(1-p) + \frac{p}{n}}`, {
@@ -449,7 +451,7 @@ let forp = computed(() =>
 
 onMounted(async () => {
   let module = await import('https://api.observablehq.com/d/1c779005074f8668.js?v=3')
-  new Runtime().module(module.default, (name) => {
+  new Runtime().module(module.default, (name: string) => {
     if (name === 'workload')
       return new Inspector(document.querySelector('#observablehq-workload-b4d16c02'))
     if (name === 'viewof paralleilizable')
@@ -461,7 +463,9 @@ onMounted(async () => {
     if (name === 'viewof p')
       return new Inspector(document.querySelector('#observablehq-viewof-p-59d50752'))
     if (name === 'rateOfChange')
-      return new Inspector(document.querySelector('#observablehq-rateOfChange-af23ee38'))
+      return new Inspector(
+        document.querySelector('#observasrc/pages/blog/Blog.vueblehq-rateOfChange-af23ee38')
+      )
     if (name === 'viewof p2')
       return new Inspector(document.querySelector('#observablehq-viewof-p2-af23ee38'))
     if (name === 'forp') return new Inspector(document.querySelector('#observablehq-forp-54b848a7'))

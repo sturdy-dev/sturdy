@@ -182,7 +182,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#016 - This week at Sturdy' },
+      blog: true,
+      blogTitle: '#016 - This week at Sturdy',
     },
   },
   {
@@ -193,7 +194,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#015 - Introducing Draft changes' },
+      blog: true,
+      blogTitle: '#015 - Introducing Draft changes',
     },
   },
   {
@@ -204,7 +206,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#014 - Sturdy is now open-source' },
+      blog: true,
+      blogTitle: '#014 - Sturdy is now open-source',
     },
   },
   {
@@ -215,7 +218,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#013 - GraphQL & Componentized UIs' },
+      blog: true,
+      blogTitle: '#013 - GraphQL & Componentized UIs',
     },
   },
   {
@@ -226,7 +230,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#012 - Launching the Sturdy App!' },
+      blog: true,
+      blogTitle: '#012 - Launching the Sturdy App!',
     },
   },
   {
@@ -237,7 +242,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#011 - Scaling teams as parallel computing systems' },
+      blog: true,
+      blogTitle: '#011 - Scaling teams as parallel computing systems',
     },
   },
   {
@@ -248,7 +254,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#010 - Sturdy-the-app is coming!' },
+      blog: true,
+      blogTitle: '#010 - Sturdy-the-app is coming!',
     },
   },
   {
@@ -259,7 +266,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#009 - ACLs and a fresh hot look!' },
+      blog: true,
+      blogTitle: '#009 - ACLs and a fresh hot look!',
     },
   },
   {
@@ -270,7 +278,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#008 - Large Files' },
+      blog: true,
+      blogTitle: '#008 - Large Files',
     },
   },
   {
@@ -281,7 +290,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#007 - Unbreaking code collaboration' },
+      blog: true,
+      blogTitle: '#007 - Unbreaking code collaboration',
     },
   },
   {
@@ -292,7 +302,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#006 - Sturdy is here' },
+      blog: true,
+      blogTitle: '#006 - Sturdy is here',
     },
   },
   {
@@ -303,7 +314,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#005 - Humane Code Review' },
+      blog: true,
+      blogTitle: '#005 - Humane Code Review',
     },
   },
   {
@@ -314,7 +326,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#004 - Importing from Git' },
+      blog: true,
+      blogTitle: '#004 - Importing from Git',
     },
   },
   {
@@ -325,7 +338,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#003 - Share Now!' },
+      blog: true,
+      blogTitle: '#003 - Share Now!',
     },
   },
   {
@@ -337,7 +351,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#002 - Restore to any point in time' },
+      blog: true,
+      blogTitle: '#002 - Restore to any point in time',
     },
   },
   {
@@ -348,7 +363,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#001 - YC W21 Demo Day!' },
+      blog: true,
+      blogTitle: '#001 - YC W21 Demo Day!',
     },
   },
   {
@@ -359,7 +375,8 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: { title: '#000 - This Week at Sturdy' },
+      blog: true,
+      blogTitle: '#000 - This Week at Sturdy',
     },
   },
   {

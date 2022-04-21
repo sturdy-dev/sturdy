@@ -11,7 +11,7 @@
       <ul>
         <li v-for="link in links" :key="link.name">
           <router-link :to="{ name: link.name }" class="!no-underline">
-            {{ link.meta.blog.title }}
+            {{ link.title }}
           </router-link>
         </li>
       </ul>
@@ -23,6 +23,16 @@
 import StaticPage from '../../layouts/StaticPage.vue'
 import { useRouter } from 'vue-router'
 
+type nameTitle = { name: string; title: string }
+
 let routes = useRouter().getRoutes()
-let links = routes.filter((r) => r.meta.blog)
+let links = routes
+  .filter((r) => r.meta.blog && r.meta.blogTitle && r.name)
+  .map((r): nameTitle => {
+    return {
+      name: r.name as string,
+      title: r.meta.blogTitle as string,
+    }
+  })
+  .filter(Boolean)
 </script>
