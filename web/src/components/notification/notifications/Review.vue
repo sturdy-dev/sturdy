@@ -21,14 +21,11 @@
       <div class="text-sm">
         <span class="font-medium text-gray-900">{{ data.review.author.name }}</span>
       </div>
-      <p class="mt-0.5 text-sm text-gray-500 space-x-1 inline-flex">
-        <span
-          :class="{ 'line-through	': data.review.dismissedAt || data.review.isReplaced }"
-          class="space-x-1 inline-flex"
-        >
-          <span v-if="isApproved">approved</span>
-          <span v-else-if="isRejected">has questions about</span>
-          <span v-else>reviewed</span>
+      <p class="mt-0.5 text-sm text-gray-500 space-x-1">
+        <span :class="{ 'line-through	': data.review.dismissedAt || data.review.isReplaced }">
+          <template v-if="isApproved">approved&nbsp;</template>
+          <template v-else-if="isRejected">has questions about&nbsp;</template>
+          <template v-else>reviewed&nbsp;</template>
 
           <router-link
             class="underline"
