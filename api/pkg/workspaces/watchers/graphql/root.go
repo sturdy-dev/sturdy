@@ -20,7 +20,7 @@ type rootResolver struct {
 	logger *zap.Logger
 
 	workspaceWatcherService *service_workspace_watchers.Service
-	workspaceService        service_workspace.Service
+	workspaceService        *service_workspace.Service
 
 	authService *service_auth.Service
 
@@ -34,7 +34,7 @@ func NewRootResolver(
 	logger *zap.Logger,
 
 	workspaceWatcherService *service_workspace_watchers.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 
 	authService *service_auth.Service,
 

@@ -50,7 +50,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 
 		UserService      service_user.Service
 		CodebaseService  *service_codebase.Service
-		WorkspaceService service_workspace.Service
+		WorkspaceService *service_workspace.Service
 		ChangeService    *service_change.Service
 
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver

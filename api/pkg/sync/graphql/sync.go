@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/sync"
@@ -19,14 +20,14 @@ type rootResolver struct {
 	fileDiffRootResolver resolvers.FileDiffRootResolver
 	executorProvider     executor.Provider
 	logger               *zap.Logger
-	workspaceService     service_workspace.Service
+	workspaceService     *service_workspace.Service
 }
 
 func NewRootResolver(
 	fileDiffRootResolver resolvers.FileDiffRootResolver,
 	executorProvider executor.Provider,
 	logger *zap.Logger,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 ) resolvers.RebaseStatusRootResolver {
 	return &rootResolver{
 		fileDiffRootResolver: fileDiffRootResolver,

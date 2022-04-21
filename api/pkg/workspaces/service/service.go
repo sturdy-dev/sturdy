@@ -8,23 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"getsturdy.com/api/pkg/activity"
-	"getsturdy.com/api/pkg/activity/sender"
-	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/changes"
-	"getsturdy.com/api/pkg/changes/message"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
-	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
-	db_review "getsturdy.com/api/pkg/review/db"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
-	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
@@ -38,7 +30,6 @@ import (
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/google/uuid"
-	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
 )
 
@@ -52,51 +43,21 @@ type CreateWorkspaceRequest struct {
 	Revert       bool
 }
 
-type Service interface {
-	Create(context.Context, CreateWorkspaceRequest) (*workspaces.Workspace, error)
-	CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error)
-	GetByID(context.Context, string) (*workspaces.Workspace, error)
-	GetByViewID(context.Context, string) (*workspaces.Workspace, error)
-	LandChange(ctx context.Context, ws *workspaces.Workspace, diffOptions ...vcs.DiffOption) (*changes.Change, error)
-	CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error
-	Diffs(ctx context.Context, workspaceID string, opts ...DiffsOption) ([]unidiff.FileDiff, bool, error)
-	CopyPatches(ctx context.Context, src, dist *workspaces.Workspace, opts ...CopyPatchesOption) error
-	RemovePatches(context.Context, *workspaces.Workspace, ...string) error
-	HasConflicts(context.Context, *workspaces.Workspace) (bool, error)
-	Archive(context.Context, *workspaces.Workspace) error
-	ArchiveWithChange(context.Context, *workspaces.Workspace, *changes.Change) error
-	Unarchive(context.Context, *workspaces.Workspace) error
-	HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error)
-	ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error)
-
-	// Enterprise only
-	Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error
-	LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error
-	ListByIDs(context.Context, ...string) ([]*workspaces.Workspace, error)
-}
-
-type WorkspaceService struct {
+type Service struct {
 	logger           *zap.Logger
 	analyticsService *service_analytics.Service
 
 	workspaceWriter db.WorkspaceWriter
 	workspaceReader db.WorkspaceReader
 
-	reviewRepo db_review.ReviewRepository
+	changeService *service_change.Service
+	viewService   *service_view.Service
+	usersService  service_users.Service
 
-	commentService  *service_comments.Service
-	changeService   *service_change.Service
-	activityService *service_activity.Service
-	viewService     *service_view.Service
-	usersService    service_users.Service
-
-	activitySender   sender.ActivitySender
 	eventsSender     events.EventSender
 	eventsSenderV2   *eventsv2.Publisher
-	snapshotterQueue worker_snapshots.Queue
 	executorProvider executor.Provider
 	snap             snapshotter.Snapshotter
-	buildQueue       *workers_ci.BuildQueue
 }
 
 func New(
@@ -106,44 +67,30 @@ func New(
 	workspaceWriter db.WorkspaceWriter,
 	workspaceReader db.WorkspaceReader,
 
-	reviewRepo db_review.ReviewRepository,
-
-	commentsService *service_comments.Service,
 	changeService *service_change.Service,
-	activityService *service_activity.Service,
 	viewService *service_view.Service,
 	usersService service_users.Service,
 
-	activitySender sender.ActivitySender,
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
 	eventsSenderV2 *eventsv2.Publisher,
-	snapshotterQueue worker_snapshots.Queue,
 	snap snapshotter.Snapshotter,
-	buildQueue *workers_ci.BuildQueue,
-) *WorkspaceService {
-	return &WorkspaceService{
+) *Service {
+	return &Service{
 		logger:           logger,
 		analyticsService: analyticsService,
 
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
 
-		reviewRepo: reviewRepo,
+		changeService: changeService,
+		viewService:   viewService,
+		usersService:  usersService,
 
-		commentService:  commentsService,
-		changeService:   changeService,
-		activityService: activityService,
-		viewService:     viewService,
-		usersService:    usersService,
-
-		activitySender:   activitySender,
 		executorProvider: executorProvider,
 		eventsSender:     eventsSender,
 		eventsSenderV2:   eventsSenderV2,
-		snapshotterQueue: snapshotterQueue,
 		snap:             snap,
-		buildQueue:       buildQueue,
 	}
 }
 
@@ -174,11 +121,11 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 	return options
 }
 
-func (s *WorkspaceService) GetByViewID(ctx context.Context, viewID string) (*workspaces.Workspace, error) {
+func (s *Service) GetByViewID(ctx context.Context, viewID string) (*workspaces.Workspace, error) {
 	return s.workspaceReader.GetByViewID(viewID, true)
 }
 
-func (s *WorkspaceService) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
+func (s *Service) Diffs(ctx context.Context, workspaceID string, oo ...DiffsOption) ([]unidiff.FileDiff, bool, error) {
 	ws, err := s.GetByID(ctx, workspaceID)
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to find workspace: %w", err)
@@ -192,7 +139,7 @@ func (s *WorkspaceService) Diffs(ctx context.Context, workspaceID string, oo ...
 	return s.diffsFromView(ctx, ws, options)
 }
 
-func (s *WorkspaceService) diffsFromSnapshot(ctx context.Context, ws *workspaces.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, error) {
+func (s *Service) diffsFromSnapshot(ctx context.Context, ws *workspaces.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, error) {
 	if ws.LatestSnapshotID == nil {
 		return nil, nil
 	}
@@ -205,7 +152,7 @@ func (s *WorkspaceService) diffsFromSnapshot(ctx context.Context, ws *workspaces
 	return s.snap.Diffs(ctx, *ws.LatestSnapshotID, snapshotOptions...)
 }
 
-func (s *WorkspaceService) diffsFromView(ctx context.Context, ws *workspaces.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, bool, error) {
+func (s *Service) diffsFromView(ctx context.Context, ws *workspaces.Workspace, options *DiffsOptions) ([]unidiff.FileDiff, bool, error) {
 	var diffs []unidiff.FileDiff
 
 	isRebasing := false
@@ -247,7 +194,7 @@ func (s *WorkspaceService) diffsFromView(ctx context.Context, ws *workspaces.Wor
 	return diffs, isRebasing, nil
 }
 
-func (s *WorkspaceService) GetByID(ctx context.Context, id string) (*workspaces.Workspace, error) {
+func (s *Service) GetByID(ctx context.Context, id string) (*workspaces.Workspace, error) {
 	return s.workspaceReader.Get(id)
 }
 
@@ -274,7 +221,7 @@ func getCopyPatchOptions(oo ...CopyPatchesOption) *CopyPatchesOptions {
 	return options
 }
 
-func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspaces.Workspace, opts ...CopyPatchesOption) error {
+func (s *Service) CopyPatches(ctx context.Context, dist, src *workspaces.Workspace, opts ...CopyPatchesOption) error {
 	if src.CodebaseID != dist.CodebaseID {
 		return fmt.Errorf("source and destination codebases must be the same")
 	}
@@ -323,7 +270,7 @@ func (s *WorkspaceService) CopyPatches(ctx context.Context, dist, src *workspace
 	return nil
 }
 
-func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error) {
+func (s *Service) CreateFromWorkspace(ctx context.Context, from *workspaces.Workspace, userID users.ID, name string) (*workspaces.Workspace, error) {
 
 	var baseChangeID *changes.ID
 	fromBaseChange, err := s.HeadChange(ctx, from)
@@ -352,7 +299,7 @@ func (s *WorkspaceService) CreateFromWorkspace(ctx context.Context, from *worksp
 	return newWorkspace, nil
 }
 
-func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceRequest) (*workspaces.Workspace, error) {
+func (s *Service) Create(ctx context.Context, req CreateWorkspaceRequest) (*workspaces.Workspace, error) {
 	t := time.Now()
 	var zero int32 = 0
 	ws := workspaces.Workspace{
@@ -453,7 +400,7 @@ func (s *WorkspaceService) Create(ctx context.Context, req CreateWorkspaceReques
 
 var ErrNotFound = errors.New("not found")
 
-func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error) {
+func (s *Service) HeadChange(ctx context.Context, ws *workspaces.Workspace) (*changes.Change, error) {
 	if ws.HeadChangeComputed {
 		if ws.HeadChangeID == nil {
 			return nil, ErrNotFound
@@ -513,168 +460,6 @@ func (s *WorkspaceService) HeadChange(ctx context.Context, ws *workspaces.Worksp
 	return ch, nil
 }
 
-func (s *WorkspaceService) LandChange(ctx context.Context, ws *workspaces.Workspace, diffOpts ...vcs.DiffOption) (*changes.Change, error) {
-	user, err := s.usersService.GetByID(ctx, ws.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %w", err)
-	}
-
-	gitCommitMessage := message.CommitMessage(ws.DraftDescription)
-
-	signature := git.Signature{
-		Name:  user.Name,
-		Email: user.Email,
-		When:  time.Now(),
-	}
-
-	var change *changes.Change
-	creteAndLand := func(viewRepo vcs.RepoWriter) error {
-		createdCommitID, fromViewPushFunc, err := s.changeService.CreateAndLandFromView(
-			viewRepo,
-			ws.CodebaseID,
-			ws.ID,
-			gitCommitMessage,
-			signature,
-			diffOpts...,
-		)
-		if err != nil {
-			return fmt.Errorf("failed to create and land from view: %w", err)
-		}
-
-		parents, err := viewRepo.GetCommitParents(createdCommitID)
-		if err != nil {
-			return fmt.Errorf("failed get parents of new commit: %w", err)
-		}
-		if len(parents) != 1 {
-			return fmt.Errorf("commit has an unexpected number of parents n=%d", len(parents))
-		}
-
-		change, err = s.changeService.CreateWithCommitAsParent(ctx, ws, createdCommitID, parents[0])
-		if err != nil {
-			return fmt.Errorf("failed to create change: %w", err)
-		}
-
-		if err := fromViewPushFunc(viewRepo); err != nil {
-			return fmt.Errorf("failed to push the landed result: %w", err)
-		}
-		return nil
-	}
-
-	if ws.ViewID != nil {
-		if err := s.executorProvider.New().
-			Write(creteAndLand).
-			ExecView(ws.CodebaseID, *ws.ViewID, "landChangeCreateAndLandFromView"); err != nil {
-			return nil, fmt.Errorf("failed to share from view: %w", err)
-		}
-	} else {
-		if ws.LatestSnapshotID == nil {
-			return nil, fmt.Errorf("the workspace has no snapshot")
-		}
-		snapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get snapshot: %w", err)
-		}
-		if err := s.executorProvider.New().
-			Write(func(writer vcs.RepoWriter) error {
-				return writer.CreateBranchTrackingUpstream(ws.ID)
-			}).
-			Write(vcs_view.CheckoutSnapshot(snapshot)).
-			Write(creteAndLand).
-			ExecTemporaryView(ws.CodebaseID, "landChangeCreateAndLandFromSnapshot"); err != nil {
-			return nil, fmt.Errorf("failed to create and land from snaphsot: %w", err)
-		}
-		ws.SetSnapshot(nil)
-	}
-
-	s.analyticsService.Capture(ctx, "create change",
-		analytics.CodebaseID(ws.CodebaseID),
-		analytics.Property("workspace_id", ws.ID),
-		analytics.Property("change_id", change.ID),
-	)
-
-	if ws.ViewID != nil {
-		if err := s.snapshotterQueue.Enqueue(ctx, ws.CodebaseID, *ws.ViewID, ws.ID, snapshots.ActionChangeLand); err != nil {
-			return nil, fmt.Errorf("failed to enqueue snapshot: %w", err)
-		}
-
-		vw, err := s.viewService.GetByID(ctx, *ws.ViewID)
-		if err != nil {
-			return nil, fmt.Errorf("could not get view: %w", err)
-		}
-
-		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ws.CodebaseID), vw); err != nil {
-			return nil, fmt.Errorf("failed to send view updated event: %w", err)
-		}
-	}
-
-	// Update workspace
-	now := time.Now()
-	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
-		db.SetHeadChangeID(nil), // TODO: Set this directly
-		db.SetHeadChangeComputed(false),
-		db.SetUpdatedAt(&now),
-		db.SetDraftDescription(""),
-		db.SetChangeID(&change.ID),
-		db.SetLastLandedAt(&now),
-	); err != nil {
-		return nil, fmt.Errorf("failed to update workspace: %w", err)
-	}
-
-	// Send event that the workspace has been updated
-	if err := s.eventsSender.Workspace(ws.ID, events.WorkspaceUpdated, ws.ID); err != nil {
-		s.logger.Error("failed to send workspace event", zap.Error(err))
-	}
-
-	// Clear 'up to date' cache for all workspaces
-	if err := s.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
-		return nil, fmt.Errorf("failed to unset up_to_date_with_trunk: %w", err)
-	}
-
-	s.analyticsService.Capture(ctx, "landed changes",
-		analytics.CodebaseID(ws.CodebaseID),
-		analytics.Property("workspace_id", ws.ID),
-		analytics.Property("change_id", change.ID),
-	)
-
-	if err := s.commentService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, change.ID); err != nil {
-		return nil, fmt.Errorf("failed to move comments from workspace to change: %w", err)
-	}
-
-	// Create activity
-	if err := s.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(change.ID)); err != nil {
-		return nil, fmt.Errorf("failed to create workspace activity: %w", err)
-	}
-
-	// Make activity list available for the change
-	if err := s.activityService.SetChange(ctx, ws.ID, change.ID); err != nil {
-		return nil, fmt.Errorf("failed to set change activity: %w", err)
-	}
-
-	// Update codebase cache
-	if err := s.changeService.SetAsHeadChange(change); err != nil {
-		return nil, fmt.Errorf("failed to set as head change: %w", err)
-	}
-
-	// Send events that the codebase has been updated
-	if err := s.eventsSender.Codebase(ws.CodebaseID, events.CodebaseUpdated, ws.CodebaseID.String()); err != nil {
-		s.logger.Error("failed to send codebase event", zap.Error(err))
-	}
-
-	if err := s.eventsSender.Workspace(ws.ID, events.WorkspaceUpdatedSnapshot, ws.ID); err != nil {
-		s.logger.Error("failed to send workspace event", zap.Error(err))
-	}
-
-	if err := s.buildQueue.EnqueueChange(ctx, change); err != nil {
-		s.logger.Error("failed to enqueue change", zap.Error(err))
-	}
-
-	if err := s.Archive(ctx, ws); err != nil {
-		return nil, fmt.Errorf("failed to archive workspace: %w", err)
-	}
-
-	return change, nil
-}
-
 func EnsureCodebaseStatus(repo vcs.RepoGitWriter) error {
 	// Make sure that a root commit exists
 	// This is the first time a root commit is _needed_ (so that we can create a branch),
@@ -718,7 +503,7 @@ const draftDescriptionTemplate = `<h3>Adding a README to __CODEBASE__NAME__</h3>
 <p>Happy hacking!</p>
 `
 
-func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error {
+func (svc *Service) CreateWelcomeWorkspace(ctx context.Context, codebaseID codebases.ID, userID users.ID, codebaseName string) error {
 	readMeContents := strings.ReplaceAll(readMeTemplate, "__CODEBASE__NAME__", codebaseName)
 	draftDescriptionContents := strings.ReplaceAll(draftDescriptionTemplate, "__CODEBASE__NAME__", codebaseName)
 
@@ -763,7 +548,7 @@ func (svc *WorkspaceService) CreateWelcomeWorkspace(ctx context.Context, codebas
 	return nil
 }
 
-func (s *WorkspaceService) RemovePatches(ctx context.Context, ws *workspaces.Workspace, hunkIDs ...string) error {
+func (s *Service) RemovePatches(ctx context.Context, ws *workspaces.Workspace, hunkIDs ...string) error {
 	removePatches := vcs_workspace.Remove(s.logger, hunkIDs...)
 
 	if ws.ViewID != nil {
@@ -817,7 +602,7 @@ func (s *WorkspaceService) RemovePatches(ctx context.Context, ws *workspaces.Wor
 	return fmt.Errorf("failed to remove patches: no view or snapshot")
 }
 
-func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Workspace) (bool, error) {
+func (s *Service) HasConflicts(ctx context.Context, ws *workspaces.Workspace) (bool, error) {
 	if ws.LatestSnapshotID == nil {
 		// can not check for conflicts, have no snapshot
 		return false, nil
@@ -880,16 +665,16 @@ func (s *WorkspaceService) HasConflicts(ctx context.Context, ws *workspaces.Work
 }
 
 // ArchiveWithChange is the same as Archive, but also marks workspacw with the change ID.
-func (s *WorkspaceService) ArchiveWithChange(ctx context.Context, ws *workspaces.Workspace, change *changes.Change) error {
+func (s *Service) ArchiveWithChange(ctx context.Context, ws *workspaces.Workspace, change *changes.Change) error {
 	return s.archive(ctx, ws, &change.ID)
 }
 
 // Archive archives a workspace. If there is a view connected to the workspace, it will be reconnected to a new workspace.
-func (s *WorkspaceService) Archive(ctx context.Context, ws *workspaces.Workspace) error {
+func (s *Service) Archive(ctx context.Context, ws *workspaces.Workspace) error {
 	return s.archive(ctx, ws, nil)
 }
 
-func (s *WorkspaceService) archive(ctx context.Context, ws *workspaces.Workspace, changeID *changes.ID) error {
+func (s *Service) archive(ctx context.Context, ws *workspaces.Workspace, changeID *changes.ID) error {
 	if ws.ArchivedAt != nil {
 		return nil // noop
 	}
@@ -944,7 +729,7 @@ func (s *WorkspaceService) archive(ctx context.Context, ws *workspaces.Workspace
 	return nil
 }
 
-func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspace) error {
+func (s *Service) Unarchive(ctx context.Context, ws *workspaces.Workspace) error {
 	if ws.UnarchivedAt != nil {
 		return nil // noop
 	}
@@ -975,20 +760,10 @@ func (s *WorkspaceService) Unarchive(ctx context.Context, ws *workspaces.Workspa
 	return nil
 }
 
-var ErrNotAvailable = errors.New("this features is not available in this version of Sturdy")
-
-func (s *WorkspaceService) Push(ctx context.Context, user *users.User, ws *workspaces.Workspace) error {
-	return ErrNotAvailable
-}
-
-func (s *WorkspaceService) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces.Workspace) error {
-	return ErrNotAvailable
-}
-
-func (s *WorkspaceService) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
+func (s *Service) ListByCodebaseID(ctx context.Context, codebaseID codebases.ID, includeArchived bool) ([]*workspaces.Workspace, error) {
 	return s.workspaceReader.ListByCodebaseIDs([]codebases.ID{codebaseID}, includeArchived)
 }
 
-func (s *WorkspaceService) ListByIDs(ctx context.Context, ids ...string) ([]*workspaces.Workspace, error) {
+func (s *Service) ListByIDs(ctx context.Context, ids ...string) ([]*workspaces.Workspace, error) {
 	return s.workspaceReader.ListByIDs(ctx, ids...)
 }

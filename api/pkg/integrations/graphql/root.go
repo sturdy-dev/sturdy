@@ -20,7 +20,7 @@ type rootResolver struct {
 	svc              *service.Service
 	changeService    *service_change.Service
 	authService      *service_auth.Service
-	workspaceService service_workspaces.Service
+	workspaceService *service_workspaces.Service
 
 	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver
 	statusesRootResolver  resolvers.StatusesRootResolver
@@ -30,7 +30,7 @@ func NewRootResolver(
 	svc *service.Service,
 	changeService *service_change.Service,
 	authService *service_auth.Service,
-	workspaceService service_workspaces.Service,
+	workspaceService *service_workspaces.Service,
 
 	buildkiteRootResolver resolvers.BuildkiteInstantIntegrationRootResolver,
 	statusesRootResolver resolvers.StatusesRootResolver,

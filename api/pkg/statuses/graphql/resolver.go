@@ -30,7 +30,7 @@ type RootResolver struct {
 
 	svc              *service_statuses.Service
 	changeService    *service_changes.Service
-	workspaceService service_workspace.Service
+	workspaceService *service_workspace.Service
 	authService      *service_auth.Service
 	snapshotsService snapshotter.Snapshotter
 
@@ -47,7 +47,7 @@ func New(
 	logger *zap.Logger,
 	svc *service_statuses.Service,
 	changeService *service_changes.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	authService *service_auth.Service,
 	changeRootResolver resolvers.ChangeRootResolver,
 	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,

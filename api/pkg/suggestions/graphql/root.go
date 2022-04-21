@@ -22,7 +22,7 @@ type RootResolver struct {
 
 	authService        *service_auth.Service
 	suggestionsService *service_suggestions.Service
-	workspaceService   service_workspace.Service
+	workspaceService   *service_workspace.Service
 
 	authorResolver    resolvers.AuthorRootResolver
 	fileDiffResolver  resolvers.FileDiffRootResolver
@@ -36,7 +36,7 @@ func New(
 
 	authService *service_auth.Service,
 	suggestionsService *service_suggestions.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 
 	authorResolver resolvers.AuthorRootResolver,
 	fileDiffResolver resolvers.FileDiffRootResolver,

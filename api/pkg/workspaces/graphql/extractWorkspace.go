@@ -43,7 +43,7 @@ func (r *WorkspaceRootResolver) ExtractWorkspace(ctx context.Context, args resol
 }
 
 type workspaceExtractor struct {
-	workspaceService service_workspace.Service
+	workspaceService *service_workspace.Service
 }
 
 func (r *workspaceExtractor) Extract(ctx context.Context, src *workspaces.Workspace, patchIDs []string) (*workspaces.Workspace, error) {

@@ -71,7 +71,7 @@ type Service struct {
 	activitySender   sender_workspace_activity.ActivitySender
 
 	syncService      *service_sync.Service
-	workspaceService service_workspace.Service
+	workspaceService *service_workspace.Service
 	codebaseService  *service_codebases.Service
 	commentsService  *service_comments.Service
 	activityService  *service_activity.Service
@@ -110,7 +110,7 @@ func New(
 	activitySender sender_workspace_activity.ActivitySender,
 
 	syncService *service_sync.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	codebaseService *service_codebases.Service,
 	commentsService *service_comments.Service,
 	activityService *service_activity.Service,

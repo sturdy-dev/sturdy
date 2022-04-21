@@ -20,7 +20,7 @@ type CreateRequest struct {
 	CodebaseID codebases.ID `json:"codebase_id" binding:"required"`
 }
 
-func Create(logger *zap.Logger, workspaceService service_workspace.Service, codebaseUserRepo db_codebases.CodebaseUserRepository) func(c *gin.Context) {
+func Create(logger *zap.Logger, workspaceService *service_workspace.Service, codebaseUserRepo db_codebases.CodebaseUserRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userID, err := auth.UserID(c.Request.Context())
 		if err != nil {

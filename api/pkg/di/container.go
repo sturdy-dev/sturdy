@@ -150,15 +150,13 @@ func (c *Container) provides() map[reflect.Type]bool {
 
 func (c *Container) IsValid() error {
 	c.isValidOnce.Do(func() {
+		errors := []error{}
 		for _, i := range c.imports {
 			if err := i.IsValid(); err != nil {
-				c.isValid = fmt.Errorf("%s: %w", c.name, err)
-				return
+				errors = append(errors, fmt.Errorf("%s: %w", c.name, err))
 			}
 		}
-		errors := []error{}
 		provides := c.provides()
-
 		for r := range c.requires() {
 			if !provides[r] {
 				errors = append(errors, fmt.Errorf("missing provider for %s", getTypeName(r)))

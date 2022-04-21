@@ -16,7 +16,7 @@ import (
 type GetFileRoute func(*gin.Context)
 
 func NewGetFileRoute(
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	authService *service_auth.Service,
 	fileService *service_file.Service,
 	changeService *service_change.Service,

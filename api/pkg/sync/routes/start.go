@@ -17,7 +17,7 @@ import (
 func StartV2(
 	logger *zap.Logger,
 	syncService *service_sync.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var req InitSyncRequest
