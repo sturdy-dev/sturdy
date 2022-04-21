@@ -13,8 +13,8 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	db_codebase "getsturdy.com/api/pkg/codebases/db"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
-	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/organization"
+	db_organization "getsturdy.com/api/pkg/organization/db"
 	service_organization "getsturdy.com/api/pkg/organization/service"
 	"getsturdy.com/api/pkg/users"
 
@@ -164,8 +164,8 @@ func TestCanRead_codebase(t *testing.T) {
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
-	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
-	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
+	organizationRepo := db_organization.NewInMemoryOrganizationRepo()
+	organizationMemberRepo := db_organization.NewInMemoryOrganizationMemberRepository()
 	organizationService := service_organization.New(zap.NewNop(), nil, organizationRepo, organizationMemberRepo, analyticsService, nil)
 
 	authService := service_auth.New(
@@ -267,8 +267,8 @@ func TestCanReadWrite_organization(t *testing.T) {
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	codebaseService := service_codebase.New(codebaseRepo, codebaseUserRepo, nil, nil, nil, nil, nil, analyticsService, nil, nil)
 
-	organizationRepo := inmemory.NewInMemoryOrganizationRepo()
-	organizationMemberRepo := inmemory.NewInMemoryOrganizationMemberRepository()
+	organizationRepo := db_organization.NewInMemoryOrganizationRepo()
+	organizationMemberRepo := db_organization.NewInMemoryOrganizationMemberRepository()
 
 	organizationService := service_organization.New(zap.NewNop(), nil, organizationRepo, organizationMemberRepo, analyticsService, nil)
 
