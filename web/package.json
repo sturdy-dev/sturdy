@@ -72,6 +72,7 @@
     "@types/emoji-js": "~3.5.0",
     "@types/jest": "~27.0.3",
     "@types/katex": "^0.14.0",
+    "@types/prismjs": "^1.26.0",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "@vitejs/plugin-vue": "~2.1.0",
