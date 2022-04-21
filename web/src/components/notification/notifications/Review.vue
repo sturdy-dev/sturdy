@@ -6,10 +6,7 @@
       :author="data.review.author"
     />
 
-    <span
-      class="absolute -bottom-0.5 -right-1 bg-white rounded px-0.5 py-px"
-      :class="[isApproved ? 'bg-green-300' : '', isRejected ? 'bg-orange-300' : '']"
-    >
+    <span class="absolute -bottom-0.5 -right-1 bg-white rounded px-0.5 py-px">
       <ThumbUpIcon v-if="isApproved" class="h-5 w-5 text-gray-400" title="Approved" />
       <InformationCircleIcon
         v-else-if="isRejected"
