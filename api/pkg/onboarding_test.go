@@ -76,9 +76,10 @@ func TestCreate(t *testing.T) {
 		UserRootResolver      resolvers.UserRootResolver
 		CommentsRootResolver  resolvers.CommentRootResolver
 		ViewRootResolver      resolvers.ViewRootResolver
+		LandRootResolver      resolvers.LandRootResovler
 		GcService             *service_gc.Service
 		CodebaseService       *service_codebase.Service
-		WorkspaceService      service_workspace.Service
+		WorkspaceService      *service_workspace.Service
 		GitSnapshotter        snapshotter.Snapshotter
 		RepoProvider          provider.RepoProvider
 
@@ -103,6 +104,7 @@ func TestCreate(t *testing.T) {
 	userRepo := d.UserRepo
 	codebaseRootResolver := d.CodebaseRootResolver
 	workspaceRootResolver := d.WorkspaceRootResolver
+	landRootResolver := d.LandRootResolver
 	userRootResolver := d.UserRootResolver
 	commentsRootResolver := d.CommentsRootResolver
 	viewRootResolver := d.ViewRootResolver
@@ -181,7 +183,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -233,7 +235,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -303,7 +305,7 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, expectedDiffs, diffs)
 
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -325,7 +327,7 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, expectedDiffs, diffs)
 
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -353,7 +355,7 @@ func TestCreate(t *testing.T) {
 	assert.Len(t, diffs[0].Hunks, 1)
 
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -380,7 +382,7 @@ func TestCreate(t *testing.T) {
 	assert.Len(t, diffs[0].Hunks, 1)
 
 	// Apply and land, this should fail!
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(secondWorkspaceRes.ID),
 	}})
 	assert.Error(t, err)
@@ -421,7 +423,7 @@ func TestCreate(t *testing.T) {
 		assert.Len(t, diffs[0].Hunks, 1)
 
 		// Apply and land
-		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
 		assert.NoError(t, err)
@@ -515,7 +517,7 @@ func TestCreate(t *testing.T) {
 		assert.Len(t, diffs[0].Hunks, 1)
 
 		// Apply and land
-		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
 		assert.NoError(t, err, errors.Unwrap(err))
@@ -531,8 +533,9 @@ func TestLandEmpty(t *testing.T) {
 		dig.In
 		UserRepo              db_user.Repository
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		LandRootResolver      resolvers.LandRootResovler
 		CodebaseService       *service_codebase.Service
-		WorkspaceService      service_workspace.Service
+		WorkspaceService      *service_workspace.Service
 		RepoProvider          provider.RepoProvider
 
 		// Dependencies of Gin Routes
@@ -601,7 +604,7 @@ func TestLandEmpty(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Apply and land
-	_, err = d.WorkspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = d.LandRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.ErrorIs(t, err, gqlerror.ErrInternalServer)
@@ -628,7 +631,7 @@ func TestLandEmpty(t *testing.T) {
 	}
 
 	// Apply and land
-	_, err = d.WorkspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = d.LandRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: graphql.ID(workspaceID),
 	}})
 	assert.NoError(t, err)
@@ -663,8 +666,9 @@ func TestLargeFiles(t *testing.T) {
 		UserRepo              db_user.Repository
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
 		ViewRootResolver      resolvers.ViewRootResolver
+		LandRootResolver      resolvers.LandRootResovler
 		CodebaseService       *service_codebase.Service
-		WorkspaceService      service_workspace.Service
+		WorkspaceService      *service_workspace.Service
 		GitSnapshotter        snapshotter.Snapshotter
 		RepoProvider          provider.RepoProvider
 
@@ -690,7 +694,7 @@ func TestLargeFiles(t *testing.T) {
 	userRepo := d.UserRepo
 	repoProvider := d.RepoProvider
 	workspaceService := d.WorkspaceService
-	workspaceRootResolver := d.WorkspaceRootResolver
+	landRootResolver := d.LandRootResolver
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
 	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsService, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
@@ -772,7 +776,7 @@ func TestLargeFiles(t *testing.T) {
 				assert.Len(t, diffs, 1)
 				assert.Len(t, diffs[0].Hunks, 1)
 				t.Logf("diff: %+v", diffs[0])
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: graphql.ID(workspaceID),
 					DiffMaxSize: tc.gitMaxSize,
 				}})
@@ -818,7 +822,7 @@ func TestLargeFiles(t *testing.T) {
 				assert.Len(t, diffs[0].Hunks, 1)
 				t.Logf("diff: %+v", diffs[0])
 
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: graphql.ID(workspaceID),
 					DiffMaxSize: tc.gitMaxSize,
 				}})
@@ -846,7 +850,7 @@ func TestLargeFiles(t *testing.T) {
 				assert.Len(t, diffs[0].Hunks, 1)
 				t.Logf("diffs: %+v", diffs)
 
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: graphql.ID(workspaceID),
 					DiffMaxSize: tc.gitMaxSize,
 				}})
@@ -876,7 +880,7 @@ func TestLargeFiles(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Len(t, diffs, 1)
 				assert.Len(t, diffs[0].Hunks, 1)
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: graphql.ID(workspaceID),
 					DiffMaxSize: tc.gitMaxSize,
 				}})

@@ -31,7 +31,7 @@ type Service struct {
 	repo             db_codebases.CodebaseRepository
 	codebaseUserRepo db_codebases.CodebaseUserRepository
 
-	workspaceService service_workspace.Service
+	workspaceService *service_workspace.Service
 	userService      service_user.Service
 
 	logger             *zap.Logger
@@ -46,7 +46,7 @@ func New(
 	repo db_codebases.CodebaseRepository,
 	codebaseUserRepo db_codebases.CodebaseUserRepository,
 
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	userService service_user.Service,
 
 	logger *zap.Logger,

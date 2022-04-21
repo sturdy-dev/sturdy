@@ -94,7 +94,7 @@ func ProvideHandler(
 	eventSenderV2 *eventsv2.Publisher,
 	presenceService service_presence.Service,
 	suggestionService *service_suggestion.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	userService service_user.Service,
 	syncService *service_sync.Service,
 	jwtService *service_jwt.Service,

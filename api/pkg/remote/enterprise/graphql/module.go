@@ -7,7 +7,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/remote/enterprise/service"
 	service_user "getsturdy.com/api/pkg/users/service/module"
-	service_workspace "getsturdy.com/api/pkg/workspaces/service/module"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 )
 
 func Module(c *di.Container) {

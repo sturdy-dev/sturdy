@@ -34,7 +34,7 @@ type Service struct {
 
 	suggestionRepo db_suggestions.Repository
 
-	workspaceService service_workspace.Service
+	workspaceService *service_workspace.Service
 	analyticsService *service_analytics.Service
 
 	executorProvider   executor.Provider
@@ -46,7 +46,7 @@ type Service struct {
 func New(
 	logger *zap.Logger,
 	suggestionRepo db_suggestions.Repository,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	executorProvider executor.Provider,
 	snapshotter snapshotter.Snapshotter,
 	analyticsService *service_analytics.Service,

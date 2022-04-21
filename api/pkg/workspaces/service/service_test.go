@@ -4,15 +4,11 @@ import (
 	"context"
 	"testing"
 
-	db_activity "getsturdy.com/api/pkg/activity/db"
-	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/internal/inmemory"
-	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -26,7 +22,7 @@ import (
 )
 
 type testCollaborators struct {
-	service      Service
+	service      *Service
 	repoProvider provider.RepoProvider
 }
 
@@ -43,10 +39,6 @@ func setup(t *testing.T) *testCollaborators {
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)
 	suggestionsRepo := db_suggestions.NewMemory()
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, nil, executorProvider, logger, analyticsService)
-	queue := queue.NewNoop()
-	buildQueue := workers_ci.New(zap.NewNop(), queue, nil)
-	activityRepo := db_activity.NewInMemoryRepo()
-	activityService := service_activity.New(nil, activityRepo, eventsSender)
 
 	service := New(
 		logger,
@@ -55,21 +47,14 @@ func setup(t *testing.T) *testCollaborators {
 		workspaceRepo,
 		workspaceRepo,
 
-		nil, // reviewRepo
-
-		nil, // commentService
 		nil, // changeService
-		activityService,
-		nil,
+		nil, // viewservice
+		nil, // usersService
 
-		nil, // userService
-		nil, // activitySender
 		executorProvider,
 		eventsSender,
-		nil,
-		nil, // snapshotterQueue
+		nil, // eventv v2
 		gitSnapshotter,
-		buildQueue,
 	)
 
 	return &testCollaborators{

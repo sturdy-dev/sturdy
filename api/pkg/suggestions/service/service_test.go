@@ -8,8 +8,6 @@ import (
 	"path"
 	"testing"
 
-	db_activity "getsturdy.com/api/pkg/activity/db"
-	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics/disabled"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_changes "getsturdy.com/api/pkg/changes/db"
@@ -239,7 +237,7 @@ type test struct {
 	snapshotsDB       db_snapshots.Repository
 	codebaseUserRepo  db_codebases.CodebaseUserRepository
 	gitSnapshotter    snapshotter.Snapshotter
-	workspaceService  service_workspace.Service
+	workspaceService  *service_workspace.Service
 	suggestionService *service_suggestions.Service
 
 	codebaseID codebases.ID
@@ -268,13 +266,11 @@ func newTest(t *testing.T, operations []*operation) *test {
 	logger := zap.NewNop()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory(logger))
 	changeRepo := db_changes.NewInMemoryRepo()
-	activityRepo := db_activity.NewInMemoryRepo()
 
-	activityService := service_activity.New(nil, activityRepo, eventsSender)
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
 	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop(), analyticsService)
 	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider, gitSnapshotter)
-	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, nil, nil, changeService, activityService, nil, nil, nil, executorProvider, nil, nil, nil, gitSnapshotter, nil)
+	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, changeService, nil /*viewService*/, nil /*usersService*/, executorProvider, nil /*eventsSender*/, nil /*eventsSernderv2*/, gitSnapshotter)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)
 	return &test{
 		repoProvider:      repoProvider,

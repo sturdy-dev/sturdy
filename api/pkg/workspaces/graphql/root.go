@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
@@ -22,7 +21,6 @@ import (
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
-	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
 	"go.uber.org/zap"
@@ -52,7 +50,7 @@ type WorkspaceRootResolver struct {
 	downloadsResolver             resolvers.ContentsDownloadUrlRootResolver
 
 	suggestionsService *service_suggestions.Service
-	workspaceService   service_workspace.Service
+	workspaceService   *service_workspace.Service
 	authService        *service_auth.Service
 	changeService      *service_change.Service
 	userService        service_user.Service
@@ -90,7 +88,7 @@ func NewResolver(
 	downloadsResolver resolvers.ContentsDownloadUrlRootResolver,
 
 	suggestionsService *service_suggestions.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	authService *service_auth.Service,
 	changeService *service_change.Service,
 	userService service_user.Service,
@@ -222,61 +220,6 @@ func (r *WorkspaceRootResolver) UnarchiveWorkspace(ctx context.Context, args res
 
 	if err := r.workspaceService.Unarchive(ctx, ws); err != nil {
 		return nil, gqlerrors.Error(err)
-	}
-
-	return &WorkspaceResolver{w: ws, root: r}, nil
-}
-
-func (r *WorkspaceRootResolver) LandWorkspaceChange(ctx context.Context, args resolvers.LandWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
-	ws, err := r.workspaceReader.Get(string(args.Input.WorkspaceID))
-	if err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to get workspace: %w", err))
-	}
-
-	if err := r.authService.CanWrite(ctx, ws); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	var diffOpts []vcs.DiffOption
-	if args.Input.DiffMaxSize > 0 {
-		diffOpts = append(diffOpts, vcs.WithGitMaxSize(args.Input.DiffMaxSize))
-	}
-
-	if _, err := r.workspaceService.LandChange(ctx, ws, diffOpts...); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
-	}
-
-	return &WorkspaceResolver{w: ws, root: r}, nil
-}
-
-func (r *WorkspaceRootResolver) PushWorkspace(ctx context.Context, args resolvers.PushWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
-	ws, err := r.workspaceReader.Get(string(args.Input.WorkspaceID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if err := r.authService.CanWrite(ctx, ws); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	user, err := r.userService.GetByID(ctx, userID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if args.Input.LandOnSturdyAndPushTracked != nil && *args.Input.LandOnSturdyAndPushTracked {
-		if err := r.workspaceService.LandOnSturdyAndPushTracked(ctx, ws); err != nil {
-			return nil, gqlerrors.Error(err)
-		}
-	} else {
-		if err := r.workspaceService.Push(ctx, user, ws); err != nil {
-			return nil, gqlerrors.Error(err)
-		}
 	}
 
 	return &WorkspaceResolver{w: ws, root: r}, nil

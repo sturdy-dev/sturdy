@@ -9,7 +9,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/logger"
 	service_users "getsturdy.com/api/pkg/users/service/module"
-	service_workspaces "getsturdy.com/api/pkg/workspaces/service/module"
+	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 )
 

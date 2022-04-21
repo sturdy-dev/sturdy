@@ -113,7 +113,7 @@ func TestPRHighLevel(t *testing.T) {
 		ViewRootResolver              resolvers.ViewRootResolver
 		WorkspaceRepo                 db_workspaces.Repository
 		WorkspaceRootResolver         resolvers.WorkspaceRootResolver
-		WorkspaceService              service_workspace.Service
+		WorkspaceService              *service_workspace.Service
 		WebhooksQueue                 *service_github_webhooks.Queue
 	}
 

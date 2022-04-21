@@ -13,6 +13,7 @@ import (
 	graphql_installations "getsturdy.com/api/pkg/installations/graphql/module"
 	graphql_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/graphql"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
+	graphql_land "getsturdy.com/api/pkg/land/graphql"
 	graphql_licenses "getsturdy.com/api/pkg/licenses/graphql"
 	"getsturdy.com/api/pkg/logger"
 	graphql_notification "getsturdy.com/api/pkg/notification/graphql"
@@ -41,5 +42,6 @@ func Module(c *di.Container) {
 	c.Import(graphql_pki.Module)
 	c.Import(graphql_installations.Module)
 	c.Import(graphql_servicetokens.Module)
+	c.Import(graphql_land.Module)
 	c.Register(NewRootResolver)
 }

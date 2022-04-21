@@ -51,10 +51,11 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		UserRepo              db_user.Repository
 		CodebaseRootResolver  resolvers.CodebaseRootResolver
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		LandRootResolver      resolvers.LandRootResovler
 		ViewRootResolver      resolvers.ViewRootResolver
 
 		CodebaseService  *service_codebase.Service
-		WorkspaceService service_workspace.Service
+		WorkspaceService *service_workspace.Service
 		GitSnapshotter   snapshotter.Snapshotter
 		RepoProvider     provider.RepoProvider
 
@@ -79,6 +80,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	userRepo := d.UserRepo
 	workspaceService := d.WorkspaceService
 	workspaceRepo := d.WorkspaceRepo
+	landRootResolver := d.LandRootResolver
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
@@ -158,7 +160,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 		}})
 		assert.NoError(t, err)
 		// Apply and land
-		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
 		assert.NoError(t, err)
@@ -203,7 +205,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	}})
 	assert.NoError(t, err)
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: revertedWsResolver.ID(),
 	}})
 	assert.NoError(t, err)
@@ -243,10 +245,11 @@ func TestRevertChangeFromView(t *testing.T) {
 		UserRepo              db_user.Repository
 		CodebaseRootResolver  resolvers.CodebaseRootResolver
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
+		LandRootResolver      resolvers.LandRootResovler
 		ViewRootResolver      resolvers.ViewRootResolver
 
 		CodebaseService  *service_codebase.Service
-		WorkspaceService service_workspace.Service
+		WorkspaceService *service_workspace.Service
 		GitSnapshotter   snapshotter.Snapshotter
 		RepoProvider     provider.RepoProvider
 
@@ -276,6 +279,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)
 	createViewRoute := routes_v3_view.Create(d.Logger, d.ViewRepo, d.CodebaseUserRepo, d.AnalyticsSerivce, d.WorkspaceRepo, d.ExecutorProvider, d.ViewService)
 
+	landRootResolver := d.LandRootResolver
 	workspaceRootResolver := d.WorkspaceRootResolver
 	codebaseRootResolver := d.CodebaseRootResolver
 
@@ -350,7 +354,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		}})
 		assert.NoError(t, err)
 		// Apply and land
-		_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+		_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
 		assert.NoError(t, err)
@@ -402,7 +406,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	}})
 	assert.NoError(t, err)
 	// Apply and land
-	_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+	_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 		WorkspaceID: revertedWs.ID(),
 	}})
 	assert.NoError(t, err)

@@ -8,7 +8,7 @@ import (
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
-	service_worspace "getsturdy.com/api/pkg/workspaces/service/module"
+	service_worspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs/executor"
 )
 

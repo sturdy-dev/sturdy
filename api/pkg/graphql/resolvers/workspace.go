@@ -42,21 +42,6 @@ type UpdatedWorkspaceArgs struct {
 	WorkspaceID     *graphql.ID
 }
 
-type LandWorkspaceArgs struct {
-	Input LandWorkspaceInput
-}
-
-type LandWorkspaceInput struct {
-	WorkspaceID graphql.ID
-
-	// PatchIDs is deprecated and is not used
-	PatchIDs *[]string
-
-	// DiffMaxSize is not on the public API
-	// TODO: move this to a more appropriate place
-	DiffMaxSize int
-}
-
 type ArchiveWorkspaceArgs struct {
 	ID graphql.ID
 }
@@ -97,13 +82,11 @@ type WorkspaceRootResolver interface {
 
 	// Mutations
 	UpdateWorkspace(ctx context.Context, args UpdateWorkspaceArgs) (WorkspaceResolver, error)
-	LandWorkspaceChange(ctx context.Context, args LandWorkspaceArgs) (WorkspaceResolver, error)
 	ArchiveWorkspace(ctx context.Context, args ArchiveWorkspaceArgs) (WorkspaceResolver, error)
 	UnarchiveWorkspace(ctx context.Context, args UnarchiveWorkspaceArgs) (WorkspaceResolver, error)
 	CreateWorkspace(ctx context.Context, args CreateWorkspaceArgs) (WorkspaceResolver, error)
 	ExtractWorkspace(ctx context.Context, args ExtractWorkspaceArgs) (WorkspaceResolver, error)
 	RemovePatches(context.Context, RemovePatchesArgs) (WorkspaceResolver, error)
-	PushWorkspace(ctx context.Context, args PushWorkspaceArgs) (WorkspaceResolver, error)
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)
@@ -143,13 +126,4 @@ type WorkspaceResolver interface {
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
 	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
 	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
-}
-
-type PushWorkspaceArgs struct {
-	Input PushWorkspaceInput
-}
-
-type PushWorkspaceInput struct {
-	WorkspaceID                graphql.ID
-	LandOnSturdyAndPushTracked *bool
 }

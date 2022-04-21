@@ -28,7 +28,7 @@ type Service struct {
 	codebaseService     *service_codebase.Service
 	changeService       *service_changes.Service
 	userService         service_user.Service
-	workspaceService    service_workspace.Service
+	workspaceService    *service_workspace.Service
 	aclProvider         *provider_acl.Provider
 	organizationService *service_organization.Service
 }
@@ -37,7 +37,7 @@ func New(
 	codebaseService *service_codebase.Service,
 	changeService *service_changes.Service,
 	userService service_user.Service,
-	workspaceService service_workspace.Service,
+	workspaceService *service_workspace.Service,
 	aclProvider *provider_acl.Provider,
 	organizationService *service_organization.Service,
 ) *Service {

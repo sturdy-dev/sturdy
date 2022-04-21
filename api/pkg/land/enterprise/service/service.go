@@ -8,29 +8,30 @@ import (
 
 	"getsturdy.com/api/pkg/changes"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_land "getsturdy.com/api/pkg/land/service"
 	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
-	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
 )
 
 type Service struct {
-	*service_workspaces.WorkspaceService
+	oss *service_land.Service
 
 	gitHubService *service_github.Service
 	remoteService *service_remote.EnterpriseService
 }
 
 func New(
-	ossService *service_workspaces.WorkspaceService,
+	oss *service_land.Service,
+
 	gitHubService *service_github.Service,
 	remoteService *service_remote.EnterpriseService,
-) service_workspaces.Service {
+) *Service {
 	return &Service{
-		WorkspaceService: ossService,
-		gitHubService:    gitHubService,
-		remoteService:    remoteService,
+		oss:           oss,
+		gitHubService: gitHubService,
+		remoteService: remoteService,
 	}
 }
 
@@ -46,7 +47,7 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, diff
 		return nil, fmt.Errorf("landing disallowed when a github integration exists for codebase (github is source of truth)")
 	}
 
-	change, err := s.WorkspaceService.LandChange(ctx, ws, diffOpts...)
+	change, err := s.oss.LandChange(ctx, ws, diffOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (s *Service) LandOnSturdyAndPushTracked(ctx context.Context, ws *workspaces
 		return fmt.Errorf("failed to pull tracked before landing: %w", err)
 	}
 
-	if _, err := s.WorkspaceService.LandChange(ctx, ws); err != nil {
+	if _, err := s.oss.LandChange(ctx, ws); err != nil {
 		return fmt.Errorf("failed to land change: %w", err)
 	}
 

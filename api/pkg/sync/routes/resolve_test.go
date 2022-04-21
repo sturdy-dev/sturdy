@@ -340,7 +340,8 @@ func TestResolveHighLevelV2(t *testing.T) {
 		UserRepo              db_user.Repository
 		WorkspaceRootResolver resolvers.WorkspaceRootResolver
 		ViewRootResolver      resolvers.ViewRootResolver
-		WorkspaceService      service_workspace.Service
+		LandRootResovler      resolvers.LandRootResovler
+		WorkspaceService      *service_workspace.Service
 		GitSnapshotter        snapshotter.Snapshotter
 		RepoProvider          provider.RepoProvider
 		CodebaseUserRepo      db_codebases.CodebaseUserRepository
@@ -446,7 +447,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 				assert.NoError(t, err)
 
 				// Land the changes
-				_, err = workspaceRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
+				_, err = d.LandRootResovler.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 					WorkspaceID: workspaceID,
 				}})
 				return err
