@@ -11,12 +11,15 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/activity"
 	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/auth"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_codebases "getsturdy.com/api/pkg/codebases/service"
 	service_comments "getsturdy.com/api/pkg/comments/service"
@@ -36,6 +39,8 @@ import (
 	service_users "getsturdy.com/api/pkg/users/service"
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 )
 
@@ -65,14 +70,15 @@ type Service struct {
 	analyticsService *service_analytics.Service
 	activitySender   sender_workspace_activity.ActivitySender
 
-	syncService     *service_sync.Service
-	codebaseService *service_codebases.Service
-	commentsService *service_comments.Service
-	activityService *service_activity.Service
-	changeService   *service_change.Service
-	statusService   *service_statuses.Service
-	githubService   *service_github.Service
-	usersService    service_users.Service
+	syncService      *service_sync.Service
+	workspaceService *service_workspace.Service
+	codebaseService  *service_codebases.Service
+	commentsService  *service_comments.Service
+	activityService  *service_activity.Service
+	changeService    *service_change.Service
+	statusService    *service_statuses.Service
+	githubService    *service_github.Service
+	usersService     service_users.Service
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -104,6 +110,7 @@ func New(
 	activitySender sender_workspace_activity.ActivitySender,
 
 	syncService *service_sync.Service,
+	workspaceService *service_workspace.Service,
 	codebaseService *service_codebases.Service,
 	commentsService *service_comments.Service,
 	activityService *service_activity.Service,
@@ -140,16 +147,31 @@ func New(
 		analyticsService: analyticsService,
 		activitySender:   activitySender,
 
-		syncService:     syncService,
-		codebaseService: codebaseService,
-		commentsService: commentsService,
-		activityService: activityService,
-		changeService:   changeService,
-		statusService:   statusService,
-		githubService:   githubService,
-		usersService:    usersService,
+		syncService:      syncService,
+		workspaceService: workspaceService,
+		codebaseService:  codebaseService,
+		commentsService:  commentsService,
+		activityService:  activityService,
+		changeService:    changeService,
+		statusService:    statusService,
+		githubService:    githubService,
+		usersService:     usersService,
 
 		buildQueue: buildQueue,
+	}
+}
+
+func getPRStatus(apiPR *api.PullRequest) github.PullRequestState {
+	switch apiPR.GetState() {
+	case "open":
+		return github.PullRequestStateOpen
+	case "closed":
+		if apiPR.GetMerged() {
+			return github.PullRequestStateMerged
+		}
+		return github.PullRequestStateClosed
+	default:
+		return github.PullRequestStateUnknown
 	}
 }
 
@@ -250,8 +272,138 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		return fmt.Errorf("failed to get github pull request from db: %w", err)
 	} else {
 		logger.Info("pull request found, updating")
-		return svc.githubService.UpdatePullRequestFromGitHub(ctx, repo, pr, event.GetPullRequest())
+		return svc.updateExistingPullRequest(ctx, logger.With(zap.String("pr_id", pr.ID)), repo, event, pr)
 	}
+}
+
+func (svc *Service) updateExistingPullRequest(
+	ctx context.Context,
+	logger *zap.Logger,
+	repo *github.Repository,
+	event *PullRequestEvent,
+	pr *github.PullRequest,
+) error {
+	now := time.Now()
+	pr.UpdatedAt = &now
+	pr.ClosedAt = event.GetPullRequest().ClosedAt
+	pr.MergedAt = event.GetPullRequest().MergedAt
+	pr.State = getPRStatus(event.GetPullRequest())
+	if err := svc.gitHubPullRequestRepo.Update(ctx, pr); err != nil {
+		return fmt.Errorf("failed to update github pull request in db: %w", err)
+	}
+
+	defer func() {
+		// make sure we send pr updated event after this function returns in any case
+		if err := svc.eventsSenderV2.GitHubPRUpdated(ctx, eventsv2.Codebase(pr.CodebaseID), pr); err != nil {
+			logger.Error("failed to send codebase event", zap.Error(err))
+			// do not fail
+		}
+	}()
+
+	accessToken, err := svc.accessToken(ctx, event.GetInstallation().GetID(), event.GetRepo().GetID())
+	if err != nil {
+		return fmt.Errorf("failed to get github access token: %w", err)
+	}
+
+	ws, err := svc.workspaceReader.Get(pr.WorkspaceID)
+	if errors.Is(err, sql.ErrNoRows) {
+		svc.logger.Warn("handled a github pull request webhook for non-existing workspace",
+			zap.String("workspace_id", pr.WorkspaceID),
+			zap.String("github_pr_id", pr.ID),
+			zap.String("github_pr_link", event.GetPullRequest().GetHTMLURL()),
+		)
+		return nil // noop
+	} else if err != nil {
+		return fmt.Errorf("failed to get workspace from db: %w", err)
+	}
+
+	// make context user context to connect all events to the same user
+	ctx = auth.NewUserContext(ctx, ws.UserID)
+
+	// update ws
+	if pr.Importing {
+		newDescription, err := service_github.DescriptionFromPullRequest(event.GetPullRequest())
+		if err != nil {
+			return fmt.Errorf("failed to build description: %w", err)
+		}
+		ws.DraftDescription = newDescription
+		err = svc.workspaceWriter.UpdateFields(ctx, ws.ID, db_workspaces.SetDraftDescription(newDescription))
+		if err != nil {
+			return fmt.Errorf("failed to update workspace: %w", err)
+		}
+	}
+
+	if shouldArchive := pr.State == github.PullRequestStateClosed && pr.Importing; shouldArchive {
+		// if pr is closed and importing, archive it
+		return svc.workspaceService.Archive(ctx, ws)
+	}
+
+	if shouldUnarchive := pr.State == github.PullRequestStateOpen && pr.Importing; shouldUnarchive {
+		// if pr is open and not importing, unarchive it
+		if err := svc.workspaceService.Unarchive(ctx, ws); err != nil {
+			return fmt.Errorf("failed to unarchive workspace: %w", err)
+		}
+	}
+
+	if shouldUpdate := pr.State != github.PullRequestStateMerged; shouldUpdate {
+		// if the PR is not merged, fetch the latest PR data from GitHub
+		return svc.githubService.UpdatePullRequest(ctx, pr, event.GetPullRequest(), accessToken, ws)
+	}
+
+	// merge PR
+
+	// pull from github if sturdy doesn't have the commits
+	if err := svc.pullFromGitHubIfCommitNotExists(pr.CodebaseID, []string{
+		event.GetPullRequest().GetMergeCommitSHA(),
+		event.GetPullRequest().GetBase().GetSHA(),
+	}, accessToken, repo.TrackedBranch); err != nil {
+		return fmt.Errorf("failed to pullFromGitHubIfCommitNotExists: %w", err)
+	}
+
+	ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, event.GetPullRequest().GetMergeCommitSHA(), event.GetPullRequest().GetBase().GetSHA())
+	if err != nil {
+		return fmt.Errorf("failed to create change: %w", err)
+	}
+
+	svc.analyticsService.Capture(ctx, "pull request merged",
+		analytics.DistinctID(ws.UserID.String()),
+		analytics.CodebaseID(ws.CodebaseID),
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("github", true),
+		analytics.Property("importing", pr.Importing),
+	)
+
+	// send change to ci
+	if err := svc.buildQueue.EnqueueChange(ctx, ch); err != nil {
+		svc.logger.Error("failed to enqueue change", zap.Error(err))
+		// do not fail
+	}
+
+	// all workspaces that were up to date with trunk are not up to data anymore
+	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(ws.CodebaseID); err != nil {
+		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
+	}
+
+	// Create workspace activity that it has created a change
+	if err := svc.activitySender.Codebase(ctx, ws.CodebaseID, ws.ID, ws.UserID, activity.TypeCreatedChange, string(ch.ID)); err != nil {
+		return fmt.Errorf("failed to create workspace activity: %w", err)
+	}
+
+	// copy all workspace activities to change activities
+	if err := svc.activityService.SetChange(ctx, ws.ID, ch.ID); err != nil {
+		return fmt.Errorf("failed to set change: %w", err)
+	}
+
+	if err := svc.commentsService.MoveCommentsFromWorkspaceToChange(ctx, ws.ID, ch.ID); err != nil {
+		return fmt.Errorf("failed to migrate comments: %w", err)
+	}
+
+	// Archive the workspace
+	if err := svc.workspaceService.ArchiveWithChange(ctx, ws, ch); err != nil {
+		return fmt.Errorf("failed to archive workspace: %w", err)
+	}
+
+	return nil
 }
 
 func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error {
@@ -313,6 +465,35 @@ func (svc *Service) HandlePushEvent(ctx context.Context, event *PushEvent) error
 	// Allow all workspaces to be rebased/synced on the latest head
 	if err := svc.workspaceWriter.UnsetUpToDateWithTrunkForAllInCodebase(repo.CodebaseID); err != nil {
 		return fmt.Errorf("failed to unset up to date with trunk for all in codebase: %w", err)
+	}
+
+	return nil
+}
+
+func (svc *Service) pullFromGitHubIfCommitNotExists(codebaseID codebases.ID, commitShas []string, accessToken, trackedBranchName string) error {
+	shouldPull := false
+
+	if err := svc.executorProvider.New().
+		GitRead(func(repo vcs.RepoGitReader) error {
+			for _, sha := range commitShas {
+				if _, err := repo.GetCommitDetails(sha); err != nil {
+					shouldPull = true
+				}
+			}
+			return nil
+		}).
+		ExecTrunk(codebaseID, "pullFromGitHubIfCommitNotExists.Check"); err != nil {
+		return fmt.Errorf("failed to fetch changes from github: %w", err)
+	}
+
+	if !shouldPull {
+		return nil
+	}
+
+	if err := svc.executorProvider.New().
+		GitWrite(vcs_github.FetchTrackedToSturdytrunk(accessToken, "refs/heads/"+trackedBranchName)).
+		ExecTrunk(codebaseID, "pullFromGitHubIfCommitNotExists.Pull"); err != nil {
+		return fmt.Errorf("failed to fetch changes from github: %w", err)
 	}
 
 	return nil
