@@ -4,8 +4,9 @@
 
 <script lang="ts">
 import time from '../time'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
   props: {
     date: {
       type: Date,
@@ -13,9 +14,9 @@ export default {
     },
   },
   computed: {
-    ago() {
+    ago(): string {
       return time.getRelativeTime(this.date)
     },
   },
-}
+})
 </script>

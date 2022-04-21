@@ -13,9 +13,9 @@
   <div class="min-w-0 flex-1 break-words">
     <div>
       <div class="text-sm">
-        <a href="#" class="font-medium text-gray-900">{{ data.review.requestedBy.name }}</a>
+        <span class="font-medium text-gray-900">{{ data.review.requestedBy.name }}</span>
       </div>
-      <p class="mt-0.5 text-sm text-gray-500">
+      <p class="mt-0.5 text-sm text-gray-500 space-x-1">
         asked for your feedback on
         <router-link
           class="underline"
