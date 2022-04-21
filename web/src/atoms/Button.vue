@@ -148,11 +148,17 @@ export default defineComponent({
       if (this.color === 'slate') {
         return 'bg-slate-800 border-slate-200 font-semibold hover:bg-gray-900'
       }
+      if (this.color === 'black') {
+        return 'bg-black text-white font-semibold hover:bg-gray-900'
+      }
       return ''
     },
     margins() {
       if (this.size === 'wider') {
         return 'px-4 py-2 leading-4'
+      }
+      if (this.size === 'taller') {
+        return 'px-4 py-3 leading-4'
       }
       if (this.size === 'normal') {
         return 'px-3 py-2 leading-4'
@@ -160,11 +166,9 @@ export default defineComponent({
       if (this.size === 'small') {
         return 'px-4 py-1'
       }
-
       if (this.size === 'tiny') {
         return 'px-3 py-0.5'
       }
-
       return ''
     },
   },

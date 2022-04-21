@@ -17,10 +17,29 @@ const CREATE_COMMENT = gql`
       id
       message
       createdAt
+      deletedAt
       author {
         id
         name
         email
+      }
+
+      ... on TopComment {
+        codeContext {
+          id
+          lineStart
+          lineEnd
+          lineIsNew
+          context
+          contextStartsAtLine
+          path
+        }
+
+        resolved
+
+        replies {
+          id
+        }
       }
     }
   }
@@ -83,6 +102,7 @@ export const createCommentUpdateResolver: UpdateResolver<
           result.createComment.__typename === 'TopComment' &&
           !data.workspace.comments.some((c) => c.id === result.createComment.id)
         ) {
+          console.log('push comment to workspace')
           data.workspace.comments.push(result.createComment)
         }
         return data
@@ -104,6 +124,7 @@ export const createCommentUpdateResolver: UpdateResolver<
           result.createComment.__typename === 'TopComment' &&
           !data.change.comments.some((c) => c.id === result.createComment.id)
         ) {
+          console.log('push comment to change')
           data.change.comments.push(result.createComment)
         }
         return data
@@ -122,6 +143,7 @@ export const createCommentUpdateResolver: UpdateResolver<
 
     if (repliesList && selfKey) {
       if (!repliesList.includes(selfKey)) {
+        console.log("push comment's reply to top comment")
         repliesList.push(selfKey)
         cache.link({ __typename: 'TopComment', id: args.input.inReplyTo }, 'replies', repliesList)
       }

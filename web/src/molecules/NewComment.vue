@@ -16,7 +16,7 @@
           status="error"
           message="Could not submit your comment right now. Please try again later."
         />
-        <form action="#" @submit.stop.prevent="submit">
+        <form @submit.stop.prevent="submit">
           <div>
             <label for="comment" class="sr-only">Comment</label>
             <TextareaAutosize
@@ -32,21 +32,8 @@
               @keydown="onkey"
             />
           </div>
-          <div class="mt-6 flex items-center justify-end space-x-4">
-            <button
-              v-if="false"
-              type="button"
-              class="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-            >
-              <CheckCircleIcon class="-ml-1 mr-2 h-5 w-5 text-green-500" aria-hidden="true" />
-              <span>Close issue</span>
-            </button>
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-900 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-            >
-              Comment
-            </button>
+          <div class="mt-4 flex justify-end">
+            <Button color="black" size="taller" @click="submit">Comment</Button>
           </div>
         </form>
       </div>
@@ -57,16 +44,15 @@
 <script lang="ts">
 import type { PropType } from 'vue'
 import { gql } from '@urql/vue'
-
-import { ChatAltIcon, CheckCircleIcon } from '@heroicons/vue/solid'
+import { ChatAltIcon } from '@heroicons/vue/solid'
 import Avatar from '../atoms/Avatar.vue'
 import TextareaAutosize, { MEMBER_FRAGMENT } from '../components/../atoms/TextareaAutosize.vue'
 import { Banner } from '../atoms'
 import { ConvertEmojiToColons } from '../components/emoji/emoji'
-
 import type { AuthorFragment } from '../atoms/__generated__/AvatarHelper'
-
 import { useCreateComment } from '../mutations/useCreateComment'
+import { defineComponent } from 'vue'
+import Button from '../atoms/Button.vue'
 
 export const CODEBASE_FRAGMENT = gql`
   fragment NewComment on Codebase {
@@ -77,17 +63,19 @@ export const CODEBASE_FRAGMENT = gql`
   ${MEMBER_FRAGMENT}
 `
 
-export default {
+export default defineComponent({
   components: {
     ChatAltIcon,
-    CheckCircleIcon,
     Avatar,
     TextareaAutosize,
     Banner,
+    Button,
   },
   props: {
     user: {
       type: Object as PropType<AuthorFragment>,
+      required: false,
+      default: null,
     },
     members: {
       type: Array as PropType<AuthorFragment[]>,
@@ -96,10 +84,12 @@ export default {
     workspaceId: {
       type: String,
       required: false,
+      default: null,
     },
     changeId: {
       type: String,
       required: false,
+      default: null,
     },
   },
   setup() {
@@ -148,13 +138,13 @@ export default {
       // Stop bubbling (Cmd + A) should select all text, not allow to pick diffs, etc.
       e.stopPropagation()
     },
-    submit() {
+    async submit() {
       if (!this.message) {
         return
       }
 
       this.failing = false
-      this.createComment(this.message, this.workspaceId, this.changeId)
+      await this.createComment(this.message, this.workspaceId, this.changeId)
         .then(() => {
           this.emitter.emit('local-new-comment')
           this.message = ''
@@ -166,5 +156,5 @@ export default {
         })
     },
   },
-}
+})
 </script>
