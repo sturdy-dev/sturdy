@@ -1,6 +1,6 @@
 FROM node:17.3-bullseye-slim
 
-RUN apt-get update && apt-get install -y python3 build-essential
+RUN apt-get update && apt-get install -y python3 build-essential git
 WORKDIR /worker
 
 ADD package.json .
