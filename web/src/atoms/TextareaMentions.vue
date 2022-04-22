@@ -56,7 +56,7 @@ const defaultEmojis = [
 export default defineComponent({
   props: {
     members: {
-      type: Array as PropType<MemberFragment[]>,
+      type: Array as PropType<Array<MemberFragment>>,
       required: true,
     },
     user: {
@@ -77,8 +77,9 @@ export default defineComponent({
 
     return {
       tribute: {} as Tribute<Record<string | number | symbol, unknown>>,
+
       // data property for v-model binding with real text area tag
-      val: null,
+      val: undefined,
       toNativeEmojiConverter,
     }
   },
@@ -87,15 +88,21 @@ export default defineComponent({
       return this.user ? this.members.filter(withoutUser(this.user)) : this.members
     },
 
-    tributeMentions(): TributeCollection<MemberFragment> {
+    tributeMentionsSettings(): TributeCollection<MemberFragment> {
       return {
         trigger: '@',
         values: this.people,
-        selectTemplate: (item: TributeItem<MemberFragment>) => `@${item.original.name}`,
+        selectTemplate: (item: TributeItem<Emoji> | undefined): string => {
+          if (item) {
+            return `@${item.original.name}`
+          }
+          return ''
+        },
         containerClass:
-          'mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
+          'mt-1 bg-white shadow-lg max-h-60 rounded-md p-2 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
         itemClass: 'text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9',
         selectClass: 'item-selected',
+        menuItemLimit: 10,
         lookup: (i: MemberFragment) => i.name,
         noMatchTemplate: () => '',
         // template for displaying item in menu
@@ -112,7 +119,7 @@ export default defineComponent({
       }
     },
 
-    tributeEmoji(): TributeCollection<Emoji> {
+    tributeEmojiSettings(): TributeCollection<Emoji> {
       return {
         trigger: ':',
         menuItemTemplate: (item: TributeItem<Emoji>): string => {
@@ -121,7 +128,10 @@ export default defineComponent({
 
           return `${e} ${item.original.name}`
         },
-        selectTemplate: (item: TributeItem<Emoji>) => {
+        selectTemplate: (item: TributeItem<Emoji> | undefined): string => {
+          if (!item) {
+            return ''
+          }
           let str = ':' + item.original.name + ':'
           return this.toNativeEmojiConverter.replace_colons(str)
         },
@@ -137,7 +147,7 @@ export default defineComponent({
         autocompleteMode: true,
         menuItemLimit: 10,
         containerClass:
-          'mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
+          'mt-1 bg-white shadow-lg max-h-60 rounded-md p-2 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sturdy-no-click-outside',
         itemClass: 'text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9',
         selectClass: 'item-selected',
       }
@@ -155,8 +165,12 @@ export default defineComponent({
     const textarea = this.$refs['textarea'] as Element
     // dynamically load implementation of TributeJS only if mounted
     const Tribute = await import('tributejs')
-    this.tribute = new Tribute.default({ collection: [this.tributeMentions, this.tributeEmoji] })
+
+    this.tribute = new Tribute.default({
+      collection: [this.tributeMentionsSettings, this.tributeEmojiSettings],
+    })
     this.tribute.attach(textarea)
+
     textarea.addEventListener('tribute-replaced', (e) => {
       e.target?.dispatchEvent(new Event('input', { bubbles: true }))
     })
