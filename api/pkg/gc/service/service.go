@@ -190,7 +190,8 @@ func (svc *Service) deleteSnapshotBranch(logger *zap.Logger, snapshot *snapshots
 	}
 
 	// Delete branch on the view that created the snapshot
-	if snapshot.ViewID != "" && !strings.HasPrefix(snapshot.ViewID, "tmp-") {
+	isTemporaryView := strings.HasPrefix(snapshot.ViewID, "tmp-") || strings.HasPrefix(snapshot.ViewID, "using-")
+	if snapshot.ViewID != "" && !isTemporaryView {
 		if err := svc.executorProvider.New().
 			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
 			GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
