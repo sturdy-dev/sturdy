@@ -2,11 +2,12 @@ package unidiff
 
 import (
 	"fmt"
-	"getsturdy.com/api/vcs"
 	"io/ioutil"
 	"os"
 	"path"
 	"testing"
+
+	"getsturdy.com/api/vcs"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -55,12 +56,11 @@ func TestCurrentDiffs(t *testing.T) {
 
 	for idx, tc := range cases {
 		t.Run(fmt.Sprintf("%d", idx), func(t *testing.T) {
-			tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-			assert.NoError(t, err)
+			tmpBase := t.TempDir()
 
 			pathBase := tmpBase + "base"
 			repoPath := tmpBase + "client-a"
-			_, err = vcs.CreateBareRepoWithRootCommit(pathBase)
+			_, err := vcs.CreateBareRepoWithRootCommit(pathBase)
 			if err != nil {
 				panic(err)
 			}
@@ -93,12 +93,11 @@ func TestCurrentDiffs(t *testing.T) {
 }
 
 func TestCurrentDiff(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
-	_, err = vcs.CreateBareRepoWithRootCommit(pathBase)
+	_, err := vcs.CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}
@@ -169,12 +168,11 @@ func TestCurrentDiff(t *testing.T) {
 }
 
 func TestCurrentDiffWithNestedNewDirs(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
-	_, err = vcs.CreateBareRepoWithRootCommit(pathBase)
+	_, err := vcs.CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}
@@ -243,12 +241,11 @@ func TestCurrentDiffWithNestedNewDirs(t *testing.T) {
 }
 
 func TestCurrentDiffDeletedFile(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
-	_, err = vcs.CreateBareRepoWithRootCommit(pathBase)
+	_, err := vcs.CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}

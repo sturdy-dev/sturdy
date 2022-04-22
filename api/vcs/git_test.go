@@ -2,7 +2,6 @@ package vcs
 
 import (
 	"io/ioutil"
-	"os"
 	"testing"
 
 	"go.uber.org/zap"
@@ -11,8 +10,7 @@ import (
 )
 
 func TestListBranches(t *testing.T) {
-	repoPath, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	repoPath := t.TempDir()
 
 	repo, err := CreateBareRepoWithRootCommit(repoPath)
 	if err != nil {
@@ -30,8 +28,7 @@ func TestListBranches(t *testing.T) {
 }
 
 func TestDiffFromBare(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
@@ -76,14 +73,13 @@ func TestDiffFromBare(t *testing.T) {
 }
 
 func TestHeadBranch(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
 
 	t.Log("Creating bare base repo at", pathBase)
-	_, err = CreateBareRepoWithRootCommit(pathBase)
+	_, err := CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}
@@ -110,9 +106,7 @@ func TestHeadBranch(t *testing.T) {
 }
 
 func TestPushPull(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
-
+	tmpBase := t.TempDir()
 	pathBase := tmpBase + "base"
 	clientA := tmpBase + "client-a"
 	clientB := tmpBase + "client-b"
@@ -121,7 +115,7 @@ func TestPushPull(t *testing.T) {
 
 	logger := zap.NewNop()
 
-	_, err = CreateBareRepoWithRootCommit(pathBase)
+	_, err := CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}

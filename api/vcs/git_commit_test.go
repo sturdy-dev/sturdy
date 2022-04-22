@@ -1,16 +1,13 @@
 package vcs
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateCommitWithFiles(t *testing.T) {
-	repoPath, err := ioutil.TempDir(os.TempDir(), "sturdy")
-	assert.NoError(t, err)
+	repoPath := t.TempDir()
 
 	repo, err := CreateBareRepoWithRootCommit(repoPath)
 	assert.NoError(t, err)

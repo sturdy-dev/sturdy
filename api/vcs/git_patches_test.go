@@ -6,18 +6,16 @@ import (
 
 	"getsturdy.com/api/pkg/unidiff"
 	"io/ioutil"
-	"os"
 	"path"
 	"testing"
 )
 
 func TestCanApplyPatch(t *testing.T) {
-	tmpBase, err := ioutil.TempDir(os.TempDir(), "mash")
-	assert.NoError(t, err)
+	tmpBase := t.TempDir()
 
 	pathBase := path.Join(tmpBase, "trunk")
 	pathCheckout := path.Join(tmpBase, "checkout")
-	_, err = CreateBareRepoWithRootCommit(pathBase)
+	_, err := CreateBareRepoWithRootCommit(pathBase)
 	if err != nil {
 		panic(err)
 	}

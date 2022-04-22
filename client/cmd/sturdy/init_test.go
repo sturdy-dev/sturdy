@@ -12,8 +12,7 @@ import (
 )
 
 func TestPathIsInGitRepo_IsOutside(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "sturdy")
-	assert.NoError(t, err)
+	tmpDir := t.TempDir()
 	is, gitPath := pathIsInGitRepo(tmpDir)
 	assert.False(t, is)
 	assert.Empty(t, gitPath)
@@ -25,11 +24,10 @@ func TestPathIsInGitRepo_IsOutside(t *testing.T) {
 }
 
 func TestPathIsInGitRepo_IsInside(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "sturdy")
-	assert.NoError(t, err)
+	tmpDir := t.TempDir()
 	cmd := exec.Command("git", "init")
 	cmd.Dir = tmpDir
-	err = cmd.Run()
+	err := cmd.Run()
 	assert.NoError(t, err)
 
 	is, gitPath := pathIsInGitRepo(tmpDir)
