@@ -2,7 +2,7 @@
   <TextareaMentions
     ref="textarea"
     v-model="val"
-    :style="computedStyles"
+    :style="styles"
     :user="user"
     :members="members"
     @focus="resize"
@@ -11,8 +11,9 @@
 
 <script lang="ts">
 import TextareaMentions, { MEMBER_FRAGMENT } from './TextareaMentions.vue'
-import { defineComponent, type PropType } from 'vue'
+import { computed, defineComponent, nextTick, type PropType, ref } from 'vue'
 import type { UserFragment } from './__generated__/TextareaMentions'
+import type { MemberFragment } from './__generated__/TextareaMentions'
 
 export { MEMBER_FRAGMENT }
 
@@ -20,7 +21,7 @@ export default defineComponent({
   components: { TextareaMentions },
   props: {
     members: {
-      type: Array,
+      type: Array as PropType<Array<MemberFragment>>,
       required: true,
     },
     user: {
@@ -53,40 +54,73 @@ export default defineComponent({
     },
   },
   emits: ['update:modelValue'],
-  data() {
-    return {
-      // data property for v-model binding with real textarea tag
-      val: null,
-      // works when content height becomes more then value of the maxHeight property
-      maxHeightScroll: false,
-      height: 'auto',
+  setup(props) {
+    const textarea = ref<InstanceType<typeof TextareaMentions>>()
+
+    const height = ref<string>()
+    const maxHeightScroll = ref<boolean>(false)
+    const val = ref<string | number | undefined>(undefined)
+
+    const isResizeImportant = computed(() => {
+      const imp = props.important
+      return imp === true || (Array.isArray(imp) && imp.includes('resize'))
+    })
+
+    const isHeightImportant = computed(() => {
+      const imp = props.important
+      return imp === true || (Array.isArray(imp) && imp.includes('height'))
+    })
+
+    const isOverflowImportant = computed(() => {
+      const imp = props.important
+      return imp === true || (Array.isArray(imp) && imp.includes('overflow'))
+    })
+
+    const resize = () => {
+      nextTick(() => {
+        if (!textarea.value) {
+          return
+        }
+
+        let contentHeight = textarea.value.$el.scrollHeight + 1
+        if (props.minHeight) {
+          contentHeight = contentHeight < props.minHeight ? props.minHeight : contentHeight
+        }
+        if (props.maxHeight) {
+          if (contentHeight > props.maxHeight) {
+            contentHeight = props.maxHeight
+            maxHeightScroll.value = true
+          } else {
+            maxHeightScroll.value = false
+          }
+        }
+
+        const heightVal = contentHeight + 'px'
+        height.value = `${heightVal}${isHeightImportant.value ? ' !important' : ''}`
+      })
     }
-  },
-  computed: {
-    computedStyles() {
-      if (!this.autosize) return {}
+
+    const styles = computed(() => {
+      if (!props.autosize) return {}
       return {
-        resize: !this.isResizeImportant ? 'none' : 'none !important',
-        height: this.height,
-        overflow: this.maxHeightScroll
+        resize: !isResizeImportant.value ? 'none' : 'none !important',
+        height: height.value,
+        overflow: maxHeightScroll.value
           ? 'auto'
-          : !this.isOverflowImportant
+          : !isOverflowImportant.value
           ? 'hidden'
           : 'hidden !important',
       }
-    },
-    isResizeImportant() {
-      const imp = this.important
-      return imp === true || (Array.isArray(imp) && imp.includes('resize'))
-    },
-    isOverflowImportant() {
-      const imp = this.important
-      return imp === true || (Array.isArray(imp) && imp.includes('overflow'))
-    },
-    isHeightImportant() {
-      const imp = this.important
-      return imp === true || (Array.isArray(imp) && imp.includes('height'))
-    },
+    })
+
+    return {
+      textarea,
+      height,
+      maxHeightScroll,
+      val,
+      resize,
+      styles,
+    }
   },
   watch: {
     modelValue(val) {
@@ -110,29 +144,6 @@ export default defineComponent({
   mounted() {
     this.val = this.modelValue
     this.resize()
-  },
-  methods: {
-    resize() {
-      const important = this.isHeightImportant ? 'important' : ''
-      this.height = `auto${important ? ' !important' : ''}`
-      this.$nextTick(() => {
-        let contentHeight = this.$refs.textarea.$el.scrollHeight + 1
-        if (this.minHeight) {
-          contentHeight = contentHeight < this.minHeight ? this.minHeight : contentHeight
-        }
-        if (this.maxHeight) {
-          if (contentHeight > this.maxHeight) {
-            contentHeight = this.maxHeight
-            this.maxHeightScroll = true
-          } else {
-            this.maxHeightScroll = false
-          }
-        }
-        const heightVal = contentHeight + 'px'
-        this.height = `${heightVal}${important ? ' !important' : ''}`
-      })
-      return this
-    },
   },
 })
 </script>

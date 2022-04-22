@@ -27,6 +27,7 @@
               :user="user"
               :members="members"
               rows="3"
+              :min-height="80"
               class="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md"
               placeholder="Leave a comment"
               @keydown="onkey"
