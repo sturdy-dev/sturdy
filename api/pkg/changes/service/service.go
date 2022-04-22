@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	git "github.com/libgit2/git2go/v33"
@@ -31,6 +32,9 @@ type Service struct {
 	logger           *zap.Logger
 	executorProvider executor.Provider
 	snap             snapshotter.Snapshotter
+
+	// TODO: remove once we've added unique index on changes(codebase_id, commit_id)
+	createWithChangeAsParentMutex sync.Mutex
 }
 
 func New(
@@ -94,7 +98,7 @@ func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspaces
 	case err == nil:
 		parentChangeID = &parent.ID
 	case errors.Is(err, ErrNotFound):
-	// nothing
+		// nothing
 	default:
 		return nil, fmt.Errorf("failed to get change from parent commit: %w", err)
 	}
@@ -102,7 +106,20 @@ func (svc *Service) CreateWithCommitAsParent(ctx context.Context, ws *workspaces
 	return svc.CreateWithChangeAsParent(ctx, ws, commitID, parentChangeID)
 }
 
+var ErrAlreadyExists = fmt.Errorf("change already exists")
+
 func (svc *Service) CreateWithChangeAsParent(ctx context.Context, ws *workspaces.Workspace, commitID string, parentChangeID *changes.ID) (*changes.Change, error) {
+	svc.createWithChangeAsParentMutex.Lock()
+	defer svc.createWithChangeAsParentMutex.Unlock()
+
+	if _, err := svc.changeRepo.GetByCommitID(ctx, commitID, ws.CodebaseID); errors.Is(err, sql.ErrNoRows) {
+		// ok
+	} else if err != nil {
+		return nil, fmt.Errorf("could not get change by commit id: %w", err)
+	} else {
+		return nil, fmt.Errorf("change with commit %s already exists: %w", commitID, ErrAlreadyExists)
+	}
+
 	changeID := changes.ID(uuid.NewString())
 	t := time.Now()
 

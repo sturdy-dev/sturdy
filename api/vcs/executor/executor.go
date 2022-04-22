@@ -233,6 +233,9 @@ func (e *executor) AssertBranchName(name string) Executor {
 		}
 
 		if err == nil && headBranch != name {
+			if viewID := repo.ViewID(); viewID != nil {
+				return fmt.Errorf("view %s: expected %s got %s: %w", *viewID, name, headBranch, ErrUnexpectedBranch)
+			}
 			return fmt.Errorf("expected %s got %s: %w", name, headBranch, ErrUnexpectedBranch)
 		}
 

@@ -282,7 +282,7 @@ func TestPRHighLevel(t *testing.T) {
 				Owner:          gitHubRepoOwner,
 			}
 
-			assert.NoError(t, d.UserRepo.Create(&users.User{ID: userID, Email: userID.String() + "@getsturdy.com", Name: "Test Testsson"}))
+			assert.NoError(t, d.UserRepo.Create(&users.User{ID: userID, Email: userID.String() + "@getsturdy.com", Name: "Test Testsson", Status: users.StatusActive}))
 			assert.NoError(t, codebaseRepo.Create(codebases.Codebase{ID: codebaseID, ShortCodebaseID: codebases.ShortCodebaseID(codebaseID)}))
 			assert.NoError(t, codebaseUserRepo.Create(*cu))
 			assert.NoError(t, gitHubUserRepo.Create(*ghu))

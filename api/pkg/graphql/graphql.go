@@ -286,6 +286,10 @@ func (m *metricTracer) TraceQuery(ctx context.Context, queryString string, opera
 
 		highestLogLevel := logLevelNone
 		for _, err := range errors {
+			if !ctxlog.IsError(err) {
+				continue
+			}
+
 			if l := logLevelForError(err); l > highestLogLevel {
 				highestLogLevel = l
 			}
