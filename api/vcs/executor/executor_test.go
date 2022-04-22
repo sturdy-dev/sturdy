@@ -27,7 +27,7 @@ func syncMapSize(m *sync.Map) int {
 }
 
 func TestExecutor_TemporaryView_must_createtwo(t *testing.T) {
-	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
+	exec := newProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
 
 	codebaseID := codebases.ID("cb")
 
@@ -67,7 +67,7 @@ func TestExecutor_TemporaryView_must_createtwo(t *testing.T) {
 }
 
 func TestExecutor_TemporaryView_must_reuse(t *testing.T) {
-	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
+	exec := newProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
 
 	codebaseID := codebases.ID("cb")
 
@@ -88,7 +88,7 @@ func TestExecutor_TemporaryView_must_reuse(t *testing.T) {
 }
 
 func TestExecutor_AllowRebasingState(t *testing.T) {
-	exec := NewProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
+	exec := newProvider(zap.NewNop(), testutil.TestingRepoProvider(t), 1)
 
 	// create repo
 	err := exec.New().AllowRebasingState().Schedule(func(repoProvider provider.RepoProvider) error {
