@@ -99,6 +99,7 @@ func (svc *Service) GrantCollaboratorsAccess(ctx context.Context, codebaseID cod
 			}
 
 			svc.analyticsService.Capture(ctx, "added user to codebase",
+				analytics.UserID(gitHubUser.UserID),
 				analytics.CodebaseID(codebaseID),
 				analytics.Property("github", true),
 				analytics.Property("is_github_sender", false), // This event is not fired for the user that installed the GitHub app
