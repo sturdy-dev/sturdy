@@ -50,3 +50,4 @@ __generated__/
 /web/src/components/emoji/emojis.json
 /backend/mash
 /api/mash
+/web/tsconfig-tmp.json
