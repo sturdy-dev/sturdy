@@ -100,6 +100,8 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 
 	var snapshotCommitID string
 
+	logger.Info("creating snapshot", zap.Int("patch_count", len(patchIDs)))
+
 	// If no patches are specified, create a snapshot of the entire view ("git add -a")
 	if len(patchIDs) == 0 {
 		snapshotCommitID, err = repo.AddAndCommit(fmt.Sprintf("snapshot-%d", time.Now().Unix()))
