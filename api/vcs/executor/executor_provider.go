@@ -18,7 +18,11 @@ type executorProvider struct {
 	locks *locker
 }
 
-func NewProvider(logger *zap.Logger, repoProvider provider.RepoProvider, minTmpBufferSize int) Provider {
+func NewProvider(logger *zap.Logger, repoProvider provider.RepoProvider) Provider {
+	return newProvider(logger, repoProvider, 3)
+}
+
+func newProvider(logger *zap.Logger, repoProvider provider.RepoProvider, minTmpBufferSize int) Provider {
 	return &executorProvider{
 		logger:           logger.Named("gitExecutor"),
 		repoProvider:     repoProvider,
