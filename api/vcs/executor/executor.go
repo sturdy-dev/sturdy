@@ -122,16 +122,23 @@ type executor struct {
 
 	allowRebasing bool
 
-	logger       *zap.Logger
-	repoProvider provider.RepoProvider
-	locks        *locker
+	logger           *zap.Logger
+	repoProvider     provider.RepoProvider
+	locks            *locker
+	minTmpBufferSize int
 }
 
-func newExecutor(logger *zap.Logger, repoProvider provider.RepoProvider, locks *locker) *executor {
+func newExecutor(
+	logger *zap.Logger,
+	repoProvider provider.RepoProvider,
+	locks *locker,
+	minTmpBufferSize int,
+) *executor {
 	return &executor{
-		logger:       logger,
-		repoProvider: repoProvider,
-		locks:        locks,
+		logger:           logger,
+		repoProvider:     repoProvider,
+		locks:            locks,
+		minTmpBufferSize: minTmpBufferSize,
 	}
 }
 
@@ -275,7 +282,7 @@ func (e *executor) getTemporaryViewID(codebaseID codebases.ID) (string, error) {
 
 	// find temporary views among them
 	temporaryViews := filter(viewPaths, isTemporaryView)
-	if len(temporaryViews) == 0 {
+	if shouldAddNewView := len(temporaryViews) < e.minTmpBufferSize; shouldAddNewView {
 		// add a new tmp view to the pool
 		return fmt.Sprintf("%s%s%s", inUsePrefix, tmpPrefix, uuid.NewString()), nil
 	}

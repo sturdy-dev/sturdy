@@ -11,20 +11,22 @@ type Provider interface {
 }
 
 type executorProvider struct {
-	logger       *zap.Logger
-	repoProvider provider.RepoProvider
+	logger           *zap.Logger
+	repoProvider     provider.RepoProvider
+	minTmpBufferSize int
 
 	locks *locker
 }
 
-func NewProvider(logger *zap.Logger, repoProvider provider.RepoProvider) Provider {
+func NewProvider(logger *zap.Logger, repoProvider provider.RepoProvider, minTmpBufferSize int) Provider {
 	return &executorProvider{
-		logger:       logger.Named("gitExecutor"),
-		repoProvider: repoProvider,
-		locks:        newLocker(repoProvider),
+		logger:           logger.Named("gitExecutor"),
+		repoProvider:     repoProvider,
+		minTmpBufferSize: minTmpBufferSize,
+		locks:            newLocker(repoProvider),
 	}
 }
 
 func (p *executorProvider) New() Executor {
-	return newExecutor(p.logger, p.repoProvider, p.locks)
+	return newExecutor(p.logger, p.repoProvider, p.locks, p.minTmpBufferSize)
 }
