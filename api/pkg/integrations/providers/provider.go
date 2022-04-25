@@ -25,7 +25,6 @@ type ProviderType string
 const (
 	ProviderTypeUndefined ProviderType = ""
 	ProviderTypeBuild     ProviderType = "build"
-	ProviderTypePushPull  ProviderType = "push_pull"
 )
 
 type ProviderName string
@@ -33,7 +32,6 @@ type ProviderName string
 const (
 	ProviderNameUndefined ProviderName = ""
 	ProviderNameBuildkite ProviderName = "buildkite"
-	ProviderNameGit       ProviderName = "git"
 )
 
 type Build struct {
