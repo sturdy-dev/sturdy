@@ -176,7 +176,7 @@ func (c *changesCodebaseIDCommitIDUniq) ambiguousChangeIDs(ctx context.Context, 
 }
 
 func (c *changesCodebaseIDCommitIDUniq) codebaseChangeSet(ctx context.Context, id codebases.ID) (map[changes.ID]bool, error) {
-	codebase, err := c.codebasesService.GetByID(ctx, id)
+	codebase, err := c.codebasesService.GetByIDAllowArchived(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load codebase %s: %w", id, err)
 	}
