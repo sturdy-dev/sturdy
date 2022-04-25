@@ -15,11 +15,11 @@ import (
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
+	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_file "getsturdy.com/api/pkg/file/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
-	"getsturdy.com/api/pkg/internal/inmemory"
 	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/vcs"
@@ -45,7 +45,7 @@ func TestFileResolver(t *testing.T) {
 	viewGitRepo, err := vcs.CloneRepo(trunkPath, viewPath)
 	assert.NoError(t, err)
 
-	aclRepo := inmemory.NewInMemoryAclRepo()
+	aclRepo := db_acl.NewInMemoryAclRepo()
 	userRepo := db_users.NewMemory()
 
 	userService := service_user.New(

@@ -21,8 +21,8 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
+	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 	provider_acl "getsturdy.com/api/pkg/codebases/acl/provider"
-	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/users"
 	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
@@ -32,7 +32,7 @@ import (
 
 func TestListAllows(t *testing.T) {
 	viewRepo := db_views.NewInMemoryViewRepo()
-	aclRepo := inmemory.NewInMemoryAclRepo()
+	aclRepo := db_acl.NewInMemoryAclRepo()
 	userRepo := db_users.NewMemory()
 
 	userService := service_user.New(
