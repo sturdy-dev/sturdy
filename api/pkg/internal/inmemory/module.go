@@ -6,11 +6,8 @@ import (
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )
 
-func TestModule(c *di.Container) {
+func TestModul(c *di.Container) {
 	c.Register(NewInMemoryAclRepo)
-	c.Register(NewInMemoryGitHubInstallationRepository)
-	c.Register(NewInMemoryGitHubRepositoryRepo)
-	c.Register(NewInMemoryGitHubUserRepo)
 	c.Register(NewInMemorySnapshotRepo)
 	c.Register(NewInMemoryViewRepo)
 	c.Register(db_workspaces.NewMemory)
