@@ -13,9 +13,7 @@ import (
 
 type Repository interface {
 	Create(snapshot *snapshots.Snapshot) error
-	ListByView(viewID string) ([]*snapshots.Snapshot, error)
-	LatestInView(viewID string) (*snapshots.Snapshot, error)
-	LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error)
+	LatestInWorkspace(context.Context, string) (*snapshots.Snapshot, error)
 	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
 	Get(string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
@@ -53,47 +51,18 @@ func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 	return &res, nil
 }
 
-func (r *dbrepo) LatestInView(viewID string) (*snapshots.Snapshot, error) {
+func (r *dbrepo) LatestInWorkspace(ctx context.Context, workspaceID string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	if err := r.db.GetContext(ctx, &res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
-		WHERE view_id=$1
+		WHERE workspace_id = $1
 		AND deleted_at IS NULL
 		ORDER BY created_at DESC
-		LIMIT 1`, viewID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get latest in view: %w", err)
+		LIMIT 1
+	`, workspaceID); err != nil {
+		return nil, fmt.Errorf("failed to get latest in workspace: %w", err)
 	}
 	return &res, nil
-}
-
-func (r *dbrepo) LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error) {
-	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
-		FROM snapshots
-		WHERE view_id=$1
-	    AND workspace_id=$2
-		AND deleted_at IS NULL
-		ORDER BY created_at DESC
-		LIMIT 1`, viewID, workspaceID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get latest in view and workspace: %w", err)
-	}
-	return &res, nil
-}
-
-func (r *dbrepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
-	var res []*snapshots.Snapshot
-	err := r.db.Select(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
-		FROM snapshots
-		WHERE view_id=$1
-		  AND deleted_at IS NULL
-		ORDER BY created_at DESC
-		LIMIT 100`, viewID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list by view: %w", err)
-	}
-	return res, nil
 }
 
 func (r *dbrepo) ListUndeletedInCodebase(codebaseID codebases.ID, threshold time.Time) ([]*snapshots.Snapshot, error) {

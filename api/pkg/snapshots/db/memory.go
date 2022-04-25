@@ -11,40 +11,30 @@ import (
 
 // snapshotRepo implements snapshot.Repository
 type snapshotRepo struct {
-	byID                     map[string]*snapshots.Snapshot
-	latestInView             map[string]*snapshots.Snapshot
-	latestInViewAndWorkspace map[string]*snapshots.Snapshot
+	byID              map[string]*snapshots.Snapshot
+	latestInWorkspace map[string]*snapshots.Snapshot
 }
 
 func NewInMemorySnapshotRepo() Repository {
 	return &snapshotRepo{
-		byID:                     make(map[string]*snapshots.Snapshot),
-		latestInView:             make(map[string]*snapshots.Snapshot),
-		latestInViewAndWorkspace: make(map[string]*snapshots.Snapshot),
+		byID:              make(map[string]*snapshots.Snapshot),
+		latestInWorkspace: make(map[string]*snapshots.Snapshot),
 	}
 }
 
 func (f *snapshotRepo) Create(snapshot *snapshots.Snapshot) error {
 	f.byID[snapshot.ID] = snapshot
-	f.latestInView[snapshot.ViewID] = snapshot
-	f.latestInViewAndWorkspace[snapshot.ViewID+snapshot.WorkspaceID] = snapshot
+	f.latestInWorkspace[snapshot.WorkspaceID] = snapshot
 	return nil
 }
-func (f *snapshotRepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
-	panic("not implemented")
-}
-func (f *snapshotRepo) LatestInView(viewID string) (*snapshots.Snapshot, error) {
-	if snap, ok := f.latestInView[viewID]; ok {
+
+func (f *snapshotRepo) LatestInWorkspace(_ context.Context, workspace_id string) (*snapshots.Snapshot, error) {
+	if snap, ok := f.latestInWorkspace[workspace_id]; ok {
 		return snap, nil
 	}
 	return nil, sql.ErrNoRows
 }
-func (f *snapshotRepo) LatestInViewAndWorkspace(viewID, workspaceID string) (*snapshots.Snapshot, error) {
-	if snap, ok := f.latestInViewAndWorkspace[viewID+workspaceID]; ok {
-		return snap, nil
-	}
-	return nil, sql.ErrNoRows
-}
+
 func (f *snapshotRepo) Get(ID string) (*snapshots.Snapshot, error) {
 	if snap, ok := f.byID[ID]; ok {
 		return snap, nil

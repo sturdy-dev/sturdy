@@ -190,12 +190,12 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 	if options.onView != nil {
 		// Find previous snapshot
 		var err error
-		latest, err = s.snapshotsRepo.LatestInView(*options.onView)
+		latest, err = s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
 
-		_, err = s.suggestionsRepo.GetByWorkspaceID(context.Background(), workspaceID)
+		_, err = s.suggestionsRepo.GetByWorkspaceID(context.TODO(), workspaceID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
