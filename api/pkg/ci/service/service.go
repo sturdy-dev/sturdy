@@ -115,11 +115,7 @@ func (svc *Service) loadSeedFiles(commitSHA string, codebaseID codebases.ID, see
 }
 
 func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.Snapshot, seedFiles []string) (string, error) {
-	if snapshot.WorkspaceID == nil {
-		return "", fmt.Errorf("workspace id is nil")
-	}
-
-	jwt, err := svc.jwtService.IssueToken(ctx, *snapshot.WorkspaceID, oneDay, jwt.TokenTypeCI)
+	jwt, err := svc.jwtService.IssueToken(ctx, snapshot.WorkspaceID, oneDay, jwt.TokenTypeCI)
 	if err != nil {
 		return "", err
 	}
@@ -156,7 +152,7 @@ func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.S
 
 			data, err := json.Marshal(sturdyJsonData{
 				CodebaseID:  snapshot.CodebaseID,
-				WorkspaceID: snapshot.WorkspaceID,
+				WorkspaceID: &snapshot.WorkspaceID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create metadata file: %w", err)
@@ -192,7 +188,7 @@ func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.S
 				return fmt.Errorf("failed to write download.bash: %w", err)
 			}
 
-			commitSHA, err = repo.AddAndCommit(fmt.Sprintf("Workspace %s on Sturdy", *snapshot.WorkspaceID))
+			commitSHA, err = repo.AddAndCommit(fmt.Sprintf("Workspace %s on Sturdy", snapshot.WorkspaceID))
 			if err != nil {
 				return fmt.Errorf("failed to create commit: %w", err)
 			}

@@ -71,13 +71,13 @@ func CheckoutSnapshot(snapshot *snapshots.Snapshot) func(vcs.RepoWriter) error {
 		if err := repo.CheckoutBranchWithForce(copyBranchName); err != nil {
 			return fmt.Errorf("failed to checkout branch on target: %w", err)
 		}
-		if err := repo.CreateBranchTrackingUpstream(*snapshot.WorkspaceID); err != nil {
+		if err := repo.CreateBranchTrackingUpstream(snapshot.WorkspaceID); err != nil {
 			return fmt.Errorf("failed to create workspace branch on target: %w", err)
 		}
 		if err := repo.ResetMixed(preCommitID); err != nil {
 			return fmt.Errorf("failed to restore to parent on target: %w", err)
 		}
-		if err := repo.CheckoutBranchSafely(*snapshot.WorkspaceID); err != nil {
+		if err := repo.CheckoutBranchSafely(snapshot.WorkspaceID); err != nil {
 			return fmt.Errorf("failed to checkout workspace on target: %w", err)
 		}
 		return nil

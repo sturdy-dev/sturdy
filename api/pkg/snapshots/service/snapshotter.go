@@ -326,7 +326,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		ID:          snapshotID,
 		CommitSHA:   snapshotCommitID,
 		CreatedAt:   time.Now(),
-		WorkspaceID: &workspaceID,
+		WorkspaceID: workspaceID,
 		CodebaseID:  codebaseID,
 		Action:      action,
 		DiffsCount:  &diffsCount,
@@ -566,7 +566,7 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 	}
 
 	if err := s.executorProvider.New().
-		Write(vcs_view.CheckoutBranch(*snapshot.WorkspaceID)).
+		Write(vcs_view.CheckoutBranch(snapshot.WorkspaceID)).
 		Write(func(repo vcs.RepoWriter) error {
 			if err := repo.ApplyPatchesToWorkdir(patches); err != nil {
 				return fmt.Errorf("failed to apply patches to workdir: %w", err)
@@ -590,9 +590,6 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 }
 
 func (s *Service) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error {
-	if snap.WorkspaceID == nil {
-		return errors.New("can't restore snapshot that's not on a workspace")
-	}
 	if err := vcs_snapshots.RestoreRepo(s.logger, viewRepo, snap.ID, snap.CommitSHA); err != nil {
 		return fmt.Errorf("failed to restore: %w", err)
 	}

@@ -13,8 +13,8 @@ type Snapshot struct {
 	// CommitSHA with the snapshotted content. I.E. to get a view state without the snapshot, soft reset it to the commitID's parent.
 	CommitSHA          string       `json:"-" db:"commit_id"`
 	CodebaseID         codebases.ID `json:"codebase_id" db:"codebase_id"`
-	ViewID             string       `json:"view_id" db:"view_id"`           // ViewID is optional. TODO: Make it nullable?
-	WorkspaceID        *string      `json:"workspace_id" db:"workspace_id"` // Older entries might not have a workspace ID set
+	ViewID             string       `json:"view_id" db:"view_id"` // ViewID is optional. TODO: Make it nullable?
+	WorkspaceID        string       `json:"workspace_id" db:"workspace_id"`
 	CreatedAt          time.Time    `json:"-" db:"created_at"`
 	PreviousSnapshotID *string      `json:"previous_snapshot_id" db:"previous_snapshot_id"`
 	Action             Action       `json:"action" db:"action"`           // The action that triggered the snapshot creations

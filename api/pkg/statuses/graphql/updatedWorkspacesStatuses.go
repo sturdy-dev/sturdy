@@ -49,11 +49,9 @@ func (r *RootResolver) UpdatedWorkspacesStatuses(ctx context.Context, args resol
 			return nil
 		} else if err != nil {
 			return gqlerrors.Error(err)
-		} else if snapshot.WorkspaceID == nil {
-			return nil
 		}
 
-		if !watchWorkspaces[*snapshot.WorkspaceID] {
+		if !watchWorkspaces[snapshot.WorkspaceID] {
 			return nil
 		}
 

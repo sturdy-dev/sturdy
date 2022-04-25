@@ -27,7 +27,7 @@ func NewInMemorySnapshotRepo() Repository {
 func (f *snapshotRepo) Create(snapshot *snapshots.Snapshot) error {
 	f.byID[snapshot.ID] = snapshot
 	f.latestInView[snapshot.ViewID] = snapshot
-	f.latestInViewAndWorkspace[snapshot.ViewID+*snapshot.WorkspaceID] = snapshot
+	f.latestInViewAndWorkspace[snapshot.ViewID+snapshot.WorkspaceID] = snapshot
 	return nil
 }
 func (f *snapshotRepo) ListByView(viewID string) ([]*snapshots.Snapshot, error) {
