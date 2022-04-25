@@ -1,4 +1,4 @@
-package inmemory
+package db
 
 import (
 	"context"
@@ -6,14 +6,13 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
-	db_acl "getsturdy.com/api/pkg/codebases/acl/db"
 )
 
 type inMemoryAclRepo struct {
 	acls []acl.ACL
 }
 
-func NewInMemoryAclRepo() db_acl.ACLRepository {
+func NewInMemoryAclRepo() ACLRepository {
 	return &inMemoryAclRepo{
 		acls: make([]acl.ACL, 0),
 	}
