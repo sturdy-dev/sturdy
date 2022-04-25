@@ -72,12 +72,12 @@ func New(
 	}
 }
 
+func (svc *Service) GetByIDAllowArchived(ctx context.Context, id codebases.ID) (*codebases.Codebase, error) {
+	return svc.repo.GetAllowArchived(id)
+}
+
 func (svc *Service) GetByID(ctx context.Context, id codebases.ID) (*codebases.Codebase, error) {
-	cb, err := svc.repo.Get(id)
-	if err != nil {
-		return nil, err
-	}
-	return cb, nil
+	return svc.repo.Get(id)
 }
 
 func (svc *Service) GetByShortID(ctx context.Context, shortID codebases.ShortCodebaseID) (*codebases.Codebase, error) {
