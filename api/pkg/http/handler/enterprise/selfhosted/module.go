@@ -1,12 +1,12 @@
 package selfhosted
 
 import (
+	service_buildkite "getsturdy.com/api/pkg/buildkite/enterprise/service"
 	"getsturdy.com/api/pkg/di"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	webhooks_github "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	"getsturdy.com/api/pkg/http/handler"
-	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/logger"
 	routes_remote "getsturdy.com/api/pkg/remote/enterprise/routes"

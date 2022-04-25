@@ -6,14 +6,14 @@ import (
 	"time"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
+	"getsturdy.com/api/pkg/buildkite"
+	service_buildkite "getsturdy.com/api/pkg/buildkite/enterprise/service"
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/codebases"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/integrations"
 	"getsturdy.com/api/pkg/integrations/providers"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
-	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 
 	"github.com/google/uuid"
 )
@@ -62,7 +62,7 @@ func (root *rootResolver) createNewConfiguration(ctx context.Context, args resol
 	}
 
 	if err := root.instantIntegrationService.CreateIntegration(ctx, integration); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to create integration: %w", err))
+		return nil, fmt.Errorf("failed to create integration: %w", err)
 	}
 
 	cfg := &buildkite.Config{
@@ -77,7 +77,7 @@ func (root *rootResolver) createNewConfiguration(ctx context.Context, args resol
 	}
 
 	if err := root.buildkiteService.CreateIntegration(ctx, cfg); err != nil {
-		return nil, gqlerrors.Error(fmt.Errorf("failed to create configuration: %w", err))
+		return nil, fmt.Errorf("failed to create configuration: %w", err)
 	}
 
 	return integration, nil

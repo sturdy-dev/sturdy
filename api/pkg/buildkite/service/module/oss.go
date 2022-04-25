@@ -4,10 +4,10 @@
 package module
 
 import (
+	"getsturdy.com/api/pkg/buildkite/service"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite/graphql"
 )
 
 func Module(c *di.Container) {
-	c.Import(graphql.Module)
+	c.Register(service.New, new(service.Service))
 }

@@ -26,7 +26,7 @@ func (cd *configDatabase) Create(ctx context.Context, cfg *integrations.Integrat
 		INSERT INTO integrations
 			(id, codebase_id, provider, provider_type, seed_files, created_at, updated_at)
 		VALUES
-			($1, $2, $3, $4, $5, $6)
+			($1, $2, $3, $4, $5, $6, $7)
 		`, cfg.ID, cfg.CodebaseID, cfg.Provider, cfg.ProviderType, pq.Array(cfg.SeedFiles), cfg.CreatedAt, cfg.UpdatedAt); err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
 	}
