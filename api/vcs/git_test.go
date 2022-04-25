@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
+	git "github.com/libgit2/git2go/v33"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,7 +22,7 @@ func TestListBranches(t *testing.T) {
 	assert.NoError(t, repo.CreateNewBranchOnHEAD("foo-2"))
 	assert.NoError(t, repo.CreateNewBranchOnHEAD("foo-3"))
 
-	branches, err := repo.listBranches()
+	branches, err := repo.listBranches(git.BranchAll)
 	assert.NoError(t, err)
 
 	assert.Equal(t, []string{"foo-1", "foo-2", "foo-3", "master", "sturdytrunk"}, branches)

@@ -16,6 +16,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
+	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
@@ -53,29 +54,86 @@ func New(
 	}
 }
 
-func (svc *Service) gcSnapshots(ctx context.Context, codebaseID codebases.ID, snapshotThreshold time.Duration) error {
-	// Delete snapshots older than
-	threshold := time.Now().Add(snapshotThreshold)
+func mapSlice[In any, Out any](slice []In, mapper func(In) Out) []Out {
+	out := make([]Out, len(slice))
+	for i, v := range slice {
+		out[i] = mapper(v)
+	}
+	return out
+}
 
-	// GC unused snapshots
-	snapshots, err := svc.snapshotsRepo.ListUndeletedInCodebase(codebaseID, threshold)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("could not get snapshots: %w", err)
+func filterSlice[T any](slice []T, filter func(T) bool) []T {
+	out := make([]T, 0)
+	for _, v := range slice {
+		if filter(v) {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+func (svc *Service) gcSnapshotsInView(ctx context.Context, view *view.View, snapshotThreshold time.Duration) error {
+	allBranches := []string{}
+	if err := svc.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
+		branches, err := repo.Branches()
+		if err != nil {
+			return fmt.Errorf("failed to list branches: %w", err)
+		}
+		allBranches = branches
+		return nil
+	}).ExecView(view.CodebaseID, view.ID, "listBranches"); err != nil {
+		return fmt.Errorf("failed to execute view: %w", err)
 	}
 
-	svc.logger.Info("cleaning up snapshots", zap.Int("total_snapshots", len(snapshots)))
+	isSnapshotBranch := func(branch string) bool {
+		return strings.HasPrefix(branch, "snapshot-")
+	}
 
+	snapshotBranches := filterSlice(allBranches, isSnapshotBranch)
+	if len(snapshotBranches) == 0 {
+		return nil
+	}
+
+	branchSnapshotID := func(branch string) string {
+		return strings.TrimPrefix(branch, "snapshot-")
+	}
+
+	snapshotIDs := mapSlice(snapshotBranches, branchSnapshotID)
+	snapshots, err := svc.snapshotsRepo.ListByIDs(ctx, snapshotIDs)
+	if err != nil {
+		return fmt.Errorf("failed to list snapshots: %w", err)
+	}
+
+	// Delete snapshots older than
+	threshold := time.Now().Add(snapshotThreshold)
 	for _, snapshot := range snapshots {
-		logger := svc.logger.With(zap.String("snapshot_id", snapshot.ID))
+		logger := svc.logger.With(zap.String("snapshot_id", snapshot.ID), zap.String("view_id", view.ID))
 
 		if err := svc.gcSnapshot(
 			ctx,
 			snapshot,
+			view,
 			threshold,
 			logger,
 		); err != nil {
 			logger.Error("failed to gc snapshot", zap.Error(err))
 			// do not fail
+		}
+	}
+
+	return nil
+}
+
+func (svc *Service) gcSnapshots(ctx context.Context, codebaseID codebases.ID, snapshotThreshold time.Duration) error {
+	views, err := svc.viewRepo.ListByCodebase(codebaseID)
+	if err != nil {
+		return fmt.Errorf("failed to list views: %w", err)
+	}
+
+	for _, view := range views {
+		logger := svc.logger.With(zap.String("view_id", view.ID), zap.Stringer("codebase_id", view.CodebaseID))
+		if err != svc.gcSnapshotsInView(ctx, view, snapshotThreshold) {
+			logger.Error("failed to gc snapshots in view", zap.Error(err))
 		}
 	}
 
@@ -106,6 +164,7 @@ func (svc *Service) isSnapshotUsedAsSuggestion(ctx context.Context, snapshot *sn
 func (svc *Service) gcSnapshot(
 	ctx context.Context,
 	snapshot *snapshots.Snapshot,
+	view *view.View,
 	threshold time.Time,
 	logger *zap.Logger,
 ) error {
@@ -145,7 +204,7 @@ func (svc *Service) gcSnapshot(
 	// Throttle heavy operations
 	time.Sleep(time.Second / 2)
 
-	if err := svc.deleteSnapshotBranch(logger, snapshot); err != nil {
+	if err := svc.deleteSnapshotBranchInView(logger, view, snapshot); err != nil {
 		return fmt.Errorf("failed to delete snapshot id=%s: %w", snapshot.ID, err)
 	}
 
@@ -158,7 +217,7 @@ func (svc *Service) gcSnapshot(
 	return nil
 }
 
-func (svc *Service) deleteSnapshotBranch(logger *zap.Logger, snapshot *snapshots.Snapshot) error {
+func (svc *Service) deleteSnapshotBranchInView(logger *zap.Logger, view *view.View, snapshot *snapshots.Snapshot) error {
 	logger.Info("deleting snapshot")
 
 	if ws, err := svc.workspaceReader.GetBySnapshotID(snapshot.ID); err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -168,7 +227,7 @@ func (svc *Service) deleteSnapshotBranch(logger *zap.Logger, snapshot *snapshots
 		return nil
 	}
 
-	snapshotBranchName := "snapshot-" + snapshot.ID
+	snapshotBranchName := snapshot.BranchName()
 
 	// Delete branch on trunk
 	if err := svc.executorProvider.New().GitWrite(func(trunkRepo vcs.RepoGitWriter) error {
@@ -185,23 +244,19 @@ func (svc *Service) deleteSnapshotBranch(logger *zap.Logger, snapshot *snapshots
 		return nil
 	}
 
-	// Delete branch on the view that created the snapshot
-	isTemporaryView := strings.HasPrefix(snapshot.ViewID, "tmp-") || strings.HasPrefix(snapshot.ViewID, "using-")
-	if snapshot.ViewID != "" && !isTemporaryView {
-		if err := svc.executorProvider.New().
-			AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
-			GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
-				if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
-					return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
-				}
+	if err := svc.executorProvider.New().
+		AllowRebasingState(). // allowed to enable branch deletion even if the view is currently rebasing
+		GitWrite(func(viewGitRepo vcs.RepoGitWriter) error {
+			if err := viewGitRepo.DeleteBranch(snapshotBranchName); err != nil {
+				return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
+			}
 
-				logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
+			logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
 
-				return nil
-			}).ExecView(snapshot.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
-			logger.Error("failed to open view", zap.Error(err))
 			return nil
-		}
+		}).ExecView(snapshot.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
+		logger.Error("failed to open view", zap.Error(err))
+		return nil
 	}
 
 	return nil
