@@ -213,9 +213,7 @@ func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
 		return true, nil
 	} else if err != nil {
 		return false, gqlerrors.Error(err)
-	} else if snapshot.WorkspaceID == nil {
-		return true, nil
-	} else if ws, err := r.root.workspaceService.GetByID(ctx, *snapshot.WorkspaceID); errors.Is(err, sql.ErrNoRows) {
+	} else if ws, err := r.root.workspaceService.GetByID(ctx, snapshot.WorkspaceID); errors.Is(err, sql.ErrNoRows) {
 		return true, nil
 	} else if err != nil {
 		return false, gqlerrors.Error(err)
@@ -229,12 +227,10 @@ func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
 func (r *workspaceResolver) Workspace(ctx context.Context) (resolvers.WorkspaceResolver, error) {
 	if snapshot, err := r.getSnapshot(ctx); err != nil {
 		return nil, gqlerrors.Error(err)
-	} else if snapshot.WorkspaceID == nil {
-		return nil, nil
 	} else {
 		t := true
 		return (*r.root.workspaceRootResolver).Workspace(ctx, resolvers.WorkspaceArgs{
-			ID:            graphql.ID(*snapshot.WorkspaceID),
+			ID:            graphql.ID(snapshot.WorkspaceID),
 			AllowArchived: &t,
 		})
 	}

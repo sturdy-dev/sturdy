@@ -83,10 +83,6 @@ func (svc *Service) gcSnapshots(ctx context.Context, codebaseID codebases.ID, sn
 }
 
 func (svc *Service) isSnapshotUsedAsSuggestion(ctx context.Context, snapshot *snapshots.Snapshot) (bool, error) {
-	if snapshot.WorkspaceID == nil {
-		return false, nil
-	}
-
 	// if there is a suggestion for this snapshot, it is used
 	ss, err := svc.suggestionService.ListBySnapshotID(ctx, snapshot.ID)
 	if err != nil {
@@ -96,7 +92,7 @@ func (svc *Service) isSnapshotUsedAsSuggestion(ctx context.Context, snapshot *sn
 		return true, nil
 	}
 
-	s, err := svc.suggestionService.GetByWorkspaceID(ctx, *snapshot.WorkspaceID)
+	s, err := svc.suggestionService.GetByWorkspaceID(ctx, snapshot.WorkspaceID)
 	switch {
 	case err == nil:
 		return s.ForSnapshotID == snapshot.ID, nil
