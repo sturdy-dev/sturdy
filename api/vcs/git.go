@@ -345,6 +345,12 @@ func (repo *repository) getHead() (*git.Tree, error) {
 	return headTree, nil
 }
 
+func (r *repository) Branches() ([]string, error) {
+	defer getMeterFunc("branches")()
+
+	return r.listBranches(git.BranchLocal)
+}
+
 func (r *repository) RemoteBranchCommit(remoteName, branchName string) (*git.Commit, error) {
 	defer getMeterFunc("remoteBranchCommit")()
 
@@ -765,24 +771,23 @@ func (r *repository) fetch(branches ...string) error {
 	return nil
 }
 
-func (r *repository) listBranches() ([]string, error) {
-	bi, err := r.r.NewBranchIterator(git.BranchAll)
+func (r *repository) listBranches(typ git.BranchType) ([]string, error) {
+	bi, err := r.r.NewBranchIterator(typ)
 	if err != nil {
 		return nil, err
 	}
 	defer bi.Free()
 
 	var branches []string
-	err = bi.ForEach(func(branch *git.Branch, bt git.BranchType) error {
+	if err := bi.ForEach(func(branch *git.Branch, _ git.BranchType) error {
 		name, err := branch.Name()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get branch name: %w", err)
 		}
 		branches = append(branches, name)
 		return nil
-	})
-	if err != nil {
-		return nil, err
+	}); err != nil {
+		return nil, fmt.Errorf("failed to list branches: %w", err)
 	}
 
 	return branches, nil

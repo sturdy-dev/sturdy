@@ -3,9 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
 
-	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
 )
 
@@ -42,18 +40,20 @@ func (f *snapshotRepo) Get(ID string) (*snapshots.Snapshot, error) {
 	return nil, sql.ErrNoRows
 }
 
-func (f *snapshotRepo) ListUndeletedInCodebase(_ codebases.ID, _ time.Time) ([]*snapshots.Snapshot, error) {
-	panic("not implemented")
-}
-
 func (f *snapshotRepo) Update(*snapshots.Snapshot) error {
-	panic("not implemented")
-}
-
-func (f *snapshotRepo) ListByViewCopiedFromBranchName(copiedFromBranchName string) ([]*snapshots.Snapshot, error) {
 	panic("not implemented")
 }
 
 func (f *snapshotRepo) GetByCommitSHA(_ context.Context, sha string) (*snapshots.Snapshot, error) {
 	panic("not implemented")
+}
+
+func (f *snapshotRepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snapshot, error) {
+	res := []*snapshots.Snapshot{}
+	for _, id := range ids {
+		if snap, ok := f.byID[id]; ok {
+			res = append(res, snap)
+		}
+	}
+	return res, nil
 }

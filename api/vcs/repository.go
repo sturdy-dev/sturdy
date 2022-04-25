@@ -27,6 +27,7 @@ type RepoGitReader interface {
 
 	HeadBranch() (string, error)
 	HeadCommit() (*git.Commit, error)
+	Branches() ([]string, error)
 
 	BranchCommitID(branchName string) (string, error)
 
