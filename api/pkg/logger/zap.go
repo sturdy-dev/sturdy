@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/logger/configuration"
 	"getsturdy.com/api/pkg/metrics/zapprometheus"
+	"getsturdy.com/api/pkg/version"
 
 	"github.com/TheZeroSlave/zapsentry"
 	"github.com/getsentry/sentry-go"
@@ -81,5 +82,8 @@ func New(cfg *configuration.Configuration, sentryClient *sentry.Client) (*zap.Lo
 		cores = append(cores, core)
 	}
 
-	return zap.New(zapcore.NewTee(cores...), options...), nil
+	return zap.New(zapcore.NewTee(cores...), options...).With(
+		zap.String("version", version.Version),
+		zap.Stringer("environment", version.Type),
+	), nil
 }
