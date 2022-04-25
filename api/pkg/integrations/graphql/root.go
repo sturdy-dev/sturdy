@@ -103,11 +103,11 @@ func (r *rootResolver) triggerInstantIntegrationChangeID(ctx context.Context, ch
 	var triggerOptions []service.TriggerOption
 	if providers != nil {
 		for _, provider := range *providers {
-			providerType, err := convertProvider(provider)
+			providerName, err := convertProvider(provider)
 			if err != nil {
 				return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "integrations", err.Error())
 			}
-			triggerOptions = append(triggerOptions, service.WithProvider(providerType))
+			triggerOptions = append(triggerOptions, service.WithProvider(providerName))
 		}
 	}
 
