@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/changes"
@@ -41,12 +42,17 @@ func (r *repo) GetByCommitID(ctx context.Context, commitID string, codebaseID co
 	return &res, nil
 }
 
+var ErrAlreadyExists = errors.New("change already exists")
+
 func (r *repo) Insert(ctx context.Context, ch changes.Change) error {
 	_, err := r.db.NamedExecContext(ctx, `INSERT INTO changes
 		(id, codebase_id, title, updated_description, user_id, git_creator_name, git_creator_email, created_at, git_created_at, commit_id, parent_change_id, workspace_id)
 		VALUES(:id, :codebase_id, :title, :updated_description, :user_id, :git_creator_name, :git_creator_email, :created_at, :git_created_at, :commit_id, :parent_change_id, :workspace_id)
     	`, &ch)
-	if err != nil {
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) && pqErr.Code.Name() == "unique_violation" {
+		return ErrAlreadyExists
+	} else if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
 	}
 	return nil

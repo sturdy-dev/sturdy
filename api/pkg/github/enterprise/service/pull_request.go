@@ -293,7 +293,6 @@ func (svc *Service) mergePullRequest(
 
 	ch, err := svc.changeService.CreateWithCommitAsParent(ctx, ws, gitHubPR.GetMergeCommitSHA(), gitHubPR.GetBase().GetSHA())
 	if errors.Is(err, service_change.ErrAlreadyExists) {
-		// noop
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("failed to create change: %w", err)
