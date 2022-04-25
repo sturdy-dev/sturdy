@@ -22,7 +22,7 @@ func Setup(dbSourceURL string) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := doMigrateUp(db.DB); err != nil {
+	if err := MigrateUP(db.DB); err != nil {
 		return nil, fmt.Errorf("error applying migrations: %w", err)
 	}
 	return db, nil
@@ -52,10 +52,6 @@ func SetupWithTimeout(dbSourceURL string, timeout time.Duration) (*sqlx.DB, erro
 			if err != nil {
 				continue
 			}
-			if err := doMigrateUp(db.DB); err != nil {
-				return nil, fmt.Errorf("error applying migrations: %w", err)
-			}
-
 			return db, nil
 		case <-time.After(timeout):
 			return nil, fmt.Errorf("timeout waiting for db to start")
@@ -63,7 +59,7 @@ func SetupWithTimeout(dbSourceURL string, timeout time.Duration) (*sqlx.DB, erro
 	}
 }
 
-func doMigrateUp(db *sql.DB) error {
+func MigrateUP(db *sql.DB) error {
 	migrations, err := iofs.New(migrations, "migrations")
 	if err != nil {
 		return fmt.Errorf("error opening migrations: %w", err)

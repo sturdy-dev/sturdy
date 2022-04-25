@@ -20,7 +20,7 @@ func NewLogs(logger *zap.Logger) *logsClient {
 }
 
 func (s *logsClient) Send(ctx context.Context, msg *emails.Email) error {
-	s.logger.Info(
+	s.logger.Warn(
 		"would have sent an email",
 		zap.Any("message", msg),
 	)
