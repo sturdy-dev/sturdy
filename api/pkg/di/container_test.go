@@ -170,3 +170,27 @@ func TestContainer_ImportRegisterWithForce(t *testing.T) {
 		assert.Equal(t, 3, i)
 	}
 }
+
+func TestContainer_ImportDuplicateAlternativeImplementations(t *testing.T) {
+	type Something interface{}
+
+	type SomethingV1 struct{}
+	type SomethingV2 struct{}
+
+	c1 := func(c *Container) {
+		c.Register(func() Something { return &SomethingV1{} })
+	}
+
+	c2 := func(c *Container) {
+		c.Register(func() Something { return &SomethingV2{} })
+	}
+
+	c3 := func(c *Container) {
+		c.Import(c1)
+		c.Import(c2)
+	}
+
+	var something Something
+	err := Init(c3).To(&something)
+	assert.Error(t, err)
+}
