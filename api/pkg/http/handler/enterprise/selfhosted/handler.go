@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 
 	authz "getsturdy.com/api/pkg/auth"
+	service_buildkite_enterprise "getsturdy.com/api/pkg/buildkite/enterprise/service"
 	service_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
@@ -12,7 +13,6 @@ import (
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
 	webhooks_github "getsturdy.com/api/pkg/github/enterprise/webhooks"
 	"getsturdy.com/api/pkg/http/handler"
-	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	routes_remote "getsturdy.com/api/pkg/remote/enterprise/routes"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
@@ -33,7 +33,7 @@ func ProvideHandler(
 	gitHubService *service_github.Service,
 	ciService *service_ci.Service,
 	serviceTokensService *service_servicetokens.Service,
-	buildkiteService *service_buildkite.Service,
+	enterpriseBuildkiteService *service_buildkite_enterprise.Service,
 	ossEngine *handler.Engine,
 	gitHubWebhooksQueue *webhooks_github.Queue,
 	triggerSyncCodebaseWebhookHandler routes_remote.TriggerSyncCodebaseWebhookHandler,
@@ -44,7 +44,7 @@ func ProvideHandler(
 
 	publ := ossEngine.Group("")
 	publ.POST("/v3/github/webhook", routes_v3_ghapp.Webhook(logger, gitHubWebhooksQueue))
-	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, buildkiteService))
+	publ.POST("/v3/statuses/webhook", routes_ci.WebhookHandler(logger, statusesService, ciService, serviceTokensService, enterpriseBuildkiteService))
 
 	// Using Any to give friendly error messages if sent a non-POST request
 	publ.Any("/v3/remotes/webhook/sync-codebase/:id", gin.HandlerFunc(triggerSyncCodebaseWebhookHandler))

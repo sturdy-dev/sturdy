@@ -6,8 +6,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
+	"getsturdy.com/api/pkg/buildkite"
 	"getsturdy.com/api/pkg/codebases"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 var _ Repository = &database{}
@@ -27,7 +27,7 @@ func (d *database) Create(ctx context.Context, cfg *buildkite.Config) error {
 		VALUES
 			(:id, :codebase_id, :integration_id, :organization_name, :pipeline_name, :api_token, :webhook_secret, :created_at)
 	`, cfg); err != nil {
-		return fmt.Errorf("failed to insert: %w", err)
+		return fmt.Errorf("failed to insert ci_configurations_buildkite: %w", err)
 	}
 	return nil
 }

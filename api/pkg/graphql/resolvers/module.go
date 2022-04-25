@@ -15,4 +15,5 @@ func Module(c *di.Container) {
 	c.Register(func() *OrganizationRootResolver { return new(OrganizationRootResolver) })
 	c.Register(func() *ViewRootResolver { return new(ViewRootResolver) })
 	c.Register(func() *UserRootResolver { return new(UserRootResolver) })
+	c.Register(func() *IntegrationRootResolver { return new(IntegrationRootResolver) })
 }

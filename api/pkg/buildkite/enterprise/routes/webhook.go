@@ -16,10 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"getsturdy.com/api/pkg/buildkite"
+	service_buildkite_enterprise "getsturdy.com/api/pkg/buildkite/enterprise/service"
 	svc_ci "getsturdy.com/api/pkg/ci/service"
 	"getsturdy.com/api/pkg/codebases"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
-	service_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/service"
 	service_servicetokens "getsturdy.com/api/pkg/servicetokens/service"
 	"getsturdy.com/api/pkg/statuses"
 	svc_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -93,7 +93,7 @@ func WebhookHandler(
 	statusesService *svc_statuses.Service,
 	ciService *svc_ci.Service,
 	serviceTokensService *service_servicetokens.Service,
-	buildkiteService *service_buildkite.Service,
+	enterpriseBuildkiteService *service_buildkite_enterprise.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		requestBody, err := io.ReadAll(c.Request.Body)
@@ -146,7 +146,7 @@ func WebhookHandler(
 			return
 		}
 
-		if err := validateSignature(c.Request.Context(), c.GetHeader("X-Buildkite-Signature"), serviceToken.CodebaseID, requestBody, buildkiteService); err != nil {
+		if err := validateSignature(c.Request.Context(), c.GetHeader("X-Buildkite-Signature"), serviceToken.CodebaseID, requestBody, enterpriseBuildkiteService); err != nil {
 			if errors.Is(err, errInvalidSignature) {
 				logger.Error("failed to validate signature", zap.Error(err))
 				c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to validate signature"))
@@ -194,7 +194,7 @@ func WebhookHandler(
 	}
 }
 
-func validateSignature(ctx context.Context, xBuildkiteSignature string, codebaseID codebases.ID, requestBody []byte, buildkiteService *service_buildkite.Service) error {
+func validateSignature(ctx context.Context, xBuildkiteSignature string, codebaseID codebases.ID, requestBody []byte, buildkiteService *service_buildkite_enterprise.Service) error {
 	buildkiteConfigs, err := buildkiteService.GetConfigurationsByCodebaseID(ctx, codebaseID)
 	if err != nil {
 		return fmt.Errorf("failed to get buildkite configuration: %w", err)

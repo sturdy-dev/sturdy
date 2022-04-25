@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"getsturdy.com/api/pkg/buildkite"
 	"getsturdy.com/api/pkg/codebases"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 var _ Repository = &memory{}

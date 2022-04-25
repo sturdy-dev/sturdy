@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
+	service_buildkite "getsturdy.com/api/pkg/buildkite/service"
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/ci"
 	db_ci "getsturdy.com/api/pkg/ci/db"
 	"getsturdy.com/api/pkg/ci/service/configuration"
 	"getsturdy.com/api/pkg/codebases"
-	integrations "getsturdy.com/api/pkg/integrations"
+	"getsturdy.com/api/pkg/integrations"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
 	"getsturdy.com/api/pkg/integrations/providers"
 	"getsturdy.com/api/pkg/jwt"
@@ -46,7 +47,7 @@ type Service struct {
 	configRepo   db_integrations.IntegrationsRepository
 	ciCommitRepo db_ci.CommitRepository
 
-	providerRegistry providers.Providers
+	buildkiteService service_buildkite.Service
 
 	publicApiHostname string
 	statusService     *svc_statuses.Service
@@ -61,7 +62,7 @@ func New(
 	configRepo db_integrations.IntegrationsRepository,
 	ciCommitRepo db_ci.CommitRepository,
 
-	providerRegistry providers.Providers,
+	buildkiteService service_buildkite.Service,
 
 	cfg *configuration.Configuration,
 	statusService *svc_statuses.Service,
@@ -75,7 +76,7 @@ func New(
 		configRepo:   configRepo,
 		ciCommitRepo: ciCommitRepo,
 
-		providerRegistry: providerRegistry,
+		buildkiteService: buildkiteService,
 
 		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,
@@ -384,6 +385,7 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 
 	options := getTriggerOptions(opts...)
 	ss := []*statuses.Status{}
+
 	for _, config := range ciConfigurations {
 		if options.Providers != nil {
 			if !(*options.Providers)[config.Provider] {
@@ -391,37 +393,34 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 			}
 		}
 
-		prov, err := svc.providerRegistry.Get(config.Provider)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get provider: %w", err)
-		}
-		buildProvider, ok := prov.(providers.BuildProvider)
-		if !ok {
-			return nil, fmt.Errorf("failed to get provider, it's not a BuildProvider")
-		}
+		switch config.Provider {
+		case providers.ProviderNameBuildkite:
+			build, err := svc.buildkiteService.CreateBuild(ctx, config.ID, commitID, workspace.NameOrFallback())
+			if err != nil {
+				return nil, fmt.Errorf("failed to trigger buildkite build: %w", err)
+			}
 
-		build, err := buildProvider.CreateBuild(ctx, config.ID, commitID, workspace.NameOrFallback())
-		if err != nil {
-			return nil, fmt.Errorf("failed to trigger build: %w", err)
-		}
+			status := &statuses.Status{
+				ID:          uuid.NewString(),
+				CommitSHA:   snapshot.CommitSHA,
+				CodebaseID:  snapshot.CodebaseID,
+				Type:        statuses.TypePending,
+				Title:       build.Name,
+				Description: build.Description,
+				DetailsURL:  &build.URL,
+				Timestamp:   time.Now(),
+			}
 
-		status := &statuses.Status{
-			ID:          uuid.NewString(),
-			CommitSHA:   snapshot.CommitSHA,
-			CodebaseID:  snapshot.CodebaseID,
-			Type:        statuses.TypePending,
-			Title:       build.Name,
-			Description: build.Description,
-			DetailsURL:  &build.URL,
-			Timestamp:   time.Now(),
-		}
+			// Set status
+			if err := svc.statusService.Set(ctx, status); err != nil {
+				return nil, fmt.Errorf("failed to set status: %w", err)
+			}
 
-		// Set status
-		if err := svc.statusService.Set(ctx, status); err != nil {
-			return nil, fmt.Errorf("failed to set status: %w", err)
-		}
+			ss = append(ss, status)
 
-		ss = append(ss, status)
+		default:
+			return nil, fmt.Errorf("unsupported provider: %s", config.Provider)
+		}
 	}
 
 	return ss, nil
@@ -461,37 +460,33 @@ func (svc *Service) TriggerChange(ctx context.Context, ch *changes.Change, opts 
 			}
 		}
 
-		prov, err := svc.providerRegistry.Get(config.Provider)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get provider: %w", err)
-		}
-		buildProvider, ok := prov.(providers.BuildProvider)
-		if !ok {
-			return nil, fmt.Errorf("failed to get provider, it's not a BuildProvider")
-		}
+		switch config.Provider {
+		case providers.ProviderNameBuildkite:
+			build, err := svc.buildkiteService.CreateBuild(ctx, config.ID, commitID, title)
+			if err != nil {
+				return nil, fmt.Errorf("failed to trigger build: %w", err)
+			}
 
-		build, err := buildProvider.CreateBuild(ctx, config.ID, commitID, title)
-		if err != nil {
-			return nil, fmt.Errorf("failed to trigger build: %w", err)
-		}
+			status := &statuses.Status{
+				ID:          uuid.NewString(),
+				CommitSHA:   *ch.CommitID,
+				CodebaseID:  ch.CodebaseID,
+				Type:        statuses.TypePending,
+				Title:       build.Name,
+				Description: build.Description,
+				DetailsURL:  &build.URL,
+				Timestamp:   time.Now(),
+			}
 
-		status := &statuses.Status{
-			ID:          uuid.NewString(),
-			CommitSHA:   *ch.CommitID,
-			CodebaseID:  ch.CodebaseID,
-			Type:        statuses.TypePending,
-			Title:       build.Name,
-			Description: build.Description,
-			DetailsURL:  &build.URL,
-			Timestamp:   time.Now(),
-		}
+			// Set status
+			if err := svc.statusService.Set(ctx, status); err != nil {
+				return nil, fmt.Errorf("failed to set status: %w", err)
+			}
 
-		// Set status
-		if err := svc.statusService.Set(ctx, status); err != nil {
-			return nil, fmt.Errorf("failed to set status: %w", err)
+			ss = append(ss, status)
+		default:
+			return nil, fmt.Errorf("unsupported provider: %s", config.Provider)
 		}
-
-		ss = append(ss, status)
 	}
 
 	return ss, nil

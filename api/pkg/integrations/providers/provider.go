@@ -1,19 +1,5 @@
 package providers
 
-import (
-	"context"
-)
-
-type Provider interface {
-	ProviderName() ProviderName
-	ProviderType() ProviderType
-}
-
-type BuildProvider interface {
-	Provider
-	CreateBuild(ctx context.Context, codebaseID, ciCommitId, title string) (*Build, error)
-}
-
 type ProviderType string
 
 const (
@@ -28,9 +14,3 @@ const (
 	ProviderNameBuildkite ProviderName = "buildkite"
 	ProviderNameGithub    ProviderName = "github"
 )
-
-type Build struct {
-	Name        string
-	Description *string
-	URL         string
-}

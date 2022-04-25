@@ -2,6 +2,7 @@ package graphql
 
 import (
 	graphql_activity "getsturdy.com/api/pkg/activity/graphql"
+	graphql_buildkite "getsturdy.com/api/pkg/buildkite/graphql/module"
 	graphql_changes "getsturdy.com/api/pkg/changes/graphql"
 	graphql_acl "getsturdy.com/api/pkg/codebases/acl/graphql"
 	graphql_codebases "getsturdy.com/api/pkg/codebases/graphql"
@@ -11,7 +12,6 @@ import (
 	graphql_features "getsturdy.com/api/pkg/features/graphql"
 	graphql_github "getsturdy.com/api/pkg/github/graphql"
 	graphql_installations "getsturdy.com/api/pkg/installations/graphql/module"
-	graphql_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/graphql"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	graphql_land "getsturdy.com/api/pkg/land/graphql"
 	graphql_licenses "getsturdy.com/api/pkg/licenses/graphql"

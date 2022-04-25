@@ -3,7 +3,7 @@ package graphql
 import (
 	"github.com/graph-gophers/graphql-go"
 
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
+	"getsturdy.com/api/pkg/buildkite"
 )
 
 type buildkiteConfigurationResover struct {

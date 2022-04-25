@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"getsturdy.com/api/pkg/buildkite"
+	db_buildkite "getsturdy.com/api/pkg/buildkite/enterprise/db"
+	"getsturdy.com/api/pkg/buildkite/service"
 	"getsturdy.com/api/pkg/codebases"
-	"getsturdy.com/api/pkg/integrations/providers"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
-	db_buildkite "getsturdy.com/api/pkg/integrations/providers/buildkite/enterprise/db"
 )
 
-var _ providers.BuildProvider = &Service{}
+var _ service.Service = &Service{}
 
 type Service struct {
 	configRepo db_buildkite.Repository
@@ -24,14 +24,6 @@ func New(configRepo db_buildkite.Repository) *Service {
 	return &Service{
 		configRepo: configRepo,
 	}
-}
-
-func (b *Service) ProviderType() providers.ProviderType {
-	return providers.ProviderTypeBuild
-}
-
-func (b *Service) ProviderName() providers.ProviderName {
-	return providers.ProviderNameBuildkite
 }
 
 func (b *Service) CreateIntegration(ctx context.Context, cfg *buildkite.Config) error {
@@ -50,7 +42,7 @@ func (b *Service) GetConfigurationByIntegrationID(ctx context.Context, integrati
 	return b.configRepo.GetConfigByIntegrationID(ctx, integrationID)
 }
 
-func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, title string) (*providers.Build, error) {
+func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, title string) (*service.Build, error) {
 	cfg, err := b.configRepo.GetConfigByIntegrationID(ctx, integrationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config by codebase id: %w", err)
@@ -98,7 +90,7 @@ func (b *Service) CreateBuild(ctx context.Context, integrationID, ciCommitId, ti
 		return nil, fmt.Errorf("unexpected response, id not set")
 	}
 
-	return &providers.Build{
+	return &service.Build{
 		Name: parsedRes.Pipeline.Name,
 		URL:  parsedRes.WebURL,
 	}, nil

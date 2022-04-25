@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/buildkite"
 	"getsturdy.com/api/pkg/codebases"
-	"getsturdy.com/api/pkg/integrations/providers/buildkite"
 )
 
 type Repository interface {
