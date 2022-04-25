@@ -21,11 +21,9 @@ type Service struct {
 }
 
 func New(configRepo db_buildkite.Repository) *Service {
-	s := &Service{
+	return &Service{
 		configRepo: configRepo,
 	}
-	providers.Register(s)
-	return s
 }
 
 func (b *Service) ProviderType() providers.ProviderType {
