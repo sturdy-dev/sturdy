@@ -29,7 +29,6 @@ import (
 )
 
 type SnapshotOptions struct {
-	paths                   []string
 	patchIDsFilter          *[]string
 	revertCommitHeadBase    *[2]*string
 	onTemporaryView         bool
