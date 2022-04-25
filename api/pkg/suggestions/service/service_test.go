@@ -259,7 +259,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	executorProvider := executor.NewProvider(zap.NewNop(), repoProvider)
 	suggestionRepo := db_suggestions.NewMemory()
 
-	viewDB := inmemory.NewInMemoryViewRepo()
+	viewDB := db_view.NewInMemoryViewRepo()
 	workspaceDB := db_workspaces.NewMemory()
 	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
 	codebaseUserRepo := db_codebases.NewInMemoryCodebaseUserRepo()
