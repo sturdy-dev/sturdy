@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"getsturdy.com/api/pkg/api"
 	apiModule "getsturdy.com/api/pkg/api/module"
@@ -31,7 +32,7 @@ func main() {
 	)
 
 	if err := di.Init(app).To(&apiServer, &ctx, &dm, &sqlxdb, &logger); err != nil {
-		logger.Fatal("failed to init", zap.Error(err))
+		log.Fatalf("failed to init: %+v", err)
 	}
 
 	if err := dm.Run(ctx); err != nil {
