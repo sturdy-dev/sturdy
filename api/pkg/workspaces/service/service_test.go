@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
+	db_views "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
@@ -34,7 +35,7 @@ func setup(t *testing.T) *testCollaborators {
 	workspaceRepo := db_workspaces.NewMemory()
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(logger))
 	snapshotRepo := inmemory.NewInMemorySnapshotRepo()
-	viewRepo := inmemory.NewInMemoryViewRepo()
+	viewRepo := db_views.NewInMemoryViewRepo()
 	viewEvents := events.NewInMemory(logger)
 	codebaseUserRepo := db_codebases.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)

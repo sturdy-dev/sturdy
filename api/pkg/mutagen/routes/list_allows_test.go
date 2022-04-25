@@ -27,10 +27,11 @@ import (
 	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
 	"getsturdy.com/api/pkg/view"
+	db_views "getsturdy.com/api/pkg/view/db"
 )
 
 func TestListAllows(t *testing.T) {
-	viewRepo := inmemory.NewInMemoryViewRepo()
+	viewRepo := db_views.NewInMemoryViewRepo()
 	aclRepo := inmemory.NewInMemoryAclRepo()
 	userRepo := db_users.NewMemory()
 
