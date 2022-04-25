@@ -212,7 +212,6 @@ func (c *changesCodebaseIDCommitIDUniq) loadCodebaseIDsWithDuplicates(ctx contex
 				GROUP BY codebase_id, commit_id
 				HAVING COUNT(1) > 1
 			) AS t
-			WHERE codebase_id = 'b47c077a-e098-4eec-bb64-318f5a8571e3'
 			GROUP by codebase_id
 		`); err != nil {
 			c.codebaseIDsError = err
