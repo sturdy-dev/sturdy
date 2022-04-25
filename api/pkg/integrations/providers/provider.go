@@ -14,12 +14,6 @@ type BuildProvider interface {
 	CreateBuild(ctx context.Context, codebaseID, ciCommitId, title string) (*Build, error)
 }
 
-type PushPullProvider interface {
-	Provider
-	Push(ctx context.Context, codebaseID string) error
-	Pull(ctx context.Context, codebaseID string) error
-}
-
 type ProviderType string
 
 const (
@@ -32,6 +26,7 @@ type ProviderName string
 const (
 	ProviderNameUndefined ProviderName = ""
 	ProviderNameBuildkite ProviderName = "buildkite"
+	ProviderNameGithub    ProviderName = "github"
 )
 
 type Build struct {

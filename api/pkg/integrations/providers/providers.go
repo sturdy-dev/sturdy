@@ -9,17 +9,11 @@ var (
 	ErrNotFound = fmt.Errorf("provider not found")
 )
 
-var registry = map[ProviderName]Provider{}
+type Providers map[ProviderName]Provider
 
-func Register(p Provider) {
-	registry[p.ProviderName()] = p
-}
-
-func Get[T any](name ProviderName) (res T, err error) {
-	if provider, ok := registry[name]; ok {
-		if t, ok := provider.(T); ok {
-			return t, nil
-		}
+func (p Providers) Get(name ProviderName) (res Provider, err error) {
+	if provider, ok := p[name]; ok {
+		return provider, nil
 	}
 	err = ErrNotFound
 	return

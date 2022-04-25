@@ -46,6 +46,8 @@ type Service struct {
 	configRepo   db_integrations.IntegrationsRepository
 	ciCommitRepo db_ci.CommitRepository
 
+	providerRegistry providers.Providers
+
 	publicApiHostname string
 	statusService     *svc_statuses.Service
 	jwtService        *service_jwt.Service
@@ -59,6 +61,8 @@ func New(
 	configRepo db_integrations.IntegrationsRepository,
 	ciCommitRepo db_ci.CommitRepository,
 
+	providerRegistry providers.Providers,
+
 	cfg *configuration.Configuration,
 	statusService *svc_statuses.Service,
 	jwtService *service_jwt.Service,
@@ -70,6 +74,8 @@ func New(
 
 		configRepo:   configRepo,
 		ciCommitRepo: ciCommitRepo,
+
+		providerRegistry: providerRegistry,
 
 		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,
@@ -382,19 +388,23 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 
 	options := getTriggerOptions(opts...)
 	ss := []*statuses.Status{}
-	for _, configuration := range ciConfigurations {
+	for _, config := range ciConfigurations {
 		if options.Providers != nil {
-			if !(*options.Providers)[configuration.Provider] {
+			if !(*options.Providers)[config.Provider] {
 				continue
 			}
 		}
 
-		provider, err := providers.Get[providers.BuildProvider](configuration.Provider)
+		prov, err := svc.providerRegistry.Get(config.Provider)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get provider: %w", err)
 		}
+		buildProvider, ok := prov.(providers.BuildProvider)
+		if !ok {
+			return nil, fmt.Errorf("failed to get provider, it's not a BuildProvider")
+		}
 
-		build, err := provider.CreateBuild(ctx, configuration.ID, commitID, workspace.NameOrFallback())
+		build, err := buildProvider.CreateBuild(ctx, config.ID, commitID, workspace.NameOrFallback())
 		if err != nil {
 			return nil, fmt.Errorf("failed to trigger build: %w", err)
 		}
@@ -421,7 +431,7 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 	return ss, nil
 }
 
-// TriggerChange starts a contihuous integration build for the given change.
+// TriggerChange starts a continuous integration build for the given change.
 func (svc *Service) TriggerChange(ctx context.Context, ch *changes.Change, opts ...TriggerOption) ([]*statuses.Status, error) {
 	ciConfigurations, err := svc.configRepo.ListByCodebaseID(ctx, ch.CodebaseID)
 	if err != nil {
@@ -448,19 +458,23 @@ func (svc *Service) TriggerChange(ctx context.Context, ch *changes.Change, opts 
 
 	options := getTriggerOptions(opts...)
 	ss := []*statuses.Status{}
-	for _, configuration := range ciConfigurations {
+	for _, config := range ciConfigurations {
 		if options.Providers != nil {
-			if !(*options.Providers)[configuration.Provider] {
+			if !(*options.Providers)[config.Provider] {
 				continue
 			}
 		}
 
-		provider, err := providers.Get[providers.BuildProvider](configuration.Provider)
+		prov, err := svc.providerRegistry.Get(config.Provider)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get provider: %w", err)
 		}
+		buildProvider, ok := prov.(providers.BuildProvider)
+		if !ok {
+			return nil, fmt.Errorf("failed to get provider, it's not a BuildProvider")
+		}
 
-		build, err := provider.CreateBuild(ctx, configuration.ID, commitID, title)
+		build, err := buildProvider.CreateBuild(ctx, config.ID, commitID, title)
 		if err != nil {
 			return nil, fmt.Errorf("failed to trigger build: %w", err)
 		}

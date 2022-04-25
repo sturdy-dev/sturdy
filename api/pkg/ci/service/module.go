@@ -5,6 +5,7 @@ import (
 	configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
+	integration_providers "getsturdy.com/api/pkg/integrations/providers/module"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/logger"
 	"getsturdy.com/api/pkg/snapshots/snapshotter"
@@ -21,5 +22,6 @@ func Module(c *di.Container) {
 	c.Import(service_statuses.Module)
 	c.Import(service_jwt.Module)
 	c.Import(snapshotter.Module)
+	c.Import(integration_providers.Module)
 	c.Register(New)
 }
