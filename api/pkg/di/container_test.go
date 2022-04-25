@@ -66,7 +66,7 @@ func TestContainer_IsValid_missing_provider(t *testing.T) {
 	c := Init(func(c *Container) {
 		c.Register(m1)
 	})
-	assert.Equal(t, "missing provider for int", c.IsValid().Error())
+	assert.Equal(t, "\n\tmissing provider for int", c.IsValid().Error())
 }
 
 func TestContainer_IsValid_imports(t *testing.T) {
