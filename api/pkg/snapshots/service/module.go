@@ -1,4 +1,4 @@
-package snapshotter
+package service
 
 import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
@@ -25,5 +25,5 @@ func Module(c *di.Container) {
 	c.Import(db_suggestions.Module)
 	c.Import(executor.Module)
 	c.Import(service_analytics.Module)
-	c.Register(NewGitSnapshotter)
+	c.Register(New)
 }

@@ -33,7 +33,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -82,7 +82,7 @@ func TestCreate(t *testing.T) {
 		GcService             *service_gc.Service
 		CodebaseService       *service_codebase.Service
 		WorkspaceService      *service_workspace.Service
-		GitSnapshotter        snapshotter.Snapshotter
+		GitSnapshotter        *service_snapshots.Service
 		RepoProvider          provider.RepoProvider
 
 		// Dependencies of Gin Routes
@@ -671,7 +671,7 @@ func TestLargeFiles(t *testing.T) {
 		LandRootResolver      resolvers.LandRootResovler
 		CodebaseService       *service_codebase.Service
 		WorkspaceService      *service_workspace.Service
-		GitSnapshotter        snapshotter.Snapshotter
+		GitSnapshotter        *service_snapshots.Service
 		RepoProvider          provider.RepoProvider
 
 		// Dependencies of Gin Routes

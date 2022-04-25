@@ -18,7 +18,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	service_users "getsturdy.com/api/pkg/users/service"
 	service_view "getsturdy.com/api/pkg/view/service"
@@ -43,7 +43,7 @@ type Service struct {
 	changeService    *service_changes.Service
 	analyticsService *service_analytics.Service
 	viewService      *service_view.Service
-	snapshotter      snapshotter.Snapshotter
+	snapshotter      *service_snapshots.Service
 	commentService   *service_comments.Service
 	activityService  *service_activity.Service
 
@@ -65,7 +65,7 @@ func New(
 	changeService *service_changes.Service,
 	analyticsService *service_analytics.Service,
 	viewService *service_view.Service,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snapshots.Service,
 	commentService *service_comments.Service,
 	activityService *service_activity.Service,
 

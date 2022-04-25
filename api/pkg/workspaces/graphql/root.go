@@ -14,7 +14,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	service_user "getsturdy.com/api/pkg/users/service"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -61,7 +61,7 @@ type WorkspaceRootResolver struct {
 	executorProvider executor.Provider
 	eventsSender     events.EventSender
 	eventsSubscriber *eventsv2.Subscriber
-	gitSnapshotter   snapshotter.Snapshotter
+	gitSnapshotter   *service_snapshots.Service
 }
 
 func NewResolver(
@@ -99,7 +99,7 @@ func NewResolver(
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
 	eventsSubscriber *eventsv2.Subscriber,
-	gitSnapshotter snapshotter.Snapshotter,
+	gitSnapshotter *service_snapshots.Service,
 ) resolvers.WorkspaceRootResolver {
 	return &WorkspaceRootResolver{
 		workspaceReader: workspaceReader,

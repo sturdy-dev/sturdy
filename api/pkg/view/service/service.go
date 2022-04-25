@@ -10,7 +10,7 @@ import (
 	events "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
@@ -26,7 +26,7 @@ type Service struct {
 	logger           *zap.Logger
 	viewRepo         db.Repository
 	workspaceReader  db_workspaces.WorkspaceReader
-	gitSnapshotter   snapshotter.Snapshotter
+	gitSnapshotter   *service_snapshots.Service
 	snapshotRepo     db_snapshots.Repository
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	executorProvider executor.Provider
@@ -37,7 +37,7 @@ func New(
 	logger *zap.Logger,
 	viewRepo db.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
-	gitSnapshotter snapshotter.Snapshotter,
+	gitSnapshotter *service_snapshots.Service,
 	snapshotRepo db_snapshots.Repository,
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
@@ -74,8 +74,8 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 		return fmt.Errorf("could not find previous workspace on view: %w", err)
 	} else if err == nil {
 		_, err := s.gitSnapshotter.Snapshot(currentWorkspaceOnView.CodebaseID, currentWorkspaceOnView.ID,
-			snapshots.ActionPreCheckoutOtherWorkspace, snapshotter.WithOnView(*currentWorkspaceOnView.ViewID), snapshotter.WithMarkAsLatestInWorkspace())
-		if errors.Is(err, snapshotter.ErrCantSnapshotRebasing) {
+			snapshots.ActionPreCheckoutOtherWorkspace, service_snapshots.WithOnView(*currentWorkspaceOnView.ViewID), service_snapshots.WithMarkAsLatestInWorkspace())
+		if errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
 			return ErrRebasing
 		}
 		if err != nil {
@@ -92,7 +92,7 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 	// The snapshot will also be used to "move" the contents to the new view
 	if ws.ViewID != nil {
 		_, err := s.gitSnapshotter.Snapshot(ws.CodebaseID, ws.ID, snapshots.ActionPreCheckoutOtherView,
-			snapshotter.WithOnView(*ws.ViewID), snapshotter.WithMarkAsLatestInWorkspace())
+			service_snapshots.WithOnView(*ws.ViewID), service_snapshots.WithMarkAsLatestInWorkspace())
 		if err != nil {
 			return fmt.Errorf("failed to snapshot: %w", err)
 		}

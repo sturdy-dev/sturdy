@@ -14,7 +14,7 @@ import (
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/users"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	"getsturdy.com/api/pkg/workspaces"
@@ -182,9 +182,9 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 
 			if _, err := svc.snap.Snapshot(workspace.CodebaseID, workspace.ID,
 				snapshots.ActionSyncCompleted,
-				snapshotter.WithMarkAsLatestInWorkspace(),
-				snapshotter.WithOnView(*repo.ViewID()),
-				snapshotter.WithOnRepo(repo), // Re-use repo context
+				service_snapshots.WithMarkAsLatestInWorkspace(),
+				service_snapshots.WithOnView(*repo.ViewID()),
+				service_snapshots.WithOnRepo(repo), // Re-use repo context
 			); err != nil {
 				return fmt.Errorf("failed to create snapshot: %w", err)
 			}

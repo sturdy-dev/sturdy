@@ -12,7 +12,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshotter "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/provider"
@@ -116,7 +116,10 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 			}
 
 			// Create a snapshot
-			if _, err := r.snapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted, snapshotter.WithOnView(viewID), snapshotter.WithMarkAsLatestInWorkspace()); err != nil {
+			if _, err := r.snapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted,
+				service_snapshotter.WithOnView(viewID),
+				service_snapshotter.WithMarkAsLatestInWorkspace(),
+			); err != nil {
 				return fmt.Errorf("failed to create snapshot: %w", err)
 			}
 

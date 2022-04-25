@@ -9,7 +9,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/logger"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_users "getsturdy.com/api/pkg/users/service/module"
 	service_view "getsturdy.com/api/pkg/view/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -28,6 +28,6 @@ func Module(c *di.Container) {
 	c.Import(executor.Module)
 	c.Import(events.Module)
 	c.Import(eventsv2.Module)
-	c.Import(snapshotter.Module)
+	c.Import(service_snapshots.Module)
 	c.Register(New)
 }

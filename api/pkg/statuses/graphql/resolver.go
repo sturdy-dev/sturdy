@@ -16,7 +16,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -32,7 +32,7 @@ type RootResolver struct {
 	changeService    *service_changes.Service
 	workspaceService *service_workspace.Service
 	authService      *service_auth.Service
-	snapshotsService snapshotter.Snapshotter
+	snapshotsService *service_snapshots.Service
 
 	changeRootResolver    resolvers.ChangeRootResolver
 	gitHubPrResovler      resolvers.GitHubPullRequestRootResolver
@@ -52,7 +52,7 @@ func New(
 	changeRootResolver resolvers.ChangeRootResolver,
 	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
 	eventsReader *eventsv2.Subscriber,
-	snapshotsService snapshotter.Snapshotter,
+	snapshotsService *service_snapshots.Service,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 ) *RootResolver {
 	return &RootResolver{

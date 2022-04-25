@@ -8,7 +8,7 @@ import (
 	service_downloads "getsturdy.com/api/pkg/downloads/enterprise/cloud/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/workspaces"
 
 	"github.com/graph-gophers/graphql-go"
@@ -17,13 +17,13 @@ import (
 type ContentsDownloadURLRootResolver struct {
 	service     *service_downloads.Service
 	authService *service_auth.Service
-	snapshotter snapshotter.Snapshotter
+	snapshotter *service_snapshots.Service
 }
 
 func New(
 	service *service_downloads.Service,
 	authService *service_auth.Service,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snapshots.Service,
 ) resolvers.ContentsDownloadUrlRootResolver {
 	return &ContentsDownloadURLRootResolver{
 		service:     service,

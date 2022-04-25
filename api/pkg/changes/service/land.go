@@ -10,7 +10,7 @@ import (
 	vcs_changes "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/vcs"
 )
 
@@ -27,7 +27,7 @@ func (s *Service) CreateAndLandFromView(
 		return "", nil, fmt.Errorf("can not create on a non view")
 	}
 
-	snapshot, err := s.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionPreChangeLand, snapshotter.WithOnRepo(viewRepo), snapshotter.WithOnView(*viewID))
+	snapshot, err := s.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionPreChangeLand, service_snapshots.WithOnRepo(viewRepo), service_snapshots.WithOnView(*viewID))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to snapshot: %w", err)
 	}

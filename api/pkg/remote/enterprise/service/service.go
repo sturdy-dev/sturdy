@@ -28,7 +28,7 @@ import (
 	"getsturdy.com/api/pkg/remote"
 	db_remote "getsturdy.com/api/pkg/remote/enterprise/db"
 	"getsturdy.com/api/pkg/remote/service"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshotter "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -42,7 +42,7 @@ type EnterpriseService struct {
 	logger            *zap.Logger
 	workspaceReader   db_workspaces.WorkspaceReader
 	workspaceWriter   db_workspaces.WorkspaceWriter
-	snap              snapshotter.Snapshotter
+	snap              *service_snapshotter.Service
 	changeService     *service_change.Service
 	analyticsService  *analytics_service.Service
 	keyPairRepository db_crypto.KeyPairRepository
@@ -56,7 +56,7 @@ func New(
 	logger *zap.Logger,
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
-	snap snapshotter.Snapshotter,
+	snap *service_snapshotter.Service,
 	changeService *service_change.Service,
 	analyticsService *analytics_service.Service,
 	keyPairRepository db_crypto.KeyPairRepository,

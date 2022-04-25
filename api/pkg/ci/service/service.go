@@ -22,7 +22,7 @@ import (
 	"getsturdy.com/api/pkg/jwt"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snaphsotter "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/statuses"
 	svc_statuses "getsturdy.com/api/pkg/statuses/service"
 	"getsturdy.com/api/pkg/workspaces"
@@ -51,7 +51,7 @@ type Service struct {
 	publicApiHostname string
 	statusService     *svc_statuses.Service
 	jwtService        *service_jwt.Service
-	snapshotter       snapshotter.Snapshotter
+	snapshotter       *service_snaphsotter.Service
 }
 
 func New(
@@ -66,7 +66,7 @@ func New(
 	cfg *configuration.Configuration,
 	statusService *svc_statuses.Service,
 	jwtService *service_jwt.Service,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snaphsotter.Service,
 ) *Service {
 	return &Service{
 		logger:           logger.Named("ciService"),

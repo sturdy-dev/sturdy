@@ -16,7 +16,7 @@ import (
 	"getsturdy.com/api/pkg/changes/message"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/vcs"
@@ -30,7 +30,7 @@ type Service struct {
 	codebaseRepo     db_codebases.CodebaseRepository
 	logger           *zap.Logger
 	executorProvider executor.Provider
-	snap             snapshotter.Snapshotter
+	snap             *service_snapshots.Service
 }
 
 func New(
@@ -38,7 +38,7 @@ func New(
 	codebaseRepo db_codebases.CodebaseRepository,
 	logger *zap.Logger,
 	executorProvider executor.Provider,
-	snap snapshotter.Snapshotter,
+	snap *service_snapshots.Service,
 ) *Service {
 	return &Service{
 		changeRepo:       changeRepo,
