@@ -1,6 +1,7 @@
 package di
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -77,7 +78,7 @@ type Container struct {
 	_allDecorators    map[string]any
 	allDecoratorsOnce sync.Once
 
-	isValid     error
+	_isValid    []error
 	isValidOnce sync.Once
 }
 
@@ -148,23 +149,36 @@ func (c *Container) provides() map[reflect.Type]bool {
 	return c._provides
 }
 
+func rootError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if unerr := errors.Unwrap(err); unerr != nil {
+		return rootError(unerr)
+	}
+	return err
+}
+
 func (c *Container) IsValid() error {
+	return joinErrors(c.isValid())
+}
+
+func (c *Container) isValid() []error {
 	c.isValidOnce.Do(func() {
-		errors := []error{}
 		for _, i := range c.imports {
 			if err := i.IsValid(); err != nil {
-				errors = append(errors, fmt.Errorf("%s: %w", c.name, err))
+				c._isValid = []error{fmt.Errorf("%s: %w", i.name, rootError(err))}
+				return
 			}
 		}
 		provides := c.provides()
 		for r := range c.requires() {
 			if !provides[r] {
-				errors = append(errors, fmt.Errorf("missing provider for %s", getTypeName(r)))
+				c._isValid = append(c._isValid, fmt.Errorf("missing provider for %s", getTypeName(r)))
 			}
 		}
-		c.isValid = joinErrors(errors)
 	})
-	return c.isValid
+	return c._isValid
 }
 
 func merge(a, b map[reflect.Type]bool) map[reflect.Type]bool {
@@ -182,14 +196,11 @@ func joinErrors(errors []error) error {
 	if len(errors) == 0 {
 		return nil
 	}
-	if len(errors) == 1 {
-		return errors[0]
-	}
 	errStrings := make([]string, len(errors))
 	for i, err := range errors {
 		errStrings[i] = err.Error()
 	}
-	return fmt.Errorf(strings.Join(append([]string{""}, errStrings...), "\n	- "))
+	return fmt.Errorf(strings.Join(append([]string{""}, errStrings...), "\n	"))
 }
 
 // Import imports a module into the container.
