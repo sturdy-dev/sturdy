@@ -87,32 +87,38 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 		return "", errors.New("expected revertCommitID to be nul, was set")
 	}
 
+	decoratedLogger := logger.With(
+		zap.String("codebase_id", codebaseID.String()),
+		zap.String("snapshot_id", snapshotID),
+		zap.String("repo_path", repo.Path()),
+	)
+
 	preCommit, err := repo.HeadCommit()
 	if err != nil {
 		return "", fmt.Errorf("failed to find current head: %w", err)
 	}
 	defer preCommit.Free()
 
-	patchIDs, err := snapshotPatchIDs(logger, repo, options)
+	patchIDs, err := snapshotPatchIDs(decoratedLogger, repo, options)
 	if err != nil {
 		return "", err
 	}
 
 	var snapshotCommitID string
 
-	logger.Info("creating snapshot", zap.Int("patch_count", len(patchIDs)))
+	decoratedLogger.Info("creating snapshot", zap.Int("patch_count", len(patchIDs)))
 
 	// If no patches are specified, create a snapshot of the entire view ("git add -a")
 	if len(patchIDs) == 0 {
 		snapshotCommitID, err = repo.AddAndCommit(fmt.Sprintf("snapshot-%d", time.Now().Unix()))
 	} else {
 		sig := git.Signature{Name: "snapshot", Email: "snapshot@getsturdy.com", When: time.Now()}
-		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(logger, repo, codebaseID, patchIDs, fmt.Sprintf("snapshot-%d", time.Now().Unix()), sig)
+		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(decoratedLogger, repo, codebaseID, patchIDs, fmt.Sprintf("snapshot-%d", time.Now().Unix()), sig)
 	}
 	if err != nil {
 		return "", fmt.Errorf("failed to make snapshot: %w", err)
 	}
-	logger.Info("snapshot creation duration", zap.Duration("duration", time.Since(start)))
+	decoratedLogger.Info("snapshot creation duration", zap.Duration("duration", time.Since(start)))
 
 	err = repo.ResetMixed(preCommit.Id().String())
 	if err != nil {
@@ -124,7 +130,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 	if err := repo.CreateNewBranchAt(branchName, snapshotCommitID); err != nil {
 		return "", fmt.Errorf("failed to create branch at snapshot branchName=%s snapshotCommitID=%s: %w", branchName, snapshotCommitID, err)
 	}
-	if err := repo.Push(logger, branchName); err != nil {
+	if err := repo.Push(decoratedLogger, branchName); err != nil {
 		return "", fmt.Errorf("failed to push snapshot branch branchName=%s snapshotCommitID=%s: %w", branchName, snapshotCommitID, err)
 	}
 
