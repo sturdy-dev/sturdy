@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"getsturdy.com/api/pkg/changes"
 	service_changes "getsturdy.com/api/pkg/changes/service"
@@ -53,10 +54,13 @@ func (s *Service) Run(ctx context.Context) error {
 		}
 
 		s.logger.Warn("running migration", zap.String("migration", migration.Name()))
+		start := time.Now()
 		if err := migration.Run(ctx); err != nil {
 			return fmt.Errorf("failed to run migration %s: %w", migration.Name(), err)
 		}
-		s.logger.Warn("migration completed", zap.String("migration", migration.Name()))
+		s.logger.Warn("migration completed",
+			zap.String("migration", migration.Name()),
+			zap.Duration("took", time.Since(start)))
 	}
 	return nil
 }
