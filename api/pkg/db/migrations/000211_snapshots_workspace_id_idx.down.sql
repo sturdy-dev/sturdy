@@ -1,0 +1,1 @@
+DROP INDEX snapshots_workspace_id_idx;
