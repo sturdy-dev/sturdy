@@ -25,7 +25,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/sync"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -342,7 +342,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 		ViewRootResolver      resolvers.ViewRootResolver
 		LandRootResovler      resolvers.LandRootResovler
 		WorkspaceService      *service_workspace.Service
-		GitSnapshotter        snapshotter.Snapshotter
+		GitSnapshotter        *service_snapshots.Service
 		RepoProvider          provider.RepoProvider
 		CodebaseUserRepo      db_codebases.CodebaseUserRepository
 		WorkspaceRepo         db_workspaces.Repository

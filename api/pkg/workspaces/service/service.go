@@ -16,7 +16,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
@@ -57,7 +57,7 @@ type Service struct {
 	eventsSender     events.EventSender
 	eventsSenderV2   *eventsv2.Publisher
 	executorProvider executor.Provider
-	snap             snapshotter.Snapshotter
+	snap             *service_snapshots.Service
 }
 
 func New(
@@ -74,7 +74,7 @@ func New(
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
 	eventsSenderV2 *eventsv2.Publisher,
-	snap snapshotter.Snapshotter,
+	snap *service_snapshots.Service,
 ) *Service {
 	return &Service{
 		logger:           logger,
@@ -144,9 +144,9 @@ func (s *Service) diffsFromSnapshot(ctx context.Context, ws *workspaces.Workspac
 		return nil, nil
 	}
 
-	snapshotOptions := []snapshotter.DiffsOption{}
+	snapshotOptions := []service_snapshots.DiffsOption{}
 	if options.Allower != nil {
-		snapshotOptions = append(snapshotOptions, snapshotter.WithAllower(options.Allower))
+		snapshotOptions = append(snapshotOptions, service_snapshots.WithAllower(options.Allower))
 	}
 
 	return s.snap.Diffs(ctx, *ws.LatestSnapshotID, snapshotOptions...)
@@ -235,9 +235,9 @@ func (s *Service) CopyPatches(ctx context.Context, dist, src *workspaces.Workspa
 	fields := []db.UpdateOption{}
 	if src.ViewID != nil {
 		// if workspace has a view, snapshot changes from it
-		snapshotterOptions := []snapshotter.SnapshotOption{snapshotter.WithOnView(*src.ViewID)}
+		snapshotterOptions := []service_snapshots.SnapshotOption{service_snapshots.WithOnView(*src.ViewID)}
 		if options.PatchIDs != nil {
-			snapshotterOptions = append(snapshotterOptions, snapshotter.WithPatchIDsFilter(*options.PatchIDs))
+			snapshotterOptions = append(snapshotterOptions, service_snapshots.WithPatchIDsFilter(*options.PatchIDs))
 		}
 		snapshot, err := s.snap.Snapshot(src.CodebaseID, src.ID, snapshots.ActionWorkspaceExtract, snapshotterOptions...)
 		if err != nil {
@@ -249,9 +249,9 @@ func (s *Service) CopyPatches(ctx context.Context, dist, src *workspaces.Workspa
 		if src.LatestSnapshotID == nil {
 			return fmt.Errorf("source workspace doesn't have a snapshot")
 		}
-		copyOptions := []snapshotter.CopyOption{}
+		copyOptions := []service_snapshots.CopyOption{}
 		if options.PatchIDs != nil {
-			copyOptions = append(copyOptions, snapshotter.CopyWithPatchIDs(*options.PatchIDs))
+			copyOptions = append(copyOptions, service_snapshots.CopyWithPatchIDs(*options.PatchIDs))
 		}
 		snapshot, err := s.snap.Copy(ctx, *src.LatestSnapshotID, copyOptions...)
 		if err != nil {
@@ -380,9 +380,9 @@ func (s *Service) Create(ctx context.Context, req CreateWorkspaceRequest) (*work
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
-			snapshotter.WithOnTemporaryView(),
-			snapshotter.WithMarkAsLatestInWorkspace(),
-			snapshotter.WithRevertDiff(baseCommitSha, baseCommitParentSha),
+			service_snapshots.WithOnTemporaryView(),
+			service_snapshots.WithMarkAsLatestInWorkspace(),
+			service_snapshots.WithRevertDiff(baseCommitSha, baseCommitParentSha),
 		); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot for revert: %w", err)
 		}
@@ -530,10 +530,10 @@ func (svc *Service) CreateWelcomeWorkspace(ctx context.Context, codebaseID codeb
 		if _, err := svc.snap.Snapshot(
 			codebaseID, ws.ID,
 			snapshots.ActionViewSync, // TODO: Dedicated action for this?
-			snapshotter.WithOnTemporaryView(),
-			snapshotter.WithMarkAsLatestInWorkspace(),
-			snapshotter.WithOnExistingCommit(commitID),
-			snapshotter.WithOnRepo(repo), // Re-use repo context
+			service_snapshots.WithOnTemporaryView(),
+			service_snapshots.WithMarkAsLatestInWorkspace(),
+			service_snapshots.WithOnExistingCommit(commitID),
+			service_snapshots.WithOnRepo(repo), // Re-use repo context
 		); err != nil {
 			return fmt.Errorf("failed to create snapshot: %w", err)
 		}
@@ -584,9 +584,9 @@ func (s *Service) RemovePatches(ctx context.Context, ws *workspaces.Workspace, h
 					ws.CodebaseID,
 					ws.ID,
 					snapshots.ActionFileUndoPatch,
-					snapshotter.WithOnView(*repo.ViewID()),
-					snapshotter.WithMarkAsLatestInWorkspace(),
-					snapshotter.WithOnRepo(repo),
+					service_snapshots.WithOnView(*repo.ViewID()),
+					service_snapshots.WithMarkAsLatestInWorkspace(),
+					service_snapshots.WithOnRepo(repo),
 				); err != nil {
 					return fmt.Errorf("failed to snapshot: %w", err)
 				}

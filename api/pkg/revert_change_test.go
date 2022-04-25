@@ -21,7 +21,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -56,7 +56,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 		CodebaseService  *service_codebase.Service
 		WorkspaceService *service_workspace.Service
-		GitSnapshotter   snapshotter.Snapshotter
+		GitSnapshotter   *service_snapshots.Service
 		RepoProvider     provider.RepoProvider
 
 		CodebaseUserRepo db_codebases.CodebaseUserRepository
@@ -250,7 +250,7 @@ func TestRevertChangeFromView(t *testing.T) {
 
 		CodebaseService  *service_codebase.Service
 		WorkspaceService *service_workspace.Service
-		GitSnapshotter   snapshotter.Snapshotter
+		GitSnapshotter   *service_snapshots.Service
 		RepoProvider     provider.RepoProvider
 
 		CodebaseUserRepo db_codebases.CodebaseUserRepository

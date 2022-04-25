@@ -19,7 +19,7 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
@@ -129,14 +129,14 @@ func (o *operation) validate(t *testing.T, test *test) {
 }
 
 func (o *operation) snapshotSuggesting(t *testing.T, test *test) {
-	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, snapshotter.WithOnView(test.suggestingViewID))
+	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, service_snapshots.WithOnView(test.suggestingViewID))
 	assert.NoError(t, err)
 	test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.suggestingWorkspace.ID, db_workspaces.SetLatestSnapshotID(&suggestingSnapshot.ID)))
 }
 
 func (o *operation) snapshotOriginal(t *testing.T, test *test) {
-	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, snapshotter.WithOnView(test.originalViewID))
+	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, service_snapshots.WithOnView(test.originalViewID))
 	assert.NoError(t, err)
 	test.originalWorkspace.LatestSnapshotID = &snapshot.ID
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.originalWorkspace.ID, db_workspaces.SetLatestSnapshotID(&snapshot.ID)))
@@ -235,7 +235,7 @@ type test struct {
 	workspaceDB       db_workspaces.Repository
 	snapshotsDB       db_snapshots.Repository
 	codebaseUserRepo  db_codebases.CodebaseUserRepository
-	gitSnapshotter    snapshotter.Snapshotter
+	gitSnapshotter    *service_snapshots.Service
 	workspaceService  *service_workspace.Service
 	suggestionService *service_suggestions.Service
 
@@ -267,7 +267,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 	changeRepo := db_changes.NewInMemoryRepo()
 
 	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop(), analyticsService)
+	gitSnapshotter := service_snapshots.New(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop(), analyticsService)
 	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider, gitSnapshotter)
 	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, changeService, nil /*viewService*/, nil /*usersService*/, executorProvider, nil /*eventsSender*/, nil /*eventsSernderv2*/, gitSnapshotter)
 	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)

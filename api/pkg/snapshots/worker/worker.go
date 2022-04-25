@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/queue"
 	"getsturdy.com/api/pkg/queue/names"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 
 	"go.uber.org/zap"
 )
@@ -25,13 +25,13 @@ type q struct {
 	queue  queue.Queue
 	name   names.IncompleteQueueName
 
-	snapshotter snapshotter.Snapshotter
+	snapshotter *service_snapshots.Service
 }
 
 func New(
 	logger *zap.Logger,
 	queue queue.Queue,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snapshots.Service,
 ) Queue {
 	return &q{
 		logger:      logger.Named("snapshotterQueue"),
@@ -89,11 +89,11 @@ func (q *q) Start(ctx context.Context) error {
 				m.CodebaseID,
 				m.WorkspaceID,
 				m.Action,
-				snapshotter.WithOnView(m.ViewID),
-			); errors.Is(err, snapshotter.ErrCantSnapshotRebasing) {
+				service_snapshots.WithOnView(m.ViewID),
+			); errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
 				logger.Warn("failed to make snapshot", zap.Error(err))
 				continue
-			} else if errors.Is(err, snapshotter.ErrCantSnapshotWrongBranch) {
+			} else if errors.Is(err, service_snapshots.ErrCantSnapshotWrongBranch) {
 				logger.Warn("failed to make snapshot", zap.Error(err))
 				continue
 			} else if err != nil {

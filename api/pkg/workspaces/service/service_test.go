@@ -10,7 +10,7 @@ import (
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/events"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	db_views "getsturdy.com/api/pkg/view/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -40,7 +40,7 @@ func setup(t *testing.T) *testCollaborators {
 	codebaseUserRepo := db_codebases.NewInMemoryCodebaseUserRepo()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceRepo, nil, viewEvents)
 	suggestionsRepo := db_suggestions.NewMemory()
-	gitSnapshotter := snapshotter.NewGitSnapshotter(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, nil, executorProvider, logger, analyticsService)
+	gitSnapshotter := service_snapshots.New(snapshotRepo, workspaceRepo, workspaceRepo, viewRepo, suggestionsRepo, eventsSender, nil, executorProvider, logger, analyticsService)
 
 	service := New(
 		logger,

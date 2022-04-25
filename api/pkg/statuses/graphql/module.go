@@ -9,7 +9,7 @@ import (
 	graphql_github_pr "getsturdy.com/api/pkg/github/graphql/pr"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/logger"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 )
@@ -24,7 +24,7 @@ func Module(c *di.Container) {
 	c.Import(graphql_github_pr.Module)
 	c.Import(resolvers.Module)
 	c.Import(events.Module)
-	c.Import(snapshotter.Module)
+	c.Import(service_snapshots.Module)
 	c.Register(New, new(resolvers.StatusesRootResolver))
 
 	// populate cyclic resolver

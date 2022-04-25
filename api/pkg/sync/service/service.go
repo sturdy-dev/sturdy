@@ -9,7 +9,7 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/sync"
 	"getsturdy.com/api/pkg/unidiff"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -31,7 +31,7 @@ type Service struct {
 	viewRepo         db_view.Repository
 	workspaceReader  db_workspaces.WorkspaceReader
 	workspaceWriter  db_workspaces.WorkspaceWriter
-	snap             snapshotter.Snapshotter
+	snap             *service_snapshots.Service
 
 	eventsPublisher *events.Publisher
 }
@@ -42,7 +42,7 @@ func New(
 	viewRepo db_view.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
-	snap snapshotter.Snapshotter,
+	snap *service_snapshots.Service,
 	eventsPublisher *events.Publisher,
 ) *Service {
 	return &Service{
@@ -266,9 +266,9 @@ func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codeba
 	// The "conflict" status is calculated based on the latest snapshot of a workspace
 	// Create a snapshot right away to re-calculate the conflicting status
 	if _, err := svc.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted,
-		snapshotter.WithOnView(viewID),
-		snapshotter.WithOnRepo(repo),
-		snapshotter.WithMarkAsLatestInWorkspace(),
+		service_snapshots.WithOnView(viewID),
+		service_snapshots.WithOnRepo(repo),
+		service_snapshots.WithMarkAsLatestInWorkspace(),
 	); err != nil {
 		svc.logger.Error("failed to snapshot", zap.Error(err))
 		// Don't fail

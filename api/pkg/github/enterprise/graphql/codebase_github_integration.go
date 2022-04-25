@@ -14,7 +14,7 @@ import (
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snaphshots "getsturdy.com/api/pkg/snapshots/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
@@ -32,7 +32,7 @@ type codebaseGitHubIntegrationRootResolver struct {
 	gitHubClientProvider   github_client.InstallationClientProvider
 	workspaceReader        db_workspaces.WorkspaceReader
 	workspaceWriter        db_workspaces.WorkspaceWriter
-	snapshotter            snapshotter.Snapshotter
+	snapshotter            *service_snaphshots.Service
 	snapshotRepo           db_snapshots.Repository
 	authService            *service_auth.Service
 
@@ -51,7 +51,7 @@ func NewCodebaseGitHubIntegrationRootResolver(
 	gitHubClientProvider github_client.InstallationClientProvider,
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snaphshots.Service,
 	snapshotRepo db_snapshots.Repository,
 	authService *service_auth.Service,
 	codebaseService *service_codebase.Service,

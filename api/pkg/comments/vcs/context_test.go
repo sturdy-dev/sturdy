@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
 	"getsturdy.com/api/pkg/workspaces"
@@ -26,7 +26,7 @@ import (
 
 func module(c *di.Container) {
 	c.Import(executor.Module)
-	c.Import(snapshotter.Module)
+	c.Import(service_snapshots.Module)
 	c.ImportWithForce(configuration.TestModule)
 	c.ImportWithForce(db_snapshots.TestModule)
 	c.ImportWithForce(db_workspaces.TestModule)
@@ -36,7 +36,7 @@ func module(c *di.Container) {
 func TestContext(t *testing.T) {
 	type deps struct {
 		di.In
-		GitSnapshotter   snapshotter.Snapshotter
+		GitSnapshotter   *service_snapshots.Service
 		WorkspaceRepo    db_workspaces.Repository
 		SnapshotRepo     db_snapshots.Repository
 		ViewRepo         db_view.Repository
@@ -195,7 +195,7 @@ func TestContext(t *testing.T) {
 		t.Run(fmt.Sprintf("%d-%v", tc.lineNumber, tc.lineIsNew), func(t *testing.T) {
 			if tc.useSnapshot {
 				// make a snapshot
-				snapshot, err := d.GitSnapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionViewSync, snapshotter.WithOnView(viewID), snapshotter.WithNoThrottle())
+				snapshot, err := d.GitSnapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(viewID), service_snapshots.WithNoThrottle())
 				if assert.NoError(t, err) && assert.NotNil(t, snapshot) {
 					ws.LatestSnapshotID = &snapshot.ID
 				}

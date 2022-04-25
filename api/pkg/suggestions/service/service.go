@@ -13,7 +13,7 @@ import (
 	"getsturdy.com/api/pkg/notification"
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
@@ -38,7 +38,7 @@ type Service struct {
 	analyticsService *service_analytics.Service
 
 	executorProvider   executor.Provider
-	snapshotter        snapshotter.Snapshotter
+	snapshotter        *service_snapshots.Service
 	notificationSender sender_notification.NotificationSender
 	eventSender        events.EventSender
 }
@@ -48,7 +48,7 @@ func New(
 	suggestionRepo db_suggestions.Repository,
 	workspaceService *service_workspace.Service,
 	executorProvider executor.Provider,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snapshots.Service,
 	analyticsService *service_analytics.Service,
 	notificationSender sender_notification.NotificationSender,
 	eventSender events.EventSender,
@@ -254,9 +254,9 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 					originalWorkspace.CodebaseID,
 					originalWorkspace.ID,
 					snapshots.ActionSuggestionApply,
-					snapshotter.WithOnView(*repo.ViewID()),
-					snapshotter.WithOnRepo(repo),
-					snapshotter.WithMarkAsLatestInWorkspace(),
+					service_snapshots.WithOnView(*repo.ViewID()),
+					service_snapshots.WithOnRepo(repo),
+					service_snapshots.WithMarkAsLatestInWorkspace(),
 				); err != nil {
 					return fmt.Errorf("failed to snapshot: %w", err)
 				}
@@ -364,9 +364,9 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 				workspace.CodebaseID,
 				workspace.ID,
 				snapshots.ActionFileUndoPatch,
-				snapshotter.WithOnRepo(repo),
-				snapshotter.WithOnView(*workspace.ViewID),
-				snapshotter.WithMarkAsLatestInWorkspace(),
+				service_snapshots.WithOnRepo(repo),
+				service_snapshots.WithOnView(*workspace.ViewID),
+				service_snapshots.WithMarkAsLatestInWorkspace(),
 			); err != nil {
 				return fmt.Errorf("failed to snapshot: %w", err)
 			}
@@ -392,9 +392,9 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 					workspace.CodebaseID,
 					workspace.ID,
 					snapshots.ActionFileUndoPatch,
-					snapshotter.WithOnRepo(repo),
-					snapshotter.WithOnView(*workspace.ViewID),
-					snapshotter.WithMarkAsLatestInWorkspace(),
+					service_snapshots.WithOnRepo(repo),
+					service_snapshots.WithOnView(*workspace.ViewID),
+					service_snapshots.WithMarkAsLatestInWorkspace(),
 				); err != nil {
 					return fmt.Errorf("failed to snapshot: %w", err)
 				}

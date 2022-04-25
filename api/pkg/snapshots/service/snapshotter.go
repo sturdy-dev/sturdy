@@ -1,4 +1,4 @@
-package snapshotter
+package service
 
 import (
 	"context"
@@ -27,16 +27,6 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
-
-// todo: rename to snapshot service
-type Snapshotter interface {
-	Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, options ...SnapshotOption) (*snapshots.Snapshot, error)
-	Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error)
-	Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error)
-	GetByID(context.Context, string) (*snapshots.Snapshot, error)
-	Restore(*snapshots.Snapshot, vcs.RepoWriter) error
-	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
-}
 
 type SnapshotOptions struct {
 	paths                   []string
@@ -103,7 +93,7 @@ func WithNoThrottle() SnapshotOption {
 	}
 }
 
-type snap struct {
+type Service struct {
 	snapshotsRepo   db_snapshots.Repository
 	workspaceReader db_workspaces.WorkspaceReader
 	workspaceWriter db_workspaces.WorkspaceWriter
@@ -118,7 +108,7 @@ type snap struct {
 	analyticsService *service_analytics.Service
 }
 
-func NewGitSnapshotter(
+func New(
 	snapshotsRepo db_snapshots.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
 	workspaceWriter db_workspaces.WorkspaceWriter,
@@ -131,8 +121,8 @@ func NewGitSnapshotter(
 	logger *zap.Logger,
 
 	analyticsService *service_analytics.Service,
-) Snapshotter {
-	return &snap{
+) *Service {
+	return &Service{
 		snapshotsRepo:   snapshotsRepo,
 		workspaceReader: workspaceReader,
 		workspaceWriter: workspaceWriter,
@@ -156,7 +146,7 @@ func getSnapshotOptions(opts ...SnapshotOption) *SnapshotOptions {
 	return options
 }
 
-func (s *snap) GetByID(_ context.Context, id string) (*snapshots.Snapshot, error) {
+func (s *Service) GetByID(_ context.Context, id string) (*snapshots.Snapshot, error) {
 	return s.snapshotsRepo.Get(id)
 }
 
@@ -166,7 +156,7 @@ var (
 )
 
 //nolint:cyclop
-func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
+func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
 
 	if !options.onTemporaryView && options.onView == nil {
@@ -390,7 +380,7 @@ func (s *snap) Snapshot(codebaseID codebases.ID, workspaceID string, action snap
 	return snap, nil
 }
 
-func (s *snap) sendViewEvents(workspaceID, viewID string) error {
+func (s *Service) sendViewEvents(workspaceID, viewID string) error {
 	// If this is a _suggestion_, send events to the view it's making suggestions to
 	ws, err := s.workspaceReader.Get(workspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -467,7 +457,7 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 	return options
 }
 
-func (s *snap) Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
+func (s *Service) Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
 	snapshot, err := s.snapshotsRepo.Get(snapshotID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get snapshot: %w", err)
@@ -475,7 +465,7 @@ func (s *snap) Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) 
 	return s.diffs(ctx, snapshot, oo...)
 }
 
-func (s *snap) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
+func (s *Service) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
 	options := getDiffOptions(oo...)
 
 	var diffs []unidiff.FileDiff
@@ -542,7 +532,7 @@ func getCopyOptions(oo ...CopyOption) *CopyOptions {
 }
 
 // Copy creates a new snapshot from the given snapshot.
-func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error) {
+func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error) {
 	snapshot, err := s.snapshotsRepo.Get(snapshotID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshot: %w", err)
@@ -600,7 +590,7 @@ func (s *snap) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*
 	return newSnapshot, nil
 }
 
-func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error {
+func (s *Service) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error {
 	if snap.WorkspaceID == nil {
 		return errors.New("can't restore snapshot that's not on a workspace")
 	}
@@ -610,6 +600,6 @@ func (s *snap) Restore(snap *snapshots.Snapshot, viewRepo vcs.RepoWriter) error 
 	return nil
 }
 
-func (s *snap) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Snapshot, error) {
+func (s *Service) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Snapshot, error) {
 	return s.snapshotsRepo.GetByCommitSHA(ctx, sha)
 }

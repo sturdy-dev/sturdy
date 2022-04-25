@@ -24,7 +24,7 @@ import (
 	"getsturdy.com/api/pkg/notification/sender"
 	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
@@ -60,7 +60,7 @@ type Service struct {
 
 	executorProvider executor.Provider
 
-	snap               snapshotter.Snapshotter
+	snap               *service_snapshots.Service
 	analyticsService   *service_analytics.Service
 	notificationSender sender.NotificationSender
 	eventsSender       events.EventSender
@@ -100,7 +100,7 @@ func New(
 	reviewRepo db_review.ReviewRepository,
 
 	executorProvider executor.Provider,
-	snap snapshotter.Snapshotter,
+	snap *service_snapshots.Service,
 	analyticsService *service_analytics.Service,
 	notificationSender sender.NotificationSender,
 	eventsSender events.EventSender,

@@ -11,7 +11,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/logger"
 	db_mutagen "getsturdy.com/api/pkg/mutagen/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	db_view "getsturdy.com/api/pkg/view/db"
 	service_view "getsturdy.com/api/pkg/view/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -23,7 +23,7 @@ import (
 func Module(c *di.Container) {
 	c.Import(db_view.Module)
 	c.Import(db_workspaces.Module)
-	c.Import(snapshotter.Module)
+	c.Import(service_snapshots.Module)
 	c.Import(graphql_author.Module)
 	c.Import(resolvers.Module)
 	c.Import(meta_workspaces.Module)

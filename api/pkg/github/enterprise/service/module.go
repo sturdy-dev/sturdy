@@ -19,7 +19,7 @@ import (
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
 	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	service_user "getsturdy.com/api/pkg/users/service/module"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -38,7 +38,7 @@ func Module(c *di.Container) {
 	c.Import(db_codebases.Module)
 	c.Import(db_review.Module)
 	c.Import(executor.Module)
-	c.Import(snapshotter.Module)
+	c.Import(service_snapshots.Module)
 	c.Import(service_analytics.Module)
 	c.Import(emails.Module)
 	c.Import(sender_notification.Module)

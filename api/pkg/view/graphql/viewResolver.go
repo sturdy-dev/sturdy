@@ -20,7 +20,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
-	"getsturdy.com/api/pkg/snapshots/snapshotter"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
@@ -52,7 +52,7 @@ var (
 type ViewRootResolver struct {
 	viewRepo                 db_view.Repository
 	workspaceReader          db_workspaces.WorkspaceReader
-	snapshotter              snapshotter.Snapshotter
+	snapshotter              *service_snapshots.Service
 	snapshotRepo             db_snapshots.Repository
 	authorResolver           resolvers.AuthorRootResolver
 	workspaceResolver        *resolvers.WorkspaceRootResolver
@@ -74,7 +74,7 @@ type ViewRootResolver struct {
 func NewResolver(
 	viewRepo db_view.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
-	snapshotter snapshotter.Snapshotter,
+	snapshotter *service_snapshots.Service,
 	snapshotRepo db_snapshots.Repository,
 	authorResolver resolvers.AuthorRootResolver,
 	workspaceResolver *resolvers.WorkspaceRootResolver,
@@ -341,7 +341,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	return r.resolveView(ctx, graphql.ID(e.ID))
 }
 
-func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter snapshotter.Snapshotter) error {
+func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {
 	trunkPath := repoProvider.TrunkPath(vw.CodebaseID)
 	newView := vw.ID + "-recreate-" + uuid.NewString()
 	newViewPath := repoProvider.ViewPath(vw.CodebaseID, newView)
@@ -361,7 +361,7 @@ func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspa
 		}
 
 		// Attempt to make a snapshot of the existing view
-		snapshot, err := gitSnapshotter.Snapshot(vw.CodebaseID, vw.WorkspaceID, snapshots.ActionPreCheckoutOtherView, snapshotter.WithOnView(vw.ID))
+		snapshot, err := gitSnapshotter.Snapshot(vw.CodebaseID, vw.WorkspaceID, snapshots.ActionPreCheckoutOtherView, service_snapshots.WithOnView(vw.ID))
 		if err != nil {
 			return err
 		}
