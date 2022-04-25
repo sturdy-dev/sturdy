@@ -6,5 +6,4 @@ import (
 
 func TestModule(c *di.Container) {
 	c.Register(NewInMemoryAclRepo)
-	c.Register(NewInMemorySnapshotRepo)
 }

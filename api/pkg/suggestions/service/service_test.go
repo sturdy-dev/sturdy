@@ -16,7 +16,6 @@ import (
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/events"
-	"getsturdy.com/api/pkg/internal/inmemory"
 	"getsturdy.com/api/pkg/notification/sender"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
@@ -261,7 +260,7 @@ func newTest(t *testing.T, operations []*operation) *test {
 
 	viewDB := db_view.NewInMemoryViewRepo()
 	workspaceDB := db_workspaces.NewMemory()
-	snapshotsDB := inmemory.NewInMemorySnapshotRepo()
+	snapshotsDB := db_snapshots.NewInMemorySnapshotRepo()
 	codebaseUserRepo := db_codebases.NewInMemoryCodebaseUserRepo()
 	logger := zap.NewNop()
 	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory(logger))
