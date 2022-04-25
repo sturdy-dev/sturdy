@@ -24,6 +24,7 @@ import (
 	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/configuration"
+	"getsturdy.com/api/pkg/db"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	service_gc "getsturdy.com/api/pkg/gc/service"
@@ -56,10 +57,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func module(c *di.Container) {
+func testModule(c *di.Container) {
 	c.Import(api.Module)
 	c.ImportWithForce(configuration.TestModule)
 	c.ImportWithForce(queue.TestModule)
+	c.ImportWithForce(db.TestModule)
 }
 
 func TestCreate(t *testing.T) {
@@ -97,7 +99,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule).To(&d)) {
 		t.FailNow()
 	}
 
@@ -550,7 +552,7 @@ func TestLandEmpty(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule).To(&d)) {
 		t.FailNow()
 	}
 
@@ -687,7 +689,7 @@ func TestLargeFiles(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule).To(&d)) {
 		t.FailNow()
 	}
 
