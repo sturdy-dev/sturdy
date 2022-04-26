@@ -50,10 +50,27 @@ func MigrateUP(db *sql.DB, datamigs datamigrations.Service) error {
 		return fmt.Errorf("error connecting to db to migrate: %w", err)
 	}
 
+	// find the newest version
+	var highestVersion uint
+	highestVersion, err = migrations.First()
+	if err != nil {
+		return fmt.Errorf("error finding first version: %w", err)
+	}
+	for {
+		next, err := migrations.Next(highestVersion)
+		if errors.Is(err, os.ErrNotExist) {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("error finding next version: %w", err)
+		}
+		highestVersion = next
+	}
+
 	// migrate one version at a time
 	for {
 		version, dirty, err := m.Version()
-		log.Printf("Sturdy database schema version: %d, dirty: %t, err: %v", version, dirty, err)
+		log.Printf("Sturdy database schema version: %d/%d, dirty: %t, err: %v", version, highestVersion, dirty, err)
 
 		if err != nil && !errors.Is(err, migrate.ErrNilVersion) {
 			return fmt.Errorf("error getting db version: %w", err)
