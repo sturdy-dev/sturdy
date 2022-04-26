@@ -4,13 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
-	"github.com/pkg/errors"
-
+	"getsturdy.com/api/pkg/analytics"
+	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	events "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
@@ -19,6 +21,8 @@ import (
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -31,6 +35,7 @@ type Service struct {
 	workspaceWriter  db_workspaces.WorkspaceWriter
 	executorProvider executor.Provider
 	eventSender      *events.Publisher
+	analyticsService *service_analytics.Service
 }
 
 func New(
@@ -42,6 +47,7 @@ func New(
 	workspaceWriter db_workspaces.WorkspaceWriter,
 	executorProvider executor.Provider,
 	eventSender *events.Publisher,
+	analyticsService *service_analytics.Service,
 ) *Service {
 	return &Service{
 		logger:           logger.Named("views_service"),
@@ -52,6 +58,7 @@ func New(
 		workspaceWriter:  workspaceWriter,
 		executorProvider: executorProvider,
 		eventSender:      eventSender,
+		analyticsService: analyticsService,
 	}
 }
 
@@ -148,4 +155,43 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 
 func (s *Service) GetByID(_ context.Context, id string) (*view.View, error) {
 	return s.viewRepo.Get(id)
+}
+
+func (s *Service) Create(ctx context.Context, userID users.ID, workspace *workspaces.Workspace, mountPath, mountHostname *string) (*view.View, error) {
+	t := time.Now()
+	v := view.View{
+		ID:            uuid.New().String(),
+		UserID:        userID,
+		CodebaseID:    workspace.CodebaseID,
+		WorkspaceID:   workspace.ID,
+		MountPath:     mountPath,     // It's optional
+		MountHostname: mountHostname, // It's optional
+		CreatedAt:     &t,
+	}
+
+	if err := s.viewRepo.Create(v); err != nil {
+		return nil, fmt.Errorf("failed to create view: %w", err)
+	}
+
+	if err := s.executorProvider.New().
+		AllowRebasingState(). // allowed because the view does not exist yet
+		Schedule(vcs_view.Create(workspace.CodebaseID, workspace.ID, v.ID)).
+		ExecView(workspace.CodebaseID, v.ID, "createView"); err != nil {
+		return nil, fmt.Errorf("failed to create view: %w", err)
+	}
+
+	// Use workspace on view
+	if err := s.OpenWorkspace(ctx, &v, workspace); err != nil {
+		return nil, fmt.Errorf("failed to open workspace on view: %w", err)
+	}
+
+	s.analyticsService.Capture(ctx, "create view",
+		analytics.CodebaseID(workspace.CodebaseID),
+		analytics.Property("workspace_id", workspace.ID),
+		analytics.Property("view_id", v.ID),
+		analytics.Property("mount_path", v.MountPath),
+		analytics.Property("mount_hostname", v.MountHostname),
+	)
+
+	return &v, nil
 }

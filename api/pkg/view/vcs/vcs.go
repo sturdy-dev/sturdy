@@ -9,12 +9,14 @@ import (
 	"getsturdy.com/api/vcs/provider"
 )
 
-func Create(repoProvider provider.RepoProvider, codebaseID codebases.ID, checkoutBranchName, viewID string) error {
-	view, err := vcs.CloneRepo(repoProvider.TrunkPath(codebaseID), repoProvider.ViewPath(codebaseID, viewID))
-	if err != nil {
-		return fmt.Errorf("failed to create a view of %s: %w", codebaseID, err)
+func Create(codebaseID codebases.ID, checkoutBranchName, viewID string) func(provider.RepoProvider) error {
+	return func(repoProvider provider.RepoProvider) error {
+		view, err := vcs.CloneRepo(repoProvider.TrunkPath(codebaseID), repoProvider.ViewPath(codebaseID, viewID))
+		if err != nil {
+			return fmt.Errorf("failed to create a view of %s: %w", codebaseID, err)
+		}
+		return checkoutBranch(view, checkoutBranchName)
 	}
-	return checkoutBranch(view, checkoutBranchName)
 }
 
 func SetWorkspace(viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, workspaceID string) error {

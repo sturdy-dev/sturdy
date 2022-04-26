@@ -25,7 +25,7 @@ func TestCreateView(t *testing.T) {
 	assert.NoError(t, err)
 
 	viewID := "viewID"
-	err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = vcs.Create(codebaseID, workspaceID, viewID)(repoProvider)
 	assert.NoError(t, err)
 }
 
@@ -42,7 +42,7 @@ func TestSetWorkspace(t *testing.T) {
 	assert.NoError(t, err)
 
 	viewID := "viewID"
-	err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = vcs.Create(codebaseID, workspaceID, viewID)(repoProvider)
 	assert.NoError(t, err)
 
 	newWorkspaceID := "ws2"

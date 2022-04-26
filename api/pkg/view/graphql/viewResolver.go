@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"time"
 
-	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
@@ -300,45 +298,13 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 		mountHostname = &args.Input.MountHostname
 	}
 
-	t := time.Now()
-	e := view.View{
-		ID:            uuid.New().String(),
-		UserID:        userID,
-		CodebaseID:    ws.CodebaseID,
-		WorkspaceID:   ws.ID,
-		MountPath:     mountPath,     // It's optional
-		MountHostname: mountHostname, // It's optional
-		CreatedAt:     &t,
-	}
-
-	if err := r.viewRepo.Create(e); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	if err = r.executorProvider.New().
-		AllowRebasingState(). // allowed because the view does not exist yet
-		Schedule(func(repoProvider provider.RepoProvider) error {
-			return view_vcs.Create(repoProvider, ws.CodebaseID, ws.ID, e.ID)
-		}).ExecView(ws.CodebaseID, e.ID, "createView"); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	// Use workspace on view
-	if err := r.viewService.OpenWorkspace(ctx, &e, ws); errors.Is(err, service_view.ErrRebasing) {
+	if v, err := r.viewService.Create(ctx, userID, ws, mountPath, mountHostname); errors.Is(err, service_view.ErrRebasing) {
 		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "View is currently in rebasing state. Please resolve all the conflicts and try again.")
 	} else if err != nil {
 		return nil, gqlerrors.Error(err)
+	} else {
+		return &Resolver{v: v, root: r}, nil
 	}
-
-	r.analyticsService.Capture(ctx, "create view",
-		analytics.CodebaseID(ws.CodebaseID),
-		analytics.Property("workspace_id", ws.ID),
-		analytics.Property("view_id", e.ID),
-		analytics.Property("mount_path", e.MountPath),
-		analytics.Property("mount_hostname", e.MountHostname),
-	)
-
-	return r.resolveView(ctx, graphql.ID(e.ID))
 }
 
 func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {

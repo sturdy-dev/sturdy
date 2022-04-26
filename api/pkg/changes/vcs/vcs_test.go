@@ -103,7 +103,7 @@ func setupCodebase(t *testing.T, repoProvider provider.RepoProvider, codebaseID 
 	err = vcs_workspace.Create(repo, workspaceID)
 	assert.NoError(t, err)
 
-	err = viewsvcs.Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = viewsvcs.Create(codebaseID, workspaceID, viewID)(repoProvider)
 	assert.NoError(t, err)
 }
 

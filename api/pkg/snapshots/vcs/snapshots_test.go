@@ -52,7 +52,7 @@ func TestSnapshot(t *testing.T) {
 	assert.NoError(t, err)
 
 	viewID := "viewID"
-	err = vcs.Create(repoProvider, codebaseID, workspaceID, viewID)
+	err = vcs.Create(codebaseID, workspaceID, viewID)(repoProvider)
 	assert.NoError(t, err)
 
 	viewRepo, err := repoProvider.ViewRepo(codebaseID, viewID)
