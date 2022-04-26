@@ -12,7 +12,6 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/auth"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
@@ -192,12 +191,7 @@ func (svc *Service) Update(ctx context.Context, cb *codebases.Codebase) error {
 	return nil
 }
 
-func (svc *Service) Create(ctx context.Context, name string, organizationID *string) (*codebases.Codebase, error) {
-	userID, err := auth.UserID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+func (svc *Service) Create(ctx context.Context, userID users.ID, name string, organizationID *string) (*codebases.Codebase, error) {
 	codebaseID := codebases.ID(uuid.NewString())
 	t := time.Now()
 
@@ -225,13 +219,12 @@ func (svc *Service) Create(ctx context.Context, name string, organizationID *str
 	}
 
 	// Add user
-	err = svc.codebaseUserRepo.Create(codebases.CodebaseUser{
+	if err := svc.codebaseUserRepo.Create(codebases.CodebaseUser{
 		ID:         uuid.New().String(),
 		UserID:     userID,
 		CodebaseID: cb.ID,
 		CreatedAt:  &t,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, fmt.Errorf("failed to add creator as member: %w", err)
 	}
 

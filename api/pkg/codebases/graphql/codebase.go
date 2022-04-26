@@ -187,6 +187,11 @@ func (r *CodebaseRootResolver) Codebases(ctx context.Context) ([]resolvers.Codeb
 }
 
 func (r *CodebaseRootResolver) CreateCodebase(ctx context.Context, args resolvers.CreateCodebaseArgs) (resolvers.CodebaseResolver, error) {
+	userID, err := auth.UserID(ctx)
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
 	var orgID *string
 	if args.Input.OrganizationID != nil {
 		o := string(*args.Input.OrganizationID)
@@ -201,8 +206,7 @@ func (r *CodebaseRootResolver) CreateCodebase(ctx context.Context, args resolver
 			return nil, gqlerrors.Error(err)
 		}
 	}
-
-	cb, err := r.codebaseService.Create(ctx, args.Input.Name, orgID)
+	cb, err := r.codebaseService.Create(ctx, userID, args.Input.Name, orgID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

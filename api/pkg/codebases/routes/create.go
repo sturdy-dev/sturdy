@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"getsturdy.com/api/pkg/auth"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,13 @@ func Create(
 			return
 		}
 
-		cb, err := svc.Create(c.Request.Context(), req.Name, nil)
+		userID, err := auth.UserID(c.Request.Context())
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		cb, err := svc.Create(c.Request.Context(), userID, req.Name, nil)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
