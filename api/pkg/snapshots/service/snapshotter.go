@@ -332,10 +332,6 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		DiffsCount:  &diffsCount,
 	}
 
-	if options.onView != nil {
-		snap.ViewID = *options.onView
-	}
-
 	if latest != nil {
 		snap.PreviousSnapshotID = &latest.ID
 	}
@@ -559,7 +555,6 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 		ID:          uuid.New().String(),
 		CreatedAt:   time.Now(),
 		CodebaseID:  snapshot.CodebaseID,
-		ViewID:      snapshot.ViewID,
 		WorkspaceID: snapshot.WorkspaceID,
 		Action:      snapshot.Action,
 		DiffsCount:  snapshot.DiffsCount,

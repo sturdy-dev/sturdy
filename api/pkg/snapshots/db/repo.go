@@ -29,8 +29,8 @@ func NewRepo(db *sqlx.DB) Repository {
 
 func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 	_, err := r.db.NamedExec(`INSERT INTO snapshots
-		(id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id , action, diffs_count)
-		VALUES(:id, :view_id, :created_at, :previous_snapshot_id, :codebase_id, :commit_id, :workspace_id, :action, :diffs_count)
+		(id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id , action, diffs_count)
+		VALUES(:id, :created_at, :previous_snapshot_id, :codebase_id, :commit_id, :workspace_id, :action, :diffs_count)
     	`, &snapshot)
 	if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
@@ -40,7 +40,7 @@ func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 
 func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	err := r.db.Get(&res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	err := r.db.Get(&res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE id=$1
 		AND deleted_at IS NULL`, id)
@@ -52,7 +52,7 @@ func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 
 func (r *dbrepo) LatestInWorkspace(ctx context.Context, workspaceID string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	if err := r.db.GetContext(ctx, &res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	if err := r.db.GetContext(ctx, &res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE workspace_id = $1
 		AND deleted_at IS NULL
@@ -78,7 +78,7 @@ func (r *dbrepo) Update(snapshot *snapshots.Snapshot) error {
 // GetByCommitSHA returns snapshots by commit_id
 func (r *dbrepo) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
-	if err := r.db.GetContext(ctx, &res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	if err := r.db.GetContext(ctx, &res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE commit_id=$1`, sha); err != nil {
 		return nil, fmt.Errorf("failed to get by commit sha: %w", err)
@@ -91,7 +91,7 @@ func (r *dbrepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snap
 		return nil, nil
 	}
 	var res []*snapshots.Snapshot
-	if err := r.db.SelectContext(ctx, &res, `SELECT id, view_id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+	if err := r.db.SelectContext(ctx, &res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
 		WHERE id = ANY($1)`, pq.Array(ids)); err != nil {
 		return nil, fmt.Errorf("failed to list by ids: %w", err)

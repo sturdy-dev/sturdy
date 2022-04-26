@@ -1,0 +1,2 @@
+ALTER TABLE snapshots
+    ALTER COLUMN view_id SET NOT NULL;

@@ -251,10 +251,13 @@ func (svc *Service) deleteSnapshotBranchInView(logger *zap.Logger, view *view.Vi
 				return fmt.Errorf("failed to delete snapshot branch from view: %w", err)
 			}
 
-			logger.Info("view branch deleted", zap.String("branch_name", snapshotBranchName), zap.String("view_id", snapshot.ViewID))
+			logger.Info("view branch deleted",
+				zap.String("branch_name", snapshotBranchName),
+				zap.String("view_id", view.ID),
+			)
 
 			return nil
-		}).ExecView(snapshot.CodebaseID, snapshot.ViewID, "deleteViewSnapshot"); err != nil {
+		}).ExecView(snapshot.CodebaseID, view.ID, "deleteViewSnapshot"); err != nil {
 		logger.Error("failed to open view", zap.Error(err))
 		return nil
 	}
