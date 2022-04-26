@@ -129,7 +129,8 @@ RUN apk update \
     && apk add --no-cache \
     python3=3.9.7-r4 \
     make=4.3-r0 \
-    g++
+    g++ \
+    git
 # cache web dependencies
 COPY ./web/package.json ./package.json
 COPY ./web/yarn.lock ./yarn.lock

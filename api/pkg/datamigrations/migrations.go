@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -15,25 +16,25 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
-type Service struct {
-	logger     *zap.Logger
-	migrations []migration
+type Service interface {
+	Run(ctx context.Context, currentDatabaseSchemaVersion uint) error
+}
+
+type svc struct {
+	migrations map[uint][]migration
 }
 
 func NewService(
-	logger *zap.Logger,
 	db *sqlx.DB,
 	changesService *service_changes.Service,
 	codebasesService *service_codebases.Service,
-) *Service {
-	return &Service{
-		logger: logger.Named("datamigrations"),
-		migrations: []migration{
-			newChangesCodebaseIDCommitIDUniq(logger, db, changesService, codebasesService),
+) Service {
+	return &svc{
+		migrations: map[uint][]migration{
+			209: {newChangesCodebaseIDCommitIDUniq(db, changesService, codebasesService)},
 		},
 	}
 }
@@ -44,30 +45,27 @@ type migration interface {
 	Skip(context.Context) (bool, error)
 }
 
-func (s *Service) Run(ctx context.Context) error {
-	for _, migration := range s.migrations {
+func (s *svc) Run(ctx context.Context, currentDatabaseSchemaVersion uint) error {
+	for _, migration := range s.migrations[currentDatabaseSchemaVersion] {
 		if skip, err := migration.Skip(ctx); err != nil {
 			return fmt.Errorf("failed to check if migration %s should be skipped: %w", migration.Name(), err)
 		} else if skip {
-			s.logger.Warn("skipping migration", zap.String("migration", migration.Name()))
+			log.Printf("skipping migration name=%s", migration.Name())
 			continue
 		}
 
-		s.logger.Warn("running migration", zap.String("migration", migration.Name()))
+		log.Printf("running migration name=%s", migration.Name())
 		start := time.Now()
 		if err := migration.Run(ctx); err != nil {
 			return fmt.Errorf("failed to run migration %s: %w", migration.Name(), err)
 		}
-		s.logger.Warn("migration completed",
-			zap.String("migration", migration.Name()),
-			zap.Duration("took", time.Since(start)))
+
+		log.Printf("running migration name=%s took=%s", migration.Name(), time.Since(start))
 	}
 	return nil
 }
 
 type changesCodebaseIDCommitIDUniq struct {
-	logger *zap.Logger
-
 	db               *sqlx.DB
 	changesService   *service_changes.Service
 	codebasesService *service_codebases.Service
@@ -78,19 +76,15 @@ type changesCodebaseIDCommitIDUniq struct {
 }
 
 func newChangesCodebaseIDCommitIDUniq(
-	logger *zap.Logger,
 	db *sqlx.DB,
 	changesService *service_changes.Service,
 	codebasesService *service_codebases.Service,
 ) *changesCodebaseIDCommitIDUniq {
-	c := &changesCodebaseIDCommitIDUniq{
-		logger:           logger,
+	return &changesCodebaseIDCommitIDUniq{
 		db:               db,
 		changesService:   changesService,
 		codebasesService: codebasesService,
 	}
-	c.logger = c.logger.With(zap.String("migration", c.Name()))
-	return c
 }
 
 func (m *changesCodebaseIDCommitIDUniq) Skip(ctx context.Context) (bool, error) {
@@ -147,7 +141,7 @@ func (c *changesCodebaseIDCommitIDUniq) migrateCodebase(ctx context.Context, id 
 		return nil
 	}
 
-	c.logger.Warn("deleting duplicated changes", zap.Stringer("codebase", id), zap.Int("count", len(toDelete)))
+	log.Printf("datamigrations: deleting duplicated changes codebaseID=%s count=%d", id, len(toDelete))
 
 	if _, err := c.db.ExecContext(ctx, `
 		DELETE FROM changes

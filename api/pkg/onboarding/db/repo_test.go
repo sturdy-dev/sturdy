@@ -6,8 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"getsturdy.com/api/pkg/db"
-	"getsturdy.com/api/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/internal/dbtest"
 	"getsturdy.com/api/pkg/onboarding"
 	db_onboarding "getsturdy.com/api/pkg/onboarding/db"
 
@@ -19,12 +18,7 @@ func getDB(t *testing.T) *sqlx.DB {
 	if os.Getenv("E2E_TEST") == "" {
 		t.SkipNow()
 	}
-
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-	return d
+	return dbtest.DB(t)
 }
 
 func Test_InsertCompletedStep__double_insert_doesnt_fail(t *testing.T) {

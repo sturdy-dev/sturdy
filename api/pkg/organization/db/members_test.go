@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import (
 	"context"
@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"getsturdy.com/api/pkg/db"
-	"getsturdy.com/api/pkg/internal/sturdytest"
-	"getsturdy.com/api/pkg/organization"
-	"getsturdy.com/api/pkg/users"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"getsturdy.com/api/pkg/internal/dbtest"
+	"getsturdy.com/api/pkg/organization"
+	"getsturdy.com/api/pkg/organization/db"
+	"getsturdy.com/api/pkg/users"
 )
 
 func TestMain(m *testing.M) {
@@ -23,12 +24,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestAddMember(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-
-	assert.NoError(t, err)
-	repo := NewMember(d)
+	d := dbtest.DB(t)
+	repo := db.NewMember(d)
 	ctx := context.Background()
 
 	member := &organization.Member{
@@ -58,12 +55,8 @@ func TestAddMember(t *testing.T) {
 }
 
 func TestAddTwoSameMembers_returns_same_id(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-
-	assert.NoError(t, err)
-	repo := NewMember(d)
+	d := dbtest.DB(t)
+	repo := db.NewMember(d)
 	ctx := context.Background()
 
 	member := &organization.Member{
