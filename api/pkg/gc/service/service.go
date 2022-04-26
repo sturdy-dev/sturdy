@@ -15,6 +15,7 @@ import (
 	"getsturdy.com/api/pkg/gc/db"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
+	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/view"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -29,6 +30,7 @@ type Service struct {
 	gcRepo            db.Repository
 	viewRepo          db_view.Repository
 	snapshotsRepo     db_snapshots.Repository
+	snapshotsService  *service_snapshots.Service
 	workspaceReader   db_workspaces.WorkspaceReader
 	suggestionService *service_suggestion.Service
 	executorProvider  executor.Provider
@@ -40,6 +42,7 @@ func New(
 	viewRepo db_view.Repository,
 	snapshotsRepo db_snapshots.Repository,
 	workspaceReader db_workspaces.WorkspaceReader,
+	snapshotsService *service_snapshots.Service,
 	suggestionService *service_suggestion.Service,
 	executorProvider executor.Provider,
 ) *Service {
@@ -48,6 +51,7 @@ func New(
 		gcRepo:            gcRepo,
 		viewRepo:          viewRepo,
 		snapshotsRepo:     snapshotsRepo,
+		snapshotsService:  snapshotsService,
 		workspaceReader:   workspaceReader,
 		suggestionService: suggestionService,
 		executorProvider:  executorProvider,
@@ -208,10 +212,8 @@ func (svc *Service) gcSnapshot(
 		return fmt.Errorf("failed to delete snapshot id=%s: %w", snapshot.ID, err)
 	}
 
-	t := time.Now()
-	snapshot.DeletedAt = &t
-	if err := svc.snapshotsRepo.Update(snapshot); err != nil {
-		return fmt.Errorf("failed to mark snapshot as deleted: %w", err)
+	if err := svc.snapshotsService.Delete(ctx, snapshot); err != nil {
+		return fmt.Errorf("failed to delete snapshot id=%s: %w", snapshot.ID, err)
 	}
 
 	return nil

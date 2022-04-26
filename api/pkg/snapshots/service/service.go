@@ -154,6 +154,15 @@ var (
 	ErrCantSnapshotWrongBranch = errors.New("can't snapshot, unexpected branch")
 )
 
+func (s *Service) Delete(ctx context.Context, snapshot *snapshots.Snapshot) error {
+	now := time.Now()
+	snapshot.DeletedAt = &now
+	if err := s.snapshotsRepo.Update(snapshot); err != nil {
+		return fmt.Errorf("can't update snapshot: %w", err)
+	}
+	return nil
+}
+
 //nolint:cyclop
 func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
