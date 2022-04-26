@@ -854,6 +854,17 @@ func (r *repository) CreateAndSetDefaultBranch(headBranchName string) error {
 
 var ErrNotFound = errors.New("not found")
 
+func (r *repository) Commit(sha string) (*git.Commit, error) {
+	defer getMeterFunc("Commit")()
+
+	oid, err := git.NewOid(sha)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create oid: %w", err)
+	}
+
+	return r.r.LookupCommit(oid)
+}
+
 func (r *repository) HeadCommit() (*git.Commit, error) {
 	defer getMeterFunc("HeadCommit")()
 	ref, err := r.r.Head()

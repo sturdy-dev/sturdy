@@ -19,6 +19,5 @@ func Module(c *di.Container) {
 	c.Import(db_snapshots.Module)
 	c.Import(meta_workspaces.Module)
 	c.Import(events.Module)
-	c.Import(events.Module)
 	c.Register(New)
 }

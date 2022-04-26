@@ -21,6 +21,10 @@ type Snapshot struct {
 	DiffsCount         *int32       `json:"diffs_count" db:"diffs_count"` // number of diffs in a Snapshot
 }
 
+func (s *Snapshot) IsDeleted() bool {
+	return s.DeletedAt != nil
+}
+
 func (s *Snapshot) BranchName() string {
 	return fmt.Sprintf("snapshot-%s", s.ID)
 }
