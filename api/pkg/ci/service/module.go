@@ -5,6 +5,7 @@ import (
 	db_ci "getsturdy.com/api/pkg/ci/db"
 	configuration "getsturdy.com/api/pkg/configuration/module"
 	"getsturdy.com/api/pkg/di"
+	service_github "getsturdy.com/api/pkg/github/service/module"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
 	service_jwt "getsturdy.com/api/pkg/jwt/service"
 	"getsturdy.com/api/pkg/logger"
@@ -23,5 +24,6 @@ func Module(c *di.Container) {
 	c.Import(service_jwt.Module)
 	c.Import(service_snapshots.Module)
 	c.Import(service_buildkite.Module)
+	c.Import(service_github.Module)
 	c.Register(New)
 }

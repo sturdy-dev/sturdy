@@ -18,6 +18,7 @@ import (
 type SnapshotOptions struct {
 	patchIDsFilter       *[]string
 	revertCommitHeadBase *[2]*string
+	commitMessage        string
 }
 
 type SnapshotOption func(*SnapshotOptions)
@@ -34,6 +35,12 @@ func WithPatchIDsFilter(patchIDs []string) SnapshotOption {
 func WithRevert(head string, base *string) SnapshotOption {
 	return func(opts *SnapshotOptions) {
 		opts.revertCommitHeadBase = &[2]*string{&head, base}
+	}
+}
+
+func WithCommitMessage(msg string) SnapshotOption {
+	return func(opts *SnapshotOptions) {
+		opts.commitMessage = msg
 	}
 }
 
@@ -75,7 +82,7 @@ func allPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader) ([]string, error) {
 	return patchIDs, nil
 }
 
-func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID string, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID string, signature git.Signature, opts ...SnapshotOption) (string, error) {
 	start := time.Now()
 
 	options := snapshotOptions(opts...)
@@ -108,12 +115,16 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 
 	decoratedLogger.Info("creating snapshot", zap.Int("patch_count", len(patchIDs)))
 
+	commitMessage := fmt.Sprintf("snapshot-%d", time.Now().Unix())
+	if options.commitMessage != "" {
+		commitMessage = options.commitMessage
+	}
+
 	// If no patches are specified, create a snapshot of the entire view ("git add -a")
 	if len(patchIDs) == 0 {
-		snapshotCommitID, err = repo.AddAndCommit(fmt.Sprintf("snapshot-%d", time.Now().Unix()))
+		snapshotCommitID, err = repo.AddAndCommitWithSignature(commitMessage, signature)
 	} else {
-		sig := git.Signature{Name: "snapshot", Email: "snapshot@getsturdy.com", When: time.Now()}
-		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(decoratedLogger, repo, codebaseID, patchIDs, fmt.Sprintf("snapshot-%d", time.Now().Unix()), sig)
+		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(decoratedLogger, repo, codebaseID, patchIDs, commitMessage, signature)
 	}
 	if err != nil {
 		return "", fmt.Errorf("failed to make snapshot: %w", err)

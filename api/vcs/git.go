@@ -280,15 +280,20 @@ func (repo *repository) DeleteFile(fileName string) error {
 
 func (repo *repository) AddAndCommit(msg string) (string, error) {
 	defer getMeterFunc("AddAndCommit")()
-
-	oid, err := repo.AddFilesToIndex([]string{"."})
-	if err != nil {
-		return "", fmt.Errorf("failed to add changes to index: %w", err)
-	}
 	sig := git.Signature{
 		Name:  "Sturdy",
 		Email: "support@getsturdy.com",
 		When:  time.Now(),
+	}
+	return repo.AddAndCommitWithSignature(msg, sig)
+}
+
+func (repo *repository) AddAndCommitWithSignature(msg string, sig git.Signature) (string, error) {
+	defer getMeterFunc("AddAndCommit")()
+
+	oid, err := repo.AddFilesToIndex([]string{"."})
+	if err != nil {
+		return "", fmt.Errorf("failed to add changes to index: %w", err)
 	}
 	commitID, err := repo.CommitIndexTree(oid, msg, sig)
 	if err != nil {

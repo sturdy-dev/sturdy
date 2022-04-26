@@ -5,6 +5,9 @@ import (
 	"os"
 	"path"
 	"testing"
+	"time"
+
+	git "github.com/libgit2/git2go/v33"
 
 	"getsturdy.com/api/pkg/codebases"
 	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
@@ -63,8 +66,14 @@ func TestSnapshot(t *testing.T) {
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/a.txt", []byte("hello a"), 0o666))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b"), 0o666))
 
+	sig := git.Signature{
+		Name:  "test",
+		Email: "test@example.com",
+		When:  time.Now(),
+	}
+
 	// Snapshot
-	firstSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String())
+	firstSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String(), sig)
 	assert.NoError(t, err)
 	diffs, _, err := viewRepo.ShowCommit(firstSnapshotCommitID)
 	assert.NoError(t, err)
@@ -79,7 +88,7 @@ func TestSnapshot(t *testing.T) {
 	// Update files some more and snapshot
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/a.txt", []byte("hello a2"), 0o666))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b2"), 0o666))
-	secondSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String())
+	secondSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String(), sig)
 	assert.NoError(t, err)
 
 	diffs, _, err = viewRepo.ShowCommit(secondSnapshotCommitID)
@@ -129,7 +138,7 @@ func TestSnapshot(t *testing.T) {
 	// Remove a file and snapshot
 	assert.NoError(t, os.Remove(viewPath+"/a.txt"))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b3"), 0o666))
-	_, err = SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String())
+	_, err = SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, uuid.New().String(), sig)
 	assert.NoError(t, err)
 
 	// TODO: Verify snapshot commits, current working directory, etc.
