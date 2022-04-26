@@ -9,6 +9,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/client"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_importing "getsturdy.com/api/pkg/github/enterprise/service/importing"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/logger"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -27,6 +28,7 @@ func Module(c *di.Container) {
 	c.Import(db.Module)
 	c.Import(service_auth.Module)
 	c.Import(service_github.Module)
+	c.Import(service_github_importing.Module)
 	c.Import(client.Module)
 	c.Import(eventsv2.Module)
 	c.Register(NewResolver)

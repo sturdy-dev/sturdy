@@ -39,6 +39,10 @@ func FetchBranchWithRefspec(accessToken, refspec string) func(vcs.RepoGitWriter)
 
 func PushTrackedToGitHub(repo vcs.RepoGitWriter, accessToken, trackedBranchName string) (userError string, err error) {
 	refspec := fmt.Sprintf("+refs/heads/sturdytrunk:refs/heads/%s", trackedBranchName)
+	return PushToGitHubWithRefspec(repo, accessToken, refspec)
+}
+
+func PushToGitHubWithRefspec(repo vcs.RepoGitWriter, accessToken, refspec string) (userError string, err error) {
 	userError, err = repo.PushNamedRemoteWithRefspec("origin", newCredentialsCallback(accessToken), []config.RefSpec{config.RefSpec(refspec)})
 	if err != nil {
 		return userError, fmt.Errorf("failed to push %s: %w", refspec, err)

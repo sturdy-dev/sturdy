@@ -56,7 +56,7 @@ func getJobType(job *api.WorkflowJob) statuses.Type {
 		case conclusionFailing[conclution]:
 			return statuses.TypeFailing
 		case conclusionHealthy[conclution]:
-			return statuses.TypeHealty
+			return statuses.TypeHealthy
 		default:
 			return statuses.TypeUndefined
 		}

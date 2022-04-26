@@ -11,13 +11,13 @@ type Type string
 const (
 	TypeUndefined Type = ""
 	TypePending   Type = "pending"
-	TypeHealty    Type = "healthy"
+	TypeHealthy   Type = "healthy"
 	TypeFailing   Type = "failing"
 )
 
 var ValidType = map[Type]bool{
 	TypePending: true,
-	TypeHealty:  true,
+	TypeHealthy: true,
 	TypeFailing: true,
 }
 

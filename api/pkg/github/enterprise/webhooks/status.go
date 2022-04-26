@@ -20,7 +20,7 @@ func getStatusType(event *StatusEvent) statuses.Type {
 	case "failure", "error":
 		return statuses.TypeFailing
 	case "success":
-		return statuses.TypeHealty
+		return statuses.TypeHealthy
 	default:
 		return statuses.TypeUndefined
 	}
@@ -47,7 +47,7 @@ func (svc *Service) HandleStatusEvent(ctx context.Context, event *StatusEvent) e
 
 	status := &statuses.Status{
 		ID:          uuid.New().String(),
-		CommitSHA:    event.GetCommit().GetSHA(),
+		CommitSHA:   event.GetCommit().GetSHA(),
 		CodebaseID:  repo.CodebaseID,
 		Type:        getStatusType(event),
 		Title:       event.GetContext(),

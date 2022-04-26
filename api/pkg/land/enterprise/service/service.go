@@ -54,7 +54,7 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, diff
 
 	if gitHubRepository != nil && gitHubRepository.IntegrationEnabled && !gitHubRepository.GitHubSourceOfTruth {
 		// TODO: move to a queue.
-		if err := s.gitHubService.Push(ctx, gitHubRepository, change); err != nil {
+		if err := s.gitHubService.Push(ctx, gitHubRepository, ws.CodebaseID); err != nil {
 			return nil, fmt.Errorf("failed to push to github: %w", err)
 		}
 		return change, nil

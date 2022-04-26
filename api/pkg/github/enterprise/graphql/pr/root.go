@@ -16,6 +16,7 @@ import (
 	"getsturdy.com/api/pkg/github/enterprise/config"
 	"getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_importing "getsturdy.com/api/pkg/github/enterprise/service/importing"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -56,8 +57,9 @@ type prRootResolver struct {
 	gitHubPersonalClientProvider client.PersonalClientProvider
 	events                       *eventsv2.Subscriber
 
-	authService   *service_auth.Service
-	gitHubService *service_github.Service
+	authService            *service_auth.Service
+	gitHubService          *service_github.Service
+	gitHubImportingService *service_github_importing.Service
 }
 
 func NewResolver(
@@ -85,6 +87,7 @@ func NewResolver(
 
 	authService *service_auth.Service,
 	gitHubService *service_github.Service,
+	gitHubImportingService *service_github_importing.Service,
 ) resolvers.GitHubPullRequestRootResolver {
 	return &prRootResolver{
 		logger: logger,
@@ -109,8 +112,9 @@ func NewResolver(
 		gitHubPersonalClientProvider: gitHubPersonalClientProvider,
 		events:                       events,
 
-		authService:   authService,
-		gitHubService: gitHubService,
+		authService:            authService,
+		gitHubService:          gitHubService,
+		gitHubImportingService: gitHubImportingService,
 	}
 }
 
@@ -241,7 +245,7 @@ func (r *prRootResolver) MergeGitHubPullRequest(ctx context.Context, args resolv
 		return nil, gqlerrors.Error(err)
 	}
 
-	if err := r.gitHubService.MergePullRequest(ctx, ws); err != nil {
+	if err := r.gitHubImportingService.MergePullRequest(ctx, ws); err != nil {
 		var userErr service_github.GitHubUserError
 		if errors.As(err, &userErr) {
 			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", userErr.Error())

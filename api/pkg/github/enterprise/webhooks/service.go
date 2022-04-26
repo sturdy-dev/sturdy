@@ -28,6 +28,7 @@ import (
 	config_github "getsturdy.com/api/pkg/github/enterprise/config"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_importing "getsturdy.com/api/pkg/github/enterprise/service/importing"
 	vcs_github "getsturdy.com/api/pkg/github/enterprise/vcs"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -65,14 +66,15 @@ type Service struct {
 	analyticsService *service_analytics.Service
 	activitySender   sender_workspace_activity.ActivitySender
 
-	syncService     *service_sync.Service
-	codebaseService *service_codebases.Service
-	commentsService *service_comments.Service
-	activityService *service_activity.Service
-	changeService   *service_change.Service
-	statusService   *service_statuses.Service
-	githubService   *service_github.Service
-	usersService    service_users.Service
+	syncService            *service_sync.Service
+	codebaseService        *service_codebases.Service
+	commentsService        *service_comments.Service
+	activityService        *service_activity.Service
+	changeService          *service_change.Service
+	statusService          *service_statuses.Service
+	githubService          *service_github.Service
+	usersService           service_users.Service
+	gitHubImportingService *service_github_importing.Service
 
 	buildQueue *workers_ci.BuildQueue
 }
@@ -111,6 +113,7 @@ func New(
 	statusService *service_statuses.Service,
 	githubService *service_github.Service,
 	usersService service_users.Service,
+	gitHubImportingService *service_github_importing.Service,
 
 	buildQueue *workers_ci.BuildQueue,
 ) *Service {
@@ -140,14 +143,15 @@ func New(
 		analyticsService: analyticsService,
 		activitySender:   activitySender,
 
-		syncService:     syncService,
-		codebaseService: codebaseService,
-		commentsService: commentsService,
-		activityService: activityService,
-		changeService:   changeService,
-		statusService:   statusService,
-		githubService:   githubService,
-		usersService:    usersService,
+		syncService:            syncService,
+		codebaseService:        codebaseService,
+		commentsService:        commentsService,
+		activityService:        activityService,
+		changeService:          changeService,
+		statusService:          statusService,
+		githubService:          githubService,
+		usersService:           usersService,
+		gitHubImportingService: gitHubImportingService,
 
 		buildQueue: buildQueue,
 	}
@@ -257,7 +261,7 @@ func (svc *Service) HandlePullRequestEvent(ctx context.Context, event *PullReque
 		if err != nil {
 			return fmt.Errorf("failed to get access token: %w", err)
 		}
-		return svc.githubService.UpdatePullRequestFromGitHub(ctx, repo, pr, event.GetPullRequest(), accessToken)
+		return svc.gitHubImportingService.UpdatePullRequestFromGitHub(ctx, repo, pr, event.GetPullRequest(), accessToken)
 	}
 }
 
