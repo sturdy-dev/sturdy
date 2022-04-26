@@ -1,6 +1,8 @@
 package sturdytest
 
-import "os"
+import (
+	"os"
+)
 
 func PsqlDbSourceForTesting() string {
 	var host = "127.0.0.1:5432"

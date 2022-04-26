@@ -80,6 +80,10 @@ type Container struct {
 
 	_isValid    []error
 	isValidOnce sync.Once
+
+	// populated after Init
+	err          error
+	digContainer *dig.Container
 }
 
 var errTyp = reflect.TypeOf(new(error)).Elem()
@@ -336,13 +340,8 @@ func (c *Container) register(container *dig.Container) error {
 
 // To builds the container and fetches dest from it, dest must be a pointer.
 func (c *Container) To(dest ...any) error {
-	if err := c.IsValid(); err != nil {
-		return fmt.Errorf("%s: %w", c.name, err)
-	}
-
-	container := dig.New()
-	if err := c.register(container); err != nil {
-		return err
+	if c.err != nil {
+		return fmt.Errorf("previous call to Init() failed: %w", c.err)
 	}
 
 	destPointers := make([]reflect.Value, 0, len(dest))
@@ -366,12 +365,11 @@ func (c *Container) To(dest ...any) error {
 		return []reflect.Value{}
 	})
 
-	if err := container.Invoke(invokeFn.Interface()); err != nil {
+	if err := c.digContainer.Invoke(invokeFn.Interface()); err != nil {
 		return err
 	}
 
 	return nil
-
 }
 
 var globalRegistry = map[string]*Container{}
@@ -393,6 +391,19 @@ func Init(module Module) *Container {
 	}
 	module(c)
 	globalRegistry[name] = c
+
+	if err := c.IsValid(); err != nil {
+		c.err = fmt.Errorf("%s: %w", c.name, err)
+		return c
+	}
+
+	container := dig.New()
+	if err := c.register(container); err != nil {
+		c.err = err
+		return c
+	}
+	c.digContainer = container
+
 	return c
 }
 

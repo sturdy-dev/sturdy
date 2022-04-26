@@ -1,7 +1,7 @@
 //go:build enterprise
 // +build enterprise
 
-package api
+package module
 
 import (
 	"getsturdy.com/api/pkg/api/enterprise/selfhosted"

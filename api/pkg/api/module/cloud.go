@@ -1,7 +1,7 @@
 //go:build cloud
 // +build cloud
 
-package api
+package module
 
 import (
 	"getsturdy.com/api/pkg/api/enterprise/cloud"

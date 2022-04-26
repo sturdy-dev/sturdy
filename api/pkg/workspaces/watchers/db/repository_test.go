@@ -11,8 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"getsturdy.com/api/pkg/db"
-	"getsturdy.com/api/pkg/internal/sturdytest"
+	"getsturdy.com/api/pkg/internal/dbtest"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 	watchers_db "getsturdy.com/api/pkg/workspaces/watchers/db"
@@ -132,10 +131,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// register real db implementation
-	sqldb, err := db.Setup(sturdytest.PsqlDbSourceForTesting())
-	if err != nil {
-		panic(err)
-	}
+	sqldb := dbtest.MustGetDB()
 	databaseImplementation := func() watchers_db.Repository { return watchers_db.NewDB(sqldb) }
 
 	implementations = append(implementations, databaseImplementation)

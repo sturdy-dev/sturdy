@@ -24,7 +24,7 @@ import (
 	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
 	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/configuration"
-	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/db/module"
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	service_gc "getsturdy.com/api/pkg/gc/service"
@@ -61,7 +61,7 @@ func testModule(c *di.Container) {
 	c.Import(api.Module)
 	c.ImportWithForce(configuration.TestModule)
 	c.ImportWithForce(queue.TestModule)
-	c.ImportWithForce(db.TestModule)
+	c.ImportWithForce(module.TestModule)
 }
 
 func TestCreate(t *testing.T) {

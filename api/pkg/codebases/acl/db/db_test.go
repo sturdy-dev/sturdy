@@ -8,14 +8,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/acl"
 	acl_db "getsturdy.com/api/pkg/codebases/acl/db"
-	"getsturdy.com/api/pkg/db"
-	"getsturdy.com/api/pkg/internal/sturdytest"
-
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
+	"getsturdy.com/api/pkg/internal/dbtest"
 )
 
 func TestMain(m *testing.M) {
@@ -26,11 +25,7 @@ func TestMain(m *testing.M) {
 }
 
 func Test_Create(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
@@ -45,11 +40,7 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Create_twice_fails(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
@@ -65,11 +56,7 @@ func Test_Create_twice_fails(t *testing.T) {
 }
 
 func Test_GetByCodebaseID_not_found(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
@@ -79,11 +66,7 @@ func Test_GetByCodebaseID_not_found(t *testing.T) {
 }
 
 func Test_GetByCodebaseID(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
@@ -110,11 +93,7 @@ func Test_GetByCodebaseID(t *testing.T) {
 }
 
 func Test_Update(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 
@@ -161,11 +140,7 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_Update_not_found(t *testing.T) {
-	d, err := db.Setup(
-		sturdytest.PsqlDbSourceForTesting(),
-	)
-	assert.NoError(t, err)
-
+	d := dbtest.DB(t)
 	repo := acl_db.NewACLRepository(d)
 	ctx := context.Background()
 

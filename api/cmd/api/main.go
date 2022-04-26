@@ -4,43 +4,53 @@ import (
 	"context"
 	"log"
 
+	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"getsturdy.com/api/pkg/api"
 	apiModule "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/banner"
 	xcontext "getsturdy.com/api/pkg/context"
 	"getsturdy.com/api/pkg/datamigrations"
-	"getsturdy.com/api/pkg/db"
+	"getsturdy.com/api/pkg/db/migrator"
 	"getsturdy.com/api/pkg/di"
-
-	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 )
 
 func main() {
+
+	// run migrations
+	{
+		var (
+			dm     datamigrations.Service
+			sqlxdb *sqlx.DB
+		)
+
+		migratorApp := func(c *di.Container) {
+			c.Import(datamigrations.Module)
+		}
+
+		if err := di.Init(migratorApp).To(&dm, &sqlxdb); err != nil {
+			log.Fatalf("failed to init: %+v", err)
+		}
+
+		if err := migrator.MigrateUP(sqlxdb.DB, dm); err != nil {
+			log.Fatalf("failed to migrate up: %+v", err)
+		}
+	}
+
+	// start the application
 	app := func(c *di.Container) {
 		c.Import(apiModule.Module)
 		c.Import(xcontext.Module)
-		c.Import(datamigrations.Module)
 	}
 
 	var (
-		apiServer api.Starter
 		ctx       context.Context
-		dm        *datamigrations.Service
-		sqlxdb    *sqlx.DB
+		apiServer api.Starter
 		logger    *zap.Logger
 	)
-
-	if err := di.Init(app).To(&apiServer, &ctx, &dm, &sqlxdb, &logger); err != nil {
+	if err := di.Init(app).To(&ctx, &apiServer, &logger); err != nil {
 		log.Fatalf("failed to init: %+v", err)
-	}
-
-	if err := dm.Run(ctx); err != nil {
-		logger.Fatal("failed to run data migrations", zap.Error(err))
-	}
-
-	if err := db.MigrateUP(sqlxdb.DB); err != nil {
-		logger.Fatal("failed to migrate up", zap.Error(err))
 	}
 
 	banner.PrintBanner()
