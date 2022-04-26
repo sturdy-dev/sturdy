@@ -11,11 +11,11 @@ import (
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/users"
-	"golang.org/x/oauth2"
 
 	gh "github.com/google/go-github/v39/github"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 )
 
 func (svc *Service) AddUserIDToCodebases(ctx context.Context, userID users.ID) error {

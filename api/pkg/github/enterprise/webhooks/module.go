@@ -16,6 +16,7 @@ import (
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	service_github "getsturdy.com/api/pkg/github/enterprise/service"
+	service_github_importing "getsturdy.com/api/pkg/github/enterprise/service/importing"
 	"getsturdy.com/api/pkg/logger"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
@@ -44,6 +45,7 @@ func Module(c *di.Container) {
 	c.Import(service_change.Module)
 	c.Import(service_statuses.Module)
 	c.Import(service_github.Module)
+	c.Import(service_github_importing.Module)
 	c.Import(service_users.Module)
 	c.Import(workers_ci.Module)
 	c.Import(eventsv2.Module)

@@ -49,10 +49,10 @@ var (
 		"scheduled": statuses.TypePending,
 		"assigned":  statuses.TypePending,
 
-		"passed":   statuses.TypeHealty,
-		"skipped":  statuses.TypeHealty,
-		"not_run":  statuses.TypeHealty,
-		"finished": statuses.TypeHealty,
+		"passed":   statuses.TypeHealthy,
+		"skipped":  statuses.TypeHealthy,
+		"not_run":  statuses.TypeHealthy,
+		"finished": statuses.TypeHealthy,
 
 		"failed":   statuses.TypeFailing,
 		"canceled": statuses.TypeFailing,

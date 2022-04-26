@@ -8,9 +8,7 @@ import (
 	sender_workspace_activity "getsturdy.com/api/pkg/activity/sender"
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
-	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
@@ -74,8 +72,6 @@ type Service struct {
 	remoteService     *service_remote.EnterpriseService
 	workspacesService *service_workspaces.Service
 	activityService   *service_activity.Service
-
-	buildQueue *workers_ci.BuildQueue
 }
 
 func New(
@@ -114,8 +110,6 @@ func New(
 	remoteService *service_remote.EnterpriseService,
 	workspacesService *service_workspaces.Service,
 	activityService *service_activity.Service,
-
-	buildQueue *workers_ci.BuildQueue,
 ) *Service {
 	svc := &Service{
 		logger: logger,
@@ -153,8 +147,6 @@ func New(
 		remoteService:     remoteService,
 		workspacesService: workspacesService,
 		activityService:   activityService,
-
-		buildQueue: buildQueue,
 	}
 	clonerQueue.setService(svc)
 	importerQueue.setService(svc)
@@ -169,7 +161,7 @@ func (svc *Service) GetRepositoryByInstallationAndRepoID(_ context.Context, inst
 	return svc.gitHubRepositoryRepo.GetByInstallationAndGitHubRepoID(installationID, repositoryID)
 }
 
-func (svc *Service) Push(ctx context.Context, gitHubRepository *github.Repository, change *changes.Change) error {
+func (svc *Service) Push(ctx context.Context, gitHubRepository *github.Repository, codebaseID codebases.ID) error {
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)
 	if err != nil {
 		return fmt.Errorf("failed to get github installation: %w", err)
@@ -209,7 +201,7 @@ func (svc *Service) Push(ctx context.Context, gitHubRepository *github.Repositor
 			return err
 		}
 		return nil
-	}).ExecTrunk(change.CodebaseID, "landChangePushTrackedToGitHub"); err != nil {
+	}).ExecTrunk(codebaseID, "landChangePushTrackedToGitHub"); err != nil {
 		logger.Error("failed to push to github (sturdy is source of truth)", zap.Error(err))
 		// save that the push failed
 		gitHubRepository.LastPushAt = &t

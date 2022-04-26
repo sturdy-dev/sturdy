@@ -137,7 +137,7 @@ func (r *resolver) Type() (resolvers.StatusType, error) {
 	switch r.status.Type {
 	case statuses.TypePending:
 		return resolvers.StatusTypePending, nil
-	case statuses.TypeHealty:
+	case statuses.TypeHealthy:
 		return resolvers.StatusTypeHealthy, nil
 	case statuses.TypeFailing:
 		return resolvers.StatusTypeFailing, nil

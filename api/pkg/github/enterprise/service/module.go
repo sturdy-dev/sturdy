@@ -5,7 +5,6 @@ import (
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_change "getsturdy.com/api/pkg/changes/service"
-	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	configuration "getsturdy.com/api/pkg/configuration/module"
@@ -17,6 +16,7 @@ import (
 	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	"getsturdy.com/api/pkg/logger"
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
+	queue "getsturdy.com/api/pkg/queue/module"
 	service_remote "getsturdy.com/api/pkg/remote/enterprise/service"
 	db_review "getsturdy.com/api/pkg/review/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
@@ -51,7 +51,7 @@ func Module(c *di.Container) {
 	c.Import(service_comments.Module)
 	c.Import(service_change.Module)
 	c.Import(service_remote.Module)
-	c.Import(workers_ci.Module)
+	c.Import(queue.Module)
 	c.Import(service_activity.Module)
 	c.Register(NewClonerQueue)
 	c.Register(NewImporterQueue)
