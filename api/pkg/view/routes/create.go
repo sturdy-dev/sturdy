@@ -16,7 +16,6 @@ import (
 	"getsturdy.com/api/pkg/view/vcs"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
-	"getsturdy.com/api/vcs/provider"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -79,9 +78,8 @@ func Create(
 
 		if err := executorProvider.New().
 			AllowRebasingState(). // allowed because the view does not exist yet
-			Schedule(func(repoProvider provider.RepoProvider) error {
-				return vcs.Create(repoProvider, req.CodebaseID, req.WorkspaceID, e.ID)
-			}).ExecView(req.CodebaseID, e.ID, "createView"); err != nil {
+			Schedule(vcs.Create(req.CodebaseID, req.WorkspaceID, e.ID)).
+			ExecView(req.CodebaseID, e.ID, "createView"); err != nil {
 			logger.Error("failed to create view", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "failed to create view"})
 			return

@@ -114,7 +114,7 @@ func (o *operation) openSuggestion(t *testing.T, test *test) {
 		CodebaseID: test.codebaseID,
 	}))
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), suggestingWorkspace.ID, db_workspaces.SetViewID(&test.suggestingViewID)))
-	assert.NoError(t, vcs_view.Create(test.repoProvider, test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID))
+	assert.NoError(t, vcs_view.Create(test.codebaseID, suggestingWorkspace.ID, test.suggestingViewID)(test.repoProvider))
 }
 
 func (o *operation) validate(t *testing.T, test *test) {
@@ -171,7 +171,7 @@ func (o *operation) setupOriginalView(t *testing.T, test *test) {
 	}))
 	test.originalWorkspace.ViewID = &test.originalViewID
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.originalWorkspace.ID, db_workspaces.SetViewID(&test.originalViewID)))
-	vcs_view.Create(test.repoProvider, test.codebaseID, test.originalWorkspace.ID, test.originalViewID)
+	vcs_view.Create(test.codebaseID, test.originalWorkspace.ID, test.originalViewID)(test.repoProvider)
 }
 
 func (o *operation) run(t *testing.T, test *test) {
