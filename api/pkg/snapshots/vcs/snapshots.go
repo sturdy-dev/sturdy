@@ -255,23 +255,3 @@ func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, snapshotID, snapshotCo
 
 	return nil
 }
-
-func Diff(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, snapshotCommitID, parentSnapshotCommitID string) ([]unidiff.FileDiff, error) {
-	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
-	if err != nil {
-		return nil, err
-	}
-
-	diffs, err := repo.DiffCommits(snapshotCommitID, parentSnapshotCommitID)
-	if err != nil {
-		return nil, err
-	}
-	defer diffs.Free()
-
-	res, err := unidiff.NewUnidiff(unidiff.NewGitPatchReader(diffs), logger).Decorate()
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}

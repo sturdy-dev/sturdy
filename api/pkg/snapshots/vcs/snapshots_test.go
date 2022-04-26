@@ -19,6 +19,26 @@ import (
 	"go.uber.org/zap"
 )
 
+func diffSnapshots(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, snapshotCommitID, parentSnapshotCommitID string) ([]unidiff.FileDiff, error) {
+	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
+	if err != nil {
+		return nil, err
+	}
+
+	diffs, err := repo.DiffCommits(snapshotCommitID, parentSnapshotCommitID)
+	if err != nil {
+		return nil, err
+	}
+	defer diffs.Free()
+
+	res, err := unidiff.NewUnidiff(unidiff.NewGitPatchReader(diffs), logger).Decorate()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func TestSnapshot(t *testing.T) {
 	reposBasePath, repoProvider := reposBasePath(t)
 	codebaseID := codebases.ID("codebaseID")
@@ -74,7 +94,7 @@ func TestSnapshot(t *testing.T) {
 	}
 
 	// Diff the snapshots
-	snapshotDiffs, err := Diff(zap.NewNop(), repoProvider, codebaseID, viewID, firstSnapshotCommitID, secondSnapshotCommitID)
+	snapshotDiffs, err := diffSnapshots(zap.NewNop(), repoProvider, codebaseID, viewID, firstSnapshotCommitID, secondSnapshotCommitID)
 	assert.NoError(t, err)
 	assert.Equal(t, []unidiff.FileDiff{
 		{
