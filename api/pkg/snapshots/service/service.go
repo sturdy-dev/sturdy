@@ -194,18 +194,13 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		return nil, fmt.Errorf("failed to get workspace: %w", err)
 	}
 
-	var latest *snapshots.Snapshot
+	latest, err := s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
 
 	if options.onView != nil {
-		// Find previous snapshot
-		var err error
-		latest, err = s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
-		}
-
-		_, err = s.suggestionsRepo.GetByWorkspaceID(context.TODO(), workspaceID)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if _, err := s.suggestionsRepo.GetByWorkspaceID(context.TODO(), workspaceID); err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
 		isSuggesting := err == nil
@@ -227,9 +222,41 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 	snapshotID := uuid.New().String()
 
 	var (
-		snapshotCommitID string
-		diffsCount       int32
+		snapshotCommitSHA string
+		diffsCount        int32
+		sameAsBefore      bool
 	)
+
+	compareTreeIDs := func(latest *snapshots.Snapshot, newSHA string) func(vcs.RepoGitReader) error {
+		if latest == nil {
+			return func(r vcs.RepoGitReader) error { return nil }
+		}
+		return func(repo vcs.RepoGitReader) error {
+			newCommit, err := repo.Commit(newSHA)
+			if err != nil {
+				return fmt.Errorf("can't get new commit %s: %w", snapshotCommitSHA, err)
+			}
+
+			previousCommit, err := repo.Commit(latest.CommitSHA)
+			if err != nil {
+				return fmt.Errorf("can't get previous commit %s: %w", latest.CommitSHA, err)
+			}
+
+			nt, err := newCommit.Tree()
+			if err != nil {
+				return fmt.Errorf("can't get new commit tree: %w", err)
+			}
+
+			pt, err := previousCommit.Tree()
+			if err != nil {
+				return fmt.Errorf("can't get previous commit tree: %w", err)
+			}
+
+			sameAsBefore = nt.Id().String() == pt.Id().String()
+
+			return nil
+		}
+	}
 
 	countDiffs := func(repo vcs.RepoReader) error {
 		gitDiffs, err := repo.CurrentDiffNoIndex()
@@ -264,9 +291,13 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 
 	if options.onTemporaryView && options.onExistingCommit != nil && options.onRepo != nil {
 		var err error
-		snapshotCommitID, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
+		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
 		if err != nil {
 			return nil, err
+		}
+
+		if err := compareTreeIDs(latest, snapshotCommitSHA)(options.onRepo); err != nil {
+			return nil, fmt.Errorf("can't compare trees: %w", err)
 		}
 	} else if options.onRepo != nil && options.onView != nil {
 		if err := countDiffs(options.onRepo); err != nil {
@@ -274,18 +305,16 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		}
 
 		var err error
-		snapshotCommitID, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, snapshotOptions...)
+		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, snapshotOptions...)
 		if err != nil {
 			return nil, err
+		}
+		if err := compareTreeIDs(latest, snapshotCommitSHA)(options.onRepo); err != nil {
+			return nil, fmt.Errorf("can't compare trees: %w", err)
 		}
 	} else if options.onRepo == nil {
 		// Run in a new executor
 		exec := s.executorProvider.New()
-		if !options.onTemporaryView {
-			exec = exec.AssertBranchName(workspaceID)
-		}
-		var err error
-
 		if options.revertCommitHeadBase != nil {
 			// Reverting snapshot
 			exec = exec.Write(func(repo vcs.RepoWriter) error {
@@ -293,7 +322,10 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 				if err != nil {
 					return err
 				}
-				snapshotCommitID = commitID
+				snapshotCommitSHA = commitID
+				if err := compareTreeIDs(latest, commitID)(repo); err != nil {
+					return fmt.Errorf("can't compare trees: %w", err)
+				}
 				return nil
 			})
 
@@ -308,13 +340,18 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 				if err != nil {
 					return err
 				}
-				snapshotCommitID = commitID
+				snapshotCommitSHA = commitID
+
+				if err := compareTreeIDs(latest, commitID)(repo); err != nil {
+					return fmt.Errorf("can't compare trees: %w", err)
+				}
 				return nil
 			})
 		}
 
+		var err error
 		if options.onTemporaryView {
-			err = exec.ExecTemporaryView(codebaseID, "snapshotOnTemporaryView")
+			err = exec.Write(vcs_view.CheckoutBranch(workspaceID)).ExecTemporaryView(codebaseID, "snapshotOnTemporaryView")
 		} else {
 			err = exec.ExecView(codebaseID, *options.onView, "snapshotOnView")
 		}
@@ -331,9 +368,14 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		return nil, fmt.Errorf("could not create snapshot, unrecognized combinations of options: %+v", options)
 	}
 
+	isLatestDeleted := latest != nil && latest.IsDeleted()
+	if shouldSnapshot := !sameAsBefore || isLatestDeleted; !shouldSnapshot {
+		return latest, nil
+	}
+
 	snap := &snapshots.Snapshot{
 		ID:          snapshotID,
-		CommitSHA:   snapshotCommitID,
+		CommitSHA:   snapshotCommitSHA,
 		CreatedAt:   time.Now(),
 		WorkspaceID: workspaceID,
 		CodebaseID:  codebaseID,

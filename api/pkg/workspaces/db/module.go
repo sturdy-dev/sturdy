@@ -18,4 +18,8 @@ func TestModule(c *di.Container) {
 	c.Register(func(repo Repository) WorkspaceReader {
 		return repo
 	})
+	c.Register(func(repo Repository) WorkspaceWriter {
+		return repo
+	})
+
 }

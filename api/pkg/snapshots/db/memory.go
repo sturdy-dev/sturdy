@@ -40,8 +40,9 @@ func (f *snapshotRepo) Get(ID string) (*snapshots.Snapshot, error) {
 	return nil, sql.ErrNoRows
 }
 
-func (f *snapshotRepo) Update(*snapshots.Snapshot) error {
-	panic("not implemented")
+func (f *snapshotRepo) Update(s *snapshots.Snapshot) error {
+	f.byID[s.ID] = s
+	return nil
 }
 
 func (f *snapshotRepo) GetByCommitSHA(_ context.Context, sha string) (*snapshots.Snapshot, error) {

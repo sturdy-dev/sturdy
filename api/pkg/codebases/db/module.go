@@ -10,3 +10,8 @@ func Module(c *di.Container) {
 	c.Register(NewCodebaseUserRepo)
 	c.Register(NewRepo)
 }
+
+func TestModule(c *di.Container) {
+	c.Register(NewInMemoryCodebaseUserRepo)
+	c.Register(NewMemory)
+}

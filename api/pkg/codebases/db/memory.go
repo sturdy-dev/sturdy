@@ -7,15 +7,13 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 )
 
-var _ CodebaseRepository = &memory{}
-
 type memory struct {
 	byShortID    map[codebases.ShortCodebaseID]*codebases.Codebase
 	byInviteCode map[string]*codebases.Codebase
 	byID         map[codebases.ID]*codebases.Codebase
 }
 
-func NewMemory() *memory {
+func NewMemory() CodebaseRepository {
 	return &memory{
 		byShortID:    make(map[codebases.ShortCodebaseID]*codebases.Codebase),
 		byInviteCode: make(map[string]*codebases.Codebase),
