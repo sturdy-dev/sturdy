@@ -11,12 +11,14 @@ import (
 	"getsturdy.com/api/pkg/queue/names"
 	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	"getsturdy.com/api/pkg/users"
+	service_users "getsturdy.com/api/pkg/users/service"
 
 	"go.uber.org/zap"
 )
 
 type Queue interface {
-	Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, action snapshots.Action) error
+	Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, userID users.ID, action snapshots.Action) error
 	Start(ctx context.Context) error
 }
 
@@ -26,26 +28,30 @@ type q struct {
 	name   names.IncompleteQueueName
 
 	snapshotter *service_snapshots.Service
+	userService service_users.Service
 }
 
 func New(
 	logger *zap.Logger,
 	queue queue.Queue,
 	snapshotter *service_snapshots.Service,
+	userService service_users.Service,
 ) Queue {
 	return &q{
 		logger:      logger.Named("snapshotterQueue"),
 		queue:       queue,
 		name:        names.ViewSnapshot,
 		snapshotter: snapshotter,
+		userService: userService,
 	}
 }
 
-func (q *q) Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, action snapshots.Action) error {
+func (q *q) Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, workspaceID string, userID users.ID, action snapshots.Action) error {
 	if err := q.queue.Publish(ctx, q.name, &SnapshotQueueEntry{
 		CodebaseID:  codebaseID,
 		ViewID:      viewID,
 		WorkspaceID: workspaceID,
+		UserID:      &userID,
 		Action:      action,
 	}); err != nil {
 		return fmt.Errorf("failed to publish message: %w", err)
@@ -56,6 +62,7 @@ func (q *q) Enqueue(ctx context.Context, codebaseID codebases.ID, viewID, worksp
 type SnapshotQueueEntry struct {
 	CodebaseID  codebases.ID     `json:"codebase_id"`
 	ViewID      string           `json:"view_id"`
+	UserID      *users.ID        `json:"user_id"` // nullable for backwards compatability
 	WorkspaceID string           `json:"workspace_id"`
 	Action      snapshots.Action `json:"action"`
 }
@@ -85,11 +92,23 @@ func (q *q) Start(ctx context.Context) error {
 				zap.Stringer("action", m.Action),
 			)
 
+			var options []service_snapshots.SnapshotOption
+			options = append(options, service_snapshots.WithOnView(m.ViewID))
+
+			if m.UserID != nil {
+				if user, err := q.userService.GetByID(ctx, *m.UserID); err != nil {
+					logger.Error("failed to get user", zap.Error(err))
+					// don't fail
+				} else {
+					options = append(options, service_snapshots.WithUser(user))
+				}
+			}
+
 			if _, err := q.snapshotter.Snapshot(
 				m.CodebaseID,
 				m.WorkspaceID,
 				m.Action,
-				service_snapshots.WithOnView(m.ViewID),
+				options...,
 			); errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
 				logger.Warn("failed to make snapshot", zap.Error(err))
 				continue

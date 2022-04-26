@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	git "github.com/libgit2/git2go/v33"
+
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/codebases"
@@ -18,6 +20,7 @@ import (
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
+	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
 	vcs_view "getsturdy.com/api/pkg/view/vcs"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
@@ -37,6 +40,7 @@ type SnapshotOptions struct {
 	onExistingCommit        *string
 	markAsLatestInWorkspace bool
 	withNoThrottle          bool
+	withUser                *users.User
 }
 
 type SnapshotOption func(*SnapshotOptions)
@@ -89,6 +93,12 @@ func WithMarkAsLatestInWorkspace() SnapshotOption {
 func WithNoThrottle() SnapshotOption {
 	return func(opts *SnapshotOptions) {
 		opts.withNoThrottle = true
+	}
+}
+
+func WithUser(u *users.User) SnapshotOption {
+	return func(opts *SnapshotOptions) {
+		opts.withUser = u
 	}
 }
 
@@ -281,6 +291,16 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		return nil
 	}
 
+	gitSignature := git.Signature{
+		Name:  "Sturdy",
+		Email: "support@getsturdy.com",
+		When:  time.Now(),
+	}
+	if options.withUser != nil {
+		gitSignature.Name = options.withUser.Name
+		gitSignature.Email = options.withUser.Email
+	}
+
 	var snapshotOptions []vcs_snapshots.SnapshotOption
 	if options.patchIDsFilter != nil {
 		snapshotOptions = append(snapshotOptions, vcs_snapshots.WithPatchIDsFilter(*options.patchIDsFilter))
@@ -288,6 +308,9 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 	if options.revertCommitHeadBase != nil {
 		snapshotOptions = append(snapshotOptions, vcs_snapshots.WithRevert(*options.revertCommitHeadBase[0], options.revertCommitHeadBase[1]))
 	}
+
+	// TODO: add the workspace name to the commit message
+	snapshotOptions = append(snapshotOptions, vcs_snapshots.WithCommitMessage("Snapshot of "+workspaceID))
 
 	if options.onTemporaryView && options.onExistingCommit != nil && options.onRepo != nil {
 		var err error
@@ -305,7 +328,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		}
 
 		var err error
-		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, snapshotOptions...)
+		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -336,7 +359,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 			// Normal snapshot
 			exec = exec.Read(countDiffs)
 			exec = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
-				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, snapshotOptions...)
+				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 				if err != nil {
 					return err
 				}
@@ -554,18 +577,25 @@ func (s *Service) diffs(ctx context.Context, snapshot *snapshots.Snapshot, oo ..
 }
 
 type CopyOptions struct {
-	PatchIDs *[]string
+	patchIDs *[]string
+	withUser *users.User
 }
 
 type CopyOption func(*CopyOptions)
 
 func CopyWithPatchIDs(patchIDs []string) CopyOption {
 	return func(options *CopyOptions) {
-		if options.PatchIDs == nil {
-			options.PatchIDs = &patchIDs
+		if options.patchIDs == nil {
+			options.patchIDs = &patchIDs
 		} else {
-			*options.PatchIDs = append(*options.PatchIDs, patchIDs...)
+			*options.patchIDs = append(*options.patchIDs, patchIDs...)
 		}
+	}
+}
+
+func CopyWithUser(user *users.User) CopyOption {
+	return func(options *CopyOptions) {
+		options.withUser = user
 	}
 }
 
@@ -586,8 +616,8 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 
 	diffOptions := []DiffsOption{}
 	options := getCopyOptions(oo...)
-	if options.PatchIDs != nil {
-		diffOptions = append(diffOptions, DiffWithPatchIDs(*options.PatchIDs))
+	if options.patchIDs != nil {
+		diffOptions = append(diffOptions, DiffWithPatchIDs(*options.patchIDs))
 	}
 
 	diffs, err := s.diffs(ctx, snapshot, diffOptions...)
@@ -611,6 +641,16 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 		DiffsCount:  snapshot.DiffsCount,
 	}
 
+	gitSignature := git.Signature{
+		Name:  "Sturdy",
+		Email: "support@getsturdy.com",
+		When:  time.Now(),
+	}
+	if options.withUser != nil {
+		gitSignature.Name = options.withUser.Name
+		gitSignature.Email = options.withUser.Email
+	}
+
 	if err := s.executorProvider.New().
 		Write(vcs_view.CheckoutBranch(snapshot.WorkspaceID)).
 		Write(func(repo vcs.RepoWriter) error {
@@ -618,7 +658,7 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 				return fmt.Errorf("failed to apply patches to workdir: %w", err)
 			}
 
-			commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID)
+			commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID, gitSignature)
 			if err != nil {
 				return fmt.Errorf("failed to snapshot on view repo: %w", err)
 			}

@@ -106,6 +106,7 @@ type RepoReader interface {
 
 	AddFilesToIndex(files []string) (*git.Oid, error)
 	AddAndCommit(msg string) (string, error)
+	AddAndCommitWithSignature(msg string, sig git.Signature) (string, error)
 
 	LargeFilesClean(codebaseID codebases.ID, paths []string) ([][]byte, error)
 

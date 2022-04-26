@@ -75,7 +75,7 @@ func SyncTransitions(
 		}
 
 		// Make a snapshot
-		if err := snapshotterQueue.Enqueue(c, req.CodebaseID, req.ViewID, view.WorkspaceID, snapshots.ActionViewSync); err != nil {
+		if err := snapshotterQueue.Enqueue(c, req.CodebaseID, req.ViewID, view.WorkspaceID, view.UserID, snapshots.ActionViewSync); err != nil {
 			logger.Error("failed to snapshot", zap.Error(err))
 			// Don't fail
 		}
