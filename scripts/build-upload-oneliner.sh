@@ -16,6 +16,7 @@ DOCKER_VERSION_TAG_ARG=""
 PUSH_ARG=""
 LATEST_VERSION="$(curl -s https://registry.hub.docker.com/v1/repositories/getsturdy/server/tags | jq -r '.[].name' | grep -v cache | tail -1)"
 VERSION=""
+TAG_LATEST=0
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -58,6 +59,10 @@ while [[ $# -gt 0 ]]; do
 		PUSH_ARG="--push"
 		shift
 		;;
+	--latest)
+		TAG_LATEST=1
+		shift
+		;;
 	esac
 done
 
@@ -69,7 +74,15 @@ fi
 
 echo "image: ${IMAGE}"
 echo "version: ${VERSION}"
-sleep 1
+
+if (( TAG_LATEST )); then
+  echo "tagging image as :latest"
+  DOCKER_VERSION_TAG_ARG="${DOCKER_VERSION_TAG_ARG} --tag ${IMAGE}:latest"
+else
+  echo "NOT tagging image as :latest (add --latest to tag it)"
+fi
+
+sleep 2
 echo
 
 docker buildx build \
@@ -79,7 +92,6 @@ docker buildx build \
 	--cache-from=getsturdy/server:cache \
 	--build-arg API_BUILD_TAGS=enterprise \
 	--build-arg VERSION="${VERSION}" \
-	--tag "${IMAGE}:latest" \
 	${DOCKER_VERSION_TAG_ARG} \
 	${PUSH_ARG} \
 	"$CWD/.."
