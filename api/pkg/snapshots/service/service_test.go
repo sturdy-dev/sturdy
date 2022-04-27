@@ -2,6 +2,8 @@ package service_test
 
 import (
 	"context"
+	"os"
+	"path"
 	"testing"
 
 	"getsturdy.com/api/pkg/codebases"
@@ -12,6 +14,7 @@ import (
 	db_installations "getsturdy.com/api/pkg/installations/db"
 	"getsturdy.com/api/pkg/logger"
 	module_queue "getsturdy.com/api/pkg/queue/module"
+	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
@@ -20,6 +23,7 @@ import (
 	service_view "getsturdy.com/api/pkg/view/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/testutil"
 
@@ -45,7 +49,7 @@ func testModule(t *testing.T) di.Module {
 		c.ImportWithForce(configuration.TestModule)
 		c.RegisterWithForce(logger.NewTest)
 
-		c.RegisterWithForce(func() *sqlx.DB { return nil }) // make sure db is not used
+		c.RegisterWithForce(func() *sqlx.DB { return nil })
 		c.Register(func() *testing.T { return t })
 		c.RegisterWithForce(testutil.TestingRepoProvider)
 	}
@@ -58,8 +62,10 @@ type testCase struct {
 	viewService      *service_view.Service
 	executorProvider executor.Provider
 
-	userID     users.ID
-	codebaseID codebases.ID
+	userID      users.ID
+	codebaseID  codebases.ID
+	workspaceID string
+	viewID      string
 }
 
 func setup(t *testing.T) *testCase {
@@ -79,32 +85,68 @@ func setup(t *testing.T) *testCase {
 	assert.NoError(t, err)
 	tc.codebaseID = cb.ID
 
+	ws, err := tc.workspaceService.Create(ctx, service_workspace.CreateWorkspaceRequest{UserID: userID, CodebaseID: cb.ID})
+	assert.NoError(t, err)
+	tc.workspaceID = ws.ID
+
+	vw, err := tc.viewService.Create(ctx, userID, ws, nil, nil)
+	assert.NoError(t, err)
+	tc.viewID = vw.ID
+
 	return tc
 }
 
-func TestCreate_no_name(t *testing.T) {
+func TestSnapshot_noChanges(t *testing.T) {
 	tc := setup(t)
 
-	ctx := context.Background()
-
-	ws, err := tc.workspaceService.Create(ctx, service_workspace.CreateWorkspaceRequest{
-		UserID:     tc.userID,
-		CodebaseID: tc.codebaseID,
-	})
+	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
-	assert.Equal(t, "Untitled draft", *ws.Name)
+
+	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.Equal(t, snapOnce.ID, snapTwice.ID, "snapshots must be identical, no changes were made")
 }
 
-func TestCreate_with_name(t *testing.T) {
+func TestSnapshot_noChangesDeleted(t *testing.T) {
 	tc := setup(t)
 
-	ctx := context.Background()
-
-	ws, err := tc.workspaceService.Create(ctx, service_workspace.CreateWorkspaceRequest{
-		UserID:     tc.userID,
-		CodebaseID: tc.codebaseID,
-		Name:       "test",
-	})
+	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
-	assert.Equal(t, "test", *ws.Name)
+
+	assert.NoError(t, tc.snapshotService.Delete(context.Background(), snapOnce))
+
+	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, the first one was removed")
+}
+
+func TestSnapshot_changes(t *testing.T) {
+	tc := setup(t)
+
+	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
+
+	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, changes were made")
+}
+
+func writeFile(filename string, content []byte) func(vcs.RepoWriter) error {
+	return func(repo vcs.RepoWriter) error {
+		file, err := os.Create(path.Join(repo.Path(), filename))
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		if _, err := file.Write(content); err != nil {
+			return err
+		}
+		return nil
+	}
 }
