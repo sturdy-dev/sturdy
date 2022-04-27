@@ -14,6 +14,7 @@ type Repository interface {
 	Create(snapshot *snapshots.Snapshot) error
 	LatestInWorkspace(context.Context, string) (*snapshots.Snapshot, error)
 	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
+	GetByPreviousSnapshotID(context.Context, string) (*snapshots.Snapshot, error)
 	ListByIDs(context.Context, []string) ([]*snapshots.Snapshot, error)
 	Get(string) (*snapshots.Snapshot, error)
 	Update(snapshot *snapshots.Snapshot) error
@@ -97,4 +98,18 @@ func (r *dbrepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snap
 		return nil, fmt.Errorf("failed to list by ids: %w", err)
 	}
 	return res, nil
+}
+
+func (r *dbrepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID string) (*snapshots.Snapshot, error) {
+	var res snapshots.Snapshot
+	if err := r.db.GetContext(ctx, &res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
+		FROM snapshots
+		WHERE previous_snapshot_id = $1
+		AND deleted_at is NULL
+		ORDER BY created_at DESC
+		LIMIT 1
+	`, previousSnapshotID); err != nil {
+		return nil, fmt.Errorf("failed to get by previous snapshot id: %w", err)
+	}
+	return &res, nil
 }
