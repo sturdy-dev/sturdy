@@ -1,0 +1,1 @@
+DROP INDEX snapshots_previous_snapshot_id_idx;

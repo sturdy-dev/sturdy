@@ -87,6 +87,11 @@ type Mutation {
   # Extracts selected patches from the workspace into a new workspace.
   extractWorkspace(input: ExtractWorkspaceInput!): Workspace!
 
+  # undo the most recent workspace chagnes
+  undoWorkspace(id: ID!): Workspace!
+  # redo the most recent workspace undo
+  redoWorkspace(id: ID!): Workspace!
+
   deleteComment(id: ID!): Comment!
   resolveComment(id: ID!): Comment!
   updateComment(input: UpdateCommentInput!): Comment!

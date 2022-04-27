@@ -198,6 +198,73 @@ func (s *Service) GetByID(ctx context.Context, id string) (*workspaces.Workspace
 	return s.workspaceReader.Get(id)
 }
 
+var (
+	ErrNothingToUndo = errors.New("nothing to undo")
+	ErrNothingToRedo = errors.New("nothing to redo")
+)
+
+func (s *Service) Redo(ctx context.Context, ws *workspaces.Workspace) error {
+	if ws.LatestSnapshotID == nil {
+		return ErrNothingToRedo
+	}
+
+	latestSnapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrNothingToRedo
+	} else if err != nil {
+		return fmt.Errorf("failed to get latest snapshot: %w", err)
+	}
+
+	if latestSnapshot.PreviousSnapshotID == nil {
+		return ErrNothingToRedo
+	}
+
+	nextSnapshot, err := s.snap.Next(ctx, latestSnapshot)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrNothingToRedo
+	} else if err != nil {
+		return fmt.Errorf("failed to get next snapshot: %w", err)
+	}
+
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&nextSnapshot.ID)); err != nil {
+		return fmt.Errorf("failed to update workspace: %w", err)
+	}
+	ws.LatestSnapshotID = &nextSnapshot.ID
+
+	return nil
+}
+
+func (s *Service) Undo(ctx context.Context, ws *workspaces.Workspace) error {
+	if ws.LatestSnapshotID == nil {
+		return ErrNothingToUndo
+	}
+
+	latestSnapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrNothingToUndo
+	} else if err != nil {
+		return fmt.Errorf("failed to get latest snapshot: %w", err)
+	}
+
+	if latestSnapshot.PreviousSnapshotID == nil {
+		return ErrNothingToUndo
+	}
+
+	previousSnapshot, err := s.snap.GetByID(ctx, *latestSnapshot.PreviousSnapshotID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrNothingToUndo
+	} else if err != nil {
+		return fmt.Errorf("failed to get previous snapshot: %w", err)
+	}
+
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&previousSnapshot.ID)); err != nil {
+		return fmt.Errorf("failed to update workspace: %w", err)
+	}
+	ws.LatestSnapshotID = latestSnapshot.PreviousSnapshotID
+
+	return nil
+}
+
 type CopyPatchesOptions struct {
 	PatchIDs *[]string
 }

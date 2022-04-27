@@ -159,6 +159,11 @@ func (s *Service) GetByID(_ context.Context, id string) (*snapshots.Snapshot, er
 	return s.snapshotsRepo.Get(id)
 }
 
+// Next returns a snapshot that references the given snapshot as a previous.
+func (s *Service) Next(ctx context.Context, snapshot *snapshots.Snapshot) (*snapshots.Snapshot, error) {
+	return s.snapshotsRepo.GetByPreviousSnapshotID(ctx, snapshot.ID)
+}
+
 var (
 	ErrCantSnapshotRebasing    = errors.New("can't snapshot, rebasing in progress")
 	ErrCantSnapshotWrongBranch = errors.New("can't snapshot, unexpected branch")

@@ -73,6 +73,14 @@ type UpdatedWorkspaceDiffsArgs struct {
 	WorkspaceID graphql.ID
 }
 
+type UndoWorkspaceArgs struct {
+	ID graphql.ID
+}
+
+type RedoWorkspaceArgs struct {
+	ID graphql.ID
+}
+
 type WorkspaceRootResolver interface {
 	// internal
 	InternalWorkspace(*workspaces.Workspace) WorkspaceResolver
@@ -87,6 +95,8 @@ type WorkspaceRootResolver interface {
 	CreateWorkspace(ctx context.Context, args CreateWorkspaceArgs) (WorkspaceResolver, error)
 	ExtractWorkspace(ctx context.Context, args ExtractWorkspaceArgs) (WorkspaceResolver, error)
 	RemovePatches(context.Context, RemovePatchesArgs) (WorkspaceResolver, error)
+	UndoWorkspace(context.Context, UndoWorkspaceArgs) (WorkspaceResolver, error)
+	RedoWorkspace(context.Context, RedoWorkspaceArgs) (WorkspaceResolver, error)
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)

@@ -58,3 +58,12 @@ func (f *snapshotRepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshot
 	}
 	return res, nil
 }
+
+func (r *snapshotRepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID string) (*snapshots.Snapshot, error) {
+	for _, snap := range r.byID {
+		if snap.PreviousSnapshotID != nil && *snap.PreviousSnapshotID == previousSnapshotID {
+			return snap, nil
+		}
+	}
+	return nil, sql.ErrNoRows
+}
