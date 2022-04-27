@@ -36,8 +36,7 @@ func SetupWithTimeout(dbSourceURL string, timeout time.Duration) (*sqlx.DB, erro
 				continue
 			}
 
-			_, err = db.Exec("SELECT 1")
-			if err != nil {
+			if _, err := db.Exec("SELECT 1"); err != nil {
 				log.Println("error opening db, retrying...", zap.Error(err))
 				continue
 			}
