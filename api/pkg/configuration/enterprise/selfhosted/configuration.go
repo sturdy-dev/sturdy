@@ -1,6 +1,10 @@
 package selfhosted
 
 import (
+	"errors"
+	"fmt"
+	"os"
+
 	proxy "getsturdy.com/api/pkg/analytics/proxy/configuration"
 	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/github/enterprise/config"
@@ -21,6 +25,12 @@ func New() (Configuration, error) {
 	cfg := Configuration{}
 
 	parser := flags.NewParser(&cfg, flags.HelpFlag)
-	_, err := parser.Parse()
-	return cfg, err
+	var flagsErr *flags.Error
+	if _, err := parser.Parse(); errors.As(err, &flagsErr) && flagsErr.Type == flags.ErrHelp {
+		fmt.Fprintln(os.Stdout, err.Error())
+		os.Exit(0)
+		panic("unreachable")
+	} else {
+		return cfg, err
+	}
 }
