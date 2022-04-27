@@ -104,10 +104,22 @@ export default defineComponent({
       this.triggering = true
       this.triggerInstantIntegration({
         workspaceID: this.workspace.id,
-      }).finally(() => {
-        this.triggering = false
-        this.triggered = true
       })
+        .then(() => {
+          this.triggered = true
+        })
+        .catch(() => {
+          this.emitter.emit('notification', {
+            title: 'Failed to Trigger CI',
+            message: 'Please try again later.',
+            style: 'error',
+          })
+          this.triggering = false
+          this.triggered = false
+        })
+        .finally(() => {
+          this.triggering = false
+        })
     },
   },
 })
