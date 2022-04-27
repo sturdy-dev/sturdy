@@ -15,17 +15,22 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/configuration"
 	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/internal/dbtest"
 	queue "getsturdy.com/api/pkg/queue/module"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 	"getsturdy.com/api/vcs/provider"
 )
 
-func module(c *di.Container) {
-	// TODO: reduce scope
-	c.Import(module_api.Module)
-	c.ImportWithForce(configuration.TestModule)
-	c.ImportWithForce(queue.TestModule)
+func module(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		// TODO: reduce scope
+		c.Import(module_api.Module)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(queue.TestModule)
+		c.Register(func() *testing.T { return t })
+		c.RegisterWithForce(dbtest.DB)
+	}
 }
 
 func TestChangelog(t *testing.T) {
@@ -38,7 +43,7 @@ func TestChangelog(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(module(t)).To(&d)) {
 		t.FailNow()
 	}
 
@@ -111,7 +116,7 @@ func Test_Parent_Child_navigation(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(module(t)).To(&d)) {
 		t.FailNow()
 	}
 
