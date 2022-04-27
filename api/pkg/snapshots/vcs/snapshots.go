@@ -7,9 +7,9 @@ import (
 
 	vcs_change "getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/vcs"
-	"getsturdy.com/api/vcs/provider"
 
 	git "github.com/libgit2/git2go/v33"
 	"go.uber.org/zap"
@@ -227,12 +227,10 @@ func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID, existingCommit
 	return existingCommitID, nil
 }
 
-func Restore(logger *zap.Logger, viewProvider provider.ViewProvider, codebaseID codebases.ID, viewID, snapshotID, snapshotCommitID string) error {
-	repo, err := viewProvider.ViewRepo(codebaseID, viewID)
-	if err != nil {
-		return err
+func Restore(logger *zap.Logger, snapshot *snapshots.Snapshot) func(vcs.RepoWriter) error {
+	return func(repo vcs.RepoWriter) error {
+		return RestoreRepo(logger, repo, snapshot.ID, snapshot.CommitSHA)
 	}
-	return RestoreRepo(logger, repo, snapshotID, snapshotCommitID)
 }
 
 func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, snapshotID, snapshotCommitID string) error {

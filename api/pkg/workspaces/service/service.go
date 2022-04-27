@@ -17,6 +17,7 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
@@ -222,6 +223,18 @@ func (s *Service) Redo(ctx context.Context, ws *workspaces.Workspace) error {
 		return fmt.Errorf("failed to get next snapshot: %w", err)
 	}
 
+	if ws.ViewID != nil {
+		view, err := s.viewService.GetByID(ctx, *ws.ViewID)
+		if err != nil {
+			return fmt.Errorf("failed to get view: %w", err)
+		}
+		if err := s.executorProvider.New().
+			Write(vcs_snapshots.Restore(s.logger, nextSnapshot)).
+			ExecView(view.CodebaseID, view.ID, "undoWorkspace"); err != nil {
+			return fmt.Errorf("failed to restore view: %w", err)
+		}
+	}
+
 	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&nextSnapshot.ID)); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
@@ -251,6 +264,18 @@ func (s *Service) Undo(ctx context.Context, ws *workspaces.Workspace) error {
 		return ErrNothingToUndo
 	} else if err != nil {
 		return fmt.Errorf("failed to get previous snapshot: %w", err)
+	}
+
+	if ws.ViewID != nil {
+		view, err := s.viewService.GetByID(ctx, *ws.ViewID)
+		if err != nil {
+			return fmt.Errorf("failed to get view: %w", err)
+		}
+		if err := s.executorProvider.New().
+			Write(vcs_snapshots.Restore(s.logger, previousSnapshot)).
+			ExecView(view.CodebaseID, view.ID, "undoWorkspace"); err != nil {
+			return fmt.Errorf("failed to restore view: %w", err)
+		}
 	}
 
 	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&previousSnapshot.ID)); err != nil {
