@@ -215,10 +215,6 @@ func (s *Service) Redo(ctx context.Context, ws *workspaces.Workspace) error {
 		return fmt.Errorf("failed to get latest snapshot: %w", err)
 	}
 
-	if latestSnapshot.PreviousSnapshotID == nil {
-		return ErrNothingToRedo
-	}
-
 	nextSnapshot, err := s.snap.Next(ctx, latestSnapshot)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrNothingToRedo
