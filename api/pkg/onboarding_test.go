@@ -31,6 +31,7 @@ import (
 	gqldataloader "getsturdy.com/api/pkg/graphql/dataloader"
 	gqlerror "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/internal/dbtest"
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
@@ -57,11 +58,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func testModule(c *di.Container) {
-	c.Import(api.Module)
-	c.ImportWithForce(configuration.TestModule)
-	c.ImportWithForce(queue.TestModule)
-	c.ImportWithForce(module.TestModule)
+func testModule(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Import(api.Module)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(queue.TestModule)
+		c.ImportWithForce(module.TestModule)
+		c.Register(func() *testing.T { return t })
+		c.RegisterWithForce(dbtest.DB)
+	}
 }
 
 func TestCreate(t *testing.T) {
@@ -99,7 +104,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(testModule).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
 
@@ -552,7 +557,7 @@ func TestLandEmpty(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(testModule).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
 
@@ -689,7 +694,7 @@ func TestLargeFiles(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(testModule).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
 
