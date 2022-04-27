@@ -8,19 +8,13 @@ import (
 )
 
 type Service interface {
-	CreateBuild(ctx context.Context, codebaseID codebases.ID, snapshotCommitSha, title, branchName string) (*Build, error)
-}
-
-type Build struct {
-	Name        string
-	Description *string
-	URL         string
+	CreateBuild(ctx context.Context, codebaseID codebases.ID, snapshotCommitSha, branchName string) error
 }
 
 type svc struct{}
 
-func (s svc) CreateBuild(ctx context.Context, codebaseID codebases.ID, snapshotCommitSha, title, branchName string) (*Build, error) {
-	return nil, fmt.Errorf("CreateBuild is not implemented in this version of Sturdy")
+func (s svc) CreateBuild(ctx context.Context, codebaseID codebases.ID, snapshotCommitSha, branchName string) error {
+	return fmt.Errorf("CreateBuild is not implemented in this version of Sturdy")
 }
 
 func New() Service {
