@@ -1,23 +1,25 @@
 <template>
   <Tooltip v-if="workspace.statuses.length > 0" :disabled="!isStale">
-    <template #tooltip> Draft changed since the last run </template>
+    <template #tooltip> Draft changed since the last run</template>
     <template #default>
       <StatusDetails :statuses="workspace.statuses" :stale="isStale" />
     </template>
   </Tooltip>
 
   <Button
-    v-if="(workspace.statuses.length == 0 && ciEnabled) || isStale"
+    v-if="
+      (workspace.statuses.length == 0 && ciEnabled) || isStale || triggeredAndWaitingForStatuses
+    "
     :icon="terminalIcon"
-    :spinner="triggering"
+    :spinner="triggering || triggeredAndWaitingForStatuses"
     class="border-0 -ml-3"
     @click="onTriggerClicked"
-    >Trigger CI</Button
-  >
+    >Trigger CI
+  </Button>
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType, toRefs } from 'vue'
+import { computed, defineComponent, type PropType, toRefs } from 'vue'
 import { gql } from '@urql/vue'
 
 import StatusDetails, { STATUS_FRAGMENT } from '../components/statuses/StatusDetails.vue'
@@ -44,6 +46,10 @@ export const WORKSPACE_FRAGMENT = gql`
         id
         provider
       }
+      gitHubIntegration {
+        id
+        enabled
+      }
     }
   }
   ${STATUS_FRAGMENT}
@@ -58,23 +64,39 @@ export default defineComponent({
   },
   setup(props) {
     const { workspace } = toRefs(props)
-    const ciEnabled = workspace.value.codebase.integrations.some(({ provider }) =>
-      ciProviders.includes(provider)
-    )
-    if (ciEnabled) {
-      useUpdatedWorkspacesStatuses([workspace.value.id])
-    }
+
+    const ciEnabled = computed(() => {
+      const hasCiProvider = workspace.value.codebase.integrations.some(({ provider }) =>
+        ciProviders.includes(provider)
+      )
+      if (hasCiProvider) return true
+
+      // github it not a "integration", requires some special treatment
+      if (workspace.value.codebase?.gitHubIntegration?.enabled) {
+        return true
+      }
+
+      return false
+    })
+
+    const workspaceIds = computed(() => [workspace.value.id])
+    useUpdatedWorkspacesStatuses(workspaceIds)
+
     const triggerInstantIntegration = useTriggerInstantIntegration()
     return { triggerInstantIntegration, terminalIcon: TerminalIcon, ciEnabled }
   },
   data() {
     return {
       triggering: false,
+      triggered: false,
     }
   },
   computed: {
     isStale() {
       return this.workspace.statuses.some(({ stale }) => stale)
+    },
+    triggeredAndWaitingForStatuses() {
+      return this.triggered && !this.workspace.statuses.length
     },
   },
   methods: {
@@ -82,7 +104,10 @@ export default defineComponent({
       this.triggering = true
       this.triggerInstantIntegration({
         workspaceID: this.workspace.id,
-      }).finally(() => (this.triggering = false))
+      }).finally(() => {
+        this.triggering = false
+        this.triggered = true
+      })
     },
   },
 })

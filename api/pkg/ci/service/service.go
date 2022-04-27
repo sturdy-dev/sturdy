@@ -17,6 +17,7 @@ import (
 	db_ci "getsturdy.com/api/pkg/ci/db"
 	"getsturdy.com/api/pkg/ci/service/configuration"
 	"getsturdy.com/api/pkg/codebases"
+	service_github "getsturdy.com/api/pkg/github/service"
 	"getsturdy.com/api/pkg/integrations"
 	db_integrations "getsturdy.com/api/pkg/integrations/db"
 	"getsturdy.com/api/pkg/integrations/providers"
@@ -48,6 +49,7 @@ type Service struct {
 	ciCommitRepo db_ci.CommitRepository
 
 	buildkiteService service_buildkite.Service
+	githubService    service_github.Service
 
 	publicApiHostname string
 	statusService     *svc_statuses.Service
@@ -63,6 +65,7 @@ func New(
 	ciCommitRepo db_ci.CommitRepository,
 
 	buildkiteService service_buildkite.Service,
+	githubService service_github.Service,
 
 	cfg *configuration.Configuration,
 	statusService *svc_statuses.Service,
@@ -77,6 +80,7 @@ func New(
 		ciCommitRepo: ciCommitRepo,
 
 		buildkiteService: buildkiteService,
+		githubService:    githubService,
 
 		publicApiHostname: cfg.PublicAPIHostname,
 		statusService:     statusService,
@@ -420,6 +424,15 @@ func (svc *Service) TriggerWorkspace(ctx context.Context, workspace *workspaces.
 
 		default:
 			return nil, fmt.Errorf("unsupported provider: %s", config.Provider)
+		}
+	}
+
+	// if the codebase has a github integration, trigger ci via github as well
+	// this does not set a status directly, statuses will be set when we receive webhooks from GitHub (if any)
+	// TODO: better failure if the codebase has no github integration
+	if options.Providers == nil || (*options.Providers)[providers.ProviderNameGithub] {
+		if err := svc.githubService.CreateBuild(ctx, workspace.CodebaseID, snapshot.CommitSHA, "sturdy-ci-"+workspace.ID); err != nil {
+			return nil, fmt.Errorf("failed to trigger github build workspace: %w", err)
 		}
 	}
 
