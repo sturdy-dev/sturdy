@@ -1,6 +1,10 @@
 package cloud
 
 import (
+	"errors"
+	"fmt"
+	"os"
+
 	posthog "getsturdy.com/api/pkg/analytics/enterprise/cloud/posthog/configuration"
 	aws "getsturdy.com/api/pkg/aws/enterprise/cloud/configuration"
 	"getsturdy.com/api/pkg/configuration"
@@ -27,6 +31,12 @@ func New() (Configuration, error) {
 	cfg := Configuration{}
 
 	parser := flags.NewParser(&cfg, flags.HelpFlag)
-	_, err := parser.Parse()
-	return cfg, err
+	var flagsErr *flags.Error
+	if _, err := parser.Parse(); errors.As(err, &flagsErr) && flagsErr.Type == flags.ErrHelp {
+		fmt.Fprintln(os.Stdout, err.Error())
+		os.Exit(0)
+		panic("unreachable")
+	} else {
+		return cfg, err
+	}
 }
