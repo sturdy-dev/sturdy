@@ -235,7 +235,7 @@ func (r *WorkspaceRootResolver) UndoWorkspace(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 	if err := r.workspaceService.Undo(ctx, ws); errors.Is(err, service_workspace.ErrNothingToUndo) {
-		return &WorkspaceResolver{w: ws, root: r}, nil
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "error", "nothing to undo")
 	} else if err != nil {
 		return nil, gqlerrors.Error(err)
 	} else {
@@ -252,7 +252,7 @@ func (r *WorkspaceRootResolver) RedoWorkspace(ctx context.Context, args resolver
 		return nil, gqlerrors.Error(err)
 	}
 	if err := r.workspaceService.Redo(ctx, ws); errors.Is(err, service_workspace.ErrNothingToRedo) {
-		return &WorkspaceResolver{w: ws, root: r}, nil
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "error", "nothing to redo")
 	} else if err != nil {
 		return nil, gqlerrors.Error(err)
 	} else {
