@@ -281,7 +281,7 @@ func (s *Service) Undo(ctx context.Context, ws *workspaces.Workspace) error {
 	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&previousSnapshot.ID)); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
-	ws.LatestSnapshotID = latestSnapshot.PreviousSnapshotID
+	ws.LatestSnapshotID = &latestSnapshot.ID
 
 	return nil
 }
