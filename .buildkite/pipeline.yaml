@@ -4,6 +4,11 @@ steps:
       - "./download && cd ./tmp_output"
       - "docker-compose -f ci/docker-compose.yaml run go ./scripts/lint-dependencies.sh"
 
+  - label: ":coverage: :golang: Test build"
+    commands:
+      - "./download && cd ./tmp_output"
+      - "docker-compose -f ci/docker-compose.yaml run go ./scripts/build-api-distributions.sh"
+
   - label: ":docker: :golang: Run unit & end-to-end tests"
     commands:
       - "./download && cd ./tmp_output"
