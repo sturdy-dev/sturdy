@@ -33,6 +33,9 @@
       </label>
 
       <Spinner v-if="isStale" />
+
+      <div class="grow" />
+      <WorkspaceUndoRedo class="self-end" :workspace="workspace" />
     </div>
 
     <template v-if="!isSuggesting">
@@ -225,15 +228,21 @@ import type {
 } from './__generated__/LiveDetails'
 import Spinner from '../../atoms/Spinner.vue'
 import type { Differ_SuggestionFragment } from '../differ/__generated__/Differ'
+import WorkspaceUndoRedo, {
+  WORKSPACE_FRAGMENT as WORKSPACE_UNDO_REDO_FRAGMENT,
+} from '../../molecules/WorkspaceUndoRedo.vue'
+import type { LiveDetailsWorkspaceFragment } from './__generated__/LiveDetails'
 
 export const LIVE_DETAILS_WORKSPACE = gql`
   fragment LiveDetailsWorkspace on Workspace {
     id
     ...NoChangesOwnWorkspace
     ...NoChangesOthersWorkspace
+    ...WorkspaceUndoRedo_Workspace
   }
   ${NO_CHANGES_OWN_WORKSPACE}
   ${NO_CHANGES_OTHERS_WORKSPACE}
+  ${WORKSPACE_UNDO_REDO_FRAGMENT}
 `
 
 export const LIVE_DETAILS_DIFFS = gql`
@@ -302,6 +311,7 @@ export default defineComponent({
     Differ,
     Avatar,
     Button,
+    WorkspaceUndoRedo,
   },
   props: {
     view: {
@@ -323,7 +333,7 @@ export default defineComponent({
       required: true,
     },
     workspace: {
-      type: Object,
+      type: Object as PropType<LiveDetailsWorkspaceFragment>,
       required: true,
     },
     mutable: {
