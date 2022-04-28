@@ -209,9 +209,19 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		return nil, fmt.Errorf("failed to get workspace: %w", err)
 	}
 
-	latest, err := s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return nil, err
+	var latest *snapshots.Snapshot
+	if ws.LatestSnapshotID != nil {
+		previousSnapshot, err := s.snapshotsRepo.Get(*ws.LatestSnapshotID)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+		latest = previousSnapshot
+	} else {
+		previousSnapshot, err := s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
+		latest = previousSnapshot
 	}
 
 	if options.onView != nil {
