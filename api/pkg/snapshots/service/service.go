@@ -17,6 +17,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
@@ -115,6 +116,7 @@ type Service struct {
 	logger           *zap.Logger
 
 	analyticsService *service_analytics.Service
+	statusesService  *service_statuses.Service
 }
 
 func New(
@@ -130,6 +132,7 @@ func New(
 	logger *zap.Logger,
 
 	analyticsService *service_analytics.Service,
+	statusesService *service_statuses.Service,
 ) *Service {
 	return &Service{
 		snapshotsRepo:   snapshotsRepo,
@@ -144,6 +147,7 @@ func New(
 		logger:           logger.Named("GitSnapshotter"),
 
 		analyticsService: analyticsService,
+		statusesService:  statusesService,
 	}
 }
 
@@ -445,6 +449,12 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 			// workspace updated
 			if err := s.eventsSender.Workspace(ws.ID, events.WorkspaceUpdated, ws.ID); err != nil {
 				s.logger.Error("failed to workspace updated event", zap.Error(err))
+				// do not fail
+			}
+
+			// mark all snapshots as stale
+			if err := s.statusesService.NotifyAllInWorkspace(context.Background(), ws.ID); err != nil {
+				s.logger.Error("failed to notify statuses", zap.Error(err))
 				// do not fail
 			}
 		}
