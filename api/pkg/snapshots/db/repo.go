@@ -46,7 +46,7 @@ func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
 		WHERE id=$1
 		AND deleted_at IS NULL`, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get: %w", err)
+		return nil, fmt.Errorf("failed to get snapshot: %w", err)
 	}
 	return &res, nil
 }
