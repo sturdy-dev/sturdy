@@ -206,19 +206,19 @@ var (
 
 func (s *Service) Redo(ctx context.Context, ws *workspaces.Workspace) error {
 	if ws.LatestSnapshotID == nil {
-		return ErrNothingToRedo
+		return fmt.Errorf("workspace has no latest snapshot set: %w", ErrNothingToRedo)
 	}
 
 	latestSnapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNothingToRedo
+		return fmt.Errorf("latest snapshot not found: %w", ErrNothingToRedo)
 	} else if err != nil {
 		return fmt.Errorf("failed to get latest snapshot: %w", err)
 	}
 
 	nextSnapshot, err := s.snap.Next(ctx, latestSnapshot)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNothingToRedo
+		return fmt.Errorf("next snapshot not found: %w", ErrNothingToRedo)
 	} else if err != nil {
 		return fmt.Errorf("failed to get next snapshot: %w", err)
 	}
@@ -245,23 +245,23 @@ func (s *Service) Redo(ctx context.Context, ws *workspaces.Workspace) error {
 
 func (s *Service) Undo(ctx context.Context, ws *workspaces.Workspace) error {
 	if ws.LatestSnapshotID == nil {
-		return ErrNothingToUndo
+		return fmt.Errorf("workspace has no latest snapshot set: %w", ErrNothingToUndo)
 	}
 
 	latestSnapshot, err := s.snap.GetByID(ctx, *ws.LatestSnapshotID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNothingToUndo
+		return fmt.Errorf("latest snapshot not found: %w", ErrNothingToUndo)
 	} else if err != nil {
 		return fmt.Errorf("failed to get latest snapshot: %w", err)
 	}
 
 	if latestSnapshot.PreviousSnapshotID == nil {
-		return ErrNothingToUndo
+		return fmt.Errorf("latest snapshot has no previous reference: %w", ErrNothingToUndo)
 	}
 
 	previousSnapshot, err := s.snap.GetByID(ctx, *latestSnapshot.PreviousSnapshotID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrNothingToUndo
+		return fmt.Errorf("previous snapshot not found: %w", ErrNothingToUndo)
 	} else if err != nil {
 		return fmt.Errorf("failed to get previous snapshot: %w", err)
 	}
@@ -281,7 +281,7 @@ func (s *Service) Undo(ctx context.Context, ws *workspaces.Workspace) error {
 	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&previousSnapshot.ID)); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
-	ws.LatestSnapshotID = &latestSnapshot.ID
+	ws.LatestSnapshotID = &previousSnapshot.ID
 
 	return nil
 }
