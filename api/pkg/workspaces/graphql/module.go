@@ -14,6 +14,7 @@ import (
 	graphql_presence "getsturdy.com/api/pkg/presence/graphql"
 	graphql_review "getsturdy.com/api/pkg/review/graphql"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
+	graphql_snapshots "getsturdy.com/api/pkg/snapshots/graphql"
 	graphql_suggestions "getsturdy.com/api/pkg/suggestions/graphql"
 	graphql_rebase "getsturdy.com/api/pkg/sync/graphql"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -40,6 +41,7 @@ func Module(c *di.Container) {
 	c.Import(graphql_presence.Module)
 	c.Import(graphql_workspace_watchers.Module)
 	c.Import(graphql_rebase.Module)
+	c.Import(graphql_snapshots.Module)
 
 	c.Register(NewResolver)
 

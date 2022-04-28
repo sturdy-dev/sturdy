@@ -159,6 +159,14 @@ func (s *Service) GetByID(_ context.Context, id string) (*snapshots.Snapshot, er
 	return s.snapshotsRepo.Get(id)
 }
 
+// Previous returns a snapshot that was made before this one.
+func (s *Service) Previous(ctx context.Context, snapshot *snapshots.Snapshot) (*snapshots.Snapshot, error) {
+	if snapshot.PreviousSnapshotID == nil {
+		return nil, sql.ErrNoRows // todo: custom error?
+	}
+	return s.snapshotsRepo.Get(*snapshot.PreviousSnapshotID)
+}
+
 // Next returns a snapshot that references the given snapshot as a previous.
 func (s *Service) Next(ctx context.Context, snapshot *snapshots.Snapshot) (*snapshots.Snapshot, error) {
 	return s.snapshotsRepo.GetByPreviousSnapshotID(ctx, snapshot.ID)

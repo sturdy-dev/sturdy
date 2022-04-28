@@ -61,6 +61,7 @@ type RootResolver struct {
 	resolvers.WorkspaceRootResolver
 	resolvers.WorkspaceWatcherRootResolver
 	resolvers.LandRootResovler
+	resolvers.SnapshotsRootResolver
 
 	schema     *graphql.Schema
 	jwtService *service_jwt.Service
@@ -102,6 +103,7 @@ func NewRootResolver(
 	workspaceRootResolver resolvers.WorkspaceRootResolver,
 	workspaceWatcherRootResolver resolvers.WorkspaceWatcherRootResolver,
 	landRootResolver resolvers.LandRootResovler,
+	snapshotsRootResolver resolvers.SnapshotsRootResolver,
 ) *RootResolver {
 	r := &RootResolver{
 		jwtService: jwtService,
@@ -138,6 +140,7 @@ func NewRootResolver(
 		WorkspaceRootResolver:                   workspaceRootResolver,
 		WorkspaceWatcherRootResolver:            workspaceWatcherRootResolver,
 		LandRootResovler:                        landRootResolver,
+		SnapshotsRootResolver:                   snapshotsRootResolver,
 	}
 
 	logger = logger.Named("graphql")

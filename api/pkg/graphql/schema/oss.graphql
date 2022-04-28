@@ -87,11 +87,6 @@ type Mutation {
   # Extracts selected patches from the workspace into a new workspace.
   extractWorkspace(input: ExtractWorkspaceInput!): Workspace!
 
-  # undo the most recent workspace chagnes
-  undoWorkspace(id: ID!): Workspace!
-  # redo the most recent workspace undo
-  redoWorkspace(id: ID!): Workspace!
-
   deleteComment(id: ID!): Comment!
   resolveComment(id: ID!): Comment!
   updateComment(input: UpdateCommentInput!): Comment!
@@ -490,6 +485,18 @@ type Workspace {
   # The URL in the result will contain a URL with temporary authentication credentials.
   downloadTarGz: ContentsDownloadURL!
   downloadZip: ContentsDownloadURL!
+
+  snapshot: Snapshot
+}
+
+type Snapshot {
+  id: ID!
+  previous: Snapshot
+  next: Snapshot
+  # The timestamp of the snapshot
+  createdAt: Int!
+  # Rough description of the snapshot contents relative to the previous snapshot
+  description: String
 }
 
 input WatchWorkspaceInput {
