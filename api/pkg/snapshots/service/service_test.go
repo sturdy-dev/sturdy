@@ -17,6 +17,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	db_statuses "getsturdy.com/api/pkg/statuses/db"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -45,6 +46,7 @@ func testModule(t *testing.T) di.Module {
 		c.ImportWithForce(db_suggestions.TestModule)
 		c.ImportWithForce(db_codebases.TestModule)
 		c.ImportWithForce(db_installations.TestModule)
+		c.ImportWithForce(db_statuses.TestModule)
 		c.ImportWithForce(module_queue.TestModule)
 		c.ImportWithForce(configuration.TestModule)
 		c.RegisterWithForce(logger.NewTest)

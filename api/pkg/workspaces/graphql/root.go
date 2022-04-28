@@ -227,3 +227,24 @@ func (r *WorkspaceRootResolver) UnarchiveWorkspace(ctx context.Context, args res
 
 	return &WorkspaceResolver{w: ws, root: r}, nil
 }
+
+func (r *WorkspaceRootResolver) SetWorkspaceSnapshot(ctx context.Context, args resolvers.SetWorkspaceSnapshotArgs) (resolvers.WorkspaceResolver, error) {
+	ws, err := r.workspaceService.GetByID(ctx, string(args.Input.WorkspaceID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+	if err := r.authService.CanWrite(ctx, ws); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	snap, err := r.snapshotsRepo.Get(string(args.Input.SnapshotID))
+	if err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	if err := r.workspaceService.SetSnapshot(ctx, ws, snap); err != nil {
+		return nil, gqlerrors.Error(err)
+	}
+
+	return &WorkspaceResolver{w: ws, root: r}, nil
+}

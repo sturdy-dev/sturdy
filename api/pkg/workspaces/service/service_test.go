@@ -2,7 +2,6 @@ package service_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -19,6 +18,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	db_statuses "getsturdy.com/api/pkg/statuses/db"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/users"
 	db_view "getsturdy.com/api/pkg/view/db"
@@ -47,6 +47,7 @@ func testModule(t *testing.T) di.Module {
 		c.ImportWithForce(db_suggestions.TestModule)
 		c.ImportWithForce(db_codebases.TestModule)
 		c.ImportWithForce(db_installations.TestModule)
+		c.ImportWithForce(db_statuses.TestModule)
 		c.ImportWithForce(module_queue.TestModule)
 		c.ImportWithForce(configuration.TestModule)
 		c.RegisterWithForce(logger.NewTest)
@@ -115,7 +116,7 @@ func TestCreate_with_name(t *testing.T) {
 	assert.Equal(t, "test", *ws.Name)
 }
 
-func TestWorkspace_UndoRedo(t *testing.T) {
+func TestWorkspace_SetSnapshot(t *testing.T) {
 	tc := setup(t)
 
 	ctx := context.Background()
@@ -126,55 +127,35 @@ func TestWorkspace_UndoRedo(t *testing.T) {
 	vw, err := tc.viewService.Create(ctx, tc.userID, ws, nil, nil)
 	assert.NoError(t, err)
 
+	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, vw.ID, "make some changes"))
+
 	firstSnapshot, err := tc.snapshotService.Snapshot(tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
 	assert.NoError(t, err)
-	assert.ErrorIs(t, service_workspace.ErrNothingToRedo, errors.Unwrap(tc.workspaceService.Redo(ctx, ws)))
 
-	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, vw.ID, "make some changes"))
+	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test2"))).ExecView(tc.codebaseID, vw.ID, "make more changes"))
 
 	secondSnapshot, err := tc.snapshotService.Snapshot(tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
 	assert.NoError(t, err)
 	assert.Equal(t, firstSnapshot.ID, *secondSnapshot.PreviousSnapshotID)
 
-	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test2"))).ExecView(tc.codebaseID, vw.ID, "make more changes"))
-
-	thirdSnapshot, err := tc.snapshotService.Snapshot(tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
-	assert.NoError(t, err)
-	assert.Equal(t, secondSnapshot.ID, *thirdSnapshot.PreviousSnapshotID)
-
 	wsBeforeUndo, err := tc.workspaceService.GetByID(ctx, ws.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, thirdSnapshot.ID, *wsBeforeUndo.LatestSnapshotID)
-	assert.NoError(t, tc.executorProvider.New().Read(verifySnapshot(thirdSnapshot)).ExecView(tc.codebaseID, vw.ID, "verify snapshot"))
-
-	assert.NoError(t, tc.workspaceService.Undo(ctx, wsBeforeUndo))
-
-	wsAfterFirstUndo, err := tc.workspaceService.GetByID(ctx, ws.ID)
-	assert.NoError(t, err)
-	assert.Equal(t, secondSnapshot.ID, *wsAfterFirstUndo.LatestSnapshotID)
+	assert.Equal(t, secondSnapshot.ID, *wsBeforeUndo.LatestSnapshotID)
 	assert.NoError(t, tc.executorProvider.New().Read(verifySnapshot(secondSnapshot)).ExecView(tc.codebaseID, vw.ID, "verify snapshot"))
 
-	assert.NoError(t, tc.workspaceService.Undo(ctx, wsBeforeUndo))
+	assert.NoError(t, tc.workspaceService.SetSnapshot(ctx, ws, firstSnapshot))
 
-	wsAfterSecondUndo, err := tc.workspaceService.GetByID(ctx, ws.ID)
+	wsAfterUndo, err := tc.workspaceService.GetByID(ctx, ws.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, firstSnapshot.ID, *wsAfterSecondUndo.LatestSnapshotID)
+	assert.Equal(t, firstSnapshot.ID, *wsAfterUndo.LatestSnapshotID)
 	assert.NoError(t, tc.executorProvider.New().Read(verifySnapshot(firstSnapshot)).ExecView(tc.codebaseID, vw.ID, "verify snapshot"))
 
-	assert.NoError(t, tc.workspaceService.Redo(ctx, wsBeforeUndo))
+	assert.NoError(t, tc.workspaceService.SetSnapshot(ctx, ws, secondSnapshot))
 
-	wsAfterFirstRedo, err := tc.workspaceService.GetByID(ctx, ws.ID)
+	wsAfterRedo, err := tc.workspaceService.GetByID(ctx, ws.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, secondSnapshot.ID, *wsAfterFirstRedo.LatestSnapshotID)
+	assert.Equal(t, secondSnapshot.ID, *wsAfterRedo.LatestSnapshotID)
 	assert.NoError(t, tc.executorProvider.New().Read(verifySnapshot(secondSnapshot)).ExecView(tc.codebaseID, vw.ID, "verify snapshot"))
-
-	assert.NoError(t, tc.workspaceService.Redo(ctx, wsBeforeUndo))
-
-	wsAfterSecondRedo, err := tc.workspaceService.GetByID(ctx, ws.ID)
-	assert.NoError(t, err)
-	assert.Equal(t, thirdSnapshot.ID, *wsAfterSecondRedo.LatestSnapshotID)
-	assert.NoError(t, tc.executorProvider.New().Read(verifySnapshot(thirdSnapshot)).ExecView(tc.codebaseID, vw.ID, "verify snapshot"))
-	assert.ErrorIs(t, service_workspace.ErrNothingToUndo, errors.Unwrap(tc.workspaceService.Undo(ctx, ws)))
 }
 
 func verifySnapshot(snapshot *snapshots.Snapshot) func(vcs.RepoReader) error {
