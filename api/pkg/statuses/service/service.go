@@ -15,13 +15,13 @@ import (
 
 type Service struct {
 	logger          *zap.Logger
-	repo            *db_statuses.Repository
+	repo            db_statuses.Repository
 	eventsPublisher *events.Publisher
 }
 
 func New(
 	logger *zap.Logger,
-	repo *db_statuses.Repository,
+	repo db_statuses.Repository,
 	eventsPublisher *events.Publisher,
 ) *Service {
 	return &Service{

@@ -9,3 +9,7 @@ func Module(c *di.Container) {
 	c.Import(db.Module)
 	c.Register(New)
 }
+
+func TestModule(c *di.Container) {
+	c.Register(NewMemory)
+}

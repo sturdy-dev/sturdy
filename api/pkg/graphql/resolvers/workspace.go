@@ -73,12 +73,13 @@ type UpdatedWorkspaceDiffsArgs struct {
 	WorkspaceID graphql.ID
 }
 
-type UndoWorkspaceArgs struct {
-	ID graphql.ID
+type SetWorkspaceSnapshotArgs struct {
+	Input SetWorkspaceSnapshotInput
 }
 
-type RedoWorkspaceArgs struct {
-	ID graphql.ID
+type SetWorkspaceSnapshotInput struct {
+	WorkspaceID graphql.ID
+	SnapshotID  graphql.ID
 }
 
 type WorkspaceRootResolver interface {
@@ -95,6 +96,7 @@ type WorkspaceRootResolver interface {
 	CreateWorkspace(ctx context.Context, args CreateWorkspaceArgs) (WorkspaceResolver, error)
 	ExtractWorkspace(ctx context.Context, args ExtractWorkspaceArgs) (WorkspaceResolver, error)
 	RemovePatches(context.Context, RemovePatchesArgs) (WorkspaceResolver, error)
+	SetWorkspaceSnapshot(context.Context, SetWorkspaceSnapshotArgs) (WorkspaceResolver, error)
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)
