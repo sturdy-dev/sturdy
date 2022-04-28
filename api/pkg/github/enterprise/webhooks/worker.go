@@ -46,12 +46,16 @@ func (q *Queue) Enqueue(ctx context.Context, event *WebhookEvent) error {
 
 func (q *Queue) Start(ctx context.Context) error {
 	messages := make(chan queue.Message)
-	go func() {
+
+	work := func(threadNumber int) {
+		logger := q.logger.With(zap.Int("thread", threadNumber))
+
 		defer func() {
 			if rec := recover(); rec != nil {
-				q.logger.Error("panic in runner", zap.String("panic", fmt.Sprintf("%v", rec)), zap.Stack("stack"))
+				logger.Error("panic in runner", zap.String("panic", fmt.Sprintf("%v", rec)), zap.Stack("stack"))
 			}
 		}()
+
 		for msg := range messages {
 			t0 := time.Now()
 			event := &WebhookEvent{}
@@ -60,7 +64,8 @@ func (q *Queue) Start(ctx context.Context) error {
 				q.logger.Error("failed to convert message to event", zap.Error(err))
 				continue
 			}
-			logger := q.getLogger(event)
+			
+			logger := getLogger(logger, event)
 			logger.Info("processing")
 
 			ctx := context.Background()
@@ -86,7 +91,13 @@ func (q *Queue) Start(ctx context.Context) error {
 
 			logger.Info("done", zap.Duration("duration", time.Since(t0)))
 		}
-	}()
+	}
+
+	// start 5 worker threads
+	for i := 0; i < 5; i++ {
+		i := i
+		go work(i)
+	}
 
 	q.logger.Info("starting queue", zap.Stringer("queue_name", q.name))
 	if err := q.queue.Subscribe(ctx, q.name, messages); err != nil {
@@ -97,43 +108,43 @@ func (q *Queue) Start(ctx context.Context) error {
 	return nil
 }
 
-func (q *Queue) getLogger(event *WebhookEvent) *zap.Logger {
+func getLogger(logger *zap.Logger, event *WebhookEvent) *zap.Logger {
 	if event.Installation != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "installation"),
 			zap.Int64("installation_id", event.Installation.GetInstallation().GetID()),
 		)
 	} else if event.InstallationRepositories != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "installation repositories"),
 			zap.Int64("installation_id", event.InstallationRepositories.GetInstallation().GetID()),
 		)
 	} else if event.Push != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "push"),
 			zap.Int64("installation_id", event.Push.GetInstallation().GetID()),
 			zap.String("repo", event.Push.GetRepo().GetFullName()),
 		)
 	} else if event.PullRequest != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "pull request"),
 			zap.Int64("installation_id", event.PullRequest.GetInstallation().GetID()),
 			zap.String("repo", event.PullRequest.GetRepo().GetFullName()),
 		)
 	} else if event.Status != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "status"),
 			zap.Int64("installation_id", event.Status.GetInstallation().GetID()),
 			zap.String("repo", event.Status.GetRepo().GetFullName()),
 		)
 	} else if event.WorkflowJob != nil {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "workflow job"),
 			zap.Int64("installation_id", event.WorkflowJob.GetInstallation().GetID()),
 			zap.String("repo", event.WorkflowJob.GetRepo().GetFullName()),
 		)
 	} else {
-		return q.logger.With(
+		return logger.With(
 			zap.String("event_type", "unknown"),
 		)
 	}
