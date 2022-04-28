@@ -52,7 +52,7 @@ func (r *ContentsDownloadURLRootResolver) InternalChangeDownloadZipUrl(ctx conte
 
 func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context, workspace *workspaces.Workspace, format service_downloads.ArchiveFormat, args resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
 	if err := r.authService.CanRead(ctx, workspace); err != nil {
-		return nil, gqlerrors.Error(err)
+		return nil, gqlerrors.Error(fmt.Errorf("not authorized to read workspace %s: %w", workspace.ID, err))
 	}
 
 	var snapshot *snapshots.Snapshot
@@ -62,7 +62,7 @@ func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context,
 		var err error
 		snapshot, err = r.snapshotter.GetByID(ctx, string(*args.Input.SnapshotID))
 		if err != nil {
-			return nil, gqlerrors.Error(err)
+			return nil, gqlerrors.Error(fmt.Errorf("unable to find snapshot %s: %w", *args.Input.SnapshotID, err))
 		}
 		if snapshot.WorkspaceID != workspace.ID {
 			return nil, gqlerrors.Error(fmt.Errorf("snapshot %s does not belong to workspace %s", snapshot.ID, workspace.ID))
@@ -77,18 +77,18 @@ func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context,
 		var err error
 		snapshot, err = r.snapshotter.GetByID(ctx, *workspace.LatestSnapshotID)
 		if err != nil {
-			return nil, gqlerrors.Error(err)
+			return nil, gqlerrors.Error(fmt.Errorf("unable to find snapshot %s: %w", *workspace.LatestSnapshotID, err))
 		}
 	}
 
 	allower, err := r.authService.GetAllower(ctx, workspace)
 	if err != nil {
-		return nil, gqlerrors.Error(err)
+		return nil, gqlerrors.Error(fmt.Errorf("unable to get allower for workspace %s: %w", workspace.ID, err))
 	}
 
 	url, err := r.service.CreateArchive(ctx, allower, snapshot.CodebaseID, fmt.Sprintf("snapshot-%s", snapshot.ID), snapshot.CommitSHA, format)
 	if err != nil {
-		return nil, gqlerrors.Error(err)
+		return nil, gqlerrors.Error(fmt.Errorf("unable to create archive: %w", err))
 	}
 
 	return &download{url: url}, nil
