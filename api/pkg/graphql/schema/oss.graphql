@@ -489,8 +489,8 @@ type Workspace {
 
   # Generates download links on demand.
   # The URL in the result will contain a URL with temporary authentication credentials.
-  downloadTarGz: ContentsDownloadURL!
-  downloadZip: ContentsDownloadURL!
+  downloadTarGz(input: DownloadArchiveInput): ContentsDownloadURL!
+  downloadZip(input: DownloadArchiveInput): ContentsDownloadURL!
 
   snapshot: Snapshot
 }
@@ -503,6 +503,10 @@ type Snapshot {
   createdAt: Int!
   # Rough description of the snapshot contents relative to the previous snapshot
   description: String
+}
+
+input DownloadArchiveInput {
+  snapshotID: ID
 }
 
 input WatchWorkspaceInput {

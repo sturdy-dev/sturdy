@@ -134,7 +134,15 @@ type WorkspaceResolver interface {
 	Diffs(context.Context) ([]FileDiffResolver, error)
 	Change(context.Context) (ChangeResolver, error)
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
-	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
-	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
+	DownloadTarGz(context.Context, DownloadArchiveArgs) (ContentsDownloadUrlResolver, error)
+	DownloadZip(context.Context, DownloadArchiveArgs) (ContentsDownloadUrlResolver, error)
 	Snapshot(context.Context) (SnapshotResolver, error)
+}
+
+type DownloadArchiveArgs struct {
+	Input *DownloadArchiveInput
+}
+
+type DownloadArchiveInput struct {
+	SnapshotID *graphql.ID
 }

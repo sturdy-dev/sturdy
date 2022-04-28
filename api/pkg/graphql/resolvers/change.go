@@ -89,8 +89,8 @@ type ContentsDownloadUrlRootResolver interface {
 	InternalChangeDownloadTarGzUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
 	InternalChangeDownloadZipUrl(context.Context, *changes.Change) (ContentsDownloadUrlResolver, error)
 
-	InternalWorkspaceDownloadTarGzUrl(context.Context, *workspaces.Workspace) (ContentsDownloadUrlResolver, error)
-	InternalWorkspaceDownloadZipUrl(context.Context, *workspaces.Workspace) (ContentsDownloadUrlResolver, error)
+	InternalWorkspaceDownloadTarGzUrl(context.Context, *workspaces.Workspace, DownloadArchiveArgs) (ContentsDownloadUrlResolver, error)
+	InternalWorkspaceDownloadZipUrl(context.Context, *workspaces.Workspace, DownloadArchiveArgs) (ContentsDownloadUrlResolver, error)
 }
 
 type ContentsDownloadUrlResolver interface {

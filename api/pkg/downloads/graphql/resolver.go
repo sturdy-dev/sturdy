@@ -15,11 +15,11 @@ func New() resolvers.ContentsDownloadUrlRootResolver {
 	return &ContentsDownloadURLRootResolver{}
 }
 
-func (*ContentsDownloadURLRootResolver) InternalWorkspaceDownloadTarGzUrl(context.Context, *workspaces.Workspace) (resolvers.ContentsDownloadUrlResolver, error) {
+func (*ContentsDownloadURLRootResolver) InternalWorkspaceDownloadTarGzUrl(context.Context, *workspaces.Workspace, resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
 	return nil, errors.ErrNotImplemented
 }
 
-func (*ContentsDownloadURLRootResolver) InternalWorkspaceDownloadZipUrl(context.Context, *workspaces.Workspace) (resolvers.ContentsDownloadUrlResolver, error) {
+func (*ContentsDownloadURLRootResolver) InternalWorkspaceDownloadZipUrl(context.Context, *workspaces.Workspace, resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
 	return nil, errors.ErrNotImplemented
 }
 

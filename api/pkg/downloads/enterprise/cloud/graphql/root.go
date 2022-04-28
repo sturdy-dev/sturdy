@@ -9,6 +9,7 @@ import (
 	service_downloads "getsturdy.com/api/pkg/downloads/enterprise/cloud/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/workspaces"
 
@@ -33,12 +34,12 @@ func New(
 	}
 }
 
-func (r *ContentsDownloadURLRootResolver) InternalWorkspaceDownloadTarGzUrl(ctx context.Context, workspace *workspaces.Workspace) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.downloadWorkspace(ctx, workspace, service_downloads.ArchiveFormatTarGz)
+func (r *ContentsDownloadURLRootResolver) InternalWorkspaceDownloadTarGzUrl(ctx context.Context, workspace *workspaces.Workspace, input resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.downloadWorkspace(ctx, workspace, service_downloads.ArchiveFormatTarGz, input)
 }
 
-func (r *ContentsDownloadURLRootResolver) InternalWorkspaceDownloadZipUrl(ctx context.Context, workspace *workspaces.Workspace) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.downloadWorkspace(ctx, workspace, service_downloads.ArchiveFormatZip)
+func (r *ContentsDownloadURLRootResolver) InternalWorkspaceDownloadZipUrl(ctx context.Context, workspace *workspaces.Workspace, input resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.downloadWorkspace(ctx, workspace, service_downloads.ArchiveFormatZip, input)
 }
 
 func (r *ContentsDownloadURLRootResolver) InternalChangeDownloadTarGzUrl(ctx context.Context, change *changes.Change) (resolvers.ContentsDownloadUrlResolver, error) {
@@ -49,21 +50,38 @@ func (r *ContentsDownloadURLRootResolver) InternalChangeDownloadZipUrl(ctx conte
 	return r.downloadChange(ctx, change, service_downloads.ArchiveFormatZip)
 }
 
-func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context, workspace *workspaces.Workspace, format service_downloads.ArchiveFormat) (resolvers.ContentsDownloadUrlResolver, error) {
+func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context, workspace *workspaces.Workspace, format service_downloads.ArchiveFormat, args resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
 	if err := r.authService.CanRead(ctx, workspace); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
-	if workspace.LatestSnapshotID == nil {
-		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "workspace has no snapshots")
+	var snapshot *snapshots.Snapshot
+
+	// Use specified snapshot if provided
+	if args.Input != nil && args.Input.SnapshotID != nil {
+		var err error
+		snapshot, err = r.snapshotter.GetByID(ctx, string(*args.Input.SnapshotID))
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
+		if snapshot.WorkspaceID != workspace.ID {
+			return nil, gqlerrors.Error(fmt.Errorf("snapshot %s does not belong to workspace %s", snapshot.ID, workspace.ID))
+		}
+
+	} else {
+		if workspace.LatestSnapshotID == nil {
+			return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "workspace has no snapshots")
+		}
+
+		// Use the latest snapshot
+		var err error
+		snapshot, err = r.snapshotter.GetByID(ctx, *workspace.LatestSnapshotID)
+		if err != nil {
+			return nil, gqlerrors.Error(err)
+		}
 	}
 
 	allower, err := r.authService.GetAllower(ctx, workspace)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	snapshot, err := r.snapshotter.GetByID(ctx, *workspace.LatestSnapshotID)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
