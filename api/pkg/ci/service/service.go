@@ -93,6 +93,7 @@ type sturdyJsonData struct {
 	CodebaseID  codebases.ID `json:"codebase_id"`
 	ChangeID    *string      `json:"change_id,omitempty"`
 	WorkspaceID *string      `json:"workspace_id,omitempty"`
+	SnapshotID  *string      `json:"snapshot_id,omitempty"`
 }
 
 //go:embed download.bash
@@ -158,6 +159,7 @@ func (svc *Service) createSnapshotGit(ctx context.Context, snapshot *snapshots.S
 			data, err := json.Marshal(sturdyJsonData{
 				CodebaseID:  snapshot.CodebaseID,
 				WorkspaceID: &snapshot.WorkspaceID,
+				SnapshotID:  &snapshot.ID,
 			})
 			if err != nil {
 				return fmt.Errorf("failed to create metadata file: %w", err)

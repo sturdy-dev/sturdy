@@ -380,12 +380,12 @@ func (r *WorkspaceResolver) RebaseStatus(ctx context.Context) (resolvers.RebaseS
 	return r.root.rebaseStatusRootResolver.InternalWorkspaceRebaseStatus(ctx, r.w.ID)
 }
 
-func (r *WorkspaceResolver) DownloadTarGz(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.root.downloadsResolver.InternalWorkspaceDownloadTarGzUrl(ctx, r.w)
+func (r *WorkspaceResolver) DownloadTarGz(ctx context.Context, input resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.root.downloadsResolver.InternalWorkspaceDownloadTarGzUrl(ctx, r.w, input)
 }
 
-func (r *WorkspaceResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
-	return r.root.downloadsResolver.InternalWorkspaceDownloadZipUrl(ctx, r.w)
+func (r *WorkspaceResolver) DownloadZip(ctx context.Context, input resolvers.DownloadArchiveArgs) (resolvers.ContentsDownloadUrlResolver, error) {
+	return r.root.downloadsResolver.InternalWorkspaceDownloadZipUrl(ctx, r.w, input)
 }
 
 func (r *WorkspaceResolver) Snapshot(ctx context.Context) (resolvers.SnapshotResolver, error) {
