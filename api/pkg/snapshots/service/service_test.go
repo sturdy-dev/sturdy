@@ -122,6 +122,51 @@ func TestSnapshot_noChangesDeleted(t *testing.T) {
 	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, the first one was removed")
 }
 
+func TestSnapshot_previous_next(t *testing.T) {
+	tc := setup(t)
+
+	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
+
+	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, changes were made")
+
+	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test2"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
+
+	snapTri, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+	assert.NotEqual(t, snapTwice.ID, snapTri.ID, "snapshots must not be identical, changes were made")
+
+	ctx := context.Background()
+
+	beforeTri, err := tc.snapshotService.Previous(ctx, snapTri)
+	assert.NoError(t, err)
+	assert.Equal(t, snapTwice.ID, beforeTri.ID)
+
+	beforeTwo, err := tc.snapshotService.Previous(ctx, snapTwice)
+	assert.NoError(t, err)
+	assert.Equal(t, snapOnce.ID, beforeTwo.ID)
+
+	beforeOne, err := tc.snapshotService.Previous(ctx, snapOnce)
+	assert.Error(t, err)
+	assert.Nil(t, beforeOne)
+
+	afterTri, err := tc.snapshotService.Next(ctx, snapTri)
+	assert.Error(t, err)
+	assert.Nil(t, afterTri)
+
+	afterTwo, err := tc.snapshotService.Next(ctx, snapTwice)
+	assert.NoError(t, err)
+	assert.Equal(t, snapTri.ID, afterTwo.ID)
+
+	afterOne, err := tc.snapshotService.Next(ctx, snapOnce)
+	assert.NoError(t, err)
+	assert.Equal(t, snapTwice.ID, afterOne.ID)
+}
+
 func TestSnapshot_changes(t *testing.T) {
 	tc := setup(t)
 

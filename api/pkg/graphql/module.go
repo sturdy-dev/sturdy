@@ -21,6 +21,7 @@ import (
 	graphql_organizations "getsturdy.com/api/pkg/organization/graphql"
 	graphql_pki "getsturdy.com/api/pkg/pki/graphql"
 	graphql_servicetokens "getsturdy.com/api/pkg/servicetokens/graphql"
+	graphql_snapshots "getsturdy.com/api/pkg/snapshots/graphql"
 )
 
 func Module(c *di.Container) {
@@ -43,5 +44,6 @@ func Module(c *di.Container) {
 	c.Import(graphql_installations.Module)
 	c.Import(graphql_servicetokens.Module)
 	c.Import(graphql_land.Module)
+	c.Import(graphql_snapshots.Module)
 	c.Register(NewRootResolver)
 }

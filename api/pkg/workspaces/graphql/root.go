@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
@@ -49,6 +48,7 @@ type WorkspaceRootResolver struct {
 	fileDiffRootResolver          resolvers.FileDiffRootResolver
 	rebaseStatusRootResolver      resolvers.RebaseStatusRootResolver
 	downloadsResolver             resolvers.ContentsDownloadUrlRootResolver
+	snapshotsResolver             resolvers.SnapshotsRootResolver
 
 	suggestionsService *service_suggestions.Service
 	workspaceService   *service_workspace.Service
@@ -87,6 +87,7 @@ func NewResolver(
 	fileDiffRootResolver resolvers.FileDiffRootResolver,
 	rebaseStatusRootResolver resolvers.RebaseStatusRootResolver,
 	downloadsResolver resolvers.ContentsDownloadUrlRootResolver,
+	snapshotsResolver resolvers.SnapshotsRootResolver,
 
 	suggestionsService *service_suggestions.Service,
 	workspaceService *service_workspace.Service,
@@ -124,6 +125,7 @@ func NewResolver(
 		fileDiffRootResolver:          fileDiffRootResolver,
 		rebaseStatusRootResolver:      rebaseStatusRootResolver,
 		downloadsResolver:             downloadsResolver,
+		snapshotsResolver:             snapshotsResolver,
 
 		suggestionsService: suggestionsService,
 		workspaceService:   workspaceService,
@@ -224,38 +226,4 @@ func (r *WorkspaceRootResolver) UnarchiveWorkspace(ctx context.Context, args res
 	}
 
 	return &WorkspaceResolver{w: ws, root: r}, nil
-}
-
-func (r *WorkspaceRootResolver) UndoWorkspace(ctx context.Context, args resolvers.UndoWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
-	ws, err := r.workspaceService.GetByID(ctx, string(args.ID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	if err := r.authService.CanWrite(ctx, ws); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	if err := r.workspaceService.Undo(ctx, ws); errors.Is(err, service_workspace.ErrNothingToUndo) {
-		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "error", "nothing to undo")
-	} else if err != nil {
-		return nil, gqlerrors.Error(err)
-	} else {
-		return &WorkspaceResolver{w: ws, root: r}, nil
-	}
-}
-
-func (r *WorkspaceRootResolver) RedoWorkspace(ctx context.Context, args resolvers.RedoWorkspaceArgs) (resolvers.WorkspaceResolver, error) {
-	ws, err := r.workspaceService.GetByID(ctx, string(args.ID))
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	if err := r.authService.CanWrite(ctx, ws); err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-	if err := r.workspaceService.Redo(ctx, ws); errors.Is(err, service_workspace.ErrNothingToRedo) {
-		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "error", "nothing to redo")
-	} else if err != nil {
-		return nil, gqlerrors.Error(err)
-	} else {
-		return &WorkspaceResolver{w: ws, root: r}, nil
-	}
 }

@@ -95,8 +95,6 @@ type WorkspaceRootResolver interface {
 	CreateWorkspace(ctx context.Context, args CreateWorkspaceArgs) (WorkspaceResolver, error)
 	ExtractWorkspace(ctx context.Context, args ExtractWorkspaceArgs) (WorkspaceResolver, error)
 	RemovePatches(context.Context, RemovePatchesArgs) (WorkspaceResolver, error)
-	UndoWorkspace(context.Context, UndoWorkspaceArgs) (WorkspaceResolver, error)
-	RedoWorkspace(context.Context, RedoWorkspaceArgs) (WorkspaceResolver, error)
 
 	// Subscriptions
 	UpdatedWorkspace(ctx context.Context, args UpdatedWorkspaceArgs) (<-chan WorkspaceResolver, error)
@@ -136,4 +134,5 @@ type WorkspaceResolver interface {
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
 	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
 	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
+	Snapshot(context.Context) (SnapshotResolver, error)
 }

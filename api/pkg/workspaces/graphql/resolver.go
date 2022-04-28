@@ -387,3 +387,14 @@ func (r *WorkspaceResolver) DownloadTarGz(ctx context.Context) (resolvers.Conten
 func (r *WorkspaceResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
 	return r.root.downloadsResolver.InternalWorkspaceDownloadZipUrl(ctx, r.w)
 }
+
+func (r *WorkspaceResolver) Snapshot(ctx context.Context) (resolvers.SnapshotResolver, error) {
+	if r.w.LatestSnapshotID == nil {
+		return nil, nil
+	}
+	sr, err := r.root.snapshotsResolver.InternalByID(ctx, *r.w.LatestSnapshotID)
+	if errors.Is(err, gqlerrors.ErrNotFound) {
+		return nil, nil
+	}
+	return sr, nil
+}
