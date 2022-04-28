@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -15,8 +17,13 @@ import (
 
 func (svc *Service) CreateBuild(ctx context.Context, codebaseID codebases.ID, snapshotCommitSha, branchName string) error {
 	gitHubRepository, err := svc.GetRepositoryByCodebaseID(ctx, codebaseID)
-	if err != nil {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return nil
+	case err != nil:
 		return fmt.Errorf("failed to get repository: %w", err)
+	case !gitHubRepository.IntegrationEnabled:
+		return nil
 	}
 
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(gitHubRepository.InstallationID)

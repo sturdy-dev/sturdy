@@ -6,6 +6,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	service_change "getsturdy.com/api/pkg/changes/service"
@@ -58,7 +59,7 @@ const (
 	ArchiveFormatTarGz
 )
 
-func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower, codebaseID codebases.ID, commitID string, format ArchiveFormat) (string, error) {
+func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower, codebaseID codebases.ID, fetchBranchName, commitID string, format ArchiveFormat) (string, error) {
 	if svc.maybeBucketName == nil || len(*svc.maybeBucketName) == 0 {
 		return "", fmt.Errorf("--export-bucket-name is not defined")
 	}
@@ -73,21 +74,23 @@ func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower,
 		return "", fmt.Errorf("unexpected archive format")
 	}
 
+	archiveBranchName := fmt.Sprintf("archive-%s", uuid.NewString())
+
 	archiveFilePath := fmt.Sprintf("%s/%s%s", codebaseID, commitID, archiveFileExt)
 	if err := svc.executorProvider.New().Write(func(repo vcs.RepoWriter) error {
-		branchName, err := repo.HeadBranch()
-		if err != nil {
-			return fmt.Errorf("failed to get branch name: %w", err)
-		}
-		if branchName != "archive" {
 
-			if err := repo.CreateNewBranchAt("archive", commitID); err != nil {
-				return fmt.Errorf("failed to create archive branch: %w", err)
-			}
-			if err := repo.CheckoutBranchWithForce("archive"); err != nil {
-				return fmt.Errorf("failed to checkout archive: %w", err)
-			}
+		if err := repo.FetchBranch(fetchBranchName); err != nil {
+			return fmt.Errorf("failed to fetch branch %s: %w", fetchBranchName, err)
 		}
+
+		if err := repo.CreateNewBranchAt(archiveBranchName, commitID); err != nil {
+			return fmt.Errorf("failed to create archive branch: %w", err)
+		}
+
+		if err := repo.CheckoutBranchWithForce(archiveBranchName); err != nil {
+			return fmt.Errorf("failed to checkout archive: %w", err)
+		}
+
 		return repo.LargeFilesPull()
 	}).Read(func(repo vcs.RepoReader) error {
 		reader, writer := io.Pipe()
@@ -114,6 +117,16 @@ func (svc *Service) CreateArchive(ctx context.Context, allower *unidiff.Allower,
 			return nil
 		})
 		return eg.Wait()
+	}).Write(func(writer vcs.RepoWriter) error {
+		if err := writer.CheckoutBranchWithForce("sturdytrunk"); err != nil {
+			return fmt.Errorf("failed to checkout sturdytrunk: %w", err)
+		}
+
+		if err := writer.DeleteBranch(archiveBranchName); err != nil {
+			return fmt.Errorf("failed to delete archive branch: %w", err)
+		}
+
+		return nil
 	}).ExecTemporaryView(codebaseID, "createArchive"); err != nil {
 		return "", fmt.Errorf("executor failed: %w", err)
 	}

@@ -85,7 +85,7 @@ func (r *ContentsDownloadURLRootResolver) downloadChange(ctx context.Context, ch
 		return nil, gqlerrors.Error(err)
 	}
 
-	url, err := r.service.CreateArchive(ctx, allower, change.CodebaseID, *change.CommitID, format)
+	url, err := r.service.CreateArchive(ctx, allower, change.CodebaseID, "sturdytrunk", *change.CommitID, format)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
