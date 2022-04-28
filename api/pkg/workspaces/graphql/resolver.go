@@ -387,3 +387,11 @@ func (r *WorkspaceResolver) DownloadTarGz(ctx context.Context) (resolvers.Conten
 func (r *WorkspaceResolver) DownloadZip(ctx context.Context) (resolvers.ContentsDownloadUrlResolver, error) {
 	return r.root.downloadsResolver.InternalWorkspaceDownloadZipUrl(ctx, r.w)
 }
+
+func (r *WorkspaceResolver) CanUndo(ctx context.Context) (bool, error) {
+
+}
+
+func (r *WorkspaceResolver) CanRedo(ctx context.Context) (bool, error) {
+
+}

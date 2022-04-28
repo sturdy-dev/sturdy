@@ -136,4 +136,6 @@ type WorkspaceResolver interface {
 	RebaseStatus(context.Context) (RebaseStatusResolver, error)
 	DownloadTarGz(context.Context) (ContentsDownloadUrlResolver, error)
 	DownloadZip(context.Context) (ContentsDownloadUrlResolver, error)
+	CanUndo(context.Context) (bool, error)
+	CanRedo(context.Context) (bool, error)
 }

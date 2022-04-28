@@ -490,6 +490,9 @@ type Workspace {
   # The URL in the result will contain a URL with temporary authentication credentials.
   downloadTarGz: ContentsDownloadURL!
   downloadZip: ContentsDownloadURL!
+
+  canUndo: Boolean!
+  canRedo: Boolean!
 }
 
 input WatchWorkspaceInput {

@@ -32,6 +32,8 @@ import { updateWorkspaceUpdateResolver } from './useUpdateWorkspace'
 import { pullCodebaseUpdateResolver } from './usePullCodebase'
 import { pushCodebaseUpdateResolver } from './usePushCodebase'
 import { archiveWorkspaceUpdateResolver } from './useArchiveWorkspace'
+import { undoWorkspaceResolver } from './useUndoWorkspace'
+import { redoWorkspaceResolver } from './useRedoWorkspace'
 
 export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   createComment: createCommentUpdateResolver,
@@ -64,6 +66,8 @@ export const mutationUpdateResolvers: Record<string, UpdateResolver> = {
   pullCodebase: pullCodebaseUpdateResolver,
   pushCodebase: pushCodebaseUpdateResolver,
   archiveWorkspace: archiveWorkspaceUpdateResolver,
+  undoWorkspace: undoWorkspaceResolver,
+  redoWorkspace: redoWorkspaceResolver,
 }
 
 export const optimisticMutationResolvers: Record<string, OptimisticMutationResolver> = {
