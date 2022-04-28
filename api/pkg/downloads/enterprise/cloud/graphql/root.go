@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"fmt"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/changes"
@@ -67,7 +68,7 @@ func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context,
 		return nil, gqlerrors.Error(err)
 	}
 
-	url, err := r.service.CreateArchive(ctx, allower, snapshot.CodebaseID, snapshot.CommitSHA, format)
+	url, err := r.service.CreateArchive(ctx, allower, snapshot.CodebaseID, fmt.Sprintf("snapshot-%s", snapshot.ID), snapshot.CommitSHA, format)
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

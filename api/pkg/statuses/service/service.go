@@ -77,3 +77,18 @@ func (s *Service) ListByWorkspaceID(ctx context.Context, workspaceID string) ([]
 	}
 	return latestStatuses, nil
 }
+
+func (s *Service) NotifyAllInWorkspace(ctx context.Context, workspaceID string) error {
+	statusList, err := s.ListByWorkspaceID(ctx, workspaceID)
+	if err != nil {
+		return fmt.Errorf("failed to get statuses: %w", err)
+	}
+
+	for _, status := range statusList {
+		if err := s.eventsPublisher.StatusUpdated(ctx, events.Codebase(status.CodebaseID), status); err != nil {
+			s.logger.Error("failed to send status updated event", zap.Error(err))
+		}
+	}
+
+	return nil
+}
