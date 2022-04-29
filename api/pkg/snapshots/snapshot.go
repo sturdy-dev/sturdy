@@ -49,6 +49,7 @@ func (a Action) String() string {
 const (
 	ActionViewSync                  Action = "view_sync"
 	ActionSyncCompleted             Action = "sync_completed"
+	ActionImported                  Action = "imported"
 	ActionFileUndoPatch             Action = "file_undo_patch"
 	ActionFileUndoChange            Action = "file_undo_change"
 	ActionFileIgnore                Action = "file_ignore"

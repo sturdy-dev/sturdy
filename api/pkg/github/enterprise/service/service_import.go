@@ -181,7 +181,7 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 			}
 
 			if _, err := svc.snap.Snapshot(workspace.CodebaseID, workspace.ID,
-				snapshots.ActionSyncCompleted,
+				snapshots.ActionImported,
 				service_snapshots.WithMarkAsLatestInWorkspace(),
 				service_snapshots.WithOnView(*repo.ViewID()),
 				service_snapshots.WithOnRepo(repo), // Re-use repo context
