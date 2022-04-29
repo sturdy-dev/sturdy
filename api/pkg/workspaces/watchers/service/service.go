@@ -5,23 +5,27 @@ import (
 	"fmt"
 	"time"
 
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 	db_watchers "getsturdy.com/api/pkg/workspaces/watchers/db"
+	"go.uber.org/zap"
 )
 
 type Service struct {
 	repo         db_watchers.Repository
-	eventsSender events.EventSender
+	logger       *zap.Logger
+	eventsSender *events.Publisher
 }
 
 func New(
 	repo db_watchers.Repository,
-	eventsSender events.EventSender,
+	logger *zap.Logger,
+	eventsSender *events.Publisher,
 ) *Service {
 	return &Service{
 		repo:         repo,
+		logger:       logger.Named("watchers_service"),
 		eventsSender: eventsSender,
 	}
 }
@@ -36,7 +40,9 @@ func (s *Service) Watch(ctx context.Context, userID users.ID, workspaceID string
 	if err := s.repo.Create(ctx, watcher); err != nil {
 		return nil, fmt.Errorf("failed to create watcher: %w", err)
 	}
-	s.eventsSender.User(userID, events.WorkspaceWatchingStatusUpdated, workspaceID)
+	if err := s.eventsSender.WorkspaceWatchingStatusUpdated(ctx, events.User(userID), watcher); err != nil {
+		s.logger.Error("failed to send workspace watching status updated event", zap.Error(err))
+	}
 	return watcher, nil
 }
 
@@ -50,7 +56,10 @@ func (s *Service) Unwatch(ctx context.Context, userID users.ID, workspaceID stri
 	if err := s.repo.Create(ctx, watcher); err != nil {
 		return nil, fmt.Errorf("failed to create watcher: %w", err)
 	}
-	s.eventsSender.User(userID, events.WorkspaceWatchingStatusUpdated, workspaceID)
+	if err := s.eventsSender.WorkspaceWatchingStatusUpdated(ctx, events.User(userID), watcher); err != nil {
+		s.logger.Error("failed to send workspace watching status updated event", zap.Error(err))
+	}
+
 	return watcher, nil
 }
 

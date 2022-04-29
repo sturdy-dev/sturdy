@@ -13,6 +13,7 @@ import (
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/view"
 	"getsturdy.com/api/pkg/workspaces"
+	"getsturdy.com/api/pkg/workspaces/watchers"
 )
 
 type Subscriber struct {
@@ -97,9 +98,9 @@ func (s *Subscriber) OnWorkspaceUpdatedSuggestion(ctx context.Context, topic Top
 	}, topic, WorkspaceUpdatedSuggestion)
 }
 
-func (s *Subscriber) OnWorkspaceWatchingStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *workspaces.Workspace) error) {
+func (s *Subscriber) OnWorkspaceWatchingStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *watchers.Watcher) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
-		return callback(ctx, event.Workspace)
+		return callback(ctx, event.WorkspaceWatcher)
 	}, topic, WorkspaceWatchingStatusUpdated)
 }
 

@@ -2,12 +2,13 @@ package graphql
 
 import (
 	"context"
-	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
-	"getsturdy.com/api/pkg/events"
+	events "getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/workspaces/watchers"
 
 	"go.uber.org/zap"
 )
@@ -30,22 +31,7 @@ func (r *rootResolver) UpdatedWorkspaceWatchers(ctx context.Context, args resolv
 	c := make(chan resolvers.WorkspaceWatcherResolver, 100)
 	didErorrOut := false
 
-	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reference string) error {
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		default:
-		}
-
-		if eventType != events.WorkspaceWatchingStatusUpdated {
-			return nil
-		}
-
-		watcher, err := r.workspaceWatcherService.Get(ctx, userID, reference)
-		if err != nil {
-			return fmt.Errorf("failed to get watcher: %w", err)
-		}
-
+	r.eventsReader.OnWorkspaceWatchingStatusUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, watcher *watchers.Watcher) error {
 		resolver := &watcherResolver{Watcher: watcher, Root: r}
 		select {
 		case <-ctx.Done():
@@ -60,12 +46,7 @@ func (r *rootResolver) UpdatedWorkspaceWatchers(ctx context.Context, args resolv
 		}
 
 		return nil
+
 	})
-
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-	}()
-
 	return c, nil
 }

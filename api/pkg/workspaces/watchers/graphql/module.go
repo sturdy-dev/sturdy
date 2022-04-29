@@ -3,7 +3,7 @@ package graphql
 import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/logger"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"

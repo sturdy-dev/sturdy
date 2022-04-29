@@ -45,21 +45,19 @@ const (
 	WorkspaceUpdatedPresence
 	WorkspaceUpdatedSuggestion
 	NotificationEvent
-	WorkspaceWatchingStatusUpdated
 )
 
 var eventTypeString = map[EventType]string{
-	CodebaseEvent:                  "CodebaseEvent",
-	CodebaseUpdated:                "CodebaseUpdated",
-	WorkspaceUpdated:               "WorkspaceUpdated",
-	WorkspaceUpdatedComments:       "WorkspaceUpdatedComments",
-	WorkspaceUpdatedReviews:        "WorkspaceUpdatedReviews",
-	WorkspaceUpdatedActivity:       "WorkspaceUpdatedActivity",
-	WorkspaceUpdatedPresence:       "WorkspaceUpdatedPresence",
-	WorkspaceUpdatedSuggestion:     "WorkspaceUpdatedSuggestion",
-	ReviewUpdated:                  "ReviewUpdated",
-	NotificationEvent:              "NotificationEvent",
-	WorkspaceWatchingStatusUpdated: "WorkspaceWatchingStatusUpdated",
+	CodebaseEvent:              "CodebaseEvent",
+	CodebaseUpdated:            "CodebaseUpdated",
+	WorkspaceUpdated:           "WorkspaceUpdated",
+	WorkspaceUpdatedComments:   "WorkspaceUpdatedComments",
+	WorkspaceUpdatedReviews:    "WorkspaceUpdatedReviews",
+	WorkspaceUpdatedActivity:   "WorkspaceUpdatedActivity",
+	WorkspaceUpdatedPresence:   "WorkspaceUpdatedPresence",
+	WorkspaceUpdatedSuggestion: "WorkspaceUpdatedSuggestion",
+	ReviewUpdated:              "ReviewUpdated",
+	NotificationEvent:          "NotificationEvent",
 }
 
 type CallbackFunc func(eventType EventType, reference string) error
