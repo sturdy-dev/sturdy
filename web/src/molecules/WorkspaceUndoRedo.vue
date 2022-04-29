@@ -11,7 +11,7 @@
       @click.prevent.stop="onUndoClicked"
     >
       <template #tooltip>
-        rewind to <RelativeTime v-if="previousDate" :date="previousDate" />
+        rewind to <RelativeTime v-if="previousDate" :date="previousDate" /> ago
       </template>
       {{ '' }}
     </Button>
