@@ -77,6 +77,19 @@ const UPDATED_WORKSPACE = gql`
           avatarUrl
         }
       }
+
+      snapshot {
+        id
+        createdAt
+        previous {
+          id
+          createdAt
+        }
+        next {
+          id
+          createdAt
+        }
+      }
     }
   }
 `
