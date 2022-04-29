@@ -207,7 +207,11 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		return nil, errors.New("when onExistingCommit is set, onRepo must also be set")
 	}
 
+	t0 := time.Now()
+	snapshotID := snapshots.ID(uuid.New().String())
+
 	logger := s.logger.With(
+		zap.Stringer("snapshot_id", snapshotID),
 		zap.Stringer("codebase_id", codebaseID),
 		zap.String("workspace_id", workspaceID),
 		zap.Bool("option_on_temporary_view", options.onTemporaryView),
@@ -256,8 +260,6 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		}
 	}
 
-	snapshotID := snapshots.ID(uuid.New().String())
-
 	var (
 		snapshotCommitSHA string
 		diffsCount        int32
@@ -296,6 +298,9 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 	}
 
 	countDiffs := func(repo vcs.RepoReader) error {
+
+		t0 := time.Now()
+
 		gitDiffs, err := repo.CurrentDiffNoIndex()
 		if err != nil {
 			return fmt.Errorf("can't get git diffs: %w", err)
@@ -315,6 +320,9 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 			return fmt.Errorf("can't decorate git diffs: %w", err)
 		}
 		diffsCount = int32(len(diffs))
+
+		logger.Info("counted diffs", zap.Duration("duration", time.Since(t0)))
+
 		return nil
 	}
 
@@ -473,6 +481,9 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 			}
 		}
 	}
+
+	logger.Info("snapshot created",
+		zap.Duration("duration", time.Since(t0)))
 
 	s.analyticsService.CaptureUser(context.TODO(), ws.UserID, "created snapshot",
 		analytics.CodebaseID(ws.CodebaseID),
