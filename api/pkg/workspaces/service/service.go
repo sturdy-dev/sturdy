@@ -268,7 +268,7 @@ func (s *Service) CopyPatches(ctx context.Context, dist, src *workspaces.Workspa
 		if options.PatchIDs != nil {
 			snapshotterOptions = append(snapshotterOptions, service_snapshots.WithPatchIDsFilter(*options.PatchIDs))
 		}
-		snapshot, err := s.snap.Snapshot(src.CodebaseID, src.ID, snapshots.ActionWorkspaceExtract, snapshotterOptions...)
+		snapshot, err := s.snap.Snapshot(ctx, src.CodebaseID, src.ID, snapshots.ActionWorkspaceExtract, snapshotterOptions...)
 		if err != nil {
 			return fmt.Errorf("failed to create snapshot: %w", err)
 		}
@@ -406,6 +406,7 @@ func (s *Service) Create(ctx context.Context, req CreateWorkspaceRequest) (*work
 	// Add the reverted changes to a snapshot
 	if req.BaseChangeID != nil && baseCommitSha != "" && req.Revert {
 		if _, err := s.snap.Snapshot(
+			ctx,
 			ws.CodebaseID,
 			ws.ID,
 			snapshots.ActionChangeReverted,
@@ -557,6 +558,7 @@ func (svc *Service) CreateWelcomeWorkspace(ctx context.Context, codebaseID codeb
 		}
 
 		if _, err := svc.snap.Snapshot(
+			ctx,
 			codebaseID, ws.ID,
 			snapshots.ActionViewSync, // TODO: Dedicated action for this?
 			service_snapshots.WithOnTemporaryView(),
@@ -610,6 +612,7 @@ func (s *Service) RemovePatches(ctx context.Context, ws *workspaces.Workspace, h
 				}
 
 				if _, err := s.snap.Snapshot(
+					ctx,
 					ws.CodebaseID,
 					ws.ID,
 					snapshots.ActionFileUndoPatch,

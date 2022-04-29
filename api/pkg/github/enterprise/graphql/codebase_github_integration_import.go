@@ -116,7 +116,7 @@ func (r *codebaseGitHubIntegrationRootResolver) CreateWorkspaceFromGitHubBranch(
 			}
 
 			// Create a snapshot
-			if _, err := r.snapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted,
+			if _, err := r.snapshotter.Snapshot(ctx, codebaseID, workspaceID, snapshots.ActionSyncCompleted,
 				service_snapshotter.WithOnView(viewID),
 				service_snapshotter.WithMarkAsLatestInWorkspace(),
 			); err != nil {

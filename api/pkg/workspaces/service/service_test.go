@@ -129,12 +129,12 @@ func TestWorkspace_SetSnapshot(t *testing.T) {
 
 	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, vw.ID, "make some changes"))
 
-	firstSnapshot, err := tc.snapshotService.Snapshot(tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
+	firstSnapshot, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
 	assert.NoError(t, err)
 
 	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test2"))).ExecView(tc.codebaseID, vw.ID, "make more changes"))
 
-	secondSnapshot, err := tc.snapshotService.Snapshot(tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
+	secondSnapshot, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, ws.ID, snapshots.Action("testing"), service_snapshots.WithOnView(vw.ID))
 	assert.NoError(t, err)
 	assert.Equal(t, firstSnapshot.ID, *secondSnapshot.PreviousSnapshotID)
 

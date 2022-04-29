@@ -101,10 +101,10 @@ func setup(t *testing.T) *testCase {
 func TestSnapshot_noChanges(t *testing.T) {
 	tc := setup(t)
 
-	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapOnce, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
-	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapTwice, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.Equal(t, snapOnce.ID, snapTwice.ID, "snapshots must be identical, no changes were made")
@@ -113,12 +113,12 @@ func TestSnapshot_noChanges(t *testing.T) {
 func TestSnapshot_noChangesDeleted(t *testing.T) {
 	tc := setup(t)
 
-	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapOnce, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.NoError(t, tc.snapshotService.Delete(context.Background(), snapOnce))
 
-	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapTwice, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, the first one was removed")
@@ -127,18 +127,18 @@ func TestSnapshot_noChangesDeleted(t *testing.T) {
 func TestSnapshot_previous_next(t *testing.T) {
 	tc := setup(t)
 
-	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	snapOnce, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
 
-	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	snapTwice, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, changes were made")
 
 	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test2"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
 
-	snapTri, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
+	snapTri, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.Action("test"), service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 	assert.NotEqual(t, snapTwice.ID, snapTri.ID, "snapshots must not be identical, changes were made")
 
@@ -172,12 +172,12 @@ func TestSnapshot_previous_next(t *testing.T) {
 func TestSnapshot_changes(t *testing.T) {
 	tc := setup(t)
 
-	snapOnce, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapOnce, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.NoError(t, tc.executorProvider.New().Write(writeFile("test.txt", []byte("test"))).ExecView(tc.codebaseID, tc.viewID, "make some changes"))
 
-	snapTwice, err := tc.snapshotService.Snapshot(tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	snapTwice, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
 	assert.NoError(t, err)
 
 	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, changes were made")

@@ -92,6 +92,8 @@ func (q *q) Start(ctx context.Context) error {
 				zap.Stringer("action", m.Action),
 			)
 
+			ctx, cancelTimeout := context.WithTimeout(ctx, time.Minute*5)
+
 			var options []service_snapshots.SnapshotOption
 			options = append(options, service_snapshots.WithOnView(m.ViewID))
 
@@ -104,12 +106,17 @@ func (q *q) Start(ctx context.Context) error {
 				}
 			}
 
-			if _, err := q.snapshotter.Snapshot(
+			_, err := q.snapshotter.Snapshot(
+				ctx,
 				m.CodebaseID,
 				m.WorkspaceID,
 				m.Action,
 				options...,
-			); errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
+			)
+
+			cancelTimeout()
+
+			if errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
 				logger.Warn("failed to make snapshot", zap.Error(err))
 				continue
 			} else if errors.Is(err, service_snapshots.ErrCantSnapshotWrongBranch) {

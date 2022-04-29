@@ -1,6 +1,7 @@
 package vcs_test
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -58,7 +59,7 @@ func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	diffs := getDiffs(t, repo)
 	assert.Len(t, diffs, 2)
 
-	_, err = vcs_change.CreateChangeFromPatchesOnRepo(zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "adding binary files", sig)
+	_, err = vcs_change.CreateChangeFromPatchesOnRepo(context.Background(), zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "adding binary files", sig)
 	assert.NoError(t, err)
 
 	// Expect empty diff
@@ -72,7 +73,7 @@ func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	diffs = getDiffs(t, repo)
 	assert.Len(t, diffs, 2)
 
-	_, err = vcs_change.CreateChangeFromPatchesOnRepo(zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "modify binary files", sig)
+	_, err = vcs_change.CreateChangeFromPatchesOnRepo(context.Background(), zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "modify binary files", sig)
 	assert.NoError(t, err)
 
 	// Expect empty diff
@@ -86,7 +87,7 @@ func TestAddModifyDeleteBinaryFile(t *testing.T) {
 	diffs = getDiffs(t, repo)
 	assert.Len(t, diffs, 2)
 
-	_, err = vcs_change.CreateChangeFromPatchesOnRepo(zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "remove binary files", sig)
+	_, err = vcs_change.CreateChangeFromPatchesOnRepo(context.Background(), zap.NewNop(), repo, codebaseID, allHunkIDs(diffs), "remove binary files", sig)
 	assert.NoError(t, err)
 
 	// Expect empty diff
@@ -265,7 +266,7 @@ func TestStagedCleanup(t *testing.T) {
 	assert.Len(t, hunkIds, 2)
 
 	// This should work! Even if we're trying to add an already added file.
-	_, err = vcs_change.CreateChangeFromPatchesOnRepo(zap.NewNop(), r, codebaseID, hunkIds, "added all", sig)
+	_, err = vcs_change.CreateChangeFromPatchesOnRepo(context.Background(), zap.NewNop(), r, codebaseID, hunkIds, "added all", sig)
 	assert.NoError(t, err)
 
 	// Test that it's safe to run CleanStaged even if the "staging area" is empty

@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -195,7 +196,7 @@ func TestContext(t *testing.T) {
 		t.Run(fmt.Sprintf("%d-%v", tc.lineNumber, tc.lineIsNew), func(t *testing.T) {
 			if tc.useSnapshot {
 				// make a snapshot
-				snapshot, err := d.GitSnapshotter.Snapshot(codebaseID, workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(viewID), service_snapshots.WithNoThrottle())
+				snapshot, err := d.GitSnapshotter.Snapshot(context.Background(), codebaseID, workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(viewID), service_snapshots.WithNoThrottle())
 				if assert.NoError(t, err) && assert.NotNil(t, snapshot) {
 					ws.LatestSnapshotID = &snapshot.ID
 				}

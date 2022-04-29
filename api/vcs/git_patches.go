@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 
@@ -11,7 +12,7 @@ import (
 // ApplyPatchesToIndex patches parsed and applied sequentially and the index is written afterwards.
 // If there is an error with any of the patches, the function returns before writing the index.
 // Returns a treeID or an error. The treeID can be passed to CommitIndexTree.
-func (repo *repository) ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error) {
+func (repo *repository) ApplyPatchesToIndex(ctx context.Context, patches [][]byte) (*git.Oid, error) {
 	defer getMeterFunc("ApplyPatchesToIndex")()
 
 	opts, err := git.DefaultApplyOptions()
@@ -20,6 +21,11 @@ func (repo *repository) ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error) 
 	}
 
 	for _, p := range patches {
+		// Context cancellation
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		diff, err := git.DiffFromBuffer(p, repo.r)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse change: %w", err)
@@ -27,16 +33,14 @@ func (repo *repository) ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error) 
 
 		err = repo.r.ApplyDiff(diff, git.ApplyLocationIndex, opts)
 		if err != nil {
-			_ = diff.Free()
 			return nil, fmt.Errorf("failed to apply change: %w", err)
 		}
-		_ = diff.Free()
 	}
+
 	index, err := repo.r.Index()
 	if err != nil {
 		return nil, fmt.Errorf("failed to access vcs index: %w", err)
 	}
-	defer index.Free()
 
 	oid, err := index.WriteTree()
 	if err != nil {

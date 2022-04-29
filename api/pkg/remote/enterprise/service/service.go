@@ -342,7 +342,7 @@ func (svc *EnterpriseService) PrepareBranchForPush(ctx context.Context, prBranch
 		}
 		return
 	} else if ws.ViewID != nil {
-		commitSha, err = svc.prepareBranchForPullRequestWithView(prBranchName, ws, commitMessage, userName, userEmail)
+		commitSha, err = svc.prepareBranchForPullRequestWithView(ctx, prBranchName, ws, commitMessage, userName, userEmail)
 		if err != nil {
 			return "", fmt.Errorf("failed to prepare branch from snapshot: %w", err)
 		}
@@ -383,7 +383,7 @@ func (svc *EnterpriseService) prepareBranchForPullRequestFromSnapshot(ctx contex
 	return resSha, nil
 }
 
-func (svc *EnterpriseService) prepareBranchForPullRequestWithView(prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
+func (svc *EnterpriseService) prepareBranchForPullRequestWithView(ctx context.Context, prBranchName string, ws *workspaces.Workspace, commitMessage, userName, userEmail string) (string, error) {
 	signature := git.Signature{
 		Name:  userName,
 		Email: userEmail,
@@ -393,7 +393,7 @@ func (svc *EnterpriseService) prepareBranchForPullRequestWithView(prBranchName s
 	var resSha string
 
 	exec := svc.executorProvider.New().FileReadGitWrite(func(r vcs.RepoReaderGitWriter) error {
-		treeID, err := vcs_change.CreateChangesTreeFromPatches(svc.logger, r, ws.CodebaseID, nil)
+		treeID, err := vcs_change.CreateChangesTreeFromPatches(ctx, svc.logger, r, ws.CodebaseID, nil)
 		if err != nil {
 			return err
 		}

@@ -192,7 +192,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	t.Run("ImportPullRequest", func(t *testing.T) {
 		pr, _ := createFakePr(5000, 1, "foobar.txt", "hello world")
 
-		err = d.GitHubService.ImportPullRequest(usr.ID, pr, repo, installation, "testing-access-token")
+		err = d.GitHubService.ImportPullRequest(context.Background(), usr.ID, pr, repo, installation, "testing-access-token")
 		assert.NoError(t, err)
 
 		ws := getWorkspace("<p>hello world</p>")
