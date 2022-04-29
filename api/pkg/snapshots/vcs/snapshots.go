@@ -82,7 +82,7 @@ func allPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader) ([]string, error) {
 	return patchIDs, nil
 }
 
-func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID string, signature git.Signature, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID snapshots.ID, signature git.Signature, opts ...SnapshotOption) (string, error) {
 	start := time.Now()
 
 	options := snapshotOptions(opts...)
@@ -96,7 +96,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 
 	decoratedLogger := logger.With(
 		zap.String("codebase_id", codebaseID.String()),
-		zap.String("snapshot_id", snapshotID),
+		zap.Stringer("snapshot_id", snapshotID),
 		zap.String("repo_path", repo.Path()),
 	)
 
@@ -137,7 +137,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 	}
 
 	// Push to upstream
-	branchName := "snapshot-" + snapshotID
+	branchName := branchName(snapshotID)
 	if err := repo.CreateNewBranchAt(branchName, snapshotCommitID); err != nil {
 		return "", fmt.Errorf("failed to create branch at snapshot branchName=%s snapshotCommitID=%s: %w", branchName, snapshotCommitID, err)
 	}
@@ -148,7 +148,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 	return snapshotCommitID, nil
 }
 
-func SnapshotOnViewRepoWithRevert(repo vcs.RepoWriter, logger *zap.Logger, snapshotID string, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepoWithRevert(repo vcs.RepoWriter, logger *zap.Logger, snapshotID snapshots.ID, opts ...SnapshotOption) (string, error) {
 	if snapshotID == "" {
 		return "", errors.New("snapshotID is not set")
 	}
@@ -170,7 +170,7 @@ func SnapshotOnViewRepoWithRevert(repo vcs.RepoWriter, logger *zap.Logger, snaps
 	head := *hb[0]
 	base := hb[1]
 
-	if err := repo.CreateAndCheckoutBranchAtCommit(head, "snapshot-pre-revert-"+snapshotID); err != nil {
+	if err := repo.CreateAndCheckoutBranchAtCommit(head, fmt.Sprintf("snapshot-pre-revert-%s", snapshotID)); err != nil {
 		return "", fmt.Errorf("failed to create pre-revert branch: %w", err)
 	}
 
@@ -204,7 +204,7 @@ func SnapshotOnViewRepoWithRevert(repo vcs.RepoWriter, logger *zap.Logger, snaps
 		return "", fmt.Errorf("failed to restore to workspace: %w", err)
 	}
 
-	branchName := "snapshot-" + snapshotID
+	branchName := branchName(snapshotID)
 
 	// Push to upstream
 	if err := repo.CreateNewBranchAt(branchName, snapshotCommitID); err != nil {
@@ -217,11 +217,15 @@ func SnapshotOnViewRepoWithRevert(repo vcs.RepoWriter, logger *zap.Logger, snaps
 	return snapshotCommitID, nil
 }
 
-func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID, existingCommitID string) (string, error) {
+func branchName(snapshotID snapshots.ID) string {
+	return fmt.Sprintf("snapshot-%s", snapshotID)
+}
+
+func SnapshotOnExistingCommit(repo vcs.RepoGitWriter, snapshotID snapshots.ID, existingCommitID string) (string, error) {
 	if snapshotID == "" {
 		return "", errors.New("snapshotID is not set")
 	}
-	if err := repo.CreateNewBranchAt("snapshot-"+snapshotID, existingCommitID); err != nil {
+	if err := repo.CreateNewBranchAt(branchName(snapshotID), existingCommitID); err != nil {
 		return "", err
 	}
 	return existingCommitID, nil
@@ -233,8 +237,8 @@ func Restore(logger *zap.Logger, snapshot *snapshots.Snapshot) func(vcs.RepoWrit
 	}
 }
 
-func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, snapshotID, snapshotCommitID string) error {
-	if err := repo.FetchBranch("snapshot-" + snapshotID); err != nil {
+func RestoreRepo(logger *zap.Logger, repo vcs.RepoWriter, snapshotID snapshots.ID, snapshotCommitID string) error {
+	if err := repo.FetchBranch(branchName(snapshotID)); err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
 

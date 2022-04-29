@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/suggestions"
 
 	"github.com/jmoiron/sqlx"
@@ -134,7 +135,7 @@ func (d *database) ListForWorkspaceID(ctx context.Context, id string) ([]*sugges
 	return suggestions, nil
 }
 
-func (d *database) ListBySnapshotID(ctx context.Context, snapshotID string) ([]*suggestions.Suggestion, error) {
+func (d *database) ListBySnapshotID(ctx context.Context, snapshotID snapshots.ID) ([]*suggestions.Suggestion, error) {
 	suggestions := []*suggestions.Suggestion{}
 	if err := d.db.SelectContext(ctx, &suggestions, `
 		SELECT

@@ -5,6 +5,7 @@ import (
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 )
 
@@ -20,7 +21,7 @@ func NewRoot(
 	}
 }
 
-func (r *rootResolver) InternalByID(ctx context.Context, id string) (resolvers.SnapshotResolver, error) {
+func (r *rootResolver) InternalByID(ctx context.Context, id snapshots.ID) (resolvers.SnapshotResolver, error) {
 	snap, err := r.snapshotService.GetByID(ctx, id)
 	if err != nil {
 		return nil, gqlerrors.Error(err)

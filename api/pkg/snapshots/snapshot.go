@@ -8,14 +8,20 @@ import (
 	"getsturdy.com/api/pkg/jsontime"
 )
 
+type ID string
+
+func (id ID) String() string {
+	return string(id)
+}
+
 type Snapshot struct {
-	ID string `json:"id" db:"id"`
+	ID ID `json:"id" db:"id"`
 	// CommitSHA with the snapshotted content. I.E. to get a view state without the snapshot, soft reset it to the commitID's parent.
 	CommitSHA          string       `json:"-" db:"commit_id"`
 	CodebaseID         codebases.ID `json:"codebase_id" db:"codebase_id"`
 	WorkspaceID        string       `json:"workspace_id" db:"workspace_id"`
 	CreatedAt          time.Time    `json:"-" db:"created_at"`
-	PreviousSnapshotID *string      `json:"previous_snapshot_id" db:"previous_snapshot_id"`
+	PreviousSnapshotID *ID          `json:"previous_snapshot_id" db:"previous_snapshot_id"`
 	Action             Action       `json:"action" db:"action"`           // The action that triggered the snapshot creations
 	DeletedAt          *time.Time   `json:"deleted_at" db:"deleted_at"`   // If the snapshot has been garbage collected
 	DiffsCount         *int32       `json:"diffs_count" db:"diffs_count"` // number of diffs in a Snapshot

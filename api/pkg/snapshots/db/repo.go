@@ -11,13 +11,13 @@ import (
 )
 
 type Repository interface {
-	Create(snapshot *snapshots.Snapshot) error
+	Create(*snapshots.Snapshot) error
 	LatestInWorkspace(context.Context, string) (*snapshots.Snapshot, error)
 	GetByCommitSHA(context.Context, string) (*snapshots.Snapshot, error)
-	GetByPreviousSnapshotID(context.Context, string) (*snapshots.Snapshot, error)
-	ListByIDs(context.Context, []string) ([]*snapshots.Snapshot, error)
-	Get(string) (*snapshots.Snapshot, error)
-	Update(snapshot *snapshots.Snapshot) error
+	GetByPreviousSnapshotID(context.Context, snapshots.ID) (*snapshots.Snapshot, error)
+	ListByIDs(context.Context, []snapshots.ID) ([]*snapshots.Snapshot, error)
+	Get(snapshots.ID) (*snapshots.Snapshot, error)
+	Update(*snapshots.Snapshot) error
 }
 
 type dbrepo struct {
@@ -39,7 +39,7 @@ func (r *dbrepo) Create(snapshot *snapshots.Snapshot) error {
 	return nil
 }
 
-func (r *dbrepo) Get(id string) (*snapshots.Snapshot, error) {
+func (r *dbrepo) Get(id snapshots.ID) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
 	err := r.db.Get(&res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots
@@ -87,7 +87,7 @@ func (r *dbrepo) GetByCommitSHA(ctx context.Context, sha string) (*snapshots.Sna
 	return &res, nil
 }
 
-func (r *dbrepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snapshot, error) {
+func (r *dbrepo) ListByIDs(ctx context.Context, ids []snapshots.ID) ([]*snapshots.Snapshot, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -100,7 +100,7 @@ func (r *dbrepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snap
 	return res, nil
 }
 
-func (r *dbrepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID string) (*snapshots.Snapshot, error) {
+func (r *dbrepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID snapshots.ID) (*snapshots.Snapshot, error) {
 	var res snapshots.Snapshot
 	if err := r.db.GetContext(ctx, &res, `SELECT id, created_at, previous_snapshot_id, codebase_id, commit_id, workspace_id,  action, diffs_count
 		FROM snapshots

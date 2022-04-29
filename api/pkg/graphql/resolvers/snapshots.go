@@ -3,11 +3,13 @@ package resolvers
 import (
 	"context"
 
+	"getsturdy.com/api/pkg/snapshots"
+
 	"github.com/graph-gophers/graphql-go"
 )
 
 type SnapshotsRootResolver interface {
-	InternalByID(context.Context, string) (SnapshotResolver, error)
+	InternalByID(context.Context, snapshots.ID) (SnapshotResolver, error)
 }
 
 type SnapshotResolver interface {

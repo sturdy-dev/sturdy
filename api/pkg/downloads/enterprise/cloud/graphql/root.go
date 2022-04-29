@@ -60,7 +60,7 @@ func (r *ContentsDownloadURLRootResolver) downloadWorkspace(ctx context.Context,
 	// Use specified snapshot if provided
 	if args.Input != nil && args.Input.SnapshotID != nil {
 		var err error
-		snapshot, err = r.snapshotter.GetByID(ctx, string(*args.Input.SnapshotID))
+		snapshot, err = r.snapshotter.GetByID(ctx, snapshots.ID(*args.Input.SnapshotID))
 		if err != nil {
 			return nil, gqlerrors.Error(fmt.Errorf("unable to find snapshot %s: %w", *args.Input.SnapshotID, err))
 		}

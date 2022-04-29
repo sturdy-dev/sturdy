@@ -637,7 +637,7 @@ func (s *Service) HasConflicts(ctx context.Context, ws *workspaces.Workspace) (b
 		return false, nil
 	}
 
-	snapshotBranchName := fmt.Sprintf("snapshot-" + *ws.LatestSnapshotID)
+	snapshotBranchName := fmt.Sprintf("snapshot-%s", *ws.LatestSnapshotID)
 
 	var hasConflicts bool
 	checkConflicts := func(repo vcs.RepoGitWriter) error {
