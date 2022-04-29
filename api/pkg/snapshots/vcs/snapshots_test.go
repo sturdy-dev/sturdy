@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"path"
@@ -74,7 +75,7 @@ func TestSnapshot(t *testing.T) {
 	}
 
 	// Snapshot
-	firstSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
+	firstSnapshotCommitID, err := SnapshotOnViewRepo(context.Background(), zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
 	assert.NoError(t, err)
 	diffs, _, err := viewRepo.ShowCommit(firstSnapshotCommitID)
 	assert.NoError(t, err)
@@ -89,7 +90,7 @@ func TestSnapshot(t *testing.T) {
 	// Update files some more and snapshot
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/a.txt", []byte("hello a2"), 0o666))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b2"), 0o666))
-	secondSnapshotCommitID, err := SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
+	secondSnapshotCommitID, err := SnapshotOnViewRepo(context.Background(), zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
 	assert.NoError(t, err)
 
 	diffs, _, err = viewRepo.ShowCommit(secondSnapshotCommitID)
@@ -139,8 +140,28 @@ func TestSnapshot(t *testing.T) {
 	// Remove a file and snapshot
 	assert.NoError(t, os.Remove(viewPath+"/a.txt"))
 	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello b3"), 0o666))
-	_, err = SnapshotOnViewRepo(zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
+	_, err = SnapshotOnViewRepo(context.Background(), zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
 	assert.NoError(t, err)
+
+	// snapshot with cancelled context
+	ctx, cancel := context.WithTimeout(context.Background(), 0) // cancel immediately
+	defer cancel()
+
+	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello timeout"), 0o666))
+	timedoutSnapshot, err := SnapshotOnViewRepo(ctx, zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
+	assert.ErrorIs(t, err, context.DeadlineExceeded)
+	assert.Empty(t, timedoutSnapshot)
+
+	// view should be in a good state
+	currentBranch, err := viewRepo.HeadBranch()
+	assert.NoError(t, err)
+	assert.Equal(t, "workspaceID", currentBranch)
+
+	// test snapshot after timeout
+	assert.NoError(t, ioutil.WriteFile(viewPath+"/b.txt", []byte("hello after timeout"), 0o666))
+	afterTimeoutSnapshot, err := SnapshotOnViewRepo(context.Background(), zap.NewNop(), viewRepo, codebaseID, snapshots.ID(uuid.NewString()), sig)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, afterTimeoutSnapshot)
 
 	// TODO: Verify snapshot commits, current working directory, etc.
 }

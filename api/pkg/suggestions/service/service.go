@@ -251,6 +251,7 @@ func (s *Service) ApplyHunks(ctx context.Context, suggestion *suggestions.Sugges
 				}
 
 				if _, err := s.snapshotter.Snapshot(
+					ctx,
 					originalWorkspace.CodebaseID,
 					originalWorkspace.ID,
 					snapshots.ActionSuggestionApply,
@@ -361,6 +362,7 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 				return err
 			}
 			if _, err := s.snapshotter.Snapshot(
+				ctx,
 				workspace.CodebaseID,
 				workspace.ID,
 				snapshots.ActionFileUndoPatch,
@@ -389,6 +391,7 @@ func (s *Service) RemovePatches(ctx context.Context, suggestion *suggestions.Sug
 					return err
 				}
 				if _, err := s.snapshotter.Snapshot(
+					ctx,
 					workspace.CodebaseID,
 					workspace.ID,
 					snapshots.ActionFileUndoPatch,

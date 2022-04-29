@@ -128,6 +128,9 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 	importBranchName := fmt.Sprintf("import-pull-request-%d-%s", gitHubPR.GetNumber(), uuid.NewString())
 	refspec := fmt.Sprintf("+refs/pull/%d/head:refs/heads/%s", gitHubPR.GetNumber(), importBranchName)
 
+	ctx, cancelTimeout := context.WithTimeout(context.Background(), time.Minute*2)
+	defer cancelTimeout()
+
 	var commonAncestor string
 
 	// Fetch to trunk
@@ -180,7 +183,8 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 				return fmt.Errorf("failed to reset temporary view to common ancestor: %w", err)
 			}
 
-			if _, err := svc.snap.Snapshot(workspace.CodebaseID, workspace.ID,
+			if _, err := svc.snap.Snapshot(ctx,
+				workspace.CodebaseID, workspace.ID,
 				snapshots.ActionImported,
 				service_snapshots.WithMarkAsLatestInWorkspace(),
 				service_snapshots.WithOnView(*repo.ViewID()),

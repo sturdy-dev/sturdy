@@ -1,6 +1,8 @@
 package vcs
 
 import (
+	"context"
+
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	git "github.com/libgit2/git2go/v33"
@@ -87,7 +89,7 @@ type RepoGitWriter interface {
 	MergeBranches(ourBranchName, theirBranchName string) (*git.Index, error)
 	MergeBranchInto(branchName, mergeIntoBranchName string) (mergeCommitId string, err error)
 
-	ApplyPatchesToIndex(patches [][]byte) (*git.Oid, error)
+	ApplyPatchesToIndex(ctx context.Context, patches [][]byte) (*git.Oid, error)
 }
 
 type RepoReaderGitWriter interface {

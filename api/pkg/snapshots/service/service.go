@@ -191,7 +191,7 @@ func (s *Service) Delete(ctx context.Context, snapshot *snapshots.Snapshot) erro
 }
 
 //nolint:cyclop
-func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
+func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspaceID string, action snapshots.Action, opts ...SnapshotOption) (*snapshots.Snapshot, error) {
 	options := getSnapshotOptions(opts...)
 
 	if !options.onTemporaryView && options.onView == nil {
@@ -363,7 +363,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		}
 
 		var err error
-		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(s.logger, options.onRepo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
+		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(ctx, s.logger, options.onRepo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -394,7 +394,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 			// Normal snapshot
 			exec = exec.Read(countDiffs)
 			exec = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
-				commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
+				commitID, err := vcs_snapshots.SnapshotOnViewRepo(ctx, s.logger, repo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 				if err != nil {
 					return err
 				}
@@ -702,7 +702,7 @@ func (s *Service) Copy(ctx context.Context, snapshotID snapshots.ID, oo ...CopyO
 				return fmt.Errorf("failed to apply patches to workdir: %w", err)
 			}
 
-			commitID, err := vcs_snapshots.SnapshotOnViewRepo(s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID, gitSignature)
+			commitID, err := vcs_snapshots.SnapshotOnViewRepo(ctx, s.logger, repo, newSnapshot.CodebaseID, newSnapshot.ID, gitSignature)
 			if err != nil {
 				return fmt.Errorf("failed to snapshot on view repo: %w", err)
 			}

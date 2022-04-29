@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 )
 
 func (s *Service) CreateAndLandFromView(
+	ctx context.Context,
 	viewRepo vcs.RepoWriter,
 	codebaseID codebases.ID,
 	workspaceID string,
@@ -27,7 +29,7 @@ func (s *Service) CreateAndLandFromView(
 		return "", nil, fmt.Errorf("can not create on a non view")
 	}
 
-	snapshot, err := s.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionPreChangeLand, service_snapshots.WithOnRepo(viewRepo), service_snapshots.WithOnView(*viewID))
+	snapshot, err := s.snap.Snapshot(ctx, codebaseID, workspaceID, snapshots.ActionPreChangeLand, service_snapshots.WithOnRepo(viewRepo), service_snapshots.WithOnView(*viewID))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to snapshot: %w", err)
 	}
@@ -52,7 +54,7 @@ func (s *Service) CreateAndLandFromView(
 		s.logger.Info("successfully restored view after failed landing")
 	}()
 
-	createdCommitID, err := vcs_changes.CreateChangeFromPatchesOnRepo(s.logger, viewRepo, codebaseID, nil, message, signature, diffOpts...)
+	createdCommitID, err := vcs_changes.CreateChangeFromPatchesOnRepo(ctx, s.logger, viewRepo, codebaseID, nil, message, signature, diffOpts...)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create the new change: %w", err)
 	}
