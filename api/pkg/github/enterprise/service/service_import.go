@@ -280,6 +280,12 @@ func (svc *Service) ImportPullRequest(
 	}
 
 	if err := svc.gitHubPullRequestRepo.Create(sturdyPR); err != nil {
+
+		// import failed, archive the workspace that we created
+		if err := svc.workspacesService.Archive(context.Background(), &ws); err != nil {
+			return fmt.Errorf("failed to archive workspace after failed import: %w", err)
+		}
+
 		return fmt.Errorf("failed to save pull request record: %w", err)
 	}
 
