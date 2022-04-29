@@ -71,7 +71,7 @@ func (svc *Service) ImportOpenPullRequestsByUser(ctx context.Context, codebaseID
 
 		svc.logger.Info("importing pull request", zap.Stringer("codebase_id", codebaseID), zap.Int("pr_number", pr.GetNumber()))
 
-		err := svc.ImportPullRequest(userID, api.ConvertPullRequest(pr), repo, installation, accessToken)
+		err := svc.ImportPullRequest(ctx, userID, api.ConvertPullRequest(pr), repo, installation, accessToken)
 		switch {
 		case errors.Is(err, ErrAlreadyImported):
 			continue
@@ -207,6 +207,7 @@ func (svc *Service) fetchAndSnapshotPullRequest(
 }
 
 func (svc *Service) ImportPullRequest(
+	ctx context.Context,
 	userID users.ID,
 	gitHubPR *api.PullRequest,
 	ghRepo *github.Repository,
@@ -245,7 +246,7 @@ func (svc *Service) ImportPullRequest(
 	if err := svc.fetchAndSnapshotPullRequest(gitHubPR, accessToken, &ws); err != nil {
 
 		// import failed, archive the workspace that we created
-		if err := svc.workspaceWriter.UpdateFields(context.Background(), ws.ID, db_workspaces.SetArchivedAt(&t)); err != nil {
+		if err := svc.workspaceWriter.UpdateFields(ctx, ws.ID, db_workspaces.SetArchivedAt(&t)); err != nil {
 			return fmt.Errorf("failed to archive workspace after failed import: %w", err)
 		}
 
@@ -282,7 +283,7 @@ func (svc *Service) ImportPullRequest(
 	if err := svc.gitHubPullRequestRepo.Create(sturdyPR); err != nil {
 
 		// import failed, archive the workspace that we created
-		if err := svc.workspacesService.Archive(context.Background(), &ws); err != nil {
+		if err := svc.workspacesService.Archive(ctx, &ws); err != nil {
 			return fmt.Errorf("failed to archive workspace after failed import: %w", err)
 		}
 
