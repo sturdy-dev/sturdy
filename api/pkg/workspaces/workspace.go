@@ -34,8 +34,8 @@ type Workspace struct {
 	// The last snapshot of this workspace
 	// Is used as the "live" diff if the workspace has no view connected
 	// and to restore the contents when the workspace is opened again
-	LatestSnapshotID *string `db:"latest_snapshot_id" json:"-"`
-	DiffsCount       *int32  `db:"diffs_count" json:"-"`
+	LatestSnapshotID *snapshots.ID `db:"latest_snapshot_id" json:"-"`
+	DiffsCount       *int32        `db:"diffs_count" json:"-"`
 
 	UpToDateWithTrunk *bool `db:"up_to_date_with_trunk"`
 

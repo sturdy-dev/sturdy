@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 	"github.com/lib/pq"
 )
@@ -21,7 +22,7 @@ type Suggestion struct {
 	// The id of the workspace that suggestion is being made for.
 	ForWorkspaceID string `db:"for_workspace_id"`
 	// The id of the snapshot that suggestion is being made for.
-	ForSnapshotID string `db:"for_snapshot_id"`
+	ForSnapshotID snapshots.ID `db:"for_snapshot_id"`
 	// Time when the suggestion was created.
 	CreatedAt time.Time `db:"created_at"`
 	// ID of the suggestion diff hunk ids that were applied.

@@ -13,6 +13,7 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
@@ -237,7 +238,7 @@ func (r *WorkspaceRootResolver) SetWorkspaceSnapshot(ctx context.Context, args r
 		return nil, gqlerrors.Error(err)
 	}
 
-	snap, err := r.snapshotsRepo.Get(string(args.Input.SnapshotID))
+	snap, err := r.snapshotsRepo.Get(snapshots.ID(args.Input.SnapshotID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}

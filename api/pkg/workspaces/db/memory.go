@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
@@ -110,7 +111,7 @@ func (f *memory) GetByViewID(viewId string, includeArchived bool) (*workspaces.W
 	return nil, sql.ErrNoRows
 }
 
-func (f *memory) GetBySnapshotID(id string) (*workspaces.Workspace, error) {
+func (f *memory) GetBySnapshotID(id snapshots.ID) (*workspaces.Workspace, error) {
 	panic("not implemented")
 }
 

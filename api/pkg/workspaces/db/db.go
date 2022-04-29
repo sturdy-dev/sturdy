@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 
@@ -140,7 +141,7 @@ func (r *repo) ListByUserID(ctx context.Context, userID users.ID) ([]*workspaces
 	return entities, nil
 }
 
-func (r *repo) GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error) {
+func (r *repo) GetBySnapshotID(snapshotID snapshots.ID) (*workspaces.Workspace, error) {
 	var entity workspaces.Workspace
 	if err := r.db.Get(&entity, `
 		SELECT 

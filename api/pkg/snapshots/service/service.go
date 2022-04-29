@@ -159,7 +159,7 @@ func getSnapshotOptions(opts ...SnapshotOption) *SnapshotOptions {
 	return options
 }
 
-func (s *Service) GetByID(_ context.Context, id string) (*snapshots.Snapshot, error) {
+func (s *Service) GetByID(_ context.Context, id snapshots.ID) (*snapshots.Snapshot, error) {
 	return s.snapshotsRepo.Get(id)
 }
 
@@ -256,7 +256,7 @@ func (s *Service) Snapshot(codebaseID codebases.ID, workspaceID string, action s
 		}
 	}
 
-	snapshotID := uuid.New().String()
+	snapshotID := snapshots.ID(uuid.New().String())
 
 	var (
 		snapshotCommitSHA string
@@ -559,7 +559,7 @@ func getDiffOptions(opts ...DiffsOption) *DiffsOptions {
 	return options
 }
 
-func (s *Service) Diffs(ctx context.Context, snapshotID string, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
+func (s *Service) Diffs(ctx context.Context, snapshotID snapshots.ID, oo ...DiffsOption) ([]unidiff.FileDiff, error) {
 	snapshot, err := s.snapshotsRepo.Get(snapshotID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get snapshot: %w", err)
@@ -641,7 +641,7 @@ func getCopyOptions(oo ...CopyOption) *CopyOptions {
 }
 
 // Copy creates a new snapshot from the given snapshot.
-func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption) (*snapshots.Snapshot, error) {
+func (s *Service) Copy(ctx context.Context, snapshotID snapshots.ID, oo ...CopyOption) (*snapshots.Snapshot, error) {
 	snapshot, err := s.snapshotsRepo.Get(snapshotID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get snapshot: %w", err)
@@ -666,7 +666,7 @@ func (s *Service) Copy(ctx context.Context, snapshotID string, oo ...CopyOption)
 	}
 
 	newSnapshot := &snapshots.Snapshot{
-		ID:          uuid.New().String(),
+		ID:          snapshots.ID(uuid.NewString()),
 		CreatedAt:   time.Now(),
 		CodebaseID:  snapshot.CodebaseID,
 		WorkspaceID: snapshot.WorkspaceID,
