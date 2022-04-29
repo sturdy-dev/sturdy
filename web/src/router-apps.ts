@@ -212,7 +212,7 @@ export const RoutesApps: RouteRecordRaw[] = [
   },
   {
     path: '/join/:code',
-    component: () => import('./components/join/Join.vue'),
+    component: () => import('./pages/join/Index.vue'),
     name: 'join',
     meta: { nonApp: true, hideNavigation: true, isAuth: true },
   },

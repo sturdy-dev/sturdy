@@ -31,7 +31,7 @@
 import { EmailAuth, PasswordAuth } from '../organisms/auth'
 import { Feature } from '../__generated__/types'
 import { computed, defineComponent, inject, ref, watch } from 'vue'
-import type { Ref, PropType } from 'vue'
+import type { Ref } from 'vue'
 import { gql, useQuery } from '@urql/vue'
 import ServerInfo from '../organisms/auth/ServerInfo.vue'
 
@@ -45,7 +45,7 @@ export default defineComponent({
     user: { type: Object, default: null },
     startWithSignUp: { type: Boolean, default: false },
     navigateTo: { type: String, default: () => '/codebases' },
-    features: { type: Array as PropType<Feature[]>, required: true },
+    reload: { type: Boolean, default: false },
   },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
@@ -112,7 +112,11 @@ export default defineComponent({
     async successRedirect() {
       const queryParam = this.$route.query.navigateTo
       const to = queryParam ? (queryParam as string) : this.navigateTo
-      await this.$router.push(to)
+      if (this.reload) {
+        window.location.href = to
+      } else {
+        await this.$router.push(to)
+      }
     },
   },
 })
