@@ -15,6 +15,7 @@ import (
 	service_activity "getsturdy.com/api/pkg/activity/service"
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	"getsturdy.com/api/pkg/auth"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
@@ -201,6 +202,7 @@ func (svc *Service) importNewPullRequest(ctx context.Context, repo *github.Repos
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
 	}
+	ctx = auth.NewUserContext(ctx, user.ID)
 
 	installation, err := svc.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
 	if err != nil {
@@ -212,7 +214,7 @@ func (svc *Service) importNewPullRequest(ctx context.Context, repo *github.Repos
 		return fmt.Errorf("failed to get access token: %w", err)
 	}
 
-	if err := svc.githubService.ImportPullRequest(user.ID, event.GetPullRequest(), repo, installation, accessToken); errors.Is(err, service_github.ErrAlreadyImported) {
+	if err := svc.githubService.ImportPullRequest(ctx, user.ID, event.GetPullRequest(), repo, installation, accessToken); errors.Is(err, service_github.ErrAlreadyImported) {
 		return nil
 	} else if err != nil {
 		return err
@@ -399,7 +401,7 @@ func (svc *Service) HandleInstallationEvent(ctx context.Context, event *Installa
 		if event.GetAction() == "created" {
 			for _, r := range event.Repositories {
 
-				if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+				if err := svc.handleInstalledRepository(ctx, event.GetInstallation().GetID(), r); err != nil {
 					return err
 				}
 			}
@@ -435,7 +437,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	if event.GetRepositorySelection() == "selected" || event.GetRepositorySelection() == "all" {
 		// Add new repos
 		for _, r := range event.RepositoriesAdded {
-			if err := svc.handleInstalledRepository(event.GetInstallation().GetID(), r); err != nil {
+			if err := svc.handleInstalledRepository(ctx, event.GetInstallation().GetID(), r); err != nil {
 				return err
 			}
 		}
@@ -473,8 +475,7 @@ func (svc *Service) HandleInstallationRepositoriesEvent(ctx context.Context, eve
 	return nil
 }
 
-func (svc *Service) handleInstalledRepository(installationID int64, ghRepo *api.Repository) error {
-	ctx := context.Background()
+func (svc *Service) handleInstalledRepository(ctx context.Context, installationID int64, ghRepo *api.Repository) error {
 
 	// CreateWithCommitAsParent a non-ready codebase (add the initiating user), and put the event on a queue
 	logger := svc.logger.With(zap.String("repo_name", ghRepo.GetName()), zap.Int64("installation_id", installationID))
