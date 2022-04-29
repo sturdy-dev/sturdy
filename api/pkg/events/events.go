@@ -39,7 +39,6 @@ const (
 	WorkspaceUpdated
 	WorkspaceUpdatedComments
 	WorkspaceUpdatedReviews
-	ReviewUpdated
 	WorkspaceUpdatedActivity
 	WorkspaceUpdatedSnapshot
 	WorkspaceUpdatedPresence
@@ -56,7 +55,6 @@ var eventTypeString = map[EventType]string{
 	WorkspaceUpdatedActivity:   "WorkspaceUpdatedActivity",
 	WorkspaceUpdatedPresence:   "WorkspaceUpdatedPresence",
 	WorkspaceUpdatedSuggestion: "WorkspaceUpdatedSuggestion",
-	ReviewUpdated:              "ReviewUpdated",
 	NotificationEvent:          "NotificationEvent",
 }
 

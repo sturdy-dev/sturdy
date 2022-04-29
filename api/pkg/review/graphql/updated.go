@@ -2,12 +2,13 @@ package graphql
 
 import (
 	"context"
-	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/review"
 
 	"go.uber.org/zap"
 )
@@ -20,41 +21,21 @@ func (r *reviewRootResolver) UpdatedReviews(ctx context.Context) (<-chan resolve
 
 	c := make(chan resolvers.ReviewResolver, 100)
 
-	cancelFunc := r.eventsReader.SubscribeUser(userID, func(eventType events.EventType, reviewID string) error {
+	r.eventSubscriber.OnReviewUpdated(ctx, eventsv2.SubscribeUser(userID), func(ctx context.Context, rev *review.Review) error {
 		select {
 		case <-ctx.Done():
 			return events.ErrClientDisconnected
-		default:
-		}
-
-		if eventType != events.ReviewUpdated {
-			return nil
-		}
-
-		resolver, err := r.InternalReview(ctx, reviewID)
-		if err != nil {
-			return fmt.Errorf("failed to get review: %w", err)
-		}
-
-		select {
-		case <-ctx.Done():
-			return events.ErrClientDisconnected
-		case c <- resolver:
+		case c <- &reviewResolver{root: r, rev: rev}:
 		default:
 			r.logger.Named("updatedReviews").Error("dropped event",
 				zap.Stringer("user_id", userID),
-				zap.Stringer("event_type", eventType),
 				zap.Int("channel_size", len(c)),
 			)
 		}
 
 		return nil
-	})
 
-	go func() {
-		<-ctx.Done()
-		cancelFunc()
-	}()
+	})
 
 	return c, nil
 }

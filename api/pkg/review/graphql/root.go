@@ -14,6 +14,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/notification"
@@ -39,7 +40,8 @@ type reviewRootResolver struct {
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
 
 	eventsSender       events.EventSender
-	eventsReader       events.EventReader
+	eventPublisher     *eventsv2.Publisher
+	eventSubscriber    *eventsv2.Subscriber
 	notificationSender sender.NotificationSender
 	activitySender     activity_sender.ActivitySender
 
@@ -58,7 +60,8 @@ func New(
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
 
 	eventsSender events.EventSender,
-	eventsReader events.EventReader,
+	eventPublisher *eventsv2.Publisher,
+	eventSubscriber *eventsv2.Subscriber,
 	notificationSender sender.NotificationSender,
 	activitySender activity_sender.ActivitySender,
 
@@ -77,7 +80,8 @@ func New(
 		workspaceRootResolver: workspaceRootResolver,
 
 		eventsSender:       eventsSender,
-		eventsReader:       eventsReader,
+		eventPublisher:     eventPublisher,
+		eventSubscriber:    eventSubscriber,
 		notificationSender: notificationSender,
 		activitySender:     activitySender,
 
@@ -190,7 +194,7 @@ func (r *reviewRootResolver) CreateOrUpdateReview(ctx context.Context, args reso
 		// do not fail
 	}
 
-	if err := r.eventsSender.Workspace(ws.ID, events.ReviewUpdated, rev.ID); err != nil {
+	if err := r.eventPublisher.ReviewUpdated(ctx, eventsv2.Workspace(ws.ID), &rev); err != nil {
 		r.logger.Error("failed to send workspace event", zap.Error(err))
 		// do not fail
 	}
@@ -278,10 +282,11 @@ func (r *reviewRootResolver) RequestReview(ctx context.Context, args resolvers.R
 		// do not fail
 	}
 
-	if err := r.eventsSender.Workspace(ws.ID, events.ReviewUpdated, rev.ID); err != nil {
+	if err := r.eventPublisher.ReviewUpdated(ctx, eventsv2.Workspace(ws.ID), &rev); err != nil {
 		r.logger.Error("failed to send workspace event", zap.Error(err))
 		// do not fail
 	}
+
 	r.analyticsService.Capture(ctx, "review requested",
 		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("workspace_id", ws.ID),
@@ -312,8 +317,7 @@ func (r *reviewRootResolver) DismissReview(ctx context.Context, args resolvers.D
 		r.logger.Error("failed to send codebase event", zap.Error(err))
 		// do not fail
 	}
-
-	if err := r.eventsSender.Workspace(rev.WorkspaceID, events.ReviewUpdated, rev.ID); err != nil {
+	if err := r.eventPublisher.ReviewUpdated(ctx, eventsv2.Workspace(rev.WorkspaceID), rev); err != nil {
 		r.logger.Error("failed to send workspace event", zap.Error(err))
 		// do not fail
 	}

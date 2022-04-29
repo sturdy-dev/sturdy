@@ -6,6 +6,7 @@ import (
 	grapqhl_author "getsturdy.com/api/pkg/author/graphql"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
+	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/logger"
 	"getsturdy.com/api/pkg/notification/sender"
@@ -22,6 +23,7 @@ func Module(c *di.Container) {
 	c.Import(grapqhl_author.Module)
 	c.Import(resolvers.Module)
 	c.Import(events.Module)
+	c.Import(eventsv2.Module)
 	c.Import(sender.Module)
 	c.Import(service_analytics.Module)
 	c.Import(service_workspace_watchers.Module)
