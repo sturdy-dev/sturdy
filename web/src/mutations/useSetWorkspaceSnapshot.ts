@@ -13,6 +13,15 @@ const SET_WORKSPACE_SNAPSHOT = gql`
       id
       snapshot {
         id
+        createdAt
+        next {
+          id
+          createdAt
+        }
+        previous {
+          id
+          createdAt
+        }
       }
     }
   }
