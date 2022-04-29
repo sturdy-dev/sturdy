@@ -261,7 +261,7 @@ func (r *ViewRootResolver) RepairView(ctx context.Context, args struct{ ID graph
 			restoreWs = ws
 		}
 
-		if err := recreateView(repoProvider, vw, restoreWs, r.logger, r.snapshotter); err != nil {
+		if err := recreateView(ctx, repoProvider, vw, restoreWs, r.logger, r.snapshotter); err != nil {
 			return err
 		}
 		return nil
@@ -307,7 +307,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	}
 }
 
-func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {
+func recreateView(ctx context.Context, repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {
 	trunkPath := repoProvider.TrunkPath(vw.CodebaseID)
 	newView := vw.ID + "-recreate-" + uuid.NewString()
 	newViewPath := repoProvider.ViewPath(vw.CodebaseID, newView)
@@ -327,7 +327,7 @@ func recreateView(repoProvider provider.RepoProvider, vw *view.View, ws *workspa
 		}
 
 		// Attempt to make a snapshot of the existing view
-		snapshot, err := gitSnapshotter.Snapshot(vw.CodebaseID, vw.WorkspaceID, snapshots.ActionPreCheckoutOtherView, service_snapshots.WithOnView(vw.ID))
+		snapshot, err := gitSnapshotter.Snapshot(ctx, vw.CodebaseID, vw.WorkspaceID, snapshots.ActionPreCheckoutOtherView, service_snapshots.WithOnView(vw.ID))
 		if err != nil {
 			return err
 		}

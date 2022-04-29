@@ -1,6 +1,7 @@
 package unidiff
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -426,7 +427,7 @@ func TestFilterAndApply(t *testing.T) {
 			}
 
 			// Test that all patches can be applied together
-			_, err = viewRepo.ApplyPatchesToIndex(allPatches)
+			_, err = viewRepo.ApplyPatchesToIndex(context.Background(), allPatches)
 			assert.NoError(t, err)
 		})
 	}

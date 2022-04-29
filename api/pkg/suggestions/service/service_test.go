@@ -130,14 +130,14 @@ func (o *operation) validate(t *testing.T, test *test) {
 }
 
 func (o *operation) snapshotSuggesting(t *testing.T, test *test) {
-	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, service_snapshots.WithOnView(test.suggestingViewID))
+	suggestingSnapshot, err := test.gitSnapshotter.Snapshot(context.Background(), test.codebaseID, test.suggestingWorkspace.ID, snapshots.ActionViewSync, service_snapshots.WithOnView(test.suggestingViewID))
 	assert.NoError(t, err)
 	test.suggestingWorkspace.LatestSnapshotID = &suggestingSnapshot.ID
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.suggestingWorkspace.ID, db_workspaces.SetLatestSnapshotID(&suggestingSnapshot.ID)))
 }
 
 func (o *operation) snapshotOriginal(t *testing.T, test *test) {
-	snapshot, err := test.gitSnapshotter.Snapshot(test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, service_snapshots.WithOnView(test.originalViewID))
+	snapshot, err := test.gitSnapshotter.Snapshot(context.Background(), test.codebaseID, test.originalWorkspace.ID, snapshots.ActionSuggestionApply, service_snapshots.WithOnView(test.originalViewID))
 	assert.NoError(t, err)
 	test.originalWorkspace.LatestSnapshotID = &snapshot.ID
 	assert.NoError(t, test.workspaceDB.UpdateFields(context.TODO(), test.originalWorkspace.ID, db_workspaces.SetLatestSnapshotID(&snapshot.ID)))

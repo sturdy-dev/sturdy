@@ -31,7 +31,7 @@ func (p *inProcessPublisher) Enqueue(ctx context.Context, codebaseID codebases.I
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
 	}
-	_, err = p.snapshotter.Snapshot(codebaseID, workspaceID, action, service_snapshots.WithOnView(viewID), service_snapshots.WithUser(user))
+	_, err = p.snapshotter.Snapshot(ctx, codebaseID, workspaceID, action, service_snapshots.WithOnView(viewID), service_snapshots.WithUser(user))
 	if err != nil {
 		return err
 	}

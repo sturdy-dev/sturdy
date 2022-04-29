@@ -106,7 +106,7 @@ func (svc *Service) OnTrunk(ctx context.Context, ws *workspaces.Workspace) (*syn
 			return fmt.Errorf("failed to log changed files before sync: %w", err)
 		}
 
-		treeID, err := change_vcs.CreateChangesTreeFromPatches(svc.logger, repo, ws.CodebaseID, nil)
+		treeID, err := change_vcs.CreateChangesTreeFromPatches(ctx, svc.logger, repo, ws.CodebaseID, nil)
 		if err != nil {
 			return fmt.Errorf("failed to create tree from patches during sync: %w", err)
 		}
@@ -265,7 +265,7 @@ func (svc *Service) complete(ctx context.Context, repo vcsvcs.RepoWriter, codeba
 	// Make a snapshot (right away)
 	// The "conflict" status is calculated based on the latest snapshot of a workspace
 	// Create a snapshot right away to re-calculate the conflicting status
-	if _, err := svc.snap.Snapshot(codebaseID, workspaceID, snapshots.ActionSyncCompleted,
+	if _, err := svc.snap.Snapshot(ctx, codebaseID, workspaceID, snapshots.ActionSyncCompleted,
 		service_snapshots.WithOnView(viewID),
 		service_snapshots.WithOnRepo(repo),
 		service_snapshots.WithMarkAsLatestInWorkspace(),

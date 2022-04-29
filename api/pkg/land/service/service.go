@@ -116,6 +116,7 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, diff
 	var change *changes.Change
 	creteAndLand := func(viewRepo vcs.RepoWriter) error {
 		createdCommitID, fromViewPushFunc, err := s.changeService.CreateAndLandFromView(
+			context.Background(),
 			viewRepo,
 			ws.CodebaseID,
 			ws.ID,

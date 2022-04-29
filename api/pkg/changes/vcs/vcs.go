@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -18,8 +19,8 @@ import (
 	git "github.com/libgit2/git2go/v33"
 )
 
-func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
-	treeID, err := CreateChangesTreeFromPatches(logger, r, codebaseID, patchIDs, diffOpts...)
+func CreateChangeFromPatchesOnRepo(ctx context.Context, logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, message string, signature git.Signature, diffOpts ...vcs.DiffOption) (string, error) {
+	treeID, err := CreateChangesTreeFromPatches(ctx, logger, r, codebaseID, patchIDs, diffOpts...)
 	if err != nil {
 		return "", err
 	}
@@ -39,7 +40,7 @@ func CreateChangeFromPatchesOnRepo(logger *zap.Logger, r vcs.RepoReaderGitWriter
 
 // CreateChangesTreeFromPatches creates a git-tree based on the inputs.
 // If patchIDs is non-nil, the slice will be passed as a filter to unidiff.WithHunksFilter
-func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
+func CreateChangesTreeFromPatches(ctx context.Context, logger *zap.Logger, r vcs.RepoReaderGitWriter, codebaseID codebases.ID, patchIDs []string, diffOpts ...vcs.DiffOption) (*git.Oid, error) {
 	err := r.CleanStaged()
 	if err != nil {
 		return nil, fmt.Errorf("failed to clean staged codebase=%s %w", codebaseID, err)
@@ -74,7 +75,7 @@ func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter,
 
 	var treeID *git.Oid
 	if len(nonBinaryPatches) > 0 {
-		treeID, err = r.ApplyPatchesToIndex(nonBinaryPatches)
+		treeID, err = r.ApplyPatchesToIndex(ctx, nonBinaryPatches)
 		if err != nil {
 			for id, patch := range nonBinaryPatches {
 				logger.Warn("failed to add patches", zap.Int("key", id), zap.String("patch", string(patch)))
@@ -118,7 +119,7 @@ func CreateChangesTreeFromPatches(logger *zap.Logger, r vcs.RepoReaderGitWriter,
 			return nil, fmt.Errorf("failed to clean large files: %w", err)
 		}
 
-		treeID, err = r.ApplyPatchesToIndex(patches)
+		treeID, err = r.ApplyPatchesToIndex(ctx, patches)
 		if err != nil {
 			return nil, fmt.Errorf("failed to add lfs patches: %w", err)
 		}

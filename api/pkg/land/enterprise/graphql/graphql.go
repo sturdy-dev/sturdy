@@ -86,7 +86,7 @@ func (r *LandRootResolver) PushWorkspace(ctx context.Context, args resolvers.Pus
 			return nil, gqlerrors.Error(err)
 		}
 
-		if err := r.landService.Push(ctx, user, ws); err != nil {
+		if err := r.landService.Push(context.Background(), user, ws); err != nil {
 			return nil, gqlerrors.Error(err)
 		}
 	}

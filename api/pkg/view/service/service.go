@@ -80,7 +80,7 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("could not find previous workspace on view: %w", err)
 	} else if err == nil {
-		_, err := s.gitSnapshotter.Snapshot(currentWorkspaceOnView.CodebaseID, currentWorkspaceOnView.ID,
+		_, err := s.gitSnapshotter.Snapshot(ctx, currentWorkspaceOnView.CodebaseID, currentWorkspaceOnView.ID,
 			snapshots.ActionPreCheckoutOtherWorkspace, service_snapshots.WithOnView(*currentWorkspaceOnView.ViewID), service_snapshots.WithMarkAsLatestInWorkspace())
 		if errors.Is(err, service_snapshots.ErrCantSnapshotRebasing) {
 			return ErrRebasing
@@ -98,7 +98,7 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 	// If the workspace that we're opening on the view, currently is opened somewhere else, snapshot it and save the changes
 	// The snapshot will also be used to "move" the contents to the new view
 	if ws.ViewID != nil {
-		_, err := s.gitSnapshotter.Snapshot(ws.CodebaseID, ws.ID, snapshots.ActionPreCheckoutOtherView,
+		_, err := s.gitSnapshotter.Snapshot(ctx, ws.CodebaseID, ws.ID, snapshots.ActionPreCheckoutOtherView,
 			service_snapshots.WithOnView(*ws.ViewID), service_snapshots.WithMarkAsLatestInWorkspace())
 		if err != nil {
 			return fmt.Errorf("failed to snapshot: %w", err)

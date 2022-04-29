@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -82,7 +83,7 @@ func allPatchIDs(logger *zap.Logger, repo vcs.RepoGitReader) ([]string, error) {
 	return patchIDs, nil
 }
 
-func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID snapshots.ID, signature git.Signature, opts ...SnapshotOption) (string, error) {
+func SnapshotOnViewRepo(ctx context.Context, logger *zap.Logger, repo vcs.RepoReaderGitWriter, codebaseID codebases.ID, snapshotID snapshots.ID, signature git.Signature, opts ...SnapshotOption) (string, error) {
 	start := time.Now()
 
 	options := snapshotOptions(opts...)
@@ -124,7 +125,7 @@ func SnapshotOnViewRepo(logger *zap.Logger, repo vcs.RepoReaderGitWriter, codeba
 	if len(patchIDs) == 0 {
 		snapshotCommitID, err = repo.AddAndCommitWithSignature(commitMessage, signature)
 	} else {
-		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(decoratedLogger, repo, codebaseID, patchIDs, commitMessage, signature)
+		snapshotCommitID, err = vcs_change.CreateChangeFromPatchesOnRepo(ctx, decoratedLogger, repo, codebaseID, patchIDs, commitMessage, signature)
 	}
 	if err != nil {
 		return "", fmt.Errorf("failed to make snapshot: %w", err)
