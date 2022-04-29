@@ -8,20 +8,19 @@ import (
 	"path"
 	"testing"
 
-	"getsturdy.com/api/pkg/analytics/disabled"
-	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	db_changes "getsturdy.com/api/pkg/changes/db"
-	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
-	"getsturdy.com/api/pkg/events"
-	"getsturdy.com/api/pkg/notification/sender"
+	service_codebases "getsturdy.com/api/pkg/codebases/service"
+	"getsturdy.com/api/pkg/configuration"
+	"getsturdy.com/api/pkg/di"
+	db_installations "getsturdy.com/api/pkg/installations/db"
+	"getsturdy.com/api/pkg/logger"
+	module_queue "getsturdy.com/api/pkg/queue/module"
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
-	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	"getsturdy.com/api/pkg/suggestions"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
@@ -37,8 +36,8 @@ import (
 	"getsturdy.com/api/vcs/provider"
 	"getsturdy.com/api/vcs/testutil"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 )
 
 // todo:
@@ -240,6 +239,7 @@ type test struct {
 	gitSnapshotter    *service_snapshots.Service
 	workspaceService  *service_workspace.Service
 	suggestionService *service_suggestions.Service
+	codebasesService  *service_codebases.Service
 
 	codebaseID codebases.ID
 
@@ -255,49 +255,56 @@ type test struct {
 	operations []*operation
 }
 
+func testModule(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Import(service_suggestions.Module)
+		c.Import(service_codebases.Module)
+		c.ImportWithForce(db_suggestions.TestModule)
+		c.ImportWithForce(db_view.TestModule)
+		c.ImportWithForce(db_workspaces.TestModule)
+		c.ImportWithForce(db_snapshots.TestModule)
+		c.ImportWithForce(db_changes.TestModule)
+		c.ImportWithForce(db_statuses.TestModule)
+		c.ImportWithForce(db_codebases.TestModule)
+		c.ImportWithForce(module_queue.TestModule)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(db_installations.TestModule)
+
+		c.RegisterWithForce(func() *sqlx.DB { return nil })
+		c.RegisterWithForce(testutil.TestingRepoProvider)
+		c.RegisterWithForce(logger.NewTest)
+		c.Register(func() *testing.T { return t })
+	}
+}
+
 func newTest(t *testing.T, operations []*operation) *test {
-	repoProvider := testutil.TestingRepoProvider(t)
-	executorProvider := executor.NewProvider(zap.NewNop(), repoProvider)
-	suggestionRepo := db_suggestions.NewMemory()
-
-	viewDB := db_view.NewInMemoryViewRepo()
-	workspaceDB := db_workspaces.NewMemory()
-	snapshotsDB := db_snapshots.NewInMemorySnapshotRepo()
-	codebaseUserRepo := db_codebases.NewInMemoryCodebaseUserRepo()
-	logger := zap.NewNop()
-	eventsSender := events.NewSender(codebaseUserRepo, workspaceDB, nil, events.NewInMemory(logger))
-	changeRepo := db_changes.NewInMemoryRepo()
-	statusesDB := db_statuses.NewMemory()
-	statusesService := service_statuses.New(logger, statusesDB, nil)
-
-	analyticsService := service_analytics.New(zap.NewNop(), disabled.NewClient(zap.NewNop()))
-	gitSnapshotter := service_snapshots.New(snapshotsDB, workspaceDB, workspaceDB, viewDB, suggestionRepo, eventsSender, nil, executorProvider, zap.NewNop(), analyticsService, statusesService)
-	changeService := service_change.New(changeRepo, nil, zap.NewNop(), executorProvider, gitSnapshotter)
-	workspaceService := service_workspace.New(zap.NewNop(), analyticsService, workspaceDB, workspaceDB, changeService, nil /*viewService*/, nil /*usersService*/, executorProvider, nil /*eventsSender*/, nil /*eventsSernderv2*/, gitSnapshotter)
-	suggestionService := service_suggestions.New(zap.NewNop(), suggestionRepo, workspaceService, executorProvider, gitSnapshotter, analyticsService, sender.NewNoopNotificationSender(), eventsSender)
-	return &test{
-		repoProvider:      repoProvider,
-		executorProvider:  executorProvider,
-		suggestionRepo:    suggestionRepo,
-		viewDB:            viewDB,
-		workspaceDB:       workspaceDB,
-		snapshotsDB:       snapshotsDB,
-		codebaseUserRepo:  codebaseUserRepo,
-		gitSnapshotter:    gitSnapshotter,
-		workspaceService:  workspaceService,
-		suggestionService: suggestionService,
-
+	test := &test{
 		originalUserID:   "user1",
-		codebaseID:       "codebaseID",
 		suggestingUserID: "user2",
 
 		operations: operations,
 	}
+
+	assert.NoError(t, di.Init(testModule(t)).To(
+		&test.repoProvider,
+		&test.executorProvider,
+		&test.suggestionRepo,
+		&test.viewDB,
+		&test.workspaceDB,
+		&test.codebasesService,
+		&test.snapshotsDB,
+		&test.codebaseUserRepo,
+		&test.gitSnapshotter,
+		&test.workspaceService,
+		&test.suggestionService,
+	))
+	return test
 }
 
 func (test *test) run(t *testing.T) {
-	// create codebase trunk repo
-	assert.NoError(t, vcs_codebase.Create(test.codebaseID)(test.repoProvider))
+	cb, err := test.codebasesService.Create(context.TODO(), test.originalUserID, "suggestions-test", nil)
+	assert.NoError(t, err)
+	test.codebaseID = cb.ID
 
 	for _, operation := range test.operations {
 		operation.run(t, test)
@@ -1184,8 +1191,7 @@ func TestDiff(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test := newTest(t, test.operations)
-			test.run(t)
+			newTest(t, test.operations).run(t)
 		})
 	}
 }
