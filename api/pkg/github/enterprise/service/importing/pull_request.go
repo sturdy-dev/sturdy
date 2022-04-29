@@ -254,29 +254,25 @@ func (svc *Service) UpdatePullRequestFromGitHub(
 
 	if shouldArchive := newState == github.PullRequestStateClosed && pr.Importing; shouldArchive {
 		// if pr is closed and importing, archive it
-		if err := svc.gitHubService.UpdatePRFromGitHub(ctx, pr, gitHubPR); err != nil {
-			return fmt.Errorf("failed to update pull request state: %w", err)
+		if err := svc.workspacesService.Archive(ctx, ws); err != nil {
+			return fmt.Errorf("failed to archive workspace: %w", err)
 		}
-		return svc.workspacesService.Archive(ctx, ws)
 	} else if shouldUpdateState := newState != github.PullRequestStateMerged; shouldUpdateState {
 		// if the PR is not merged, fetch the latest PR data from GitHub
 		if err := svc.gitHubService.UpdatePullRequest(ctx, pr, gitHubPR, accessToken, ws); err != nil {
 			return fmt.Errorf("failed to update pull request: %w", err)
 		}
-		if err := svc.gitHubService.UpdatePRFromGitHub(ctx, pr, gitHubPR); err != nil {
-			return fmt.Errorf("failed to update pull request state: %w", err)
-		}
-		return nil
 	} else {
 		// merge pr
 		if err := svc.mergePullRequest(ctx, repo, pr, gitHubPR, accessToken); err != nil {
 			return fmt.Errorf("failed to merge pull request: %w", err)
 		}
-		if err := svc.gitHubService.UpdatePRFromGitHub(ctx, pr, gitHubPR); err != nil {
-			return fmt.Errorf("failed to update pull request state: %w", err)
-		}
-		return nil
 	}
+	if err := svc.gitHubService.UpdatePRFromGitHub(ctx, pr, gitHubPR); err != nil {
+		return fmt.Errorf("failed to update pull request state: %w", err)
+	}
+	return nil
+
 }
 
 func (svc *Service) mergePullRequest(
@@ -286,11 +282,6 @@ func (svc *Service) mergePullRequest(
 	gitHubPR *api.PullRequest,
 	accessToken string,
 ) error {
-	if pr.State == github.PullRequestStateMerging {
-		// another goroutine is already merging this PR
-		return nil
-	}
-
 	ws, err := svc.workspacesService.GetByID(ctx, pr.WorkspaceID)
 	if err != nil {
 		return fmt.Errorf("failed to get workspace: %w", err)
