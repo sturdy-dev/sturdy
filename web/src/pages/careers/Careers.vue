@@ -1,6 +1,25 @@
 <template>
   <Documentation>
-    <JobHeader title="Come and work with us!" />
+    <header class="relative pb-24 bg-sky-300 sm:pb-42">
+      <div class="absolute inset-0">
+        <img class="w-full h-full object-cover" :src="headerImage" alt="" />
+        <div
+          class="absolute inset-0 bg-gradient-to-l from-sky-800 to-cyan-700 mix-blend-hard-light"
+          aria-hidden="true"
+        />
+      </div>
+
+      <div
+        class="relative max-w-md mx-auto px-4 sm:max-w-3xl sm:py-[12rem] sm:px-6 lg:max-w-7xl lg:px-8"
+      >
+        <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          Careers at Sturdy
+        </h1>
+        <p class="mt-6 text-xl text-cyan-100 max-w-3xl">
+          Let's build some amazing developer tooling together!
+        </p>
+      </div>
+    </header>
 
     <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8 flex flex-col space-y-32">
       <div class="flex flex-col-reverse lg:flex-row">
@@ -72,6 +91,7 @@ import JobHeader from '../../organisms/careers/JobHeader.vue'
 import JobTeam from '../../organisms/careers/JobTeam.vue'
 import { useHead } from '@vueuse/head'
 import Documentation from '../../layouts/Documentation.vue'
+import headerImage from '../../organisms/careers/united-spaces.jpeg'
 
 useHead({
   title: 'Careers at Sturdy',
