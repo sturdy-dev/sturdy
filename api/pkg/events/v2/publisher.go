@@ -16,6 +16,7 @@ import (
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	db_organization "getsturdy.com/api/pkg/organization/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
+	"getsturdy.com/api/pkg/workspaces/watchers"
 )
 
 type Publisher struct {
@@ -194,15 +195,15 @@ func (p *Publisher) WorkspaceUpdatedSuggestion(ctx context.Context, receiver *re
 	return nil
 }
 
-func (p *Publisher) WorkspaceWatchingStatusUpdated(ctx context.Context, receiver *receiver, workspace *workspaces.Workspace) error {
+func (p *Publisher) WorkspaceWatchingStatusUpdated(ctx context.Context, receiver *receiver, watcher *watchers.Watcher) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err
 	}
 	for topic := range topics {
 		p.pubSub.pub(topic, &event{
-			Type:      WorkspaceWatchingStatusUpdated,
-			Workspace: workspace,
+			Type:             WorkspaceWatchingStatusUpdated,
+			WorkspaceWatcher: watcher,
 		})
 	}
 	return nil

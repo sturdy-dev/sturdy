@@ -6,7 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/auth"
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	"getsturdy.com/api/pkg/events"
+	"getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	"getsturdy.com/api/pkg/workspaces"
@@ -24,7 +24,7 @@ type rootResolver struct {
 
 	authService *service_auth.Service
 
-	eventsReader events.EventReader
+	eventsReader *events.Subscriber
 
 	userRootResover       *resolvers.UserRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
@@ -38,7 +38,7 @@ func NewRootResolver(
 
 	authService *service_auth.Service,
 
-	eventsReader events.EventReader,
+	eventsReader *events.Subscriber,
 
 	userRootResover *resolvers.UserRootResolver,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
