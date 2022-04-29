@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center" v-if="visible">
+  <div class="flex items-center">
     <Button
       size="sm"
       class="flex items-center border-0 px-0.5 py-0.5"
@@ -80,18 +80,10 @@ export default defineComponent({
   },
   data() {
     return {
-      visible: false,
       undoing: false,
       redoing: false,
       undoIcon: Undo,
       redoIcon: Redo,
-    }
-  },
-  mounted() {
-    window.onkeydown = (e) => {
-      if (e.key === 'i' && e.ctrlKey) {
-        this.visible = !this.visible
-      }
     }
   },
   computed: {
