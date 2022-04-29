@@ -217,6 +217,13 @@ func (s *Service) SetSnapshot(ctx context.Context, ws *workspaces.Workspace, sna
 	}
 	ws.LatestSnapshotID = &snap.ID
 
+	s.analyticsService.Capture(ctx, "set-snapshot",
+		analytics.Property("workspace_id", ws.ID),
+		analytics.Property("snapshot_id", snap.ID),
+		analytics.Property("view_id", ws.ViewID),
+		analytics.Property("codebase_id", ws.CodebaseID),
+	)
+
 	return nil
 }
 
