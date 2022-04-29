@@ -98,8 +98,9 @@ func (svc *Service) gcSnapshotsInView(ctx context.Context, view *view.View, snap
 		return nil
 	}
 
-	branchSnapshotID := func(branch string) string {
-		return strings.TrimPrefix(branch, "snapshot-")
+	branchSnapshotID := func(branch string) snapshots.ID {
+		uuid := strings.TrimPrefix(branch, "snapshot-")
+		return snapshots.ID(uuid)
 	}
 
 	snapshotIDs := mapSlice(snapshotBranches, branchSnapshotID)
@@ -111,7 +112,7 @@ func (svc *Service) gcSnapshotsInView(ctx context.Context, view *view.View, snap
 	// Delete snapshots older than
 	threshold := time.Now().Add(snapshotThreshold)
 	for _, snapshot := range snapshots {
-		logger := svc.logger.With(zap.String("snapshot_id", snapshot.ID), zap.String("view_id", view.ID))
+		logger := svc.logger.With(zap.Stringer("snapshot_id", snapshot.ID), zap.String("view_id", view.ID))
 
 		if err := svc.gcSnapshot(
 			ctx,

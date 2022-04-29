@@ -6,6 +6,7 @@ import (
 
 	"getsturdy.com/api/pkg/changes"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/users"
 	"getsturdy.com/api/pkg/workspaces"
 )
@@ -29,7 +30,7 @@ type WorkspaceReader interface {
 	ListByCodebaseIDsAndUserID(codebaseIDs []codebases.ID, userID string) ([]*workspaces.Workspace, error)
 	ListByUserID(context.Context, users.ID) ([]*workspaces.Workspace, error)
 	GetByViewID(viewID string, includeArchived bool) (*workspaces.Workspace, error)
-	GetBySnapshotID(snapshotID string) (*workspaces.Workspace, error)
+	GetBySnapshotID(snapshots.ID) (*workspaces.Workspace, error)
 }
 
 type UpdateOptions struct {
@@ -45,7 +46,7 @@ type UpdateOptions struct {
 	headChangeComputed    bool
 	headChangeComputedSet bool
 
-	latestSnapshotID    *string
+	latestSnapshotID    *snapshots.ID
 	latestSnapshotIDSet bool
 
 	diffsCount    *int32
@@ -116,7 +117,7 @@ func SetHeadChangeComputed(headChangeComputed bool) UpdateOption {
 	}
 }
 
-func SetLatestSnapshotID(latestSnapshotID *string) UpdateOption {
+func SetLatestSnapshotID(latestSnapshotID *snapshots.ID) UpdateOption {
 	return func(opts *UpdateOptions) {
 		opts.latestSnapshotID = latestSnapshotID
 		opts.latestSnapshotIDSet = true

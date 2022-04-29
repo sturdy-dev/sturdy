@@ -9,13 +9,13 @@ import (
 
 // snapshotRepo implements snapshot.Repository
 type snapshotRepo struct {
-	byID              map[string]*snapshots.Snapshot
+	byID              map[snapshots.ID]*snapshots.Snapshot
 	latestInWorkspace map[string]*snapshots.Snapshot
 }
 
 func NewInMemorySnapshotRepo() Repository {
 	return &snapshotRepo{
-		byID:              make(map[string]*snapshots.Snapshot),
+		byID:              make(map[snapshots.ID]*snapshots.Snapshot),
 		latestInWorkspace: make(map[string]*snapshots.Snapshot),
 	}
 }
@@ -33,8 +33,8 @@ func (f *snapshotRepo) LatestInWorkspace(_ context.Context, workspace_id string)
 	return nil, sql.ErrNoRows
 }
 
-func (f *snapshotRepo) Get(ID string) (*snapshots.Snapshot, error) {
-	if snap, ok := f.byID[ID]; ok {
+func (f *snapshotRepo) Get(id snapshots.ID) (*snapshots.Snapshot, error) {
+	if snap, ok := f.byID[id]; ok {
 		return snap, nil
 	}
 	return nil, sql.ErrNoRows
@@ -49,7 +49,7 @@ func (f *snapshotRepo) GetByCommitSHA(_ context.Context, sha string) (*snapshots
 	panic("not implemented")
 }
 
-func (f *snapshotRepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshots.Snapshot, error) {
+func (f *snapshotRepo) ListByIDs(ctx context.Context, ids []snapshots.ID) ([]*snapshots.Snapshot, error) {
 	res := []*snapshots.Snapshot{}
 	for _, id := range ids {
 		if snap, ok := f.byID[id]; ok {
@@ -59,7 +59,7 @@ func (f *snapshotRepo) ListByIDs(ctx context.Context, ids []string) ([]*snapshot
 	return res, nil
 }
 
-func (r *snapshotRepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID string) (*snapshots.Snapshot, error) {
+func (r *snapshotRepo) GetByPreviousSnapshotID(ctx context.Context, previousSnapshotID snapshots.ID) (*snapshots.Snapshot, error) {
 	for _, snap := range r.byID {
 		if snap.PreviousSnapshotID != nil && *snap.PreviousSnapshotID == previousSnapshotID {
 			return snap, nil

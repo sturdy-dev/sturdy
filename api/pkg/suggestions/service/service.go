@@ -165,7 +165,7 @@ func (s *Service) GetByWorkspaceID(ctx context.Context, workspaceID string) (*su
 	return s.suggestionRepo.GetByWorkspaceID(ctx, workspaceID)
 }
 
-func (s *Service) ListBySnapshotID(ctx context.Context, snapshotID string) ([]*suggestions.Suggestion, error) {
+func (s *Service) ListBySnapshotID(ctx context.Context, snapshotID snapshots.ID) ([]*suggestions.Suggestion, error) {
 	return s.suggestionRepo.ListBySnapshotID(ctx, snapshotID)
 }
 

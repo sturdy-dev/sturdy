@@ -90,10 +90,10 @@ func New(
 }
 
 type sturdyJsonData struct {
-	CodebaseID  codebases.ID `json:"codebase_id"`
-	ChangeID    *string      `json:"change_id,omitempty"`
-	WorkspaceID *string      `json:"workspace_id,omitempty"`
-	SnapshotID  *string      `json:"snapshot_id,omitempty"`
+	CodebaseID  codebases.ID  `json:"codebase_id"`
+	ChangeID    *string       `json:"change_id,omitempty"`
+	WorkspaceID *string       `json:"workspace_id,omitempty"`
+	SnapshotID  *snapshots.ID `json:"snapshot_id,omitempty"`
 }
 
 //go:embed download.bash

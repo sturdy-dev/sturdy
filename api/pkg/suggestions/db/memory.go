@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sort"
 
+	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/suggestions"
 )
 
@@ -14,7 +15,7 @@ type memory struct {
 	byID             map[suggestions.ID]*suggestions.Suggestion
 	byWorkspaceID    map[string]*suggestions.Suggestion
 	byForWorkspaceID map[string][]*suggestions.Suggestion
-	byForSnapshotID  map[string][]*suggestions.Suggestion
+	byForSnapshotID  map[snapshots.ID][]*suggestions.Suggestion
 }
 
 func NewMemory() Repository {
@@ -22,7 +23,7 @@ func NewMemory() Repository {
 		byID:             make(map[suggestions.ID]*suggestions.Suggestion),
 		byWorkspaceID:    make(map[string]*suggestions.Suggestion),
 		byForWorkspaceID: make(map[string][]*suggestions.Suggestion),
-		byForSnapshotID:  make(map[string][]*suggestions.Suggestion),
+		byForSnapshotID:  make(map[snapshots.ID][]*suggestions.Suggestion),
 	}
 }
 
@@ -70,7 +71,7 @@ func (m *memory) GetByWorkspaceID(_ context.Context, workspaceID string) (*sugge
 	return nil, sql.ErrNoRows
 }
 
-func (m *memory) ListBySnapshotID(_ context.Context, snapshotID string) ([]*suggestions.Suggestion, error) {
+func (m *memory) ListBySnapshotID(_ context.Context, snapshotID snapshots.ID) ([]*suggestions.Suggestion, error) {
 	list := m.byForSnapshotID[snapshotID]
 	return list, nil
 }
