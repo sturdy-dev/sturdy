@@ -124,8 +124,8 @@ export default defineComponent({
     const shortCodebaseID = IdFromSlug(route.params.codebaseSlug as string)
 
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isBuildkiteEnabled = computed(() => features?.value?.includes(Feature.Buildkite))
-    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote))
+    const isBuildkiteEnabled = computed(() => features?.value?.includes(Feature.Buildkite) ?? false)
+    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote) ?? false)
 
     const { data } = useQuery<GetIntegrationsQuery, GetIntegrationsQueryVariables>({
       query: gql`

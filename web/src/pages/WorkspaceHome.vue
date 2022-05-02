@@ -378,8 +378,8 @@ export default defineComponent({
   emits: ['workspaceUpdated', 'codebase-updated'],
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
-    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub) ?? false)
+    const isRemoteEnabled = computed(() => features?.value?.includes(Feature.Remote) ?? false)
 
     let route = useRoute()
     const router = useRouter()
