@@ -2,12 +2,14 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/github"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type GitHubPRRepository interface {
@@ -29,6 +31,8 @@ type gitHubPRRepo struct {
 func NewGitHubPRRepository(db *sqlx.DB) GitHubPRRepository {
 	return &gitHubPRRepo{db: db}
 }
+
+var ErrAlreadyExists = fmt.Errorf("pull request already exists")
 
 func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 	_, err := r.db.NamedExec(`INSERT INTO github_pull_requests (
@@ -72,7 +76,10 @@ func (r *gitHubPRRepo) Create(pr github.PullRequest) error {
 		:importing,
         :fork
 	)`, &pr)
-	if err != nil {
+	var pqErorr *pq.Error
+	if errors.As(err, &pqErorr) && pqErorr.Code.Name() == "unique_violation" {
+		return fmt.Errorf("%s: %w", pqErorr.Message, ErrAlreadyExists)
+	} else if err != nil {
 		return fmt.Errorf("failed to perform insert: %w", err)
 	}
 	return nil

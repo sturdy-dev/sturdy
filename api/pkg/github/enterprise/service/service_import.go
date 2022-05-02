@@ -12,6 +12,7 @@ import (
 	"getsturdy.com/api/pkg/github"
 	"getsturdy.com/api/pkg/github/api"
 	github_client "getsturdy.com/api/pkg/github/enterprise/client"
+	db_github "getsturdy.com/api/pkg/github/enterprise/db"
 	github_vcs "getsturdy.com/api/pkg/github/enterprise/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
@@ -289,6 +290,10 @@ func (svc *Service) ImportPullRequest(
 		// import failed, archive the workspace that we created
 		if err := svc.workspacesService.Archive(ctx, &ws); err != nil {
 			return fmt.Errorf("failed to archive workspace after failed import: %w", err)
+		}
+
+		if errors.Is(err, db_github.ErrAlreadyExists) {
+			return nil
 		}
 
 		return fmt.Errorf("failed to save pull request record: %w", err)
