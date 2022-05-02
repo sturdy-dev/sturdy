@@ -54,6 +54,18 @@ func (r *resolver) CreatedAt() int32 {
 }
 
 func (r *resolver) Description(context.Context) (*string, error) {
-	// TODO: implement
-	return nil, nil
+	switch r.snapshot.Action {
+	case snapshots.ActionFileUndoChange:
+		return p("undo change"), nil
+	case snapshots.ActionFileUndoPatch:
+		return p("undo patch"), nil
+	case snapshots.ActionSuggestionApply:
+		return p("suggestion apply"), nil
+	default:
+		return nil, nil
+	}
+}
+
+func p[T any](v T) *T {
+	return &v
 }
