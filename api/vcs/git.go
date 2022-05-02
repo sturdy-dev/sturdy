@@ -867,7 +867,15 @@ func (r *repository) Commit(sha string) (*git.Commit, error) {
 		return nil, fmt.Errorf("failed to create oid: %w", err)
 	}
 
-	return r.r.LookupCommit(oid)
+	commit, err := r.r.LookupCommit(oid)
+	if err != nil {
+		//nolint:errorlint
+		if gErr, ok := err.(*git.GitError); ok && gErr.Code == git.ErrorCodeNotFound {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return commit, nil
 }
 
 func (r *repository) HeadCommit() (*git.Commit, error) {

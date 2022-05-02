@@ -58,6 +58,7 @@ func testModule(t *testing.T) di.Module {
 }
 
 type testCase struct {
+	snapshotsRepo    db_snapshots.Repository
 	snapshotService  *service_snapshots.Service
 	workspaceService *service_workspace.Service
 	codebaseService  *service_codebase.Service
@@ -73,7 +74,7 @@ type testCase struct {
 func setup(t *testing.T) *testCase {
 	tc := &testCase{}
 	if !assert.NoError(t, di.Init(testModule(t)).To(
-		&tc.snapshotService, &tc.workspaceService, &tc.codebaseService, &tc.viewService, &tc.executorProvider,
+		&tc.snapshotsRepo, &tc.snapshotService, &tc.workspaceService, &tc.codebaseService, &tc.viewService, &tc.executorProvider,
 	)) {
 		t.FailNow()
 	}
@@ -181,6 +182,21 @@ func TestSnapshot_changes(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, changes were made")
+}
+
+func TestSnapshot_should_not_fail_with_non_existing_commit_sha(t *testing.T) {
+	tc := setup(t)
+
+	snapOnce, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	snapOnce.CommitSHA = "6490544532e9be0b3b199380e1098aa5db15ff44" // non-existing commit SHA
+	assert.NoError(t, tc.snapshotsRepo.Update(snapOnce))
+
+	snapTwice, err := tc.snapshotService.Snapshot(context.Background(), tc.codebaseID, tc.workspaceID, snapshots.ActionViewSync, service_snapshots.WithOnView(tc.viewID))
+	assert.NoError(t, err)
+
+	assert.NotEqual(t, snapOnce.ID, snapTwice.ID, "snapshots must not be identical, can't compare with non existing commit")
 }
 
 func writeFile(filename string, content []byte) func(vcs.RepoWriter) error {

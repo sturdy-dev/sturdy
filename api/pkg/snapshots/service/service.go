@@ -277,7 +277,9 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 			}
 
 			previousCommit, err := repo.Commit(latest.CommitSHA)
-			if err != nil {
+			if errors.Is(err, vcs.ErrNotFound) {
+				return nil
+			} else if err != nil {
 				return fmt.Errorf("can't get previous commit %s: %w", latest.CommitSHA, err)
 			}
 
