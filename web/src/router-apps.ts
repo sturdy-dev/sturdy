@@ -19,7 +19,6 @@ export const RoutesApps: RouteRecordRaw[] = [
     component: () => import('./pages/organization/CodebaseListPage.vue'),
     name: 'organizationListCodebases',
   },
-  { path: '/new', component: () => import('./pages/CreateEmpty.vue'), name: 'codebaseCreate' },
   {
     path: '/org/new',
     component: () => import('./pages/organization/CreateOrganizationPage.vue'),
