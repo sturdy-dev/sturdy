@@ -30,7 +30,7 @@ import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT,
-} from '../../../organisms/organization/OrganizationSetupGitHub.vue'
+} from '../../../organisms/CreateCodebaseFromGitHub.vue'
 import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
 import { Feature } from '../../../__generated__/types'
 import type { DeepMaybeRef } from '@vueuse/core'
