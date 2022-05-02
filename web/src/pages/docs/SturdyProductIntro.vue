@@ -24,20 +24,19 @@
         <p>Sturdy gives you a highly automated workflow. Here are a few examples:</p>
         <ul>
           <li>
-            Get straight to coding &mdash; no need for pushing or fetching changes [
-            <router-link :to="{ name: 'v2DocsHowToEditCode' }">docs </router-link>
-            ]
+            Get straight to coding &mdash; no need for pushing or fetching changes [<router-link
+              :to="{ name: 'v2DocsHowToEditCode' }"
+              >docs</router-link
+            >]
           </li>
           <li>
             Seamlessly switch between tasks &mdash; no need for stashing or creating temporary
-            commits [
-            <router-link :to="{ name: 'v2DocsHowToSwitchBetweenTasks' }">docs </router-link>
-            ]
+            commits [<router-link :to="{ name: 'v2DocsHowToSwitchBetweenTasks' }">docs</router-link
+            >]
           </li>
           <li>
-            Develop faster with an tighter "code &mdash; describe changes &mdash; ship" loop [
-            <router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }">docs</router-link>
-            ]
+            Develop faster with an tighter "code &mdash; describe changes &mdash; ship" loop
+            [<router-link :to="{ name: 'v2DocsHotToShipSoftwareToProduction' }">docs</router-link>]
           </li>
         </ul>
 
@@ -51,27 +50,22 @@
         <ul>
           <li>
             See each other's code live, as it's being written, opening the opportunity for early
-            discussions and feedback [
-            <router-link
+            discussions and feedback [<router-link
               :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#receiving-feedback' }"
-              >docs
-            </router-link>
-            ]
+              >docs</router-link
+            >]
           </li>
           <li>
-            Try someone else's code on your computer with a single click [
-            <router-link :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#trying-code' }"
-              >docs
-            </router-link>
-            ]
+            Try someone else's code on your computer with a single click [<router-link
+              :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#trying-code' }"
+              >docs</router-link
+            >]
           </li>
           <li>
-            Suggest code changes/ideas to a colleague by simply typing in your IDE [
-            <router-link
+            Suggest code changes/ideas to a colleague by simply typing in your IDE [<router-link
               :to="{ name: 'v2DocsHowToCollaborateWithOthers', hash: '#give-suggestions' }"
-              >docs
-            </router-link>
-            ]
+              >docs</router-link
+            >]
           </li>
         </ul>
 
