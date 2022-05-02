@@ -4,7 +4,7 @@
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Create codebase on <strong>Strudy</strong>
+            Create new codebase on <strong>Strudy</strong>
           </h3>
 
           <div class="mt-2 max-w-xl text-sm text-gray-500">
@@ -39,7 +39,7 @@
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Import codebase <strong>from GitHub</strong>
+            Import existing codebase <strong>from GitHub</strong>
           </h3>
           <div class="mt-2 max-w-xl text-sm text-gray-500">
             <p>
