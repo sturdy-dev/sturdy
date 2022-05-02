@@ -138,18 +138,18 @@ import type {
   OrganizationSetupGitHub_OrganizationFragment,
   OrganizationSetupGitHubQuery,
   OrganizationSetupGitHubQueryVariables,
-} from './__generated__/OrganizationSetupGitHub'
-import Spinner from '../../atoms/Spinner.vue'
-import Button from '../../atoms/Button.vue'
-import { Slug } from '../../slug'
-import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
+} from './__generated__/CreateCodebaseFromGitHub'
+import Spinner from '../atoms/Spinner.vue'
+import Button from '../atoms/Button.vue'
+import { Slug } from '../slug'
+import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import GitHubConnectButton, {
   GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
-} from '../../molecules/GitHubConnectButton.vue'
-import { useSetupGitHubRepository } from '../../mutations/useSetupGitHubRepository'
+} from '../molecules/GitHubConnectButton.vue'
+import { useSetupGitHubRepository } from '../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
-import { Feature } from '../../__generated__/types'
-import LinkButton from '../../atoms/LinkButton.vue'
+import { Feature } from '../__generated__/types'
+import LinkButton from '../atoms/LinkButton.vue'
 
 export const ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT = gql`
   fragment OrganizationSetupGitHub_GitHubApp on GitHubApp {
