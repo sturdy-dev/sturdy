@@ -43,6 +43,10 @@ func (r *repo) List(ctx context.Context, limit uint64) ([]*users.User, error) {
 
 // The ID value is set inside this method
 func (r *repo) Create(newUser *users.User) error {
+	if newUser.Status == "" {
+		newUser.Status = users.StatusActive
+	}
+
 	_, err := r.db.NamedExec(`INSERT INTO users (id, name, email, email_verified, password, created_at, status, referer, "is")
 		VALUES (:id, :name, :email, :email_verified, :password, :created_at, :status, :referer, :is)`, &newUser)
 	if err != nil {
