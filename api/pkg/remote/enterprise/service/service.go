@@ -219,7 +219,7 @@ func (svc *EnterpriseService) Push(ctx context.Context, user *users.User, ws *wo
 		return fmt.Errorf("failed to push workspace to remote: %w", err)
 	}
 
-	svc.analyticsService.Capture(ctx, "pushed workspace to remote", analytics.CodebaseID(ws.CodebaseID), analytics.Property("workspace_id", ws.ID))
+	svc.analyticsService.CaptureUser(ctx, user.ID, "pushed workspace to remote", analytics.CodebaseID(ws.CodebaseID), analytics.Property("workspace_id", ws.ID))
 
 	return nil
 }
