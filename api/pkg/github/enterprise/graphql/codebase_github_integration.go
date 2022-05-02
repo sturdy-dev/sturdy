@@ -82,8 +82,8 @@ func NewCodebaseGitHubIntegrationRootResolver(
 	}
 }
 
-func (r *codebaseGitHubIntegrationRootResolver) InternalGitHubRepositoryByID(id string) (resolvers.CodebaseGitHubIntegrationResolver, error) {
-	resolver, err := r.resolveByID(graphql.ID(id))
+func (r *codebaseGitHubIntegrationRootResolver) InternalGitHubRepositoryByID(ctx context.Context, id string) (resolvers.CodebaseGitHubIntegrationResolver, error) {
+	resolver, err := r.resolveByID(ctx, graphql.ID(id))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -115,17 +115,11 @@ func (r *codebaseGitHubIntegrationRootResolver) UpdateCodebaseGitHubIntegration(
 		repo.GitHubSourceOfTruth = *args.Input.GitHubIsSourceOfTruth
 	}
 
-	err = r.gitHubRepositoryRepo.Update(repo)
-	if err != nil {
+	if err := r.gitHubRepositoryRepo.Update(repo); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
-	resolver, err := r.resolveByID(args.Input.ID)
-	if err != nil {
-		return nil, gqlerrors.Error(err)
-	}
-
-	return resolver, nil
+	return r.resolveByID(ctx, args.Input.ID)
 }
 
 func (r *codebaseGitHubIntegrationRootResolver) resolveByCodebaseID(ctx context.Context, codebaseID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
@@ -142,10 +136,14 @@ func (r *codebaseGitHubIntegrationRootResolver) resolveByCodebaseID(ctx context.
 	return &codebaseGitHubIntegrationResolver{gitHubRepo: repo, installation: installation, root: r}, nil
 }
 
-func (r *codebaseGitHubIntegrationRootResolver) resolveByID(gitHubRepoID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
+func (r *codebaseGitHubIntegrationRootResolver) resolveByID(ctx context.Context, gitHubRepoID graphql.ID) (*codebaseGitHubIntegrationResolver, error) {
 	repo, err := r.gitHubRepositoryRepo.GetByID(string(gitHubRepoID))
 	if err != nil {
 		return nil, err
+	}
+
+	if _, err := r.codebaseService.GetByID(ctx, repo.CodebaseID); err != nil {
+		return nil, gqlerrors.Error(err)
 	}
 
 	installation, err := r.gitHubInstallationRepo.GetByInstallationID(repo.InstallationID)
