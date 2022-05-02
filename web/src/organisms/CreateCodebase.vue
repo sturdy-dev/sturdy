@@ -1,227 +1,148 @@
 <template>
-  <div v-if="data">
-    <slot name="header"></slot>
+  <div class="flex space-y-4 xl:space-y-0 xl:space-x-4 flex-col xl:flex-row">
+    <div class="bg-gray-100 sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Create on <strong>Strudy</strong>
+          </h3>
 
-    <Banner
-      v-if="show_failed_message"
-      class="my-4"
-      status="error"
-      message="Could not create a codebase at this time. Try again later!"
-    />
-
-    <div class="space-y-6 lg:col-span-9 max-w-4xl">
-      <form @submit.stop.prevent="doCreateNewCodebase">
-        <div class="shadow sm:rounded-md sm:overflow-hidden">
-          <div class="py-6 px-4 space-y-6 sm:p-6" :class="[mainBg]">
-            <div class="grid grid-cols-3 gap-6">
-              <div class="col-span-3">
-                <label for="codebase_name" class="block text-sm font-medium text-gray-700">
-                  Codebase name
-                </label>
-                <div class="mt-1 rounded-md shadow-sm flex">
-                  <!--<span class="bg-gray-50 border border-r-0 border-gray-300 rounded-l-md px-3 inline-flex items-center text-gray-500 sm:text-sm">
-                    getsturdy.com/
-                  </span>-->
-                  <input
-                    id="codebase_name"
-                    v-model="newCodebaseName"
-                    type="text"
-                    name="codebase_name"
-                    autocomplete="off"
-                    class="focus:ring-blue-500 focus:border-blue-500 flex-grow block w-full min-w-0 rounded-md sm:text-sm border-gray-300"
-                  />
-                </div>
-              </div>
-
-              <div v-if="false" class="col-span-3">
-                <label for="description" class="block text-sm font-medium text-gray-700">
-                  Description <span class="text-sm text-gray-500">(optional)</span>
-                </label>
-                <div class="mt-1">
-                  <textarea
-                    id="description"
-                    v-model="newCodebaseDescription"
-                    name="description"
-                    rows="3"
-                    autocomplete="off"
-                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md"
-                    placeholder="This codebase ..."
-                  />
-                </div>
-              </div>
-
-              <div class="col-span-3">
-                <p class="mt-1 text-sm text-gray-500">
-                  Codebases are <strong>private</strong>, and only you will be able to see it's
-                  contents.
-                </p>
-                <p class="mt-1 text-sm text-gray-500">
-                  You can invite collaborators to the codebase on the next page.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="px-4 py-3 text-right sm:px-6" :class="[bottomBg]">
-            <Button type="submit" :disabled="newCodebaseName === ''" size="wider" color="blue">
-              Create
-
-              <svg
-                v-if="isLoading"
-                class="animate-spin ml-3 -mr-1 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            </Button>
+          <div class="mt-2 max-w-xl text-sm text-gray-500">
+            <p>Working on something new? Create a new codebase on Sturdy.</p>
+            <ul class="list-inside mt-2 inline-flex flex-col">
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Start from scratch</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Host your project on Sturdy</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Use the full Sturdy workflow</span>
+              </li>
+            </ul>
           </div>
         </div>
-      </form>
+        <div>
+          <div class="mt-5 space-x-2 flex">
+            <RouterLinkButton :to="{ name: 'organizationCreateCodebase' }" color="blue">
+              Create an empty codebase
+            </RouterLinkButton>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <div
-        v-if="data.gitHubApp && showSetupGitHub"
-        class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden"
-      >
-        <NoCodebasesGitHubAuth
-          :git-hub-account="data.user.gitHubAccount"
-          :git-hub-app="data.gitHubApp"
-        />
+    <div class="bg-gray-100 sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Import <strong>from GitHub</strong>
+          </h3>
+          <div class="mt-2 max-w-xl text-sm text-gray-500">
+            <p>
+              Install the bridge between Sturdy and GitHub, to use Sturdy on top of existing
+              GitHub-repositories.
+            </p>
+            <ul class="list-inside mt-2 inline-flex flex-col">
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Use Sturdy on top of GitHub</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Fine grained permissions</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Install on only the repositories that you want to use Sturdy on</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Work in Sturdy, create pull requests with your code when you're done</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Sturdy automatically syncs data from GitHub</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="mt-5 space-x-2 flex">
+            <GitHubConnectButton
+              v-if="gitHubApp"
+              :git-hub-account="gitHubAccount"
+              :git-hub-app="gitHubApp"
+              already-installed-text="Update installation"
+              not-connected-text="Login with GitHub"
+              color="blue"
+              :state-path="gitHubRedirect"
+            />
+            <LinkButton
+              v-else
+              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+              target="_blank"
+            >
+              Read the docs
+            </LinkButton>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Banner } from '../atoms'
-import { defineComponent, inject, ref } from 'vue'
-import type { Ref } from 'vue'
-import { gql, useQuery } from '@urql/vue'
-import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
-import Button from '../atoms/Button.vue'
-import RandomName from '../components/codebase/create/random-name.js'
-import { useCreateCodebase } from '../mutations/useCreateCodebase'
+import { CheckIcon } from '@heroicons/vue/solid/esm'
+import GitHubConnectButton, {
+  GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
+  GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT,
+} from '../molecules/GitHubConnectButton.vue'
+import { defineComponent, type PropType } from 'vue'
+import RouterLinkButton from '../atoms/RouterLinkButton.vue'
+import LinkButton from '../atoms/LinkButton.vue'
+import { gql } from '@urql/vue'
 import type {
-  CreateCodebasePageQuery,
-  CreateCodebasePageQueryVariables,
+  CreateCodebase_GitHubAccountFragment,
+  CreateCodebase_GitHubAppFragment,
 } from './__generated__/CreateCodebase'
-import { Feature } from '../__generated__/types'
-import { Slug } from '../slug'
+
+export const GITHUB_ACCOUNT_FRAGMENT = gql`
+  fragment CreateCodebase_GitHubAccount on GitHubAccount {
+    id
+    ...GitHubConnectButton_GitHubAccount
+  }
+  ${GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT}
+`
+
+export const GITHUB_APP_FRAGMENT = gql`
+  fragment CreateCodebase_GitHubApp on GitHubApp {
+    _id
+    ...GitHubConnectButton_GitHubApp
+  }
+  ${GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT}
+`
 
 export default defineComponent({
-  components: { NoCodebasesGitHubAuth, Banner, Button },
+  components: { GitHubConnectButton, CheckIcon, RouterLinkButton, LinkButton },
   props: {
-    createInOrganizationId: {
-      type: String,
-      required: true,
+    gitHubApp: {
+      type: Object as PropType<CreateCodebase_GitHubAppFragment>,
+      required: false,
+      default: null,
     },
-    showSetupGitHub: {
-      type: Boolean,
+    gitHubAccount: {
+      type: Object as PropType<CreateCodebase_GitHubAccountFragment>,
+      default: null,
       required: false,
     },
-    mainBg: {
-      type: String,
-      required: false,
-      default: 'bg-white',
-    },
-    bottomBg: {
-      type: String,
-      required: false,
-      default: 'bg-gray-50',
-    },
   },
-  setup() {
-    const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
-
-    const result = useQuery<CreateCodebasePageQuery, CreateCodebasePageQueryVariables>({
-      query: gql`
-        query CreateCodebasePage($isGitHubEnabled: Boolean!) {
-          user {
-            id
-            gitHubAccount @include(if: $isGitHubEnabled) {
-              id
-              login
-            }
-          }
-          gitHubApp @include(if: $isGitHubEnabled) {
-            _id
-            name
-            clientID
-          }
-        }
-      `,
-      variables: {
-        isGitHubEnabled,
-      },
-    })
-
-    const createCodebaseResult = useCreateCodebase()
-
-    return {
-      fetching: result.fetching,
-      data: result.data,
-      error: result.error,
-
-      async createCodebase(name: string, organizationID: string | undefined) {
-        return createCodebaseResult({ name, organizationID })
-      },
-    }
-  },
-  data() {
-    return {
-      newCodebaseName: RandomName.generate(),
-      newCodebaseDescription: '',
-      isLoading: false,
-      show_failed_message: false,
-    }
-  },
-  watch: {
-    error: function (err) {
-      if (err) throw err
-    },
-  },
-  methods: {
-    doCreateNewCodebase() {
-      this.isLoading = true
-      this.show_failed_message = false
-
-      let t0 = +new Date()
-
-      this.createCodebase(this.newCodebaseName, this.createInOrganizationId)
-        .then((result) => {
-          // Always wait at least 300ms for a nice effect
-          let wait = 300 - (+new Date() - t0)
-          setTimeout(() => {
-            this.isLoading = false
-
-            this.$router.push({
-              name: 'codebaseHome',
-              params: {
-                codebaseSlug: Slug(result.createCodebase.name, result.createCodebase.shortID),
-              },
-            })
-          }, wait)
-        })
-        .catch(() => {
-          this.isLoading = false
-          this.show_failed_message = true
-          setTimeout(() => {
-            this.show_failed_message = false
-          }, 8000)
-        })
+  computed: {
+    gitHubRedirect() {
+      return this.$route.fullPath + '/settings/github'
     },
   },
 })
