@@ -11,8 +11,12 @@
       @click.prevent.stop="onUndoClicked"
     >
       <template #tooltip>
-        rewind to <RelativeTime v-if="previousDate" :date="previousDate" /> ago
+        <template v-if="previousDescription">rewind to {{ previousDescription }}</template>
+        <template v-else
+          >rewind to <RelativeTime v-if="previousDate" :date="previousDate"
+        /></template>
       </template>
+
       {{ '' }}
     </Button>
 
@@ -26,7 +30,10 @@
       :show-tooltip="!!next"
       @click.prevent.stop="onRedoClicked"
     >
-      <template #tooltip> rewind to <RelativeTime v-if="nextDate" :date="nextDate" /> </template>
+      <template #tooltip>
+        <template v-if="nextDescription">rewind to {{ nextDescription }}</template>
+        <template v-else>rewind to <RelativeTime v-if="nextDate" :date="nextDate" /></template>
+      </template>
       {{ '' }}
     </Button>
   </div>
@@ -52,10 +59,12 @@ export const WORKSPACE_FRAGMENT = gql`
       previous {
         id
         createdAt
+        description
       }
       next {
         id
         createdAt
+        description
       }
     }
   }
@@ -97,9 +106,17 @@ export default defineComponent({
       if (!this.previous) return null
       return new Date(this.previous.createdAt * 1000)
     },
+    previousDescription() {
+      if (!this.previous) return null
+      return this.previous.description
+    },
     nextDate() {
       if (!this.next) return null
       return new Date(this.next.createdAt * 1000)
+    },
+    nextDescription() {
+      if (!this.next) return null
+      return this.next.description
     },
   },
   methods: {
