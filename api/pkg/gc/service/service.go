@@ -137,7 +137,7 @@ func (svc *Service) gcSnapshots(ctx context.Context, codebaseID codebases.ID, sn
 
 	for _, view := range views {
 		logger := svc.logger.With(zap.String("view_id", view.ID), zap.Stringer("codebase_id", view.CodebaseID))
-		if err != svc.gcSnapshotsInView(ctx, view, snapshotThreshold) {
+		if err := svc.gcSnapshotsInView(ctx, view, snapshotThreshold); err != nil {
 			logger.Error("failed to gc snapshots in view", zap.Error(err))
 		}
 	}
