@@ -9,6 +9,7 @@ import (
 
 	"getsturdy.com/api/pkg/analytics"
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
+	service_codebases "getsturdy.com/api/pkg/codebases/service"
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/notification"
 	sender_notification "getsturdy.com/api/pkg/notification/sender"
@@ -35,6 +36,7 @@ type Service struct {
 	suggestionRepo db_suggestions.Repository
 
 	workspaceService *service_workspace.Service
+	codebaseService  *service_codebases.Service
 	analyticsService *service_analytics.Service
 
 	executorProvider   executor.Provider
@@ -51,6 +53,7 @@ func New(
 	snapshotter *service_snapshots.Service,
 	analyticsService *service_analytics.Service,
 	notificationSender sender_notification.NotificationSender,
+	codebaseService *service_codebases.Service,
 	eventSender events.EventSender,
 ) *Service {
 	return &Service{
@@ -59,6 +62,7 @@ func New(
 		suggestionRepo: suggestionRepo,
 
 		workspaceService: workspaceService,
+		codebaseService:  codebaseService,
 
 		executorProvider:   executorProvider,
 		snapshotter:        snapshotter,
@@ -157,12 +161,26 @@ func (s *Service) Create(ctx context.Context, userID users.ID, forWorkspace *wor
 
 // GetByID returns a suggestion by id.
 func (s *Service) GetByID(ctx context.Context, id suggestions.ID) (*suggestions.Suggestion, error) {
-	return s.suggestionRepo.GetByID(ctx, id)
+	suggestion, err := s.suggestionRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get suggestion: %w", err)
+	}
+	if _, err := s.codebaseService.GetByID(ctx, suggestion.CodebaseID); err != nil {
+		return nil, fmt.Errorf("failed to get codebase: %w", err)
+	}
+	return suggestion, nil
 }
 
 // GetByWorkspaceID returns a suggestion that is made from the workspaceID.
 func (s *Service) GetByWorkspaceID(ctx context.Context, workspaceID string) (*suggestions.Suggestion, error) {
-	return s.suggestionRepo.GetByWorkspaceID(ctx, workspaceID)
+	suggestion, err := s.suggestionRepo.GetByWorkspaceID(ctx, workspaceID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get suggestion: %w", err)
+	}
+	if _, err := s.codebaseService.GetByID(ctx, suggestion.CodebaseID); err != nil {
+		return nil, fmt.Errorf("failed to get codebase: %w", err)
+	}
+	return suggestion, nil
 }
 
 func (s *Service) ListBySnapshotID(ctx context.Context, snapshotID snapshots.ID) ([]*suggestions.Suggestion, error) {
