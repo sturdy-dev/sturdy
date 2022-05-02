@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import CreateCodebase from '../../organisms/CreateCodebase.vue'
+import CreateCodebase from '../../organisms/CreateCodebaseOnSturdy.vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
 import type {

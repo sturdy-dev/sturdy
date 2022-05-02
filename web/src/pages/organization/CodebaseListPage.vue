@@ -118,11 +118,10 @@
           </div>
         </div>
 
-        <OrganizationNoCodebasesSetupGitHub
+        <CreateCodebase
           v-if="showGitHubSetupBanner"
           :git-hub-account="data.user.gitHubAccount"
           :git-hub-app="data.gitHubApp"
-          :show-start-from-scratch="true"
         />
 
         <div v-if="showStandaloneSetupBanner" class="bg-gray-100 sm:rounded-lg">
@@ -167,7 +166,10 @@ import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
-import OrganizationNoCodebasesSetupGitHub from '../../organisms/organization/OrganizationNoCodebasesSetupGitHub.vue'
+import CreateCodebase, {
+  GITHUB_APP_FRAGMENT as CREATE_CODEBASE_GITHUB_APP_FRAGMENT,
+  GITHUB_ACCOUNT_FRAGMENT as CREATE_CODEBASE_GITHUB_ACCOUNT_FRAGMENT,
+} from '../../organisms/CreateCodebase.vue'
 import CurvedRightIcon from '../../molecules/icons/CurvedRightIcon.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
 
@@ -178,7 +180,7 @@ export default defineComponent({
     PaddedAppLeftSidebar,
     VerticalNavigation,
     GitHubIcon,
-    OrganizationNoCodebasesSetupGitHub,
+    CreateCodebase,
     PlusIcon,
     Pill,
     AvatarGroup,
@@ -242,8 +244,7 @@ export default defineComponent({
 
           gitHubApp @include(if: $isGitHubEnabled) {
             _id
-            name
-            clientID
+            ...CreateCodebase_GitHubApp
           }
 
           user {
@@ -251,10 +252,12 @@ export default defineComponent({
             name
             gitHubAccount @include(if: $isGitHubEnabled) {
               id
-              login
+              ...CreateCodebase_GitHubAccount
             }
           }
         }
+        ${CREATE_CODEBASE_GITHUB_APP_FRAGMENT}
+        ${CREATE_CODEBASE_GITHUB_ACCOUNT_FRAGMENT}
       `,
       variables: {
         isGitHubEnabled,
