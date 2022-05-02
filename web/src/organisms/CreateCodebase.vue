@@ -72,9 +72,20 @@
         </div>
         <div>
           <div class="mt-5 space-x-2 flex">
-            <RouterLinkButton :to="{ name: 'organizationCreateGitHubCodebase' }" color="blue">
+            <RouterLinkButton
+              v-if="isGitHubAvailable"
+              :to="{ name: 'organizationCreateGitHubCodebase' }"
+              color="blue"
+            >
               Import from GitHub
             </RouterLinkButton>
+            <LinkButton
+              v-else
+              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+              target="_blank"
+            >
+              Learn how to configure
+            </LinkButton>
           </div>
         </div>
       </div>
@@ -84,14 +95,30 @@
 
 <script lang="ts">
 import { CheckIcon } from '@heroicons/vue/solid/esm'
-import { defineComponent } from 'vue'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
+import { Feature } from '../__generated__/types'
+import { defineComponent, inject, computed, type Ref, ref } from 'vue'
+import LinkButton from '../atoms/LinkButton.vue'
 
 export default defineComponent({
-  components: { CheckIcon, RouterLinkButton },
+  components: { CheckIcon, RouterLinkButton, LinkButton },
+  setup() {
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+    const isGitHubEnabledNotConfigured = computed(() =>
+      features?.value?.includes(Feature.GitHubNotConfigured)
+    )
+    return {
+      isGitHubEnabled,
+      isGitHubEnabledNotConfigured,
+    }
+  },
   computed: {
     gitHubRedirect() {
       return this.$route.fullPath + '/settings/github'
+    },
+    isGitHubAvailable() {
+      return this.isGitHubEnabled && !this.isGitHubEnabledNotConfigured
     },
   },
 })

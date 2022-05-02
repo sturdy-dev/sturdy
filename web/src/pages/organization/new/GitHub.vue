@@ -39,6 +39,7 @@ import VerticalNavigation from '../../../organisms/organization/VerticalNavigati
 import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
+  ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT,
 } from '../../../organisms/organization/OrganizationSetupGitHub.vue'
 import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
 import { Feature } from '../../../__generated__/types'
@@ -63,12 +64,12 @@ const PAGE_QUERY = gql`
       id
       gitHubAccount @include(if: $isGitHubEnabled) {
         id
-        login
-        isValid
+        ...OrganizationSetupGitHub_GitHubAccount
       }
     }
   }
 
+  ${ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT}
   ${ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT}
   ${ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT}
 `
