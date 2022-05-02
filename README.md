@@ -19,6 +19,8 @@
 - Cloud or self-hosted!
 - Enhance your existing GitHub setup, or _break free_ and use standalone Sturdy
 
+https://user-images.githubusercontent.com/47952/166237497-d0cd459a-abb3-48ff-a1e0-c2a78f9ef5c5.mp4
+
 ## Versions
 
 - [Sturdy Cloud](https://getsturdy.com/) - Lets you use all Sturdy features, fully managed by the team behind Sturdy. Ship code to your projects, review, and ship code. Using 100% Sturdy, or Sturdy on top of GitHub. Get started for **free**.
