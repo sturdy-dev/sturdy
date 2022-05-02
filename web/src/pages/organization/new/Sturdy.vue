@@ -43,16 +43,16 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import CreateCodebase from '../../organisms/CreateCodebaseOnSturdy.vue'
+import CreateCodebase from '../../../organisms/CreateCodebaseOnSturdy.vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
 import type {
   CreateOrganizationCodebasePageQuery,
   CreateOrganizationCodebasePageQueryVariables,
 } from './__generated__/CreateOrganizationCodebasePage'
-import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
-import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
-import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
+import VerticalNavigation from '../../../organisms/organization/VerticalNavigation.vue'
+import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
+import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({

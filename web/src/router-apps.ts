@@ -30,14 +30,19 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'organizationSettings',
   },
   {
-    path: '/org/:organizationSlug/settings/github',
-    component: () => import('./pages/organization/OrganizationSetupGitHubPage.vue'),
-    name: 'organizationSettingsGitHub',
+    path: '/org/:organizationSlug/new',
+    component: () => import('./pages/organization/new/New.vue'),
+    name: 'organizationCreateCodebase',
   },
   {
-    path: '/org/:organizationSlug/new',
-    component: () => import('./pages/organization/CreateOrganizationCodebasePage.vue'),
-    name: 'organizationCreateCodebase',
+    path: '/org/:organizationSlug/new/sturdy',
+    component: () => import('./pages/organization/new/Sturdy.vue'),
+    name: 'organizationCreateSturdyCodebase',
+  },
+  {
+    path: '/org/:organizationSlug/new/github',
+    component: () => import('./pages/organization/new/GitHub.vue'),
+    name: 'organizationCreateGitHubCodebase',
   },
   {
     path: '/org/:organizationSlug/subscriptions/new',
