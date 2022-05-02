@@ -5,20 +5,12 @@
     </template>
 
     <template #header>
-      <OrganizationSettingsHeader :name="data.organization.name">
-        <RouterLinkButton
-          v-if="data.organization.writeable"
-          :to="{ name: 'organizationCreateCodebase' }"
-        >
-          <PlusIcon class="-ml-0.5 mr-2 h-4 w-4" />
-          <span>New Codebase</span>
-        </RouterLinkButton>
-      </OrganizationSettingsHeader>
+      <OrganizationSettingsHeader :name="data.organization.name" />
     </template>
 
     <template #default>
       <div class="space-y-8 flex flex-col">
-        <div v-if="data.organization.codebases.length > 0" class="flex flex-col">
+        <div class="flex flex-col">
           <div class="align-middle inline-block min-w-full">
             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
               <table class="min-w-full divide-y divide-gray-200 table-fixed">
@@ -112,30 +104,24 @@
                       </td>
                     </tr>
                   </template>
+
+                  <tr>
+                    <td colspan="3" class="text-center">
+                      <RouterLinkButton
+                        class="m-4"
+                        color="blue"
+                        v-if="data.organization.writeable"
+                        :to="{ name: 'organizationCreateCodebase' }"
+                      >
+                        <template v-if="data.organization.codebases.length === 0"
+                          >Create the first codebase 🚀</template
+                        >
+                        <template v-else> Create a new codebase </template>
+                      </RouterLinkButton>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-
-        <CreateCodebase
-          v-if="showGitHubSetupBanner"
-          :git-hub-account="data.user.gitHubAccount"
-          :git-hub-app="data.gitHubApp"
-        />
-
-        <div v-if="showStandaloneSetupBanner" class="bg-gray-100 sm:rounded-lg">
-          <div class="flex justify-between px-4 py-5 sm:p-6">
-            <div>
-              <h3 class="text-lg leading-6 font-medium text-gray-900">
-                Create the first codebase 🚀
-              </h3>
-              <div class="mt-2 max-w-xl text-sm text-gray-500">
-                <p>Create a codebase to start coding.</p>
-              </div>
-            </div>
-            <div>
-              <CurvedRightIcon class="h-12 w-12 text-gray-700 -rotate-90" />
             </div>
           </div>
         </div>
@@ -146,7 +132,6 @@
 
 <script lang="ts">
 import time from '../../time'
-import { PlusIcon } from '@heroicons/vue/solid'
 import { Slug } from '../../slug'
 import Pill from '../../atoms/Pill.vue'
 import AvatarGroup from '../../atoms/AvatarGroup.vue'
@@ -166,22 +151,14 @@ import RouterLinkButton from '../../atoms/RouterLinkButton.vue'
 import PaddedAppLeftSidebar from '../../layouts/PaddedAppLeftSidebar.vue'
 import VerticalNavigation from '../../organisms/organization/VerticalNavigation.vue'
 import OrganizationSettingsHeader from '../../organisms/organization/OrganizationSettingsHeader.vue'
-import CreateCodebase, {
-  GITHUB_APP_FRAGMENT as CREATE_CODEBASE_GITHUB_APP_FRAGMENT,
-  GITHUB_ACCOUNT_FRAGMENT as CREATE_CODEBASE_GITHUB_ACCOUNT_FRAGMENT,
-} from '../../organisms/CreateCodebase.vue'
-import CurvedRightIcon from '../../molecules/icons/CurvedRightIcon.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
 
 export default defineComponent({
   components: {
-    CurvedRightIcon,
     OrganizationSettingsHeader,
     PaddedAppLeftSidebar,
     VerticalNavigation,
     GitHubIcon,
-    CreateCodebase,
-    PlusIcon,
     Pill,
     AvatarGroup,
     Tooltip,
@@ -242,22 +219,14 @@ export default defineComponent({
             writeable
           }
 
-          gitHubApp @include(if: $isGitHubEnabled) {
-            _id
-            ...CreateCodebase_GitHubApp
-          }
-
           user {
             id
             name
             gitHubAccount @include(if: $isGitHubEnabled) {
               id
-              ...CreateCodebase_GitHubAccount
             }
           }
         }
-        ${CREATE_CODEBASE_GITHUB_APP_FRAGMENT}
-        ${CREATE_CODEBASE_GITHUB_ACCOUNT_FRAGMENT}
       `,
       variables: {
         isGitHubEnabled,

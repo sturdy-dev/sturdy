@@ -4,7 +4,7 @@
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Create on <strong>Strudy</strong>
+            Create codebase on <strong>Strudy</strong>
           </h3>
 
           <div class="mt-2 max-w-xl text-sm text-gray-500">
@@ -27,7 +27,7 @@
         </div>
         <div>
           <div class="mt-5 space-x-2 flex">
-            <RouterLinkButton :to="{ name: 'organizationCreateCodebase' }" color="blue">
+            <RouterLinkButton :to="{ name: 'organizationCreateSturdyCodebase' }" color="blue">
               Create an empty codebase
             </RouterLinkButton>
           </div>
@@ -39,7 +39,7 @@
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Import <strong>from GitHub</strong>
+            Import codebase <strong>from GitHub</strong>
           </h3>
           <div class="mt-2 max-w-xl text-sm text-gray-500">
             <p>
@@ -72,22 +72,9 @@
         </div>
         <div>
           <div class="mt-5 space-x-2 flex">
-            <GitHubConnectButton
-              v-if="gitHubApp"
-              :git-hub-account="gitHubAccount"
-              :git-hub-app="gitHubApp"
-              already-installed-text="Update installation"
-              not-connected-text="Login with GitHub"
-              color="blue"
-              :state-path="gitHubRedirect"
-            />
-            <LinkButton
-              v-else
-              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
-              target="_blank"
-            >
-              Read the docs
-            </LinkButton>
+            <RouterLinkButton :to="{ name: 'organizationCreateGitHubCodebase' }" color="blue">
+              Import from GitHub
+            </RouterLinkButton>
           </div>
         </div>
       </div>
@@ -97,49 +84,11 @@
 
 <script lang="ts">
 import { CheckIcon } from '@heroicons/vue/solid/esm'
-import GitHubConnectButton, {
-  GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT,
-  GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT,
-} from '../molecules/GitHubConnectButton.vue'
-import { defineComponent, type PropType } from 'vue'
+import { defineComponent } from 'vue'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
-import LinkButton from '../atoms/LinkButton.vue'
-import { gql } from '@urql/vue'
-import type {
-  CreateCodebase_GitHubAccountFragment,
-  CreateCodebase_GitHubAppFragment,
-} from './__generated__/CreateCodebase'
-
-export const GITHUB_ACCOUNT_FRAGMENT = gql`
-  fragment CreateCodebase_GitHubAccount on GitHubAccount {
-    id
-    ...GitHubConnectButton_GitHubAccount
-  }
-  ${GITHUB_CONNECT_BUTTON_GITHUB_ACCOUNT_FRAGMENT}
-`
-
-export const GITHUB_APP_FRAGMENT = gql`
-  fragment CreateCodebase_GitHubApp on GitHubApp {
-    _id
-    ...GitHubConnectButton_GitHubApp
-  }
-  ${GITHUB_CONNECT_BUTTON_GITHUB_APP_FRAGMENT}
-`
 
 export default defineComponent({
-  components: { GitHubConnectButton, CheckIcon, RouterLinkButton, LinkButton },
-  props: {
-    gitHubApp: {
-      type: Object as PropType<CreateCodebase_GitHubAppFragment>,
-      required: false,
-      default: null,
-    },
-    gitHubAccount: {
-      type: Object as PropType<CreateCodebase_GitHubAccountFragment>,
-      default: null,
-      required: false,
-    },
-  },
+  components: { CheckIcon, RouterLinkButton },
   computed: {
     gitHubRedirect() {
       return this.$route.fullPath + '/settings/github'
