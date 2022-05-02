@@ -28,9 +28,9 @@
         </p>
       </div>
 
-      <div class="my-8 bg-gray-200 rounded-md px-4 py-2">
+      <div class="my-8 bg-gray-200 px-4 py-2">
         <div class="prose max-w-full">
-          <h2 id="get-started">Get started</h2>
+          <h2 id="get-started">Quickstart</h2>
 
           There are three versions of Sturdy:
 

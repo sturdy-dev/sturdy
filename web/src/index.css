@@ -101,3 +101,7 @@
 .code-row-wrapper {
   width: 100%;
 }
+
+.docs .prose {
+  @apply prose-pre:rounded-none prose-a:underline-offset-4 prose-a:decoration-1 hover:prose-a:text-yellow-600
+}

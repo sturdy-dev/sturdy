@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-blue-100 p-4 rounded-md text-blue-900">
+  <div class="bg-blue-100 p-4 text-blue-900">
     <span class="p-1">ℹ️</span>
     <slot></slot>
   </div>

@@ -9,7 +9,7 @@
 
       <div
         ref="content"
-        class="w-full 2xl:max-w-[800px] xl:max-w-[650px] max-w-full pb-14 relative md:pl-16 xl:px-16 2xl:px-32 box-content overflow-auto"
+        class="docs w-full 2xl:max-w-[800px] xl:max-w-[650px] max-w-full pb-14 relative md:pl-16 xl:px-16 2xl:px-32 box-content overflow-auto"
       >
         <!-- Small screen table of contents -->
         <div class="w-full flex-1 pl-4 self-stretch block xl:hidden mb-10">
