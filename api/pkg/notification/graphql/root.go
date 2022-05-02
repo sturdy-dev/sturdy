@@ -391,7 +391,7 @@ func (r *notificationResolver) sub(ctx context.Context) (any, error) {
 	case notification.NewSuggestionNotificationType:
 		return r.root.suggestionRootResolver.InternalSuggestionByID(ctx, suggestions.ID(r.notif.ReferenceID))
 	case notification.GitHubRepositoryImported:
-		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(r.notif.ReferenceID)
+		return r.root.codebaseGitHubIntegrationRootResolver.InternalGitHubRepositoryByID(ctx, r.notif.ReferenceID)
 	case notification.InvitedToCodebase:
 		member, err := r.root.codebaseUserRepo.GetByID(ctx, r.notif.ReferenceID)
 		if err != nil {

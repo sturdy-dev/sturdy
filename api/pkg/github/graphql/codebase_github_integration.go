@@ -15,7 +15,7 @@ func NewCodebaseGitHubIntegrationRootResolver() resolvers.CodebaseGitHubIntegrat
 	return &codebaseGitHubIntegrationRootResolver{}
 }
 
-func (r *codebaseGitHubIntegrationRootResolver) InternalGitHubRepositoryByID(id string) (resolvers.CodebaseGitHubIntegrationResolver, error) {
+func (r *codebaseGitHubIntegrationRootResolver) InternalGitHubRepositoryByID(context.Context, string) (resolvers.CodebaseGitHubIntegrationResolver, error) {
 	return nil, gqlerrors.ErrNotImplemented
 }
 
