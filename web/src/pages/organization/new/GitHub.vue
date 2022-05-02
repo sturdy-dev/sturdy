@@ -1,27 +1,18 @@
 <template>
-  <PaddedAppLeftSidebar v-if="data" class="bg-white">
-    <template #navigation>
-      <VerticalNavigation />
-    </template>
+  <PaddedApp v-if="data" class="bg-white">
+    <OrganizationSettingsHeader :name="data.organization.name" />
+    <div class="max-w-7xl">
+      <Header>
+        <span>Sturdy for GitHub</span>
+      </Header>
 
-    <template #header>
-      <OrganizationSettingsHeader :name="data.organization.name" />
-    </template>
-
-    <template #default>
-      <div class="max-w-7xl">
-        <Header>
-          <span>Sturdy for GitHub</span>
-        </Header>
-
-        <OrganizationSetupGitHub
-          :organization="data.organization"
-          :git-hub-app="data.gitHubApp"
-          :git-hub-account="data.user.gitHubAccount"
-        />
-      </div>
-    </template>
-  </PaddedAppLeftSidebar>
+      <OrganizationSetupGitHub
+        :organization="data.organization"
+        :git-hub-app="data.gitHubApp"
+        :git-hub-account="data.user.gitHubAccount"
+      />
+    </div>
+  </PaddedApp>
 </template>
 
 <script lang="ts">
@@ -34,8 +25,7 @@ import type {
 } from './__generated__/GitHub'
 import { useRoute } from 'vue-router'
 import Header from '../../../molecules/Header.vue'
-import PaddedAppLeftSidebar from '../../../layouts/PaddedAppLeftSidebar.vue'
-import VerticalNavigation from '../../../organisms/organization/VerticalNavigation.vue'
+import PaddedApp from '../../../layouts/PaddedApp.vue'
 import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
@@ -78,9 +68,8 @@ export default defineComponent({
   components: {
     OrganizationSetupGitHub,
     OrganizationSettingsHeader,
-    PaddedAppLeftSidebar,
+    PaddedApp,
     Header,
-    VerticalNavigation,
   },
   setup() {
     const route = useRoute()
