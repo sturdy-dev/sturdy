@@ -6,6 +6,36 @@
   >
     <div class="prose prose-yellow">
       <p>
+        Sturdy has first-party integrations with popular CI/CD tools like Buildkite, and also
+        supports bringing in existing CI/CD integrations via the GitHub integration.
+      </p>
+
+      <h2>Supported CI/CD providers</h2>
+
+      <ul>
+        <li>Buildkite</li>
+        <li>GitHub Actions</li>
+        <li>Circle CI <sup>*</sup></li>
+        <li>Jenkins <sup>*</sup></li>
+        <li>TeamCity Bamboo <sup>*</sup></li>
+        <li>Travis CI <sup>*</sup></li>
+        <li>... and many more! <sup>*</sup></li>
+      </ul>
+
+      <p>
+        <em><sup>*</sup> via Sturdy for GitHub</em>
+      </p>
+
+      <h2>Pre-merge testing</h2>
+
+      <p>
+        Pre-merge testing are the tests that you execute <em>before</em> merging a Draft on Sturdy.
+        Usually this is a list of faster tests and linters that you never want to break.
+      </p>
+
+      <p></p>
+
+      <p>
         <router-link :to="{ name: 'resourcesMigrateFromGitHub' }"
           >Sturdy integrates with GitHub
         </router-link>
