@@ -175,7 +175,7 @@ export const RoutesDocs: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/blog/on-shipping-small-and-often',
+    path: '/blog/2022-05-03-on-shipping-small-and-often',
     name: 'on-shipping-small-and-often',
     component: () => import('./pages/blog/2022-05-03/Post.vue'),
     meta: {
