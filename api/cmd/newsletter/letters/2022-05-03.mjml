@@ -29,6 +29,10 @@
                         Read this email on the web
                     </a>
                 </mj-text>
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2022-05-03-on-shipping-small-and-often?ref=newsletter">Recommended reading: &ldquo;What is stopping us from merging 30 pull requests per day?&rdquo;
+                    </a>
+                </mj-text>
             </mj-column>
         </mj-section>
 
@@ -196,12 +200,19 @@
 
 
                 <mj-text font-size="14px" color="#555555" font-family="helvetica">
-
                     <p>Our Discord community is growing every day, and it the place to be for all things Sturdy. If you
                         haven't joined yet, <a href="https://discord.gg/fQcH9QAVpX">join the Sturdy server now</a>!
                     </p>
-
                 </mj-text>
+
+
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Recommended reading</mj-text>
+
+                <mj-text font-size="14px" color="#222" font-family="helvetica">
+                    This post is actually the second post that we're posting today, check out our other post as well, I think that you'll like it! <a href="https://getsturdy.com/blog/2022-05-03-on-shipping-small-and-often?ref=newsletter">&ldquo;What is stopping us from merging 30 pull requests per day?&rdquo;
+                </a>
+                </mj-text>
+
 
                 <mj-text font-size="14px" color="#555555" font-family="helvetica">
                     <a href="https://getsturdy.com?ref=newsletter">&raquo; Get started with Sturdy today!</a>
