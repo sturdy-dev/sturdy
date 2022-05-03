@@ -1,8 +1,8 @@
 <template>
   <div class="py-8 px-4">
-    <div class="">
+    <div>
       <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
-        Create a new codebase in <span class="underline">{{ organization.name }}</span>
+        Create a new codebase in <span class="underline">{{ selected.name }}</span>
       </h2>
       <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
     </div>
@@ -39,7 +39,7 @@
             <RouterLinkButton
               :to="{
                 name: 'organizationCreateSturdyCodebase',
-                params: { organizationSlug: organization.shortID },
+                params: { organizationSlug: selected.shortID },
               }"
               color="blue"
             >
@@ -91,7 +91,7 @@
               v-if="isGitHubAvailable"
               :to="{
                 name: 'organizationCreateGitHubCodebase',
-                params: { organizationSlug: organization.shortID },
+                params: { organizationSlug: selected.shortID },
               }"
               color="blue"
             >
@@ -111,15 +111,38 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { CheckIcon } from '@heroicons/vue/solid/esm'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import { Feature } from '../__generated__/types'
-import { defineComponent, inject, computed, type Ref, ref, type PropType } from 'vue'
+import { defineProps, inject, computed, type Ref, ref, type PropType } from 'vue'
 import LinkButton from '../atoms/LinkButton.vue'
 import { gql } from '@urql/vue'
 import type { Organization_CreateCodebaseFragment } from './__generated__/CreateCodebase'
 
+const props = defineProps({
+  organizations: {
+    type: Object as PropType<Organization_CreateCodebaseFragment[]>,
+    required: true,
+  },
+  selectedOrganization: {
+    type: Object as PropType<Organization_CreateCodebaseFragment>,
+    required: false,
+  },
+})
+
+const features = inject<Ref<Array<Feature>>>('features', ref([]))
+const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
+const isGitHubEnabledNotConfigured = computed(() =>
+  features?.value?.includes(Feature.GitHubNotConfigured)
+)
+const isGitHubAvailable = computed(
+  () => isGitHubEnabled.value && !isGitHubEnabledNotConfigured.value
+)
+const selected = computed(() => props.selectedOrganization || props.organizations[0])
+</script>
+
+<script lang="ts">
 export const ORGANIZATION_FRAGMENT = gql`
   fragment Organization_CreateCodebase on Organization {
     id
@@ -127,33 +150,4 @@ export const ORGANIZATION_FRAGMENT = gql`
     name
   }
 `
-
-export default defineComponent({
-  components: { CheckIcon, RouterLinkButton, LinkButton },
-  props: {
-    organization: {
-      type: Object as PropType<Organization_CreateCodebaseFragment>,
-      required: true,
-    },
-  },
-  setup() {
-    const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
-    const isGitHubEnabledNotConfigured = computed(() =>
-      features?.value?.includes(Feature.GitHubNotConfigured)
-    )
-    return {
-      isGitHubEnabled,
-      isGitHubEnabledNotConfigured,
-    }
-  },
-  computed: {
-    gitHubRedirect() {
-      return this.$route.fullPath + '/settings/github'
-    },
-    isGitHubAvailable() {
-      return this.isGitHubEnabled && !this.isGitHubEnabledNotConfigured
-    },
-  },
-})
 </script>

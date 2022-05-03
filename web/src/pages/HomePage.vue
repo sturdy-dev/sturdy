@@ -6,7 +6,7 @@
         <RouterLinkButton :to="{ name: 'organizationCreate' }">Get started now 🚀</RouterLinkButton>
       </div>
 
-      <CreateCodebase v-else-if="codebasesCount == 0" :organization="data.organizations[0]" />
+      <CreateCodebase v-else-if="codebasesCount == 0" :organizations="data.organizations" />
 
       <ul v-else role="list" class="divide-y divide-gray-200">
         <li v-for="org in data.organizations" :key="org.id">
