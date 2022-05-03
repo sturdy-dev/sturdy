@@ -108,6 +108,41 @@
         </div>
       </div>
     </div>
+
+    <div class="bg-gray-100 sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Import <strong>local .git</strong> directory
+          </h3>
+          <div class="mt-2 max-w-xl text-sm text-gray-500">
+            <p>Already using git, but don't want to connect your git:// provider yet?</p>
+            <ul class="list-inside mt-2 inline-flex flex-col">
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Import your existing code</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Host your project on Sturdy</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>User the full Sturdy workflow</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="mt-5 space-x-2 flex">
+            <Button :disabled="true" :show-tooltip="true" color="blue">
+              <template #tooltip> Coming soon </template>
+              <template #default> Import existing .git </template>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -119,6 +154,7 @@ import { defineProps, inject, computed, type Ref, ref, type PropType } from 'vue
 import LinkButton from '../atoms/LinkButton.vue'
 import { gql } from '@urql/vue'
 import type { Organization_CreateCodebaseFragment } from './__generated__/CreateCodebase'
+import Button from '../atoms/Button.vue'
 
 const props = defineProps({
   organizations: {
