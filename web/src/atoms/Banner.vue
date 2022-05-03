@@ -48,20 +48,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {
   ExclamationIcon,
   CheckCircleIcon,
   InformationCircleIcon,
   XCircleIcon,
 } from '@heroicons/vue/solid'
+import { defineComponent, type PropType } from 'vue'
 
-export default {
+export default defineComponent({
   name: 'Banner',
   components: { ExclamationIcon, CheckCircleIcon, InformationCircleIcon, XCircleIcon },
   props: {
     status: {
-      type: String, // "success", "warning", "info", or "error"
+      type: String as PropType<'success' | 'warning' | 'info' | 'error'>,
       default: 'success',
       required: true,
     },
@@ -74,5 +75,5 @@ export default {
       default: true,
     },
   },
-}
+})
 </script>

@@ -1,6 +1,13 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
-    <OrganizationSettingsHeader :name="data.organization.name" />
+    <div class="py-8 px-4">
+      <div class="">
+        <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
+          Create a new codebase in <span class="underline">{{ data.organization.name }}</span>
+        </h2>
+        <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
+      </div>
+    </div>
 
     <div v-if="!data.organization.writeable">
       <p class="text-sm text-gray-500">
@@ -20,7 +27,6 @@ import { defineComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
 import type { NewCodebasePageQuery, NewCodebasePageQueryVariables } from './__generated__/New'
-import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
 import PaddedApp from '../../../layouts/PaddedApp.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
 import CreateCodebase from '../../../organisms/CreateCodebase.vue'
@@ -39,7 +45,6 @@ export default defineComponent({
   components: {
     PaddedApp,
     CreateCodebase,
-    OrganizationSettingsHeader,
   },
   setup() {
     const route = useRoute()

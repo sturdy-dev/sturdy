@@ -1,7 +1,5 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
-    <OrganizationSettingsHeader :name="data.organization.name" />
-
     <div v-if="!data.organization.writeable">
       <p class="text-sm text-gray-500">
         You don't have permissions to create a new codebase in this organization. Ask an
@@ -40,17 +38,16 @@ import { defineComponent, inject, ref, type Ref } from 'vue'
 import CreateCodebase, {
   USER_FRAGMENT,
   GITHUB_APP_FRAGMENT,
-} from '../../../organisms/CreateCodebaseOnSturdy.vue'
+} from '../../../../organisms/CreateCodebaseOnSturdy.vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
 import type {
   CreateOrganizationCodebasePageQuery,
   CreateOrganizationCodebasePageQueryVariables,
-} from './__generated__/Sturdy'
-import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
-import PaddedApp from '../../../layouts/PaddedApp.vue'
+} from './__generated__/Index'
+import PaddedApp from '../../../../layouts/PaddedApp.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
-import { Feature } from '../../../__generated__/types'
+import { Feature } from '../../../../__generated__/types'
 
 const PAGE_QUERY = gql`
   query CreateOrganizationCodebasePage($shortID: ID!, $isGitHubEnabled: Boolean!) {
@@ -78,7 +75,6 @@ export default defineComponent({
   components: {
     PaddedApp,
     CreateCodebase,
-    OrganizationSettingsHeader,
   },
   setup() {
     const route = useRoute()

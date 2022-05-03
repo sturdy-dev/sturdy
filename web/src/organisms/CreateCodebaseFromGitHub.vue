@@ -59,17 +59,6 @@
       </LinkButton>
 
       <template v-if="data && data.gitHubRepositories.length > 0 && gitHubApp.validation.ok">
-        <div class="text-sm p-4">
-          <p>
-            Click <em>Setup</em> to create a new codebase that's connected to the selected
-            repository.
-          </p>
-          <p>
-            Not seeing the repository you want to install setup? Update the app installation above
-            to install <em>Sturdy for GitHub</em> on more organizations or repositories.
-          </p>
-        </div>
-
         <div class="border-b border-gray-200">
           <ul role="list" class="divide-y divide-gray-200">
             <li
@@ -113,11 +102,16 @@
                 <span>Getting ready&hellip;</span>
               </div>
               <div v-else>
-                <Button @click="installRepo(repo)">Setup</Button>
+                <Button @click="installRepo(repo)">Import</Button>
               </div>
             </li>
           </ul>
         </div>
+
+        <Banner status="info">
+          Not seeing the repository you want to install setup? Update the app installation above to
+          install <em>Sturdy for GitHub</em> on more organizations or repositories.
+        </Banner>
       </template>
       <div v-else-if="fetching" class="flex items-center space-x-2">
         <Spinner />
@@ -150,6 +144,7 @@ import { useSetupGitHubRepository } from '../mutations/useSetupGitHubRepository'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { Feature } from '../__generated__/types'
 import LinkButton from '../atoms/LinkButton.vue'
+import Banner from '../atoms/Banner.vue'
 
 export const ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT = gql`
   fragment OrganizationSetupGitHub_GitHubApp on GitHubApp {
@@ -178,7 +173,15 @@ export const ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT = gql`
 `
 
 export default defineComponent({
-  components: { GitHubConnectButton, Spinner, Button, RouterLinkButton, CheckIcon, LinkButton },
+  components: {
+    GitHubConnectButton,
+    Spinner,
+    Button,
+    RouterLinkButton,
+    CheckIcon,
+    LinkButton,
+    Banner,
+  },
   props: {
     organization: {
       type: Object as PropType<OrganizationSetupGitHub_OrganizationFragment>,
