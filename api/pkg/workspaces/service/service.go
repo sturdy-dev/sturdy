@@ -212,10 +212,11 @@ func (s *Service) SetSnapshot(ctx context.Context, ws *workspaces.Workspace, sna
 		}
 	}
 
-	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&snap.ID)); err != nil {
+	if err := s.workspaceWriter.UpdateFields(ctx, ws.ID, db.SetLatestSnapshotID(&snap.ID), db.SetHeadChangeComputed(false)); err != nil {
 		return fmt.Errorf("failed to update workspace: %w", err)
 	}
 	ws.LatestSnapshotID = &snap.ID
+	ws.HeadChangeComputed = false
 
 	s.analyticsService.Capture(ctx, "set-snapshot",
 		analytics.Property("workspace_id", ws.ID),
