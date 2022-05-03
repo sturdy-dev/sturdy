@@ -8,6 +8,26 @@ Sturdy in the Cloud is continuously deployed, and will contain newer features no
 
 Releases are pushed to [Docker Hub](https://hub.docker.com/r/getsturdy/server/).
 
+# Server v1.8.0 (2022-05-03)
+
+_Changes since v1.7.0_
+
+* [Feature] Added "undo" and "redo" buttons on drafts. Sturdy continuously creates snapshots of drafts as you're coding, and restoring the entire draft to an earlier, much earlier, or other state is now just one click away.
+* [Feature] Support [triggering CI/CD on a draft change via GitHub](https://getsturdy.com/docs/continuous-integration) (support for pretty much every CI/CD provider!)
+* [Feature] Send users a notification when they have been invited to a codebase or organisation
+* [Feature] Added a "resolve" button to comments
+* [Improvement] Improved caching of codebase contents, making operations like "undo" and "merge" significantly faster
+* [Improvement] The migration towards 100% TypeScript on the frontend is migrating nicely.
+* [Improvement] Fixed a data-race where sometimes a change could be imported (from GitHub or other) multiple times (leading to a confusing changelog)
+* [Improvement] Improved reliability when importing extremely large pull requests (+100k lines changed)
+* [Improvement] Better performance when GitHub webhook delivery is slow (added internal handling that does not rely on webooks)
+* [Improvement] Register the Sturdy app as a handler for the `sturdy://` protocol scheme on Linux (App Images, deb, and rpm)
+* [Fix] Improved first time boot performance of the server, and fixed a race condition where sometimes the server did not successfully start the first time.
+* [Fix] Fixed a bug where navigation between drafts could take you to the wrong page
+* [Fix] Fixed a bug where the callback from GitHub after updating permissions for the Sturdy app could take you to an unexpected page
+* [Fix] Fixed a bug where comments on "live" code could sometimes "jump" around
+* ... and many other smaller fixes and improvements!
+
 # Server v1.7.0 (2022-04-11)
 
 _Changes since v1.6.0_
