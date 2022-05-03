@@ -25,6 +25,7 @@ exports.handler = (event, context, callback) => {
     '/docs/suggestions',
     '/features/migrate-from-github',
     '/docs/continuous-integration',
+    '/blog/2022-05-03-on-shipping-small-and-often',
     '/blog/2022-04-12-this-week-at-sturdy',
     '/blog/2022-03-10-introducing-draft-changes',
     '/blog/2022-02-21-sturdy-is-now-open-source',
