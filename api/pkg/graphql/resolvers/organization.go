@@ -23,7 +23,6 @@ type OrganizationRootResolver interface {
 type OrganizationResolver interface {
 	ID() graphql.ID
 	ShortID() graphql.ID
-	Slug() string
 	Name() string
 	Members(context.Context) ([]AuthorResolver, error)
 	Codebases(context.Context) ([]CodebaseResolver, error)

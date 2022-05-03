@@ -1053,7 +1053,6 @@ enum Feature {
 type Organization implements Writeable {
   id: ID!
   shortID: ID!
-  slug: String!
   name: String!
   members: [Author!]!
   codebases: [Codebase!]!
