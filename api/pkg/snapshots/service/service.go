@@ -229,20 +229,20 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 	if ws.LatestSnapshotID != nil {
 		previousSnapshot, err := s.snapshotsRepo.Get(*ws.LatestSnapshotID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+			return nil, fmt.Errorf("failed to get latest snapshot: %w", err)
 		}
 		latest = previousSnapshot
 	} else {
-		previousSnapshot, err := s.snapshotsRepo.LatestInWorkspace(context.TODO(), workspaceID)
+		previousSnapshot, err := s.snapshotsRepo.LatestInWorkspace(ctx, workspaceID)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+			return nil, fmt.Errorf("failed to get latest snapshot: %w", err)
 		}
 		latest = previousSnapshot
 	}
 
 	if options.onView != nil {
-		if _, err := s.suggestionsRepo.GetByWorkspaceID(context.TODO(), workspaceID); err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+		if _, err := s.suggestionsRepo.GetByWorkspaceID(ctx, workspaceID); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("failed to get suggestions: %w", err)
 		}
 		isSuggesting := err == nil
 
@@ -353,7 +353,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 		var err error
 		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnExistingCommit(options.onRepo, snapshotID, *options.onExistingCommit)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't snapshot on existing commit: %w", err)
 		}
 
 		if err := compareTreeIDs(latest, snapshotCommitSHA)(options.onRepo); err != nil {
@@ -361,13 +361,13 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 		}
 	} else if options.onRepo != nil && options.onView != nil {
 		if err := countDiffs(options.onRepo); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't count diffs: %w", err)
 		}
 
 		var err error
 		snapshotCommitSHA, err = vcs_snapshots.SnapshotOnViewRepo(ctx, s.logger, options.onRepo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to snapshot on view repo: %w", err)
 		}
 		if err := compareTreeIDs(latest, snapshotCommitSHA)(options.onRepo); err != nil {
 			return nil, fmt.Errorf("can't compare trees: %w", err)
@@ -380,7 +380,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 			exec = exec.Write(func(repo vcs.RepoWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepoWithRevert(repo, s.logger, snapshotID, snapshotOptions...)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to snapshot on view repo: %w", err)
 				}
 				snapshotCommitSHA = commitID
 				if err := compareTreeIDs(latest, commitID)(repo); err != nil {
@@ -398,7 +398,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 			exec = exec.FileReadGitWrite(func(repo vcs.RepoReaderGitWriter) error {
 				commitID, err := vcs_snapshots.SnapshotOnViewRepo(ctx, s.logger, repo, codebaseID, snapshotID, gitSignature, snapshotOptions...)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to snapshot on view repo: %w", err)
 				}
 				snapshotCommitSHA = commitID
 
@@ -415,14 +415,13 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 		} else {
 			err = exec.ExecView(codebaseID, *options.onView, "snapshotOnView")
 		}
+
 		if errors.Is(err, executor.ErrUnexpectedBranch) {
 			return nil, fmt.Errorf("%w: view is on unexpected branch (%s)", ErrCantSnapshotWrongBranch, err)
-		}
-		if errors.Is(err, executor.ErrIsRebasing) {
+		} else if errors.Is(err, executor.ErrIsRebasing) {
 			return nil, fmt.Errorf("%w: view is rebasing", ErrCantSnapshotRebasing)
-		}
-		if err != nil {
-			return nil, err
+		} else if err != nil {
+			return nil, fmt.Errorf("can't snapshot: %w", err)
 		}
 	} else {
 		return nil, fmt.Errorf("could not create snapshot, unrecognized combinations of options: %+v", options)
@@ -448,7 +447,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 	}
 
 	if err := s.snapshotsRepo.Create(snap); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't create snapshot: %w", err)
 	}
 
 	if options.onView != nil || options.markAsLatestInWorkspace {
@@ -457,7 +456,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 		// If authoritative view, or explicitly asked to mark this as the latest snapshot
 		if isAuthoritativeView || options.markAsLatestInWorkspace {
 			ws.SetSnapshot(snap)
-			if err := s.workspaceWriter.UpdateFields(context.TODO(), ws.ID,
+			if err := s.workspaceWriter.UpdateFields(ctx, ws.ID,
 				db_workspaces.SetDiffsCount(snap.DiffsCount),
 				db_workspaces.SetLatestSnapshotID(&snap.ID),
 			); err != nil {
@@ -471,15 +470,15 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 			}
 
 			// mark all snapshots as stale
-			if err := s.statusesService.NotifyAllInWorkspace(context.Background(), ws.ID); err != nil {
+			if err := s.statusesService.NotifyAllInWorkspace(ctx, ws.ID); err != nil {
 				s.logger.Error("failed to notify statuses", zap.Error(err))
 				// do not fail
 			}
 		}
 
 		if isAuthoritativeView {
-			if err := s.sendViewEvents(workspaceID, *options.onView); err != nil {
-				return nil, err
+			if err := s.sendViewEvents(ctx, workspaceID, *options.onView); err != nil {
+				return nil, fmt.Errorf("failed to send view events: %w", err)
 			}
 		}
 	}
@@ -487,7 +486,7 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 	logger.Info("snapshot created",
 		zap.Duration("duration", time.Since(t0)))
 
-	s.analyticsService.CaptureUser(context.TODO(), ws.UserID, "created snapshot",
+	s.analyticsService.CaptureUser(ctx, ws.UserID, "created snapshot",
 		analytics.CodebaseID(ws.CodebaseID),
 		analytics.Property("diffs_count", diffsCount),
 	)
@@ -495,21 +494,19 @@ func (s *Service) Snapshot(ctx context.Context, codebaseID codebases.ID, workspa
 	return snap, nil
 }
 
-func (s *Service) sendViewEvents(workspaceID, viewID string) error {
+func (s *Service) sendViewEvents(ctx context.Context, workspaceID, viewID string) error {
 	// If this is a _suggestion_, send events to the view it's making suggestions to
 	ws, err := s.workspaceReader.Get(workspaceID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return fmt.Errorf("could not get workspace: %w", err)
 	}
 
 	view, err := s.viewRepo.Get(viewID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return fmt.Errorf("could not get view: %w", err)
 	}
 
@@ -520,8 +517,7 @@ func (s *Service) sendViewEvents(workspaceID, viewID string) error {
 	ownerViews, err := s.viewRepo.ListByCodebaseAndUser(ws.CodebaseID, ws.UserID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return fmt.Errorf("could not get workspace owner views: %w", err)
 	}
 
@@ -529,8 +525,6 @@ func (s *Service) sendViewEvents(workspaceID, viewID string) error {
 		if ownerView.WorkspaceID != workspaceID {
 			continue
 		}
-
-		ctx := context.Background()
 
 		if err := s.eventsSenderV2.ViewUpdated(ctx, eventsv2.Codebase(ownerView.CodebaseID), ownerView); err != nil {
 			s.logger.Error("failed to send view updated event", zap.Error(err))
