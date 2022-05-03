@@ -62,7 +62,7 @@
               :to="{ name: item.name }"
               class="font-medium text-gray-900 hover:text-gray-700"
             >
-              {{ item.meta.blog.title }}
+              {{ item.meta.blogTitle }}
             </router-link>
           </li>
         </ul>
