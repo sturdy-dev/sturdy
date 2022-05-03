@@ -3,7 +3,7 @@
     <OrganizationSettingsHeader :name="data.organization.name" />
     <div class="max-w-7xl">
       <Header>
-        <span>Sturdy for GitHub</span>
+        <span>Import from GitHub</span>
       </Header>
 
       <OrganizationSetupGitHub
@@ -22,17 +22,17 @@ import { gql, useQuery } from '@urql/vue'
 import type {
   OrganizationSetupGitHubPageQuery,
   OrganizationSetupGitHubPageQueryVariables,
-} from './__generated__/GitHub'
+} from './__generated__/Index'
 import { useRoute } from 'vue-router'
-import Header from '../../../molecules/Header.vue'
-import PaddedApp from '../../../layouts/PaddedApp.vue'
+import Header from '../../../../molecules/Header.vue'
+import PaddedApp from '../../../../layouts/PaddedApp.vue'
 import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT,
-} from '../../../organisms/CreateCodebaseFromGitHub.vue'
-import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
-import { Feature } from '../../../__generated__/types'
+} from '../../../../organisms/CreateCodebaseFromGitHub.vue'
+import OrganizationSettingsHeader from '../../../../organisms/organization/OrganizationSettingsHeader.vue'
+import { Feature } from '../../../../__generated__/types'
 import type { DeepMaybeRef } from '@vueuse/core'
 
 const PAGE_QUERY = gql`

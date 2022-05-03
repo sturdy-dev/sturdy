@@ -31,17 +31,17 @@ export const RoutesApps: RouteRecordRaw[] = [
   },
   {
     path: '/org/:organizationSlug/new',
-    component: () => import('./pages/organization/new/New.vue'),
+    component: () => import('./pages/organization/new/Index.vue'),
     name: 'organizationCreateCodebase',
   },
   {
     path: '/org/:organizationSlug/new/sturdy',
-    component: () => import('./pages/organization/new/Sturdy.vue'),
+    component: () => import('./pages/organization/new/sturdy/Index.vue'),
     name: 'organizationCreateSturdyCodebase',
   },
   {
     path: '/org/:organizationSlug/new/github',
-    component: () => import('./pages/organization/new/GitHub.vue'),
+    component: () => import('./pages/organization/new/github/Index.vue'),
     name: 'organizationCreateGitHubCodebase',
   },
   {
