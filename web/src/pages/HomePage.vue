@@ -56,6 +56,38 @@ import { Feature } from '../__generated__/types'
 import { ChevronRightIcon } from '@heroicons/vue/solid'
 import type { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
+import type { DeepMaybeRef } from '@vueuse/shared'
+
+const PAGE_QUERY = gql`
+  query HomePage($isGitHubEnabled: Boolean!) {
+    organizations {
+      id
+      name
+      shortID
+
+      members {
+        id
+        name
+        avatarUrl
+      }
+    }
+
+    gitHubApp @include(if: $isGitHubEnabled) {
+      _id
+      name
+      clientID
+    }
+
+    user {
+      id
+      name
+      gitHubAccount @include(if: $isGitHubEnabled) {
+        id
+        login
+      }
+    }
+  }
+`
 
 export default defineComponent({
   components: {
@@ -68,37 +100,8 @@ export default defineComponent({
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))
 
-    const result = useQuery<HomePageQuery, HomePageQueryVariables>({
-      query: gql`
-        query HomePage($isGitHubEnabled: Boolean!) {
-          organizations {
-            id
-            name
-            shortID
-
-            members {
-              id
-              name
-              avatarUrl
-            }
-          }
-
-          gitHubApp @include(if: $isGitHubEnabled) {
-            _id
-            name
-            clientID
-          }
-
-          user {
-            id
-            name
-            gitHubAccount @include(if: $isGitHubEnabled) {
-              id
-              login
-            }
-          }
-        }
-      `,
+    const result = useQuery<HomePageQuery, DeepMaybeRef<HomePageQueryVariables>>({
+      query: PAGE_QUERY,
       variables: {
         isGitHubEnabled,
       },
@@ -108,8 +111,6 @@ export default defineComponent({
       fetching: result.fetching,
       data: result.data,
       error: result.error,
-
-      isGitHubEnabled,
     }
   },
   watch: {

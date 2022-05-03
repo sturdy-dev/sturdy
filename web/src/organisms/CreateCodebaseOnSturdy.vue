@@ -1,5 +1,5 @@
 <template>
-  <div v-if="data">
+  <div>
     <slot name="header"></slot>
 
     <Banner
@@ -89,13 +89,10 @@
       </form>
 
       <div
-        v-if="data.gitHubApp && showSetupGitHub"
+        v-if="gitHubApp && showSetupGitHub"
         class="shadow sm:rounded-workspaceService, syncService,md sm:overflow-hidden"
       >
-        <NoCodebasesGitHubAuth
-          :git-hub-account="data.user.gitHubAccount"
-          :git-hub-app="data.gitHubApp"
-        />
+        <NoCodebasesGitHubAuth :git-hub-account="user.gitHubAccount" :git-hub-app="gitHubApp" />
       </div>
     </div>
   </div>
@@ -103,23 +100,47 @@
 
 <script lang="ts">
 import { Banner } from '../atoms'
-import { defineComponent, inject, ref } from 'vue'
-import type { Ref } from 'vue'
-import { gql, useQuery } from '@urql/vue'
+import { defineComponent, type PropType } from 'vue'
+import { gql } from '@urql/vue'
 import NoCodebasesGitHubAuth from '../components/codebase/NoCodebasesGitHubAuth.vue'
 import Button from '../atoms/Button.vue'
 import RandomName from '../components/codebase/create/random-name.js'
 import { useCreateCodebase } from '../mutations/useCreateCodebase'
-import type {
-  CreateCodebasePageQuery,
-  CreateCodebasePageQueryVariables,
-} from './__generated__/CreateCodebase'
-import { Feature } from '../__generated__/types'
 import { Slug } from '../slug'
+import type {
+  User_CreateCodebaseOnSturdyFragment,
+  GitHubApp_CreateCodebaseOnSturdyFragment,
+} from './__generated__/CreateCodebaseOnSturdy'
+
+export const USER_FRAGMENT = gql`
+  fragment User_CreateCodebaseOnSturdy on User {
+    id
+    gitHubAccount @include(if: $isGitHubEnabled) {
+      id
+      login
+    }
+  }
+`
+
+export const GITHUB_APP_FRAGMENT = gql`
+  fragment GitHubApp_CreateCodebaseOnSturdy on GitHubApp {
+    _id
+    name
+    clientID
+  }
+`
 
 export default defineComponent({
   components: { NoCodebasesGitHubAuth, Banner, Button },
   props: {
+    user: {
+      type: Object as PropType<User_CreateCodebaseOnSturdyFragment>,
+      required: true,
+    },
+    gitHubApp: {
+      type: Object as PropType<GitHubApp_CreateCodebaseOnSturdyFragment>,
+      required: false,
+    },
     createInOrganizationId: {
       type: String,
       required: true,
@@ -140,38 +161,9 @@ export default defineComponent({
     },
   },
   setup() {
-    const features = inject<Ref<Array<Feature>>>('features', ref([]))
-    const isGitHubEnabled = features.value.includes(Feature.GitHub)
-
-    const result = useQuery<CreateCodebasePageQuery, CreateCodebasePageQueryVariables>({
-      query: gql`
-        query CreateCodebasePage($isGitHubEnabled: Boolean!) {
-          user {
-            id
-            gitHubAccount @include(if: $isGitHubEnabled) {
-              id
-              login
-            }
-          }
-          gitHubApp @include(if: $isGitHubEnabled) {
-            _id
-            name
-            clientID
-          }
-        }
-      `,
-      variables: {
-        isGitHubEnabled,
-      },
-    })
-
     const createCodebaseResult = useCreateCodebase()
 
     return {
-      fetching: result.fetching,
-      data: result.data,
-      error: result.error,
-
       async createCodebase(name: string, organizationID: string | undefined) {
         return createCodebaseResult({ name, organizationID })
       },

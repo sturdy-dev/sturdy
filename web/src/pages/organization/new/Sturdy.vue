@@ -12,10 +12,12 @@
     </div>
 
     <CreateCodebase
-      v-if="data && data.organization.writeable"
+      v-if="data.organization.writeable"
       :create-in-organization-id="data.organization.id"
       bottom-bg="bg-gray-100"
       main-bg="bg-gray-100"
+      :user="data.user"
+      :git-hub-app="data.gitHubApp"
     >
       <template #header>
         <div class="py-8 px-4">
@@ -34,8 +36,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import CreateCodebase from '../../../organisms/CreateCodebaseOnSturdy.vue'
+import { defineComponent, inject, ref, type Ref } from 'vue'
+import CreateCodebase, {
+  USER_FRAGMENT,
+  GITHUB_APP_FRAGMENT,
+} from '../../../organisms/CreateCodebaseOnSturdy.vue'
 import { useRoute } from 'vue-router'
 import { gql, useQuery } from '@urql/vue'
 import type {
@@ -45,15 +50,28 @@ import type {
 import OrganizationSettingsHeader from '../../../organisms/organization/OrganizationSettingsHeader.vue'
 import PaddedApp from '../../../layouts/PaddedApp.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
+import { Feature } from '../../../__generated__/types'
 
 const PAGE_QUERY = gql`
-  query CreateOrganizationCodebasePage($shortID: ID!) {
+  query CreateOrganizationCodebasePage($shortID: ID!, $isGitHubEnabled: Boolean!) {
     organization(shortID: $shortID) {
       id
       name
       writeable
     }
+
+    user {
+      id
+      ...User_CreateCodebaseOnSturdy
+    }
+
+    gitHubApp @include(if: $isGitHubEnabled) {
+      _id
+      ...GitHubApp_CreateCodebaseOnSturdy
+    }
   }
+  ${USER_FRAGMENT}
+  ${GITHUB_APP_FRAGMENT}
 `
 
 export default defineComponent({
@@ -64,6 +82,8 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute()
+    const features = inject<Ref<Array<Feature>>>('features', ref([]))
+    const isGitHubEnabled = features.value.includes(Feature.GitHub)
 
     const { data } = useQuery<
       CreateOrganizationCodebasePageQuery,
@@ -73,6 +93,7 @@ export default defineComponent({
       requestPolicy: 'cache-and-network',
       variables: {
         shortID: route.params.organizationSlug as string,
+        isGitHubEnabled,
       },
     })
 
