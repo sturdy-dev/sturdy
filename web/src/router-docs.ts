@@ -182,7 +182,7 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: false, // TODO: enable and launch!
+      blog: true,
       blogTitle: '#018 - This week at Sturdy – Sturdy v1.8.0!',
     },
   },
