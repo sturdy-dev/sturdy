@@ -20,7 +20,7 @@ _Changes since v1.7.0_
 * [Improvement] The migration towards 100% TypeScript on the frontend is migrating nicely.
 * [Improvement] Fixed a data-race where sometimes a change could be imported (from GitHub or other) multiple times (leading to a confusing changelog)
 * [Improvement] Improved reliability when importing extremely large pull requests (+100k lines changed)
-* [Improvement] Better performance when GitHub webhook delivery is slow (added internal handling that does not rely on webooks)
+* [Improvement] Better performance when GitHub webhook delivery is slow (added internal handling that does not rely on webhooks)
 * [Improvement] Register the Sturdy app as a handler for the `sturdy://` protocol scheme on Linux (App Images, deb, and rpm)
 * [Fix] Improved first time boot performance of the server, and fixed a race condition where sometimes the server did not successfully start the first time.
 * [Fix] Fixed a bug where navigation between drafts could take you to the wrong page
