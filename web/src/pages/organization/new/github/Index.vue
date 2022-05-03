@@ -1,10 +1,16 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
-    <OrganizationSettingsHeader :name="data.organization.name" />
     <div class="max-w-7xl">
-      <Header>
-        <span>Import from GitHub</span>
-      </Header>
+      <div class="py-8 px-4">
+        <div class="">
+          <h2
+            class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl"
+          >
+            Create a new codebase in <span class="underline">{{ data.organization.name }}</span>
+          </h2>
+          <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
+        </div>
+      </div>
 
       <OrganizationSetupGitHub
         :organization="data.organization"
@@ -24,14 +30,12 @@ import type {
   OrganizationSetupGitHubPageQueryVariables,
 } from './__generated__/Index'
 import { useRoute } from 'vue-router'
-import Header from '../../../../molecules/Header.vue'
 import PaddedApp from '../../../../layouts/PaddedApp.vue'
 import OrganizationSetupGitHub, {
   ORGANIZATION_SETUP_GITHUB_GITHUB_APP_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_ORGANIZATION_FRAGMENT,
   ORGANIZATION_SETUP_GITHUB_GITHUB_ACCOUNT_FRAGMENT,
 } from '../../../../organisms/CreateCodebaseFromGitHub.vue'
-import OrganizationSettingsHeader from '../../../../organisms/organization/OrganizationSettingsHeader.vue'
 import { Feature } from '../../../../__generated__/types'
 import type { DeepMaybeRef } from '@vueuse/core'
 
@@ -67,9 +71,7 @@ const PAGE_QUERY = gql`
 export default defineComponent({
   components: {
     OrganizationSetupGitHub,
-    OrganizationSettingsHeader,
     PaddedApp,
-    Header,
   },
   setup() {
     const route = useRoute()

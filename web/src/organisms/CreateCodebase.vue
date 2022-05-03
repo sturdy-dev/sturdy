@@ -1,4 +1,13 @@
 <template>
+  <div class="py-8 px-4">
+    <div class="">
+      <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
+        Create a new codebase in <span class="underline">{{ organization.name }}</span>
+      </h2>
+      <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
+    </div>
+  </div>
+
   <div class="flex space-y-4 xl:space-y-0 xl:space-x-4 flex-col xl:flex-row">
     <div class="bg-gray-100 sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
@@ -27,7 +36,13 @@
         </div>
         <div>
           <div class="mt-5 space-x-2 flex">
-            <RouterLinkButton :to="{ name: 'organizationCreateSturdyCodebase' }" color="blue">
+            <RouterLinkButton
+              :to="{
+                name: 'organizationCreateSturdyCodebase',
+                params: { organizationSlug: organization.shortID },
+              }"
+              color="blue"
+            >
               Create an empty codebase
             </RouterLinkButton>
           </div>
@@ -74,7 +89,10 @@
           <div class="mt-5 space-x-2 flex">
             <RouterLinkButton
               v-if="isGitHubAvailable"
-              :to="{ name: 'organizationCreateGitHubCodebase' }"
+              :to="{
+                name: 'organizationCreateGitHubCodebase',
+                params: { organizationSlug: organization.shortID },
+              }"
               color="blue"
             >
               Import from GitHub
@@ -97,11 +115,27 @@
 import { CheckIcon } from '@heroicons/vue/solid/esm'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import { Feature } from '../__generated__/types'
-import { defineComponent, inject, computed, type Ref, ref } from 'vue'
+import { defineComponent, inject, computed, type Ref, ref, type PropType } from 'vue'
 import LinkButton from '../atoms/LinkButton.vue'
+import { gql } from '@urql/vue'
+import type { Organization_CreateCodebaseFragment } from './__generated__/CreateCodebase'
+
+export const ORGANIZATION_FRAGMENT = gql`
+  fragment Organization_CreateCodebase on Organization {
+    id
+    shortID
+    name
+  }
+`
 
 export default defineComponent({
   components: { CheckIcon, RouterLinkButton, LinkButton },
+  props: {
+    organization: {
+      type: Object as PropType<Organization_CreateCodebaseFragment>,
+      required: true,
+    },
+  },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
     const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub))

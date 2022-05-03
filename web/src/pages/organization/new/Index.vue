@@ -1,14 +1,5 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
-    <div class="py-8 px-4">
-      <div class="">
-        <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
-          Create a new codebase in <span class="underline">{{ data.organization.name }}</span>
-        </h2>
-        <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
-      </div>
-    </div>
-
     <div v-if="!data.organization.writeable">
       <p class="text-sm text-gray-500">
         You don't have permissions to create a new codebase in this organization. Ask an
@@ -18,7 +9,7 @@
       </p>
     </div>
 
-    <CreateCodebase v-else />
+    <CreateCodebase v-else :organization="data.organization" />
   </PaddedApp>
 </template>
 
@@ -29,16 +20,17 @@ import { gql, useQuery } from '@urql/vue'
 import type { NewCodebasePageQuery, NewCodebasePageQueryVariables } from './__generated__/New'
 import PaddedApp from '../../../layouts/PaddedApp.vue'
 import type { DeepMaybeRef } from '@vueuse/core'
-import CreateCodebase from '../../../organisms/CreateCodebase.vue'
+import CreateCodebase, { ORGANIZATION_FRAGMENT } from '../../../organisms/CreateCodebase.vue'
 
 const PAGE_QUERY = gql`
   query NewCodebasePage($shortID: ID!) {
     organization(shortID: $shortID) {
       id
-      name
       writeable
+      ...Organization_CreateCodebase
     }
   }
+  ${ORGANIZATION_FRAGMENT}
 `
 
 export default defineComponent({
