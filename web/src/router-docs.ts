@@ -182,7 +182,7 @@ export const RoutesDocs: RouteRecordRaw[] = [
       nonApp: true,
       selfContainedLayout: true,
       neverElectron: true,
-      blog: false,
+      blog: true,
       blogTitle: '#017 - What is stopping us from merging 30 pull requests per day?',
     },
   },

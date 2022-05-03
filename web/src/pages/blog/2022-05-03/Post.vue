@@ -331,18 +331,20 @@
       </p>
 
       <p>
-        Perhaps this is the reason why many developers are choosing to avoid this process altogether
-        in favor of
+        Perhaps this is why the community is starting fundamentally to question code reviews, with
+        <a href="https://twitter.com/tdpauw/status/1491016041127821316">passionate</a>&nbsp;
+        <a href="https://twitter.com/dardan_bekteshi/status/1484976246568148995">discussions</a
+        >&nbsp; <a href="https://twitter.com/allenholub/status/1491168642586710016">on Twitter</a>.
+        It appears that many teams chose to avoid this process altogether in favor of
         <a href="https://martinfowler.com/articles/on-pair-programming.html">pair programming</a>.
-        It fulfills the same objectives of quality gating and knowledge sharing in a non-blocking
-        way.
+        After all, it fulfills the same objectives of quality gating and knowledge sharing.
       </p>
 
       <img src="./Img-8.png" alt="Twitter discussions on code reviews" width="768" />
 
       <h3>Does pair programming answer my question about effective collaboration on code?</h3>
       <p>
-        Well, no, because it feels like cheating the semantics of the question. It is a form of
+        Well, it feels like cheating the semantics of the question. It is a form of
         <a href="https://en.wikipedia.org/wiki/Scalability#Vertical_or_scale_up">vertical scaling</a
         >, where the pair of developers acts as an extra-smart-developer. If my code collaboration
         puzzle was a question about a race condition, this solution is the equivalent of making the
