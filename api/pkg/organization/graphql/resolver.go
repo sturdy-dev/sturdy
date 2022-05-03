@@ -376,3 +376,7 @@ func (r *organizationResolver) Writeable(ctx context.Context) bool {
 	}
 	return false
 }
+
+func (r *organizationResolver) Slug() string {
+	return r.org.Slug()
+}
