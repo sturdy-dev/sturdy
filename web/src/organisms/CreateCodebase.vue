@@ -80,7 +80,7 @@
               </li>
               <li class="inline-flex space-x-2">
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span>Sturdy automatically syncs data from GitHub</span>
+                <span>Sturdy automatically stays up to date with GitHub</span>
               </li>
             </ul>
           </div>
@@ -113,7 +113,7 @@
       <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Import <strong>local .git</strong> directory
+            Import <strong>local git</strong> repository
           </h3>
           <div class="mt-2 max-w-xl text-sm text-gray-500">
             <p>Already using git, but don't want to connect your git:// provider yet?</p>
@@ -137,7 +137,7 @@
           <div class="mt-5 space-x-2 flex">
             <Button :disabled="true" :show-tooltip="true" color="blue">
               <template #tooltip> Coming soon </template>
-              <template #default> Import existing .git </template>
+              <template #default> Import existing git repository </template>
             </Button>
           </div>
         </div>
