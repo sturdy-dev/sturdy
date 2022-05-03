@@ -18,7 +18,7 @@
 
           <div class="mt-2 max-w-xl text-sm text-gray-500">
             <p>Working on something new? Create a new codebase on Sturdy.</p>
-            <ul class="list-inside mt-2 inline-flex flex-col">
+            <ul class="list-inside mt-2 inline-flex flex-col gap-2">
               <li class="inline-flex space-x-2">
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
                 <span>Start from scratch</span>
@@ -43,7 +43,7 @@
               }"
               color="blue"
             >
-              Create an empty codebase
+              Create empty
             </RouterLinkButton>
           </div>
         </div>
@@ -61,7 +61,7 @@
               Install the bridge between Sturdy and GitHub, to use Sturdy on top of existing
               GitHub-repositories.
             </p>
-            <ul class="list-inside mt-2 inline-flex flex-col">
+            <ul class="list-inside mt-2 inline-flex flex-col gap-2">
               <li class="inline-flex space-x-2">
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
                 <span>Use Sturdy on top of GitHub</span>
@@ -82,13 +82,28 @@
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
                 <span>Sturdy automatically stays up to date with GitHub</span>
               </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Gradually migrate to native Sturdy at your own pase</span>
+              </li>
             </ul>
           </div>
         </div>
         <div>
           <div class="mt-5 space-x-2 flex">
+            <LinkButton
+              v-if="isGitHubEnabledNotConfigured"
+              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
+              target="_blank"
+            >
+              Learn how to configure
+            </LinkButton>
+            <Button v-else-if="!isGitHubEnabled" color="blue" :disabled="true" :show-tooltip="true">
+              <template #tooltip> Only available for Sturdy Enterprise </template>
+              <template #default> Import from GitHub </template>
+            </Button>
             <RouterLinkButton
-              v-if="isGitHubAvailable"
+              v-else
               :to="{
                 name: 'organizationCreateGitHubCodebase',
                 params: { organizationSlug: selected.shortID },
@@ -97,13 +112,54 @@
             >
               Import from GitHub
             </RouterLinkButton>
-            <LinkButton
-              v-else
-              href="https://getsturdy.com/v2/docs/self-hosted#setup-github-integration"
-              target="_blank"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gray-100 sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6 flex flex-col justify-between h-full">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Import existing codebase <strong>from any git://</strong> provider
+          </h3>
+          <div class="mt-2 max-w-xl text-sm text-gray-500">
+            <p>
+              Sturdy speaks git:// and can connect to any git provider like GitLab, Bitbucket or
+              Azure DevOps
+            </p>
+            <ul class="list-inside mt-2 inline-flex flex-col gap-2">
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Use Sturdy together with your existing git setup</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Work in Sturdy, create share code when you are done</span>
+              </li>
+              <li class="inline-flex space-x-2">
+                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span>Gradually migrate to native Sturdy at your own pase</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="mt-5 space-x-2 flex">
+            <RouterLinkButton
+              v-if="isRemoteAvailable"
+              :to="{
+                name: 'organizationCreateRemoteCodebase',
+                params: { organizationSlug: selected.shortID },
+              }"
+              color="blue"
             >
-              Learn how to configure
-            </LinkButton>
+              Import from git://
+            </RouterLinkButton>
+            <Button v-else color="blue" :disabled="true" :show-tooltip="true">
+              <template #tooltip> Only available for Sturdy Enterprise </template>
+              <template #default> Import from git:// </template>
+            </Button>
           </div>
         </div>
       </div>
@@ -117,7 +173,7 @@
           </h3>
           <div class="mt-2 max-w-xl text-sm text-gray-500">
             <p>Already using git, but don't want to connect your git:// provider yet?</p>
-            <ul class="list-inside mt-2 inline-flex flex-col">
+            <ul class="list-inside mt-2 inline-flex flex-col gap-2">
               <li class="inline-flex space-x-2">
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
                 <span>Import your existing code</span>
@@ -126,10 +182,6 @@
                 <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
                 <span>Host your project on Sturdy</span>
               </li>
-              <li class="inline-flex space-x-2">
-                <CheckIcon class="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span>User the full Sturdy workflow</span>
-              </li>
             </ul>
           </div>
         </div>
@@ -137,7 +189,7 @@
           <div class="mt-5 space-x-2 flex">
             <Button :disabled="true" :show-tooltip="true" color="blue">
               <template #tooltip> Coming soon </template>
-              <template #default> Import existing git repository </template>
+              <template #default> Import existing </template>
             </Button>
           </div>
         </div>
@@ -172,9 +224,8 @@ const isGitHubEnabled = computed(() => features?.value?.includes(Feature.GitHub)
 const isGitHubEnabledNotConfigured = computed(() =>
   features?.value?.includes(Feature.GitHubNotConfigured)
 )
-const isGitHubAvailable = computed(
-  () => isGitHubEnabled.value && !isGitHubEnabledNotConfigured.value
-)
+const isRemoteAvailable = computed(() => features?.value?.includes(Feature.Remote))
+
 const selected = computed(() => props.selectedOrganization || props.organizations[0])
 </script>
 

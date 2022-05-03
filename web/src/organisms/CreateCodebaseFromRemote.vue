@@ -60,7 +60,7 @@
           </div>
           <div class="px-4 py-3 text-right sm:px-6" :class="[bottomBg]">
             <Button type="submit" :disabled="newCodebaseName === ''" size="wider" color="blue">
-              Create
+              Setup git integration
 
               <svg
                 v-if="isLoading"
@@ -102,7 +102,7 @@ import { Slug } from '../slug'
 import type { User_CreateCodebaseOnSturdyFragment } from './__generated__/CreateCodebaseOnSturdy'
 
 export const USER_FRAGMENT = gql`
-  fragment User_CreateCodebaseOnSturdy on User {
+  fragment User_CreateCodebaseFromRemote on User {
     id
   }
 `
@@ -166,7 +166,7 @@ export default defineComponent({
             this.isLoading = false
 
             this.$router.push({
-              name: 'codebaseHome',
+              name: 'codebaseSettingsAddGit',
               params: {
                 codebaseSlug: Slug(result.createCodebase.name, result.createCodebase.shortID),
               },
