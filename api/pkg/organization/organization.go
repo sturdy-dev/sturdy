@@ -1,7 +1,6 @@
 package organization
 
 import (
-	"fmt"
 	"time"
 
 	"getsturdy.com/api/pkg/users"
@@ -17,10 +16,6 @@ type Organization struct {
 	CreatedBy users.ID            `db:"created_by"`
 	DeletedAt *time.Time          `db:"deleted_at"`
 	DeletedBy *string             `db:"deleted_by"`
-}
-
-func (o Organization) Slug() string {
-	return fmt.Sprintf("%s-%s", o.Name, o.ShortID)
 }
 
 type Member struct {
