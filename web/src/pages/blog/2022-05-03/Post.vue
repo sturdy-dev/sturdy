@@ -7,7 +7,6 @@
     :dive-in-banner="false"
     description="Most software projects are done by teams rather than individuals, so how we integrate work is critical. Collaborating on code is surprisingly challenging because any change made in isolation creates distance between developers. Shipping small and often is probably the most effective strategy for mitigating this. But just how frequently can we ship?"
     reading-time="12 minutes"
-    :image="ogImageFull"
   >
     <template #introduction>
       <p>
@@ -32,7 +31,7 @@
         “inside” the computer.
       </p>
 
-      <img src="./system.png" width="333" />
+      <img src="./Img-1.png" alt="Prince of Persia classic" width="768" />
 
       <p>
         Later on, learning about how computers actually work was one of the most exciting
@@ -96,7 +95,7 @@
         overhead was more than 50% of the work effort.
       </p>
 
-      <img src="./system.png" width="333" />
+      <img src="./Img-2.png" alt="Feature customization via forking" width="768" />
 
       <p>
         It is obvious, in retrospect, that the separation between “Base product” and “Customization”
@@ -110,8 +109,6 @@
         Writing code independently and in parallel creates distance between programmers — this was
         precisely the core of my unanswered question about collaborating on code.
       </p>
-
-      <img src="./system.png" width="333" />
 
       <h2>Minimizing the distance between developers</h2>
 
@@ -137,7 +134,11 @@
         context is available to everybody on the team.
       </p>
 
-      <img src="./system.png" width="333" />
+      <img src="./Img-4.png" alt="Trunk-based development" width="768" />
+
+      <div class="text-sm text-right">
+        Source: <a href="https://trunkbaseddevelopment.com">trunkbaseddevelopment.com</a>
+      </div>
 
       <p>
         This is quite different from strategies like “<a
@@ -156,8 +157,6 @@
         Continuous Deployment is about minimizing the distance between developers and
         <strong>their users</strong>.
       </p>
-
-      <img src="./system.png" width="333" />
 
       <p>
         Continuous Deployment is the practice of always having the latest version of the “trunk”
@@ -284,11 +283,10 @@
         behavior towards expanding the scope of code contributions.
       </p>
 
-      <img src="./system.png" width="333" />
-
       <p>
         It takes a deliberate effort to keep contributions small. Some of the best engineers I have
-        met create stacks of pull requests. This certainly takes some skill and focus to pull off.
+        met create stacks of pull requests but this certainly takes some skill and focus to pull
+        off.
       </p>
       <p>
         The question "How do developers contribute effectively their code to the same system?" has
@@ -308,13 +306,15 @@
         Consider how different the work dynamics are — the developers are colleagues who know each
         other, plan together and likely have a daily sync and common chat channels. Development at
         work also happens at a much higher pace than open-source projects — with the median lead
-        time to merge a pull request being about
-        <a href="https://octoverse.github.com/writing-code-faster/#merging-pull-requests"
-          >half as long</a
-        >.
+        time to merge a pull request being about half as long.
       </p>
 
-      <img src="./system.png" width="333" />
+      <img src="./Img-7.png" alt="Median time until pull request merge" width="768" />
+
+      <div class="text-right text-sm">
+        Source:
+        <a href="https://octoverse.github.com/writing-code-faster/#merging-pull-requests">GitHub</a>
+      </div>
 
       <p>
         A friend of mine was recently telling me about the steps he takes to maintain a friendly
@@ -338,11 +338,11 @@
         way.
       </p>
 
-      <img src="./system.png" width="333" />
+      <img src="./Img-8.png" alt="Twitter discussions on code reviews" width="768" />
 
       <h3>Does pair programming answer my question about effective collaboration on code?</h3>
       <p>
-        Well, no, it feels like cheating for the semantics of my question. It is a form of
+        Well, no, because it feels like cheating the semantics of the question. It is a form of
         <a href="https://en.wikipedia.org/wiki/Scalability#Vertical_or_scale_up">vertical scaling</a
         >, where the pair of developers acts as an extra-smart-developer. If my code collaboration
         puzzle was a question about a race condition, this solution is the equivalent of making the
@@ -405,10 +405,12 @@
 
       <p>
         It is my belief that tools should be built and adapted after how people already work, and
-        not vice versa. If <strong>Trunk-based development</strong> and
+        not vice versa.
+        <br />With <strong>Trunk-based development</strong> and
         <strong>Continuous deployment</strong> are at the core of modern software development, what
-        would a tool specifically designed for it look like? If you would like to read our take on
-        this, check out the <router-link :to="{ name: 'v2DocsRoot' }">Sturdy Docs</router-link>.
+        would a tool specifically designed for this workflow look like? If you would like to read
+        our take on this, check out the
+        <router-link :to="{ name: 'v2DocsRoot' }">Sturdy Docs</router-link>.
       </p>
 
       <p>
@@ -430,16 +432,10 @@
 <script lang="ts" setup>
 import BlogPost from '../BlogPost.vue'
 import avatar from '../kiril.jpeg'
-import ogImage from './system.png'
-import { computed, onMounted } from 'vue'
 
 const author = {
   name: 'Kiril Videlov',
   avatar: avatar,
   link: 'https://twitter.com/krlvi',
 }
-
-let ogImageFull = computed(
-  () => new URL(ogImage, import.meta.env.VITE_WEB_HOST as string | undefined).href
-)
 </script>
