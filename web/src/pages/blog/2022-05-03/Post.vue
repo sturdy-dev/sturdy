@@ -117,7 +117,7 @@
       <p>
         The best strategy for effective collaboration on software I have seen is one of minimizing
         the code distance between developers. There are two popular techniques for achieving this —
-        Trunk-Based Development and Continuous Deployment. This is usually what people are referring
+        trunk-based Development and Continuous Deployment. This is usually what people are referring
         to when they speak of “shipping small and often”.
       </p>
 
@@ -153,7 +153,7 @@
 
       <h3>Continuous Deployment</h3>
       <p>
-        While the purpose of Trunk-based development is to minimize the distance between developers,
+        While the purpose of trunk-based development is to minimize the distance between developers,
         Continuous Deployment is about minimizing the distance between developers and
         <strong>their users</strong>.
       </p>
@@ -175,7 +175,7 @@
         <a
           href="https://cloud.google.com/blog/products/devops-sre/announcing-dora-2021-accelerate-state-of-devops-report"
           >minimize risks</a
-        >. This is because shipping smaller changes spreads out the large risk of large Big-Bang
+        >. This is because shipping smaller changes spreads out the large risk of large Big Bang
         deploys over time.
       </p>
 
@@ -196,7 +196,7 @@
         <a href="https://en.wikipedia.org/wiki/Bret_Victor">Bret Victor</a> called
         <a href="https://www.youtube.com/watch?v=PUv66718DII">"Inventing on Principle (video)"</a>.
         His point is largely about minimizing feedback loops, and this is also exactly what
-        Trunk-based development and Continuous Delivery are about.
+        trunk-based development and Continuous Delivery are about.
       </p>
 
       <p>
@@ -207,7 +207,7 @@
       <h2>How often can we ship?</h2>
 
       <p>
-        Nowadays, both Trunk-based development and Continuous Deployment are very popular with
+        Nowadays, both trunk-based development and Continuous Deployment are very popular with
         modern software teams. Most of us strive to “Keep pull requests small” and “ship small &
         often”. Over the past 4 years, the number of teams deploying multiple times per day has
         <a
@@ -406,7 +406,7 @@
       <p>
         It is my belief that tools should be built and adapted after how people already work, and
         not vice versa.
-        <br />With <strong>Trunk-based development</strong> and
+        <br />With <strong>trunk-based development</strong> and
         <strong>Continuous deployment</strong> are at the core of modern software development, what
         would a tool specifically designed for this workflow look like? If you would like to read
         our take on this, check out the
