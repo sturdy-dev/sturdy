@@ -15,7 +15,8 @@
 
         <mj-section background-color="white" padding="0">
             <mj-column width="20%" vertical-align="middle">
-                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px" width="50px"></mj-image>
+                <mj-image src="https://getsturdy.com/assets/gustav.e261d7c0.jpeg" border-radius="25px"
+                          width="50px"></mj-image>
             </mj-column>
 
             <mj-column width="80%" vertical-align="middle">
@@ -24,7 +25,9 @@
                     Sturdy v1.8, let's get started!
                 </mj-text>
                 <mj-text font-size="14px" color="#222" font-family="helvetica">
-                    <a href="https://getsturdy.com/blog/2022-05-03-this-week-at-sturdy-v1-8-0?ref=newsletter"> &raquo; Read this email on the web</a>
+                    <a href="https://getsturdy.com/blog/2022-05-03-this-week-at-sturdy-v1-8-0?ref=newsletter">&raquo;
+                        Read this email on the web
+                    </a>
                 </mj-text>
             </mj-column>
         </mj-section>
@@ -38,7 +41,8 @@
 
                     <p>
                         Hey ducklings (that's you, all Sturdy fans!) Sturdy <code>v1.8.0</code> is just
-                        <em>fresh of the compiler</em> and we'd like to share all of the goodies in this new
+                        <em>fresh of the compiler</em>
+                        and we'd like to share all of the goodies in this new
                         release.
                     </p>
 
@@ -75,116 +79,132 @@
                     user.
                 </mj-text>
 
-                <mj-image src="./undo-redo.png" height="364" width="1706" alt="Undo and redo on Sturdy" ></mj-image>
+                <mj-image src="https://getsturdy.com/assets/undo-redo.db289814.png" alt="Undo and redo on Sturdy"></mj-image>
 
 
                 <mj-text font-size="14px" color="#555555" font-family="helvetica">
-                Undoing restores the code changes in the draft to the state as it was of a previous snapshot. And takes just a few milliseconds to run. Clicking undo again, will restore you to an even earlier state. Redoing moves you forward to the state that you recently undid from.
-                I guess that's a long way to describe that we've introduced Ctrl+Z and Ctrl+Y support to Sturdy!
+                    Undoing restores the code changes in the draft to the state as it was of a previous snapshot. And
+                    takes just a few milliseconds to run. Clicking undo again, will restore you to an even earlier
+                    state. Redoing moves you forward to the state that you recently undid from.
+                    I guess that's a long way to describe that we've introduced Ctrl+Z and Ctrl+Y support to Sturdy!
                 </mj-text>
 
                 <mj-text font-size="18px" color="#000" font-family="helvetica">CI/CD on drafts</mj-text>
 
-        <mj-text font-size="14px" color="#555555" font-family="helvetica">
-            <a href="https://getsturdy.com/blog/2022-04-12-this-week-at-sturdy">In v1.7.0</a> we
-            introduced support for running your automated testing via first-party integrations. In
-            <code>v1.8.0</code> we're expanding the support for CI/CD over the "Sturdy for GitHub"
-            bridge and are adding support for all CI/CD providers that integrate with GitHub, including
-            GitHub Actions, CircleCI, and more! This works by pushing a the draft to a branch named
-            <code>sturdy-ci-${NAME}</code> to GitHub, and using the push event as the trigger to run the
-            tests.
-        </mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com/blog/2022-04-12-this-week-at-sturdy">In v1.7.0</a>
+                    we
+                    introduced support for running your automated testing via first-party integrations. In
+                    <code>v1.8.0</code>
+                    we're expanding the support for CI/CD over the "Sturdy for GitHub"
+                    bridge and are adding support for all CI/CD providers that integrate with GitHub, including
+                    GitHub Actions, CircleCI, and more! This works by pushing a the draft to a branch named
+                    <code>sturdy-ci-${NAME}</code>
+                    to GitHub, and using the push event as the trigger to run the
+                    tests.
+                </mj-text>
 
-                <mj-image src="./ci-cd-via-github.png" height="364" width="1706"alt="Sturdy CI/CD via GitHub" ></mj-image>
+                <mj-image src="https://getsturdy.com/assets/ci-cd-via-github.fcbf7492.png" alt="Sturdy CI/CD via GitHub"></mj-image>
 
 
-
-<mj-text font-size="14px" color="#555555" font-family="helvetica">
-The <a href="https://getsturdy.com/docs/continuous-integration">CI/CD documentation</a> has
-been updated and goes further in-depth about how this works.
-</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    The <a href="https://getsturdy.com/docs/continuous-integration">CI/CD documentation</a> has
+                    been updated and goes further in-depth about how this works.
+                </mj-text>
 
                 <mj-text font-size="18px" color="#000" font-family="helvetica">Highlights</mj-text>
 
-<mj-text font-size="14px" color="#555555" font-family="helvetica">
-<ul>
-<li>
-    <strong>[Improvement]</strong> Improved caching of codebase contents, making operations
-    like "undo" and "merge" significantly faster
-</li>
-<li>
-    <strong>[Improvement]</strong> Fixed a data-race where sometimes a change could be
-    imported (from GitHub or other) multiple times (leading to a confusing changelog)
-</li>
-<li>
-    <strong>[Improvement]</strong> Improved reliability when importing extremely large pull
-    requests (+100k lines changed)
-</li>
-<li>
-    <strong>[Improvement]</strong> Better performance when GitHub webhook delivery is slow
-    (added internal handling that does not rely on webhooks)
-</li>
-<li>
-    <strong>[Improvement]</strong> Register the Sturdy app as a handler for the
-    <code>sturdy://</code> protocol scheme on Linux (App Images, deb, and rpm)
-</li>
-<li>
-    <strong>[Fix]</strong> Improved first time boot performance of the server, and fixed a
-    race condition where sometimes the server did not successfully start the first time.
-</li>
-<li>
-    <strong>[Fix]</strong> Fixed a bug where navigation between drafts could take you to the
-    wrong page
-</li>
-<li>
-    <strong>[Fix]</strong> Fixed a bug where the callback from GitHub after updating
-    permissions for the Sturdy app could take you to an unexpected page
-</li>
-<li>
-    <strong>[Fix]</strong> Fixed a bug where comments on "live" code could sometimes "jump"
-    around
-</li>
-</ul>
-</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <ul>
+                        <li>
+                            <strong>[Improvement]</strong>
+                            Improved caching of codebase contents, making operations
+                            like "undo" and "merge" significantly faster
+                        </li>
+                        <li>
+                            <strong>[Improvement]</strong>
+                            Fixed a data-race where sometimes a change could be
+                            imported (from GitHub or other) multiple times (leading to a confusing changelog)
+                        </li>
+                        <li>
+                            <strong>[Improvement]</strong>
+                            Improved reliability when importing extremely large pull
+                            requests (+100k lines changed)
+                        </li>
+                        <li>
+                            <strong>[Improvement]</strong>
+                            Better performance when GitHub webhook delivery is slow
+                            (added internal handling that does not rely on webhooks)
+                        </li>
+                        <li>
+                            <strong>[Improvement]</strong>
+                            Register the Sturdy app as a handler for the
+                            <code>sturdy://</code>
+                            protocol scheme on Linux (App Images, deb, and rpm)
+                        </li>
+                        <li>
+                            <strong>[Fix]</strong>
+                            Improved first time boot performance of the server, and fixed a
+                            race condition where sometimes the server did not successfully start the first time.
+                        </li>
+                        <li>
+                            <strong>[Fix]</strong>
+                            Fixed a bug where navigation between drafts could take you to the
+                            wrong page
+                        </li>
+                        <li>
+                            <strong>[Fix]</strong>
+                            Fixed a bug where the callback from GitHub after updating
+                            permissions for the Sturdy app could take you to an unexpected page
+                        </li>
+                        <li>
+                            <strong>[Fix]</strong>
+                            Fixed a bug where comments on "live" code could sometimes "jump"
+                            around
+                        </li>
+                    </ul>
+                </mj-text>
 
-<mj-text font-size="18px" color="#000" font-family="helvetica">Upgrading our team!</mj-text>
-<mj-text font-size="14px" color="#555555" font-family="helvetica">
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Upgrading our team!</mj-text>
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
 
-<p>
-    We now have three open positions to come and join our team! You'll get to work on some
-    really cool open-source tech, and have fun while doing it!
-</p>
+                    <p>
+                        We now have three open positions to come and join our team! You'll get to work on some
+                        really cool open-source tech, and have fun while doing it!
+                    </p>
 
-<ul>
-    <li>
-        <a href="https://getsturdy.com/careers/senior-backend-software-engineer">
-            Senior Backend Software Engineer
-        </a>
-        — (Go, PostgreSQL, GraphQL)
-    </li>
-    <li>
-        <a href="https://getsturdy.com/careers/senior-frontend-software-engineer">
-            Senior Frontend Software Engineer
-        </a>
-        — (Vue, TypeScript, urlq)
-    </li>
-    <li>
-        <a href="https://getsturdy.com/careers/full-stack-engineer">Full Stack Engineer</a>
-    </li>
-</ul>
-</mj-text>
+                    <ul>
+                        <li>
+                            <a href="https://getsturdy.com/careers/senior-backend-software-engineer">
+                                Senior Backend Software Engineer
+                            </a>
+                            — (Go, PostgreSQL, GraphQL)
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/careers/senior-frontend-software-engineer">
+                                Senior Frontend Software Engineer
+                            </a>
+                            — (Vue, TypeScript, urlq)
+                        </li>
+                        <li>
+                            <a href="https://getsturdy.com/careers/full-stack-engineer">Full Stack Engineer</a>
+                        </li>
+                    </ul>
+                </mj-text>
 
-<mj-text font-size="18px" color="#000" font-family="helvetica">Join our community</mj-text>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Join our community</mj-text>
 
-
-<mj-text font-size="14px" color="#555555" font-family="helvetica">
-
-<p>Our Discord community is growing every day, and it the place to be for all things Sturdy. If you haven't joined yet, <a href="https://discord.gg/fQcH9QAVpX">join the Sturdy server now</a>!</p>
-
-</mj-text>
 
                 <mj-text font-size="14px" color="#555555" font-family="helvetica">
-                    <a href="https://getsturdy.com?ref=newsletter"> &raquo; Get started with Sturdy today! </a>
+
+                    <p>Our Discord community is growing every day, and it the place to be for all things Sturdy. If you
+                        haven't joined yet, <a href="https://discord.gg/fQcH9QAVpX">join the Sturdy server now</a>!
+                    </p>
+
+                </mj-text>
+
+                <mj-text font-size="14px" color="#555555" font-family="helvetica">
+                    <a href="https://getsturdy.com?ref=newsletter">&raquo; Get started with Sturdy today!</a>
                 </mj-text>
 
                 <mj-divider border-color="#FBBF24"></mj-divider>
