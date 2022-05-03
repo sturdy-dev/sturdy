@@ -43,6 +43,7 @@ exports.handler = (event, context, callback) => {
     '/blog/2021-04-01-restore-to-any-point-in-time',
     '/blog/2021-03-24-yc-w21-demo-day',
     '/blog/2021-03-18-this-week-at-sturdy',
+    '/blog/2022-05-03-this-week-at-sturdy-v1-8-0',
     '/blog',
     '/careers',
     '/careers/senior-backend-software-engineer',
