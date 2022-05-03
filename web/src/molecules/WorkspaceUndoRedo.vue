@@ -13,8 +13,8 @@
       <template #tooltip>
         <template v-if="previousDescription">rewind to {{ previousDescription }}</template>
         <template v-else
-          >rewind to <RelativeTime v-if="previousDate" :date="previousDate"
-        /></template>
+          >rewind to <RelativeTime v-if="previousDate" :date="previousDate" /> ago</template
+        >
       </template>
 
       {{ '' }}
@@ -32,7 +32,7 @@
     >
       <template #tooltip>
         <template v-if="nextDescription">rewind to {{ nextDescription }}</template>
-        <template v-else>rewind to <RelativeTime v-if="nextDate" :date="nextDate" /></template>
+        <template v-else>rewind to <RelativeTime v-if="nextDate" :date="nextDate" /> ago</template>
       </template>
       {{ '' }}
     </Button>
