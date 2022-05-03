@@ -40,6 +40,11 @@ export const RoutesApps: RouteRecordRaw[] = [
     name: 'organizationCreateSturdyCodebase',
   },
   {
+    path: '/org/:organizationSlug/new/remote',
+    component: () => import('./pages/organization/new/remote/Index.vue'),
+    name: 'organizationCreateRemoteCodebase',
+  },
+  {
     path: '/org/:organizationSlug/new/github',
     component: () => import('./pages/organization/new/github/Index.vue'),
     name: 'organizationCreateGitHubCodebase',
