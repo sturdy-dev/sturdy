@@ -1,22 +1,14 @@
 <template>
   <PaddedApp v-if="data" class="bg-white">
     <div class="space-y-8">
-      <div class="relative">
-        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-          <div class="w-full border-t border-gray-300" />
-        </div>
-
-        <div class="relative flex items-center justify-between">
-          <span class="pr-2 bg-white text-sm text-gray-500"> Sturdy </span>
-        </div>
-      </div>
-
       <div v-if="data.organizations.length === 0">
         <h2>You don't have any organizations:</h2>
         <RouterLinkButton :to="{ name: 'organizationCreate' }">Get started now 🚀</RouterLinkButton>
       </div>
 
-      <ul v-if="data.organizations.length > 0" role="list" class="divide-y divide-gray-200">
+      <CreateCodebase v-else-if="codebasesCount == 0" :organization="data.organizations[0]" />
+
+      <ul v-else role="list" class="divide-y divide-gray-200">
         <li v-for="org in data.organizations" :key="org.id">
           <router-link
             :to="{ name: 'organizationListCodebases', params: { organizationSlug: org.shortID } }"
@@ -57,6 +49,7 @@ import { ChevronRightIcon } from '@heroicons/vue/solid'
 import type { HomePageQuery, HomePageQueryVariables } from './__generated__/HomePage'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import type { DeepMaybeRef } from '@vueuse/shared'
+import CreateCodebase, { ORGANIZATION_FRAGMENT } from '../organisms/CreateCodebase.vue'
 
 const PAGE_QUERY = gql`
   query HomePage($isGitHubEnabled: Boolean!) {
@@ -64,11 +57,16 @@ const PAGE_QUERY = gql`
       id
       name
       shortID
+      ...Organization_CreateCodebase
 
       members {
         id
         name
         avatarUrl
+      }
+
+      codebases {
+        id
       }
     }
 
@@ -87,6 +85,7 @@ const PAGE_QUERY = gql`
       }
     }
   }
+  ${ORGANIZATION_FRAGMENT}
 `
 
 export default defineComponent({
@@ -95,6 +94,7 @@ export default defineComponent({
     AvatarGroup,
     ChevronRightIcon,
     RouterLinkButton,
+    CreateCodebase,
   },
   setup() {
     const features = inject<Ref<Array<Feature>>>('features', ref([]))
@@ -116,6 +116,11 @@ export default defineComponent({
   watch: {
     error: function (err) {
       if (err) throw err
+    },
+  },
+  computed: {
+    codebasesCount() {
+      return this.data?.organizations.reduce((acc, org) => acc + org.codebases.length, 0)
     },
   },
 })
