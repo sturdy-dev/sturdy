@@ -25,5 +25,4 @@ RUN mkdir -p /tmp/lfs \
     && cd / \
     && rm -rf /tmp/lfs
 
-
 ENV LD_LIBRARY_PATH=/usr/local/lib
