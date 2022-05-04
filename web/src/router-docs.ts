@@ -593,4 +593,10 @@ export const RoutesDocs: RouteRecordRaw[] = [
     name: 'docsIntegrationsGitGitLab',
     meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
   },
+  {
+    path: '/roadmap',
+    component: () => import('./pages/roadmap.vue'),
+    name: 'docsRoadmap',
+    meta: { nonApp: true, selfContainedLayout: true, neverElectron: true },
+  },
 ]
