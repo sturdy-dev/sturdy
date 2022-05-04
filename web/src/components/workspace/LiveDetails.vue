@@ -114,9 +114,7 @@
     </div>
 
     <div class="relative">
-      <TooManyFilesChanged v-if="hideDiffs" :count="diffs.length" />
-
-      <div v-else-if="isFetching" class="space-y-8 mt-4">
+      <div v-if="isFetching" class="space-y-8 mt-4">
         <div
           v-for="k in [1, 2, 3]"
           :key="k"
@@ -197,7 +195,6 @@
 import Differ, { DIFFER_FILE_DIFF, DIFFER_SUGGESTION } from '../differ/Differ.vue'
 import http from '../../http'
 import { XIcon } from '@heroicons/vue/outline'
-import TooManyFilesChanged from './TooManyFilesChanged.vue'
 import { Banner } from '../../atoms'
 import Avatar from '../../atoms/Avatar.vue'
 import Button from '../../atoms/Button.vue'
@@ -307,7 +304,6 @@ export default defineComponent({
     NoChangesOwnWorkspace,
     OnboardingStep,
     Banner,
-    TooManyFilesChanged,
     Differ,
     Avatar,
     Button,
@@ -554,9 +550,6 @@ export default defineComponent({
     }
   },
   computed: {
-    hideDiffs() {
-      return this.diffs && this.diffs.length > 250
-    },
     filesWithDiffs(): Set<string> {
       const set = new Set<string>()
       this.visible_diffs.map((d) => d.preferredName).forEach((f) => set.add(f))

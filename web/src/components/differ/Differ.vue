@@ -1,7 +1,6 @@
 <template>
   <div id="differ-root" class="w-full relative ph-no-capture">
-    <TooManyFilesChanged v-if="hideDiffsTooMany" :count="diffs.length" />
-    <div v-else class="overflow-x-auto flex-grow flex flex-col gap-4">
+    <div class="overflow-x-auto flex-grow flex flex-col gap-4">
       <DifferFile
         v-for="(fileDiffs, fileKey) in diffsByFile"
         :key="fileKey"
@@ -51,7 +50,6 @@ import type {
   SetCommentComposingReply,
   SetCommentExpandedEvent,
 } from '../comments/CommentState'
-import TooManyFilesChanged from './TooManyFilesChanged.vue'
 import type { DifferState, SetFileIsHiddenEvent } from './DifferState'
 import { gql } from '@urql/vue'
 import {
@@ -93,7 +91,6 @@ export const DIFFER_SUGGESTION = gql`
 export default defineComponent({
   components: {
     DifferFile: defineAsyncComponent(() => import('./DifferFile.vue')),
-    TooManyFilesChanged,
   },
   props: {
     isSuggesting: Boolean,
@@ -149,11 +146,11 @@ export default defineComponent({
   data() {
     return {
       selectedHunksIDsByFile: new Map(),
-      hoveringCommentID: null,
+      hoveringCommentID: undefined,
       showComments: false,
 
       searchQuery: null as string | null,
-      searchCurrentSelectedId: null as string | null,
+      searchCurrentSelectedId: undefined as string | undefined,
 
       // Client side state of comments is stored here
       // Which comments that are expanded, and which ones that we're currently replying to (and with their contents)
@@ -294,7 +291,7 @@ export default defineComponent({
         return current
       }
       return {
-        isHidden: false,
+        isHidden: this.hideDiffsTooMany,
       }
     },
   },

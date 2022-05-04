@@ -36,12 +36,9 @@
       @showSuggestionsByUser="onSuggestionsAvatarClick"
     />
 
-    <div v-if="differState.isHidden && isHiddenTooManyChanges">
+    <div v-if="isHidden">
       <div class="bg-white">
         <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            This file has a lot of changes...
-          </h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
             It's been hidden by default to save you some power...
             <a href="#" class="text-blue-500" @click.stop.prevent="forceShow">show now!</a>
@@ -56,7 +53,7 @@
       :old-file-info="diffs.oldFileInfo"
     />
 
-    <template v-if="!differState.isHidden && showSuggestions && !diffs.isLarge">
+    <template v-if="!isHidden && showSuggestions && !diffs.isLarge">
       <template v-for="suggestion in suggestions">
         <template v-if="suggestion.author.id === showingSuggestionsByUser">
           <template v-for="(diff, diffIdx) in suggestion.diffs" :key="diffIdx">
@@ -107,13 +104,7 @@
     </template>
 
     <div
-      v-if="
-        isReadyToDisplay &&
-        !differState.isHidden &&
-        !showSuggestions &&
-        !diffs.isLarge &&
-        isTextDiff
-      "
+      v-if="isReadyToDisplay && !isHidden && !showSuggestions && !diffs.isLarge && isTextDiff"
       class="d2h-code-wrapper overflow-x-scroll"
     >
       <table class="d2h-diff-table leading-4" style="border-collapse: separate; border-spacing: 0">
@@ -123,7 +114,7 @@
           :class="[
             'd2h-diff-tbody d2h-file-diff',
             checkedHunks.get(diffs.hunks[hunkIndex].hunkID) ? 'opacity-70' : '',
-            differState.isHidden ? 'hidden' : '',
+            isHidden ? 'hidden' : '',
           ]"
         >
           <template
@@ -547,6 +538,11 @@ export default defineComponent({
     },
   },
   computed: {
+    isHidden() {
+      if (this.hunkIds.size === 0) return false // nothing to hide
+      if (this.diffs.isMoved && this.hunkIds.size === 1) return false // simple moved files are never hidden
+      return this.differState.isHidden || this.isHiddenTooManyChanges
+    },
     hunkIds() {
       return new Set([...this.diffs.hunks.flatMap((hunk) => hunk.hunkID)])
     },

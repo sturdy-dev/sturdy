@@ -41,7 +41,7 @@ const permissions = [
     gitHubDescription:
       'Pull requests and related comments, assignees, labels, milestones, and merges.',
     reason:
-      'Sturdy creates pull requests from Workspaces when GitHub is the source of truth of a codebase.',
+      'Sturdy creates pull requests from Drafts when GitHub is the source of truth of a codebase.',
   },
   {
     title: 'Workflows',
