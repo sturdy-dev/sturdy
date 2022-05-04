@@ -59,7 +59,7 @@
                     into all of the new features and improvements.
                 </mj-text>
 
-                <h2>Undo and redo</h2>
+                <mj-text font-size="18px" color="#000" font-family="helvetica">Undo and redo</mj-text>
 
                 <mj-text font-size="14px" color="#555555" font-family="helvetica">
                     Behind the scenes, Sturdy has been been operating on "snapshots" for a while now. It's
