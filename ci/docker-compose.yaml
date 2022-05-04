@@ -6,8 +6,12 @@ services:
       dockerfile: ci/Dockerfile
     volumes:
       - ..:/sturdy
-      - go-modules:/go/pkg/mod
+      - go-build:/root/.cache/go-build
+      - go-mod:/root/.cache/go-mod
     working_dir: /sturdy
+    environment:
+      GOMODCACHE: /root/.cache/go-mod
 
 volumes:
-  go-modules:
+  go-build: {}
+  go-mod: {}
