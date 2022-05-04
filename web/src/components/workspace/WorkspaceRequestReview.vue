@@ -3,7 +3,6 @@
     <div class="mt-1 relative">
       <ListboxButton
         class="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm group"
-        @click="loadPeople"
       >
         <span class="flex items-center">
           <span class="ml-3 block truncate text-gray-500 group-hover:text-gray-900">
@@ -26,14 +25,12 @@
         <ListboxOptions
           class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
         >
-          <ListboxOption v-if="(!data || !people) && open" as="template">
+          <ListboxOption v-if="people.length === 0 && open" as="template">
             <li class="text-gray-500 cursor-default select-none relative py-2 pl-3 pr-9">
-              Loading...
-            </li>
-          </ListboxOption>
-          <ListboxOption v-else-if="people.length === 0 && open" as="template">
-            <li class="text-gray-500 cursor-default select-none relative py-2 pl-3 pr-9">
-              You're the only coder here. Invite someone?
+              <template v-if="workspace.codebase.members.length === 1">
+                You're the only coder here.
+              </template>
+              Invite someone else?
             </li>
           </ListboxOption>
           <ListboxOption
@@ -66,14 +63,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRef } from 'vue'
-import type { Ref } from 'vue'
+import { defineComponent, toRefs, type PropType } from 'vue'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { SelectorIcon } from '@heroicons/vue/solid'
-import { gql, useQuery } from '@urql/vue'
+import { gql } from '@urql/vue'
 import Avatar from '../../atoms/Avatar.vue'
+import { AUTHOR } from '../../atoms/AvatarHelper'
 import { useRequestReview } from '../../mutations/useRequestReview'
-import type { WorkspaceRequestReviewCodebaseQuery } from './__generated__/WorkspaceRequestReview'
+import type { WorkspaceRequestReview_WorkspaceFragment } from './__generated__/WorkspaceRequestReview'
+
+export const WORKSPACE_FRAGMENT = gql`
+  fragment WorkspaceRequestReview_Workspace on Workspace {
+    id
+    author {
+      id
+    }
+    codebase {
+      id
+      members {
+        id
+        ...Author
+      }
+    }
+  }
+  ${AUTHOR}
+`
 
 export default defineComponent({
   components: {
@@ -85,64 +99,30 @@ export default defineComponent({
     Avatar,
   },
   props: {
-    codebaseId: {
-      type: String,
-      required: true,
+    user: {
+      type: Object as PropType<{ id: string }>,
+      required: false,
     },
-    workspaceId: {
-      type: String,
+    workspace: {
+      type: Object as PropType<WorkspaceRequestReview_WorkspaceFragment>,
       required: true,
     },
   },
   setup(props) {
-    const pauseLoadPeople = ref(true)
-    let codebaseId = toRef(props, 'codebaseId')
-
-    let { data, fetching, error } = useQuery({
-      query: gql`
-        query WorkspaceRequestReviewCodebase($id: ID) {
-          user {
-            id
-          }
-
-          codebase(id: $id) {
-            id
-            members {
-              id
-              name
-              avatarUrl
-            }
-          }
-        }
-      `,
-      variables: {
-        id: codebaseId,
-      },
-      requestPolicy: 'cache-and-network',
-      pause: pauseLoadPeople,
-    })
-
     const requestReviewResult = useRequestReview()
+    const { workspace } = toRefs(props)
 
     return {
-      data: data as Ref<WorkspaceRequestReviewCodebaseQuery>, //
-      fetching,
-
-      async loadPeople() {
-        pauseLoadPeople.value = false
-      },
-
       async requestReview(userID: string) {
-        await requestReviewResult({ workspaceID: props.workspaceId, userID })
+        await requestReviewResult({ workspaceID: workspace.value.id, userID })
       },
     }
   },
   computed: {
-    people: function () {
-      if (this.data?.codebase?.members && this.data?.user) {
-        return this.data.codebase?.members.filter((m) => m.id !== this.data.user.id)
-      }
-      return null
+    people() {
+      return this.workspace.codebase.members
+        .filter(({ id }) => id !== this.user?.id)
+        .filter(({ id }) => id !== this.workspace.author.id)
     },
   },
 })
