@@ -386,9 +386,10 @@ func (r *CommentRootResolver) ResolveComment(ctx context.Context, args resolvers
 	comm, err := r.commentsRepo.Get(comments.ID(args.ID))
 	if err != nil {
 		return nil, gqlerrors.Error(err)
+
 	}
 
-	if err := r.authService.CanWrite(ctx, comm); err != nil {
+	if err := r.authService.CanRead(ctx, comm); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
 
