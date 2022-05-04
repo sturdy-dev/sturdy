@@ -77,7 +77,7 @@
               </template>
 
               <Tooltip :y-direction="codebaseIdx === 0 ? 'down' : 'up'" x-direction="left">
-                <template #tooltip>New Workspace</template>
+                <template #tooltip>New Draft</template>
                 <button
                   class="p-1 hover:bg-warmgray-200 rounded-md cursor-pointer transition flex-shrink-0"
                   @click="createWorkspaceHandler(codebase.slug, codebase.id)"
