@@ -93,6 +93,7 @@ const groups = [
       { route: 'resourcesMigrateFromGitHub', title: 'Migrate from GitHub' },
       { route: 'resourcesHelpSturdyCommandLine', title: 'Sturdy for Servers (CLI)' },
       { route: 'resourcesApi', title: 'GraphQL API' },
+      { route: 'docsRoadmap', title: 'Sturdy Public Roadmap' },
     ],
   },
 ]
