@@ -107,16 +107,17 @@
             </li>
           </ul>
         </div>
-
-        <Banner status="info">
-          Not seeing the repository you want to install setup? Update the app installation above to
-          install <em>Sturdy for GitHub</em> on more organizations or repositories.
-        </Banner>
       </template>
+
       <div v-else-if="fetching" class="flex items-center space-x-2">
         <Spinner />
         <span>Loading repositories, please wait&hellip;</span>
       </div>
+
+      <Banner status="info">
+        Not seeing the repository you want to install setup? Update the app installation above to
+        install <em>Sturdy for GitHub</em> on more organizations or repositories.
+      </Banner>
     </template>
   </div>
 </template>
