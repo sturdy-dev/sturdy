@@ -34,15 +34,7 @@
           </li>
         </ul>
       </div>
-      <WorkspaceApproval
-        v-if="showApproval"
-        class="flex-1"
-        :reviews="workspace.reviews"
-        :workspace="workspace"
-        :codebase-id="workspace.codebase.id"
-        :user="user"
-        :members="workspace.codebase.members"
-      />
+      <WorkspaceApproval v-if="showApproval" class="flex-1" :workspace="workspace" :user="user" />
     </div>
   </div>
 </template>
@@ -71,8 +63,9 @@ import GitHubPullRequest, {
 } from '../components/workspace/details/GitHubPullRequest.vue'
 import Avatar from '../atoms/Avatar.vue'
 import { AUTHOR } from '../atoms/AvatarHelper'
-import WorkspaceApproval from '../components/workspace/WorkspaceApproval.vue'
-
+import WorkspaceApproval, {
+  WORKSPACE_FRAGMENT as WORKSPACE_APPROVAL_WORKSPACE_FRAGMENT,
+} from '../components/workspace/WorkspaceApproval.vue'
 import { Slug } from '../slug'
 import type { WorkspaceDetails_WorkspaceFragment } from './__generated__/WorkspaceDetails'
 import { useUpdatedWorkspacesStatuses } from '../subscriptions/useUpdatedWorkspacesStatuses'
@@ -107,18 +100,6 @@ export const WORKSPACE_FRAGMENT = gql`
         ...Author
       }
     }
-    reviews {
-      id
-      grade
-      createdAt
-      isReplaced
-      dismissedAt
-      author {
-        id
-        name
-        avatarUrl
-      }
-    }
     suggestion {
       id
     }
@@ -126,7 +107,9 @@ export const WORKSPACE_FRAGMENT = gql`
     ...CommentsCount_Workspace
     ...Updated_Workspace
     ...WorkspaceStatus_Workspace
+    ...WorkspaceApproval_Workspace
   }
+  ${WORKSPACE_APPROVAL_WORKSPACE_FRAGMENT}
   ${WORKSPACE_STATUS_WORKSPACE_FRAGMENT}
   ${CODEBASE_GITHUB_INTEGRATION_FRAGMENT}
   ${GITHUB_PULL_REQUEST_FRAGMENT}

@@ -95,22 +95,57 @@
       </li>
     </ul>
 
-    <WorkspaceRequestReview
-      v-if="isAuthorized"
-      :codebase-id="codebaseId"
-      :workspace-id="workspace.id"
-      class="mt-4"
-    />
+    <WorkspaceRequestReview v-if="isAuthorized" :workspace="workspace" :user="user" class="mt-4" />
   </div>
 </template>
-<script>
+
+<script lang="ts">
 import Avatar from '../../atoms/Avatar.vue'
+import { AUTHOR } from '../../atoms/AvatarHelper'
 import Tooltip from '../../atoms/Tooltip.vue'
 import Button from '../../atoms/Button.vue'
 import { gql, useMutation } from '@urql/vue'
 import { ClockIcon, InformationCircleIcon, ThumbUpIcon, XIcon } from '@heroicons/vue/solid'
-import WorkspaceRequestReview from './WorkspaceRequestReview.vue'
+import WorkspaceRequestReview, {
+  WORKSPACE_FRAGMENT as WORKSPACE_REQUEST_REVIEW_WORKSPACE_FRAGMENT,
+} from './WorkspaceRequestReview.vue'
 import { useCreateOrUpdateReview } from '../../mutations/useCreateOrUpdateReview'
+import { ReviewGrade } from '../../__generated__/types'
+import type { PropType } from 'vue'
+import type { WorkspaceApproval_WorkspaceFragment } from './__generated__/WorkspaceApproval'
+
+export const WORKSPACE_FRAGMENT = gql`
+  fragment WorkspaceApproval_Workspace on Workspace {
+    id
+    ...WorkspaceRequestReview_Workspace
+
+    author {
+      id
+    }
+
+    reviews {
+      id
+      grade
+      createdAt
+      isReplaced
+      dismissedAt
+      author {
+        id
+        ...Author
+      }
+    }
+
+    codebase {
+      id
+      members {
+        id
+        ...Author
+      }
+    }
+  }
+  ${WORKSPACE_REQUEST_REVIEW_WORKSPACE_FRAGMENT}
+  ${AUTHOR}
+`
 
 export default {
   components: {
@@ -124,19 +159,14 @@ export default {
     Tooltip,
   },
   props: {
-    reviews: {},
-    members: {
-      type: Array,
-      required: true,
-    },
     user: {
-      type: Object,
+      type: Object as PropType<{ id: string }>,
+      default: null,
     },
     workspace: {
-      type: Object,
+      type: Object as PropType<WorkspaceApproval_WorkspaceFragment>,
       required: true,
     },
-    codebaseId: {},
   },
   setup() {
     const createOrUpdateReviewResult = useCreateOrUpdateReview()
@@ -151,12 +181,12 @@ export default {
     `)
 
     return {
-      async createOrUpdateReview(workspaceID, grade) {
+      async createOrUpdateReview(workspaceID: string, grade: ReviewGrade) {
         const variables = { workspaceID, grade }
         await createOrUpdateReviewResult(variables)
       },
 
-      async dismissReview(id) {
+      async dismissReview(id: string) {
         const variables = { id }
         await dismissReviewResult(variables).then((result) => {
           console.log('dismissReviewResult', result)
@@ -177,13 +207,13 @@ export default {
       return !!this.user
     },
     isAuthorized() {
-      const isMember = this.members.some(({ id }) => id === this.user?.id)
+      const isMember = this.workspace.codebase.members.some(({ id }) => id === this.user?.id)
       return this.isAuthenticated && isMember
     },
     selfUserReview() {
       if (!this.isAuthenticated) return null
-      let r = this.reviews?.filter(
-        (r) => r.author.id === this.user.id && !r.dismissedAt && !r.isReplaced
+      const r = this.workspace.reviews.filter(
+        (r) => r.author.id === this.user?.id && !r.dismissedAt && !r.isReplaced
       )
       if (r && r.length > 0) {
         return r[0]
@@ -191,7 +221,7 @@ export default {
       return null
     },
     nonDismissedReviews() {
-      return this.reviews
+      return this.workspace.reviews
         ?.filter((r) => !r.dismissedAt && !r.isReplaced)
         .sort((a, b) => a.author.name.localeCompare(b.author.name))
     },
