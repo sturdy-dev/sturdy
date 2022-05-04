@@ -3,12 +3,13 @@
 </template>
 
 <script lang="ts">
-import time from '../time'
+import { getRelativeTimeStrict, getRelativeTime } from '../time'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   props: {
     date: { type: Date, required: true },
+    strict: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -26,7 +27,9 @@ export default defineComponent({
   },
   computed: {
     ago(): string {
-      return time.getRelativeTime(this.date, this.from)
+      return this.strict
+        ? getRelativeTimeStrict(this.date, this.from)
+        : getRelativeTime(this.date, this.from)
     },
   },
 })
