@@ -33,12 +33,9 @@
               >
                 {{ author.name }}
               </a>
-              <a
-                :href="author.link"
-                class="text-xs font-medium text-gray-500 group-hover:text-gray-700 block"
-              >
+              <span class="text-xs font-medium text-gray-500 group-hover:text-gray-700 block">
                 {{ date }}
-              </a>
+              </span>
               <p v-if="readingTime" class="text-xs font-medium text-gray-500">
                 Reading time: {{ readingTime }}
               </p>
@@ -113,6 +110,7 @@ useHead({
     { property: 'og:title', content: props.title + ' | from the Sturdy Blog' },
     { property: 'description', content: props.description },
     { property: 'og:description', content: props.description },
+    { name: 'description', content: props.description },
     ...(props.image ? [{ property: 'og:image', content: props.image }] : []),
   ],
 })
