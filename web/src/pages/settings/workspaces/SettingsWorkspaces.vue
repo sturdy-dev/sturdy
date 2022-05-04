@@ -6,7 +6,7 @@
 
     <template #default>
       <div class="max-w-7xl space-y-4">
-        <Header>Restore Workspaces</Header>
+        <Header>Restore Drafts</Header>
         <SettingsWorkspaces classs="mt-8" :codebase-id="data.codebase.id" />
       </div>
     </template>
