@@ -9,3 +9,4 @@ yarn run mjml letters/2021-12-07.mjml -o output/2021-12-07.html
 yarn run mjml letters/2022-02-21.mjml -o output/2022-02-21.html
 yarn run mjml letters/2022-03-10.mjml -o output/2022-03-10.html
 yarn run mjml letters/2022-04-13.mjml -o output/2022-04-13.html
+yarn run mjml letters/2022-05-03.mjml -o output/2022-05-03.html

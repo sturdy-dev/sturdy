@@ -31,8 +31,14 @@ func Send(client *postmark.Client, subject string, contentPath string, to string
 	}
 
 	res, err := client.SendEmail(email)
-	if err != nil {
+
+	switch {
+	case err == nil:
+		log.Printf("res: %+v", res)
+	case res.ErrorCode == 406:
+		log.Printf("res (unregistered user): %+v", res)
+	case err != nil:
+		log.Printf("res: %+v", res)
 		log.Fatal(err)
 	}
-	log.Printf("res: %+v", res)
 }
