@@ -181,6 +181,7 @@
             </div>
 
             <WorkspaceDescription
+              v-if="!isSuggesting"
               class="max-w-prose"
               :workspace="data.workspace"
               :user="user"
