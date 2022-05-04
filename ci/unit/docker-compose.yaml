@@ -3,3 +3,12 @@ services:
   go:
     command: "go test -v -race ./..."
     working_dir: /sturdy/api
+    volumes:
+      - go-build:/root/.cache/go-build
+      - go-mod:/root/.cache/go-mod
+    environment:
+      GOMODCACHE: /root/.cache/go-mod
+
+volumes:
+  go-build: {}
+  go-mod: {}
