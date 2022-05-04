@@ -8,13 +8,21 @@
     <div
       class="mt-5 prose prose-yellow text-gray-500 mx-auto lg:max-w-none lg:row-start-1 lg:col-start-1"
     >
-      <ul>
-        <li v-for="link in links" :key="link.name">
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div
+          v-for="link in links"
+          :key="link.name"
+          class="p-2 bg-gray-50 shadow h-full flex flex-col"
+        >
           <router-link :to="{ name: link.name }" class="!no-underline">
             {{ link.title }}
           </router-link>
-        </li>
-      </ul>
+          <p v-if="link.description" class="flex-1 line-clamp-3">
+            {{ link.description }}
+          </p>
+          <span v-if="link.date" class="text-sm">{{ link.date }}</span>
+        </div>
+      </div>
     </div>
   </StaticPage>
 </template>
@@ -23,7 +31,7 @@
 import StaticPage from '../../layouts/StaticPage.vue'
 import { useRouter } from 'vue-router'
 
-type nameTitle = { name: string; title: string }
+type nameTitle = { name: string; title: string; date?: string; description?: string }
 
 let routes = useRouter().getRoutes()
 let links = routes
@@ -32,6 +40,8 @@ let links = routes
     return {
       name: r.name as string,
       title: r.meta.blogTitle as string,
+      date: r.meta.blogDate as string,
+      description: r.meta.blogDescription as string,
     }
   })
   .filter(Boolean)

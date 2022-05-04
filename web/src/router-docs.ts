@@ -184,6 +184,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#018 - This week at Sturdy – Sturdy v1.8.0!',
+      blogDescription:
+        "Hello world! In this newsletter we're sharing some of the biggest updates and new features in Sturdy v1.8, let's get started!",
+      blogDate: 'May 3, 2022',
     },
   },
   {
@@ -196,6 +199,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#017 - What is stopping us from merging 30 pull requests per day?',
+      blogDescription:
+        'Most software projects are done by teams rather than individuals, so how we integrate work is critical. Collaborating on code is surprisingly challenging because any change made in isolation creates distance between developers. Shipping small and often is probably the most effective strategy for mitigating this. But just how frequently can we ship?',
+      blogDate: 'May 3, 2022',
     },
   },
   {
@@ -208,6 +214,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#016 - This week at Sturdy',
+      blogDescription:
+        "Hello world! In this newsletter we're sharing some of the biggest updates and new features in Sturdy v1.7, let's get started!",
+      blogDate: 'April 12, 2022',
     },
   },
   {
@@ -220,6 +229,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#015 - Introducing Draft changes',
+      blogDate: 'March 10, 2022',
+      blogDescription:
+        "Hey everyone! In this week's update I would like to share with you an update to the Sturdy workflow with Draft changes, as well as the release of Sturdy for Linux. Today is also an exciting day for us because we are launching Sturdy on Product Hunt!",
     },
   },
   {
@@ -232,6 +244,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#014 - Sturdy is now open-source',
+      blogDate: 'February 21, 2022',
+      blogDescription:
+        'We have some really exciting news to share &mdash; Sturdy is now open-source! As developers, we love OSS, so to say that we are thrilled about this announcement would be an understatement!',
     },
   },
   {
@@ -244,6 +259,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#013 - GraphQL & Componentized UIs',
+      blogDate: 'December 17, 2021',
+      blogDescription:
+        'GraphQL has become somewhat of an industry standard for APIs that are designed to be consumed by component-oriented UIs. Meanwhile, GraphQL client libraries have converged on strategies for maintaining a normalized cache of all parts of the graph that has been queried. This article proposes some patterns on how to maximize the utility and maintainability of frontend code using this stack.',
     },
   },
   {
@@ -256,6 +274,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#012 - Launching the Sturdy App!',
+      blogDate: 'December 7, 2021',
+      blogDescription:
+        'Hey! Here’s a summary of all of the latest and greatest features available in the latest version of Sturdy.',
     },
   },
   {
@@ -268,6 +289,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#011 - Scaling teams as parallel computing systems',
+      blogDate: 'November 29, 2021',
+      blogDescription:
+        "Why team output doesn't scale linearly with team size? Teams are no different from a parallel computing systems. As such, they are subject to Amdahl's law, which governs their scalability.",
     },
   },
   {
@@ -280,6 +304,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#010 - Sturdy-the-app is coming!',
+      blogDate: 'November 22, 2021',
+      blogDescription:
+        'Hey! Here’s a summary of all of the latest and greatest features available in the latest version of Sturdy.',
     },
   },
   {
@@ -292,6 +319,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#009 - ACLs and a fresh hot look!',
+      blogDate: 'September 29, 2021',
+      blogDescription:
+        "Sturdy changelog. Sturdy now ships with Access Control Lists and a brand new interface, that's faster and more lightweight than ever.",
     },
   },
   {
@@ -304,6 +334,10 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#008 - Large Files',
+      blogDate: 'September 9, 2021',
+      blogDescription:
+        "Hey Sturdy-fans! Here's an update with all of the major changes since the last time we hit\n" +
+        '      your inbox.',
     },
   },
   {
@@ -316,6 +350,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#007 - Unbreaking code collaboration',
+      blogDate: 'August 18, 2021',
+      blogDescription:
+        "I feel like collaborating on code today is broken. It is too hard to get started and even after learning all the basic tools and commands there is just too much effort in making contributions as a team. Why is it so hard to give meaningful feedback on each other's code? How come the rest of the stack has evolved, when collaboration hasn't?",
     },
   },
   {
@@ -328,6 +365,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#006 - Sturdy is here',
+      blogDate: 'August 12, 2021',
+      blogDescription:
+        ' Making a new version control system is definitely not for the faint-hearted! It has taken us a lot of work to lay the foundation for the code collaboration platform that we are building.',
     },
   },
   {
@@ -340,6 +380,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#005 - Humane Code Review',
+      blogDate: 'June 10, 2021',
+      blogDescription:
+        'We’ve been thinking a lot about what it means to work on a team lately. Most often, developers are working on the same codebase, but are not really working together. More often than not the first time a teammate of your sees the code that you have written is when you’re considering the feature to be complete, and you’ve sent it for code review.',
     },
   },
   {
@@ -352,6 +395,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#004 - Importing from Git',
+      blogDate: 'May 6, 2021',
+      blogDescription:
+        'Hey everyone! I hope that you’re doing great, and that May is treating you well!',
     },
   },
   {
@@ -364,6 +410,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#003 - Share Now!',
+      blogDate: 'April 16, 2021',
+      blogDescription:
+        'Hey coders! As you’ve noticed, we’re still exploring the fundamentals to the core workflow of Sturdy. This week we’ve made some larger changes to when changes are copied from a workspace to a codebase. Let’s get into it!',
     },
   },
   {
@@ -377,6 +426,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#002 - Restore to any point in time',
+      blogDate: 'April 1, 2021',
+      blogDescription:
+        'Hey everyone! This week we’ve been focusing on how Sturdy can help you if you make a mistake, or change your mind about what you’re building.',
     },
   },
   {
@@ -389,6 +441,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#001 - YC W21 Demo Day!',
+      blogDate: 'March 24, 2021',
+      blogDescription:
+        'The past week has been the culmination of our YC W21 batch, with Demo Day1 on Tuesday! A huge congratulations and thanks to all other companies in the batch!',
     },
   },
   {
@@ -401,6 +456,9 @@ export const RoutesDocs: RouteRecordRaw[] = [
       neverElectron: true,
       blog: true,
       blogTitle: '#000 - This Week at Sturdy',
+      blogDate: 'March 18, 2021',
+      blogDescription:
+        "Hey everyone! We've been working hard on Sturdy for the past few months, and as you might have seen, we've been making quite a lot of changes. I'm super excited about where we're going, and to be able to show of Sturdy and some of it's internals here in this post.",
     },
   },
   {
