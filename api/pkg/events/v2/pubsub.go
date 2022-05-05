@@ -52,6 +52,7 @@ func (r *pubSub) pub(topic Topic, evt *event) {
 				if rec := recover(); rec != nil {
 					logger.Error("panic in events v2 publisher", zap.Any("recover", rec), zap.Stack("stack"),
 						zap.Duration("duration", time.Since(start)),
+						zap.String("handler", functionName(handler.callback)),
 					)
 				}
 			}()
