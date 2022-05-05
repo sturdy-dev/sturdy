@@ -1,12 +1,15 @@
 package module
 
 import (
-	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/queue"
+	"testing"
 
-	"go.uber.org/zap"
+	"getsturdy.com/api/pkg/di"
+	"getsturdy.com/api/pkg/logger"
+	"getsturdy.com/api/pkg/queue"
 )
 
-func TestModule(c *di.Container) {
-	c.Register(func() queue.Queue { return queue.NewInMemory(zap.NewNop()).Sync() })
+func TestModule(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Register(func() queue.Queue { return queue.NewInMemory(logger.NewTest(t)).Sync() })
+	}
 }

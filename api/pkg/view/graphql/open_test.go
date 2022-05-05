@@ -31,10 +31,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func module(c *di.Container) {
-	c.Import(module_api.Module)
-	c.ImportWithForce(configuration.TestModule)
-	c.ImportWithForce(queue.TestModule)
+func module(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Import(module_api.Module)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(queue.TestModule(t))
+	}
 }
 
 func TestUpdateViewWorkspace(t *testing.T) {
@@ -56,7 +58,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(module(t)).To(&d)) {
 		t.FailNow()
 	}
 

@@ -63,7 +63,7 @@ func testModule(t *testing.T) di.Module {
 	return func(c *di.Container) {
 		c.Import(api.Module)
 		c.ImportWithForce(configuration.TestModule)
-		c.ImportWithForce(queue.TestModule)
+		c.ImportWithForce(queue.TestModule(t))
 		c.Register(func() *testing.T { return t })
 		c.RegisterWithForce(dbtest.DB)
 	}

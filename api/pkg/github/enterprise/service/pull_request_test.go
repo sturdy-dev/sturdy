@@ -60,22 +60,24 @@ import (
 	"getsturdy.com/api/vcs/provider"
 )
 
-func testModule(c *di.Container) {
-	c.Import(module_api.Module)
+func testModule(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Import(module_api.Module)
 
-	c.Register(service_github_webhooks.New)
-	c.Register(service_github_webhooks.NewWebhooksQueue)
+		c.Register(service_github_webhooks.New)
+		c.Register(service_github_webhooks.NewWebhooksQueue)
 
-	c.ImportWithForce(service_github.Module)
-	c.ImportWithForce(graphql_github.Module)
-	c.ImportWithForce(graphql_github_pr.Module)
-	c.ImportWithForce(configuration.TestModule)
-	c.ImportWithForce(module_queue.TestModule)
+		c.ImportWithForce(service_github.Module)
+		c.ImportWithForce(graphql_github.Module)
+		c.ImportWithForce(graphql_github_pr.Module)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(module_queue.TestModule(t))
 
-	c.RegisterWithForce(func() client.InstallationClientProvider { return clientProvider })
-	c.RegisterWithForce(func() client.PersonalClientProvider { return personalClientProvider })
-	c.RegisterWithForce(func() client.AppClientProvider { return appsClientProvider })
-	c.RegisterWithForce(func() *config.GitHubAppConfig { return &config.GitHubAppConfig{} })
+		c.RegisterWithForce(func() client.InstallationClientProvider { return clientProvider })
+		c.RegisterWithForce(func() client.PersonalClientProvider { return personalClientProvider })
+		c.RegisterWithForce(func() client.AppClientProvider { return appsClientProvider })
+		c.RegisterWithForce(func() *config.GitHubAppConfig { return &config.GitHubAppConfig{} })
+	}
 }
 
 func TestPRHighLevel(t *testing.T) {
@@ -118,7 +120,7 @@ func TestPRHighLevel(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(testModule).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
 

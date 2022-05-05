@@ -27,7 +27,7 @@ func module(t *testing.T) di.Module {
 		// TODO: reduce scope
 		c.Import(module_api.Module)
 		c.ImportWithForce(configuration.TestModule)
-		c.ImportWithForce(queue.TestModule)
+		c.ImportWithForce(queue.TestModule(t))
 		c.Register(func() *testing.T { return t })
 		c.RegisterWithForce(dbtest.DB)
 	}
