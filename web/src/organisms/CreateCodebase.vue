@@ -1,11 +1,59 @@
 <template>
   <div class="py-8 px-4">
-    <div>
-      <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
-        Create a new codebase in <span class="underline">{{ selected.name }}</span>
-      </h2>
-      <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
-    </div>
+    <Listbox as="span" v-model="selected" v-if="organizations.length > 1">
+      <div class="mt-1 relative">
+        <ListboxButton
+          class="bg-white relative rounded-md pr-10 py-2 text-left cursor-default focus:outline-none font-extrabold"
+        >
+          <span class="block truncate">{{ selected?.name }}</span>
+          <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <SelectorIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+          </span>
+        </ListboxButton>
+
+        <transition
+          leave-active-class="transition ease-in duration-100"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <ListboxOptions
+            class="absolute z-10 mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none"
+          >
+            <ListboxOption
+              as="template"
+              v-for="org in organizations"
+              :key="org.id"
+              :value="org"
+              v-slot="{ active, selected }"
+            >
+              <li
+                :class="[
+                  active ? 'text-white bg-blue-600' : 'text-gray-900',
+                  'cursor-default select-none relative py-2 pl-3 pr-9',
+                ]"
+              >
+                <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                  {{ org.name }}
+                </span>
+
+                <span
+                  v-if="selected"
+                  :class="[
+                    active ? 'text-white' : 'text-blue-600',
+                    'absolute inset-y-0 right-0 flex items-center pr-4',
+                  ]"
+                >
+                </span>
+              </li>
+            </ListboxOption>
+          </ListboxOptions>
+        </transition>
+      </div>
+    </Listbox>
+    <h2 class="text-4xl font-extrabold text-gray-900 sm:text-4xl sm:tracking-tight lg:text-4xl">
+      Create a new codebase
+    </h2>
+    <p class="mt-5 text-xl text-gray-500">You'll soon be ready to code! 📈</p>
   </div>
 
   <div class="flex space-y-4 xl:space-y-0 xl:space-x-4 flex-col xl:flex-row">
@@ -199,14 +247,16 @@
 </template>
 
 <script lang="ts" setup>
-import { CheckIcon } from '@heroicons/vue/solid/esm'
+import { CheckIcon, SelectorIcon } from '@heroicons/vue/solid/esm'
 import RouterLinkButton from '../atoms/RouterLinkButton.vue'
 import { Feature } from '../__generated__/types'
-import { defineProps, inject, computed, type Ref, ref, type PropType } from 'vue'
+import { watch, defineProps, inject, computed, type Ref, ref, type PropType } from 'vue'
 import LinkButton from '../atoms/LinkButton.vue'
 import { gql } from '@urql/vue'
 import type { Organization_CreateCodebaseFragment } from './__generated__/CreateCodebase'
 import Button from '../atoms/Button.vue'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   organizations: {
@@ -226,7 +276,18 @@ const isGitHubEnabledNotConfigured = computed(() =>
 )
 const isRemoteAvailable = computed(() => features?.value?.includes(Feature.Remote))
 
-const selected = computed(() => props.selectedOrganization || props.organizations[0])
+const selected = ref(
+  props.selectedOrganization
+    ? props.organizations.find(
+        (organization) => organization.shortID === props.selectedOrganization?.shortID
+      )
+    : props.organizations[0]
+)
+
+const router = useRouter()
+watch(selected, (newValue) => {
+  if (newValue) router.push({ params: { organizationSlug: newValue.shortID } })
+})
 </script>
 
 <script lang="ts">
