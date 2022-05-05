@@ -24,6 +24,7 @@ import (
 	"getsturdy.com/api/pkg/di"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/graphql/resolvers"
+	"getsturdy.com/api/pkg/internal/dbtest"
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
@@ -54,10 +55,14 @@ func str(s string) *string {
 	return &s
 }
 
-func module(c *di.Container) {
-	c.Import(module_api.Module)
-	c.ImportWithForce(configuration.TestModule)
-	c.ImportWithForce(queue.TestModule)
+func module(t *testing.T) di.Module {
+	return func(c *di.Container) {
+		c.Import(module_api.Module)
+		c.ImportWithForce(configuration.TestModule)
+		c.ImportWithForce(queue.TestModule)
+		c.Register(func() *testing.T { return t })
+		c.RegisterWithForce(dbtest.DB)
+	}
 }
 
 func TestResolveHighLevelV2(t *testing.T) {
@@ -363,7 +368,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(module).To(&d)) {
+	if !assert.NoError(t, di.Init(module(t)).To(&d)) {
 		t.FailNow()
 	}
 
