@@ -47,7 +47,7 @@ func testModule(t *testing.T) di.Module {
 		c.ImportWithForce(db_codebases.TestModule)
 		c.ImportWithForce(db_installations.TestModule)
 		c.ImportWithForce(db_statuses.TestModule)
-		c.ImportWithForce(module_queue.TestModule)
+		c.ImportWithForce(module_queue.TestModule(t))
 		c.ImportWithForce(configuration.TestModule)
 		c.RegisterWithForce(logger.NewTest)
 

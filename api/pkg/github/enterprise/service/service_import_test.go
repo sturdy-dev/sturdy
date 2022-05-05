@@ -60,7 +60,7 @@ func TestService_ImportPullRequest(t *testing.T) {
 	}
 
 	var d deps
-	if !assert.NoError(t, di.Init(testModule).To(&d)) {
+	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
 
