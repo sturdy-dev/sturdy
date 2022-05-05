@@ -15,7 +15,3 @@ func Module(c *di.Container) {
 	c.Import(service_users.Module)
 	c.Register(New)
 }
-
-func TestModule(c *di.Container) {
-	c.Register(NewSync)
-}
