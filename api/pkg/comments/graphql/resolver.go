@@ -15,6 +15,7 @@ import (
 	"getsturdy.com/api/pkg/changes"
 	service_change "getsturdy.com/api/pkg/changes/service"
 	"getsturdy.com/api/pkg/codebases"
+	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/comments"
 	db_comments "getsturdy.com/api/pkg/comments/db"
@@ -389,8 +390,8 @@ func (r *CommentRootResolver) ResolveComment(ctx context.Context, args resolvers
 
 	}
 
-	if err := r.authService.CanRead(ctx, comm); err != nil {
-		return nil, gqlerrors.Error(err)
+	if !access.UserHasAccessToCodebase(r.codebaseUserRepo, userID, comm.CodebaseID) {
+		return nil, fmt.Errorf("user %s is not a part of codebase %s: %w", userID, comm.CodebaseID, auth.ErrForbidden)
 	}
 
 	r.analyticsService.Capture(ctx, "resolved comment",
