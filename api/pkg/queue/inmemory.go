@@ -12,19 +12,25 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ Queue = &memoryQueue{}
+var _ Queue = &InMemoryQueue{}
 
-type memoryQueue struct {
+type InMemoryQueue struct {
 	logger     *zap.Logger
+	sync       bool
 	chansGuard sync.RWMutex
 	chans      map[names.IncompleteQueueName][]chan<- Message
 }
 
-func NewInMemory(logger *zap.Logger) *memoryQueue {
-	return &memoryQueue{
+func NewInMemory(logger *zap.Logger) *InMemoryQueue {
+	return &InMemoryQueue{
 		logger: logger,
 		chans:  make(map[names.IncompleteQueueName][]chan<- Message),
 	}
+}
+
+func (q *InMemoryQueue) Sync() *InMemoryQueue {
+	q.sync = true
+	return q
 }
 
 type inmemorymessage struct {
@@ -56,7 +62,7 @@ func (m *inmemorymessage) As(v any) error {
 	return json.Unmarshal(m.marshalledMessage, v)
 }
 
-func (q *memoryQueue) Publish(ctx context.Context, name names.IncompleteQueueName, msg any) error {
+func (q *InMemoryQueue) Publish(ctx context.Context, name names.IncompleteQueueName, msg any) error {
 	q.chansGuard.RLock()
 	defer q.chansGuard.RUnlock()
 	chans, ok := q.chans[name]
@@ -73,13 +79,16 @@ func (q *memoryQueue) Publish(ctx context.Context, name names.IncompleteQueueNam
 				return fmt.Errorf("failed to create message: %w", err)
 			}
 			ch <- m
+			if q.sync {
+				m.AwaitAcked()
+			}
 			return nil
 		})
 	}
 	return wg.Wait()
 }
 
-func (q *memoryQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- Message) error {
+func (q *InMemoryQueue) Subscribe(ctx context.Context, name names.IncompleteQueueName, messages chan<- Message) error {
 	q.chansGuard.Lock()
 	q.chans[name] = append(q.chans[name], messages)
 	q.chansGuard.Unlock()
