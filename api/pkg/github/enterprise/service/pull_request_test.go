@@ -142,6 +142,9 @@ func TestPRHighLevel(t *testing.T) {
 	go func() {
 		assert.NoError(t, d.WebhooksQueue.Start(context.TODO()))
 	}()
+	go func() {
+		assert.NoError(t, d.BuildQueue.Start(context.TODO()))
+	}()
 
 	testCases := []struct {
 		name                       string

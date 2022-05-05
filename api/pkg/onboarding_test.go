@@ -19,6 +19,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/api"
 	"getsturdy.com/api/pkg/auth"
+	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
@@ -34,6 +35,7 @@ import (
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	workers_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
@@ -87,6 +89,8 @@ func TestCreate(t *testing.T) {
 		WorkspaceService      *service_workspace.Service
 		GitSnapshotter        *service_snapshots.Service
 		RepoProvider          provider.RepoProvider
+		SnapshotsQueue        workers_snapshots.Queue
+		CIQueue               *workers_ci.BuildQueue
 
 		// Dependencies of Gin Routes
 		CodebaseUserRepo db_codebases.CodebaseUserRepository
@@ -105,6 +109,13 @@ func TestCreate(t *testing.T) {
 	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
+
+	go func() {
+		assert.NoError(t, d.SnapshotsQueue.Start(context.TODO()))
+	}()
+	go func() {
+		assert.NoError(t, d.CIQueue.Start(context.TODO()))
+	}()
 
 	userRepo := d.UserRepo
 	codebaseRootResolver := d.CodebaseRootResolver
@@ -552,12 +563,22 @@ func TestLandEmpty(t *testing.T) {
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
+
+		SnapshotsQueue workers_snapshots.Queue
+		CIQueue        *workers_ci.BuildQueue
 	}
 
 	var d deps
 	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
+
+	go func() {
+		assert.NoError(t, d.SnapshotsQueue.Start(context.TODO()))
+	}()
+	go func() {
+		assert.NoError(t, d.CIQueue.Start(context.TODO()))
+	}()
 
 	createCodebaseRoute := routes_v3_codebase.Create(d.Logger, d.CodebaseService)
 	createWorkspaceRoute := routes_v3_workspace.Create(d.Logger, d.WorkspaceService, d.CodebaseUserRepo)

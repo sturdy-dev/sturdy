@@ -17,6 +17,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	module_api "getsturdy.com/api/pkg/api/module"
 	"getsturdy.com/api/pkg/auth"
+	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/configuration"
@@ -26,6 +27,7 @@ import (
 	queue "getsturdy.com/api/pkg/queue/module"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	workers_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/sync"
 	routes_v3_sync "getsturdy.com/api/pkg/sync/routes"
 	service_sync "getsturdy.com/api/pkg/sync/service"
@@ -355,12 +357,22 @@ func TestResolveHighLevelV2(t *testing.T) {
 		CodebaseRepo          db_codebases.CodebaseRepository
 		SyncService           *service_sync.Service
 		ViewService           *service_view.Service
+
+		SnapshotsQueue workers_snapshots.Queue
+		CIQueue        *workers_ci.BuildQueue
 	}
 
 	var d deps
 	if !assert.NoError(t, di.Init(module).To(&d)) {
 		t.FailNow()
 	}
+
+	go func() {
+		assert.NoError(t, d.SnapshotsQueue.Start(context.TODO()))
+	}()
+	go func() {
+		assert.NoError(t, d.CIQueue.Start(context.TODO()))
+	}()
 
 	userRepo := d.UserRepo
 	workspaceRootResolver := d.WorkspaceRootResolver

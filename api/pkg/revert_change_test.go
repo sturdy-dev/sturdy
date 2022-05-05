@@ -2,6 +2,7 @@ package pkg_test
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -12,6 +13,7 @@ import (
 
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	"getsturdy.com/api/pkg/auth"
+	workers_ci "getsturdy.com/api/pkg/ci/workers"
 	"getsturdy.com/api/pkg/codebases"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	routes_v3_codebase "getsturdy.com/api/pkg/codebases/routes"
@@ -22,6 +24,7 @@ import (
 	"getsturdy.com/api/pkg/graphql/resolvers"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
+	workers_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
 	"getsturdy.com/api/pkg/view"
@@ -69,12 +72,22 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 
 		Logger           *zap.Logger
 		AnalyticsService *service_analytics.Service
+
+		SnapshotsQueue workers_snapshots.Queue
+		CIQueue        *workers_ci.BuildQueue
 	}
 
 	var d deps
 	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
+
+	go func() {
+		assert.NoError(t, d.SnapshotsQueue.Start(context.TODO()))
+	}()
+	go func() {
+		assert.NoError(t, d.CIQueue.Start(context.TODO()))
+	}()
 
 	repoProvider := d.RepoProvider
 	userRepo := d.UserRepo
@@ -263,12 +276,22 @@ func TestRevertChangeFromView(t *testing.T) {
 
 		Logger           *zap.Logger
 		AnalyticsSerivce *service_analytics.Service
+
+		SnapshotsQueue workers_snapshots.Queue
+		CIQueue        *workers_ci.BuildQueue
 	}
 
 	var d deps
 	if !assert.NoError(t, di.Init(testModule(t)).To(&d)) {
 		t.FailNow()
 	}
+
+	go func() {
+		assert.NoError(t, d.SnapshotsQueue.Start(context.TODO()))
+	}()
+	go func() {
+		assert.NoError(t, d.CIQueue.Start(context.TODO()))
+	}()
 
 	repoProvider := d.RepoProvider
 	userRepo := d.UserRepo
@@ -357,7 +380,7 @@ func TestRevertChangeFromView(t *testing.T) {
 		_, err = landRootResolver.LandWorkspaceChange(authenticatedUserContext, resolvers.LandWorkspaceArgs{Input: resolvers.LandWorkspaceInput{
 			WorkspaceID: graphql.ID(workspaceID),
 		}})
-		assert.NoError(t, err)
+		assert.NoError(t, errors.Unwrap(err))
 	}
 
 	// Get changelog
