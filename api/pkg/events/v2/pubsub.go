@@ -3,6 +3,8 @@ package events
 import (
 	"context"
 	"errors"
+	"reflect"
+	"runtime"
 	"sync"
 	"time"
 
@@ -59,10 +61,15 @@ func (r *pubSub) pub(topic Topic, evt *event) {
 					"failed to handle event",
 					zap.Duration("duration", time.Since(start)),
 					zap.Error(errors.Unwrap(err)),
+					zap.String("handler", functionName(handler.callback)),
 				)
 			}
 		}()
 	}
+}
+
+func functionName(f interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
 func (r *pubSub) sub(ctx context.Context, fn callback, topic Topic, tt ...Type) {
