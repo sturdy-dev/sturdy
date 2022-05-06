@@ -66,7 +66,6 @@ func CloneFromGithub(logger *zap.Logger, trunkProvider provider.TrunkProvider, c
 
 func newCredentialsCallback(tokenUsername, token string) git.CredentialsCallback {
 	return func(url string, username string, allowedTypes git.CredType) (*git.Cred, error) {
-		cred, _ := git.NewCredUserpassPlaintext(tokenUsername, token)
-		return cred, nil
+		return git.NewCredentialUserpassPlaintext(tokenUsername, token)
 	}
 }
