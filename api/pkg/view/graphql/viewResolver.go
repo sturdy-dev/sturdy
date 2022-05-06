@@ -169,11 +169,14 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 
 	res := make(chan resolvers.ViewResolver, 100)
 
-	callback := func(_ context.Context, eventView *view.View) error {
+	callback := func(ctx context.Context, eventView *view.View) error {
 		resolver, err := r.resolveViewObj(ctx, eventView)
-		if err != nil {
+		if errors.Is(err, gqlerrors.ErrNotFound) {
+			return nil
+		} else if err != nil {
 			return err
 		}
+
 		select {
 		case res <- resolver:
 		default:
@@ -216,7 +219,9 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 			return nil
 		}
 		resolver, err := r.resolveViewObj(ctx, eventView)
-		if err != nil {
+		if errors.Is(err, gqlerrors.ErrNotFound) {
+			return nil
+		} else if err != nil {
 			return err
 		}
 		select {
