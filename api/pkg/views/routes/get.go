@@ -9,8 +9,8 @@ import (
 
 	"getsturdy.com/api/pkg/jsontime"
 	service_user "getsturdy.com/api/pkg/users/service"
-	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	"getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 
 	"github.com/gin-gonic/gin"
@@ -39,35 +39,35 @@ func Get(repo db.Repository, workspaceReader db_workspaces.WorkspaceReader, logg
 	}
 }
 
-func toViewJson(in *view.View) view.ViewJSON {
+func toViewJson(in *views.View) views.ViewJSON {
 	var lastUsedAt jsontime.Time
 	if in.LastUsedAt != nil {
 		lastUsedAt = jsontime.Time(*in.LastUsedAt)
 	}
 
-	return view.ViewJSON{
+	return views.ViewJSON{
 		View:       *in,
 		LastUsedAt: lastUsedAt,
 	}
 }
 
-func addMeta(ctx context.Context, v view.ViewJSON, workspaceReader db_workspaces.WorkspaceReader, userService service_user.Service) (view.ViewWithMetadataJSON, error) {
+func addMeta(ctx context.Context, v views.ViewJSON, workspaceReader db_workspaces.WorkspaceReader, userService service_user.Service) (views.ViewWithMetadataJSON, error) {
 	author, err := userService.GetAsAuthor(ctx, v.UserID)
 	if err != nil {
-		return view.ViewWithMetadataJSON{}, fmt.Errorf("failed to get user metadata: %w", err)
+		return views.ViewWithMetadataJSON{}, fmt.Errorf("failed to get user metadata: %w", err)
 	}
 
-	res := view.ViewWithMetadataJSON{
+	res := views.ViewWithMetadataJSON{
 		ViewJSON: v,
 		User:     *author,
 	}
 
 	ws, err := workspaceReader.Get(v.WorkspaceID)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return view.ViewWithMetadataJSON{}, fmt.Errorf("failed to get workspace metadata: %w", err)
+		return views.ViewWithMetadataJSON{}, fmt.Errorf("failed to get workspace metadata: %w", err)
 	}
 	if err == nil {
-		res.ViewWorkspaceMeta = view.ViewWorkspaceMeta{
+		res.ViewWorkspaceMeta = views.ViewWorkspaceMeta{
 			ID:   ws.ID,
 			Name: ws.Name,
 		}

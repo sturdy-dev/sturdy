@@ -7,12 +7,12 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	workspace_meta "getsturdy.com/api/pkg/workspaces/meta"
 )
 
-type ViewUpdatedFunc func(ctx context.Context, view *view.View, action snapshots.Action) error
+type ViewUpdatedFunc func(ctx context.Context, view *views.View, action snapshots.Action) error
 
 // NewViewUpdatedFunc returns a function that sends events for updates of a views
 func NewViewUpdatedFunc(
@@ -21,7 +21,7 @@ func NewViewUpdatedFunc(
 	eventsSender *eventsv2.Publisher,
 	snapshotterQueue worker_snapshotter.Queue,
 ) ViewUpdatedFunc {
-	return func(ctx context.Context, view *view.View, action snapshots.Action) error {
+	return func(ctx context.Context, view *views.View, action snapshots.Action) error {
 		// Workspace has updated
 		if err := workspace_meta.Updated(ctx, workspaceReader, workspaceWriter, view.WorkspaceID); err != nil {
 			return fmt.Errorf("error updating workspace meta: %w", err)

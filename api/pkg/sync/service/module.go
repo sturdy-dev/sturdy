@@ -5,7 +5,7 @@ import (
 	"getsturdy.com/api/pkg/events"
 	"getsturdy.com/api/pkg/logger"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 )

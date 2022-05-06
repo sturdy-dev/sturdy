@@ -8,7 +8,7 @@ import (
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/statuses"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 )
@@ -90,7 +90,7 @@ type event struct {
 	Type Type
 
 	Codebase          *codebases.Codebase
-	View              *view.View
+	View              *views.View
 	Workspace         *workspaces.Workspace
 	Review            *review.Review
 	GitHubPullRequest *github.PullRequest

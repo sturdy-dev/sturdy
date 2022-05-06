@@ -31,8 +31,8 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	"getsturdy.com/api/pkg/users"
 	service_users "getsturdy.com/api/pkg/users/service"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
@@ -259,7 +259,7 @@ func (r *CommentRootResolver) UpdatedComment(ctx context.Context, args resolvers
 		return nil
 	})
 
-	onViewUpdated := func(ctx context.Context, view *view.View) error {
+	onViewUpdated := func(ctx context.Context, view *views.View) error {
 		if viewID == nil || *viewID != view.ID {
 			return nil
 		}
