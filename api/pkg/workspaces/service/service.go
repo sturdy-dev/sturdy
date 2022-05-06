@@ -18,6 +18,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	vcs_snapshots "getsturdy.com/api/pkg/snapshots/vcs"
+	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/unidiff/lfs"
 	"getsturdy.com/api/pkg/users"
@@ -51,9 +52,10 @@ type Service struct {
 	workspaceWriter db.WorkspaceWriter
 	workspaceReader db.WorkspaceReader
 
-	changeService *service_change.Service
-	viewService   *service_view.Service
-	usersService  service_users.Service
+	changeService   *service_change.Service
+	viewService     *service_view.Service
+	usersService    service_users.Service
+	statusesService *service_statuses.Service
 
 	eventsSender     events.EventSender
 	eventsSenderV2   *eventsv2.Publisher
@@ -71,6 +73,7 @@ func New(
 	changeService *service_change.Service,
 	viewService *service_view.Service,
 	usersService service_users.Service,
+	statusesService *service_statuses.Service,
 
 	executorProvider executor.Provider,
 	eventsSender events.EventSender,
@@ -84,9 +87,10 @@ func New(
 		workspaceWriter: workspaceWriter,
 		workspaceReader: workspaceReader,
 
-		changeService: changeService,
-		viewService:   viewService,
-		usersService:  usersService,
+		changeService:   changeService,
+		viewService:     viewService,
+		usersService:    usersService,
+		statusesService: statusesService,
 
 		executorProvider: executorProvider,
 		eventsSender:     eventsSender,

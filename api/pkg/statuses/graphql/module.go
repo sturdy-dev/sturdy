@@ -12,6 +12,7 @@ import (
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	service_workspace_statuses "getsturdy.com/api/pkg/workspaces/statuses/service"
 )
 
 func Module(c *di.Container) {
@@ -25,6 +26,7 @@ func Module(c *di.Container) {
 	c.Import(resolvers.Module)
 	c.Import(events.Module)
 	c.Import(service_snapshots.Module)
+	c.Import(service_workspace_statuses.Module)
 	c.Register(New, new(resolvers.StatusesRootResolver))
 
 	// populate cyclic resolver

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"sort"
 
+	"go.uber.org/zap"
+
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/statuses"
 	db_statuses "getsturdy.com/api/pkg/statuses/db"
-
-	"go.uber.org/zap"
 )
 
 type Service struct {

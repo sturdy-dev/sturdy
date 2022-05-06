@@ -6,6 +6,7 @@ import (
 	service_analytics "getsturdy.com/api/pkg/analytics/service"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/di"
 	"getsturdy.com/api/pkg/events"
@@ -17,6 +18,7 @@ import (
 	service_view "getsturdy.com/api/pkg/view/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
+	service_workspace_statuses "getsturdy.com/api/pkg/workspaces/statuses/service"
 	"getsturdy.com/api/vcs/executor"
 )
 
@@ -31,11 +33,13 @@ func Module(c *di.Container) {
 	c.Import(service_comments.Module)
 	c.Import(service_activity.Module)
 	c.Import(service_snapshots.Module)
+	c.Import(service_codebase.Module)
 	c.Import(worker_snapshots.Module)
 	c.Import(events.Module)
 	c.Import(eventsv2.Module)
 	c.Import(executor.Module)
 	c.Import(workers_ci.Module)
 	c.Import(sender.Module)
+	c.Import(service_workspace_statuses.Module)
 	c.Register(New)
 }

@@ -301,6 +301,9 @@ func (r *CodebaseRootResolver) UpdateCodebase(ctx context.Context, args resolver
 		// track, will be used to review malicious activity and the codebases that are made public
 		r.analyticsService.Capture(ctx, "ser codebase is_public", analytics.CodebaseID(cb.ID))
 	}
+	if args.Input.RequireHealthyStatus != nil {
+		cb.RequireHealthyStatus = *args.Input.RequireHealthyStatus
+	}
 
 	if err := r.codebaseService.Update(ctx, cb); err != nil {
 		return nil, gqlerrors.Error(fmt.Errorf("failed to update codebase: %w", err))
@@ -662,6 +665,10 @@ func (r *CodebaseResolver) Remote(ctx context.Context) (resolvers.RemoteResolver
 	default:
 		return nil, gqlerrors.Error(err)
 	}
+}
+
+func (r *CodebaseResolver) RequireHealthyStatus() bool {
+	return r.c.RequireHealthyStatus
 }
 
 func (r *CodebaseResolver) Writeable(ctx context.Context) bool {

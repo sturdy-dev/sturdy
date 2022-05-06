@@ -2,13 +2,15 @@ package graphql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"getsturdy.com/api/pkg/auth"
 	services_auth "getsturdy.com/api/pkg/auth/service"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	service_land "getsturdy.com/api/pkg/land/enterprise/service"
+	service_land_enterprise "getsturdy.com/api/pkg/land/enterprise/service"
+	service_land_oss "getsturdy.com/api/pkg/land/service"
 	service_users "getsturdy.com/api/pkg/users/service"
 	service_workspaces "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
@@ -16,7 +18,7 @@ import (
 
 type LandRootResolver struct {
 	workspaceService *service_workspaces.Service
-	landService      *service_land.Service
+	landService      *service_land_enterprise.Service
 	authService      *services_auth.Service
 	userService      service_users.Service
 
@@ -26,7 +28,7 @@ type LandRootResolver struct {
 func NewResolver(
 	workspaceService *service_workspaces.Service,
 	authService *services_auth.Service,
-	landService *service_land.Service,
+	landService *service_land_enterprise.Service,
 	userService service_users.Service,
 	workspaceResolver resolvers.WorkspaceRootResolver,
 ) resolvers.LandRootResovler {
@@ -54,7 +56,11 @@ func (r *LandRootResolver) LandWorkspaceChange(ctx context.Context, args resolve
 		diffOpts = append(diffOpts, vcs.WithGitMaxSize(args.Input.DiffMaxSize))
 	}
 
-	if _, err := r.landService.LandChange(ctx, ws, diffOpts...); err != nil {
+	_, err = r.landService.LandChange(ctx, ws, diffOpts...)
+	switch {
+	case errors.Is(err, service_land_oss.ErrNotAllowedUnhealthyWorkspace):
+		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err), "message", "This draft has unhealthy statuses and cannot be merged")
+	case err != nil:
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
 	}
 
