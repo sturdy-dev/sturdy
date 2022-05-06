@@ -14,7 +14,7 @@ import (
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/statuses"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 	"getsturdy.com/api/pkg/workspaces"
 	"getsturdy.com/api/pkg/workspaces/watchers"
 )
@@ -47,13 +47,13 @@ func (s *Subscriber) OnCodebaseUpdated(ctx context.Context, topic Topic, callbac
 	}, topic, CodebaseUpdated)
 }
 
-func (s *Subscriber) OnViewUpdated(ctx context.Context, topic Topic, callback func(context.Context, *view.View) error) {
+func (s *Subscriber) OnViewUpdated(ctx context.Context, topic Topic, callback func(context.Context, *views.View) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callbackWithError(ctx, event.View, callback)
 	}, topic, ViewUpdated)
 }
 
-func (s *Subscriber) OnViewStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *view.View) error) {
+func (s *Subscriber) OnViewStatusUpdated(ctx context.Context, topic Topic, callback func(context.Context, *views.View) error) {
 	s.pubsub.sub(ctx, func(ctx context.Context, event *event) error {
 		return callbackWithError(ctx, event.View, callback)
 	}, topic, ViewStatusUpdated)

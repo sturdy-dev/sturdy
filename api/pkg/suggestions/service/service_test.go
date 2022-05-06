@@ -26,9 +26,9 @@ import (
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
-	vcs_view "getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
+	vcs_view "getsturdy.com/api/pkg/views/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
@@ -109,7 +109,7 @@ func (o *operation) openSuggestion(t *testing.T, test *test) {
 
 	// connect a workspace to suggestingView
 	test.suggestingViewID = fmt.Sprintf("%s-view", test.suggestingUserID)
-	assert.NoError(t, test.viewDB.Create(view.View{
+	assert.NoError(t, test.viewDB.Create(views.View{
 		ID:         test.suggestingViewID,
 		UserID:     test.suggestingUserID,
 		CodebaseID: test.codebaseID,
@@ -165,7 +165,7 @@ func (o *operation) setupOriginalWorkspace(t *testing.T, test *test) {
 
 func (o *operation) setupOriginalView(t *testing.T, test *test) {
 	test.originalViewID = fmt.Sprintf("%s-view", test.originalUserID)
-	assert.NoError(t, test.viewDB.Create(view.View{
+	assert.NoError(t, test.viewDB.Create(views.View{
 		ID:         test.originalViewID,
 		UserID:     test.originalUserID,
 		CodebaseID: test.codebaseID,

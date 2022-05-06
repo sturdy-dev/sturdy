@@ -13,9 +13,9 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/db"
-	vcs_view "getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views"
+	"getsturdy.com/api/pkg/views/db"
+	vcs_view "getsturdy.com/api/pkg/views/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
@@ -64,7 +64,7 @@ func New(
 
 var ErrRebasing = errors.New("is rebasing")
 
-func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *workspaces.Workspace) error {
+func (s *Service) OpenWorkspace(ctx context.Context, view *views.View, ws *workspaces.Workspace) error {
 	if ws.ArchivedAt != nil {
 		return fmt.Errorf("the workspace is archived")
 	}
@@ -153,13 +153,13 @@ func (s *Service) OpenWorkspace(ctx context.Context, view *view.View, ws *worksp
 	return nil
 }
 
-func (s *Service) GetByID(_ context.Context, id string) (*view.View, error) {
+func (s *Service) GetByID(_ context.Context, id string) (*views.View, error) {
 	return s.viewRepo.Get(id)
 }
 
-func (s *Service) Create(ctx context.Context, userID users.ID, workspace *workspaces.Workspace, mountPath, mountHostname *string) (*view.View, error) {
+func (s *Service) Create(ctx context.Context, userID users.ID, workspace *workspaces.Workspace, mountPath, mountHostname *string) (*views.View, error) {
 	t := time.Now()
-	v := view.View{
+	v := views.View{
 		ID:            uuid.New().String(),
 		UserID:        userID,
 		CodebaseID:    workspace.CodebaseID,

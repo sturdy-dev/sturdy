@@ -19,7 +19,7 @@ import (
 	graphql_remote "getsturdy.com/api/pkg/remote/graphql/module"
 	service_remote "getsturdy.com/api/pkg/remote/service/module"
 	db_user "getsturdy.com/api/pkg/users/db"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 )

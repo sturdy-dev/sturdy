@@ -1,15 +1,17 @@
 package graphql
 
 import (
-	"getsturdy.com/api/pkg/view"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"getsturdy.com/api/pkg/views"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestShortMountName(t *testing.T) {
 	var absolutePath string
 	resolver := Resolver{
-		v: &view.View{
+		v: &views.View{
 			MountPath: &absolutePath,
 		},
 	}

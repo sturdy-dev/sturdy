@@ -6,20 +6,20 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type Repository interface {
-	Create(entity view.View) error
-	Get(id string) (*view.View, error)
-	ListByCodebase(codebases.ID) ([]*view.View, error)
-	ListByUser(users.ID) ([]*view.View, error)
-	LastUsedByCodebaseAndUser(context.Context, codebases.ID, users.ID) (*view.View, error)
-	ListByCodebaseAndUser(codebases.ID, users.ID) ([]*view.View, error)
-	ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*view.View, error)
-	Update(e *view.View) error
+	Create(entity views.View) error
+	Get(id string) (*views.View, error)
+	ListByCodebase(codebases.ID) ([]*views.View, error)
+	ListByUser(users.ID) ([]*views.View, error)
+	LastUsedByCodebaseAndUser(context.Context, codebases.ID, users.ID) (*views.View, error)
+	ListByCodebaseAndUser(codebases.ID, users.ID) ([]*views.View, error)
+	ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*views.View, error)
+	Update(e *views.View) error
 }
 
 type repo struct {
@@ -30,7 +30,7 @@ func NewRepo(db *sqlx.DB) Repository {
 	return &repo{db: db}
 }
 
-func (r *repo) Create(entity view.View) error {
+func (r *repo) Create(entity views.View) error {
 	result, err := r.db.NamedExec(`INSERT INTO views
     	(id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname)
     	VALUES(:id, :user_id, :codebase_id, :workspace_id, :name, :last_used_at, :created_at, :mount_path, :mount_hostname)
@@ -48,8 +48,8 @@ func (r *repo) Create(entity view.View) error {
 	return nil
 }
 
-func (r *repo) Get(id string) (*view.View, error) {
-	var entity view.View
+func (r *repo) Get(id string) (*views.View, error) {
+	var entity views.View
 	err := r.db.Get(&entity, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname   FROM views WHERE id=$1", id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -57,8 +57,8 @@ func (r *repo) Get(id string) (*view.View, error) {
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebase(codebaseID codebases.ID) ([]*view.View, error) {
-	var views []*view.View
+func (r *repo) ListByCodebase(codebaseID codebases.ID) ([]*views.View, error) {
+	var views []*views.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname   FROM views WHERE codebase_id=$1", codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -66,8 +66,8 @@ func (r *repo) ListByCodebase(codebaseID codebases.ID) ([]*view.View, error) {
 	return views, nil
 }
 
-func (r *repo) ListByUser(userID users.ID) ([]*view.View, error) {
-	var views []*view.View
+func (r *repo) ListByUser(userID users.ID) ([]*views.View, error) {
+	var views []*views.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname  FROM views WHERE user_id=$1", userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -75,8 +75,8 @@ func (r *repo) ListByUser(userID users.ID) ([]*view.View, error) {
 	return views, nil
 }
 
-func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (*view.View, error) {
-	var entity view.View
+func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (*views.View, error) {
+	var entity views.View
 	err := r.db.GetContext(ctx, &entity, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE user_id=$1 AND codebase_id=$2 ORDER BY last_used_at DESC LIMIT 1", userID, codebaseID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -84,8 +84,8 @@ func (r *repo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebas
 	return &entity, nil
 }
 
-func (r *repo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) ([]*view.View, error) {
-	var views []*view.View
+func (r *repo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) ([]*views.View, error) {
+	var views []*views.View
 	err := r.db.Select(&views, "SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname FROM views WHERE codebase_id=$1 AND user_id=$2", codebaseID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
@@ -93,8 +93,8 @@ func (r *repo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) (
 	return views, nil
 }
 
-func (r *repo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*view.View, error) {
-	var views []*view.View
+func (r *repo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*views.View, error) {
+	var views []*views.View
 	err := r.db.Select(&views, `SELECT id, user_id, codebase_id, workspace_id, name, last_used_at, created_at, mount_path, mount_hostname
 		FROM views WHERE codebase_id=$1 AND workspace_id=$2`, codebaseID, workspaceID)
 	if err != nil {
@@ -103,7 +103,7 @@ func (r *repo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID s
 	return views, nil
 }
 
-func (r *repo) Update(e *view.View) error {
+func (r *repo) Update(e *views.View) error {
 	_, err := r.db.NamedExec(`UPDATE views
 		SET workspace_id = :workspace_id,
 		    name = :name,

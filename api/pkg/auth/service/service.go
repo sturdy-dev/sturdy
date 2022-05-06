@@ -19,7 +19,7 @@ import (
 	"getsturdy.com/api/pkg/suggestions"
 	"getsturdy.com/api/pkg/users"
 	service_user "getsturdy.com/api/pkg/users/service"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 )
@@ -90,9 +90,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canUserAccessReview(ctx, subjectID, at, &object)
 		case *review.Review:
 			return s.canUserAccessReview(ctx, subjectID, at, object)
-		case view.View:
+		case views.View:
 			return s.canUserAccessView(ctx, subjectID, at, &object)
-		case *view.View:
+		case *views.View:
 			return s.canUserAccessView(ctx, subjectID, at, object)
 		case github.Repository:
 			return s.canUserAccessGitHubRepo(ctx, subjectID, at, &object)
@@ -176,9 +176,9 @@ func (s *Service) hasAccess(ctx context.Context, at accessType, obj any) error {
 			return s.canAnonymousAccessActivity(ctx, at, &object)
 		case *activity.Activity:
 			return s.canAnonymousAccessActivity(ctx, at, object)
-		case view.View:
+		case views.View:
 			return s.canAnonymousAccessView(ctx, at, &object)
-		case *view.View:
+		case *views.View:
 			return s.canAnonymousAccessView(ctx, at, object)
 		case suggestions.Suggestion:
 			return s.canAnonymousAccessSuggestion(ctx, at, &object)
@@ -419,7 +419,7 @@ func (s *Service) canAnonymousAccessGitHubRepo(ctx context.Context, at accessTyp
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canAnonymousAccessView(ctx context.Context, at accessType, v *view.View) error {
+func (s *Service) canAnonymousAccessView(ctx context.Context, at accessType, v *views.View) error {
 	if at == accessTypeWrite {
 		return fmt.Errorf("anonymous users can only read views: %w", auth.ErrForbidden)
 	}
@@ -431,7 +431,7 @@ func (s *Service) canAnonymousAccessView(ctx context.Context, at accessType, v *
 	return s.canAnonymousAccessCodebase(ctx, at, cb)
 }
 
-func (s *Service) canUserAccessView(ctx context.Context, userID users.ID, at accessType, v *view.View) error {
+func (s *Service) canUserAccessView(ctx context.Context, userID users.ID, at accessType, v *views.View) error {
 	if at == accessTypeWrite && v.UserID != userID {
 		return fmt.Errorf("only owner can write to a view: %w", auth.ErrForbidden)
 	}

@@ -13,7 +13,7 @@ import (
 	service_auth "getsturdy.com/api/pkg/auth/service"
 	"getsturdy.com/api/pkg/codebases/acl"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -24,7 +24,7 @@ type aclProvider interface {
 }
 
 type viewRepository interface {
-	Get(string) (*view.View, error)
+	Get(string) (*views.View, error)
 }
 
 type userRpository interface {

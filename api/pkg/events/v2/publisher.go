@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/organization"
 	"getsturdy.com/api/pkg/review"
 	"getsturdy.com/api/pkg/statuses"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 	"getsturdy.com/api/pkg/workspaces"
 
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
@@ -69,7 +69,7 @@ func (p *Publisher) CodebaseUpdated(ctx context.Context, receiver *receiver, cod
 	return nil
 }
 
-func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
+func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *views.View) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (p *Publisher) ViewUpdated(ctx context.Context, receiver *receiver, view *v
 	return nil
 }
 
-func (p *Publisher) ViewStatusUpdated(ctx context.Context, receiver *receiver, view *view.View) error {
+func (p *Publisher) ViewStatusUpdated(ctx context.Context, receiver *receiver, view *views.View) error {
 	topics, err := receiver.Topics(ctx, p.codebaseUserRepo, p.workspaceRepo, p.organizationMemberRepo)
 	if err != nil {
 		return err

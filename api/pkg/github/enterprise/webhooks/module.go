@@ -22,7 +22,7 @@ import (
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	service_users "getsturdy.com/api/pkg/users/service/module"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	meta_workspaces "getsturdy.com/api/pkg/workspaces/meta"
 	"getsturdy.com/api/vcs/executor"

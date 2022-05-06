@@ -26,8 +26,8 @@ import (
 	"getsturdy.com/api/pkg/users"
 	db_users "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
-	"getsturdy.com/api/pkg/view"
-	db_views "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_views "getsturdy.com/api/pkg/views/db"
 )
 
 func TestListAllows(t *testing.T) {
@@ -105,7 +105,7 @@ func TestListAllows(t *testing.T) {
 			err := userRepo.Create(usr)
 			assert.NoError(t, err)
 
-			vw := view.View{
+			vw := views.View{
 				ID:         viewID,
 				UserID:     userID,
 				CodebaseID: codebaseID,

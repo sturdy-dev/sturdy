@@ -15,7 +15,7 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	worker_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 )
 
 type SyncTransitionsRequest struct {

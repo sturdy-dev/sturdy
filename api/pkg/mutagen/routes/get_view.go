@@ -10,7 +10,7 @@ import (
 	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
 	"getsturdy.com/api/pkg/users"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

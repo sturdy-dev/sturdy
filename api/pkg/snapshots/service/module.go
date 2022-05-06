@@ -9,7 +9,7 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	meta_workspaces "getsturdy.com/api/pkg/workspaces/meta"
 	"getsturdy.com/api/vcs/executor"

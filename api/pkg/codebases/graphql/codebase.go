@@ -26,8 +26,8 @@ import (
 	service_remote "getsturdy.com/api/pkg/remote/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
@@ -519,7 +519,7 @@ func (r *CodebaseResolver) Members(ctx context.Context, args resolvers.CodebaseM
 }
 
 func (r *CodebaseResolver) Views(ctx context.Context, args resolvers.CodebaseViewsArgs) (res []resolvers.ViewResolver, err error) {
-	var views []*view.View
+	var views []*views.View
 
 	if args.IncludeOthers != nil && *args.IncludeOthers {
 		views, err = r.root.viewRepo.ListByCodebase(r.c.ID)

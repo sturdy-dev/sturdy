@@ -17,8 +17,8 @@ import (
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_suggestion "getsturdy.com/api/pkg/suggestions/service"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
@@ -76,7 +76,7 @@ func filterSlice[T any](slice []T, filter func(T) bool) []T {
 	return out
 }
 
-func (svc *Service) gcSnapshotsInView(ctx context.Context, view *view.View, snapshotThreshold time.Duration) error {
+func (svc *Service) gcSnapshotsInView(ctx context.Context, view *views.View, snapshotThreshold time.Duration) error {
 	allBranches := []string{}
 	if err := svc.executorProvider.New().GitRead(func(repo vcs.RepoGitReader) error {
 		branches, err := repo.Branches()
@@ -169,7 +169,7 @@ func (svc *Service) isSnapshotUsedAsSuggestion(ctx context.Context, snapshot *sn
 func (svc *Service) gcSnapshot(
 	ctx context.Context,
 	snapshot *snapshots.Snapshot,
-	view *view.View,
+	view *views.View,
 	threshold time.Time,
 	logger *zap.Logger,
 ) error {
@@ -220,7 +220,7 @@ func (svc *Service) gcSnapshot(
 	return nil
 }
 
-func (svc *Service) deleteSnapshotBranchInView(logger *zap.Logger, view *view.View, snapshot *snapshots.Snapshot) error {
+func (svc *Service) deleteSnapshotBranchInView(logger *zap.Logger, view *views.View, snapshot *snapshots.Snapshot) error {
 	logger.Info("deleting snapshot")
 
 	if ws, err := svc.workspaceReader.GetBySnapshotID(snapshot.ID); err != nil && !errors.Is(err, sql.ErrNoRows) {

@@ -34,10 +34,10 @@ import (
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
-	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	service_view "getsturdy.com/api/pkg/view/service"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
+	routes_v3_view "getsturdy.com/api/pkg/views/routes"
+	service_view "getsturdy.com/api/pkg/views/service"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	vcsvcs "getsturdy.com/api/vcs"
@@ -431,7 +431,7 @@ func TestResolveHighLevelV2(t *testing.T) {
 			assert.NotNil(t, firstWorkspaceResolver)
 
 			// Create view, attached to the first workspace
-			var viewRes view.View
+			var viewRes views.View
 			requestWithParams(t, userID, createViewRoute, routes_v3_view.CreateRequest{
 				CodebaseID:  codebaseID,
 				WorkspaceID: string(firstWorkspaceResolver.ID()),

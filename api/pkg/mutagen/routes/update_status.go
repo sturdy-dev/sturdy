@@ -9,7 +9,7 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	"getsturdy.com/api/pkg/mutagen"
 	"getsturdy.com/api/pkg/mutagen/db"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

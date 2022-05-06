@@ -17,8 +17,8 @@ import (
 	graphql_snapshots "getsturdy.com/api/pkg/snapshots/graphql"
 	graphql_suggestions "getsturdy.com/api/pkg/suggestions/graphql"
 	graphql_rebase "getsturdy.com/api/pkg/sync/graphql"
-	db_view "getsturdy.com/api/pkg/view/db"
-	graphql_view "getsturdy.com/api/pkg/view/graphql"
+	db_view "getsturdy.com/api/pkg/views/db"
+	graphql_view "getsturdy.com/api/pkg/views/graphql"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	graphql_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/graphql"
 )

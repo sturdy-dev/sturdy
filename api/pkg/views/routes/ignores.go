@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"os"
 
-	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/ignore"
+	db_view "getsturdy.com/api/pkg/views/db"
+	"getsturdy.com/api/pkg/views/ignore"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 
