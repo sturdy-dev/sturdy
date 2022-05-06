@@ -2,6 +2,7 @@ package grapqhl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	services_auth "getsturdy.com/api/pkg/auth/service"
@@ -50,7 +51,11 @@ func (r *LandRootResolver) LandWorkspaceChange(ctx context.Context, args resolve
 		diffOpts = append(diffOpts, vcs.WithGitMaxSize(args.Input.DiffMaxSize))
 	}
 
-	if _, err := r.landService.LandChange(ctx, ws, diffOpts...); err != nil {
+	_, err = r.landService.LandChange(ctx, ws, diffOpts...)
+	switch {
+	case errors.Is(err, service_land.ErrNotAllowedUnhealthyWorkspace):
+		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err), "message", "This draft has unhealthy statuses and cannot be merged")
+	case err != nil:
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
 	}
 

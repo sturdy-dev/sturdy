@@ -354,6 +354,8 @@ type Codebase implements Writeable {
   organization: Organization
 
   writeable: Boolean!
+
+  requireHealthyStatus: Boolean!
 }
 
 input CodebaseChangesInput {
@@ -376,6 +378,7 @@ input UpdateCodebaseInput {
   generateInviteCode: Boolean
   archive: Boolean
   isPublic: Boolean
+  requireHealthyStatus: Boolean
 }
 
 enum StatusType {

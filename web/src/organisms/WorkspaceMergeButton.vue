@@ -11,7 +11,7 @@
       :show-tooltip="disabled"
       :tooltip-right="true"
       :spinner="merging"
-      @click="shareChange"
+      @click="mergeChange"
     >
       <template #default>
         <template v-if="merging">Merging</template>
@@ -58,9 +58,28 @@ export default defineComponent({
     }
   },
   methods: {
-    shareChange() {
+    mergeChange() {
       return this.landWorkspaceChange({
         workspaceID: this.workspaceId,
+      }).catch((e) => {
+        let message = 'Failed to merge, please try again'
+
+        // Server generated error if the push fails (due to branch protection rules, etc)
+        if (e.graphQLErrors && e.graphQLErrors.length > 0) {
+          if (e.graphQLErrors[0].extensions?.message) {
+            message = e.graphQLErrors[0].extensions.message
+          } else {
+            console.error(e)
+          }
+        } else {
+          console.error(e)
+        }
+
+        this.emitter.emit('notification', {
+          title: 'Failed to merge!',
+          message,
+          style: 'error',
+        })
       })
     },
   },

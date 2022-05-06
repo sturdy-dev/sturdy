@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	service_workspace_statuses "getsturdy.com/api/pkg/workspaces/statuses/service"
+
 	"getsturdy.com/api/pkg/activity"
 	"getsturdy.com/api/pkg/activity/sender"
 	service_activity "getsturdy.com/api/pkg/activity/service"
@@ -14,6 +16,7 @@ import (
 	"getsturdy.com/api/pkg/changes/message"
 	service_changes "getsturdy.com/api/pkg/changes/service"
 	workers_ci "getsturdy.com/api/pkg/ci/workers"
+	service_codebase "getsturdy.com/api/pkg/codebases/service"
 	service_comments "getsturdy.com/api/pkg/comments/service"
 	"getsturdy.com/api/pkg/events"
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
@@ -33,19 +36,25 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	ErrNotAllowedUnhealthyWorkspace = fmt.Errorf("not allowed to land workspace, it has unhealthy statuses")
+)
+
 type Service struct {
 	logger *zap.Logger
 
 	workspaceWriter db_workspaces.WorkspaceWriter
 
-	usersService     service_users.Service
-	workspaceService *service_workspaces.Service
-	changeService    *service_changes.Service
-	analyticsService *service_analytics.Service
-	viewService      *service_view.Service
-	snapshotter      *service_snapshots.Service
-	commentService   *service_comments.Service
-	activityService  *service_activity.Service
+	usersService             service_users.Service
+	workspaceService         *service_workspaces.Service
+	changeService            *service_changes.Service
+	analyticsService         *service_analytics.Service
+	viewService              *service_view.Service
+	snapshotter              *service_snapshots.Service
+	commentService           *service_comments.Service
+	activityService          *service_activity.Service
+	codebaseService          *service_codebase.Service
+	workspaceStatusesService *service_workspace_statuses.Service
 
 	activitySender   sender.ActivitySender
 	snapshotterQueue worker_snapshots.Queue
@@ -68,6 +77,8 @@ func New(
 	snapshotter *service_snapshots.Service,
 	commentService *service_comments.Service,
 	activityService *service_activity.Service,
+	codebaseService *service_codebase.Service,
+	workspaceStatusesService *service_workspace_statuses.Service,
 
 	activitySender sender.ActivitySender,
 	snapshotterQueue worker_snapshots.Queue,
@@ -81,14 +92,16 @@ func New(
 
 		workspaceWriter: workspaceWriter,
 
-		usersService:     usersService,
-		workspaceService: workspaceService,
-		changeService:    changeService,
-		analyticsService: analyticsService,
-		viewService:      viewService,
-		snapshotter:      snapshotter,
-		commentService:   commentService,
-		activityService:  activityService,
+		usersService:             usersService,
+		workspaceService:         workspaceService,
+		changeService:            changeService,
+		analyticsService:         analyticsService,
+		viewService:              viewService,
+		snapshotter:              snapshotter,
+		commentService:           commentService,
+		activityService:          activityService,
+		codebaseService:          codebaseService,
+		workspaceStatusesService: workspaceStatusesService,
 
 		activitySender:   activitySender,
 		snapshotterQueue: snapshotterQueue,
@@ -103,6 +116,23 @@ func (s *Service) LandChange(ctx context.Context, ws *workspaces.Workspace, diff
 	user, err := s.usersService.GetByID(ctx, ws.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// check if the workspace is allowed to be landed
+	cb, err := s.codebaseService.GetByID(ctx, ws.CodebaseID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get codebase: %w", err)
+	}
+
+	// make sure that all statuses are healthy and not stale
+	if cb.RequireHealthyStatus {
+		healthy, err := s.workspaceStatusesService.HealthyStatus(ctx, ws)
+		switch {
+		case err != nil:
+			return nil, fmt.Errorf("failed to get workspace status: %w", err)
+		case !healthy:
+			return nil, ErrNotAllowedUnhealthyWorkspace
+		}
 	}
 
 	gitCommitMessage := message.CommitMessage(ws.DraftDescription)

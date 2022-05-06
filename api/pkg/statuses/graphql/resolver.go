@@ -20,6 +20,7 @@ import (
 	"getsturdy.com/api/pkg/statuses"
 	service_statuses "getsturdy.com/api/pkg/statuses/service"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
+	service_workspace_statuses "getsturdy.com/api/pkg/workspaces/statuses/service"
 
 	"github.com/graph-gophers/graphql-go"
 	"go.uber.org/zap"
@@ -28,14 +29,15 @@ import (
 type RootResolver struct {
 	logger *zap.Logger
 
-	svc              *service_statuses.Service
-	changeService    *service_changes.Service
-	workspaceService *service_workspace.Service
-	authService      *service_auth.Service
-	snapshotsService *service_snapshots.Service
+	svc                      *service_statuses.Service
+	changeService            *service_changes.Service
+	workspaceService         *service_workspace.Service
+	authService              *service_auth.Service
+	snapshotsService         *service_snapshots.Service
+	workspaceStatusesService *service_workspace_statuses.Service
 
 	changeRootResolver    resolvers.ChangeRootResolver
-	gitHubPrResovler      resolvers.GitHubPullRequestRootResolver
+	gitHubPrResolver      resolvers.GitHubPullRequestRootResolver
 	workspaceRootResolver *resolvers.WorkspaceRootResolver
 
 	eventsSubscriber *eventsv2.Subscriber
@@ -45,27 +47,35 @@ var _ resolvers.StatusesRootResolver = &RootResolver{}
 
 func New(
 	logger *zap.Logger,
+
 	svc *service_statuses.Service,
 	changeService *service_changes.Service,
 	workspaceService *service_workspace.Service,
 	authService *service_auth.Service,
-	changeRootResolver resolvers.ChangeRootResolver,
-	gitHubPrResovler resolvers.GitHubPullRequestRootResolver,
-	eventsReader *eventsv2.Subscriber,
 	snapshotsService *service_snapshots.Service,
+	workspaceStatusesService *service_workspace_statuses.Service,
+
+	changeRootResolver resolvers.ChangeRootResolver,
+	gitHubPrResolver resolvers.GitHubPullRequestRootResolver,
 	workspaceRootResolver *resolvers.WorkspaceRootResolver,
+
+	eventsReader *eventsv2.Subscriber,
 ) *RootResolver {
 	return &RootResolver{
-		logger:                logger,
-		svc:                   svc,
-		changeService:         changeService,
-		workspaceService:      workspaceService,
-		authService:           authService,
+		logger: logger,
+
+		svc:                      svc,
+		changeService:            changeService,
+		workspaceService:         workspaceService,
+		authService:              authService,
+		snapshotsService:         snapshotsService,
+		workspaceStatusesService: workspaceStatusesService,
+
 		changeRootResolver:    changeRootResolver,
-		gitHubPrResovler:      gitHubPrResovler,
-		eventsSubscriber:      eventsReader,
-		snapshotsService:      snapshotsService,
+		gitHubPrResolver:      gitHubPrResolver,
 		workspaceRootResolver: workspaceRootResolver,
+
+		eventsSubscriber: eventsReader,
 	}
 }
 
@@ -209,18 +219,14 @@ func (r *workspaceResolver) getSnapshot(ctx context.Context) (*snapshots.Snapsho
 }
 
 func (r *workspaceResolver) Stale(ctx context.Context) (bool, error) {
-	if snapshot, err := r.getSnapshot(ctx); errors.Is(err, sql.ErrNoRows) {
-		return true, nil
-	} else if err != nil {
-		return false, gqlerrors.Error(err)
+	if snapshot, err := r.getSnapshot(ctx); err != nil {
+		return true, err
 	} else if ws, err := r.root.workspaceService.GetByID(ctx, snapshot.WorkspaceID); errors.Is(err, sql.ErrNoRows) {
 		return true, nil
-	} else if err != nil {
-		return false, gqlerrors.Error(err)
-	} else if ws.LatestSnapshotID == nil {
-		return true, nil
+	} else if isStale, err := r.root.workspaceStatusesService.StatusIsStaleForWorkspace(ctx, ws, r.status); err != nil {
+		return false, err
 	} else {
-		return snapshot.ID != *ws.LatestSnapshotID, nil
+		return isStale, nil
 	}
 }
 

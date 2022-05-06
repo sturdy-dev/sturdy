@@ -45,12 +45,13 @@ type UpdateCodebaseArgs struct {
 }
 
 type UpdateCodebaseInput struct {
-	ID                 graphql.ID
-	Name               *string
-	DisableInviteCode  *bool
-	GenerateInviteCode *bool
-	Archive            *bool
-	IsPublic           *bool
+	ID                   graphql.ID
+	Name                 *string
+	DisableInviteCode    *bool
+	GenerateInviteCode   *bool
+	Archive              *bool
+	IsPublic             *bool
+	RequireHealthyStatus *bool
 }
 
 type CodebaseResolver interface {
@@ -77,6 +78,7 @@ type CodebaseResolver interface {
 	IsPublic() bool
 	Organization(ctx context.Context) (OrganizationResolver, error)
 	Remote(context.Context) (RemoteResolver, error)
+	RequireHealthyStatus() bool
 
 	Writeable(context.Context) bool
 }

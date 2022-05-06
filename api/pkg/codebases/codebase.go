@@ -32,8 +32,9 @@ type Codebase struct {
 	ArchivedAt      *time.Time      `db:"archived_at" json:"archived_at"`
 	OrganizationID  *string         `db:"organization_id"`
 
-	IsReady  bool `json:"is_ready" db:"is_ready"`
-	IsPublic bool `json:"is_public" db:"is_public"`
+	IsReady              bool `json:"is_ready" db:"is_ready"`
+	IsPublic             bool `json:"is_public" db:"is_public"`
+	RequireHealthyStatus bool `json:"-" db:"require_healthy_status"`
 
 	// Use through ChangeService.HeadChange()
 	CalculatedHeadChangeID bool    `json:"-" db:"calculated_head_change_id"`
