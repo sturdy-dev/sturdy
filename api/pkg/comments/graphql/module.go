@@ -18,7 +18,7 @@ import (
 	notification_sender "getsturdy.com/api/pkg/notification/sender"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_users "getsturdy.com/api/pkg/users/service/module"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
 	"getsturdy.com/api/vcs/executor"

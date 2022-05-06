@@ -19,7 +19,7 @@ import (
 	db_suggestions "getsturdy.com/api/pkg/suggestions/db"
 	"getsturdy.com/api/pkg/unidiff"
 	"getsturdy.com/api/pkg/users"
-	vcs_view "getsturdy.com/api/pkg/view/vcs"
+	vcs_view "getsturdy.com/api/pkg/views/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"

@@ -36,7 +36,7 @@ import (
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
 	service_users "getsturdy.com/api/pkg/users/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 )

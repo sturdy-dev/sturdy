@@ -14,7 +14,7 @@ import (
 	codebasevcs "getsturdy.com/api/pkg/codebases/vcs"
 	"getsturdy.com/api/pkg/snapshots"
 	"getsturdy.com/api/pkg/unidiff"
-	"getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views/vcs"
 	workspacevcs "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"
 

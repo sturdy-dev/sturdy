@@ -6,7 +6,7 @@ import (
 
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view/service"
+	"getsturdy.com/api/pkg/views/service"
 )
 
 func (r *ViewRootResolver) OpenWorkspaceOnView(ctx context.Context, args resolvers.OpenViewArgs) (resolvers.ViewResolver, error) {

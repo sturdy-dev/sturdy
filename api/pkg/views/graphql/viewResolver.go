@@ -21,11 +21,11 @@ import (
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	vcs2 "getsturdy.com/api/pkg/snapshots/vcs"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
-	"getsturdy.com/api/pkg/view/ignore"
-	service_view "getsturdy.com/api/pkg/view/service"
-	view_vcs "getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
+	"getsturdy.com/api/pkg/views/ignore"
+	service_view "getsturdy.com/api/pkg/views/service"
+	view_vcs "getsturdy.com/api/pkg/views/vcs"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace_watchers "getsturdy.com/api/pkg/workspaces/watchers/service"
@@ -153,7 +153,7 @@ func (r *ViewRootResolver) resolveView(ctx context.Context, id graphql.ID) (reso
 	return &Resolver{v, r}, nil
 }
 
-func (r *ViewRootResolver) resolveViewObj(ctx context.Context, v *view.View) (resolvers.ViewResolver, error) {
+func (r *ViewRootResolver) resolveViewObj(ctx context.Context, v *views.View) (resolvers.ViewResolver, error) {
 	if err := r.authService.CanRead(ctx, v); err != nil {
 		return nil, gqlerrors.Error(err)
 	}
@@ -169,7 +169,7 @@ func (r *ViewRootResolver) UpdatedViews(ctx context.Context) (chan resolvers.Vie
 
 	res := make(chan resolvers.ViewResolver, 100)
 
-	callback := func(ctx context.Context, eventView *view.View) error {
+	callback := func(ctx context.Context, eventView *views.View) error {
 		resolver, err := r.resolveViewObj(ctx, eventView)
 		if errors.Is(err, gqlerrors.ErrNotFound) {
 			return nil
@@ -214,7 +214,7 @@ func (r *ViewRootResolver) UpdatedView(ctx context.Context, args resolvers.Updat
 
 	concurrentUpdatedViewConnections.Inc()
 
-	callback := func(ctx context.Context, eventView *view.View) error {
+	callback := func(ctx context.Context, eventView *views.View) error {
 		if v.ID != eventView.ID {
 			return nil
 		}
@@ -312,7 +312,7 @@ func (r *ViewRootResolver) CreateView(ctx context.Context, args resolvers.Create
 	}
 }
 
-func recreateView(ctx context.Context, repoProvider provider.RepoProvider, vw *view.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {
+func recreateView(ctx context.Context, repoProvider provider.RepoProvider, vw *views.View, ws *workspaces.Workspace, logger *zap.Logger, gitSnapshotter *service_snapshots.Service) error {
 	trunkPath := repoProvider.TrunkPath(vw.CodebaseID)
 	newView := vw.ID + "-recreate-" + uuid.NewString()
 	newViewPath := repoProvider.ViewPath(vw.CodebaseID, newView)
@@ -364,7 +364,7 @@ func recreateView(ctx context.Context, repoProvider provider.RepoProvider, vw *v
 }
 
 type Resolver struct {
-	v    *view.View
+	v    *views.View
 	root *ViewRootResolver
 }
 

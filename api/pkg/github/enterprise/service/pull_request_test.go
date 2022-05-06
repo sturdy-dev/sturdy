@@ -51,8 +51,8 @@ import (
 	service_sync "getsturdy.com/api/pkg/sync/service"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"
 	"getsturdy.com/api/vcs"
@@ -321,7 +321,7 @@ func TestPRHighLevel(t *testing.T) {
 			assert.NoError(t, err)
 			workspaceID := string(wsRes.ID())
 
-			vw := &view.View{
+			vw := &views.View{
 				ID:          viewID,
 				CodebaseID:  codebaseID,
 				UserID:      userID,

@@ -7,7 +7,7 @@ import (
 
 	"getsturdy.com/api/pkg/sync"
 	"getsturdy.com/api/pkg/sync/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	"getsturdy.com/api/vcs"
 	"getsturdy.com/api/vcs/executor"
 

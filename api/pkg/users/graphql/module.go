@@ -10,7 +10,7 @@ import (
 	graphql_notification "getsturdy.com/api/pkg/notification/graphql"
 	db_user "getsturdy.com/api/pkg/users/db"
 	service_user "getsturdy.com/api/pkg/users/service"
-	graphql_view "getsturdy.com/api/pkg/view/graphql"
+	graphql_view "getsturdy.com/api/pkg/views/graphql"
 )
 
 func Module(c *di.Container) {

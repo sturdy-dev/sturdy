@@ -7,7 +7,7 @@ import (
 	"getsturdy.com/api/pkg/auth"
 	"getsturdy.com/api/pkg/changes/vcs"
 	"getsturdy.com/api/pkg/snapshots"
-	"getsturdy.com/api/pkg/view/meta"
+	"getsturdy.com/api/pkg/views/meta"
 	"getsturdy.com/api/vcs/executor"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	"getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views/db"
 )
 
 type IgnoreFileRequest struct {

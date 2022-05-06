@@ -18,7 +18,7 @@ import (
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
 	service_suggestions "getsturdy.com/api/pkg/suggestions/service"
 	service_user "getsturdy.com/api/pkg/users/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	service_workspace "getsturdy.com/api/pkg/workspaces/service"

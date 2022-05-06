@@ -13,8 +13,8 @@ import (
 	"getsturdy.com/api/pkg/snapshots"
 	db_snapshots "getsturdy.com/api/pkg/snapshots/db"
 	service_snapshots "getsturdy.com/api/pkg/snapshots/service"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
@@ -75,7 +75,7 @@ func TestContext(t *testing.T) {
 		CodebaseID: codebaseID,
 		ViewID:     &viewID,
 	}
-	vw := &view.View{
+	vw := &views.View{
 		ID:          viewID,
 		CodebaseID:  codebaseID,
 		WorkspaceID: workspaceID,

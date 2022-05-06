@@ -10,10 +10,10 @@ import (
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/codebases/access"
 	db_codebases "getsturdy.com/api/pkg/codebases/db"
-	"getsturdy.com/api/pkg/view"
-	"getsturdy.com/api/pkg/view/db"
-	service_view "getsturdy.com/api/pkg/view/service"
-	"getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views"
+	"getsturdy.com/api/pkg/views/db"
+	service_view "getsturdy.com/api/pkg/views/service"
+	"getsturdy.com/api/pkg/views/vcs"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs/executor"
 
@@ -59,7 +59,7 @@ func Create(
 		}
 
 		t := time.Now()
-		e := view.View{
+		e := views.View{
 			ID:            uuid.New().String(),
 			UserID:        userID,
 			CodebaseID:    req.CodebaseID,

@@ -5,7 +5,7 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	vcs_codebase "getsturdy.com/api/pkg/codebases/vcs"
-	"getsturdy.com/api/pkg/view/vcs"
+	"getsturdy.com/api/pkg/views/vcs"
 	vcs_workspace "getsturdy.com/api/pkg/workspaces/vcs"
 	"getsturdy.com/api/vcs/provider"
 

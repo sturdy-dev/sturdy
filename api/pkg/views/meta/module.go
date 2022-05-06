@@ -2,7 +2,7 @@ package meta
 
 import (
 	"getsturdy.com/api/pkg/di"
-	"getsturdy.com/api/pkg/events/v2"
+	events "getsturdy.com/api/pkg/events/v2"
 	worker_snapshotter "getsturdy.com/api/pkg/snapshots/worker"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 )

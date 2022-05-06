@@ -8,25 +8,25 @@ import (
 
 	"getsturdy.com/api/pkg/codebases"
 	"getsturdy.com/api/pkg/users"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 )
 
 type inMemoryViewRepo struct {
-	views []view.View
+	views []views.View
 }
 
 func NewInMemoryViewRepo() Repository {
 	return &inMemoryViewRepo{
-		views: make([]view.View, 0),
+		views: make([]views.View, 0),
 	}
 }
 
-func (f *inMemoryViewRepo) Create(entity view.View) error {
+func (f *inMemoryViewRepo) Create(entity views.View) error {
 	f.views = append(f.views, entity)
 	return nil
 }
 
-func (f *inMemoryViewRepo) Get(id string) (*view.View, error) {
+func (f *inMemoryViewRepo) Get(id string) (*views.View, error) {
 	for _, v := range f.views {
 		if v.ID == id {
 			return &v, nil
@@ -35,8 +35,8 @@ func (f *inMemoryViewRepo) Get(id string) (*view.View, error) {
 	return nil, sql.ErrNoRows
 }
 
-func (f *inMemoryViewRepo) ListByCodebase(codebaseID codebases.ID) ([]*view.View, error) {
-	var res []*view.View
+func (f *inMemoryViewRepo) ListByCodebase(codebaseID codebases.ID) ([]*views.View, error) {
+	var res []*views.View
 	for _, v := range f.views {
 		if v.CodebaseID == codebaseID {
 			vv := v
@@ -46,8 +46,8 @@ func (f *inMemoryViewRepo) ListByCodebase(codebaseID codebases.ID) ([]*view.View
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) ListByUser(userID users.ID) ([]*view.View, error) {
-	var res []*view.View
+func (f *inMemoryViewRepo) ListByUser(userID users.ID) ([]*views.View, error) {
+	var res []*views.View
 	for _, v := range f.views {
 		if v.UserID == userID {
 			vv := v
@@ -57,7 +57,7 @@ func (f *inMemoryViewRepo) ListByUser(userID users.ID) ([]*view.View, error) {
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (*view.View, error) {
+func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codebaseID codebases.ID, userID users.ID) (*views.View, error) {
 	views, _ := f.ListByCodebaseAndUser(codebaseID, userID)
 	if len(views) < 1 {
 		return nil, sql.ErrNoRows
@@ -70,8 +70,8 @@ func (f *inMemoryViewRepo) LastUsedByCodebaseAndUser(ctx context.Context, codeba
 	return views[0], nil
 }
 
-func (f *inMemoryViewRepo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) ([]*view.View, error) {
-	var res []*view.View
+func (f *inMemoryViewRepo) ListByCodebaseAndUser(codebaseID codebases.ID, userID users.ID) ([]*views.View, error) {
+	var res []*views.View
 	for _, v := range f.views {
 		if v.CodebaseID == codebaseID && v.UserID == userID {
 			vv := v
@@ -81,8 +81,8 @@ func (f *inMemoryViewRepo) ListByCodebaseAndUser(codebaseID codebases.ID, userID
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*view.View, error) {
-	var res []*view.View
+func (f *inMemoryViewRepo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, workspaceID string) ([]*views.View, error) {
+	var res []*views.View
 	for _, v := range f.views {
 		if v.CodebaseID == codebaseID && v.WorkspaceID == workspaceID {
 			vv := v
@@ -92,7 +92,7 @@ func (f *inMemoryViewRepo) ListByCodebaseAndWorkspace(codebaseID codebases.ID, w
 	return res, nil
 }
 
-func (f *inMemoryViewRepo) Update(e *view.View) error {
+func (f *inMemoryViewRepo) Update(e *views.View) error {
 	for i, v := range f.views {
 		if v.ID == e.ID {
 			f.views[i] = *e

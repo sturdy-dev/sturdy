@@ -18,8 +18,8 @@ import (
 	queue "getsturdy.com/api/pkg/queue/module"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	"getsturdy.com/api/vcs"
@@ -135,7 +135,7 @@ func TestUpdateViewWorkspace(t *testing.T) {
 				CodebaseID: codebaseID,
 				UserID:     userID,
 			}))
-			err = viewRepo.Create(view.View{
+			err = viewRepo.Create(views.View{
 				ID:          viewID,
 				UserID:      userID,
 				CodebaseID:  codebaseID,

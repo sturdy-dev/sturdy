@@ -8,7 +8,7 @@ import (
 	eventsv2 "getsturdy.com/api/pkg/events/v2"
 	gqlerrors "getsturdy.com/api/pkg/graphql/errors"
 	"getsturdy.com/api/pkg/graphql/resolvers"
-	"getsturdy.com/api/pkg/view"
+	"getsturdy.com/api/pkg/views"
 
 	"go.uber.org/zap"
 )
@@ -82,7 +82,7 @@ func (r *WorkspaceRootResolver) UpdatedWorkspaceDiffs(ctx context.Context, args 
 		}
 	})
 
-	onViewUpdated := func(ctx context.Context, view *view.View) error {
+	onViewUpdated := func(ctx context.Context, view *views.View) error {
 		// non matching event
 		if ws.ViewID == nil || view.ID != *ws.ViewID {
 			return nil

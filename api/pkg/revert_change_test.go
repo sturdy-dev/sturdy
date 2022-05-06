@@ -27,10 +27,10 @@ import (
 	workers_snapshots "getsturdy.com/api/pkg/snapshots/worker"
 	"getsturdy.com/api/pkg/users"
 	db_user "getsturdy.com/api/pkg/users/db"
-	"getsturdy.com/api/pkg/view"
-	db_view "getsturdy.com/api/pkg/view/db"
-	routes_v3_view "getsturdy.com/api/pkg/view/routes"
-	service_view "getsturdy.com/api/pkg/view/service"
+	"getsturdy.com/api/pkg/views"
+	db_view "getsturdy.com/api/pkg/views/db"
+	routes_v3_view "getsturdy.com/api/pkg/views/routes"
+	service_view "getsturdy.com/api/pkg/views/service"
 	"getsturdy.com/api/pkg/workspaces"
 	db_workspaces "getsturdy.com/api/pkg/workspaces/db"
 	routes_v3_workspace "getsturdy.com/api/pkg/workspaces/routes"
@@ -122,7 +122,7 @@ func TestRevertChangeFromSnapshot(t *testing.T) {
 	assert.Len(t, workspaceRes.ID, 36)
 
 	// Create a view
-	var viewRes view.View
+	var viewRes views.View
 	request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
 		CodebaseID:    codebaseRes.ID,
 		WorkspaceID:   workspaceRes.ID,
@@ -326,7 +326,7 @@ func TestRevertChangeFromView(t *testing.T) {
 	assert.Len(t, workspaceRes.ID, 36)
 
 	// Create a view
-	var viewRes view.View
+	var viewRes views.View
 	request(t, createUser.ID, createViewRoute, routes_v3_view.CreateRequest{
 		CodebaseID:    codebaseRes.ID,
 		WorkspaceID:   workspaceRes.ID,

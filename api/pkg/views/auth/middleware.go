@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	service_auth "getsturdy.com/api/pkg/auth/service"
-	db_view "getsturdy.com/api/pkg/view/db"
+	db_view "getsturdy.com/api/pkg/views/db"
 
 	"github.com/gin-gonic/gin"
 )
