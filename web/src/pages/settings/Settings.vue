@@ -7,6 +7,7 @@
     <template #default>
       <SettingsTitle :codebase-id="data.codebase.id" :codebase-name="data.codebase.name" />
       <SettingsGitHubIntegration :git-hub-integration="data.codebase.gitHubIntegration" />
+      <SettingsTrunkProtection :codebase="data.codebase" />
       <SettingsDeveloperCodebaseID :codebase-id="data.codebase.id" />
       <SettingsDangerzone :codebase="data.codebase" />
     </template>
@@ -16,6 +17,9 @@
 <script lang="ts">
 import SettingsTitle from '../../components/codebase/settings/SettingsTitle.vue'
 import SettingsGitHubIntegration from '../../components/codebase/settings/SettingsGitHubIntegration.vue'
+import SettingsTrunkProtection, {
+  CODEBASE_SETTINGS_TRUNK_PROTECTION,
+} from '../../components/codebase/settings/SettingsTrunkProtection.vue'
 import SettingsDangerzone, {
   SETTINGS_DANGERZONE,
 } from '../../components/codebase/settings/SettingsDangerzone.vue'
@@ -30,6 +34,7 @@ import type { SettingsQuery, SettingsQueryVariables } from './__generated__/Sett
 export default defineComponent({
   components: {
     SettingsTitle,
+    SettingsTrunkProtection,
     SettingsGitHubIntegration,
     SettingsDangerzone,
     PaddedAppLeftSidebar,
@@ -56,10 +61,12 @@ export default defineComponent({
               lastPushErrorMessage
             }
             ...SettingsDangerzone
+            ...CodebaseSettingsTrunkProtection
           }
         }
 
         ${SETTINGS_DANGERZONE}
+        ${CODEBASE_SETTINGS_TRUNK_PROTECTION}
       `,
       variables: {
         shortID: route.params.codebaseSlug,
