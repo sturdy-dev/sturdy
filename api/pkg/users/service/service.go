@@ -103,8 +103,8 @@ func (s *UserService) Activate(ctx context.Context, user *users.User) error {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	s.analyticsService.Capture(ctx, "created account")
 	s.analyticsService.IdentifyUser(ctx, user)
+	s.analyticsService.CaptureUser(ctx, user.ID, "created account")
 
 	return nil
 }
