@@ -54,7 +54,7 @@ func (r *LandRootResolver) LandWorkspaceChange(ctx context.Context, args resolve
 	_, err = r.landService.LandChange(ctx, ws, diffOpts...)
 	switch {
 	case errors.Is(err, service_land.ErrNotAllowedUnhealthyWorkspace):
-		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err), "message", "This draft has unhealthy statuses and cannot be merged")
+		return nil, gqlerrors.Error(gqlerrors.ErrBadRequest, "message", "This draft has unhealthy statuses and cannot be merged")
 	case err != nil:
 		return nil, gqlerrors.Error(fmt.Errorf("failed to land change: %w", err))
 	}
