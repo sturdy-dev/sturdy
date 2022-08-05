@@ -1,6 +1,10 @@
 <template>
   <div>
     <StickyTop>
+      <div class="text-center bg-yeallow bg-slate-300 text-slate-900 p-4">
+        Sturdy is no longer under active development as the team focuses on
+        <a class="underline text-slate-900" href="https://codeball.ai">something new</a>.
+      </div>
       <NavigationHeader :light="false" />
     </StickyTop>
 
